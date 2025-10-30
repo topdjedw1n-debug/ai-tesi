@@ -16,11 +16,13 @@ from app.schemas.document import (
 )
 from app.services.document_service import DocumentService
 from app.core.exceptions import NotFoundError, ValidationError
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/", response_model=DocumentResponse)
+@limiter.limit("100/hour")
 async def create_document(
     document: DocumentCreate,
     db: AsyncSession = Depends(get_db)
@@ -55,6 +57,7 @@ async def create_document(
 
 
 @router.get("/", response_model=DocumentListResponse)
+@limiter.limit("100/hour")
 async def list_documents(
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
@@ -85,6 +88,7 @@ async def list_documents(
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
+@limiter.limit("100/hour")
 async def get_document(
     document_id: int,
     db: AsyncSession = Depends(get_db)
@@ -112,6 +116,7 @@ async def get_document(
 
 
 @router.put("/{document_id}", response_model=DocumentResponse)
+@limiter.limit("100/hour")
 async def update_document(
     document_id: int,
     document: DocumentUpdate,
@@ -140,6 +145,7 @@ async def update_document(
 
 
 @router.delete("/{document_id}")
+@limiter.limit("100/hour")
 async def delete_document(
     document_id: int,
     db: AsyncSession = Depends(get_db)
@@ -167,6 +173,7 @@ async def delete_document(
 
 
 @router.post("/{document_id}/export", response_model=ExportResponse)
+@limiter.limit("100/hour")
 async def export_document(
     document_id: int,
     export_request: ExportRequest,
@@ -181,6 +188,37 @@ async def export_document(
         result = await document_service.export_document(
             document_id, 
             export_request.format,
+            user_id
+        )
+        return result
+    except NotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(e)
+        )
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to export document"
+        )
+
+
+@router.get("/{document_id}/export/{format}", response_model=ExportResponse)
+@limiter.limit("100/hour")
+async def export_document_get(
+    document_id: int,
+    format: str,
+    db: AsyncSession = Depends(get_db)
+):
+    """Export document via GET route to match frontend: /documents/{id}/export/{format}"""
+    try:
+        # TODO: Get current user from authentication
+        user_id = 1  # Placeholder
+
+        document_service = DocumentService(db)
+        result = await document_service.export_document(
+            document_id,
+            format,
             user_id
         )
         return result

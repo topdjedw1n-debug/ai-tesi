@@ -9,11 +9,16 @@ from fastapi.responses import JSONResponse
 import uvicorn
 import logging
 from contextlib import asynccontextmanager
+import os
 
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1.endpoints import generate, auth, admin, documents
 from app.core.exceptions import APIException
+from app.middleware.rate_limit import setup_rate_limiter
+from app.middleware.csrf import CSRFMiddleware
+from app.core.logging import setup_logging, RequestLoggingMiddleware
+from app.core.monitoring import setup_sentry
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,13 +47,21 @@ app = FastAPI(
     lifespan=lifespan
 )
 
+# Logging
+setup_logging(settings.ENVIRONMENT)
+app.add_middleware(RequestLoggingMiddleware)
+setup_sentry(settings.ENVIRONMENT, settings.SENTRY_DSN)
+
+# Monitoring (Sentry) is initialized via setup_sentry above
+
 # Add middleware
+# CORS: restrict to explicit methods and environment-driven origins
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
 )
 
 app.add_middleware(
@@ -56,13 +69,27 @@ app.add_middleware(
     allowed_hosts=settings.ALLOWED_HOSTS
 )
 
+# Rate limiting
+setup_rate_limiter(app)
 
-# Global exception handler
+# CSRF protection for state-changing requests
+app.add_middleware(CSRFMiddleware)
+
+# Global exception handlers
 @app.exception_handler(APIException)
 async def api_exception_handler(request: Request, exc: APIException):
+    logging.getLogger(__name__).error(f"APIException: {exc.error_code} - {exc.detail}")
     return JSONResponse(
         status_code=exc.status_code,
         content={"detail": exc.detail, "error_code": exc.error_code}
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    logging.getLogger(__name__).exception("Unhandled exception")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"}
     )
 
 
