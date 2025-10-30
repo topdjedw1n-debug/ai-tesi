@@ -1,0 +1,33 @@
+{
+  "rules": [
+    "You are working on an AI Thesis Platform - a web application that generates academic papers using AI.",
+    "The project uses a monorepo structure with Next.js frontend and FastAPI backend.",
+    "Always follow TypeScript and Python best practices.",
+    "Use Tailwind CSS for styling in the frontend.",
+    "Follow FastAPI and Pydantic patterns in the backend.",
+    "Ensure all API endpoints are properly documented and typed.",
+    "Use async/await patterns consistently in the backend.",
+    "Implement proper error handling and validation.",
+    "Follow the existing code structure and naming conventions.",
+    "Always add proper TypeScript types and interfaces.",
+    "Use React hooks appropriately and follow Next.js 14 App Router patterns.",
+    "Implement proper loading states and error boundaries.",
+    "Use the existing component library and UI patterns.",
+    "Ensure responsive design for all components.",
+    "Follow security best practices for authentication and API calls."
+  ],
+  "include": [
+    "apps/web/**/*",
+    "apps/api/**/*",
+    "infra/**/*"
+  ],
+  "exclude": [
+    "node_modules/**/*",
+    "**/node_modules/**/*",
+    "**/__pycache__/**/*",
+    "**/.next/**/*",
+    "**/dist/**/*",
+    "**/build/**/*",
+    "**/.git/**/*"
+  ]
+}

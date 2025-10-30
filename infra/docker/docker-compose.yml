@@ -1,0 +1,121 @@
+version: '3.8'
+
+services:
+  # Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-thesis-postgres
+    environment:
+      POSTGRES_DB: ai_thesis_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-thesis-network
+
+  # FastAPI Backend
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    container_name: ai-thesis-api
+    environment:
+      - DATABASE_URL=postgresql+asyncpg://postgres:password@postgres:5432/ai_thesis_platform
+      - REDIS_URL=redis://redis:6379
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_BUCKET=ai-thesis-documents
+      - MINIO_SECURE=false
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - ./uploads:/app/uploads
+    networks:
+      - ai-thesis-network
+
+  # Next.js Frontend
+  web:
+    build:
+      context: ../../apps/web
+      dockerfile: Dockerfile
+    container_name: ai-thesis-web
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+    networks:
+      - ai-thesis-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: ai-thesis-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-thesis-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Minio client for bucket creation
+  minio-setup:
+    image: minio/mc:latest
+    container_name: ai-thesis-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      /usr/bin/mc mb myminio/ai-thesis-documents --ignore-existing;
+      /usr/bin/mc policy set public myminio/ai-thesis-documents;
+      exit 0;
+      "
+
+volumes:
+  postgres_data:
+  minio_data:
+  redis_data:
+
+networks:
+  default:
+    name: ai-thesis-network
