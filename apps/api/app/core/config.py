@@ -83,7 +83,7 @@ class Settings(BaseSettings):
     @field_validator("SECRET_KEY")
     @classmethod
     def validate_secret_key(cls, v: Optional[str], info) -> Optional[str]:  # type: ignore[override]
-        """Validate SECRET_KEY - CRITICAL: must be set in production"""
+        """Validate SECRET_KEY - CRITICAL: must be set via ENV (no auto-generation)"""
         env = info.data.get("ENVIRONMENT", "development") if hasattr(info, "data") else "development"
         is_prod = env.lower() in {"production", "prod"}
         
@@ -96,9 +96,18 @@ class Settings(BaseSettings):
             if v in ["your-secret-key-change-in-production", "secret", "password", "changeme"]:
                 raise ValueError("SECRET_KEY must not use default/insecure values in production")
         else:
-            # Development: auto-generate if missing or insecure
-            if not v or v == "your-secret-key-change-in-production" or len(v) < 32:
-                return secrets.token_urlsafe(48)
+            # Development: require explicit .env (no auto-generation for session stability)
+            if not v or v.strip() == "":
+                raise ValueError(
+                    "SECRET_KEY must be set via environment variable or .env file. "
+                    "Auto-generation is disabled to maintain session/token stability. "
+                    "Set JWT_SECRET or SECRET_KEY in .env"
+                )
+            if v == "your-secret-key-change-in-production" or (v and len(v) < 32):
+                raise ValueError(
+                    "SECRET_KEY must be at least 32 characters and not use default values. "
+                    "Set JWT_SECRET or SECRET_KEY in .env with a stable, secure value"
+                )
         
         return v
 
