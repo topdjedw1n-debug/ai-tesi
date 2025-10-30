@@ -256,3 +256,5 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
     </div>
   )
 }
+
+

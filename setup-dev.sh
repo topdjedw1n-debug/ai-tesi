@@ -172,3 +172,5 @@ echo "🐳 Or use Docker for everything:"
 echo "   cd infra/docker && docker-compose up"
 echo ""
 print_success "Happy coding! 🚀"
+
+

@@ -55,3 +55,4 @@ class RateLimitError(APIException):
     
     def __init__(self, detail: str = "Rate limit exceeded"):
         super().__init__(detail, status.HTTP_429_TOO_MANY_REQUESTS, "RATE_LIMIT_ERROR")
+

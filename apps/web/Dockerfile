@@ -7,7 +7,8 @@ WORKDIR /app
 
 # Install dependencies based on the preferred package manager
 COPY package.json package-lock.json* ./
-RUN npm ci
+# Use npm ci when lockfile exists, fallback to npm install otherwise
+RUN if [ -f package-lock.json ]; then npm ci; else npm install; fi
 
 # Rebuild the source code only when needed
 FROM base AS builder
@@ -27,15 +28,19 @@ ENV NODE_ENV=production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-COPY --from=builder /app/public ./public
-
 # Set the correct permission for prerender cache
-RUN mkdir .next
-RUN chown nextjs:nodejs .next
+RUN mkdir -p .next public
+RUN chown -R nextjs:nodejs .next public
 
 # Automatically leverage output traces to reduce image size
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Copy public directory if it exists (optional)
+RUN --mount=from=builder,source=/app,target=/builder-app \
+    if [ -d /builder-app/public ] && [ "$(ls -A /builder-app/public 2>/dev/null)" ]; then \
+        cp -r /builder-app/public/* ./public/ && chown -R nextjs:nodejs ./public; \
+    fi
 
 USER nextjs
 
@@ -49,3 +54,4 @@ HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:3000/api/health || exit 1
 
 CMD ["node", "server.js"]
+

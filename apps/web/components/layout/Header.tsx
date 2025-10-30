@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/components/providers/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { UserMenu } from '@/components/ui/UserMenu'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/components/providers/AuthProvider'
 import { Button } from './Button'
 import { 
   UserCircleIcon, 
@@ -64,12 +64,21 @@ export function UserMenu({ user }: UserMenuProps) {
             </Link>
             
             <Link
-              href="/settings"
+              href="/dashboard/profile"
+              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+              onClick={() => setIsOpen(false)}
+            >
+              <UserCircleIcon className="mr-3 h-4 w-4" />
+              Профіль
+            </Link>
+            
+            <Link
+              href="/dashboard/settings"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               onClick={() => setIsOpen(false)}
             >
               <Cog6ToothIcon className="mr-3 h-4 w-4" />
-              Settings
+              Налаштування
             </Link>
             
             <button

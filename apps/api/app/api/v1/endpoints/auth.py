@@ -13,12 +13,15 @@ from app.schemas.auth import (
 )
 from app.services.auth_service import AuthService
 from app.core.exceptions import AuthenticationError, ValidationError
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/magic-link", response_model=MagicLinkResponse)
+@limiter.limit("5/minute")
 async def request_magic_link(
+    http_request: Request,
     request: MagicLinkRequest,
     db: AsyncSession = Depends(get_db)
 ):
@@ -40,7 +43,9 @@ async def request_magic_link(
 
 
 @router.post("/verify-magic-link", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def verify_magic_link(
+    request: Request,
     token: str,
     db: AsyncSession = Depends(get_db)
 ):
@@ -62,7 +67,9 @@ async def verify_magic_link(
 
 
 @router.post("/refresh", response_model=TokenResponse)
+@limiter.limit("5/minute")
 async def refresh_token(
+    request: Request,
     refresh_token: str,
     db: AsyncSession = Depends(get_db)
 ):
@@ -84,6 +91,7 @@ async def refresh_token(
 
 
 @router.post("/logout")
+@limiter.limit("5/minute")
 async def logout(
     request: Request,
     db: AsyncSession = Depends(get_db)

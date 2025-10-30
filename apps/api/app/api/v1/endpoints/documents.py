@@ -2,10 +2,12 @@
 Document management endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
 from app.core.database import get_db
+from app.core.dependencies import get_current_user
+from app.models.auth import User
 from app.schemas.document import (
     DocumentCreate,
     DocumentUpdate,
@@ -24,17 +26,16 @@ router = APIRouter()
 @router.post("/", response_model=DocumentResponse)
 @limiter.limit("100/hour")
 async def create_document(
+    request: Request,
     document: DocumentCreate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Create a new document"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
         result = await document_service.create_document(
-            user_id=user_id,
+            user_id=current_user.id,
             title=document.title,
             topic=document.topic,
             language=document.language,
@@ -59,18 +60,17 @@ async def create_document(
 @router.get("/", response_model=DocumentListResponse)
 @limiter.limit("100/hour")
 async def list_documents(
+    request: Request,
     limit: int = Query(20, ge=1, le=100),
     offset: int = Query(0, ge=0),
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """List user's documents with pagination"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
         result = await document_service.get_user_documents(
-            user_id=user_id,
+            user_id=current_user.id,
             limit=limit,
             offset=offset
         )
@@ -90,16 +90,15 @@ async def list_documents(
 @router.get("/{document_id}", response_model=DocumentResponse)
 @limiter.limit("100/hour")
 async def get_document(
+    request: Request,
     document_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get a specific document by ID"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
-        result = await document_service.get_document(document_id, user_id)
+        result = await document_service.get_document(document_id, current_user.id)
         if not result:
             raise NotFoundError("Document not found")
         return result
@@ -118,17 +117,16 @@ async def get_document(
 @router.put("/{document_id}", response_model=DocumentResponse)
 @limiter.limit("100/hour")
 async def update_document(
+    request: Request,
     document_id: int,
     document: DocumentUpdate,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Update a document"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
-        result = await document_service.update_document(document_id, document, user_id)
+        result = await document_service.update_document(document_id, document, current_user.id)
         if not result:
             raise NotFoundError("Document not found")
         return result
@@ -147,16 +145,15 @@ async def update_document(
 @router.delete("/{document_id}")
 @limiter.limit("100/hour")
 async def delete_document(
+    request: Request,
     document_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Delete a document (soft delete)"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
-        success = await document_service.delete_document(document_id, user_id)
+        success = await document_service.delete_document(document_id, current_user.id)
         if not success:
             raise NotFoundError("Document not found")
         return {"message": "Document deleted successfully"}
@@ -175,20 +172,19 @@ async def delete_document(
 @router.post("/{document_id}/export", response_model=ExportResponse)
 @limiter.limit("100/hour")
 async def export_document(
+    request: Request,
     document_id: int,
     export_request: ExportRequest,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Export document to DOCX or PDF"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         document_service = DocumentService(db)
         result = await document_service.export_document(
             document_id, 
             export_request.format,
-            user_id
+            current_user.id
         )
         return result
     except NotFoundError as e:
@@ -206,20 +202,19 @@ async def export_document(
 @router.get("/{document_id}/export/{format}", response_model=ExportResponse)
 @limiter.limit("100/hour")
 async def export_document_get(
+    request: Request,
     document_id: int,
     format: str,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Export document via GET route to match frontend: /documents/{id}/export/{format}"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-
         document_service = DocumentService(db)
         result = await document_service.export_document(
             document_id,
             format,
-            user_id
+            current_user.id
         )
         return result
     except NotFoundError as e:

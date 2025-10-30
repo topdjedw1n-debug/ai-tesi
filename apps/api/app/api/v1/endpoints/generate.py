@@ -2,9 +2,11 @@
 AI generation endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_db
+from app.core.dependencies import get_current_user
+from app.models.auth import User
 from app.schemas.document import (
     OutlineRequest,
     OutlineResponse,
@@ -13,24 +15,25 @@ from app.schemas.document import (
 )
 from app.services.ai_service import AIService
 from app.core.exceptions import NotFoundError, AIProviderError
+from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/outline", response_model=OutlineResponse)
+@limiter.limit("10/hour")
 async def generate_outline(
+    http_request: Request,
     request: OutlineRequest,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Generate document outline using AI"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         ai_service = AIService(db)
         result = await ai_service.generate_outline(
             document_id=request.document_id,
-            user_id=user_id,
+            user_id=current_user.id,
             additional_requirements=request.additional_requirements
         )
         return result
@@ -52,21 +55,21 @@ async def generate_outline(
 
 
 @router.post("/section", response_model=SectionResponse)
+@limiter.limit("10/hour")
 async def generate_section(
+    http_request: Request,
     request: SectionRequest,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Generate a specific section using AI"""
     try:
-        # TODO: Get current user from authentication
-        user_id = 1  # Placeholder
-        
         ai_service = AIService(db)
         result = await ai_service.generate_section(
             document_id=request.document_id,
             section_title=request.section_title,
             section_index=request.section_index,
-            user_id=user_id,
+            user_id=current_user.id,
             additional_requirements=request.additional_requirements
         )
         return result
@@ -106,13 +109,23 @@ async def list_available_models():
 @router.get("/usage/{user_id}")
 async def get_user_usage(
     user_id: int,
+    current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
     """Get AI usage statistics for a user"""
     try:
+        # Enforce authorization: users can only view their own usage
+        if current_user.id != user_id and not current_user.is_admin:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Insufficient permissions to view this user's usage"
+            )
+        
         ai_service = AIService(db)
         result = await ai_service.get_user_usage(user_id)
         return result
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,

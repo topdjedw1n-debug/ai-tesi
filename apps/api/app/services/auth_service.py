@@ -207,6 +207,8 @@ class AuthService:
                 algorithms=["HS256"]
             )
             user_id = payload.get("sub")
+            if payload.get("type") != "access":
+                raise AuthenticationError("Invalid token type")
             
             if not user_id:
                 raise AuthenticationError("Invalid token")
@@ -239,6 +241,8 @@ class AuthService:
                 algorithms=["HS256"]
             )
             user_id = payload.get("sub")
+            if payload.get("type") != "access":
+                raise AuthenticationError("Invalid token type")
             
             if not user_id:
                 raise AuthenticationError("Invalid token")

@@ -93,6 +93,18 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
     )
 
 
+# Root endpoint
+@app.get("/")
+async def root():
+    """Root endpoint"""
+    return {
+        "message": "AI Thesis Platform API",
+        "version": "1.0.0",
+        "docs_url": "/docs",
+        "health_url": "/health",
+        "api_prefix": "/api/v1"
+    }
+
 # Health check endpoint
 @app.get("/health")
 async def health_check():

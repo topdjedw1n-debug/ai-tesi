@@ -2,7 +2,7 @@
 Authentication related models
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, Index
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -42,6 +42,10 @@ class MagicLinkToken(Base):
     """Magic link tokens for passwordless authentication"""
     
     __tablename__ = "magic_link_tokens"
+    __table_args__ = (
+        Index("ix_magic_link_tokens_email", "email"),
+        Index("ix_magic_link_tokens_expires_at", "expires_at"),
+    )
     
     id = Column(Integer, primary_key=True, index=True)
     token = Column(String(255), unique=True, index=True, nullable=False)
@@ -64,6 +68,10 @@ class UserSession(Base):
     """User session tracking"""
     
     __tablename__ = "user_sessions"
+    __table_args__ = (
+        Index("ix_user_sessions_user_id", "user_id"),
+        Index("ix_user_sessions_expires_at", "expires_at"),
+    )
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)

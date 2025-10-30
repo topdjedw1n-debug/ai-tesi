@@ -2,10 +2,11 @@
 Document schemas for API requests and responses
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from datetime import datetime
 from enum import Enum
+import re
 
 
 class DocumentStatus(str, Enum):
@@ -22,6 +23,23 @@ class DocumentBase(BaseModel):
     topic: str = Field(..., min_length=10)
     language: str = Field(default="en", max_length=10)
     target_pages: int = Field(default=50, ge=1, le=1000)
+
+    @staticmethod
+    def _sanitize(text: str) -> str:
+        # Remove HTML tags and excessive whitespace
+        text = re.sub(r"<[^>]*>", "", text)
+        text = re.sub(r"[\r\n\t]", " ", text)
+        return re.sub(r"\s+", " ", text).strip()
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, v: str) -> str:
+        return cls._sanitize(v)
+
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: str) -> str:
+        return cls._sanitize(v)
 
 
 class DocumentCreate(DocumentBase):
@@ -68,6 +86,15 @@ class OutlineRequest(BaseModel):
     document_id: int
     additional_requirements: Optional[str] = None
 
+    @field_validator("additional_requirements")
+    @classmethod
+    def sanitize_requirements(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = re.sub(r"<[^>]*>", "", v)
+        v = re.sub(r"[\r\n\t]", " ", v)
+        return re.sub(r"\s+", " ", v).strip()
+
 
 class OutlineResponse(BaseModel):
     """Schema for outline generation response"""
@@ -82,6 +109,22 @@ class SectionRequest(BaseModel):
     section_title: str
     section_index: int
     additional_requirements: Optional[str] = None
+
+    @field_validator("section_title")
+    @classmethod
+    def validate_section_title(cls, v: str) -> str:
+        v = re.sub(r"<[^>]*>", "", v)
+        v = re.sub(r"[\r\n\t]", " ", v)
+        return re.sub(r"\s+", " ", v).strip()
+
+    @field_validator("additional_requirements")
+    @classmethod
+    def sanitize_section_requirements(cls, v: Optional[str]) -> Optional[str]:
+        if v is None:
+            return v
+        v = re.sub(r"<[^>]*>", "", v)
+        v = re.sub(r"[\r\n\t]", " ", v)
+        return re.sub(r"\s+", " ", v).strip()
 
 
 class SectionResponse(BaseModel):
@@ -108,7 +151,7 @@ class DocumentVersionResponse(BaseModel):
 class ExportRequest(BaseModel):
     """Schema for document export request"""
     document_id: int
-    format: str = Field(..., regex="^(docx|pdf)$")
+    format: str = Field(..., pattern="^(docx|pdf)$")
     include_metadata: bool = True
     include_citations: bool = True
 

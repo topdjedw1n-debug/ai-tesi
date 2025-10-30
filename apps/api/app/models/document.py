@@ -2,7 +2,7 @@
 Document related models
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, JSON, Float
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, JSON, Float, Index
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.core.database import Base
@@ -12,6 +12,10 @@ class Document(Base):
     """Document model"""
     
     __tablename__ = "documents"
+    __table_args__ = (
+        Index("ix_documents_user_id", "user_id"),
+        Index("ix_documents_created_at", "created_at"),
+    )
     
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
@@ -59,6 +63,9 @@ class DocumentSection(Base):
     """Document section model"""
     
     __tablename__ = "document_sections"
+    __table_args__ = (
+        Index("ix_document_sections_document_id", "document_id"),
+    )
     
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
@@ -112,3 +119,35 @@ class DocumentOutline(Base):
     
     def __repr__(self):
         return f"<DocumentOutline(id={self.id}, document_id={self.document_id})>"
+
+
+class AIGenerationJob(Base):
+    """AI generation job model for tracking AI operations"""
+    
+    __tablename__ = "ai_generation_jobs"
+    __table_args__ = (
+        Index("ix_ai_generation_jobs_user_id", "user_id"),
+        Index("ix_ai_generation_jobs_started_at", "started_at"),
+    )
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    
+    # Job metadata
+    job_type = Column(String(50), nullable=False)  # outline, section, etc.
+    ai_provider = Column(String(50))
+    ai_model = Column(String(100))
+    
+    # Usage tracking
+    total_tokens = Column(Integer, default=0)
+    cost_cents = Column(Integer, default=0)  # Cost in cents
+    success = Column(Boolean, default=True)
+    error_message = Column(Text, nullable=True)
+    
+    # Timestamps
+    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    completed_at = Column(DateTime(timezone=True), nullable=True)
+    
+    def __repr__(self):
+        return f"<AIGenerationJob(id={self.id}, user_id={self.user_id}, job_type={self.job_type})>"

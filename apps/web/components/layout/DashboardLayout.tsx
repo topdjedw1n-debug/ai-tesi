@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/components/providers/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { UserMenu } from '@/components/ui/UserMenu'
 import {
@@ -13,11 +13,13 @@ import {
   Bars3Icon,
   XMarkIcon,
   PlusIcon,
+  UserCircleIcon,
 } from '@heroicons/react/24/outline'
 
 const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Documents', href: '/dashboard/documents', icon: DocumentTextIcon },
+  { name: 'Профіль', href: '/dashboard/profile', icon: UserCircleIcon },
   { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
 ]
 
@@ -79,7 +81,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </nav>
             </div>
             <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-              <UserMenu user={user!} />
+              {user ? <UserMenu user={user} /> : null}
             </div>
           </div>
         </div>
@@ -121,7 +123,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               </nav>
             </div>
             <div className="flex-shrink-0 flex border-t border-gray-200 p-4">
-              <UserMenu user={user!} />
+              {user ? <UserMenu user={user} /> : null}
             </div>
           </div>
         </div>

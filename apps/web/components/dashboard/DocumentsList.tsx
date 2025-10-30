@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { formatDate } from '@/lib/utils'
+import { formatDate, sanitizeText } from '@/lib/utils'
 import {
   DocumentTextIcon,
   EyeIcon,
@@ -137,10 +137,10 @@ export function DocumentsList() {
                 <div className="flex items-start justify-between">
                   <div className="flex-1 min-w-0">
                     <h4 className="text-sm font-medium text-gray-900 truncate">
-                      {document.title}
+                      {sanitizeText(document.title)}
                     </h4>
                     <p className="mt-1 text-sm text-gray-500 line-clamp-2">
-                      {document.topic}
+                      {sanitizeText(document.topic)}
                     </p>
                     <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                       <span>Created {formatDate(document.created_at)}</span>

@@ -79,31 +79,37 @@ async def init_db():
             logger.info("Database tables created successfully")
 
             # Ensure critical indexes exist (idempotent)
+            # Documents indexes
             await conn.execute(
-                # Documents
-                sqlalchemy.text("""
-                CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);
-                CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);
-                """)
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);")
             )
             await conn.execute(
-                sqlalchemy.text("""
-                CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);
-                """)
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);")
             )
             await conn.execute(
-                sqlalchemy.text("""
-                CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);
-                """)
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);")
             )
             await conn.execute(
-                sqlalchemy.text("""
-                CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);
-                CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);
-                CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);
-                """)
+                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);")
+            )
+            await conn.execute(
+                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);")
+            )
+            await conn.execute(
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);")
+            )
+            await conn.execute(
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);")
+            )
+            # AI Generation Jobs indexes
+            await conn.execute(
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_user_id ON ai_generation_jobs (user_id);")
+            )
+            await conn.execute(
+                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_started_at ON ai_generation_jobs (started_at);")
             )
             logger.info("Database indexes ensured")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise
+

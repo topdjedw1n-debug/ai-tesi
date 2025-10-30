@@ -43,6 +43,7 @@ slowapi==0.1.9
 
 # Logging
 structlog==23.2.0
+loguru==0.7.2
 
 # Monitoring
 sentry-sdk[fastapi]==1.38.0
