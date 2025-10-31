@@ -2,9 +2,9 @@
 Authentication schemas for API requests and responses
 """
 
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+
+from pydantic import BaseModel, EmailStr
 
 
 class MagicLinkRequest(BaseModel):
@@ -17,7 +17,7 @@ class MagicLinkResponse(BaseModel):
     message: str
     email: str
     expires_in: int
-    magic_link: Optional[str] = None  # Only for development
+    magic_link: str | None = None  # Only for development
 
 
 class MagicLinkVerify(BaseModel):
@@ -28,7 +28,7 @@ class MagicLinkVerify(BaseModel):
 class TokenResponse(BaseModel):
     """Schema for authentication token response"""
     access_token: str
-    refresh_token: Optional[str] = None
+    refresh_token: str | None = None
     token_type: str = "bearer"
     expires_in: int
     user: dict
@@ -38,8 +38,8 @@ class LoginResponse(BaseModel):
     """Schema for login response"""
     success: bool
     message: str
-    user: Optional[dict] = None
-    token: Optional[str] = None
+    user: dict | None = None
+    token: str | None = None
 
 
 class RefreshTokenRequest(BaseModel):
@@ -56,7 +56,7 @@ class UserResponse(BaseModel):
     """Schema for user information response"""
     id: int
     email: str
-    full_name: Optional[str]
+    full_name: str | None
     is_verified: bool
     is_admin: bool
     preferred_language: str
@@ -64,7 +64,7 @@ class UserResponse(BaseModel):
     total_tokens_used: int
     total_documents_created: int
     created_at: str
-    last_login: Optional[str]
+    last_login: str | None
 
 
 class SessionInfo(BaseModel):
@@ -72,6 +72,6 @@ class SessionInfo(BaseModel):
     session_id: str
     created_at: datetime
     last_activity: datetime
-    ip_address: Optional[str]
-    user_agent: Optional[str]
+    ip_address: str | None
+    user_agent: str | None
     is_active: bool

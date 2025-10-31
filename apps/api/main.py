@@ -2,27 +2,30 @@
 AI Thesis Platform - FastAPI Application
 """
 
+import logging
+from contextlib import asynccontextmanager
+from datetime import datetime
+
+import uvicorn
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
-import uvicorn
-import logging
-from contextlib import asynccontextmanager
-import os
 
+from app.api.v1.endpoints import admin, auth, documents, generate
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import generate, auth, admin, documents
 from app.core.exceptions import APIException
-from app.middleware.rate_limit import setup_rate_limiter
+from app.core.logging import RequestLoggingMiddleware, setup_logging
+from app.core.monitoring import setup_prometheus, setup_sentry
 from app.middleware.csrf import CSRFMiddleware
-from app.core.logging import setup_logging, RequestLoggingMiddleware
-from app.core.monitoring import setup_sentry
+from app.middleware.rate_limit import close_redis, init_redis, setup_rate_limiter
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+
+# Import loguru logger for structured logging
+from loguru import logger
 
 
 @asynccontextmanager
@@ -32,9 +35,11 @@ async def lifespan(app: FastAPI):
     logger.info("Starting AI Thesis Platform API...")
     await init_db()
     logger.info("Database initialized")
+    await init_redis()
     yield
     # Shutdown
     logger.info("Shutting down AI Thesis Platform API...")
+    await close_redis()
 
 
 # Create FastAPI application
@@ -52,7 +57,8 @@ setup_logging(settings.ENVIRONMENT)
 app.add_middleware(RequestLoggingMiddleware)
 setup_sentry(settings.ENVIRONMENT, settings.SENTRY_DSN)
 
-# Monitoring (Sentry) is initialized via setup_sentry above
+# Monitoring: Prometheus metrics
+setup_prometheus(app, settings.ENVIRONMENT)
 
 # Add middleware
 # CORS: restrict to explicit methods and environment-driven origins
@@ -78,18 +84,38 @@ app.add_middleware(CSRFMiddleware)
 # Global exception handlers
 @app.exception_handler(APIException)
 async def api_exception_handler(request: Request, exc: APIException):
-    logging.getLogger(__name__).error(f"APIException: {exc.error_code} - {exc.detail}")
+    """Standardized API exception handler with structured error response."""
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    logger.error(
+        f"APIException: {exc.error_code} - {exc.detail}",
+        correlation_id=correlation_id
+    )
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.detail, "error_code": exc.error_code}
+        content={
+            "error_code": exc.error_code or "UNKNOWN_ERROR",
+            "detail": exc.detail,
+            "status_code": exc.status_code,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
     )
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
-    logging.getLogger(__name__).exception("Unhandled exception")
+    """Standardized unhandled exception handler with structured error response."""
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    logger.exception(
+        f"Unhandled exception: {type(exc).__name__} - {str(exc)}",
+        correlation_id=correlation_id
+    )
     return JSONResponse(
         status_code=500,
-        content={"detail": "Internal server error"}
+        content={
+            "error_code": "INTERNAL_SERVER_ERROR",
+            "detail": "Internal server error",
+            "status_code": 500,
+            "timestamp": datetime.utcnow().isoformat(),
+        }
     )
 
 

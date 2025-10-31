@@ -1,13 +1,17 @@
 """
 Structured logging with Loguru and request correlation IDs.
+Security audit logging with JSON-structured events.
 """
 
-from typing import Optional
+import json
 import sys
 import uuid
+from datetime import datetime
+from typing import Any
+
+from fastapi import Request
 from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
-from fastapi import Request
 
 
 def setup_logging(environment: str = "development") -> None:
@@ -27,6 +31,59 @@ def setup_logging(environment: str = "development") -> None:
         diagnose=False,
         format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {extra[correlation_id]} | {message}",
     )
+    # Security audit log sink (JSON-structured, separate file)
+    logger.add(
+        "logs/audit.log",
+        level="INFO",
+        rotation="1 day",
+        retention="90 days",  # Longer retention for audit logs
+        backtrace=False,
+        diagnose=False,
+        format="{message}",
+        serialize=True,  # JSON output
+        filter=lambda record: record["extra"].get("audit_event") is True,
+    )
+
+
+def log_security_audit_event(
+    event_type: str,
+    correlation_id: str | None = None,
+    user_id: int | None = None,
+    ip: str | None = None,
+    endpoint: str | None = None,
+    resource: str | None = None,
+    action: str | None = None,
+    outcome: str = "success",  # success, failure, denied
+    details: dict[str, Any] | None = None,
+) -> None:
+    """
+    Log a structured security audit event to audit.log.
+
+    Args:
+        event_type: Type of security event (e.g., "auth_attempt", "admin_action", "token_refresh")
+        correlation_id: Request correlation ID
+        user_id: User ID if authenticated
+        ip: Client IP address
+        endpoint: API endpoint accessed
+        resource: Resource affected (e.g., "user", "document", "config")
+        action: Action performed (e.g., "create", "read", "update", "delete")
+        outcome: Event outcome (success, failure, denied)
+        details: Additional event details
+    """
+    audit_event = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "event_type": event_type,
+        "correlation_id": correlation_id or "unknown",
+        "user_id": user_id,
+        "ip": ip,
+        "endpoint": endpoint,
+        "resource": resource,
+        "action": action,
+        "outcome": outcome,
+        "details": details or {},
+    }
+
+    logger.bind(audit_event=True).info(json.dumps(audit_event))
 
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):

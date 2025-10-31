@@ -47,8 +47,17 @@ loguru==0.7.2
 
 # Monitoring
 sentry-sdk[fastapi]==1.38.0
+prometheus-fastapi-instrumentator==6.1.0
+
+# Security & Vulnerability Scanning
+safety==3.0.1
 
 # Development
 pytest==7.4.3
 pytest-asyncio==0.21.1
+pytest-cov==4.1.0
 httpx==0.25.2
+black==23.12.1
+isort==5.13.2
+ruff==0.1.9
+pre-commit==3.6.0

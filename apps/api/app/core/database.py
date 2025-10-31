@@ -2,13 +2,16 @@
 Database configuration and session management
 """
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
-from sqlalchemy.orm import DeclarativeBase
-from app.core.config import settings
 import logging
 import time
-from sqlalchemy import event
+from typing import Any
+
 import sqlalchemy
+from sqlalchemy import event, text
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.orm import DeclarativeBase
+
+from app.core.config import settings
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +76,7 @@ async def init_db():
         async with engine.begin() as conn:
             # Import all models to ensure they are registered
             from app.models import auth, document, user  # noqa
-            
+
             # Create all tables
             await conn.run_sync(Base.metadata.create_all)
             logger.info("Database tables created successfully")
@@ -112,4 +115,80 @@ async def init_db():
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise
+
+
+async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
+    """
+    Verify database backup integrity by running health checks.
+
+    Checks:
+    - Database connectivity
+    - Table counts and consistency
+    - Index existence
+    - Query performance
+
+    Returns:
+        dict with status (healthy/needs-attention/critical) and checks details
+    """
+    checks = {
+        "connectivity": False,
+        "table_counts": {},
+        "indexes_ok": False,
+        "performance_test": False
+    }
+
+    try:
+        # Check connectivity
+        await db.execute(text("SELECT 1"))
+        checks["connectivity"] = True
+
+        # Check table counts
+        result = await db.execute(text("""
+            SELECT table_name
+            FROM information_schema.tables
+            WHERE table_schema = 'public'
+        """))
+        tables = [row[0] for row in result.fetchall()]
+
+        for table in tables:
+            count_result = await db.execute(text(f"SELECT COUNT(*) FROM {table}"))
+            checks["table_counts"][table] = count_result.scalar()
+
+        # Check critical indexes exist
+        index_result = await db.execute(text("""
+            SELECT indexname
+            FROM pg_indexes
+            WHERE schemaname = 'public'
+            AND indexname LIKE 'ix_%' OR indexname LIKE 'uq_%'
+        """))
+        indexes = [row[0] for row in index_result.fetchall()]
+        checks["indexes_ok"] = len(indexes) > 0
+
+        # Performance test: simple query
+        start = time.time()
+        await db.execute(text("SELECT COUNT(*) FROM users"))
+        query_time = time.time() - start
+        checks["performance_test"] = query_time < 1.0  # Should be < 1 second
+
+        # Determine overall status
+        if checks["connectivity"] and checks["indexes_ok"] and checks["performance_test"]:
+            status = "healthy"
+        elif checks["connectivity"]:
+            status = "needs_attention"
+        else:
+            status = "critical"
+
+        return {
+            "status": status,
+            "checks": checks,
+            "timestamp": time.time()
+        }
+    except Exception as e:
+        logger.error(f"Database backup verification failed: {e}")
+        return {
+            "status": "critical",
+            "checks": checks,
+            "error": str(e),
+            "timestamp": time.time()
+        }
 

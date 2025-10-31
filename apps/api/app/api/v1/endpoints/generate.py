@@ -2,26 +2,27 @@
 AI generation endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
+from app.core.exceptions import AIProviderError, NotFoundError
+from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
 from app.schemas.document import (
     OutlineRequest,
     OutlineResponse,
     SectionRequest,
-    SectionResponse
+    SectionResponse,
 )
 from app.services.ai_service import AIService
-from app.core.exceptions import NotFoundError, AIProviderError
-from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/outline", response_model=OutlineResponse)
-@limiter.limit("10/hour")
+@rate_limit("10/hour")
 async def generate_outline(
     http_request: Request,
     request: OutlineRequest,
@@ -47,7 +48,7 @@ async def generate_outline(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(e)
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate outline"
@@ -55,7 +56,7 @@ async def generate_outline(
 
 
 @router.post("/section", response_model=SectionResponse)
-@limiter.limit("10/hour")
+@rate_limit("10/hour")
 async def generate_section(
     http_request: Request,
     request: SectionRequest,
@@ -83,7 +84,7 @@ async def generate_section(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(e)
         )
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate section"
@@ -120,13 +121,13 @@ async def get_user_usage(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Insufficient permissions to view this user's usage"
             )
-        
+
         ai_service = AIService(db)
         result = await ai_service.get_user_usage(user_id)
         return result
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get usage statistics"
