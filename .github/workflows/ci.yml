@@ -6,47 +6,42 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install ruff
-      - run: ruff check . --output-format=github
+        with:
+          python-version: "3.11"
+      - run: cd apps/api && pip install ruff && ruff check . --output-format=github
 
   typecheck:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - name: Install backend deps
+        with:
+          python-version: "3.11"
+      - name: Install deps and run mypy
         run: |
+          cd apps/api
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install mypy
-      - run: mypy . --config-file mypy.ini
+          mypy . --config-file mypy.ini
 
   smoke:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: apps/api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - name: Install backend deps
+        with:
+          python-version: "3.11"
+      - name: Install deps and run pytest
         run: |
+          cd apps/api
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           pip install pytest
-      - run: pytest tests -q
+          pytest tests -q
 
   health:
     runs-on: ubuntu-latest
@@ -54,13 +49,18 @@ jobs:
       - uses: actions/checkout@v4
       - run: echo "200 OK" > health-log.txt
       - uses: actions/upload-artifact@v4
-        with: { name: health-log, path: health-log.txt }
+        with:
+          name: health-log
+          path: health-log.txt
 
   node:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v4
-        with: { node-version: "18.17.0" }
+        with:
+          node-version: "18.17.0"
       - run: node --version > node-version.txt
       - uses: actions/upload-artifact@v4
-        with: { name: node-version, path: node-version.txt }
+        with:
+          name: node-version
+          path: node-version.txt
