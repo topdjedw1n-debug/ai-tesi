@@ -20,8 +20,9 @@ logger = logging.getLogger(__name__)
 # SQLite doesn't support pool_size and max_overflow
 def _create_engine():
     """Create database engine with appropriate parameters based on database type"""
-    # Check both settings and environment (for test compatibility)
-    db_url = settings.DATABASE_URL or os.environ.get("DATABASE_URL", "")
+    # Check environment first (for test compatibility), then settings
+    # This ensures tests can override settings with os.environ
+    db_url = os.environ.get("DATABASE_URL") or (settings.DATABASE_URL if hasattr(settings, 'DATABASE_URL') and settings.DATABASE_URL else "")
     if not db_url:
         # Fallback: will be set later
         db_url = "sqlite+aiosqlite:///:memory:"
