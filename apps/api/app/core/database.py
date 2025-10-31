@@ -9,7 +9,12 @@ from typing import Any
 
 import sqlalchemy
 from sqlalchemy import event, text
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import (
+    AsyncEngine,
+    AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
+)
 from sqlalchemy.orm import DeclarativeBase
 
 logger = logging.getLogger(__name__)
@@ -27,42 +32,43 @@ def _create_engine_safe() -> AsyncEngine:
     """
     Create database engine with appropriate parameters based on database type.
     This function is SAFE: it automatically removes unsupported parameters for SQLite.
-    
+
     Uses lazy initialization - engine is created only on first access.
     """
     global _engine, _events_registered
-    
+
     # Return cached engine if already created
     if _engine is not None:
         return _engine
-    
+
     # CRITICAL: ALWAYS check os.environ FIRST (for test compatibility)
     # This ensures tests can override settings.DATABASE_URL even if it's set
     db_url = os.environ.get("DATABASE_URL")
-    
+
     # Only import settings if DATABASE_URL not in environment
     if not db_url:
         from app.core.config import settings  # noqa: E402
+
         db_url = getattr(settings, 'DATABASE_URL', None) or ""
-    
+
     if not db_url:
         # Fallback: will be set later
         db_url = "sqlite+aiosqlite:///:memory:"
-    
+
     # Check if SQLite (must check before creating engine)
     is_sqlite = "sqlite" in db_url.lower()
-    
+
     # Build engine kwargs based on database type
     # CRITICAL: For SQLite, NEVER add pool parameters at all
     engine_kwargs: dict[str, Any] = {
         "echo": False,
         "future": True,
     }
-    
+
     if is_sqlite:
         # SQLite-specific: NO pool parameters, NO connect_args
         # SQLiteDialect doesn't support pool_size, max_overflow, pool_pre_ping, pool_recycle, connect_args
-        logger.debug(f"Creating SQLite engine: {db_url[:50]}...")
+        logger.debug("Creating SQLite engine: %s...", db_url[:50])
         # Explicitly ensure NO pool params are in kwargs for SQLite
         sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
         engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
@@ -78,18 +84,18 @@ def _create_engine_safe() -> AsyncEngine:
                 "command_timeout": 60,
             },
         })
-        logger.debug(f"Creating PostgreSQL engine with pool configuration")
-    
+        logger.debug("Creating PostgreSQL engine with pool configuration")
+
     # FINAL GUARD: Before create_async_engine(), filter out any pool params for SQLite
     # This is a double-check to ensure absolutely no pool params reach SQLite
     if is_sqlite:
         sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
         engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
-        logger.debug(f"Final guard: Filtered SQLite-unsupported params")
-    
+        logger.debug("Final guard: Filtered SQLite-unsupported params")
+
     # Create engine with safe kwargs
     _engine = create_async_engine(db_url, **engine_kwargs)
-    
+
     # Register event listeners only once
     if not _events_registered:
         @event.listens_for(_engine.sync_engine, "before_cursor_execute")
@@ -101,9 +107,9 @@ def _create_engine_safe() -> AsyncEngine:
             total_ms = (time.time() - getattr(context, "_query_start_time", time.time())) * 1000
             if total_ms >= SLOW_QUERY_THRESHOLD_MS:
                 logger.warning(f"Slow query ({total_ms:.1f} ms): {statement}")
-        
+
         _events_registered = True
-    
+
     return _engine
 
 
@@ -138,7 +144,7 @@ class Base(DeclarativeBase):
 
 async def get_db() -> AsyncSession:
     """Get database session"""
-    async with AsyncSessionLocal() as session:  # type: ignore[name-defined]
+    async with AsyncSessionLocal() as session:  # type: ignore[name-defined]  # noqa: F821
         try:
             yield session
         except Exception:
@@ -151,7 +157,7 @@ async def get_db() -> AsyncSession:
 async def init_db():
     """Initialize database tables"""
     try:
-        async with engine.begin() as conn:  # type: ignore[name-defined]
+        async with engine.begin() as conn:  # type: ignore[name-defined]  # noqa: F821
             # Import all models to ensure they are registered
             from app.models import auth, document, user  # noqa
 
