@@ -2,7 +2,7 @@
 Application configuration
 """
 
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 from pydantic import field_validator, model_validator
@@ -22,17 +22,17 @@ class Settings(BaseSettings):
 
     # Database
     # CRITICAL: No default value - must be provided via ENV in production
-    DATABASE_URL: str | None = None
+    DATABASE_URL: Optional[str] = None
 
     # Security
     # CRITICAL: No default value - must be provided via ENV in production
-    SECRET_KEY: str | None = None
+    SECRET_KEY: Optional[str] = None
 
     # JWT Configuration (ENV-based, no defaults)
-    JWT_SECRET: str | None = None  # Prefer JWT_SECRET over SECRET_KEY if set
+    JWT_SECRET: Optional[str] = None  # Prefer JWT_SECRET over SECRET_KEY if set
     JWT_ALG: str = "HS256"  # Algorithm for JWT signing/verification
-    JWT_ISS: str | None = None  # Issuer claim (optional but recommended)
-    JWT_AUD: str | None = None  # Audience claim (optional but recommended)
+    JWT_ISS: Optional[str] = None  # Issuer claim (optional but recommended)
+    JWT_AUD: Optional[str] = None  # Audience claim (optional but recommended)
     JWT_EXP_MIN: int = 30  # Token expiration in minutes
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
@@ -40,7 +40,7 @@ class Settings(BaseSettings):
 
     # CORS - CRITICAL: Must be explicitly set from ENV (CORS_ALLOWED_ORIGINS)
     # Defaults only for development
-    CORS_ALLOWED_ORIGINS: str | None = None  # Comma-separated list from ENV
+    CORS_ALLOWED_ORIGINS: Optional[str] = None  # Comma-separated list from ENV
     ALLOWED_ORIGINS: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -50,11 +50,11 @@ class Settings(BaseSettings):
     ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0"]
 
     # AI Providers
-    OPENAI_API_KEY: str | None = None
-    ANTHROPIC_API_KEY: str | None = None
+    OPENAI_API_KEY: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
 
     # Monitoring
-    SENTRY_DSN: str | None = None
+    SENTRY_DSN: Optional[str] = None
 
     # Redis
     REDIS_URL: str = "redis://localhost:6379"
@@ -68,12 +68,12 @@ class Settings(BaseSettings):
 
     # Email
     SMTP_TLS: bool = True
-    SMTP_PORT: int | None = None
-    SMTP_HOST: str | None = None
-    SMTP_USER: str | None = None
-    SMTP_PASSWORD: str | None = None
-    EMAILS_FROM_EMAIL: str | None = None
-    EMAILS_FROM_NAME: str | None = None
+    SMTP_PORT: Optional[int] = None
+    SMTP_HOST: Optional[str] = None
+    SMTP_USER: Optional[str] = None
+    SMTP_PASSWORD: Optional[str] = None
+    EMAILS_FROM_EMAIL: Optional[str] = None
+    EMAILS_FROM_NAME: Optional[str] = None
 
     # Rate limiting - ENV configurable thresholds
     RATE_LIMIT_PER_MINUTE: int = 60
@@ -91,7 +91,7 @@ class Settings(BaseSettings):
 
     @field_validator("SECRET_KEY")
     @classmethod
-    def validate_secret_key(cls, v: str | None, info) -> str | None:  # type: ignore[override]
+    def validate_secret_key(cls, v: Optional[str], info) -> Optional[str]:  # type: ignore[override]
         """Validate SECRET_KEY - CRITICAL: must be set via ENV (no auto-generation)"""
         env = info.data.get("ENVIRONMENT", "development") if hasattr(info, "data") else "development"
         is_prod = env.lower() in {"production", "prod"}
@@ -170,7 +170,7 @@ class Settings(BaseSettings):
 
     @field_validator("DATABASE_URL")
     @classmethod
-    def validate_database_url(cls, v: str | None, info):  # type: ignore[override]
+    def validate_database_url(cls, v: Optional[str], info):  # type: ignore[override]
         """Validate DATABASE_URL - CRITICAL: must be set and secure in production"""
         env = info.data.get("ENVIRONMENT", "development") if hasattr(info, "data") else "development"
         is_prod = env.lower() in {"production", "prod"}

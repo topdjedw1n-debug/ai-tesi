@@ -3,6 +3,7 @@ User schemas for API requests and responses
 """
 
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, EmailStr
 
@@ -21,8 +22,8 @@ class UserCreate(UserBase):
 
 class UserUpdate(BaseModel):
     """Schema for updating user information"""
-    preferred_language: str | None = None
-    timezone: str | None = None
+    preferred_language: Optional[str] = None
+    timezone: Optional[str] = None
 
 
 class UserResponse(UserBase):
@@ -31,8 +32,8 @@ class UserResponse(UserBase):
     is_active: bool
     is_verified: bool
     created_at: datetime
-    updated_at: datetime | None
-    last_login: datetime | None
+    updated_at: Optional[datetime]
+    last_login: Optional[datetime]
     total_tokens_used: int
     total_cost: int
 
@@ -43,4 +44,4 @@ class UserResponse(UserBase):
 class UserProfile(UserResponse):
     """Extended user profile with additional information"""
     documents_count: int = 0
-    recent_activity: datetime | None = None
+    recent_activity: Optional[datetime] = None

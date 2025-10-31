@@ -1,9 +1,10 @@
 """
+from typing import Dict, Any, Optional, List
 Admin service for platform monitoring and management
 """
 
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Dict, Optional, List
 
 import structlog
 from sqlalchemy import and_, func, select
@@ -21,7 +22,7 @@ class AdminService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def get_platform_stats(self) -> dict[str, Any]:
+    async def get_platform_stats(self) -> Dict[str, Any]:
         """Get platform statistics"""
         try:
             # Get user statistics
@@ -95,8 +96,8 @@ class AdminService:
         self,
         page: int = 1,
         per_page: int = 10,
-        search: str | None = None
-    ) -> dict[str, Any]:
+        search: Optional[str] = None
+    ) -> Dict[str, Any]:
         """List all users with pagination"""
         try:
             # Build query
@@ -150,10 +151,10 @@ class AdminService:
         self,
         page: int = 1,
         per_page: int = 10,
-        user_id: int | None = None,
-        start_date: datetime | None = None,
-        end_date: datetime | None = None
-    ) -> dict[str, Any]:
+        user_id: Optional[int] = None,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None
+    ) -> Dict[str, Any]:
         """List AI generation jobs with filters"""
         try:
             # Build query
@@ -222,10 +223,10 @@ class AdminService:
 
     async def get_cost_analysis(
         self,
-        start_date: datetime | None = None,
-        end_date: datetime | None = None,
+        start_date: Optional[datetime] = None,
+        end_date: Optional[datetime] = None,
         group_by: str = "day"
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get cost analysis grouped by time period"""
         try:
             # Set default date range if not provided
@@ -275,7 +276,7 @@ class AdminService:
             logger.error("Failed to get cost analysis", error=str(e))
             raise
 
-    async def health_check(self) -> dict[str, Any]:
+    async def health_check(self) -> Dict[str, Any]:
         """Detailed health check for admin"""
         try:
             # Check database connectivity

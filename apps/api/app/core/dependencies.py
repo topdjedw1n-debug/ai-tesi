@@ -4,6 +4,7 @@ FastAPI dependencies for authentication and authorization
 
 import logging
 from datetime import datetime, timedelta
+from typing import Optional
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -23,7 +24,7 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
     db: AsyncSession = Depends(get_db)
 ) -> User:
     """

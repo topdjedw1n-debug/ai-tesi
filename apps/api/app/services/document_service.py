@@ -3,7 +3,7 @@ Document service for managing documents and sections
 """
 
 import logging
-from typing import Any
+from typing import Any, Dict, Optional
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -30,8 +30,8 @@ class DocumentService:
         target_pages: int = 10,
         ai_provider: str = "openai",
         ai_model: str = "gpt-4",
-        additional_requirements: str | None = None
-    ) -> dict[str, Any]:
+        additional_requirements: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Create a new document"""
         try:
             document = Document(
@@ -70,7 +70,7 @@ class DocumentService:
             logger.error(f"Error creating document: {e}")
             raise ValidationError(f"Failed to create document: {str(e)}") from e
 
-    async def get_document(self, document_id: int, user_id: int) -> dict[str, Any]:
+    async def get_document(self, document_id: int, user_id: int) -> Dict[str, Any]:
         """Get document by ID"""
         try:
             result = await self.db.execute(
@@ -129,7 +129,7 @@ class DocumentService:
         user_id: int,
         limit: int = 20,
         offset: int = 0
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Get user's documents with pagination"""
         try:
             # Get total count
@@ -175,7 +175,7 @@ class DocumentService:
         document_id: int,
         user_id: int,
         **updates
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Update document"""
         try:
             # Check if document exists and belongs to user
@@ -213,7 +213,7 @@ class DocumentService:
             logger.error(f"Error updating document: {e}")
             raise ValidationError(f"Failed to update document: {str(e)}") from e
 
-    async def delete_document(self, document_id: int, user_id: int) -> dict[str, Any]:
+    async def delete_document(self, document_id: int, user_id: int) -> Dict[str, Any]:
         """Delete document"""
         try:
             # Check if document exists and belongs to user
@@ -246,7 +246,7 @@ class DocumentService:
         self,
         document_id: int,
         user_id: int
-    ) -> list[dict[str, Any]]:
+    ) -> list[Dict[str, Any]]:
         """Get all sections for a document"""
         try:
             # Verify document ownership
@@ -293,7 +293,7 @@ class DocumentService:
         document_id: int,
         user_id: int,
         content: str
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Update document content"""
         try:
             # Verify document ownership
@@ -324,7 +324,7 @@ class DocumentService:
             logger.error(f"Error updating document content: {e}")
             raise ValidationError(f"Failed to update document content: {str(e)}") from e
 
-    async def verify_file_storage_integrity(self) -> dict[str, Any]:
+    async def verify_file_storage_integrity(self) -> Dict[str, Any]:
         """
         Verify file storage integrity (MinIO/S3).
 

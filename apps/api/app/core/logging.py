@@ -7,7 +7,7 @@ import json
 import sys
 import uuid
 from datetime import datetime
-from typing import Any
+from typing import Optional, Any
 
 from fastapi import Request
 from loguru import logger
@@ -47,14 +47,14 @@ def setup_logging(environment: str = "development") -> None:
 
 def log_security_audit_event(
     event_type: str,
-    correlation_id: str | None = None,
-    user_id: int | None = None,
-    ip: str | None = None,
-    endpoint: str | None = None,
-    resource: str | None = None,
-    action: str | None = None,
+    correlation_id: Optional[str] = None,
+    user_id: Optional[int] = None,
+    ip: Optional[str] = None,
+    endpoint: Optional[str] = None,
+    resource: Optional[str] = None,
+    action: Optional[str] = None,
     outcome: str = "success",  # success, failure, denied
-    details: dict[str, Any] | None = None,
+    details: Optional[dict[str, Any]] = None,
 ) -> None:
     """
     Log a structured security audit event to audit.log.

@@ -21,9 +21,9 @@ class SectionGenerator:
 
     def __init__(
         self,
-        rag_retriever: RAGRetriever | None = None,
-        citation_formatter: CitationFormatter | None = None,
-        humanizer: Humanizer | None = None
+        rag_retriever: Optional[RAGRetriever] = None,
+        citation_formatter: Optional[CitationFormatter] = None,
+        humanizer: Optional[Humanizer] = None
     ):
         """
         Initialize section generator
@@ -48,7 +48,7 @@ class SectionGenerator:
         citation_style: CitationStyle = CitationStyle.APA,
         humanize: bool = False,
         context_sections: list[dict[str, Any]] | None = None,
-        additional_requirements: str | None = None
+        additional_requirements: Optional[str] = None
     ) -> dict[str, Any]:
         """
         Generate a section with RAG context, citations, and optional humanization

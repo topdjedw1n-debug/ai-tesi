@@ -9,7 +9,7 @@ import os
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 import httpx
 
@@ -22,14 +22,14 @@ logger = logging.getLogger(__name__)
 class SourceDoc:
     """Source document retrieved from Semantic Scholar"""
     title: str
-    authors: list[str]
+    authors: List[str]
     year: int
-    abstract: str | None = None
-    paper_id: str | None = None
-    venue: str | None = None
-    citation_count: int | None = None
-    url: str | None = None
-    doi: str | None = None
+    abstract: Optional[str] = None
+    paper_id: Optional[str] = None
+    venue: Optional[str] = None
+    citation_count: Optional[int] = None
+    url: Optional[str] = None
+    doi: Optional[str] = None
 
     def to_source_document(self) -> SourceDocument:
         """Convert to SourceDocument for citation formatting"""
@@ -48,9 +48,9 @@ class RAGRetriever:
 
     def __init__(
         self,
-        cache_dir: str | None = None,
+        cache_dir: Optional[str] = None,
         max_results: int = 10,
-        semantic_scholar_api_key: str | None = None
+        semantic_scholar_api_key: Optional[str] = None
     ):
         """
         Initialize RAG retriever
@@ -69,11 +69,11 @@ class RAGRetriever:
     async def retrieve(
         self,
         query: str,
-        fields: list[str] | None = None,
-        year_min: int | None = None,
-        year_max: int | None = None,
-        min_citation_count: int | None = None,
-        limit: int | None = None
+        fields: List[str] | None = None,
+        year_min: Optional[int] = None,
+        year_max: Optional[int] = None,
+        min_citation_count: Optional[int] = None,
+        limit: Optional[int] = None
     ) -> list[SourceDoc]:
         """
         Retrieve relevant academic papers from Semantic Scholar
@@ -97,7 +97,7 @@ class RAGRetriever:
                 return cached_results[:limit or self.max_results]
 
             # Build API request
-            params: dict[str, Any] = {
+            params: Dict[str, Any] = {
                 "query": query,
                 "limit": limit or self.max_results,
                 "fields": fields or [

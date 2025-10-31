@@ -5,7 +5,7 @@ Handles both in-text citations and bibliography/reference formatting
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any
+from typing import Any, Dict, List, Optional
 
 
 class CitationStyle(str, Enum):
@@ -19,16 +19,16 @@ class CitationStyle(str, Enum):
 class SourceDocument:
     """Represents a source document for citation"""
     title: str
-    authors: list[str]
+    authors: List[str]
     year: int
-    journal: str | None = None
-    volume: str | None = None
-    issue: str | None = None
-    pages: str | None = None
-    doi: str | None = None
-    url: str | None = None
-    publisher: str | None = None
-    city: str | None = None
+    journal: Optional[str] = None
+    volume: Optional[str] = None
+    issue: Optional[str] = None
+    pages: Optional[str] = None
+    doi: Optional[str] = None
+    url: Optional[str] = None
+    publisher: Optional[str] = None
+    city: Optional[str] = None
 
     def __post_init__(self) -> None:
         """Validate required fields"""
@@ -43,10 +43,10 @@ class CitationFormatter:
 
     @staticmethod
     def format_intext(
-        authors: list[str],
+        authors: List[str],
         year: int,
         style: CitationStyle = CitationStyle.APA,
-        page: int | None = None
+        page: Optional[int] = None
     ) -> str:
         """
         Format in-text citation
@@ -94,7 +94,7 @@ class CitationFormatter:
             raise ValueError(f"Unsupported citation style: {style}")
 
     @staticmethod
-    def _format_apa_intext(authors: list[str], year: int, page: int | None = None) -> str:
+    def _format_apa_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
         """Format APA in-text citation"""
         if len(authors) == 1:
             citation = f"{authors[0]}, {year}"
@@ -109,7 +109,7 @@ class CitationFormatter:
         return f"({citation})"
 
     @staticmethod
-    def _format_mla_intext(authors: list[str], year: int, page: int | None = None) -> str:
+    def _format_mla_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
         """Format MLA in-text citation"""
         if len(authors) == 1:
             citation = authors[0]
@@ -124,7 +124,7 @@ class CitationFormatter:
         return f"({citation})"
 
     @staticmethod
-    def _format_chicago_intext(authors: list[str], year: int, page: int | None = None) -> str:
+    def _format_chicago_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
         """Format Chicago in-text citation (notes-bibliography style)"""
         if len(authors) == 1:
             citation = authors[0]
@@ -249,7 +249,7 @@ class CitationFormatter:
         return reference
 
     @staticmethod
-    def extract_citations_from_text(text: str) -> list[dict[str, Any]]:
+    def extract_citations_from_text(text: str) -> list[Dict[str, Any]]:
         """
         Extract citation markers from text (e.g., [Author, Year])
 

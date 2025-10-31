@@ -5,7 +5,7 @@ Database configuration and session management
 import logging
 import os
 import time
-from typing import Any
+from typing import Optional, Any
 
 import sqlalchemy
 from sqlalchemy import event, text
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 SLOW_QUERY_THRESHOLD_MS = 500
 
 # Global engine instance (lazy initialized)
-_engine: AsyncEngine | None = None
+_engine: Optional[AsyncEngine] = None
 _events_registered = False
-_AsyncSessionLocal: async_sessionmaker[AsyncSession] | None = None
+_AsyncSessionLocal: Optional[async_sessionmaker[AsyncSession]] = None
 
 
 def _create_engine_safe() -> AsyncEngine:

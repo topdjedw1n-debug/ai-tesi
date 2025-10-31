@@ -6,6 +6,7 @@ Implements per-user/IP rate limiting with failed auth attempt tracking.
 import logging
 from collections.abc import Callable
 from datetime import datetime, timedelta
+from typing import Optional
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI, Request
@@ -20,10 +21,10 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Redis client (initialized on startup)
-_redis_client: aioredis.Redis | None = None
+_redis_client: Optional[aioredis.Redis] = None
 
 
-def get_redis_client() -> aioredis.Redis | None:
+def get_redis_client() -> Optional[aioredis.Redis]:
     """Get Redis client, or None if Redis is unavailable"""
     global _redis_client
     return _redis_client
@@ -87,7 +88,7 @@ def get_user_id_or_ip(request: Request) -> str:
     return get_remote_address(request)
 
 
-async def check_auth_lockout(identifier: str) -> timedelta | None:
+async def check_auth_lockout(identifier: str) -> Optional[timedelta]:
     """
     Check if identifier (user or IP) is locked out due to failed auth attempts.
     Returns lockout duration if locked, None otherwise.
@@ -187,10 +188,10 @@ def rate_limit_key_func(request: Request) -> str:
 
 
 # Global limiter instance (lazy initialization)
-_limiter: Limiter | None = None
+_limiter: Optional[Limiter] = None
 
 
-def get_limiter() -> Limiter | None:
+def get_limiter() -> Optional[Limiter]:
     """Get rate limiter instance (lazy initialization, defensive)"""
     global _limiter
 
@@ -204,8 +205,8 @@ def get_limiter() -> Limiter | None:
             is_prod = settings.ENVIRONMENT.lower() in {"production", "prod"}
 
             # Determine storage configuration
-            storage_uri: str | None = None
-            storage_options: dict | None = None
+            storage_uri: Optional[str] = None
+            storage_options: Optional[dict] = None
 
             if is_prod:
                 # Production: use Redis
@@ -223,14 +224,19 @@ def get_limiter() -> Limiter | None:
                 except ImportError:
                     # Redis not available, use memory
                     storage_uri = None
-                    storage_options = None
+                    storage_options = {}  # Empty dict instead of None
 
-            _limiter = Limiter(
-                key_func=rate_limit_key_func,
-                default_limits=[f"{settings.RATE_LIMIT_PER_MINUTE}/minute"],
-                storage_uri=storage_uri,
-                storage_options=storage_options,
-            )
+            # Build Limiter kwargs conditionally
+            limiter_kwargs = {
+                "key_func": rate_limit_key_func,
+                "default_limits": [f"{settings.RATE_LIMIT_PER_MINUTE}/minute"],
+                "storage_uri": storage_uri,
+            }
+            # Only add storage_options if we have a storage_uri
+            if storage_uri and storage_options:
+                limiter_kwargs["storage_options"] = storage_options
+
+            _limiter = Limiter(**limiter_kwargs)
             logger.info(f"Rate limiter initialized (storage={'Redis' if storage_uri else 'memory'})")
         except Exception as e:
             logger.error(f"Failed to initialize rate limiter: {e}, falling back to disabled")

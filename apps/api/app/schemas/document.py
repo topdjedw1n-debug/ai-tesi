@@ -5,7 +5,7 @@ Document schemas for API requests and responses
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -62,9 +62,9 @@ class DocumentBase(BaseModel):
 
 class DocumentCreate(DocumentBase):
     """Schema for creating a new document"""
-    ai_provider: AIProvider | None = Field(default=AIProvider.OPENAI, description="AI provider: openai or anthropic")
-    ai_model: str | None = Field(default="gpt-4", description="AI model name")
-    additional_requirements: str | None = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+    ai_provider: Optional[AIProvider] = Field(default=AIProvider.OPENAI, description="AI provider: openai or anthropic")
+    ai_model: Optional[str] = Field(default="gpt-4", description="AI model name")
+    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
 
     @field_validator("ai_provider", mode="before")
     @classmethod
@@ -109,7 +109,7 @@ class DocumentCreate(DocumentBase):
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_additional_requirements(cls, v: str | None) -> str | None:
+    def sanitize_additional_requirements(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
         if len(v) > 5000:
@@ -121,10 +121,10 @@ class DocumentCreate(DocumentBase):
 
 class DocumentUpdate(BaseModel):
     """Schema for updating document information"""
-    title: str | None = Field(None, min_length=1, max_length=500)
-    topic: str | None = Field(None, min_length=10)
-    language: str | None = Field(None, max_length=10)
-    target_pages: int | None = Field(None, ge=1, le=1000)
+    title: Optional[str] = Field(None, min_length=1, max_length=500)
+    topic: Optional[str] = Field(None, min_length=10)
+    language: Optional[str] = Field(None, max_length=10)
+    target_pages: Optional[int] = Field(None, ge=1, le=1000)
 
 
 class DocumentResponse(DocumentBase):
@@ -134,11 +134,11 @@ class DocumentResponse(DocumentBase):
     status: DocumentStatus
     is_archived: bool
     created_at: datetime
-    updated_at: datetime | None
+    updated_at: Optional[datetime]
     word_count: int
     estimated_reading_time: int
-    outline: dict[str, Any] | None = None
-    sections: dict[str, Any] | None = None
+    outline: Optional[Dict[str, Any]] = None
+    sections: Optional[Dict[str, Any]] = None
 
     class Config:
         from_attributes = True
@@ -156,11 +156,11 @@ class DocumentListResponse(BaseModel):
 class OutlineRequest(BaseModel):
     """Schema for outline generation request"""
     document_id: int = Field(..., gt=0, description="Document ID must be greater than 0")
-    additional_requirements: str | None = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_requirements(cls, v: str | None) -> str | None:
+    def sanitize_requirements(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
         if len(v) > 5000:
@@ -172,7 +172,7 @@ class OutlineRequest(BaseModel):
 
 class OutlineResponse(BaseModel):
     """Schema for outline generation response"""
-    outline: dict[str, Any]
+    outline: Dict[str, Any]
     estimated_sections: int
     estimated_word_count: int
 
@@ -182,7 +182,7 @@ class SectionRequest(BaseModel):
     document_id: int = Field(..., gt=0, description="Document ID must be greater than 0")
     section_title: str
     section_index: int
-    additional_requirements: str | None = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
 
     @field_validator("section_title")
     @classmethod
@@ -193,7 +193,7 @@ class SectionRequest(BaseModel):
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_section_requirements(cls, v: str | None) -> str | None:
+    def sanitize_section_requirements(cls, v: Optional[str]) -> Optional[str]:
         if v is None:
             return v
         if len(v) > 5000:
@@ -207,7 +207,7 @@ class SectionResponse(BaseModel):
     """Schema for section generation response"""
     content: str
     word_count: int
-    citations: list[dict[str, Any]]
+    citations: list[Dict[str, Any]]
     estimated_reading_time: int
 
 
@@ -216,7 +216,7 @@ class DocumentVersionResponse(BaseModel):
     id: int
     document_id: int
     version_number: int
-    changes_summary: str | None
+    changes_summary: Optional[str]
     created_at: datetime
     created_by: int
 

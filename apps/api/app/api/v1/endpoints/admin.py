@@ -4,6 +4,7 @@ Admin endpoints for monitoring and management
 
 import logging
 from datetime import datetime
+from typing import Optional
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -70,7 +71,7 @@ async def list_users(
     request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
-    search: str | None = None,
+    search: Optional[str] = None,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -120,9 +121,9 @@ async def list_ai_jobs(
     request: Request,
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
-    user_id: int | None = None,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
+    user_id: Optional[int] = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -172,8 +173,8 @@ async def list_ai_jobs(
 @router.get("/costs")
 async def get_cost_analysis(
     request: Request,
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
+    start_date: Optional[datetime] = None,
+    end_date: Optional[datetime] = None,
     group_by: str = Query("day", regex="^(day|week|month)$"),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db)

@@ -2,13 +2,15 @@
 Custom exceptions for the application
 """
 
+from typing import Any, Dict, List, Optional
+
 from fastapi import status
 
 
 class APIException(Exception):
     """Base API exception"""
 
-    def __init__(self, detail: str, status_code: int = 500, error_code: str = None):
+    def __init__(self, detail: str, status_code: int = 500, error_code: Optional[str] = None):
         self.detail = detail
         self.status_code = status_code
         self.error_code = error_code

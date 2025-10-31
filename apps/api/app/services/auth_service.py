@@ -5,7 +5,7 @@ Authentication service for user management and token handling
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Dict, Optional
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -28,7 +28,7 @@ class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def send_magic_link(self, email: str) -> dict[str, Any]:
+    async def send_magic_link(self, email: str) -> Dict[str, Any]:
         """Send magic link for passwordless authentication"""
         try:
             # Validate email format
@@ -82,7 +82,7 @@ class AuthService:
             logger.error(f"Error sending magic link: {e}")
             raise AuthenticationError(f"Failed to send magic link: {str(e)}") from e
 
-    async def verify_magic_link(self, token: str) -> dict[str, Any]:
+    async def verify_magic_link(self, token: str) -> Dict[str, Any]:
         """Verify magic link token and return access token"""
         try:
             # Find magic link token
@@ -148,7 +148,7 @@ class AuthService:
             logger.error(f"Error verifying magic link: {e}")
             raise AuthenticationError(f"Failed to verify magic link: {str(e)}") from e
 
-    async def refresh_token(self, refresh_token: str) -> dict[str, Any]:
+    async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
         """Refresh access token using refresh token"""
         try:
             # Find active session
@@ -198,7 +198,7 @@ class AuthService:
             logger.error(f"Error refreshing token: {e}")
             raise AuthenticationError(f"Failed to refresh token: {str(e)}") from e
 
-    async def logout(self, access_token: str) -> dict[str, Any]:
+    async def logout(self, access_token: str) -> Dict[str, Any]:
         """Logout user and invalidate session"""
         try:
             # Decode token to get user ID
@@ -233,7 +233,7 @@ class AuthService:
             logger.error(f"Error during logout: {e}")
             raise AuthenticationError(f"Failed to logout: {str(e)}") from e
 
-    async def get_current_user(self, access_token: str) -> dict[str, Any]:
+    async def get_current_user(self, access_token: str) -> Dict[str, Any]:
         """Get current user from access token"""
         try:
             # Decode token

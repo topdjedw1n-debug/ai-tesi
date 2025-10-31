@@ -1,4 +1,5 @@
 """
+from typing import Optional
 AI service for generating content using various providers
 """
 
@@ -26,8 +27,8 @@ class AIService:
         self,
         document_id: int,
         user_id: int,
-        additional_requirements: str | None = None
-    ) -> dict[str, Any]:
+        additional_requirements: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Generate document outline using AI"""
         try:
             # Get document
@@ -98,8 +99,8 @@ class AIService:
         section_title: str,
         section_index: int,
         user_id: int,
-        additional_requirements: str | None = None
-    ) -> dict[str, Any]:
+        additional_requirements: Optional[str] = None
+    ) -> Dict[str, Any]:
         """Generate a specific section using AI"""
         try:
             # Get document
@@ -181,7 +182,7 @@ class AIService:
             logger.error(f"Error generating section: {e}")
             raise AIProviderError(f"Failed to generate section: {str(e)}") from e
 
-    async def get_user_usage(self, user_id: int) -> dict[str, Any]:
+    async def get_user_usage(self, user_id: int) -> Dict[str, Any]:
         """Get AI usage statistics for a user"""
         try:
             # Get total documents and tokens used
@@ -209,7 +210,7 @@ class AIService:
         provider: str,
         model: str,
         prompt: str
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """Call the appropriate AI provider"""
         if provider == "openai":
             return await self._call_openai(model, prompt)
@@ -218,7 +219,7 @@ class AIService:
         else:
             raise AIProviderError(f"Unsupported AI provider: {provider}")
 
-    async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
+    async def _call_openai(self, model: str, prompt: str) -> Dict[str, Any]:
         """Call OpenAI API"""
         try:
             import openai
@@ -250,7 +251,7 @@ class AIService:
             logger.error(f"OpenAI API error: {e}")
             raise AIProviderError(f"OpenAI API error: {str(e)}") from e
 
-    async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
+    async def _call_anthropic(self, model: str, prompt: str) -> Dict[str, Any]:
         """Call Anthropic API"""
         try:
             import anthropic
@@ -285,7 +286,7 @@ class AIService:
     def _build_outline_prompt(
         self,
         document: Document,
-        additional_requirements: str | None = None
+        additional_requirements: Optional[str] = None
     ) -> str:
         """Build prompt for outline generation"""
         prompt = f"""
@@ -321,7 +322,7 @@ Please respond with a JSON structure containing the outline data.
         document: Document,
         section_title: str,
         section_index: int,
-        additional_requirements: str | None = None
+        additional_requirements: Optional[str] = None
     ) -> str:
         """Build prompt for section generation"""
         prompt = f"""
