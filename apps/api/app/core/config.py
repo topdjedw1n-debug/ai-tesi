@@ -148,7 +148,7 @@ class Settings(BaseSettings):
                 if not parsed.netloc:
                     raise ValueError(f"Invalid CORS origin URL: {origin}")
             except Exception as e:
-                raise ValueError(f"Invalid CORS origin URL: {origin} - {str(e)}")
+                raise ValueError(f"Invalid CORS origin URL: {origin} - {str(e)}") from e
 
             # In production: reject localhost, 127.0.0.1, 0.0.0.0
             if is_prod:
@@ -194,7 +194,7 @@ class Settings(BaseSettings):
         if not is_prod and v:
             if ":password@" in v or ":postgres@" in v:
                 import warnings
-                warnings.warn("Using default database credentials in development", UserWarning)
+                warnings.warn("Using default database credentials in development", UserWarning, stacklevel=2)
 
         return v
 

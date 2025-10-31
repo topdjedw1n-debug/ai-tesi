@@ -96,8 +96,8 @@ async def get_current_user(
         # Validate token type is integer or convertable
         try:
             user_id = int(user_id)
-        except (ValueError, TypeError):
-            raise AuthenticationError("Invalid token: invalid user ID")
+        except (ValueError, TypeError) as e:
+            raise AuthenticationError("Invalid token: invalid user ID") from e
 
         # Query user from database
         result = await db.execute(
@@ -120,21 +120,21 @@ async def get_current_user(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
     except AuthenticationError as e:
         logger.warning(f"Authentication failed: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
     except Exception as e:
         logger.error(f"Unexpected error in get_current_user: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authentication failed",
             headers={"WWW-Authenticate": "Bearer"},
-        )
+        ) from e
 
 
 async def get_admin_user(

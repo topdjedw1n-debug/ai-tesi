@@ -216,7 +216,7 @@ def get_limiter() -> Limiter | None:
                 # Let SlowAPI handle None as memory storage
                 try:
                     # Test Redis availability
-                    import redis.asyncio as aioredis_test
+                    import redis.asyncio  # noqa: F401
                     # We'll defer actual connection test to init_redis
                     storage_uri = settings.REDIS_URL
                     storage_options = {"decode_responses": True}
