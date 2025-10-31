@@ -17,28 +17,35 @@ logger = logging.getLogger(__name__)
 
 # Create async engine
 # SQLite doesn't support pool_size and max_overflow
-engine_kwargs = {
-    "echo": False,  # MUST be False in production
-    "pool_pre_ping": True,
-    "future": True,
-}
+def _create_engine():
+    """Create database engine with appropriate parameters based on database type"""
+    db_url = settings.DATABASE_URL or ""
+    is_sqlite = "sqlite" in db_url.lower()
+    
+    engine_kwargs = {
+        "echo": False,  # MUST be False in production
+        "pool_pre_ping": True,
+        "future": True,
+    }
+    
+    # Only add pool parameters for non-SQLite databases (PostgreSQL, etc.)
+    if not is_sqlite and db_url:
+        engine_kwargs.update({
+            "pool_size": 20,
+            "max_overflow": 40,
+            "pool_recycle": 3600,
+            "connect_args": {
+                "server_settings": {"jit": "off"},
+                "command_timeout": 60,
+            },
+        })
+    
+    return create_async_engine(
+        db_url,
+        **engine_kwargs
+    )
 
-# Only add pool parameters for non-SQLite databases
-if settings.DATABASE_URL and "sqlite" not in settings.DATABASE_URL.lower():
-    engine_kwargs.update({
-        "pool_size": 20,
-        "max_overflow": 40,
-        "pool_recycle": 3600,
-        "connect_args": {
-            "server_settings": {"jit": "off"},
-            "command_timeout": 60,
-        },
-    })
-
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    **engine_kwargs
-)
+engine = _create_engine()
 
 # Log slow queries (>= 500 ms)
 SLOW_QUERY_THRESHOLD_MS = 500
