@@ -52,7 +52,8 @@ def _create_engine_safe() -> AsyncEngine:
     # Check if SQLite (must check before creating engine)
     is_sqlite = "sqlite" in db_url.lower()
     
-    # Build engine kwargs - ALWAYS start with base params
+    # Build engine kwargs based on database type
+    # CRITICAL: For SQLite, NEVER add pool parameters at all
     engine_kwargs: dict[str, Any] = {
         "echo": False,
         "future": True,
@@ -60,8 +61,11 @@ def _create_engine_safe() -> AsyncEngine:
     
     if is_sqlite:
         # SQLite-specific: NO pool parameters, NO connect_args
-        # SQLiteDialect doesn't support pool_size, max_overflow, pool_pre_ping, connect_args
+        # SQLiteDialect doesn't support pool_size, max_overflow, pool_pre_ping, pool_recycle, connect_args
         logger.debug(f"Creating SQLite engine: {db_url[:50]}...")
+        # Explicitly ensure NO pool params are in kwargs for SQLite
+        sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
+        engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
     else:
         # PostgreSQL and other databases (with pool parameters)
         engine_kwargs.update({
@@ -76,27 +80,15 @@ def _create_engine_safe() -> AsyncEngine:
         })
         logger.debug(f"Creating PostgreSQL engine with pool configuration")
     
-    # Create engine with safe kwargs
-    # DOUBLE-CHECK: If somehow pool params got through for SQLite, filter them out
+    # FINAL GUARD: Before create_async_engine(), filter out any pool params for SQLite
+    # This is a double-check to ensure absolutely no pool params reach SQLite
     if is_sqlite:
-        # Remove any pool parameters that might have been added
         sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
         engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
-        logger.debug(f"Filtered SQLite-unsupported params: {sqlite_unsupported}")
+        logger.debug(f"Final guard: Filtered SQLite-unsupported params")
     
-    # SAFETY NET: Try creating engine, if it fails with unsupported params, retry without them
-    try:
-        _engine = create_async_engine(db_url, **engine_kwargs)
-    except (TypeError, ValueError) as e:
-        error_msg = str(e).lower()
-        if 'pool_size' in error_msg or 'max_overflow' in error_msg or 'sqlite' in error_msg:
-            # Retry without pool parameters (safety net)
-            logger.warning(f"Engine creation failed, retrying without pool params: {e}")
-            safe_kwargs = {k: v for k, v in engine_kwargs.items() 
-                          if k not in {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}}
-            _engine = create_async_engine(db_url, **safe_kwargs)
-        else:
-            raise
+    # Create engine with safe kwargs
+    _engine = create_async_engine(db_url, **engine_kwargs)
     
     # Register event listeners only once
     if not _events_registered:
