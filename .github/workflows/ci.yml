@@ -1,42 +1,109 @@
-name: CI Quality Gate
+name: CI - Quality Gate Phase 1.2
+
 on:
+  push:
+    branches: [ main, develop, 'fix/**', 'feat/**' ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, develop ]
+
 jobs:
   lint:
+    name: Lint (Ruff)
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install ruff
-      - run: ruff check . --output-format=github
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+      
+      - name: Install dependencies
+        working-directory: apps/api
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Ruff Lint
+        working-directory: apps/api
+        run: |
+          ruff check . --output-format=github
+  
   typecheck:
+    name: Typecheck (MyPy)
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install mypy
-      - run: mypy apps/api --config-file apps/api/mypy.ini
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+      
+      - name: Install dependencies
+        working-directory: apps/api
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install mypy
+      
+      - name: MyPy Type Check
+        working-directory: apps/api
+        run: |
+          mypy . --config-file mypy.ini
+  
   smoke:
+    name: Smoke Tests (Pytest)
     runs-on: ubuntu-latest
+    
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
-        with: { python-version: "3.11" }
-      - run: pip install pytest
-      - run: pytest apps/api/tests -q
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+          cache: 'pip'
+      
+      - name: Install dependencies
+        working-directory: apps/api
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+      
+      - name: Pytest Smoke Tests
+        working-directory: apps/api
+        env:
+          SECRET_KEY: test-secret-key-minimum-32-chars-long-1234567890
+          JWT_SECRET: test-jwt-secret-minimum-32-chars-long-1234567890
+          DATABASE_URL: sqlite:///./test.db
+          REDIS_URL: redis://localhost:6379/0
+          ENVIRONMENT: test
+          DISABLE_RATE_LIMIT: "true"
+        run: |
+          pytest tests -q
+  
   health:
+    name: Health Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: echo "200 OK" > health-log.txt
       - uses: actions/upload-artifact@v4
         with: { name: health-log, path: health-log.txt }
+  
   node:
+    name: Node Version Check
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: { node-version: "18.17.0" }
       - run: node --version > node-version.txt
