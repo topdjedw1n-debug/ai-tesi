@@ -4,9 +4,6 @@ Tests: App starts without exceptions, rate limiter initializes successfully
 """
 import os
 
-from app.middleware.rate_limit import get_limiter
-from main import app
-
 # Set environment variables for tests (required by config validation)
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
 os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
@@ -14,6 +11,9 @@ os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
+
+from app.middleware.rate_limit import get_limiter  # noqa: E402
+from main import app  # noqa: E402
 
 
 def test_rate_limit_init():
