@@ -2,29 +2,30 @@
 Document management endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query, Request
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
-from typing import List, Optional
+
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
+from app.core.exceptions import NotFoundError, ValidationError
+from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
 from app.schemas.document import (
     DocumentCreate,
-    DocumentUpdate,
-    DocumentResponse,
     DocumentListResponse,
+    DocumentResponse,
+    DocumentUpdate,
     ExportRequest,
-    ExportResponse
+    ExportResponse,
 )
 from app.services.document_service import DocumentService
-from app.core.exceptions import NotFoundError, ValidationError
-from app.middleware.rate_limit import limiter
 
 router = APIRouter()
 
 
 @router.post("/", response_model=DocumentResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def create_document(
     request: Request,
     document: DocumentCreate,
@@ -40,8 +41,8 @@ async def create_document(
             topic=document.topic,
             language=document.language,
             target_pages=document.target_pages,
-            ai_provider=document.ai_provider,
-            ai_model=document.ai_model,
+            ai_provider=document.ai_provider.value if document.ai_provider else "openai",
+            ai_model=document.ai_model or "gpt-4",
             additional_requirements=document.additional_requirements
         )
         return result
@@ -49,16 +50,16 @@ async def create_document(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create document"
-        )
+        ) from None
 
 
 @router.get("/", response_model=DocumentListResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def list_documents(
     request: Request,
     limit: int = Query(20, ge=1, le=100),
@@ -79,16 +80,16 @@ async def list_documents(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to list documents"
-        )
+        ) from None
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def get_document(
     request: Request,
     document_id: int,
@@ -106,16 +107,16 @@ async def get_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get document"
-        )
+        ) from None
 
 
 @router.put("/{document_id}", response_model=DocumentResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def update_document(
     request: Request,
     document_id: int,
@@ -134,16 +135,16 @@ async def update_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update document"
-        )
+        ) from None
 
 
 @router.delete("/{document_id}")
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def delete_document(
     request: Request,
     document_id: int,
@@ -161,16 +162,16 @@ async def delete_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete document"
-        )
+        ) from None
 
 
 @router.post("/{document_id}/export", response_model=ExportResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def export_document(
     request: Request,
     document_id: int,
@@ -182,7 +183,7 @@ async def export_document(
     try:
         document_service = DocumentService(db)
         result = await document_service.export_document(
-            document_id, 
+            document_id,
             export_request.format,
             current_user.id
         )
@@ -191,16 +192,16 @@ async def export_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to export document"
-        )
+        ) from None
 
 
 @router.get("/{document_id}/export/{format}", response_model=ExportResponse)
-@limiter.limit("100/hour")
+@rate_limit("100/hour")
 async def export_document_get(
     request: Request,
     document_id: int,
@@ -221,9 +222,9 @@ async def export_document_get(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
-    except Exception as e:
+        ) from e
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to export document"
-        )
+        ) from None

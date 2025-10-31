@@ -2,9 +2,10 @@
 User schemas for API requests and responses
 """
 
-from pydantic import BaseModel, EmailStr
-from typing import Optional
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel, EmailStr
 
 
 class UserBase(BaseModel):
@@ -35,7 +36,7 @@ class UserResponse(UserBase):
     last_login: Optional[datetime]
     total_tokens_used: int
     total_cost: int
-    
+
     class Config:
         from_attributes = True
 

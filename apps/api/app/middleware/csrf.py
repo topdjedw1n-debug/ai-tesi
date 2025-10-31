@@ -2,7 +2,8 @@
 Simple CSRF middleware requiring X-CSRF-Token for state-changing requests.
 """
 
-from typing import Callable
+from collections.abc import Callable
+
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
