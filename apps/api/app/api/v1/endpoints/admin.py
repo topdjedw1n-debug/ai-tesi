@@ -62,7 +62,7 @@ async def get_platform_stats(
             detail="Failed to get platform statistics",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR"
-        )
+        ) from e
 
 
 @router.get("/users")
@@ -112,7 +112,7 @@ async def list_users(
             detail="Failed to list users",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR"
-        )
+        ) from e
 
 
 @router.get("/ai-jobs")
@@ -166,7 +166,7 @@ async def list_ai_jobs(
             detail="Failed to list AI jobs",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR"
-        )
+        ) from e
 
 
 @router.get("/costs")
@@ -216,7 +216,7 @@ async def get_cost_analysis(
             detail="Failed to get cost analysis",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR"
-        )
+        ) from e
 
 
 @router.get("/health")
@@ -262,7 +262,7 @@ async def health_check(
             detail="Health check failed",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR"
-        )
+        ) from e
 
 
 @router.post("/config/reload")
@@ -314,7 +314,7 @@ async def reload_config(
             detail=f"Failed to reload configuration: {str(e)}",
             status_code=500,
             error_code="CONFIG_RELOAD_ERROR"
-        )
+        ) from e
 
 
 @router.get("/backup/verify")
@@ -361,7 +361,7 @@ async def verify_backup(
             detail=f"Failed to verify backup: {str(e)}",
             status_code=500,
             error_code="BACKUP_VERIFICATION_ERROR"
-        )
+        ) from e
 
 
 @router.get("/storage/verify")
@@ -415,4 +415,4 @@ async def verify_storage(
             detail=f"Failed to verify storage: {str(e)}",
             status_code=500,
             error_code="STORAGE_VERIFICATION_ERROR"
-        )
+        ) from e
