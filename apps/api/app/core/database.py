@@ -16,18 +16,28 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Create async engine
+# SQLite doesn't support pool_size and max_overflow
+engine_kwargs = {
+    "echo": False,  # MUST be False in production
+    "pool_pre_ping": True,
+    "future": True,
+}
+
+# Only add pool parameters for non-SQLite databases
+if settings.DATABASE_URL and "sqlite" not in settings.DATABASE_URL.lower():
+    engine_kwargs.update({
+        "pool_size": 20,
+        "max_overflow": 40,
+        "pool_recycle": 3600,
+        "connect_args": {
+            "server_settings": {"jit": "off"},
+            "command_timeout": 60,
+        },
+    })
+
 engine = create_async_engine(
     settings.DATABASE_URL,
-    echo=False,  # MUST be False in production
-    pool_size=20,
-    max_overflow=40,
-    pool_pre_ping=True,
-    pool_recycle=3600,
-    connect_args={
-        "server_settings": {"jit": "off"},
-        "command_timeout": 60,
-    },
-    future=True,
+    **engine_kwargs
 )
 
 # Log slow queries (>= 500 ms)
