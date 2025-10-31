@@ -12,20 +12,19 @@ from sqlalchemy import event, text
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
-from app.core.config import settings
-
 logger = logging.getLogger(__name__)
 
 # Create async engine
 # SQLite doesn't support pool_size and max_overflow
 def _create_engine():
     """Create database engine with appropriate parameters based on database type"""
-    # ALWAYS check os.environ FIRST (for test compatibility)
-    # This ensures tests can override settings.DATABASE_URL
-    db_url = os.environ.get("DATABASE_URL", "")
+    # CRITICAL: ALWAYS check os.environ FIRST (for test compatibility)
+    # This ensures tests can override settings.DATABASE_URL even if it's set
+    db_url = os.environ.get("DATABASE_URL")
     
-    # Only use settings if not in environment
+    # Only import settings if DATABASE_URL not in environment
     if not db_url:
+        from app.core.config import settings
         db_url = getattr(settings, 'DATABASE_URL', None) or ""
     
     if not db_url:
@@ -33,7 +32,7 @@ def _create_engine():
         db_url = "sqlite+aiosqlite:///:memory:"
     
     # Check if SQLite (must check before creating engine)
-    is_sqlite = "sqlite" in db_url.lower() if db_url else True
+    is_sqlite = "sqlite" in db_url.lower()
     
     if is_sqlite:
         # SQLite-specific configuration (no pool parameters)
@@ -60,6 +59,9 @@ def _create_engine():
         db_url,
         **engine_kwargs
     )
+
+# Import settings now (after defining _create_engine to avoid circular issues)
+from app.core.config import settings  # noqa: E402
 
 engine = _create_engine()
 
