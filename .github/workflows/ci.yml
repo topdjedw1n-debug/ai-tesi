@@ -16,7 +16,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
@@ -41,7 +41,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
@@ -50,6 +50,7 @@ jobs:
         working-directory: apps/api
         run: |
           pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           pip install -r requirements.txt
           pip install mypy
       
@@ -67,7 +68,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Set up Python 3.11
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: 'pip'
@@ -76,7 +77,9 @@ jobs:
         working-directory: apps/api
         run: |
           pip install --upgrade pip
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
           pip install -r requirements.txt
+          pip install pytest
       
       - name: Pytest Smoke Tests
         working-directory: apps/api
@@ -97,7 +100,9 @@ jobs:
       - uses: actions/checkout@v4
       - run: echo "200 OK" > health-log.txt
       - uses: actions/upload-artifact@v4
-        with: { name: health-log, path: health-log.txt }
+        with:
+          name: health-log
+          path: health-log.txt
   
   node:
     name: Node Version Check
@@ -105,7 +110,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
-        with: { node-version: "18.17.0" }
+        with:
+          node-version: "18.17.0"
       - run: node --version > node-version.txt
       - uses: actions/upload-artifact@v4
-        with: { name: node-version, path: node-version.txt }
+        with:
+          name: node-version
+          path: node-version.txt
