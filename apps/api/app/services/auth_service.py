@@ -80,7 +80,7 @@ class AuthService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error sending magic link: {e}")
-            raise AuthenticationError(f"Failed to send magic link: {str(e)}")
+            raise AuthenticationError(f"Failed to send magic link: {str(e)}") from e
 
     async def verify_magic_link(self, token: str) -> dict[str, Any]:
         """Verify magic link token and return access token"""
@@ -146,7 +146,7 @@ class AuthService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error verifying magic link: {e}")
-            raise AuthenticationError(f"Failed to verify magic link: {str(e)}")
+            raise AuthenticationError(f"Failed to verify magic link: {str(e)}") from e
 
     async def refresh_token(self, refresh_token: str) -> dict[str, Any]:
         """Refresh access token using refresh token"""
@@ -196,7 +196,7 @@ class AuthService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error refreshing token: {e}")
-            raise AuthenticationError(f"Failed to refresh token: {str(e)}")
+            raise AuthenticationError(f"Failed to refresh token: {str(e)}") from e
 
     async def logout(self, access_token: str) -> dict[str, Any]:
         """Logout user and invalidate session"""
@@ -226,12 +226,12 @@ class AuthService:
             # Return user_id for audit logging
             return user_id
 
-        except JWTError:
-            raise AuthenticationError("Invalid token")
+        except JWTError as e:
+            raise AuthenticationError("Invalid token") from e
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error during logout: {e}")
-            raise AuthenticationError(f"Failed to logout: {str(e)}")
+            raise AuthenticationError(f"Failed to logout: {str(e)}") from e
 
     async def get_current_user(self, access_token: str) -> dict[str, Any]:
         """Get current user from access token"""
@@ -272,11 +272,11 @@ class AuthService:
                 "last_login": user.last_login.isoformat() if user.last_login else None
             }
 
-        except JWTError:
-            raise AuthenticationError("Invalid token")
+        except JWTError as e:
+            raise AuthenticationError("Invalid token") from e
         except Exception as e:
             logger.error(f"Error getting current user: {e}")
-            raise AuthenticationError(f"Failed to get user information: {str(e)}")
+            raise AuthenticationError(f"Failed to get user information: {str(e)}") from e
 
     def _create_access_token(self, user_id: int) -> str:
         """Create access token"""

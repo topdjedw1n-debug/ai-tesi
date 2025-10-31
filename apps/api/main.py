@@ -11,6 +11,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
+from loguru import logger
 
 from app.api.v1.endpoints import admin, auth, documents, generate
 from app.core.config import settings
@@ -23,9 +24,6 @@ from app.middleware.rate_limit import close_redis, init_redis, setup_rate_limite
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-
-# Import loguru logger for structured logging
-from loguru import logger
 
 
 @asynccontextmanager

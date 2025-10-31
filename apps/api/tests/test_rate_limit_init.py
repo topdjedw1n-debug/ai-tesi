@@ -2,7 +2,6 @@
 Smoke test: Rate limiter initialization
 Tests: App starts without exceptions, rate limiter initializes successfully
 """
-import pytest
 import os
 
 # Set environment variables for tests (required by config validation)

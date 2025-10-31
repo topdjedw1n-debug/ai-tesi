@@ -90,7 +90,7 @@ class AIService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error generating outline: {e}")
-            raise AIProviderError(f"Failed to generate outline: {str(e)}")
+            raise AIProviderError(f"Failed to generate outline: {str(e)}") from e
 
     async def generate_section(
         self,
@@ -179,7 +179,7 @@ class AIService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error generating section: {e}")
-            raise AIProviderError(f"Failed to generate section: {str(e)}")
+            raise AIProviderError(f"Failed to generate section: {str(e)}") from e
 
     async def get_user_usage(self, user_id: int) -> dict[str, Any]:
         """Get AI usage statistics for a user"""
@@ -202,7 +202,7 @@ class AIService:
 
         except Exception as e:
             logger.error(f"Error getting user usage: {e}")
-            raise AIProviderError(f"Failed to get usage statistics: {str(e)}")
+            raise AIProviderError(f"Failed to get usage statistics: {str(e)}") from e
 
     async def _call_ai_provider(
         self,
@@ -248,7 +248,7 @@ class AIService:
 
         except Exception as e:
             logger.error(f"OpenAI API error: {e}")
-            raise AIProviderError(f"OpenAI API error: {str(e)}")
+            raise AIProviderError(f"OpenAI API error: {str(e)}") from e
 
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API"""
@@ -280,7 +280,7 @@ class AIService:
 
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")
-            raise AIProviderError(f"Anthropic API error: {str(e)}")
+            raise AIProviderError(f"Anthropic API error: {str(e)}") from e
 
     def _build_outline_prompt(
         self,

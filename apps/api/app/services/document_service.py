@@ -68,7 +68,7 @@ class DocumentService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error creating document: {e}")
-            raise ValidationError(f"Failed to create document: {str(e)}")
+            raise ValidationError(f"Failed to create document: {str(e)}") from e
 
     async def get_document(self, document_id: int, user_id: int) -> dict[str, Any]:
         """Get document by ID"""
@@ -122,7 +122,7 @@ class DocumentService:
 
         except Exception as e:
             logger.error(f"Error getting document: {e}")
-            raise NotFoundError(f"Failed to get document: {str(e)}")
+            raise NotFoundError(f"Failed to get document: {str(e)}") from e
 
     async def get_user_documents(
         self,
@@ -168,7 +168,7 @@ class DocumentService:
 
         except Exception as e:
             logger.error(f"Error getting user documents: {e}")
-            raise ValidationError(f"Failed to get documents: {str(e)}")
+            raise ValidationError(f"Failed to get documents: {str(e)}") from e
 
     async def update_document(
         self,
@@ -211,7 +211,7 @@ class DocumentService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error updating document: {e}")
-            raise ValidationError(f"Failed to update document: {str(e)}")
+            raise ValidationError(f"Failed to update document: {str(e)}") from e
 
     async def delete_document(self, document_id: int, user_id: int) -> dict[str, Any]:
         """Delete document"""
@@ -240,7 +240,7 @@ class DocumentService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error deleting document: {e}")
-            raise ValidationError(f"Failed to delete document: {str(e)}")
+            raise ValidationError(f"Failed to delete document: {str(e)}") from e
 
     async def get_document_sections(
         self,
@@ -286,7 +286,7 @@ class DocumentService:
 
         except Exception as e:
             logger.error(f"Error getting document sections: {e}")
-            raise NotFoundError(f"Failed to get document sections: {str(e)}")
+            raise NotFoundError(f"Failed to get document sections: {str(e)}") from e
 
     async def update_document_content(
         self,
@@ -322,7 +322,7 @@ class DocumentService:
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error updating document content: {e}")
-            raise ValidationError(f"Failed to update document content: {str(e)}")
+            raise ValidationError(f"Failed to update document content: {str(e)}") from e
 
     async def verify_file_storage_integrity(self) -> dict[str, Any]:
         """
