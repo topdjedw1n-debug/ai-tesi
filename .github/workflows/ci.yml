@@ -62,7 +62,7 @@ jobs:
       - name: MyPy Type Check
         working-directory: apps/api
         run: |
-          mypy . --config-file mypy.ini --no-explicit-package-bases
+          mypy . --config-file mypy.ini
   
   smoke:
     name: Smoke Tests (Pytest)
