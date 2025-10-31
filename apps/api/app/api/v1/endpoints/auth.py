@@ -98,7 +98,7 @@ async def request_magic_link(
             outcome="failure",
             details={"reason": "internal_error", "error": str(e)}
         )
-        raise AuthenticationError("Failed to send magic link")
+        raise AuthenticationError("Failed to send magic link") from e
 
 
 @router.post("/verify-magic-link", response_model=TokenResponse)
@@ -182,7 +182,7 @@ async def verify_magic_link(
             outcome="failure",
             details={"reason": "internal_error", "error": str(e)}
         )
-        raise AuthenticationError("Failed to verify magic link")
+        raise AuthenticationError("Failed to verify magic link") from e
 
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -266,7 +266,7 @@ async def refresh_token(
             outcome="failure",
             details={"reason": "internal_error", "error": str(e)}
         )
-        raise AuthenticationError("Failed to refresh token")
+        raise AuthenticationError("Failed to refresh token") from e
 
 
 @router.post("/logout")
@@ -325,7 +325,7 @@ async def logout(
             outcome="failure",
             details={"reason": "internal_error", "error": str(e)}
         )
-        raise AuthenticationError("Failed to logout")
+        raise AuthenticationError("Failed to logout") from e
 
 
 @router.get("/me", response_model=UserResponse)
@@ -384,4 +384,4 @@ async def get_current_user(
             outcome="failure",
             details={"reason": "internal_error", "error": str(e)}
         )
-        raise AuthenticationError("Failed to get user information")
+        raise AuthenticationError("Failed to get user information") from e

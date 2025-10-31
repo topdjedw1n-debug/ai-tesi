@@ -50,12 +50,12 @@ async def create_document(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create document"
-        )
+        ) from None
 
 
 @router.get("/", response_model=DocumentListResponse)
@@ -80,12 +80,12 @@ async def list_documents(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to list documents"
-        )
+        ) from None
 
 
 @router.get("/{document_id}", response_model=DocumentResponse)
@@ -107,12 +107,12 @@ async def get_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get document"
-        )
+        ) from None
 
 
 @router.put("/{document_id}", response_model=DocumentResponse)
@@ -135,12 +135,12 @@ async def update_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update document"
-        )
+        ) from None
 
 
 @router.delete("/{document_id}")
@@ -162,12 +162,12 @@ async def delete_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete document"
-        )
+        ) from None
 
 
 @router.post("/{document_id}/export", response_model=ExportResponse)
@@ -192,12 +192,12 @@ async def export_document(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to export document"
-        )
+        ) from None
 
 
 @router.get("/{document_id}/export/{format}", response_model=ExportResponse)
@@ -222,9 +222,9 @@ async def export_document_get(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
-        )
+        ) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to export document"
-        )
+        ) from None
