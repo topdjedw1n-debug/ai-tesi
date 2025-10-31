@@ -77,7 +77,26 @@ def _create_engine_safe() -> AsyncEngine:
         logger.debug(f"Creating PostgreSQL engine with pool configuration")
     
     # Create engine with safe kwargs
-    _engine = create_async_engine(db_url, **engine_kwargs)
+    # DOUBLE-CHECK: If somehow pool params got through for SQLite, filter them out
+    if is_sqlite:
+        # Remove any pool parameters that might have been added
+        sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
+        engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
+        logger.debug(f"Filtered SQLite-unsupported params: {sqlite_unsupported}")
+    
+    # SAFETY NET: Try creating engine, if it fails with unsupported params, retry without them
+    try:
+        _engine = create_async_engine(db_url, **engine_kwargs)
+    except (TypeError, ValueError) as e:
+        error_msg = str(e).lower()
+        if 'pool_size' in error_msg or 'max_overflow' in error_msg or 'sqlite' in error_msg:
+            # Retry without pool parameters (safety net)
+            logger.warning(f"Engine creation failed, retrying without pool params: {e}")
+            safe_kwargs = {k: v for k, v in engine_kwargs.items() 
+                          if k not in {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}}
+            _engine = create_async_engine(db_url, **safe_kwargs)
+        else:
+            raise
     
     # Register event listeners only once
     if not _events_registered:
