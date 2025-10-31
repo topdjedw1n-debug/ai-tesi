@@ -22,25 +22,32 @@ def _create_engine():
     """Create database engine with appropriate parameters based on database type"""
     # Check both settings and environment (for test compatibility)
     db_url = settings.DATABASE_URL or os.environ.get("DATABASE_URL", "")
+    if not db_url:
+        # Fallback: will be set later
+        db_url = "sqlite+aiosqlite:///:memory:"
+    
     is_sqlite = "sqlite" in db_url.lower()
     
-    engine_kwargs = {
-        "echo": False,  # MUST be False in production
-        "pool_pre_ping": True,
-        "future": True,
-    }
-    
-    # Only add pool parameters for non-SQLite databases (PostgreSQL, etc.)
-    if not is_sqlite and db_url:
-        engine_kwargs.update({
+    if is_sqlite:
+        # SQLite-specific configuration (no pool parameters)
+        engine_kwargs = {
+            "echo": False,
+            "future": True,
+        }
+    else:
+        # PostgreSQL and other databases (with pool parameters)
+        engine_kwargs = {
+            "echo": False,
+            "pool_pre_ping": True,
             "pool_size": 20,
             "max_overflow": 40,
             "pool_recycle": 3600,
+            "future": True,
             "connect_args": {
                 "server_settings": {"jit": "off"},
                 "command_timeout": 60,
             },
-        })
+        }
     
     return create_async_engine(
         db_url,
