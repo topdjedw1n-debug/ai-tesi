@@ -2,14 +2,17 @@
 Document service for managing documents and sections
 """
 
+import io
 import logging
-from typing import Any, Dict, Optional
+from datetime import datetime, timedelta
+from typing import Any
 
 from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import NotFoundError, ValidationError
+from app.models.auth import User
 from app.models.document import Document, DocumentSection
 
 logger = logging.getLogger(__name__)
@@ -30,8 +33,8 @@ class DocumentService:
         target_pages: int = 10,
         ai_provider: str = "openai",
         ai_model: str = "gpt-4",
-        additional_requirements: Optional[str] = None
-    ) -> Dict[str, Any]:
+        additional_requirements: str | None = None
+    ) -> dict[str, Any]:
         """Create a new document"""
         try:
             document = Document(
@@ -50,9 +53,9 @@ class DocumentService:
 
             # Update user's document count
             await self.db.execute(
-                update(Document)
-                .where(Document.user_id == user_id)
-                .values(total_documents_created=Document.total_documents_created + 1)
+                update(User)
+                .where(User.id == user_id)
+                .values(total_documents_created=User.total_documents_created + 1)
             )
 
             await self.db.commit()
@@ -70,7 +73,7 @@ class DocumentService:
             logger.error(f"Error creating document: {e}")
             raise ValidationError(f"Failed to create document: {str(e)}") from e
 
-    async def get_document(self, document_id: int, user_id: int) -> Dict[str, Any]:
+    async def get_document(self, document_id: int, user_id: int) -> dict[str, Any]:
         """Get document by ID"""
         try:
             result = await self.db.execute(
@@ -129,7 +132,7 @@ class DocumentService:
         user_id: int,
         limit: int = 20,
         offset: int = 0
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Get user's documents with pagination"""
         try:
             # Get total count
@@ -174,8 +177,8 @@ class DocumentService:
         self,
         document_id: int,
         user_id: int,
-        **updates
-    ) -> Dict[str, Any]:
+        **updates: Any
+    ) -> dict[str, Any]:
         """Update document"""
         try:
             # Check if document exists and belongs to user
@@ -213,7 +216,7 @@ class DocumentService:
             logger.error(f"Error updating document: {e}")
             raise ValidationError(f"Failed to update document: {str(e)}") from e
 
-    async def delete_document(self, document_id: int, user_id: int) -> Dict[str, Any]:
+    async def delete_document(self, document_id: int, user_id: int) -> dict[str, Any]:
         """Delete document"""
         try:
             # Check if document exists and belongs to user
@@ -246,7 +249,7 @@ class DocumentService:
         self,
         document_id: int,
         user_id: int
-    ) -> list[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Get all sections for a document"""
         try:
             # Verify document ownership
@@ -293,7 +296,7 @@ class DocumentService:
         document_id: int,
         user_id: int,
         content: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Update document content"""
         try:
             # Verify document ownership
@@ -324,7 +327,7 @@ class DocumentService:
             logger.error(f"Error updating document content: {e}")
             raise ValidationError(f"Failed to update document content: {str(e)}") from e
 
-    async def verify_file_storage_integrity(self) -> Dict[str, Any]:
+    async def verify_file_storage_integrity(self) -> dict[str, Any]:
         """
         Verify file storage integrity (MinIO/S3).
 
@@ -430,3 +433,142 @@ class DocumentService:
                 "error": str(e),
                 "timestamp": time.time()
             }
+
+    async def export_document(
+        self,
+        document_id: int,
+        format: str,
+        user_id: int
+    ) -> dict[str, Any]:
+        """Export document to DOCX or PDF format"""
+        try:
+            from docx import Document as DocxDocument
+            from minio import Minio
+            from minio.error import S3Error
+
+            from app.core.config import settings
+
+            # Get document with sections
+            result = await self.db.execute(
+                select(Document)
+                .options(selectinload(Document.sections))
+                .where(
+                    Document.id == document_id,
+                    Document.user_id == user_id
+                )
+            )
+            document = result.scalar_one_or_none()
+
+            if not document:
+                raise NotFoundError("Document not found")
+
+            # Check if document is completed
+            if document.status != "completed":
+                raise ValidationError("Document is not completed. Cannot export incomplete documents.")
+
+            # Generate file based on format
+            if format == "docx":
+                # Create DOCX document
+                docx = DocxDocument()
+
+                # Add title
+                docx.add_heading(document.title, 0)
+
+                # Add metadata
+                docx.add_paragraph(f"Topic: {document.topic}")
+                docx.add_paragraph(f"Language: {document.language}")
+                docx.add_paragraph(f"Created: {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+                docx.add_paragraph("")  # Empty line
+
+                # Add content if available
+                if document.content:
+                    docx.add_paragraph(document.content)
+                elif document.sections:
+                    # Add sections
+                    for section in sorted(document.sections, key=lambda s: s.section_index):
+                        docx.add_heading(section.title, 1)
+                        if section.content:
+                            docx.add_paragraph(section.content)
+                        docx.add_paragraph("")  # Empty line between sections
+
+                # Save to BytesIO
+                file_stream = io.BytesIO()
+                docx.save(file_stream)
+                file_stream.seek(0)
+                file_size = file_stream.tell()
+                file_stream.seek(0)
+
+                file_extension = "docx"
+                content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+            else:
+                raise ValidationError(f"Unsupported export format: {format}")
+
+            # Upload to MinIO
+            client = Minio(
+                settings.MINIO_ENDPOINT,
+                access_key=settings.MINIO_ACCESS_KEY,
+                secret_key=settings.MINIO_SECRET_KEY,
+                secure=settings.MINIO_SECURE
+            )
+
+            # Generate object name
+            object_name = f"documents/{user_id}/{document_id}/{document_id}.{file_extension}"
+
+            # Upload file
+            try:
+                client.put_object(
+                    settings.MINIO_BUCKET,
+                    object_name,
+                    file_stream,
+                    length=file_size,
+                    content_type=content_type
+                )
+            except S3Error as e:
+                logger.error(f"Failed to upload document to MinIO: {e}")
+                raise ValidationError("Failed to upload document to storage") from e
+
+            # Generate presigned URL (expires in 1 hour)
+            try:
+                download_url = client.presigned_get_object(
+                    settings.MINIO_BUCKET,
+                    object_name,
+                    expires=timedelta(hours=1)
+                )
+            except S3Error as e:
+                logger.error(f"Failed to generate presigned URL: {e}")
+                raise ValidationError("Failed to generate download URL") from e
+
+            # Update document path
+            storage_path = f"s3://{settings.MINIO_BUCKET}/{object_name}"
+            if format == "docx":
+                await self.db.execute(
+                    update(Document)
+                    .where(Document.id == document_id)
+                    .values(docx_path=storage_path)
+                )
+            elif format == "pdf":
+                await self.db.execute(
+                    update(Document)
+                    .where(Document.id == document_id)
+                    .values(pdf_path=storage_path)
+                )
+
+            await self.db.commit()
+
+            # Return response
+            return {
+                "download_url": download_url,
+                "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
+                "file_size": file_size,
+                "format": format
+            }
+
+        except NotFoundError:
+            raise
+        except ValidationError:
+            raise
+        except Exception as e:
+            await self.db.rollback()
+            logger.error(f"Error exporting document: {e}")
+            raise ValidationError(f"Failed to export document: {str(e)}") from e

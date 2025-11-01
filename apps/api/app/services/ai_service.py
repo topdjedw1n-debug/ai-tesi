@@ -5,13 +5,15 @@ AI service for generating content using various providers
 
 import logging
 import time
+from datetime import datetime
 from typing import Any
 
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.exceptions import AIProviderError, NotFoundError
+from app.models.auth import User
 from app.models.document import Document, DocumentOutline, DocumentSection
 
 logger = logging.getLogger(__name__)
@@ -27,8 +29,8 @@ class AIService:
         self,
         document_id: int,
         user_id: int,
-        additional_requirements: Optional[str] = None
-    ) -> Dict[str, Any]:
+        additional_requirements: str | None = None
+    ) -> dict[str, Any]:
         """Generate document outline using AI"""
         try:
             # Get document
@@ -99,8 +101,8 @@ class AIService:
         section_title: str,
         section_index: int,
         user_id: int,
-        additional_requirements: Optional[str] = None
-    ) -> Dict[str, Any]:
+        additional_requirements: str | None = None
+    ) -> dict[str, Any]:
         """Generate a specific section using AI"""
         try:
             # Get document
@@ -141,7 +143,7 @@ class AIService:
                 section.status = 'completed'
                 section.tokens_used = section_content.get('tokens_used', 0)
                 section.generation_time_seconds = generation_time
-                section.completed_at = time.time()
+                section.completed_at = datetime.utcnow()
             else:
                 section = DocumentSection(
                     document_id=document_id,
@@ -151,7 +153,7 @@ class AIService:
                     status='completed',
                     tokens_used=section_content.get('tokens_used', 0),
                     generation_time_seconds=generation_time,
-                    completed_at=time.time()
+                    completed_at=datetime.utcnow()
                 )
                 self.db.add(section)
 
@@ -182,23 +184,23 @@ class AIService:
             logger.error(f"Error generating section: {e}")
             raise AIProviderError(f"Failed to generate section: {str(e)}") from e
 
-    async def get_user_usage(self, user_id: int) -> Dict[str, Any]:
+    async def get_user_usage(self, user_id: int) -> dict[str, Any]:
         """Get AI usage statistics for a user"""
         try:
-            # Get total documents and tokens used
+            # Get total documents and tokens used from User model
             result = await self.db.execute(
                 select(
-                    Document.total_documents_created,
-                    Document.total_tokens_used
-                ).where(Document.user_id == user_id)
+                    func.coalesce(User.total_documents_created, 0).label('total_documents'),
+                    func.coalesce(User.total_tokens_used, 0).label('total_tokens')
+                ).where(User.id == user_id)
             )
             stats = result.first()
 
             return {
                 "user_id": user_id,
-                "total_documents": stats.total_documents_created if stats else 0,
-                "total_tokens_used": stats.total_tokens_used if stats else 0,
-                "last_updated": time.time()
+                "total_documents": stats.total_documents if stats else 0,
+                "total_tokens_used": stats.total_tokens if stats else 0,
+                "last_updated": datetime.utcnow().isoformat()
             }
 
         except Exception as e:
@@ -210,7 +212,7 @@ class AIService:
         provider: str,
         model: str,
         prompt: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Call the appropriate AI provider"""
         if provider == "openai":
             return await self._call_openai(model, prompt)
@@ -219,7 +221,7 @@ class AIService:
         else:
             raise AIProviderError(f"Unsupported AI provider: {provider}")
 
-    async def _call_openai(self, model: str, prompt: str) -> Dict[str, Any]:
+    async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
         """Call OpenAI API"""
         try:
             import openai
@@ -251,7 +253,7 @@ class AIService:
             logger.error(f"OpenAI API error: {e}")
             raise AIProviderError(f"OpenAI API error: {str(e)}") from e
 
-    async def _call_anthropic(self, model: str, prompt: str) -> Dict[str, Any]:
+    async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API"""
         try:
             import anthropic
@@ -286,7 +288,7 @@ class AIService:
     def _build_outline_prompt(
         self,
         document: Document,
-        additional_requirements: Optional[str] = None
+        additional_requirements: str | None = None
     ) -> str:
         """Build prompt for outline generation"""
         prompt = f"""
@@ -322,7 +324,7 @@ Please respond with a JSON structure containing the outline data.
         document: Document,
         section_title: str,
         section_index: int,
-        additional_requirements: Optional[str] = None
+        additional_requirements: str | None = None
     ) -> str:
         """Build prompt for section generation"""
         prompt = f"""
