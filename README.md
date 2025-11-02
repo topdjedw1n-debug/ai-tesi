@@ -90,7 +90,7 @@ AI TESI/
 │   └── api/                   # FastAPI Backend
 │       ├── app/
 │       │   ├── api/v1/endpoints/  # 7 API routers
-│       │   ├── services/          # 20 services
+│       │   ├── services/          # 18 services
 │       │   ├── models/            # 5 database models
 │       │   ├── schemas/           # Pydantic schemas
 │       │   ├── core/              # Config, deps, monitoring
