@@ -36,6 +36,8 @@ open http://localhost:3000
 |----------|-------------|--------------|
 | [MASTER_DOCUMENT.md](./docs/MASTER_DOCUMENT.md) | Complete technical documentation | Always first |
 | [QUICK_START.md](./docs/QUICK_START.md) | 5-minute setup guide | To run locally |
+| [STEP_BY_STEP_PRODUCTION_GUIDE.md](./docs/STEP_BY_STEP_PRODUCTION_GUIDE.md) | **NEW:** Detailed production setup (8 steps) | Before deployment |
+| [QUICK_FIX_GUIDE.md](./docs/QUICK_FIX_GUIDE.md) | **NEW:** Fast P0 bug fixes (2 hours) | For critical bugs |
 | [DECISIONS_LOG.md](./docs/DECISIONS_LOG.md) | All architectural decisions | To understand "why" |
 | [.ai-instructions](./.ai-instructions) | Instructions for AI assistants | If you're an AI |
 
@@ -44,24 +46,71 @@ open http://localhost:3000
 ## 🏗️ Architecture
 
 ```
-Next.js Frontend ──► FastAPI Backend ──► PostgreSQL
-                           │
-                    ┌──────┴──────┐
-                    ▼             ▼
-                  Redis         MinIO
-                    │             │
-                    └──────┬──────┘
-                           ▼
-                    OpenAI / Anthropic
+┌─────────────────┐      ┌──────────────────┐      ┌──────────────┐
+│   Next.js 14    │─────▶│   FastAPI 0.104  │─────▶│ PostgreSQL 15│
+│   Frontend      │      │   Backend        │      │   Database   │
+└─────────────────┘      └──────────────────┘      └──────────────┘
+                                │
+                    ┌───────────┴───────────┐
+                    ▼                       ▼
+            ┌─────────────┐         ┌─────────────┐
+            │  Redis 7    │         │   MinIO     │
+            │  Cache      │         │  Storage    │
+            └─────────────┘         └─────────────┘
+                    │                       │
+                    └───────────┬───────────┘
+                                ▼
+                    ┌───────────────────────┐
+                    │  OpenAI / Anthropic   │
+                    │      AI APIs          │
+                    └───────────────────────┘
 ```
 
 **Tech Stack:**
-- **Backend:** FastAPI + SQLAlchemy + Pydantic
-- **Frontend:** Next.js 14 + TypeScript + Tailwind
+- **Backend:** FastAPI 0.104 + SQLAlchemy 2.0 + Pydantic 2.5
+- **Frontend:** Next.js 14 + TypeScript + Tailwind CSS
 - **Database:** PostgreSQL 15 + Redis 7
-- **AI:** OpenAI GPT-4 + Anthropic Claude
+- **AI:** OpenAI GPT-4/3.5 + Anthropic Claude 3.5
 - **Storage:** MinIO (S3-compatible)
 - **Payments:** Stripe
+- **Monitoring:** Prometheus + Sentry
+
+---
+
+## 📁 Project Structure
+
+```
+AI TESI/
+├── apps/
+│   ├── web/                    # Next.js 14 Frontend
+│   │   ├── app/               # App Router (7 pages)
+│   │   ├── components/        # React components (16 files)
+│   │   ├── hooks/            # Custom React hooks
+│   │   └── utils/            # Utilities
+│   └── api/                   # FastAPI Backend
+│       ├── app/
+│       │   ├── api/v1/endpoints/  # 7 API routers
+│       │   ├── services/          # 20 services
+│       │   ├── models/            # 5 database models
+│       │   ├── schemas/           # Pydantic schemas
+│       │   ├── core/              # Config, deps, monitoring
+│       │   └── middleware/        # Rate limit, CSRF
+│       ├── tests/            # 115+ tests (48% coverage)
+│       └── requirements.txt
+├── infra/
+│   └── docker/
+│       ├── docker-compose.yml        # Development
+│       └── docker-compose.prod.yml   # Production
+├── docs/                      # 15+ documentation files
+├── reports/                   # Audit & QA reports
+└── scripts/                   # Deployment scripts
+```
+
+**Key Stats:**
+- **7 API Routers:** auth, documents, generate, jobs, admin, payment, user
+- **20 Services:** AI pipeline, auth, payments, background jobs, etc.
+- **115+ Tests:** 48% coverage (target: 80%)
+- **Production Ready:** 80% (after P0 fixes)
 
 ---
 
@@ -140,13 +189,14 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ## 🔒 Security
 
-### Critical Fixes Needed (1 day work)
-1. **IDOR Protection** - Add ownership checks
-2. **JWT Hardening** - Strong keys required
-3. **File Validation** - Magic bytes checking
-4. **Backup Strategy** - Implement 3-2-1 rule
+### Critical Fixes Needed (1 day work) - **GUIDES AVAILABLE**
+1. ✅ **IDOR Protection** - Add ownership checks
+2. ✅ **JWT Hardening** - Strong keys required  
+3. ✅ **File Validation** - Magic bytes checking
+4. ⚠️ **Email Integration** - Add SMTP service
 
-**Details:** MASTER_DOCUMENT.md Section 6.2
+**Quick Fix:** See [QUICK_FIX_GUIDE.md](./docs/QUICK_FIX_GUIDE.md)  
+**Full Setup:** See [STEP_BY_STEP_PRODUCTION_GUIDE.md](./docs/STEP_BY_STEP_PRODUCTION_GUIDE.md)
 
 ---
 
