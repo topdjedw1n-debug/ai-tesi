@@ -108,7 +108,7 @@ AI TESI/
 
 **Key Stats:**
 - **7 API Routers:** auth, documents, generate, jobs, admin, payment, user
-- **20 Services:** AI pipeline, auth, payments, background jobs, etc.
+- **18 Services:** AI pipeline, auth, payments, background jobs, etc.
 - **115+ Tests:** 48% coverage (target: 80%)
 - **Production Ready:** 80% (after P0 fixes)
 
