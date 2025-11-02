@@ -5,9 +5,9 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { apiClient, API_ENDPOINTS } from '@/lib/api'
-import { 
-  UserCircleIcon, 
-  EnvelopeIcon, 
+import {
+  UserCircleIcon,
+  EnvelopeIcon,
   CalendarIcon,
   ChartBarIcon,
   CurrencyDollarIcon
@@ -31,7 +31,7 @@ export default function ProfilePage() {
   useEffect(() => {
     const fetchProfile = async () => {
       if (!user) return
-      
+
       try {
         setLoading(true)
         const token = localStorage.getItem('auth_token')
@@ -143,7 +143,7 @@ export default function ProfilePage() {
                     Дата реєстрації
                   </dt>
                   <dd className="mt-1 text-sm text-gray-900">
-                    {profileData?.created_at 
+                    {profileData?.created_at
                       ? new Date(profileData.created_at).toLocaleDateString('uk-UA', {
                           year: 'numeric',
                           month: 'long',
@@ -178,4 +178,3 @@ export default function ProfilePage() {
     </DashboardLayout>
   )
 }
-

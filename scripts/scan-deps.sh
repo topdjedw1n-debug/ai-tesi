@@ -47,4 +47,3 @@ fi
 echo ""
 echo "Vulnerability scan complete. Report saved to: $LOGS_DIR/vulnerability-report.txt"
 cat "$LOGS_DIR/vulnerability-report.txt"
-

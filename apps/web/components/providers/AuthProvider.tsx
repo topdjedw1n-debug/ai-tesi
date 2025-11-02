@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string) => {
     try {
       setIsLoading(true)
-      
+
       // TODO: Call backend API to send magic link
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/magic-link`, {
         method: 'POST',
@@ -94,7 +94,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyMagicLink = async (token: string): Promise<boolean> => {
     try {
       setIsLoading(true)
-      
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/verify-magic-link`, {
         method: 'POST',
         headers: {
@@ -108,7 +108,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
 
       const data = await response.json()
-      
+
       if (data.success) {
         localStorage.setItem('auth_token', data.token)
         localStorage.setItem('user_data', JSON.stringify(data.user))
@@ -117,7 +117,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         router.push('/dashboard')
         return true
       }
-      
+
       return false
     } catch (error) {
       console.error('Magic link verification failed:', error)

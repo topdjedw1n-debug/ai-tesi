@@ -2,7 +2,6 @@
 Custom exceptions for the application
 """
 
-from typing import Any, Dict, List, Optional
 
 from fastapi import status
 
@@ -10,7 +9,9 @@ from fastapi import status
 class APIException(Exception):
     """Base API exception"""
 
-    def __init__(self, detail: str, status_code: int = 500, error_code: Optional[str] = None):
+    def __init__(
+        self, detail: str, status_code: int = 500, error_code: str | None = None
+    ):
         self.detail = detail
         self.status_code = status_code
         self.error_code = error_code
@@ -28,7 +29,9 @@ class ValidationError(APIException):
     """Validation error exception"""
 
     def __init__(self, detail: str = "Validation error"):
-        super().__init__(detail, status.HTTP_422_UNPROCESSABLE_ENTITY, "VALIDATION_ERROR")
+        super().__init__(
+            detail, status.HTTP_422_UNPROCESSABLE_ENTITY, "VALIDATION_ERROR"
+        )
 
 
 class AuthenticationError(APIException):
@@ -57,4 +60,3 @@ class RateLimitError(APIException):
 
     def __init__(self, detail: str = "Rate limit exceeded"):
         super().__init__(detail, status.HTTP_429_TOO_MANY_REQUESTS, "RATE_LIMIT_ERROR")
-

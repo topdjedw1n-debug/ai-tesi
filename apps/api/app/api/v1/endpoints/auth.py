@@ -18,9 +18,10 @@ from app.middleware.rate_limit import (
 from app.schemas.auth import (
     MagicLinkRequest,
     MagicLinkResponse,
+    MagicLinkVerify,
     TokenResponse,
-    UserResponse,
 )
+from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
 
 router = APIRouter()
@@ -29,9 +30,7 @@ router = APIRouter()
 @router.post("/magic-link", response_model=MagicLinkResponse)
 @rate_limit("3/hour")  # Per-user/IP rate limit: 3/hr with progressive backoff
 async def request_magic_link(
-    http_request: Request,
-    request: MagicLinkRequest,
-    db: AsyncSession = Depends(get_db)
+    http_request: Request, request: MagicLinkRequest, db: AsyncSession = Depends(get_db)
 ):
     """Request a magic link for passwordless authentication"""
     correlation_id = http_request.headers.get("X-Request-ID", "unknown")
@@ -49,7 +48,10 @@ async def request_magic_link(
             resource="auth",
             action="request_magic_link",
             outcome="denied",
-            details={"reason": "account_locked", "lockout_minutes": int(lockout.total_seconds() / 60)}
+            details={
+                "reason": "account_locked",
+                "lockout_minutes": int(lockout.total_seconds() / 60),
+            },
         )
         raise RateLimitError(
             f"Account temporarily locked due to multiple failed authentication attempts. "
@@ -71,7 +73,7 @@ async def request_magic_link(
             resource="auth",
             action="request_magic_link",
             outcome="success",
-            details={"email": request.email}
+            details={"email": request.email},
         )
 
         return result
@@ -84,7 +86,7 @@ async def request_magic_link(
             resource="auth",
             action="request_magic_link",
             outcome="failure",
-            details={"reason": "validation_error", "error": str(e)}
+            details={"reason": "validation_error", "error": str(e)},
         )
         raise
     except Exception as e:
@@ -96,7 +98,7 @@ async def request_magic_link(
             resource="auth",
             action="request_magic_link",
             outcome="failure",
-            details={"reason": "internal_error", "error": str(e)}
+            details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to send magic link") from e
 
@@ -104,9 +106,7 @@ async def request_magic_link(
 @router.post("/verify-magic-link", response_model=TokenResponse)
 @rate_limit("10/hour")  # Per-user/IP rate limit: 10/hr
 async def verify_magic_link(
-    request: Request,
-    token: str,
-    db: AsyncSession = Depends(get_db)
+    request: Request, magic_link: MagicLinkVerify, db: AsyncSession = Depends(get_db)
 ):
     """Verify magic link token and return access token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
@@ -124,7 +124,10 @@ async def verify_magic_link(
             resource="auth",
             action="verify_magic_link",
             outcome="denied",
-            details={"reason": "account_locked", "lockout_minutes": int(lockout.total_seconds() / 60)}
+            details={
+                "reason": "account_locked",
+                "lockout_minutes": int(lockout.total_seconds() / 60),
+            },
         )
         raise RateLimitError(
             f"Account temporarily locked due to multiple failed authentication attempts. "
@@ -133,7 +136,7 @@ async def verify_magic_link(
 
     try:
         auth_service = AuthService(db)
-        result = await auth_service.verify_magic_link(token)
+        result = await auth_service.verify_magic_link(magic_link.token)
         # Clear auth failures on successful verification
         await clear_auth_failures(identifier)
 
@@ -151,7 +154,7 @@ async def verify_magic_link(
             endpoint="/api/v1/auth/verify-magic-link",
             resource="auth",
             action="verify_magic_link",
-            outcome="success"
+            outcome="success",
         )
 
         return result
@@ -167,7 +170,7 @@ async def verify_magic_link(
             resource="auth",
             action="verify_magic_link",
             outcome="failure",
-            details={"reason": str(e)}
+            details={"reason": str(e)},
         )
 
         raise
@@ -180,7 +183,7 @@ async def verify_magic_link(
             resource="auth",
             action="verify_magic_link",
             outcome="failure",
-            details={"reason": "internal_error", "error": str(e)}
+            details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to verify magic link") from e
 
@@ -188,9 +191,7 @@ async def verify_magic_link(
 @router.post("/refresh", response_model=TokenResponse)
 @rate_limit("20/hour")  # Per-user/IP rate limit: 20/hr
 async def refresh_token(
-    request: Request,
-    refresh_token: str,
-    db: AsyncSession = Depends(get_db)
+    request: Request, refresh_token: str, db: AsyncSession = Depends(get_db)
 ):
     """Refresh access token using refresh token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
@@ -208,7 +209,10 @@ async def refresh_token(
             resource="auth",
             action="refresh_token",
             outcome="denied",
-            details={"reason": "account_locked", "lockout_minutes": int(lockout.total_seconds() / 60)}
+            details={
+                "reason": "account_locked",
+                "lockout_minutes": int(lockout.total_seconds() / 60),
+            },
         )
         raise RateLimitError(
             f"Account temporarily locked due to multiple failed authentication attempts. "
@@ -235,7 +239,7 @@ async def refresh_token(
             endpoint="/api/v1/auth/refresh",
             resource="auth",
             action="refresh_token",
-            outcome="success"
+            outcome="success",
         )
 
         return result
@@ -251,7 +255,7 @@ async def refresh_token(
             resource="auth",
             action="refresh_token",
             outcome="failure",
-            details={"reason": str(e)}
+            details={"reason": str(e)},
         )
 
         raise
@@ -264,17 +268,14 @@ async def refresh_token(
             resource="auth",
             action="refresh_token",
             outcome="failure",
-            details={"reason": "internal_error", "error": str(e)}
+            details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to refresh token") from e
 
 
 @router.post("/logout")
 @rate_limit("5/minute")
-async def logout(
-    request: Request,
-    db: AsyncSession = Depends(get_db)
-):
+async def logout(request: Request, db: AsyncSession = Depends(get_db)):
     """Logout user and invalidate session"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -291,7 +292,7 @@ async def logout(
                 resource="auth",
                 action="logout",
                 outcome="failure",
-                details={"reason": "invalid_authorization_header"}
+                details={"reason": "invalid_authorization_header"},
             )
             raise AuthenticationError("Invalid authorization header")
 
@@ -308,7 +309,7 @@ async def logout(
             endpoint="/api/v1/auth/logout",
             resource="auth",
             action="logout",
-            outcome="success"
+            outcome="success",
         )
 
         return {"message": "Successfully logged out"}
@@ -323,16 +324,13 @@ async def logout(
             resource="auth",
             action="logout",
             outcome="failure",
-            details={"reason": "internal_error", "error": str(e)}
+            details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to logout") from e
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user(
-    request: Request,
-    db: AsyncSession = Depends(get_db)
-):
+async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)):
     """Get current user information"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -349,7 +347,7 @@ async def get_current_user(
                 resource="user",
                 action="read",
                 outcome="failure",
-                details={"reason": "invalid_authorization_header"}
+                details={"reason": "invalid_authorization_header"},
             )
             raise AuthenticationError("Invalid authorization header")
 
@@ -367,7 +365,7 @@ async def get_current_user(
             endpoint="/api/v1/auth/me",
             resource="user",
             action="read",
-            outcome="success"
+            outcome="success",
         )
 
         return user
@@ -382,6 +380,6 @@ async def get_current_user(
             resource="user",
             action="read",
             outcome="failure",
-            details={"reason": "internal_error", "error": str(e)}
+            details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to get user information") from e

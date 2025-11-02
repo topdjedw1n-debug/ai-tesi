@@ -24,6 +24,26 @@ class DocumentService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    async def check_document_ownership(
+        self, document_id: int, user_id: int
+    ) -> Document:
+        """
+        Check if document exists and belongs to user.
+        Returns Document object or raises NotFoundError.
+        
+        This function ensures IDOR protection by returning 404
+        instead of 403 to avoid revealing existence of documents.
+        """
+        result = await self.db.execute(
+            select(Document).where(Document.id == document_id)
+        )
+        document = result.scalar_one_or_none()
+        
+        if not document or document.user_id != user_id:
+            raise NotFoundError("Document not found")
+        
+        return document
+
     async def create_document(
         self,
         user_id: int,
@@ -33,7 +53,7 @@ class DocumentService:
         target_pages: int = 10,
         ai_provider: str = "openai",
         ai_model: str = "gpt-4",
-        additional_requirements: str | None = None
+        additional_requirements: str | None = None,
     ) -> dict[str, Any]:
         """Create a new document"""
         try:
@@ -45,7 +65,7 @@ class DocumentService:
                 target_pages=target_pages,
                 ai_provider=ai_provider,
                 ai_model=ai_model,
-                status="draft"
+                status="draft",
             )
 
             self.db.add(document)
@@ -60,12 +80,43 @@ class DocumentService:
 
             await self.db.commit()
 
+            # Calculate word count and reading time from document content/title/topic
+            content_text = ""
+            if document.content:
+                content_text = document.content
+            elif document.title and document.topic:
+                content_text = f"{document.title} {document.topic}"
+
+            word_count = len(content_text.split()) if content_text else 0
+            estimated_reading_time = max(
+                1, word_count // 200
+            )  # Assume 200 WPM reading speed
+
             return {
                 "id": document.id,
+                "user_id": document.user_id,
                 "title": document.title,
                 "topic": document.topic,
+                "language": document.language,
+                "target_pages": document.target_pages,
                 "status": document.status,
-                "created_at": document.created_at.isoformat()
+                "ai_provider": document.ai_provider,
+                "ai_model": document.ai_model,
+                "outline": document.outline,
+                "content": document.content,
+                "tokens_used": document.tokens_used,
+                "generation_time_seconds": document.generation_time_seconds,
+                "created_at": document.created_at.isoformat(),
+                "updated_at": document.updated_at.isoformat()
+                if document.updated_at
+                else None,
+                "completed_at": document.completed_at.isoformat()
+                if document.completed_at
+                else None,
+                "is_archived": document.is_archived,
+                "word_count": word_count,
+                "estimated_reading_time": estimated_reading_time,
+                "sections": [],
             }
 
         except Exception as e:
@@ -79,23 +130,34 @@ class DocumentService:
             result = await self.db.execute(
                 select(Document)
                 .options(selectinload(Document.sections))
-                .where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
-                )
+                .where(Document.id == document_id, Document.user_id == user_id)
             )
             document = result.scalar_one_or_none()
 
             if not document:
                 raise NotFoundError("Document not found")
 
+            # Calculate word count and reading time from document content/title/topic
+            content_text = ""
+            if document.content:
+                content_text = document.content
+            elif document.title and document.topic:
+                content_text = f"{document.title} {document.topic}"
+
+            word_count = len(content_text.split()) if content_text else 0
+            estimated_reading_time = max(
+                1, word_count // 200
+            )  # Assume 200 WPM reading speed
+
             return {
                 "id": document.id,
+                "user_id": document.user_id,
                 "title": document.title,
                 "topic": document.topic,
                 "language": document.language,
                 "target_pages": document.target_pages,
                 "status": document.status,
+                "is_archived": document.is_archived,
                 "ai_provider": document.ai_provider,
                 "ai_model": document.ai_model,
                 "outline": document.outline,
@@ -104,7 +166,11 @@ class DocumentService:
                 "generation_time_seconds": document.generation_time_seconds,
                 "created_at": document.created_at.isoformat(),
                 "updated_at": document.updated_at.isoformat(),
-                "completed_at": document.completed_at.isoformat() if document.completed_at else None,
+                "completed_at": document.completed_at.isoformat()
+                if document.completed_at
+                else None,
+                "word_count": word_count,
+                "estimated_reading_time": estimated_reading_time,
                 "sections": [
                     {
                         "id": section.id,
@@ -117,10 +183,12 @@ class DocumentService:
                         "tokens_used": section.tokens_used,
                         "generation_time_seconds": section.generation_time_seconds,
                         "created_at": section.created_at.isoformat(),
-                        "completed_at": section.completed_at.isoformat() if section.completed_at else None
+                        "completed_at": section.completed_at.isoformat()
+                        if section.completed_at
+                        else None,
                     }
                     for section in document.sections
-                ]
+                ],
             }
 
         except Exception as e:
@@ -128,10 +196,7 @@ class DocumentService:
             raise NotFoundError(f"Failed to get document: {str(e)}") from e
 
     async def get_user_documents(
-        self,
-        user_id: int,
-        limit: int = 20,
-        offset: int = 0
+        self, user_id: int, limit: int = 20, offset: int = 0
     ) -> dict[str, Any]:
         """Get user's documents with pagination"""
         try:
@@ -151,22 +216,55 @@ class DocumentService:
             )
             documents = result.scalars().all()
 
-            return {
-                "documents": [
+            # Calculate pagination metadata
+            total_pages = (total_count + limit - 1) // limit if limit > 0 else 1
+            page = (offset // limit) + 1 if limit > 0 else 1
+
+            # Build document list with all required fields
+            doc_list = []
+            for doc in documents:
+                # Calculate word count and reading time
+                content_text = ""
+                if doc.content:
+                    content_text = doc.content
+                elif doc.title and doc.topic:
+                    content_text = f"{doc.title} {doc.topic}"
+
+                word_count = len(content_text.split()) if content_text else 0
+                estimated_reading_time = max(1, word_count // 200)
+
+                doc_list.append(
                     {
                         "id": doc.id,
+                        "user_id": doc.user_id,
                         "title": doc.title,
                         "topic": doc.topic,
+                        "language": doc.language,
+                        "target_pages": doc.target_pages,
                         "status": doc.status,
+                        "is_archived": doc.is_archived,
+                        "ai_provider": doc.ai_provider,
+                        "ai_model": doc.ai_model,
+                        "outline": doc.outline,
+                        "content": doc.content,
                         "tokens_used": doc.tokens_used,
+                        "generation_time_seconds": doc.generation_time_seconds,
                         "created_at": doc.created_at.isoformat(),
                         "updated_at": doc.updated_at.isoformat()
+                        if doc.updated_at
+                        else None,
+                        "word_count": word_count,
+                        "estimated_reading_time": estimated_reading_time,
+                        "sections": [],
                     }
-                    for doc in documents
-                ],
-                "total_count": total_count,
-                "limit": limit,
-                "offset": offset
+                )
+
+            return {
+                "documents": doc_list,
+                "total": total_count,
+                "page": page,
+                "per_page": limit,
+                "total_pages": total_pages,
             }
 
         except Exception as e:
@@ -174,18 +272,14 @@ class DocumentService:
             raise ValidationError(f"Failed to get documents: {str(e)}") from e
 
     async def update_document(
-        self,
-        document_id: int,
-        user_id: int,
-        **updates: Any
+        self, document_id: int, user_id: int, **updates: Any
     ) -> dict[str, Any]:
         """Update document"""
         try:
             # Check if document exists and belongs to user
             result = await self.db.execute(
                 select(Document).where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
+                    Document.id == document_id, Document.user_id == user_id
                 )
             )
             document = result.scalar_one_or_none()
@@ -195,8 +289,13 @@ class DocumentService:
 
             # Update allowed fields
             allowed_fields = [
-                "title", "topic", "language", "target_pages",
-                "ai_provider", "ai_model", "is_public"
+                "title",
+                "topic",
+                "language",
+                "target_pages",
+                "ai_provider",
+                "ai_model",
+                "is_public",
             ]
 
             update_data = {k: v for k, v in updates.items() if k in allowed_fields}
@@ -211,6 +310,9 @@ class DocumentService:
 
             return {"message": "Document updated successfully"}
 
+        except NotFoundError:
+            await self.db.rollback()
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error updating document: {e}")
@@ -222,8 +324,7 @@ class DocumentService:
             # Check if document exists and belongs to user
             result = await self.db.execute(
                 select(Document).where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
+                    Document.id == document_id, Document.user_id == user_id
                 )
             )
             document = result.scalar_one_or_none()
@@ -232,9 +333,7 @@ class DocumentService:
                 raise NotFoundError("Document not found")
 
             # Delete document (cascade will handle sections)
-            await self.db.execute(
-                delete(Document).where(Document.id == document_id)
-            )
+            await self.db.execute(delete(Document).where(Document.id == document_id))
 
             await self.db.commit()
 
@@ -246,17 +345,14 @@ class DocumentService:
             raise ValidationError(f"Failed to delete document: {str(e)}") from e
 
     async def get_document_sections(
-        self,
-        document_id: int,
-        user_id: int
+        self, document_id: int, user_id: int
     ) -> list[dict[str, Any]]:
         """Get all sections for a document"""
         try:
             # Verify document ownership
             result = await self.db.execute(
                 select(Document.id).where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
+                    Document.id == document_id, Document.user_id == user_id
                 )
             )
             if not result.scalar_one_or_none():
@@ -282,7 +378,9 @@ class DocumentService:
                     "tokens_used": section.tokens_used,
                     "generation_time_seconds": section.generation_time_seconds,
                     "created_at": section.created_at.isoformat(),
-                    "completed_at": section.completed_at.isoformat() if section.completed_at else None
+                    "completed_at": section.completed_at.isoformat()
+                    if section.completed_at
+                    else None,
                 }
                 for section in sections
             ]
@@ -292,18 +390,14 @@ class DocumentService:
             raise NotFoundError(f"Failed to get document sections: {str(e)}") from e
 
     async def update_document_content(
-        self,
-        document_id: int,
-        user_id: int,
-        content: str
+        self, document_id: int, user_id: int, content: str
     ) -> dict[str, Any]:
         """Update document content"""
         try:
             # Verify document ownership
             result = await self.db.execute(
                 select(Document).where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
+                    Document.id == document_id, Document.user_id == user_id
                 )
             )
             document = result.scalar_one_or_none()
@@ -356,7 +450,7 @@ class DocumentService:
                 settings.MINIO_ENDPOINT,
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
-                secure=settings.MINIO_SECURE
+                secure=settings.MINIO_SECURE,
             )
 
             # Get all documents with file paths
@@ -372,19 +466,27 @@ class DocumentService:
                 if doc.docx_path:
                     try:
                         # Extract object name from path
-                        object_name = doc.docx_path.replace(f"s3://{settings.MINIO_BUCKET}/", "")
+                        object_name = doc.docx_path.replace(
+                            f"s3://{settings.MINIO_BUCKET}/", ""
+                        )
                         object_name = object_name.lstrip("/")
                         client.stat_object(settings.MINIO_BUCKET, object_name)
                     except S3Error:
-                        missing_files.append({"document_id": doc.id, "file": doc.docx_path})
+                        missing_files.append(
+                            {"document_id": doc.id, "file": doc.docx_path}
+                        )
 
                 if doc.pdf_path:
                     try:
-                        object_name = doc.pdf_path.replace(f"s3://{settings.MINIO_BUCKET}/", "")
+                        object_name = doc.pdf_path.replace(
+                            f"s3://{settings.MINIO_BUCKET}/", ""
+                        )
                         object_name = object_name.lstrip("/")
                         client.stat_object(settings.MINIO_BUCKET, object_name)
                     except S3Error:
-                        missing_files.append({"document_id": doc.id, "file": doc.pdf_path})
+                        missing_files.append(
+                            {"document_id": doc.id, "file": doc.pdf_path}
+                        )
 
             # List all files in bucket
             try:
@@ -422,7 +524,7 @@ class DocumentService:
                 "orphaned_files": len(orphaned_files),
                 "orphaned_file_details": orphaned_files[:10],  # Limit details
                 "total_storage_files": len(storage_files),
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
         except Exception as e:
             logger.error(f"Storage verification failed: {e}")
@@ -431,14 +533,11 @@ class DocumentService:
                 "missing_files": 0,
                 "orphaned_files": 0,
                 "error": str(e),
-                "timestamp": time.time()
+                "timestamp": time.time(),
             }
 
     async def export_document(
-        self,
-        document_id: int,
-        format: str,
-        user_id: int
+        self, document_id: int, format: str, user_id: int
     ) -> dict[str, Any]:
         """Export document to DOCX or PDF format"""
         try:
@@ -452,10 +551,7 @@ class DocumentService:
             result = await self.db.execute(
                 select(Document)
                 .options(selectinload(Document.sections))
-                .where(
-                    Document.id == document_id,
-                    Document.user_id == user_id
-                )
+                .where(Document.id == document_id, Document.user_id == user_id)
             )
             document = result.scalar_one_or_none()
 
@@ -464,7 +560,9 @@ class DocumentService:
 
             # Check if document is completed
             if document.status != "completed":
-                raise ValidationError("Document is not completed. Cannot export incomplete documents.")
+                raise ValidationError(
+                    "Document is not completed. Cannot export incomplete documents."
+                )
 
             # Generate file based on format
             if format == "docx":
@@ -477,7 +575,9 @@ class DocumentService:
                 # Add metadata
                 docx.add_paragraph(f"Topic: {document.topic}")
                 docx.add_paragraph(f"Language: {document.language}")
-                docx.add_paragraph(f"Created: {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}")
+                docx.add_paragraph(
+                    f"Created: {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
+                )
                 docx.add_paragraph("")  # Empty line
 
                 # Add content if available
@@ -485,7 +585,9 @@ class DocumentService:
                     docx.add_paragraph(document.content)
                 elif document.sections:
                     # Add sections
-                    for section in sorted(document.sections, key=lambda s: s.section_index):
+                    for section in sorted(
+                        document.sections, key=lambda s: s.section_index
+                    ):
                         docx.add_heading(section.title, 1)
                         if section.content:
                             docx.add_paragraph(section.content)
@@ -509,11 +611,13 @@ class DocumentService:
                 settings.MINIO_ENDPOINT,
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
-                secure=settings.MINIO_SECURE
+                secure=settings.MINIO_SECURE,
             )
 
             # Generate object name
-            object_name = f"documents/{user_id}/{document_id}/{document_id}.{file_extension}"
+            object_name = (
+                f"documents/{user_id}/{document_id}/{document_id}.{file_extension}"
+            )
 
             # Upload file
             try:
@@ -522,7 +626,7 @@ class DocumentService:
                     object_name,
                     file_stream,
                     length=file_size,
-                    content_type=content_type
+                    content_type=content_type,
                 )
             except S3Error as e:
                 logger.error(f"Failed to upload document to MinIO: {e}")
@@ -531,9 +635,7 @@ class DocumentService:
             # Generate presigned URL (expires in 1 hour)
             try:
                 download_url = client.presigned_get_object(
-                    settings.MINIO_BUCKET,
-                    object_name,
-                    expires=timedelta(hours=1)
+                    settings.MINIO_BUCKET, object_name, expires=timedelta(hours=1)
                 )
             except S3Error as e:
                 logger.error(f"Failed to generate presigned URL: {e}")
@@ -561,7 +663,7 @@ class DocumentService:
                 "download_url": download_url,
                 "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
                 "file_size": file_size,
-                "format": format
+                "format": format,
             }
 
         except NotFoundError:

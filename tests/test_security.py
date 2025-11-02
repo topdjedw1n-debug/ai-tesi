@@ -49,5 +49,3 @@ async def test_health_endpoint_ok():
         res = await ac.get("/health")
         assert res.status_code == 200
         assert res.json().get("status") == "healthy"
-
-

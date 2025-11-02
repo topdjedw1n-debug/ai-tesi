@@ -74,4 +74,3 @@ Artifacts:
 After Phase 1.2 PASS:
 - Phase 2: MyPy remediation (reduce warnings to ≤40)
 - Phase 3: Additional quality improvements
-

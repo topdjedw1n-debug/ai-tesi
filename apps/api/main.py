@@ -13,7 +13,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from app.api.v1.endpoints import admin, auth, documents, generate
+from app.api.v1.endpoints import admin, auth, documents, generate, jobs, payment
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.exceptions import APIException
@@ -47,7 +47,7 @@ app = FastAPI(
     version="1.0.0",
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # Logging
@@ -68,10 +68,7 @@ app.add_middleware(
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
 )
 
-app.add_middleware(
-    TrustedHostMiddleware,
-    allowed_hosts=settings.ALLOWED_HOSTS
-)
+app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 
 # Rate limiting
 setup_rate_limiter(app)
@@ -79,14 +76,14 @@ setup_rate_limiter(app)
 # CSRF protection for state-changing requests
 app.add_middleware(CSRFMiddleware)
 
+
 # Global exception handlers
 @app.exception_handler(APIException)
 async def api_exception_handler(request: Request, exc: APIException):
     """Standardized API exception handler with structured error response."""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     logger.error(
-        f"APIException: {exc.error_code} - {exc.detail}",
-        correlation_id=correlation_id
+        f"APIException: {exc.error_code} - {exc.detail}", correlation_id=correlation_id
     )
     return JSONResponse(
         status_code=exc.status_code,
@@ -95,16 +92,22 @@ async def api_exception_handler(request: Request, exc: APIException):
             "detail": exc.detail,
             "status_code": exc.status_code,
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        },
     )
+
 
 @app.exception_handler(Exception)
 async def unhandled_exception_handler(request: Request, exc: Exception):
     """Standardized unhandled exception handler with structured error response."""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
+
+    # Escape curly braces to prevent format string interpolation errors
+    exception_str = str(exc)
+    escaped_msg = exception_str.replace("{", "{{").replace("}", "}}")
+
     logger.exception(
-        f"Unhandled exception: {type(exc).__name__} - {str(exc)}",
-        correlation_id=correlation_id
+        f"Unhandled exception: {type(exc).__name__} - {escaped_msg}",
+        correlation_id=correlation_id,
     )
     return JSONResponse(
         status_code=500,
@@ -113,7 +116,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
             "detail": "Internal server error",
             "status_code": 500,
             "timestamp": datetime.utcnow().isoformat(),
-        }
+        },
     )
 
 
@@ -126,8 +129,9 @@ async def root():
         "version": "1.0.0",
         "docs_url": "/docs",
         "health_url": "/health",
-        "api_prefix": "/api/v1"
+        "api_prefix": "/api/v1",
     }
+
 
 # Health check endpoint
 @app.get("/health")
@@ -136,22 +140,20 @@ async def health_check():
     return {
         "status": "healthy",
         "version": "1.0.0",
-        "environment": settings.ENVIRONMENT
+        "environment": settings.ENVIRONMENT,
     }
 
 
 # Include API routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation"])
+app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
 
 
 if __name__ == "__main__":
     uvicorn.run(
-        "main:app",
-        host="0.0.0.0",
-        port=8000,
-        reload=settings.DEBUG,
-        log_level="info"
+        "main:app", host="0.0.0.0", port=8000, reload=settings.DEBUG, log_level="info"
     )

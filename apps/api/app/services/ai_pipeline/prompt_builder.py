@@ -3,7 +3,7 @@ Prompt builder for AI generation
 Constructs prompts for outline and section generation
 """
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from app.models.document import Document
 
@@ -13,8 +13,7 @@ class PromptBuilder:
 
     @staticmethod
     def build_outline_prompt(
-        document: Document,
-        additional_requirements: Optional[str] = None
+        document: Document, additional_requirements: str | None = None
     ) -> str:
         """
         Build prompt for outline generation
@@ -57,9 +56,9 @@ Please respond with a JSON structure containing the outline data."""
         document: Document,
         section_title: str,
         section_index: int,
-        context_sections: list[Dict[str, Any]] | None = None,
-        retrieved_sources: List[str] | None = None,
-        additional_requirements: Optional[str] = None
+        context_sections: list[dict[str, Any]] | None = None,
+        retrieved_sources: list[str] | None = None,
+        additional_requirements: str | None = None,
     ) -> str:
         """
         Build prompt for section generation with RAG context
@@ -112,8 +111,7 @@ Please provide only the section content without any meta-commentary."""
 
     @staticmethod
     def build_humanization_prompt(
-        original_text: str,
-        preserve_citations: bool = True
+        original_text: str, preserve_citations: bool = True
     ) -> str:
         """
         Build prompt for text humanization/paraphrasing
@@ -149,4 +147,3 @@ Requirements:
 
 Provide only the paraphrased text without any meta-commentary."""
         return prompt.strip()
-

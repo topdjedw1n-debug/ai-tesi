@@ -5,7 +5,7 @@ Database configuration and session management
 import logging
 import os
 import time
-from typing import Optional, Any
+from typing import Any
 
 import sqlalchemy
 from sqlalchemy import event, text
@@ -23,9 +23,9 @@ logger = logging.getLogger(__name__)
 SLOW_QUERY_THRESHOLD_MS = 500
 
 # Global engine instance (lazy initialized)
-_engine: Optional[AsyncEngine] = None
+_engine: AsyncEngine | None = None
 _events_registered = False
-_AsyncSessionLocal: Optional[async_sessionmaker[AsyncSession]] = None
+_AsyncSessionLocal: async_sessionmaker[AsyncSession] | None = None
 
 
 def _create_engine_safe() -> AsyncEngine:
@@ -49,7 +49,7 @@ def _create_engine_safe() -> AsyncEngine:
     if not db_url:
         from app.core.config import settings  # noqa: E402
 
-        db_url = getattr(settings, 'DATABASE_URL', None) or ""
+        db_url = getattr(settings, "DATABASE_URL", None) or ""
 
     if not db_url:
         # Fallback: will be set later
@@ -70,27 +70,45 @@ def _create_engine_safe() -> AsyncEngine:
         # SQLiteDialect doesn't support pool_size, max_overflow, pool_pre_ping, pool_recycle, connect_args
         logger.debug("Creating SQLite engine: %s...", db_url[:50])
         # Explicitly ensure NO pool params are in kwargs for SQLite
-        sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
-        engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
+        sqlite_unsupported = {
+            "pool_size",
+            "max_overflow",
+            "pool_pre_ping",
+            "pool_recycle",
+            "connect_args",
+        }
+        engine_kwargs = {
+            k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported
+        }
     else:
         # PostgreSQL and other databases (with pool parameters)
-        engine_kwargs.update({
-            "pool_pre_ping": True,
-            "pool_size": 20,
-            "max_overflow": 40,
-            "pool_recycle": 3600,
-            "connect_args": {
-                "server_settings": {"jit": "off"},
-                "command_timeout": 60,
-            },
-        })
+        engine_kwargs.update(
+            {
+                "pool_pre_ping": True,
+                "pool_size": 20,
+                "max_overflow": 40,
+                "pool_recycle": 3600,
+                "connect_args": {
+                    "server_settings": {"jit": "off"},
+                    "command_timeout": 60,
+                },
+            }
+        )
         logger.debug("Creating PostgreSQL engine with pool configuration")
 
     # FINAL GUARD: Before create_async_engine(), filter out any pool params for SQLite
     # This is a double-check to ensure absolutely no pool params reach SQLite
     if is_sqlite:
-        sqlite_unsupported = {'pool_size', 'max_overflow', 'pool_pre_ping', 'pool_recycle', 'connect_args'}
-        engine_kwargs = {k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported}
+        sqlite_unsupported = {
+            "pool_size",
+            "max_overflow",
+            "pool_pre_ping",
+            "pool_recycle",
+            "connect_args",
+        }
+        engine_kwargs = {
+            k: v for k, v in engine_kwargs.items() if k not in sqlite_unsupported
+        }
         logger.debug("Final guard: Filtered SQLite-unsupported params")
 
     # Create engine with safe kwargs
@@ -98,13 +116,20 @@ def _create_engine_safe() -> AsyncEngine:
 
     # Register event listeners only once
     if not _events_registered:
+
         @event.listens_for(_engine.sync_engine, "before_cursor_execute")
-        def before_cursor_execute(conn, cursor, statement, parameters, context, executemany):  # type: ignore[no-redef]
+        def before_cursor_execute(
+            conn, cursor, statement, parameters, context, executemany
+        ):  # type: ignore[no-redef]
             context._query_start_time = time.time()
 
         @event.listens_for(_engine.sync_engine, "after_cursor_execute")
-        def after_cursor_execute(conn, cursor, statement, parameters, context, executemany):  # type: ignore[no-redef]
-            total_ms = (time.time() - getattr(context, "_query_start_time", time.time())) * 1000
+        def after_cursor_execute(
+            conn, cursor, statement, parameters, context, executemany
+        ):  # type: ignore[no-redef]
+            total_ms = (
+                time.time() - getattr(context, "_query_start_time", time.time())
+            ) * 1000
             if total_ms >= SLOW_QUERY_THRESHOLD_MS:
                 logger.warning(f"Slow query ({total_ms:.1f} ms): {statement}")
 
@@ -121,9 +146,9 @@ def get_engine() -> AsyncEngine:
 # Module-level __getattr__ for lazy engine access (Python 3.7+)
 def __getattr__(name: str) -> Any:
     """Lazy initialization of module attributes"""
-    if name == 'engine':
+    if name == "engine":
         return get_engine()
-    if name == 'AsyncSessionLocal':
+    if name == "AsyncSessionLocal":
         global _AsyncSessionLocal
         if _AsyncSessionLocal is None:
             _AsyncSessionLocal = async_sessionmaker(
@@ -139,12 +164,16 @@ def __getattr__(name: str) -> Any:
 
 class Base(DeclarativeBase):
     """Base class for all database models"""
+
     pass
 
 
 async def get_db() -> AsyncSession:
     """Get database session"""
-    async with AsyncSessionLocal() as session:  # type: ignore[name-defined]  # noqa: F821
+    # Import here to trigger __getattr__ lazy initialization
+    from app.core.database import AsyncSessionLocal
+
+    async with AsyncSessionLocal() as session:
         try:
             yield session
         except Exception:
@@ -159,7 +188,7 @@ async def init_db():
     try:
         async with engine.begin() as conn:  # type: ignore[name-defined]  # noqa: F821
             # Import all models to ensure they are registered
-            from app.models import auth, document, user  # noqa
+            from app.models import auth, document, user, payment  # noqa
 
             # Create all tables
             await conn.run_sync(Base.metadata.create_all)
@@ -168,32 +197,50 @@ async def init_db():
             # Ensure critical indexes exist (idempotent)
             # Documents indexes
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);")
+                sqlalchemy.text(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);")
+                sqlalchemy.text(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);"
+                )
             )
             # AI Generation Jobs indexes
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_user_id ON ai_generation_jobs (user_id);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_user_id ON ai_generation_jobs (user_id);"
+                )
             )
             await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_started_at ON ai_generation_jobs (started_at);")
+                sqlalchemy.text(
+                    "CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_started_at ON ai_generation_jobs (started_at);"
+                )
             )
             logger.info("Database indexes ensured")
     except Exception as e:
@@ -218,7 +265,7 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
         "connectivity": False,
         "table_counts": {},
         "indexes_ok": False,
-        "performance_test": False
+        "performance_test": False,
     }
 
     try:
@@ -227,11 +274,15 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
         checks["connectivity"] = True
 
         # Check table counts
-        result = await db.execute(text("""
+        result = await db.execute(
+            text(
+                """
             SELECT table_name
             FROM information_schema.tables
             WHERE table_schema = 'public'
-        """))
+        """
+            )
+        )
         tables = [row[0] for row in result.fetchall()]
 
         for table in tables:
@@ -239,12 +290,16 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
             checks["table_counts"][table] = count_result.scalar()
 
         # Check critical indexes exist
-        index_result = await db.execute(text("""
+        index_result = await db.execute(
+            text(
+                """
             SELECT indexname
             FROM pg_indexes
             WHERE schemaname = 'public'
             AND indexname LIKE 'ix_%' OR indexname LIKE 'uq_%'
-        """))
+        """
+            )
+        )
         indexes = [row[0] for row in index_result.fetchall()]
         checks["indexes_ok"] = len(indexes) > 0
 
@@ -255,24 +310,23 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
         checks["performance_test"] = query_time < 1.0  # Should be < 1 second
 
         # Determine overall status
-        if checks["connectivity"] and checks["indexes_ok"] and checks["performance_test"]:
+        if (
+            checks["connectivity"]
+            and checks["indexes_ok"]
+            and checks["performance_test"]
+        ):
             status = "healthy"
         elif checks["connectivity"]:
             status = "needs_attention"
         else:
             status = "critical"
 
-        return {
-            "status": status,
-            "checks": checks,
-            "timestamp": time.time()
-        }
+        return {"status": status, "checks": checks, "timestamp": time.time()}
     except Exception as e:
         logger.error(f"Database backup verification failed: {e}")
         return {
             "status": "critical",
             "checks": checks,
             "error": str(e),
-            "timestamp": time.time()
+            "timestamp": time.time(),
         }
-

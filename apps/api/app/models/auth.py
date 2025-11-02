@@ -3,6 +3,7 @@ Authentication related models
 """
 
 from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
@@ -29,11 +30,20 @@ class User(Base):
     # Usage tracking
     total_tokens_used = Column(Integer, default=0)
     total_documents_created = Column(Integer, default=0)
+    total_cost = Column(Integer, default=0)  # Cost in cents
+
+    # Stripe
+    stripe_customer_id = Column(String(255), nullable=True, index=True)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     last_login = Column(DateTime(timezone=True))
+
+    # Relationships
+    payments = relationship("Payment", back_populates="user")
 
     def __repr__(self):
         return f"<User(id={self.id}, email={self.email}, active={self.is_active})>"
@@ -62,7 +72,9 @@ class MagicLinkToken(Base):
     used_at = Column(DateTime(timezone=True))
 
     def __repr__(self):
-        return f"<MagicLinkToken(id={self.id}, email={self.email}, used={self.is_used})>"
+        return (
+            f"<MagicLinkToken(id={self.id}, email={self.email}, used={self.is_used})>"
+        )
 
 
 class UserSession(Base):

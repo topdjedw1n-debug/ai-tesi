@@ -21,4 +21,3 @@ cd apps/api || exit 1
 pytest ../../tests/test_smoke.py -v --cov=app --cov-report=xml:../../coverage.xml --cov-report=term-missing
 
 echo "Smoke tests complete. Coverage report: coverage.xml"
-

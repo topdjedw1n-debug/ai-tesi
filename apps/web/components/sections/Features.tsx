@@ -50,7 +50,7 @@ export function Features() {
             Powerful features for academic writing
           </p>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            Our AI-powered platform provides everything you need to create high-quality thesis content 
+            Our AI-powered platform provides everything you need to create high-quality thesis content
             efficiently and professionally.
           </p>
         </div>

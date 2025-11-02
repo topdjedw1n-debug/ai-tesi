@@ -7,7 +7,7 @@ import json
 import sys
 import uuid
 from datetime import datetime
-from typing import Optional, Any
+from typing import Any
 
 from fastapi import Request
 from loguru import logger
@@ -19,8 +19,13 @@ def setup_logging(environment: str = "development") -> None:
     logger.remove()
     log_level = "DEBUG" if environment != "production" else "INFO"
     # Console sink
-    logger.add(sys.stdout, level=log_level, backtrace=False, diagnose=False,
-               format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {extra[correlation_id]} | {message}")
+    logger.add(
+        sys.stdout,
+        level=log_level,
+        backtrace=False,
+        diagnose=False,
+        format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level} | {extra[correlation_id]} | {message}",
+    )
     # File sink with rotation/retention
     logger.add(
         "logs/app.log",
@@ -47,14 +52,14 @@ def setup_logging(environment: str = "development") -> None:
 
 def log_security_audit_event(
     event_type: str,
-    correlation_id: Optional[str] = None,
-    user_id: Optional[int] = None,
-    ip: Optional[str] = None,
-    endpoint: Optional[str] = None,
-    resource: Optional[str] = None,
-    action: Optional[str] = None,
+    correlation_id: str | None = None,
+    user_id: int | None = None,
+    ip: str | None = None,
+    endpoint: str | None = None,
+    resource: str | None = None,
+    action: str | None = None,
     outcome: str = "success",  # success, failure, denied
-    details: Optional[dict[str, Any]] = None,
+    details: dict[str, Any] | None = None,
 ) -> None:
     """
     Log a structured security audit event to audit.log.
@@ -97,5 +102,3 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
             response.headers["X-Request-ID"] = correlation_id
             logger.info(f"{response.status_code} {request.method} {request.url.path}")
             return response
-
-

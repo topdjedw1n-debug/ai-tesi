@@ -27,7 +27,7 @@ export default function DashboardPage() {
           <Suspense fallback={<LoadingSpinner />}>
             <DocumentsList />
           </Suspense>
-          
+
           <Suspense fallback={<LoadingSpinner />}>
             <RecentActivity />
           </Suspense>

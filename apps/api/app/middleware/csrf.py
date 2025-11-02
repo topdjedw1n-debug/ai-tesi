@@ -25,5 +25,3 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     media_type="application/json",
                 )
         return await call_next(request)
-
-

@@ -30,4 +30,3 @@ def test_app_starts_without_exceptions():
     assert app is not None
     assert hasattr(app, "routes")
     assert hasattr(app, "middleware_stack")
-

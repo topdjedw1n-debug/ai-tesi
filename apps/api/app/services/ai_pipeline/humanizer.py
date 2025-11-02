@@ -24,11 +24,7 @@ class Humanizer:
         self.temperature = temperature
 
     async def humanize(
-        self,
-        text: str,
-        provider: str,
-        model: str,
-        preserve_citations: bool = True
+        self, text: str, provider: str, model: str, preserve_citations: bool = True
     ) -> str:
         """
         Humanize text while preserving citations
@@ -45,7 +41,12 @@ class Humanizer:
         try:
             # Extract citations before humanization
             from app.services.ai_pipeline.citation_formatter import CitationFormatter
-            citations = CitationFormatter.extract_citations_from_text(text) if preserve_citations else []
+
+            citations = (
+                CitationFormatter.extract_citations_from_text(text)
+                if preserve_citations
+                else []
+            )
 
             # Build humanization prompt
             prompt = PromptBuilder.build_humanization_prompt(text, preserve_citations)
@@ -55,7 +56,7 @@ class Humanizer:
                 provider=provider,
                 model=model,
                 prompt=prompt,
-                temperature=self.temperature
+                temperature=self.temperature,
             )
 
             # Verify citations are preserved
@@ -65,7 +66,9 @@ class Humanizer:
                     if citation["original"] in humanized_text:
                         preserved_count += 1
 
-                preservation_rate = preserved_count / len(citations) if citations else 1.0
+                preservation_rate = (
+                    preserved_count / len(citations) if citations else 1.0
+                )
                 if preservation_rate < 0.8:  # Warn if <80% citations preserved
                     logger.warning(
                         f"Citation preservation rate: {preservation_rate:.2%}. "
@@ -80,11 +83,7 @@ class Humanizer:
             return text
 
     async def _call_ai_provider(
-        self,
-        provider: str,
-        model: str,
-        prompt: str,
-        temperature: float
+        self, provider: str, model: str, prompt: str, temperature: float
     ) -> str:
         """Call AI provider for humanization"""
         if provider == "openai":
@@ -107,11 +106,14 @@ class Humanizer:
             response = await client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 max_tokens=4000,
-                temperature=temperature
+                temperature=temperature,
             )
 
             return response.choices[0].message.content or ""
@@ -135,9 +137,7 @@ class Humanizer:
                 max_tokens=4000,
                 temperature=temperature,
                 system="You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers.",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             return response.content[0].text
@@ -145,4 +145,3 @@ class Humanizer:
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")
             raise
-

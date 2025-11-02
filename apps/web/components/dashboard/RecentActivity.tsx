@@ -121,7 +121,7 @@ export function RecentActivity() {
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
         <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
-        
+
         {activities.length === 0 ? (
           <div className="text-center py-8">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />

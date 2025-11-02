@@ -21,9 +21,9 @@ class SectionGenerator:
 
     def __init__(
         self,
-        rag_retriever: Optional[RAGRetriever] = None,
-        citation_formatter: Optional[CitationFormatter] = None,
-        humanizer: Optional[Humanizer] = None
+        rag_retriever: RAGRetriever | None = None,
+        citation_formatter: CitationFormatter | None = None,
+        humanizer: Humanizer | None = None,
     ):
         """
         Initialize section generator
@@ -48,7 +48,7 @@ class SectionGenerator:
         citation_style: CitationStyle = CitationStyle.APA,
         humanize: bool = False,
         context_sections: list[dict[str, Any]] | None = None,
-        additional_requirements: Optional[str] = None
+        additional_requirements: str | None = None,
     ) -> dict[str, Any]:
         """
         Generate a section with RAG context, citations, and optional humanization
@@ -71,10 +71,7 @@ class SectionGenerator:
             # Step 1: Retrieve relevant sources using RAG
             logger.info(f"Retrieving sources for section: {section_title}")
             query = f"{document.topic} {section_title}"
-            source_docs = await self.rag_retriever.retrieve(
-                query=query,
-                limit=10
-            )
+            source_docs = await self.rag_retriever.retrieve(query=query, limit=10)
 
             # Step 2: Format sources for prompt
             source_texts = []
@@ -82,9 +79,7 @@ class SectionGenerator:
                 authors_str = ", ".join(doc.authors[:2])
                 if len(doc.authors) > 2:
                     authors_str += " et al."
-                source_texts.append(
-                    f"{doc.title} ({authors_str}, {doc.year})"
-                )
+                source_texts.append(f"{doc.title} ({authors_str}, {doc.year})")
 
             # Step 3: Build prompt with RAG context
             prompt = self.prompt_builder.build_section_prompt(
@@ -93,19 +88,19 @@ class SectionGenerator:
                 section_index=section_index,
                 context_sections=context_sections,
                 retrieved_sources=source_texts,
-                additional_requirements=additional_requirements
+                additional_requirements=additional_requirements,
             )
 
             # Step 4: Generate section content using AI
             logger.info(f"Generating section content: {section_title}")
             section_content = await self._call_ai_provider(
-                provider=provider,
-                model=model,
-                prompt=prompt
+                provider=provider, model=model, prompt=prompt
             )
 
             # Step 5: Extract citations from generated text
-            citations = self.citation_formatter.extract_citations_from_text(section_content)
+            citations = self.citation_formatter.extract_citations_from_text(
+                section_content
+            )
 
             # Step 6: Build bibliography from retrieved sources
             bibliography = []
@@ -130,8 +125,7 @@ class SectionGenerator:
             for doc in source_docs:
                 if doc in citation_map.values():
                     reference = self.citation_formatter.format_reference(
-                        doc.to_source_document(),
-                        style=citation_style
+                        doc.to_source_document(), style=citation_style
                     )
                     bibliography.append(reference)
 
@@ -142,7 +136,7 @@ class SectionGenerator:
                     text=section_content,
                     provider=provider,
                     model=model,
-                    preserve_citations=True
+                    preserve_citations=True,
                 )
 
             return {
@@ -152,7 +146,7 @@ class SectionGenerator:
                 "citations": citations,
                 "bibliography": bibliography,
                 "sources_used": len(source_docs),
-                "humanized": humanize
+                "humanized": humanize,
             }
 
         except Exception as e:
@@ -181,11 +175,14 @@ class SectionGenerator:
             response = await client.chat.completions.create(
                 model=model,
                 messages=[
-                    {"role": "system", "content": "You are an expert academic writer specializing in thesis and research paper generation."},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": "You are an expert academic writer specializing in thesis and research paper generation.",
+                    },
+                    {"role": "user", "content": prompt},
                 ],
                 max_tokens=4000,
-                temperature=0.7
+                temperature=0.7,
             )
 
             return response.choices[0].message.content or ""
@@ -209,9 +206,7 @@ class SectionGenerator:
                 max_tokens=4000,
                 temperature=0.7,
                 system="You are an expert academic writer specializing in thesis and research paper generation.",
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                messages=[{"role": "user", "content": prompt}],
             )
 
             return response.content[0].text
@@ -219,4 +214,3 @@ class SectionGenerator:
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")
             raise
-

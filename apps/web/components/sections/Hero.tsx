@@ -14,7 +14,7 @@ export function Hero() {
           }}
         />
       </div>
-      
+
       <div className="mx-auto max-w-2xl py-32 sm:py-48 lg:py-56">
         <div className="hidden sm:mb-8 sm:flex sm:justify-center">
           <div className="relative rounded-full px-3 py-1 text-sm leading-6 text-gray-600 ring-1 ring-gray-900/10 hover:ring-gray-900/20">
@@ -25,14 +25,14 @@ export function Hero() {
             </a>
           </div>
         </div>
-        
+
         <div className="text-center">
           <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
             Generate Your Thesis with{' '}
             <span className="text-primary-600">AI Assistance</span>
           </h1>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            Create high-quality thesis sections, outlines, and content with the power of AI. 
+            Create high-quality thesis sections, outlines, and content with the power of AI.
             Streamline your academic writing process and focus on what matters most.
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
@@ -50,7 +50,7 @@ export function Hero() {
           </div>
         </div>
       </div>
-      
+
       <div className="absolute inset-x-0 top-[calc(100%-13rem)] -z-10 transform-gpu overflow-hidden blur-3xl sm:top-[calc(100%-30rem)]">
         <div
           className="relative left-[calc(50%+3rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 bg-gradient-to-tr from-[#ff80b5] to-[#9089fc] opacity-30 sm:left-[calc(50%+36rem)] sm:w-[72.1875rem]"

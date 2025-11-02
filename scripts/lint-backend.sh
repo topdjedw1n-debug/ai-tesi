@@ -22,4 +22,3 @@ echo "Running isort check..."
 isort --check-only app/ >> ../../logs/tasks/full-verification/lint.txt 2>&1 || true
 
 echo "Linting complete. Results saved to logs/tasks/full-verification/lint.txt"
-

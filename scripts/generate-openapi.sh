@@ -41,4 +41,3 @@ echo "Compare future schema changes against baseline:" >> ../../logs/tasks/full-
 echo "  diff logs/tasks/full-verification/openapi_baseline.json <new_schema>" >> ../../logs/tasks/full-verification/apidiff.txt
 
 echo "OpenAPI generation complete. Baseline saved."
-

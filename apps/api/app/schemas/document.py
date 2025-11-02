@@ -5,13 +5,14 @@ Document schemas for API requests and responses
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, Optional
+from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class DocumentStatus(str, Enum):
     """Document status enumeration"""
+
     DRAFT = "draft"
     OUTLINE_GENERATED = "outline_generated"
     SECTIONS_GENERATED = "sections_generated"
@@ -20,12 +21,14 @@ class DocumentStatus(str, Enum):
 
 class AIProvider(str, Enum):
     """AI provider enumeration"""
+
     OPENAI = "openai"
     ANTHROPIC = "anthropic"
 
 
 class AIModel(str, Enum):
     """AI model enumeration (dynamically validated per provider)"""
+
     # OpenAI models
     GPT_4 = "gpt-4"
     GPT_4_TURBO = "gpt-4-turbo"
@@ -37,6 +40,7 @@ class AIModel(str, Enum):
 
 class DocumentBase(BaseModel):
     """Base document schema"""
+
     title: str = Field(..., min_length=1, max_length=500)
     topic: str = Field(..., min_length=10)
     language: str = Field(default="en", max_length=10)
@@ -62,9 +66,16 @@ class DocumentBase(BaseModel):
 
 class DocumentCreate(DocumentBase):
     """Schema for creating a new document"""
-    ai_provider: Optional[AIProvider] = Field(default=AIProvider.OPENAI, description="AI provider: openai or anthropic")
-    ai_model: Optional[str] = Field(default="gpt-4", description="AI model name")
-    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+
+    ai_provider: AIProvider | None = Field(
+        default=AIProvider.OPENAI, description="AI provider: openai or anthropic"
+    )
+    ai_model: str | None = Field(default="gpt-4", description="AI model name")
+    additional_requirements: str | None = Field(
+        None,
+        max_length=5000,
+        description="Additional requirements, max 5000 characters",
+    )
 
     @field_validator("ai_provider", mode="before")
     @classmethod
@@ -100,16 +111,20 @@ class DocumentCreate(DocumentBase):
 
         if provider_value == "openai":
             if v not in openai_models:
-                raise ValueError(f"Invalid model for OpenAI provider. Valid models: {', '.join(openai_models)}")
+                raise ValueError(
+                    f"Invalid model for OpenAI provider. Valid models: {', '.join(openai_models)}"
+                )
         elif provider_value == "anthropic":
             if v not in anthropic_models:
-                raise ValueError(f"Invalid model for Anthropic provider. Valid models: {', '.join(anthropic_models)}")
+                raise ValueError(
+                    f"Invalid model for Anthropic provider. Valid models: {', '.join(anthropic_models)}"
+                )
 
         return v
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_additional_requirements(cls, v: Optional[str]) -> Optional[str]:
+    def sanitize_additional_requirements(cls, v: str | None) -> str | None:
         if v is None:
             return v
         if len(v) > 5000:
@@ -121,31 +136,33 @@ class DocumentCreate(DocumentBase):
 
 class DocumentUpdate(BaseModel):
     """Schema for updating document information"""
-    title: Optional[str] = Field(None, min_length=1, max_length=500)
-    topic: Optional[str] = Field(None, min_length=10)
-    language: Optional[str] = Field(None, max_length=10)
-    target_pages: Optional[int] = Field(None, ge=1, le=1000)
+
+    title: str | None = Field(None, min_length=1, max_length=500)
+    topic: str | None = Field(None, min_length=10)
+    language: str | None = Field(None, max_length=10)
+    target_pages: int | None = Field(None, ge=1, le=1000)
 
 
 class DocumentResponse(DocumentBase):
     """Schema for document API responses"""
+
     id: int
     user_id: int
     status: DocumentStatus
     is_archived: bool
     created_at: datetime
-    updated_at: Optional[datetime]
+    updated_at: datetime | None
     word_count: int
     estimated_reading_time: int
-    outline: Optional[Dict[str, Any]] = None
-    sections: Optional[Dict[str, Any]] = None
+    outline: dict[str, Any] | None = None
+    sections: list[dict[str, Any]] | None = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class DocumentListResponse(BaseModel):
     """Schema for document list responses"""
+
     documents: list[DocumentResponse]
     total: int
     page: int
@@ -155,12 +172,19 @@ class DocumentListResponse(BaseModel):
 
 class OutlineRequest(BaseModel):
     """Schema for outline generation request"""
-    document_id: int = Field(..., gt=0, description="Document ID must be greater than 0")
-    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+
+    document_id: int = Field(
+        ..., gt=0, description="Document ID must be greater than 0"
+    )
+    additional_requirements: str | None = Field(
+        None,
+        max_length=5000,
+        description="Additional requirements, max 5000 characters",
+    )
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_requirements(cls, v: Optional[str]) -> Optional[str]:
+    def sanitize_requirements(cls, v: str | None) -> str | None:
         if v is None:
             return v
         if len(v) > 5000:
@@ -172,17 +196,25 @@ class OutlineRequest(BaseModel):
 
 class OutlineResponse(BaseModel):
     """Schema for outline generation response"""
-    outline: Dict[str, Any]
+
+    outline: dict[str, Any]
     estimated_sections: int
     estimated_word_count: int
 
 
 class SectionRequest(BaseModel):
     """Schema for section generation request"""
-    document_id: int = Field(..., gt=0, description="Document ID must be greater than 0")
+
+    document_id: int = Field(
+        ..., gt=0, description="Document ID must be greater than 0"
+    )
     section_title: str
     section_index: int
-    additional_requirements: Optional[str] = Field(None, max_length=5000, description="Additional requirements, max 5000 characters")
+    additional_requirements: str | None = Field(
+        None,
+        max_length=5000,
+        description="Additional requirements, max 5000 characters",
+    )
 
     @field_validator("section_title")
     @classmethod
@@ -193,7 +225,7 @@ class SectionRequest(BaseModel):
 
     @field_validator("additional_requirements")
     @classmethod
-    def sanitize_section_requirements(cls, v: Optional[str]) -> Optional[str]:
+    def sanitize_section_requirements(cls, v: str | None) -> str | None:
         if v is None:
             return v
         if len(v) > 5000:
@@ -205,28 +237,32 @@ class SectionRequest(BaseModel):
 
 class SectionResponse(BaseModel):
     """Schema for section generation response"""
+
     content: str
     word_count: int
-    citations: list[Dict[str, Any]]
+    citations: list[dict[str, Any]]
     estimated_reading_time: int
 
 
 class DocumentVersionResponse(BaseModel):
     """Schema for document version responses"""
+
     id: int
     document_id: int
     version_number: int
-    changes_summary: Optional[str]
+    changes_summary: str | None
     created_at: datetime
     created_by: int
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ExportRequest(BaseModel):
     """Schema for document export request"""
-    document_id: int = Field(..., gt=0, description="Document ID must be greater than 0")
+
+    document_id: int = Field(
+        ..., gt=0, description="Document ID must be greater than 0"
+    )
     format: str = Field(..., pattern="^(docx|pdf)$")
     include_metadata: bool = True
     include_citations: bool = True
@@ -234,7 +270,34 @@ class ExportRequest(BaseModel):
 
 class ExportResponse(BaseModel):
     """Schema for export response"""
+
     download_url: str
     expires_at: datetime
     file_size: int
     format: str
+
+
+class AsyncGenerationRequest(BaseModel):
+    """Schema for async document generation request"""
+
+    document_id: int
+    model: str | None = Field(default="gpt-4")
+    requirements: str | None = None
+
+
+class AsyncGenerationResponse(BaseModel):
+    """Schema for async generation response"""
+
+    job_id: int
+    status: str
+    check_url: str
+
+
+class JobStatusResponse(BaseModel):
+    """Schema for job status response"""
+
+    job_id: int
+    status: str
+    progress: int
+    document_id: int | None = None
+    error_message: str | None = None

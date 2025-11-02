@@ -34,4 +34,3 @@ async def test_health_endpoint(client):
     assert data.get("status") == "healthy"
     assert "version" in data
     assert "environment" in data
-

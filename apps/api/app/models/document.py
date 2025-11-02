@@ -41,6 +41,7 @@ class Document(Base):
     # Document state
     status = Column(String(50), default="draft")  # draft, generating, completed, failed
     is_public = Column(Boolean, default=False)
+    is_archived = Column(Boolean, default=False)
 
     # AI generation settings
     ai_provider = Column(String(50), default="openai")  # openai, anthropic
@@ -54,6 +55,7 @@ class Document(Base):
     # File paths
     docx_path = Column(String(500))
     pdf_path = Column(String(500))
+    custom_requirements_file_path = Column(String(500), nullable=True)
 
     # Usage tracking
     tokens_used = Column(Integer, default=0)
@@ -61,11 +63,16 @@ class Document(Base):
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     completed_at = Column(DateTime(timezone=True))
 
     # Relationships
-    sections = relationship("DocumentSection", back_populates="document", cascade="all, delete-orphan")
+    sections = relationship(
+        "DocumentSection", back_populates="document", cascade="all, delete-orphan"
+    )
+    payment = relationship("Payment", back_populates="document", uselist=False)
 
     def __repr__(self):
         return f"<Document(id={self.id}, title={self.title}, status={self.status})>"
@@ -75,9 +82,7 @@ class DocumentSection(Base):
     """Document section model"""
 
     __tablename__ = "document_sections"
-    __table_args__ = (
-        Index("ix_document_sections_document_id", "document_id"),
-    )
+    __table_args__ = (Index("ix_document_sections_document_id", "document_id"),)
 
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
@@ -85,27 +90,35 @@ class DocumentSection(Base):
     # Section metadata
     title = Column(String(500), nullable=False)
     section_index = Column(Integer, nullable=False)
-    section_type = Column(String(50), default="content")  # content, introduction, conclusion, etc.
+    section_type = Column(
+        String(50), default="content"
+    )  # content, introduction, conclusion, etc.
 
     # Content
     content = Column(Text)
     word_count = Column(Integer, default=0)
 
     # Generation state
-    status = Column(String(50), default="pending")  # pending, generating, completed, failed
+    status = Column(
+        String(50), default="pending"
+    )  # pending, generating, completed, failed
     tokens_used = Column(Integer, default=0)
     generation_time_seconds = Column(Integer, default=0)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
     completed_at = Column(DateTime(timezone=True))
 
     # Relationships
     document = relationship("Document", back_populates="sections")
 
     def __repr__(self):
-        return f"<DocumentSection(id={self.id}, title={self.title}, status={self.status})>"
+        return (
+            f"<DocumentSection(id={self.id}, title={self.title}, status={self.status})>"
+        )
 
 
 class DocumentOutline(Base):
@@ -150,6 +163,10 @@ class AIGenerationJob(Base):
     job_type = Column(String(50), nullable=False)  # outline, section, etc.
     ai_provider = Column(String(50))
     ai_model = Column(String(100))
+    
+    # Job status and progress
+    status = Column(String(50), default="queued")  # queued, running, completed, failed
+    progress = Column(Integer, default=0)  # 0-100 percentage
 
     # Usage tracking
     total_tokens = Column(Integer, default=0)

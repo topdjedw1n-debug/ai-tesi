@@ -1,4 +1,4 @@
-#!/Users/maxmaxvel/AI TESI/qa_venv/bin/python3
+#!/Users/maxmaxvel/AI TESI/qa_venv/bin/python3.11
 
 import sys
 import json

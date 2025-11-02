@@ -3,7 +3,7 @@ Monitoring and error tracking (Sentry) initialization.
 Prometheus metrics export.
 """
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 import sentry_sdk
 from prometheus_fastapi_instrumentator import Instrumentator
@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from fastapi import FastAPI
 
 
-def setup_sentry(environment: str, dsn: Optional[str]) -> None:
+def setup_sentry(environment: str, dsn: str | None) -> None:
     """Initialize Sentry with FastAPI and SQLAlchemy integrations if DSN provided."""
     if not dsn:
         return
@@ -41,4 +41,3 @@ def setup_prometheus(app: "FastAPI", environment: str) -> None:
         inprogress_labels=True,
     )
     instrumentator.instrument(app).expose(app, endpoint="/metrics")
-

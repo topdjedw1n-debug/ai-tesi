@@ -5,7 +5,7 @@ Authentication service for user management and token handling
 import logging
 import secrets
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -28,7 +28,7 @@ class AuthService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def send_magic_link(self, email: str) -> Dict[str, Any]:
+    async def send_magic_link(self, email: str) -> dict[str, Any]:
         """Send magic link for passwordless authentication"""
         try:
             # Validate email format
@@ -40,25 +40,18 @@ class AuthService:
             expires_at = datetime.utcnow() + timedelta(minutes=15)  # 15 minutes expiry
 
             # Check if user exists, create if not
-            result = await self.db.execute(
-                select(User).where(User.email == email)
-            )
+            result = await self.db.execute(select(User).where(User.email == email))
             user = result.scalar_one_or_none()
 
             if not user:
                 # Create new user
-                user = User(
-                    email=email,
-                    is_verified=False
-                )
+                user = User(email=email, is_verified=False)
                 self.db.add(user)
                 await self.db.flush()  # Get the user ID
 
             # Create magic link token
             magic_token = MagicLinkToken(
-                token=token,
-                email=email,
-                expires_at=expires_at
+                token=token, email=email, expires_at=expires_at
             )
             self.db.add(magic_token)
 
@@ -74,7 +67,8 @@ class AuthService:
                 "message": "Magic link sent successfully",
                 "email": email,
                 "expires_in": 900,  # 15 minutes in seconds
-                "magic_link": magic_link  # Only for development
+                "expires_in_minutes": 15,
+                "magic_link": magic_link,  # Only for development
             }
 
         except Exception as e:
@@ -82,16 +76,16 @@ class AuthService:
             logger.error(f"Error sending magic link: {e}")
             raise AuthenticationError(f"Failed to send magic link: {str(e)}") from e
 
-    async def verify_magic_link(self, token: str) -> Dict[str, Any]:
+    async def verify_magic_link(self, token: str) -> dict[str, Any]:
         """Verify magic link token and return access token"""
         try:
             # Find magic link token
             result = await self.db.execute(
                 select(MagicLinkToken).where(
                     MagicLinkToken.token == token,
-                    MagicLinkToken.is_used is False,
-                    MagicLinkToken.is_expired is False,
-                    MagicLinkToken.expires_at > datetime.utcnow()
+                    ~MagicLinkToken.is_used,
+                    ~MagicLinkToken.is_expired,
+                    MagicLinkToken.expires_at > datetime.utcnow(),
                 )
             )
             magic_token = result.scalar_one_or_none()
@@ -124,7 +118,8 @@ class AuthService:
             session = UserSession(
                 user_id=user.id,
                 session_token=refresh_token,
-                expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+                expires_at=datetime.utcnow()
+                + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
             )
             self.db.add(session)
 
@@ -139,8 +134,8 @@ class AuthService:
                     "id": user.id,
                     "email": user.email,
                     "full_name": user.full_name,
-                    "is_verified": user.is_verified
-                }
+                    "is_verified": user.is_verified,
+                },
             }
 
         except Exception as e:
@@ -148,15 +143,15 @@ class AuthService:
             logger.error(f"Error verifying magic link: {e}")
             raise AuthenticationError(f"Failed to verify magic link: {str(e)}") from e
 
-    async def refresh_token(self, refresh_token: str) -> Dict[str, Any]:
+    async def refresh_token(self, refresh_token: str) -> dict[str, Any]:
         """Refresh access token using refresh token"""
         try:
             # Find active session
             result = await self.db.execute(
                 select(UserSession).where(
                     UserSession.session_token == refresh_token,
-                    UserSession.is_active is True,
-                    UserSession.expires_at > datetime.utcnow()
+                    UserSession.is_active.is_(True),
+                    UserSession.expires_at > datetime.utcnow(),
                 )
             )
             session = result.scalar_one_or_none()
@@ -189,8 +184,8 @@ class AuthService:
                     "id": user.id,
                     "email": user.email,
                     "full_name": user.full_name,
-                    "is_verified": user.is_verified
-                }
+                    "is_verified": user.is_verified,
+                },
             }
 
         except Exception as e:
@@ -198,14 +193,12 @@ class AuthService:
             logger.error(f"Error refreshing token: {e}")
             raise AuthenticationError(f"Failed to refresh token: {str(e)}") from e
 
-    async def logout(self, access_token: str) -> Dict[str, Any]:
+    async def logout(self, access_token: str) -> dict[str, Any]:
         """Logout user and invalidate session"""
         try:
             # Decode token to get user ID
             payload = jwt.decode(
-                access_token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
+                access_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
             )
             user_id = payload.get("sub")
             if payload.get("type") != "access":
@@ -233,14 +226,12 @@ class AuthService:
             logger.error(f"Error during logout: {e}")
             raise AuthenticationError(f"Failed to logout: {str(e)}") from e
 
-    async def get_current_user(self, access_token: str) -> Dict[str, Any]:
+    async def get_current_user(self, access_token: str) -> dict[str, Any]:
         """Get current user from access token"""
         try:
             # Decode token
             payload = jwt.decode(
-                access_token,
-                settings.SECRET_KEY,
-                algorithms=["HS256"]
+                access_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
             )
             user_id = payload.get("sub")
             if payload.get("type") != "access":
@@ -250,9 +241,7 @@ class AuthService:
                 raise AuthenticationError("Invalid token")
 
             # Get user
-            result = await self.db.execute(
-                select(User).where(User.id == user_id)
-            )
+            result = await self.db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
             if not user or not user.is_active:
@@ -269,31 +258,60 @@ class AuthService:
                 "total_tokens_used": user.total_tokens_used,
                 "total_documents_created": user.total_documents_created,
                 "created_at": user.created_at.isoformat(),
-                "last_login": user.last_login.isoformat() if user.last_login else None
+                "updated_at": user.updated_at.isoformat() if user.updated_at else None,
+                "last_login": user.last_login.isoformat() if user.last_login else None,
+                "is_active": user.is_active,
+                "total_cost": user.total_cost,
             }
 
         except JWTError as e:
             raise AuthenticationError("Invalid token") from e
         except Exception as e:
             logger.error(f"Error getting current user: {e}")
-            raise AuthenticationError(f"Failed to get user information: {str(e)}") from e
+            raise AuthenticationError(
+                f"Failed to get user information: {str(e)}"
+            ) from e
 
     def _create_access_token(self, user_id: int) -> str:
-        """Create access token"""
-        expire = datetime.utcnow() + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+        """Create access token with iss, aud, and expiration claims"""
+        now = datetime.utcnow()
+        expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode = {
-            "sub": str(user_id),
-            "exp": expire,
-            "type": "access"
+            "sub": str(user_id), 
+            "exp": expire, 
+            "iat": now, 
+            "type": "access",
+            "nbf": now,  # Not before - token valid from now
         }
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+        
+        # Add iss (issuer) if configured
+        if settings.JWT_ISS:
+            to_encode["iss"] = settings.JWT_ISS
+        
+        # Add aud (audience) if configured
+        if settings.JWT_AUD:
+            to_encode["aud"] = settings.JWT_AUD
+        
+        return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
 
     def _create_refresh_token(self, user_id: int) -> str:
-        """Create refresh token"""
-        expire = datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
+        """Create refresh token with iss, aud, and expiration claims"""
+        now = datetime.utcnow()
+        expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode = {
-            "sub": str(user_id),
-            "exp": expire,
-            "type": "refresh"
+            "sub": str(user_id), 
+            "exp": expire, 
+            "iat": now, 
+            "type": "refresh",
+            "nbf": now,  # Not before - token valid from now
         }
-        return jwt.encode(to_encode, settings.SECRET_KEY, algorithm="HS256")
+        
+        # Add iss (issuer) if configured
+        if settings.JWT_ISS:
+            to_encode["iss"] = settings.JWT_ISS
+        
+        # Add aud (audience) if configured
+        if settings.JWT_AUD:
+            to_encode["aud"] = settings.JWT_AUD
+        
+        return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)

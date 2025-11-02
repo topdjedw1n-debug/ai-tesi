@@ -6,7 +6,6 @@ Implements per-user/IP rate limiting with failed auth attempt tracking.
 import logging
 from collections.abc import Callable
 from datetime import datetime, timedelta
-from typing import Optional
 
 import redis.asyncio as aioredis
 from fastapi import FastAPI, Request
@@ -21,10 +20,10 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 # Redis client (initialized on startup)
-_redis_client: Optional[aioredis.Redis] = None
+_redis_client: aioredis.Redis | None = None
 
 
-def get_redis_client() -> Optional[aioredis.Redis]:
+def get_redis_client() -> aioredis.Redis | None:
     """Get Redis client, or None if Redis is unavailable"""
     global _redis_client
     return _redis_client
@@ -40,7 +39,7 @@ async def init_redis() -> None:
                 settings.REDIS_URL,
                 decode_responses=True,
                 socket_connect_timeout=5,
-                socket_timeout=5
+                socket_timeout=5,
             )
             await _redis_client.ping()
             logger.info("Redis connected for rate limiting")
@@ -51,7 +50,7 @@ async def init_redis() -> None:
                     settings.REDIS_URL,
                     decode_responses=True,
                     socket_connect_timeout=2,
-                    socket_timeout=2
+                    socket_timeout=2,
                 )
                 await _redis_client.ping()
                 logger.info("Redis connected for rate limiting")
@@ -88,7 +87,7 @@ def get_user_id_or_ip(request: Request) -> str:
     return get_remote_address(request)
 
 
-async def check_auth_lockout(identifier: str) -> Optional[timedelta]:
+async def check_auth_lockout(identifier: str) -> timedelta | None:
     """
     Check if identifier (user or IP) is locked out due to failed auth attempts.
     Returns lockout duration if locked, None otherwise.
@@ -126,12 +125,12 @@ async def check_auth_lockout(identifier: str) -> Optional[timedelta]:
             if count >= threshold:
                 # Apply lockout: progressive (15-30 minutes)
                 # More attempts = longer lockout
-                lockout_minutes = min(min_lockout + (count - threshold) * 3, max_lockout)
+                lockout_minutes = min(
+                    min_lockout + (count - threshold) * 3, max_lockout
+                )
                 lockout_until = datetime.utcnow() + timedelta(minutes=lockout_minutes)
                 await redis_client.setex(
-                    lockout_key,
-                    int(lockout_minutes * 60),
-                    lockout_until.isoformat()
+                    lockout_key, int(lockout_minutes * 60), lockout_until.isoformat()
                 )
                 logger.warning(
                     f"AUTH_LOCKOUT_APPLIED: identifier={identifier}, "
@@ -188,10 +187,10 @@ def rate_limit_key_func(request: Request) -> str:
 
 
 # Global limiter instance (lazy initialization)
-_limiter: Optional[Limiter] = None
+_limiter: Limiter | None = None
 
 
-def get_limiter() -> Optional[Limiter]:
+def get_limiter() -> Limiter | None:
     """Get rate limiter instance (lazy initialization, defensive)"""
     global _limiter
 
@@ -205,8 +204,8 @@ def get_limiter() -> Optional[Limiter]:
             is_prod = settings.ENVIRONMENT.lower() in {"production", "prod"}
 
             # Determine storage configuration
-            storage_uri: Optional[str] = None
-            storage_options: Optional[dict] = None
+            storage_uri: str | None = None
+            storage_options: dict | None = None
 
             if is_prod:
                 # Production: use Redis
@@ -218,6 +217,7 @@ def get_limiter() -> Optional[Limiter]:
                 try:
                     # Test Redis availability
                     import redis.asyncio  # noqa: F401
+
                     # We'll defer actual connection test to init_redis
                     storage_uri = settings.REDIS_URL
                     storage_options = {"decode_responses": True}
@@ -237,9 +237,13 @@ def get_limiter() -> Optional[Limiter]:
                 limiter_kwargs["storage_options"] = storage_options
 
             _limiter = Limiter(**limiter_kwargs)
-            logger.info(f"Rate limiter initialized (storage={'Redis' if storage_uri else 'memory'})")
+            logger.info(
+                f"Rate limiter initialized (storage={'Redis' if storage_uri else 'memory'})"
+            )
         except Exception as e:
-            logger.error(f"Failed to initialize rate limiter: {e}, falling back to disabled")
+            logger.error(
+                f"Failed to initialize rate limiter: {e}, falling back to disabled"
+            )
             _limiter = None
 
     return _limiter
@@ -281,8 +285,11 @@ def setup_rate_limiter(app: FastAPI) -> None:
                     "limit": str(exc.limit) if getattr(exc, "limit", None) else None,
                 },
             )
+
     except Exception as e:
-        logger.error(f"Failed to setup rate limiter middleware: {e}, continuing without rate limiting")
+        logger.error(
+            f"Failed to setup rate limiter middleware: {e}, continuing without rate limiting"
+        )
         app.state.limiter = None
 
     # Note: Redis cleanup is handled in main.py lifespan shutdown
@@ -299,6 +306,7 @@ def rate_limit(limit: str) -> Callable:
         async def my_endpoint(...):
             ...
     """
+
     def decorator(func: Callable) -> Callable:
         limiter_instance = get_limiter()
         if limiter_instance is None:
@@ -306,6 +314,7 @@ def rate_limit(limit: str) -> Callable:
             return func
         # Apply rate limit decorator
         return limiter_instance.limit(limit)(func)
+
     return decorator
 
 
@@ -317,6 +326,7 @@ limiter = get_limiter()
 # Decorator for auth endpoints with lockout checking
 def check_auth_lockout_middleware(endpoint_func: Callable) -> Callable:
     """Middleware decorator to check auth lockout before endpoint execution"""
+
     async def wrapper(request: Request, *args, **kwargs):
         identifier = get_user_id_or_ip(request)
         lockout = await check_auth_lockout(identifier)
@@ -329,9 +339,10 @@ def check_auth_lockout_middleware(endpoint_func: Callable) -> Callable:
                 status_code=429,
                 content={
                     "detail": f"Account temporarily locked due to multiple failed authentication attempts. "
-                             f"Please try again in {int(lockout.total_seconds() / 60)} minutes.",
+                    f"Please try again in {int(lockout.total_seconds() / 60)} minutes.",
                     "lockout_remaining_minutes": int(lockout.total_seconds() / 60),
                 },
             )
         return await endpoint_func(request, *args, **kwargs)
+
     return wrapper

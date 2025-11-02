@@ -14,4 +14,3 @@ mypy app/ --config-file=mypy.ini --show-error-codes > ../../logs/tasks/full-veri
 
 echo "Type checking complete. Results saved to logs/tasks/full-verification/typecheck.txt"
 echo "Error count: $(grep -c "error:" ../../logs/tasks/full-verification/typecheck.txt || echo "0")"
-

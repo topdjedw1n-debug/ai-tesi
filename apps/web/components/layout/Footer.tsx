@@ -41,7 +41,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-sm leading-6 text-gray-600">
-              Generate high-quality thesis sections with AI assistance. 
+              Generate high-quality thesis sections with AI assistance.
               Streamline your academic writing process and focus on what matters most.
             </p>
             <div className="flex space-x-6">

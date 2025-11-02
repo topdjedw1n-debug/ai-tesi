@@ -5,11 +5,12 @@ Handles both in-text citations and bibliography/reference formatting
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 class CitationStyle(str, Enum):
     """Supported citation styles"""
+
     APA = "apa"
     MLA = "mla"
     CHICAGO = "chicago"
@@ -18,17 +19,18 @@ class CitationStyle(str, Enum):
 @dataclass
 class SourceDocument:
     """Represents a source document for citation"""
+
     title: str
-    authors: List[str]
+    authors: list[str]
     year: int
-    journal: Optional[str] = None
-    volume: Optional[str] = None
-    issue: Optional[str] = None
-    pages: Optional[str] = None
-    doi: Optional[str] = None
-    url: Optional[str] = None
-    publisher: Optional[str] = None
-    city: Optional[str] = None
+    journal: str | None = None
+    volume: str | None = None
+    issue: str | None = None
+    pages: str | None = None
+    doi: str | None = None
+    url: str | None = None
+    publisher: str | None = None
+    city: str | None = None
 
     def __post_init__(self) -> None:
         """Validate required fields"""
@@ -43,10 +45,10 @@ class CitationFormatter:
 
     @staticmethod
     def format_intext(
-        authors: List[str],
+        authors: list[str],
         year: int,
         style: CitationStyle = CitationStyle.APA,
-        page: Optional[int] = None
+        page: int | None = None,
     ) -> str:
         """
         Format in-text citation
@@ -71,8 +73,7 @@ class CitationFormatter:
 
     @staticmethod
     def format_reference(
-        source: SourceDocument,
-        style: CitationStyle = CitationStyle.APA
+        source: SourceDocument, style: CitationStyle = CitationStyle.APA
     ) -> str:
         """
         Format full reference for bibliography
@@ -94,7 +95,9 @@ class CitationFormatter:
             raise ValueError(f"Unsupported citation style: {style}")
 
     @staticmethod
-    def _format_apa_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
+    def _format_apa_intext(
+        authors: list[str], year: int, page: int | None = None
+    ) -> str:
         """Format APA in-text citation"""
         if len(authors) == 1:
             citation = f"{authors[0]}, {year}"
@@ -109,7 +112,9 @@ class CitationFormatter:
         return f"({citation})"
 
     @staticmethod
-    def _format_mla_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
+    def _format_mla_intext(
+        authors: list[str], year: int, page: int | None = None
+    ) -> str:
         """Format MLA in-text citation"""
         if len(authors) == 1:
             citation = authors[0]
@@ -124,7 +129,9 @@ class CitationFormatter:
         return f"({citation})"
 
     @staticmethod
-    def _format_chicago_intext(authors: List[str], year: int, page: Optional[int] = None) -> str:
+    def _format_chicago_intext(
+        authors: list[str], year: int, page: int | None = None
+    ) -> str:
         """Format Chicago in-text citation (notes-bibliography style)"""
         if len(authors) == 1:
             citation = authors[0]
@@ -221,7 +228,9 @@ class CitationFormatter:
         elif len(source.authors) == 2:
             authors = f"{source.authors[0]} and {source.authors[1]}"
         else:
-            authors = f"{source.authors[0]}, {source.authors[1]}, and {source.authors[2]}"
+            authors = (
+                f"{source.authors[0]}, {source.authors[1]}, and {source.authors[2]}"
+            )
 
         # Title
         title_str = f'"{source.title}."'
@@ -249,7 +258,7 @@ class CitationFormatter:
         return reference
 
     @staticmethod
-    def extract_citations_from_text(text: str) -> list[Dict[str, Any]]:
+    def extract_citations_from_text(text: str) -> list[dict[str, Any]]:
         """
         Extract citation markers from text (e.g., [Author, Year])
 
@@ -260,9 +269,10 @@ class CitationFormatter:
             List of extracted citation dictionaries
         """
         import re
+
         citations = []
         # Pattern: [Author, Year] or [Author et al., Year]
-        pattern = r'\[([^\]]+),\s*(\d{4})\]'
+        pattern = r"\[([^\]]+),\s*(\d{4})\]"
 
         for match in re.finditer(pattern, text):
             citation_str = match.group(1)
@@ -277,13 +287,14 @@ class CitationFormatter:
                 authors = [a.strip() for author in authors for a in author.split(",")]
                 et_al = False
 
-            citations.append({
-                "authors": authors,
-                "year": year,
-                "et_al": et_al,
-                "original": match.group(0),
-                "position": match.start()
-            })
+            citations.append(
+                {
+                    "authors": authors,
+                    "year": year,
+                    "et_al": et_al,
+                    "original": match.group(0),
+                    "position": match.start(),
+                }
+            )
 
         return citations
-

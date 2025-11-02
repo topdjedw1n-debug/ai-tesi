@@ -3,10 +3,9 @@ FastAPI dependencies for authentication and authorization
 """
 
 import logging
-from datetime import datetime, timedelta
-from typing import Optional
+from datetime import timedelta
 
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from sqlalchemy import select
@@ -24,8 +23,8 @@ security = HTTPBearer(auto_error=False)
 
 
 async def get_current_user(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(security),
-    db: AsyncSession = Depends(get_db)
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
+    db: AsyncSession = Depends(get_db),
 ) -> User:
     """
     FastAPI dependency to extract and validate JWT token, returning the current user.
@@ -53,25 +52,25 @@ async def get_current_user(
 
     try:
         # Prepare JWT validation parameters from ENV
-        # Use JWT_SECRET if available, fallback to SECRET_KEY for backwards compatibility
-        secret_key = settings.JWT_SECRET if hasattr(settings, 'JWT_SECRET') and settings.JWT_SECRET else settings.SECRET_KEY
-        algorithm = settings.JWT_ALG if hasattr(settings, 'JWT_ALG') else "HS256"
+        # Use jwt_secret_key property which prefers JWT_SECRET over SECRET_KEY
+        secret_key = settings.jwt_secret_key
+        algorithm = settings.JWT_ALG
 
         # Decode and validate JWT token
         # Set leeway for clock skew (60 seconds)
         leeway = timedelta(seconds=60)
-        datetime.utcnow()
 
         decode_options = {
             "verify_signature": True,
             "verify_exp": True,
             "verify_nbf": True,
             "verify_iat": True,
-            "verify_iss": hasattr(settings, 'JWT_ISS') and settings.JWT_ISS is not None,
-            "verify_aud": hasattr(settings, 'JWT_AUD') and settings.JWT_AUD is not None,
+            "verify_iss": hasattr(settings, "JWT_ISS") and settings.JWT_ISS is not None,
+            "verify_aud": hasattr(settings, "JWT_AUD") and settings.JWT_AUD is not None,
             "require_exp": True,
             "require_nbf": False,  # nbf is optional
             "require_iat": True,
+            "leeway": leeway,
         }
 
         payload = jwt.decode(
@@ -79,9 +78,12 @@ async def get_current_user(
             secret_key,
             algorithms=[algorithm],
             options=decode_options,
-            issuer=settings.JWT_ISS if hasattr(settings, 'JWT_ISS') and settings.JWT_ISS else None,
-            audience=settings.JWT_AUD if hasattr(settings, 'JWT_AUD') and settings.JWT_AUD else None,
-            leeway=leeway,
+            issuer=settings.JWT_ISS
+            if hasattr(settings, "JWT_ISS") and settings.JWT_ISS
+            else None,
+            audience=settings.JWT_AUD
+            if hasattr(settings, "JWT_AUD") and settings.JWT_AUD
+            else None,
         )
 
         # Extract user ID from token (subject claim)
@@ -101,9 +103,7 @@ async def get_current_user(
             raise AuthenticationError("Invalid token: invalid user ID") from e
 
         # Query user from database
-        result = await db.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await db.execute(select(User).where(User.id == user_id))
         user = result.scalar_one_or_none()
 
         if not user:
@@ -138,9 +138,7 @@ async def get_current_user(
         ) from e
 
 
-async def get_admin_user(
-    current_user: User = Depends(get_current_user)
-) -> User:
+async def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
     """
     FastAPI dependency to ensure the current user is an admin.
 
@@ -169,3 +167,78 @@ async def get_admin_user(
     )
     return current_user
 
+
+async def get_current_user_ws(
+    websocket: WebSocket,
+    token: str | None = None,
+) -> User:
+    """
+    FastAPI dependency for WebSocket authentication.
+    
+    Extracts JWT token from WebSocket query params or headers.
+    
+    Args:
+        websocket: WebSocket connection
+        token: Optional token from query parameter
+        
+    Returns:
+        Authenticated User object
+        
+    Raises:
+        WebSocketException: If authentication fails
+    """
+    from fastapi import WebSocketException
+    
+    # Try to get token from query parameter first
+    if not token:
+        token = websocket.query_params.get("token")
+    
+    # Try to get from Authorization header
+    if not token:
+        auth_header = websocket.headers.get("Authorization")
+        if auth_header and auth_header.startswith("Bearer "):
+            token = auth_header.replace("Bearer ", "")
+    
+    if not token:
+        await websocket.close(code=1008, reason="Authorization required")
+        raise WebSocketException(code=1008, reason="Authorization required")
+    
+    try:
+        # Decode token
+        payload = jwt.decode(
+            token,
+            settings.jwt_secret_key,
+            algorithms=[settings.JWT_ALG],
+            options={
+                "verify_exp": True,
+                "verify_iat": True,
+                "verify_iss": hasattr(settings, "JWT_ISS") and settings.JWT_ISS is not None,
+                "verify_aud": hasattr(settings, "JWT_AUD") and settings.JWT_AUD is not None,
+            }
+        )
+        
+        user_id = payload.get("sub")
+        if not user_id:
+            await websocket.close(code=1008, reason="Invalid token")
+            raise WebSocketException(code=1008, reason="Invalid token")
+        
+        # Get user from database
+        from app.core.database import AsyncSessionLocal
+        async with AsyncSessionLocal() as db:
+            result = await db.execute(select(User).where(User.id == user_id))
+            user = result.scalar_one_or_none()
+            
+            if not user or not user.is_active:
+                await websocket.close(code=1008, reason="User not found or inactive")
+                raise WebSocketException(code=1008, reason="User not found or inactive")
+            
+            return user
+            
+    except JWTError as e:
+        logger.warning(f"WebSocket JWT validation failed: {str(e)}")
+        await websocket.close(code=1008, reason="Invalid token")
+        raise WebSocketException(code=1008, reason="Invalid token") from e
+    except Exception as e:
+        logger.error(f"WebSocket authentication error: {e}")
+        await websocket.close(code=1011, reason="Internal error")
+        raise WebSocketException(code=1011, reason="Internal error") from e

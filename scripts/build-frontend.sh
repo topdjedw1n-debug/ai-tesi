@@ -28,4 +28,3 @@ echo "Building Next.js application..."
 npm run build >> ../../logs/tasks/full-verification/frontend-build.txt 2>&1 || true
 
 echo "Build verification complete. Results saved to logs/tasks/full-verification/frontend-build.txt"
-

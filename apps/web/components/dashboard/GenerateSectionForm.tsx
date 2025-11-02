@@ -72,7 +72,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
 
   const onSubmit = async (data: GenerateSectionFormData) => {
     setIsGenerating(true)
-    
+
     try {
       // TODO: Replace with actual API call
       const response = await fetch('/api/v1/generate/outline', {
@@ -97,7 +97,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
 
       const result = await response.json()
       toast.success('Document outline generated successfully!')
-      
+
       if (onSuccess) {
         onSuccess(result.document_id)
       }
@@ -256,5 +256,3 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
     </div>
   )
 }
-
-

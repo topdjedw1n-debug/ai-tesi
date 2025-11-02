@@ -75,8 +75,8 @@ export default function SettingsPage() {
               </p>
             </div>
             <div>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={async () => {
                   await logout()
                   toast.success('Ви вийшли з акаунта')
@@ -104,4 +104,3 @@ export default function SettingsPage() {
     </DashboardLayout>
   )
 }
-

@@ -115,7 +115,7 @@ export function DocumentsList() {
             </Link>
           </Button>
         </div>
-        
+
         {documents.length === 0 ? (
           <div className="text-center py-12">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
@@ -178,7 +178,7 @@ export function DocumentsList() {
             ))}
           </div>
         )}
-        
+
         {documents.length > 0 && (
           <div className="mt-6">
             <Button variant="outline" className="w-full" asChild>

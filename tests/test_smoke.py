@@ -41,14 +41,14 @@ async def test_smoke_401_unauthorized_without_token(client):
     # Attempt to access protected endpoint without token
     response = await client.get("/api/v1/auth/me")
     assert response.status_code == 401
-    
+
     # Attempt with invalid token format
     response = await client.get(
         "/api/v1/auth/me",
         headers={"Authorization": "Invalid token"}
     )
     assert response.status_code == 401
-    
+
     # Attempt with Bearer but no token
     response = await client.get(
         "/api/v1/auth/me",
@@ -62,13 +62,13 @@ async def test_smoke_401_unauthorized_with_invalid_token(client):
     """Smoke test: Protected endpoint should return 401 with invalid/expired token"""
     # Create invalid token
     invalid_token = "invalid.token.here"
-    
+
     response = await client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {invalid_token}"}
     )
     assert response.status_code == 401
-    
+
     # Create expired token
     secret_key = settings.JWT_SECRET or settings.SECRET_KEY
     expired_payload = {
@@ -78,7 +78,7 @@ async def test_smoke_401_unauthorized_with_invalid_token(client):
         "iat": datetime.utcnow() - timedelta(hours=2),
     }
     expired_token = jwt.encode(expired_payload, secret_key, algorithm=settings.JWT_ALG)
-    
+
     response = await client.get(
         "/api/v1/auth/me",
         headers={"Authorization": f"Bearer {expired_token}"}
@@ -99,7 +99,7 @@ async def test_smoke_happy_auth_flow(client):
     )
     # Should accept request (200) or fail gracefully (500/502) but not 401/403
     assert response.status_code in (200, 500, 502, 503)
-    
+
     # Verify that endpoint exists and processes request
     if response.status_code == 200:
         data = response.json()
@@ -111,7 +111,7 @@ async def test_smoke_cors_negative_rejected(client):
     """Smoke test: CORS middleware should reject requests from disallowed origins"""
     # Get allowed origins from settings
     allowed_origins = settings.ALLOWED_ORIGINS
-    
+
     # Test with disallowed origin (not in ALLOWED_ORIGINS)
     disallowed_origin = "https://evil.com"
     if disallowed_origin not in allowed_origins:
@@ -146,7 +146,7 @@ async def test_smoke_trusted_host_negative_rejected(client):
     """Smoke test: TrustedHost middleware should reject requests with disallowed Host header"""
     # Get allowed hosts from settings
     allowed_hosts = settings.ALLOWED_HOSTS
-    
+
     # Test with disallowed host (not in ALLOWED_HOSTS)
     disallowed_host = "evil-host.com"
     if disallowed_host not in allowed_hosts:

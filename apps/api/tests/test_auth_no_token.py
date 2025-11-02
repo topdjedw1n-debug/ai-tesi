@@ -31,4 +31,3 @@ async def test_auth_no_token(client):
     # Attempt to access protected endpoint without token
     response = await client.get("/api/v1/auth/me")
     assert response.status_code == 401
-

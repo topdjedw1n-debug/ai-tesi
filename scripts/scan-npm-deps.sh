@@ -34,4 +34,3 @@ echo "npm audit complete. Report saved to: $LOGS_DIR/npm-vulnerability-report.js
 echo ""
 echo "Summary:"
 npm audit --audit-level=moderate 2>&1 | head -20 || true
-
