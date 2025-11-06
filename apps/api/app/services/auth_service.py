@@ -75,7 +75,10 @@ class AuthService:
                 "expires_in": 900,  # 15 minutes in seconds
                 "magic_link": magic_link  # Only for development
             }
-            
+
+        except (ValidationError, AuthenticationError):
+            # Re-raise custom exceptions without wrapping
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error sending magic link: {e}")
@@ -141,7 +144,10 @@ class AuthService:
                     "is_verified": user.is_verified
                 }
             }
-            
+
+        except AuthenticationError:
+            # Re-raise AuthenticationError without wrapping
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error verifying magic link: {e}")
@@ -191,7 +197,10 @@ class AuthService:
                     "is_verified": user.is_verified
                 }
             }
-            
+
+        except AuthenticationError:
+            # Re-raise AuthenticationError without wrapping
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error refreshing token: {e}")
@@ -232,6 +241,9 @@ class AuthService:
             
         except JWTError:
             raise AuthenticationError("Invalid token")
+        except AuthenticationError:
+            # Re-raise AuthenticationError without wrapping
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error during logout: {e}")
@@ -284,6 +296,9 @@ class AuthService:
             
         except JWTError:
             raise AuthenticationError("Invalid token")
+        except AuthenticationError:
+            # Re-raise AuthenticationError without wrapping
+            raise
         except Exception as e:
             logger.error(f"Error getting current user: {e}")
             raise AuthenticationError(f"Failed to get user information: {str(e)}")
