@@ -209,10 +209,16 @@ class AuthService:
             user_id = payload.get("sub")
             if payload.get("type") != "access":
                 raise AuthenticationError("Invalid token type")
-            
+
             if not user_id:
                 raise AuthenticationError("Invalid token")
-            
+
+            # Convert user_id to integer (JWT returns string)
+            try:
+                user_id = int(user_id)
+            except (ValueError, TypeError):
+                raise AuthenticationError("Invalid token: invalid user ID")
+
             # Deactivate all user sessions
             await self.db.execute(
                 update(UserSession)
@@ -243,10 +249,16 @@ class AuthService:
             user_id = payload.get("sub")
             if payload.get("type") != "access":
                 raise AuthenticationError("Invalid token type")
-            
+
             if not user_id:
                 raise AuthenticationError("Invalid token")
-            
+
+            # Convert user_id to integer (JWT returns string)
+            try:
+                user_id = int(user_id)
+            except (ValueError, TypeError):
+                raise AuthenticationError("Invalid token: invalid user ID")
+
             # Get user
             result = await self.db.execute(
                 select(User).where(User.id == user_id)
