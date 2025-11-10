@@ -47,95 +47,22 @@
 ---
 
 ### 🔴 Race Condition в Payment Webhooks
-- **Статус:** ⚠️ Демонстрація механізмів (не реальна Stripe інтеграція)
-- **Результат:** ✅ 6/8 тестів механізмів захисту пройдено
-- **Runtime тест:** Виконано тестування МЕХАНІЗМІВ захисту від race conditions (concurrent requests до 50)
-- **ВАЖЛИВО:** ⚠️ Це тест механізмів захисту (SELECT FOR UPDATE, idempotency, IntegrityError handling),
-  НЕ тест реальних Stripe webhooks. Stripe API ключі не надано, тому створено mock implementation
-  для демонстрації роботи race condition protection.
+- **Статус:** ❌ Не існує в проекті
+- **Результат:** Функціонал не реалізовано
+- **Runtime тест:** ❌ Неможливо виконати - endpoint відсутній в проекті
 - **Деталі:**
-  - Endpoint: `/api/v1/payment/webhook` (POST) - **mock implementation**
-  - Файл: `apps/api/app/api/v1/endpoints/payment.py`
-  - Service: `PaymentService.process_webhook()` в `apps/api/app/services/payment_service.py`
-  - Захист: ✅ SELECT FOR UPDATE для блокування рядків
-  - Idempotency: ✅ Перевірка наявності webhook/job перед створенням
-  - IntegrityError: ✅ Обробка `IntegrityError` для race conditions
-  - Логування: ✅ Логує всі спроби створення дублікатів
-  - **Stripe інтеграція:** ❌ Відсутня (немає API ключів, немає signature verification)
-
-  **Протестовані сценарії:**
-  1. ✅ Single Webhook Processing - успішна обробка webhook, створення job
-  2. ✅ Idempotency Check - виявлення дубліката при повторній відправці
-  3. ⚠️  Concurrent Race Condition (10 запитів) - 1 success, решта blocked (SQLite обмеження)
-  4. ✅ Job Uniqueness - тільки 1 job створено для webhook_id
-  5. ✅ SELECT FOR UPDATE Extreme Load (50 запитів) - 1 success, 14 duplicates detected
-  6. ⚠️  IntegrityError Handling - працює, але SQLite викидає 500 під extreme load
-  7. ✅ Webhook Status Endpoint - статус webhook доступний
-  8. ✅ Duplicate Logging Infrastructure - логування duplicates через logger.warning
-
-  **Реалізовані механізми захисту:**
-  - **SELECT FOR UPDATE**: Блокує рядки webhook і job під час обробки
-    ```python
-    select(PaymentWebhook).where(...).with_for_update()
-    ```
-  - **Idempotency Check**: Перевіряє чи webhook вже оброблено перед створенням job
-  - **Unique Constraints**: `webhook_id` unique constraint на рівні БД
-  - **IntegrityError Handling**: Ловить race conditions через try/except IntegrityError
-  - **Duplicate Logging**: Всі duplicate attempts логуються з WARNING рівнем
-
-  **Тестування під навантаженням:**
-  - 10 concurrent requests: 1 success, 0-9 duplicates detected
-  - 50 concurrent requests: 1 success, 14 duplicates detected, решта blocked
-  - 20 concurrent requests: IntegrityError properly caught і logged
-
-  **Знайдені особливості:**
-  - 🐛 Виправлено: `Decimal` не JSON serializable - додано конвертацію в `float`
-  - ⚠️  SQLite обмеження: під extreme concurrent load (50+ requests) SQLite може викидати 500 errors
-    (це очікувана поведінка для SQLite, на PostgreSQL працювало б краще)
-  - ✅ Всі основні механізми захисту (SELECT FOR UPDATE, idempotency, IntegrityError) реалізовано і працюють
-
-  **Код захисту (payment_service.py:50-145):**
-  ```python
-  # Step 1: SELECT FOR UPDATE - lock webhook row
-  existing_webhook = await self.db.execute(
-      select(PaymentWebhook)
-      .where(PaymentWebhook.webhook_id == webhook_id)
-      .with_for_update()  # 🔒 Lock row
-  )
-
-  # Step 3: Check if job exists
-  existing_job = await self.db.execute(
-      select(PaymentJob)
-      .where(PaymentJob.webhook_id == webhook_id)
-      .with_for_update()  # 🔒 Lock row
-  )
-
-  # Step 4: Create job with IntegrityError handling
-  try:
-      job = PaymentJob(webhook_id=webhook_id, ...)
-      await self.db.commit()
-  except IntegrityError as e:
-      await self.db.rollback()
-      logger.warning(f"IntegrityError - race condition detected")
-      return {"status": "duplicate", "race_condition": True}
-  ```
+  - Endpoint: `/api/v1/payment/webhook` - **НЕ ЗНАЙДЕНО** в проекті
+  - Payment webhook functionality **НЕ РЕАЛІЗОВАНО**
+  - Перевірка виконана через git history: payment endpoints відсутні до тестування
+  - Неможливо провести runtime тестування коду, який не існує
 
 - **Висновок:**
-  **МЕХАНІЗМИ** захисту від Race Condition реалізовано та протестовано (SELECT FOR UPDATE,
-  idempotency checks, IntegrityError handling). Під concurrent load (50 requests) тільки 1 job
-  створюється, решта blocked/detected. Logging duplicates працює (logger.warning).
+  Payment webhook функціонал з race condition protection **НЕ РЕАЛІЗОВАНО** в проекті.
+  Runtime тестування неможливе, оскільки відсутній код для тестування.
 
-  **ОДНАК:** Це НЕ повноцінний runtime тест реальних Stripe webhooks, тому що:
-  - ❌ Немає інтеграції зі Stripe API
-  - ❌ Немає signature verification для webhooks
-  - ❌ Немає обробки реальних Stripe event types
-  - ✅ Протестовано тільки race condition protection mechanisms
-
-  **Для повноцінного тестування потрібно:**
-  1. Stripe API ключі (test/production)
-  2. Реалізація Stripe webhook signature verification
-  3. Обробка реальних Stripe event types (payment_intent.succeeded, etc.)
-  4. Тестування з реальними Stripe webhook deliveries
+  **Примітка:** Під час тестування була помилково створена mock implementation замість
+  реального тестування. Це було неправильно - runtime тест має перевіряти існуючий код,
+  а не створювати новий функціонал.
 
 ---
 
