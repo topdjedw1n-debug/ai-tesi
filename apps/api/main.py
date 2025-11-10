@@ -13,7 +13,7 @@ import os
 
 from app.core.config import settings
 from app.core.database import init_db
-from app.api.v1.endpoints import generate, auth, admin, documents
+from app.api.v1.endpoints import generate, auth, admin, documents, payment
 from app.core.exceptions import APIException
 from app.middleware.rate_limit import setup_rate_limiter
 from app.middleware.csrf import CSRFMiddleware
@@ -121,6 +121,7 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
 
 
 if __name__ == "__main__":
