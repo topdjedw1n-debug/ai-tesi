@@ -12,20 +12,29 @@ import sqlalchemy
 
 logger = logging.getLogger(__name__)
 
-# Create async engine
-engine = create_async_engine(
-    settings.DATABASE_URL,
-    echo=False,  # MUST be False in production
-    pool_size=20,
-    max_overflow=40,
-    pool_pre_ping=True,
-    pool_recycle=3600,
-    connect_args={
-        "server_settings": {"jit": "off"},
-        "command_timeout": 60,
-    },
-    future=True,
-)
+# Create async engine with conditional parameters
+if "sqlite" in settings.DATABASE_URL.lower():
+    # SQLite doesn't support pool_size, max_overflow, or PostgreSQL-specific connect_args
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,
+        future=True,
+    )
+else:
+    # PostgreSQL with connection pooling
+    engine = create_async_engine(
+        settings.DATABASE_URL,
+        echo=False,  # MUST be False in production
+        pool_size=20,
+        max_overflow=40,
+        pool_pre_ping=True,
+        pool_recycle=3600,
+        connect_args={
+            "server_settings": {"jit": "off"},
+            "command_timeout": 60,
+        },
+        future=True,
+    )
 
 # Log slow queries (>= 500 ms)
 SLOW_QUERY_THRESHOLD_MS = 500
@@ -73,42 +82,43 @@ async def init_db():
         async with engine.begin() as conn:
             # Import all models to ensure they are registered
             from app.models import auth, document, user  # noqa
-            
+
             # Create all tables
             await conn.run_sync(Base.metadata.create_all)
             logger.info("Database tables created successfully")
 
-            # Ensure critical indexes exist (idempotent)
-            # Documents indexes
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);")
-            )
-            # AI Generation Jobs indexes
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_user_id ON ai_generation_jobs (user_id);")
-            )
-            await conn.execute(
-                sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_started_at ON ai_generation_jobs (started_at);")
-            )
-            logger.info("Database indexes ensured")
+            # Ensure critical indexes exist (idempotent) - only for PostgreSQL
+            if "postgresql" in settings.DATABASE_URL.lower():
+                # Documents indexes
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_user_id ON documents (user_id);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_documents_created_at ON documents (created_at);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_document_sections_document_id ON document_sections (document_id);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_users_email ON users (email);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE UNIQUE INDEX IF NOT EXISTS uq_magic_link_tokens_token ON magic_link_tokens (token);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_email ON magic_link_tokens (email);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_magic_link_tokens_expires_at ON magic_link_tokens (expires_at);")
+                )
+                # AI Generation Jobs indexes
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_user_id ON ai_generation_jobs (user_id);")
+                )
+                await conn.execute(
+                    sqlalchemy.text("CREATE INDEX IF NOT EXISTS ix_ai_generation_jobs_started_at ON ai_generation_jobs (started_at);")
+                )
+                logger.info("Database indexes ensured")
     except Exception as e:
         logger.error(f"Failed to initialize database: {e}")
         raise

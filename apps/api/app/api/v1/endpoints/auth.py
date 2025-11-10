@@ -21,14 +21,14 @@ router = APIRouter()
 @router.post("/magic-link", response_model=MagicLinkResponse)
 @limiter.limit("5/minute")
 async def request_magic_link(
-    http_request: Request,
-    request: MagicLinkRequest,
+    request: Request,
+    magic_link_request: MagicLinkRequest,
     db: AsyncSession = Depends(get_db)
 ):
     """Request a magic link for passwordless authentication"""
     try:
         auth_service = AuthService(db)
-        result = await auth_service.send_magic_link(request.email)
+        result = await auth_service.send_magic_link(magic_link_request.email)
         return result
     except ValidationError as e:
         raise HTTPException(
