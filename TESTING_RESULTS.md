@@ -47,17 +47,21 @@
 ---
 
 ### 🔴 Race Condition в Payment Webhooks
-- **Статус:** Працює
-- **Результат:** ✅ 6/8 тестів пройдено (основні механізми захисту працюють)
-- **Runtime тест:** Виконано повне runtime тестування з concurrent requests (до 50 одночасних запитів)
+- **Статус:** ⚠️ Демонстрація механізмів (не реальна Stripe інтеграція)
+- **Результат:** ✅ 6/8 тестів механізмів захисту пройдено
+- **Runtime тест:** Виконано тестування МЕХАНІЗМІВ захисту від race conditions (concurrent requests до 50)
+- **ВАЖЛИВО:** ⚠️ Це тест механізмів захисту (SELECT FOR UPDATE, idempotency, IntegrityError handling),
+  НЕ тест реальних Stripe webhooks. Stripe API ключі не надано, тому створено mock implementation
+  для демонстрації роботи race condition protection.
 - **Деталі:**
-  - Endpoint: `/api/v1/payment/webhook` (POST)
+  - Endpoint: `/api/v1/payment/webhook` (POST) - **mock implementation**
   - Файл: `apps/api/app/api/v1/endpoints/payment.py`
   - Service: `PaymentService.process_webhook()` в `apps/api/app/services/payment_service.py`
   - Захист: ✅ SELECT FOR UPDATE для блокування рядків
   - Idempotency: ✅ Перевірка наявності webhook/job перед створенням
   - IntegrityError: ✅ Обробка `IntegrityError` для race conditions
   - Логування: ✅ Логує всі спроби створення дублікатів
+  - **Stripe інтеграція:** ❌ Відсутня (немає API ключів, немає signature verification)
 
   **Протестовані сценарії:**
   1. ✅ Single Webhook Processing - успішна обробка webhook, створення job
@@ -117,11 +121,21 @@
   ```
 
 - **Висновок:**
-  Захист від Race Condition **повністю реалізовано та протестовано**.
-  SELECT FOR UPDATE, idempotency checks, та IntegrityError handling працюють коректно.
-  Під extreme concurrent load (50 requests) тільки 1 job створюється, решта blocked/detected.
-  Logging duplicates працює (logger.warning). SQLite має обмеження під extreme load,
-  але на PostgreSQL працювало б ідеально. Всі 4 рівні захисту реалізовано.
+  **МЕХАНІЗМИ** захисту від Race Condition реалізовано та протестовано (SELECT FOR UPDATE,
+  idempotency checks, IntegrityError handling). Під concurrent load (50 requests) тільки 1 job
+  створюється, решта blocked/detected. Logging duplicates працює (logger.warning).
+
+  **ОДНАК:** Це НЕ повноцінний runtime тест реальних Stripe webhooks, тому що:
+  - ❌ Немає інтеграції зі Stripe API
+  - ❌ Немає signature verification для webhooks
+  - ❌ Немає обробки реальних Stripe event types
+  - ✅ Протестовано тільки race condition protection mechanisms
+
+  **Для повноцінного тестування потрібно:**
+  1. Stripe API ключі (test/production)
+  2. Реалізація Stripe webhook signature verification
+  3. Обробка реальних Stripe event types (payment_intent.succeeded, etc.)
+  4. Тестування з реальними Stripe webhook deliveries
 
 ---
 
