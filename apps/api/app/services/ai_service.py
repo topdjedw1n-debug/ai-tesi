@@ -5,10 +5,12 @@ AI service for generating content using various providers
 import asyncio
 import json
 import time
+from datetime import datetime
 from typing import Dict, List, Optional, Any
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update
 from app.models.document import Document, DocumentSection, DocumentOutline
+from app.models.auth import User
 from app.core.exceptions import AIProviderError, NotFoundError
 from app.core.config import settings
 import logging
@@ -140,7 +142,7 @@ class AIService:
                 section.status = 'completed'
                 section.tokens_used = section_content.get('tokens_used', 0)
                 section.generation_time_seconds = generation_time
-                section.completed_at = time.time()
+                section.completed_at = datetime.utcnow()
             else:
                 section = DocumentSection(
                     document_id=document_id,
@@ -150,7 +152,7 @@ class AIService:
                     status='completed',
                     tokens_used=section_content.get('tokens_used', 0),
                     generation_time_seconds=generation_time,
-                    completed_at=time.time()
+                    completed_at=datetime.utcnow()
                 )
                 self.db.add(section)
             
@@ -187,19 +189,19 @@ class AIService:
             # Get total documents and tokens used
             result = await self.db.execute(
                 select(
-                    Document.total_documents_created,
-                    Document.total_tokens_used
-                ).where(Document.user_id == user_id)
+                    User.total_documents_created,
+                    User.total_tokens_used
+                ).where(User.id == user_id)
             )
             stats = result.first()
-            
+
             return {
                 "user_id": user_id,
                 "total_documents": stats.total_documents_created if stats else 0,
                 "total_tokens_used": stats.total_tokens_used if stats else 0,
                 "last_updated": time.time()
             }
-            
+
         except Exception as e:
             logger.error(f"Error getting user usage: {e}")
             raise AIProviderError(f"Failed to get usage statistics: {str(e)}")

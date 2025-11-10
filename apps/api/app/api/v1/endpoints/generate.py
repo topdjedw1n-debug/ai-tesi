@@ -23,8 +23,8 @@ router = APIRouter()
 @router.post("/outline", response_model=OutlineResponse)
 @limiter.limit("10/hour")
 async def generate_outline(
-    http_request: Request,
-    request: OutlineRequest,
+    request: Request,
+    outline_request: OutlineRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -32,9 +32,9 @@ async def generate_outline(
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_outline(
-            document_id=request.document_id,
+            document_id=outline_request.document_id,
             user_id=current_user.id,
-            additional_requirements=request.additional_requirements
+            additional_requirements=outline_request.additional_requirements
         )
         return result
     except NotFoundError as e:
@@ -57,8 +57,8 @@ async def generate_outline(
 @router.post("/section", response_model=SectionResponse)
 @limiter.limit("10/hour")
 async def generate_section(
-    http_request: Request,
-    request: SectionRequest,
+    request: Request,
+    section_request: SectionRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db)
 ):
@@ -66,11 +66,11 @@ async def generate_section(
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_section(
-            document_id=request.document_id,
-            section_title=request.section_title,
-            section_index=request.section_index,
+            document_id=section_request.document_id,
+            section_title=section_request.section_title,
+            section_index=section_request.section_index,
             user_id=current_user.id,
-            additional_requirements=request.additional_requirements
+            additional_requirements=section_request.additional_requirements
         )
         return result
     except NotFoundError as e:

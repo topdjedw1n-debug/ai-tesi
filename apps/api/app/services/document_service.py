@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, update, delete
 from sqlalchemy.orm import selectinload
 from app.models.document import Document, DocumentSection, DocumentOutline
+from app.models.auth import User
 from app.core.exceptions import NotFoundError, ValidationError
 import logging
 
@@ -45,14 +46,14 @@ class DocumentService:
             
             self.db.add(document)
             await self.db.flush()  # Get the document ID
-            
+
             # Update user's document count
             await self.db.execute(
-                update(Document)
-                .where(Document.user_id == user_id)
-                .values(total_documents_created=Document.total_documents_created + 1)
+                update(User)
+                .where(User.id == user_id)
+                .values(total_documents_created=User.total_documents_created + 1)
             )
-            
+
             await self.db.commit()
             
             return {

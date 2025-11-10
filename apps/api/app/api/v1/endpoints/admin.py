@@ -7,6 +7,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Optional
 from datetime import datetime, timedelta
 from app.core.database import get_db
+from app.core.dependencies import get_current_admin_user
+from app.models.auth import User
 from app.services.admin_service import AdminService
 from app.core.exceptions import AuthorizationError
 
@@ -15,11 +17,11 @@ router = APIRouter()
 
 @router.get("/stats")
 async def get_platform_stats(
+    current_admin: User = Depends(get_current_admin_user),
     db: AsyncSession = Depends(get_db)
 ):
-    """Get platform statistics"""
+    """Get platform statistics (admin only)"""
     try:
-        # TODO: Add admin authentication
         admin_service = AdminService(db)
         result = await admin_service.get_platform_stats()
         return result
@@ -32,6 +34,7 @@ async def get_platform_stats(
 
 @router.get("/users")
 async def list_users(
+    current_admin: User = Depends(get_current_admin_user),
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
     search: Optional[str] = None,
@@ -39,7 +42,6 @@ async def list_users(
 ):
     """List all users (admin only)"""
     try:
-        # TODO: Add admin authentication
         admin_service = AdminService(db)
         result = await admin_service.list_users(page, per_page, search)
         return result
@@ -52,6 +54,7 @@ async def list_users(
 
 @router.get("/ai-jobs")
 async def list_ai_jobs(
+    current_admin: User = Depends(get_current_admin_user),
     page: int = Query(1, ge=1),
     per_page: int = Query(10, ge=1, le=100),
     user_id: Optional[int] = None,
@@ -61,7 +64,6 @@ async def list_ai_jobs(
 ):
     """List AI generation jobs (admin only)"""
     try:
-        # TODO: Add admin authentication
         admin_service = AdminService(db)
         result = await admin_service.list_ai_jobs(
             page, per_page, user_id, start_date, end_date
@@ -76,6 +78,7 @@ async def list_ai_jobs(
 
 @router.get("/costs")
 async def get_cost_analysis(
+    current_admin: User = Depends(get_current_admin_user),
     start_date: Optional[datetime] = None,
     end_date: Optional[datetime] = None,
     group_by: str = Query("day", regex="^(day|week|month)$"),
@@ -83,7 +86,6 @@ async def get_cost_analysis(
 ):
     """Get cost analysis (admin only)"""
     try:
-        # TODO: Add admin authentication
         admin_service = AdminService(db)
         result = await admin_service.get_cost_analysis(start_date, end_date, group_by)
         return result
