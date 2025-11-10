@@ -15,6 +15,9 @@ from app.schemas.auth import (
 from app.services.auth_service import AuthService
 from app.core.exceptions import AuthenticationError, ValidationError
 from app.middleware.rate_limit import limiter
+import logging
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -32,14 +35,22 @@ async def request_magic_link(
         result = await auth_service.send_magic_link(magic_link_request.email)
         return result
     except ValidationError as e:
+        logger.warning(f"Validation error in magic-link: {e}")
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
             detail=str(e)
         )
+    except AuthenticationError as e:
+        logger.warning(f"Authentication error in magic-link: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e)
+        )
     except Exception as e:
+        logger.error(f"Unexpected error in magic-link endpoint: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to send magic link"
+            detail=f"Failed to send magic link: {str(e)}"
         )
 
 
@@ -56,14 +67,16 @@ async def verify_magic_link(
         result = await auth_service.verify_magic_link(token)
         return result
     except AuthenticationError as e:
+        logger.warning(f"Authentication error in verify-magic-link: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"Unexpected error in verify-magic-link endpoint: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to verify magic link"
+            detail=f"Failed to verify magic link: {str(e)}"
         )
 
 
@@ -80,14 +93,16 @@ async def refresh_token(
         result = await auth_service.refresh_token(refresh_request.refresh_token)
         return result
     except AuthenticationError as e:
+        logger.warning(f"Authentication error in refresh-token: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"Unexpected error in refresh-token endpoint: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to refresh token"
+            detail=f"Failed to refresh token: {str(e)}"
         )
 
 
@@ -106,16 +121,25 @@ async def logout(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid authorization header"
             )
-        
+
         token = auth_header.split(" ")[1]
         auth_service = AuthService(db)
         await auth_service.logout(token)
-        
+
         return {"message": "Successfully logged out"}
+    except HTTPException:
+        raise
+    except AuthenticationError as e:
+        logger.warning(f"Authentication error in logout: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e)
+        )
     except Exception as e:
+        logger.error(f"Unexpected error in logout endpoint: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to logout"
+            detail=f"Failed to logout: {str(e)}"
         )
 
 
@@ -138,13 +162,17 @@ async def get_current_user(
         auth_service = AuthService(db)
         user = await auth_service.get_current_user(token)
         return user
+    except HTTPException:
+        raise
     except AuthenticationError as e:
+        logger.warning(f"Authentication error in get-current-user: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e)
         )
     except Exception as e:
+        logger.error(f"Unexpected error in get-current-user endpoint: {e}", exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get user information"
+            detail=f"Failed to get user information: {str(e)}"
         )
