@@ -249,3 +249,36 @@
 
 ---
 
+## ЧАСТИНА 1: ІНФРАСТРУКТУРНА ПЕРЕВІРКА
+
+### 1.1 Docker та Контейнери
+
+#### Перевірка образів
+- **Статус:** ✅ Конфігурація існує (❌ Runtime тест неможливий - Docker недоступний)
+- **Результат:** Конфігурація правильно структурована
+- **Runtime тест:** ❌ Неможливо - Docker daemon не встановлений (`docker: command not found`)
+- **Деталі:**
+  - ✅ `infra/docker/docker-compose.yml` - існує
+  - ✅ `infra/docker/docker-compose.prod.yml` - існує
+  - ✅ `apps/api/Dockerfile` - python:3.11-slim, non-root user
+  - ✅ `apps/web/Dockerfile` - node:18-alpine, multi-stage build
+  - ✅ Сервіси: postgres, api, web, minio, redis, minio-setup (6 total)
+  - ✅ Health checks: налаштовані для всіх сервісів
+  - ✅ Network: `ai-thesis-network`
+- **Висновок:** Конфігурація існує, runtime тест неможливий без Docker.
+
+#### Всі інші перевірки (здоров'я, ресурси, мережа, volumes, порти)
+- **Статус:** ❌ Runtime тести неможливі - Docker недоступний
+- **Результат:** Конфігурація правильна, но неможливо виконати runtime перевірку
+- **Runtime тест:** ❌ Потрібен Docker daemon
+- **Деталі:**
+  - ✅ Health checks налаштовані (pg_isready, redis-cli ping, curl endpoints)
+  - ✅ Volumes визначені (postgres_data, redis_data, minio_data)
+  - ✅ Network правильно налаштована
+  - ✅ Depends_on: api -> postgres, redis, minio (з health checks)
+  - ✅ Ports: 8000, 3000, 5432, 6379, 9000, 9001
+  - ❌ Неможливо перевірити: розміри образів, використання ресурсів, доступність портів
+- **Висновок:** Docker конфігурація **правильно структурована**, але runtime тестування **неможливе** через відсутність Docker daemon в середовищі.
+
+---
+
