@@ -19,6 +19,7 @@ from app.schemas.auth import (
     MagicLinkRequest,
     MagicLinkResponse,
     MagicLinkVerify,
+    RefreshTokenRequest,
     TokenResponse,
 )
 from app.schemas.user import UserResponse
@@ -30,12 +31,14 @@ router = APIRouter()
 @router.post("/magic-link", response_model=MagicLinkResponse)
 @rate_limit("3/hour")  # Per-user/IP rate limit: 3/hr with progressive backoff
 async def request_magic_link(
-    http_request: Request, request: MagicLinkRequest, db: AsyncSession = Depends(get_db)
+    request: Request,
+    magic_link_request: MagicLinkRequest,
+    db: AsyncSession = Depends(get_db),
 ):
     """Request a magic link for passwordless authentication"""
-    correlation_id = http_request.headers.get("X-Request-ID", "unknown")
-    ip = http_request.client.host if http_request.client else "unknown"
-    identifier = get_user_id_or_ip(http_request)
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    ip = request.client.host if request.client else "unknown"
+    identifier = get_user_id_or_ip(request)
 
     # Check for auth lockout
     lockout = await check_auth_lockout(identifier)
@@ -60,7 +63,7 @@ async def request_magic_link(
 
     try:
         auth_service = AuthService(db)
-        result = await auth_service.send_magic_link(request.email)
+        result = await auth_service.send_magic_link(magic_link_request.email)
         # Clear auth failures on successful request
         await clear_auth_failures(identifier)
 
@@ -73,7 +76,7 @@ async def request_magic_link(
             resource="auth",
             action="request_magic_link",
             outcome="success",
-            details={"email": request.email},
+            details={"email": magic_link_request.email},
         )
 
         return result
@@ -191,7 +194,9 @@ async def verify_magic_link(
 @router.post("/refresh", response_model=TokenResponse)
 @rate_limit("20/hour")  # Per-user/IP rate limit: 20/hr
 async def refresh_token(
-    request: Request, refresh_token: str, db: AsyncSession = Depends(get_db)
+    request: Request,
+    refresh_request: RefreshTokenRequest,
+    db: AsyncSession = Depends(get_db),
 ):
     """Refresh access token using refresh token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
@@ -221,7 +226,7 @@ async def refresh_token(
 
     try:
         auth_service = AuthService(db)
-        result = await auth_service.refresh_token(refresh_token)
+        result = await auth_service.refresh_token(refresh_request.refresh_token)
         # Clear auth failures on successful refresh
         await clear_auth_failures(identifier)
 

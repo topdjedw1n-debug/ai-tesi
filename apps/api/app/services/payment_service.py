@@ -1,17 +1,18 @@
 """Payment service for Stripe integration"""
 import logging
-from datetime import datetime
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
 import stripe
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.document import Document
 from app.models.payment import Payment
 from app.models.user import User
+from app.services.pricing_service import PricingService
 
 logger = logging.getLogger(__name__)
 
@@ -28,24 +29,20 @@ class PaymentService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
-    async def check_payment_ownership(
-        self, payment_id: int, user_id: int
-    ) -> Payment:
+    async def check_payment_ownership(self, payment_id: int, user_id: int) -> Payment:
         """
         Check if payment exists and belongs to user.
         Returns Payment object or raises ValueError.
-        
+
         This function ensures IDOR protection by returning 404
         instead of 403 to avoid revealing existence of payments.
         """
-        result = await self.db.execute(
-            select(Payment).where(Payment.id == payment_id)
-        )
+        result = await self.db.execute(select(Payment).where(Payment.id == payment_id))
         payment = result.scalar_one_or_none()
-        
+
         if not payment or payment.user_id != user_id:
             raise ValueError("Payment not found")
-        
+
         return payment
 
     async def create_payment_intent(
@@ -54,7 +51,7 @@ class PaymentService:
         amount: Decimal,
         currency: str = "EUR",
         document_id: int | None = None,
-        discount_code: str | None = None
+        discount_code: str | None = None,
     ) -> dict[str, Any]:
         """
         Create Stripe payment intent
@@ -67,9 +64,7 @@ class PaymentService:
 
         try:
             # 1. Get user
-            result = await self.db.execute(
-                select(User).where(User.id == user_id)
-            )
+            result = await self.db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
             if not user:
                 raise ValueError(f"User {user_id} not found")
@@ -90,10 +85,10 @@ class PaymentService:
                     "user_id": str(user_id),
                     "user_email": user.email,
                     "document_id": str(document_id) if document_id else "",
-                    "discount_code": discount_code or ""
+                    "discount_code": discount_code or "",
                 },
                 # CRITICAL: Idempotency key prevents duplicates
-                idempotency_key=f"intent_{user_id}_{document_id or 'nodoc'}_{int(datetime.utcnow().timestamp() * 1000)}"
+                idempotency_key=f"intent_{user_id}_{document_id or 'nodoc'}_{int(datetime.utcnow().timestamp() * 1000)}",
             )
 
             # 5. Save payment record
@@ -106,7 +101,7 @@ class PaymentService:
                 currency=currency,
                 status="pending",
                 discount_code=discount_code,
-                discount_amount=discount_amount
+                discount_amount=discount_amount,
             )
 
             self.db.add(payment)
@@ -119,7 +114,7 @@ class PaymentService:
                 "client_secret": intent.client_secret,
                 "payment_intent_id": intent.id,
                 "amount": float(final_amount),
-                "currency": currency
+                "currency": currency,
             }
 
         except stripe.error.StripeError as e:
@@ -127,6 +122,119 @@ class PaymentService:
             raise ValueError(f"Payment creation failed: {str(e)}") from e
         except Exception as e:
             logger.error(f"❌ Error: {e}")
+            await self.db.rollback()
+            raise
+
+    async def create_checkout_session(
+        self,
+        user_id: int,
+        document_id: int,
+        pages: int,
+    ) -> dict[str, Any]:
+        """
+        Create Stripe checkout session for document generation
+
+        CRITICAL: Payment must be completed BEFORE generation starts
+
+        Returns:
+            dict with checkout_url
+        """
+        if not settings.STRIPE_SECRET_KEY:
+            raise ValueError("Stripe not configured")
+
+        try:
+            # 1. Get user and document
+            result = await self.db.execute(select(User).where(User.id == user_id))
+            user = result.scalar_one_or_none()
+            if not user:
+                raise ValueError(f"User {user_id} not found")
+
+            doc_result = await self.db.execute(
+                select(Document).where(Document.id == document_id)
+            )
+            document = doc_result.scalar_one_or_none()
+            if not document:
+                raise ValueError(f"Document {document_id} not found")
+            if document.user_id != user_id:
+                raise ValueError("Document ownership mismatch")
+
+            # 2. Calculate price using dynamic pricing service
+            pricing_service = PricingService(self.db)
+            total_amount = await pricing_service.calculate_amount(pages)
+            amount_cents = int(total_amount * 100)  # Convert EUR to cents
+
+            # 3. Get/create Stripe customer
+            customer_id = await self._get_or_create_customer(user)
+
+            # 4. Get frontend URL
+            frontend_url = settings.FRONTEND_URL
+
+            # 5. Create Stripe Checkout Session
+            session = stripe.checkout.Session.create(
+                payment_method_types=["card"],
+                line_items=[
+                    {
+                        "price_data": {
+                            "currency": "eur",
+                            "product_data": {
+                                "name": f"Документ: {document.title}",
+                                "description": f"Генерація документа на {pages} сторінок",
+                            },
+                            "unit_amount": amount_cents,  # Already in cents
+                        },
+                        "quantity": 1,
+                    }
+                ],
+                mode="payment",
+                success_url=f"{frontend_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}",
+                cancel_url=f"{frontend_url}/payment/cancel",
+                customer=customer_id,
+                metadata={
+                    "user_id": str(user_id),
+                    "document_id": str(document_id),
+                    "pages": str(pages),
+                    "title": document.title[:100],  # Limit metadata length
+                },
+                # Idempotency key for duplicate prevention
+                idempotency_key=f"checkout_{user_id}_{document_id}_{int(datetime.utcnow().timestamp() * 1000)}",
+            )
+
+            # 6. Save payment record with checkout session
+            payment = Payment(
+                user_id=user_id,
+                document_id=document_id,
+                stripe_session_id=session.id,
+                stripe_customer_id=customer_id,
+                amount=Decimal(amount_cents) / 100,  # Convert cents to EUR
+                currency="EUR",
+                status="pending",
+            )
+
+            self.db.add(payment)
+
+            # 7. Update document status to payment_pending
+            document.status = "payment_pending"
+
+            await self.db.commit()
+            await self.db.refresh(payment)
+
+            logger.info(
+                f"✅ Checkout session created: {session.id} for document {document_id}"
+            )
+
+            return {
+                "checkout_url": session.url,
+                "session_id": session.id,
+                "amount": float(payment.amount),
+                "currency": "EUR",
+            }
+
+        except stripe.error.StripeError as e:
+            logger.error(f"❌ Stripe error: {e}")
+            await self.db.rollback()
+            raise ValueError(f"Checkout creation failed: {str(e)}") from e
+        except Exception as e:
+            logger.error(f"❌ Error creating checkout: {e}")
             await self.db.rollback()
             raise
 
@@ -143,7 +251,7 @@ class PaymentService:
         customer = stripe.Customer.create(
             email=user.email,
             name=user.full_name or user.email,
-            metadata={"user_id": str(user.id)}
+            metadata={"user_id": str(user.id)},
         )
 
         user.stripe_customer_id = customer.id
@@ -167,15 +275,18 @@ class PaymentService:
                 payload, signature, settings.STRIPE_WEBHOOK_SECRET
             )
 
-            event_type = event['type']
+            event_type = event["type"]
             logger.info(f"📨 Webhook: {event_type}")
 
             # Route to handler
-            if event_type == 'payment_intent.succeeded':
+            if event_type == "checkout.session.completed":
+                # CRITICAL: Handle checkout completion - trigger generation
+                return await self._handle_checkout_completed(event)
+            elif event_type == "payment_intent.succeeded":
                 return await self._handle_payment_success(event)
-            elif event_type == 'payment_intent.payment_failed':
+            elif event_type == "payment_intent.payment_failed":
                 return await self._handle_payment_failed(event)
-            elif event_type == 'payment_intent.canceled':
+            elif event_type == "payment_intent.canceled":
                 return await self._handle_payment_canceled(event)
             else:
                 logger.warning(f"⚠️ Unhandled event: {event_type}")
@@ -188,16 +299,71 @@ class PaymentService:
             logger.error(f"❌ Webhook error: {e}")
             raise
 
+    async def _handle_checkout_completed(self, event: dict) -> Payment:
+        """
+        Handle checkout.session.completed event
+
+        CRITICAL: This triggers document generation AFTER payment is confirmed
+        """
+        session = event["data"]["object"]
+        session_id = session["id"]
+        payment_intent_id = session.get(
+            "payment_intent"
+        )  # May be None if not yet created
+
+        # Find payment by session_id
+        result = await self.db.execute(
+            select(Payment).where(Payment.stripe_session_id == session_id)
+        )
+        payment = result.scalar_one_or_none()
+
+        if not payment:
+            logger.error(f"❌ Payment not found for session: {session_id}")
+            raise ValueError(f"Payment not found for session: {session_id}")
+
+        # ✅ IDEMPOTENCY: Skip if already completed
+        if payment.status == "completed":
+            logger.warning(f"⚠️ Payment {payment.id} already completed (idempotent)")
+            return payment
+
+        # Update payment with payment intent ID and status
+        payment.status = "completed"
+        payment.completed_at = datetime.utcnow()
+        if payment_intent_id:
+            payment.stripe_payment_intent_id = payment_intent_id
+
+        # Update document status to generating
+        if payment.document_id:
+            doc_result = await self.db.execute(
+                select(Document).where(Document.id == payment.document_id)
+            )
+            document = doc_result.scalar_one_or_none()
+            if document:
+                # Mark document as ready for generation
+                document.status = "generating"
+                logger.info(
+                    f"✅ Document {document.id} ready for generation after payment"
+                )
+
+        await self.db.commit()
+        await self.db.refresh(payment)
+
+        logger.info(
+            f"✅ Checkout completed: payment {payment.id}, document {payment.document_id}"
+        )
+
+        # NOTE: Document generation will be triggered by the webhook endpoint
+        # which has access to BackgroundTasks
+        return payment
+
     async def _handle_payment_success(self, event: dict) -> Payment:
         """Handle payment success with idempotency check"""
-        intent = event['data']['object']
-        payment_intent_id = intent['id']
+        intent = event["data"]["object"]
+        payment_intent_id = intent["id"]
 
         # Find payment
         result = await self.db.execute(
-            select(Payment).where(
-                Payment.stripe_payment_intent_id == payment_intent_id
-            )
+            select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
         )
         payment = result.scalar_one_or_none()
 
@@ -212,7 +378,7 @@ class PaymentService:
         # Update payment
         payment.status = "completed"
         payment.completed_at = datetime.utcnow()
-        payment.payment_method = intent.get('payment_method_types', [None])[0]
+        payment.payment_method = intent.get("payment_method_types", [None])[0]
 
         # Update document status if exists
         if payment.document_id:
@@ -231,13 +397,11 @@ class PaymentService:
 
     async def _handle_payment_failed(self, event: dict) -> Payment:
         """Handle payment failure"""
-        intent = event['data']['object']
-        payment_intent_id = intent['id']
+        intent = event["data"]["object"]
+        payment_intent_id = intent["id"]
 
         result = await self.db.execute(
-            select(Payment).where(
-                Payment.stripe_payment_intent_id == payment_intent_id
-            )
+            select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
         )
         payment = result.scalar_one_or_none()
 
@@ -245,7 +409,9 @@ class PaymentService:
             raise ValueError(f"Payment not found: {payment_intent_id}")
 
         payment.status = "failed"
-        payment.failure_reason = intent.get('last_payment_error', {}).get('message', 'Unknown')
+        payment.failure_reason = intent.get("last_payment_error", {}).get(
+            "message", "Unknown"
+        )
 
         if payment.document_id:
             doc_result = await self.db.execute(
@@ -263,13 +429,11 @@ class PaymentService:
 
     async def _handle_payment_canceled(self, event: dict) -> Payment | None:
         """Handle payment cancelation"""
-        intent = event['data']['object']
-        payment_intent_id = intent['id']
+        intent = event["data"]["object"]
+        payment_intent_id = intent["id"]
 
         result = await self.db.execute(
-            select(Payment).where(
-                Payment.stripe_payment_intent_id == payment_intent_id
-            )
+            select(Payment).where(Payment.stripe_payment_intent_id == payment_intent_id)
         )
         payment = result.scalar_one_or_none()
 
@@ -291,3 +455,66 @@ class PaymentService:
         )
         return list(result.scalars().all())
 
+    async def check_payment_timeouts(self) -> dict[str, Any]:
+        """
+        Check and expire pending payments older than 10 minutes
+
+        This should be called periodically (e.g., every 10 minutes via cron or scheduler)
+        Returns dict with expired_count and deleted_documents_count
+        """
+        try:
+            # Find payments pending for more than 10 minutes
+            expired_threshold = datetime.utcnow() - timedelta(minutes=10)
+
+            result = await self.db.execute(
+                select(Payment).where(
+                    Payment.status == "pending", Payment.created_at < expired_threshold
+                )
+            )
+            expired_payments = list(result.scalars().all())
+
+            expired_count = 0
+            deleted_documents = 0
+
+            for payment in expired_payments:
+                # Mark payment as expired
+                payment.status = "expired"
+                expired_count += 1
+
+                # Delete draft document if exists
+                if payment.document_id:
+                    doc_result = await self.db.execute(
+                        select(Document).where(Document.id == payment.document_id)
+                    )
+                    document = doc_result.scalar_one_or_none()
+                    if document and document.status == "payment_pending":
+                        # Delete document
+                        await self.db.execute(
+                            delete(Document).where(Document.id == payment.document_id)
+                        )
+                        deleted_documents += 1
+                        logger.info(
+                            f"🗑️ Deleted expired draft document {document.id} for payment {payment.id}"
+                        )
+
+            if expired_count > 0:
+                await self.db.commit()
+                logger.info(
+                    f"⏰ Expired {expired_count} pending payments, deleted {deleted_documents} draft documents"
+                )
+
+            return {
+                "expired_count": expired_count,
+                "deleted_documents_count": deleted_documents,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+
+        except Exception as e:
+            logger.error(f"❌ Error checking payment timeouts: {e}", exc_info=True)
+            await self.db.rollback()
+            return {
+                "expired_count": 0,
+                "deleted_documents_count": 0,
+                "error": str(e),
+                "timestamp": datetime.utcnow().isoformat(),
+            }

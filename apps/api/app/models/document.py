@@ -153,6 +153,9 @@ class AIGenerationJob(Base):
     __table_args__ = (
         Index("ix_ai_generation_jobs_user_id", "user_id"),
         Index("ix_ai_generation_jobs_started_at", "started_at"),
+        # NOTE: Consider adding unique constraint for (document_id, job_type) where status IN ('queued', 'running')
+        # to provide additional protection against race conditions at DB level
+        # Example: UniqueConstraint('document_id', 'job_type', name='uq_active_job_per_document', postgresql_where=status.in_(['queued', 'running']))
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -163,7 +166,7 @@ class AIGenerationJob(Base):
     job_type = Column(String(50), nullable=False)  # outline, section, etc.
     ai_provider = Column(String(50))
     ai_model = Column(String(100))
-    
+
     # Job status and progress
     status = Column(String(50), default="queued")  # queued, running, completed, failed
     progress = Column(Integer, default=0)  # 0-100 percentage

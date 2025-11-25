@@ -3,7 +3,7 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DocumentsList } from '@/components/dashboard/DocumentsList'
 import { StatsOverview } from '@/components/dashboard/StatsOverview'
 import { RecentActivity } from '@/components/dashboard/RecentActivity'
-import { GenerateSectionForm } from '@/components/dashboard/GenerateSectionForm'
+import { CreateDocumentForm } from '@/components/dashboard/CreateDocumentForm'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 
 export default function DashboardPage() {
@@ -21,7 +21,7 @@ export default function DashboardPage() {
           <StatsOverview />
         </Suspense>
 
-        <GenerateSectionForm />
+        <CreateDocumentForm />
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <Suspense fallback={<LoadingSpinner />}>

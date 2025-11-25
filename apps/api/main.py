@@ -13,13 +13,29 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse
 from loguru import logger
 
-from app.api.v1.endpoints import admin, auth, documents, generate, jobs, payment
+from app.api.v1.endpoints import (
+    admin,
+    admin_auth,
+    admin_documents,
+    admin_payments,
+    auth,
+    documents,
+    generate,
+    jobs,
+    payment,
+    pricing,
+    refunds,
+)
+from app.api.v1.endpoints import (
+    settings as settings_endpoints,
+)
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.exceptions import APIException
 from app.core.logging import RequestLoggingMiddleware, setup_logging
 from app.core.monitoring import setup_prometheus, setup_sentry
 from app.middleware.csrf import CSRFMiddleware
+from app.middleware.maintenance import MaintenanceModeMiddleware
 from app.middleware.rate_limit import close_redis, init_redis, setup_rate_limiter
 
 # Configure logging
@@ -75,6 +91,9 @@ setup_rate_limiter(app)
 
 # CSRF protection for state-changing requests
 app.add_middleware(CSRFMiddleware)
+
+# Maintenance mode middleware (should be early in the stack)
+app.add_middleware(MaintenanceModeMiddleware)
 
 
 # Global exception handlers
@@ -150,7 +169,24 @@ app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(
+    admin_auth.router, prefix="/api/v1/admin/auth", tags=["admin-authentication"]
+)
 app.include_router(payment.router, prefix="/api/v1/payment", tags=["payment"])
+app.include_router(refunds.user_router, prefix="/api/v1/refunds", tags=["refunds"])
+app.include_router(
+    refunds.admin_router, prefix="/api/v1/admin/refunds", tags=["admin-refunds"]
+)
+app.include_router(
+    settings_endpoints.router, prefix="/api/v1/admin/settings", tags=["admin-settings"]
+)
+app.include_router(
+    admin_documents.router, prefix="/api/v1/admin/documents", tags=["admin-documents"]
+)
+app.include_router(
+    admin_payments.router, prefix="/api/v1/admin/payments", tags=["admin-payments"]
+)
+app.include_router(pricing.router, prefix="/api/v1/pricing", tags=["pricing"])
 
 
 if __name__ == "__main__":

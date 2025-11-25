@@ -36,6 +36,7 @@ open http://localhost:3000
 |----------|-------------|--------------|
 | [MASTER_DOCUMENT.md](./docs/MASTER_DOCUMENT.md) | Complete technical documentation | Always first |
 | [QUICK_START.md](./docs/QUICK_START.md) | 5-minute setup guide | To run locally |
+| [ДОСТУП_ДО_СТОРІНОК.md](./docs/ДОСТУП_ДО_СТОРІНОК.md) | **NEW:** All pages, admin panel & API endpoints | To access interfaces |
 | [STEP_BY_STEP_PRODUCTION_GUIDE.md](./docs/STEP_BY_STEP_PRODUCTION_GUIDE.md) | **NEW:** Detailed production setup (8 steps) | Before deployment |
 | [QUICK_FIX_GUIDE.md](./docs/QUICK_FIX_GUIDE.md) | **NEW:** Fast P0 bug fixes (2 hours) | For critical bugs |
 | [DECISIONS_LOG.md](./docs/DECISIONS_LOG.md) | All architectural decisions | To understand "why" |
@@ -191,11 +192,11 @@ docker-compose -f docker-compose.prod.yml up -d
 
 ### Critical Fixes Needed (1 day work) - **GUIDES AVAILABLE**
 1. ✅ **IDOR Protection** - Add ownership checks
-2. ✅ **JWT Hardening** - Strong keys required  
+2. ✅ **JWT Hardening** - Strong keys required
 3. ✅ **File Validation** - Magic bytes checking
 4. ⚠️ **Email Integration** - Add SMTP service
 
-**Quick Fix:** See [QUICK_FIX_GUIDE.md](./docs/QUICK_FIX_GUIDE.md)  
+**Quick Fix:** See [QUICK_FIX_GUIDE.md](./docs/QUICK_FIX_GUIDE.md)
 **Full Setup:** See [STEP_BY_STEP_PRODUCTION_GUIDE.md](./docs/STEP_BY_STEP_PRODUCTION_GUIDE.md)
 
 ---

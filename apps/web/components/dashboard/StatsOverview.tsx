@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { DocumentTextIcon, ClockIcon, CurrencyDollarIcon, SparklesIcon } from '@heroicons/react/24/outline'
+import { apiClient, API_ENDPOINTS } from '@/lib/api'
+import toast from 'react-hot-toast'
 
 interface Stats {
   totalDocuments: number
@@ -20,17 +22,25 @@ export function StatsOverview() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: Fetch real stats from API
-    // For now, use mock data
-    setTimeout(() => {
-      setStats({
-        totalDocuments: 12,
-        totalWords: 45600,
-        totalCost: 24.50,
-        totalTokens: 125000,
-      })
-      setIsLoading(false)
-    }, 1000)
+    const fetchStats = async () => {
+      try {
+        setIsLoading(true)
+        const data = await apiClient.get(API_ENDPOINTS.DOCUMENTS.STATS)
+        setStats({
+          totalDocuments: data.totalDocuments || 0,
+          totalWords: data.totalWords || 0,
+          totalCost: data.totalCost || 0,
+          totalTokens: data.totalTokens || 0,
+        })
+      } catch (error) {
+        console.error('Failed to fetch stats:', error)
+        toast.error('Failed to load statistics')
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchStats()
   }, [])
 
   const statItems = [
@@ -50,7 +60,7 @@ export function StatsOverview() {
     },
     {
       name: 'Total Cost',
-      value: `$${stats.totalCost.toFixed(2)}`,
+      value: `€${stats.totalCost.toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',

@@ -22,6 +22,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     is_verified = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
+    is_super_admin = Column(Boolean, default=False)  # Super admin has all permissions
 
     # Preferences
     preferred_language = Column(String(10), default="en")
@@ -88,7 +89,9 @@ class UserSession(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    session_token = Column(String(255), unique=True, index=True, nullable=False)
+    session_token = Column(
+        String(512), unique=True, index=True, nullable=False
+    )  # Increased for JWT tokens
 
     # Session state
     is_active = Column(Boolean, default=True)

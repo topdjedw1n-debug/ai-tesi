@@ -3,6 +3,8 @@ Section generator orchestrator
 Integrates RAG, citations, and humanization for section generation
 """
 
+import asyncio
+import gc
 import logging
 from typing import Any
 
@@ -12,6 +14,7 @@ from app.services.ai_pipeline.citation_formatter import CitationFormatter, Citat
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+from app.services.training_data_collector import TrainingDataCollector
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +40,7 @@ class SectionGenerator:
         self.citation_formatter = citation_formatter or CitationFormatter()
         self.humanizer = humanizer or Humanizer()
         self.prompt_builder = PromptBuilder()
+        self.training_collector = TrainingDataCollector()
 
     async def generate_section(
         self,
@@ -68,10 +72,12 @@ class SectionGenerator:
             Dictionary with section content, citations, and bibliography
         """
         try:
-            # Step 1: Retrieve relevant sources using RAG
+            # Step 1: Retrieve relevant sources using RAG from multiple APIs
             logger.info(f"Retrieving sources for section: {section_title}")
             query = f"{document.topic} {section_title}"
-            source_docs = await self.rag_retriever.retrieve(query=query, limit=10)
+            source_docs = await self.rag_retriever.retrieve_sources(
+                query=query, limit=20
+            )
 
             # Step 2: Format sources for prompt
             source_texts = []
@@ -96,6 +102,9 @@ class SectionGenerator:
             section_content = await self._call_ai_provider(
                 provider=provider, model=model, prompt=prompt
             )
+
+            # Store prompt for training data collection
+            prompt_for_training = prompt
 
             # Step 5: Extract citations from generated text
             citations = self.citation_formatter.extract_citations_from_text(
@@ -139,7 +148,7 @@ class SectionGenerator:
                     preserve_citations=True,
                 )
 
-            return {
+            result = {
                 "section_title": section_title,
                 "section_index": section_index,
                 "content": section_content,
@@ -149,9 +158,78 @@ class SectionGenerator:
                 "humanized": humanize,
             }
 
+            # Collect training data (async, non-blocking)
+            asyncio.create_task(
+                self.training_collector.collect_generation_sample(
+                    document_id=document.id,
+                    section_title=section_title,
+                    prompt=prompt_for_training,
+                    generated_content=section_content,
+                    context={
+                        "sources": source_texts,
+                        "context_sections": [
+                            s.get("title") for s in (context_sections or [])
+                        ],
+                    },
+                    metadata={
+                        "provider": provider,
+                        "model": model,
+                        "citation_style": citation_style.value
+                        if hasattr(citation_style, "value")
+                        else str(citation_style),
+                        "humanized": humanize,
+                    },
+                )
+            )
+
+            # Memory cleanup after section generation
+            self._cleanup_memory()
+
+            return result
+
         except Exception as e:
             logger.error(f"Error generating section: {e}")
+            # Cleanup memory even on error
+            self._cleanup_memory()
             raise
+
+    def _cleanup_memory(self) -> None:
+        """
+        Clean up memory after section generation
+        Forces garbage collection and logs memory usage
+        """
+        try:
+            # Get memory usage before cleanup
+            import os
+
+            import psutil
+
+            process = psutil.Process(os.getpid())
+            mem_before = process.memory_info().rss / 1024 / 1024  # MB
+
+            # Clear internal caches if any
+            # Force garbage collection
+            collected = gc.collect()
+
+            # Get memory usage after cleanup
+            mem_after = process.memory_info().rss / 1024 / 1024  # MB
+            mem_freed = mem_before - mem_after
+
+            logger.debug(
+                f"Memory cleanup: {collected} objects collected, "
+                f"freed {mem_freed:.2f} MB (before: {mem_before:.2f} MB, after: {mem_after:.2f} MB)"
+            )
+
+        except ImportError:
+            # psutil not available, use basic gc
+            collected = gc.collect()
+            logger.debug(
+                f"Memory cleanup: {collected} objects collected (psutil not available)"
+            )
+        except Exception as e:
+            logger.warning(f"Error during memory cleanup: {e}")
+            # Still try basic gc
+            gc.collect()
 
     async def _call_ai_provider(self, provider: str, model: str, prompt: str) -> str:
         """Call AI provider for section generation"""

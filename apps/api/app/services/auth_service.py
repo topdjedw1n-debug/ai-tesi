@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.exceptions import AuthenticationError, ValidationError
 from app.models.auth import MagicLinkToken, User, UserSession
+from app.utils.jwt_helpers import extract_user_id_from_payload
 
 logger = logging.getLogger(__name__)
 
@@ -57,18 +58,34 @@ class AuthService:
 
             await self.db.commit()
 
-            # TODO: Send email with magic link
-            # For now, we'll just return the token for development
-            magic_link = f"http://localhost:3000/auth/verify?token={token}"
+            # Build magic link URL
+            magic_link = f"{settings.FRONTEND_URL}/auth/verify?token={token}"
 
-            logger.info(f"Magic link generated for {email}: {magic_link}")
+            # Send email with magic link
+            from app.services.notification_service import notification_service
+
+            email_sent = await notification_service.send_magic_link(
+                email=email,
+                magic_link=magic_link,
+                token=token,
+            )
+
+            if email_sent:
+                logger.info(f"✅ Magic link email sent to {email}")
+            else:
+                logger.warning(
+                    f"⚠️ Magic link email not sent to {email} (SMTP not configured). "
+                    f"Link: {magic_link}"
+                )
 
             return {
                 "message": "Magic link sent successfully",
                 "email": email,
                 "expires_in": 900,  # 15 minutes in seconds
                 "expires_in_minutes": 15,
-                "magic_link": magic_link,  # Only for development
+                "magic_link": magic_link
+                if not email_sent
+                else None,  # Only return in dev mode
             }
 
         except Exception as e:
@@ -168,8 +185,11 @@ class AuthService:
             if not user or not user.is_active:
                 raise AuthenticationError("User not found or inactive")
 
-            # Update session activity
+            # Update session activity and extend expiration
             session.last_activity = datetime.utcnow()
+            session.expires_at = datetime.utcnow() + timedelta(
+                days=settings.REFRESH_TOKEN_EXPIRE_DAYS
+            )
 
             # Generate new access token
             access_token = self._create_access_token(user.id)
@@ -178,6 +198,7 @@ class AuthService:
 
             return {
                 "access_token": access_token,
+                "refresh_token": refresh_token,  # Return refresh_token so frontend can update localStorage
                 "token_type": "bearer",
                 "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
                 "user": {
@@ -200,14 +221,13 @@ class AuthService:
             payload = jwt.decode(
                 access_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
             )
-            user_id = payload.get("sub")
             if payload.get("type") != "access":
                 raise AuthenticationError("Invalid token type")
 
-            if not user_id:
-                raise AuthenticationError("Invalid token")
+            # Extract and validate user ID (convert from string to int)
+            user_id = extract_user_id_from_payload(payload)
 
-            # Deactivate all user sessions
+            # Deactivate all user sessions - ORM knows user_id is Integer
             await self.db.execute(
                 update(UserSession)
                 .where(UserSession.user_id == user_id)
@@ -233,14 +253,13 @@ class AuthService:
             payload = jwt.decode(
                 access_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
             )
-            user_id = payload.get("sub")
             if payload.get("type") != "access":
                 raise AuthenticationError("Invalid token type")
 
-            if not user_id:
-                raise AuthenticationError("Invalid token")
+            # Extract and validate user ID (convert from string to int)
+            user_id = extract_user_id_from_payload(payload)
 
-            # Get user
+            # Get user - ORM knows User.id is Integer, so it handles type correctly
             result = await self.db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
@@ -277,41 +296,45 @@ class AuthService:
         now = datetime.utcnow()
         expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode = {
-            "sub": str(user_id), 
-            "exp": expire, 
-            "iat": now, 
+            "sub": str(user_id),
+            "exp": expire,
+            "iat": now,
             "type": "access",
             "nbf": now,  # Not before - token valid from now
         }
-        
+
         # Add iss (issuer) if configured
         if settings.JWT_ISS:
             to_encode["iss"] = settings.JWT_ISS
-        
+
         # Add aud (audience) if configured
         if settings.JWT_AUD:
             to_encode["aud"] = settings.JWT_AUD
-        
-        return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+
+        return jwt.encode(
+            to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG
+        )
 
     def _create_refresh_token(self, user_id: int) -> str:
         """Create refresh token with iss, aud, and expiration claims"""
         now = datetime.utcnow()
         expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode = {
-            "sub": str(user_id), 
-            "exp": expire, 
-            "iat": now, 
+            "sub": str(user_id),
+            "exp": expire,
+            "iat": now,
             "type": "refresh",
             "nbf": now,  # Not before - token valid from now
         }
-        
+
         # Add iss (issuer) if configured
         if settings.JWT_ISS:
             to_encode["iss"] = settings.JWT_ISS
-        
+
         # Add aud (audience) if configured
         if settings.JWT_AUD:
             to_encode["aud"] = settings.JWT_AUD
-        
-        return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+
+        return jwt.encode(
+            to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG
+        )

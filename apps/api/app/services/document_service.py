@@ -7,13 +7,14 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.models.auth import User
 from app.models.document import Document, DocumentSection
+from app.models.payment import Payment
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class DocumentService:
         """
         Check if document exists and belongs to user.
         Returns Document object or raises NotFoundError.
-        
+
         This function ensures IDOR protection by returning 404
         instead of 403 to avoid revealing existence of documents.
         """
@@ -38,10 +39,10 @@ class DocumentService:
             select(Document).where(Document.id == document_id)
         )
         document = result.scalar_one_or_none()
-        
+
         if not document or document.user_id != user_id:
             raise NotFoundError("Document not found")
-        
+
         return document
 
     async def create_document(
@@ -270,6 +271,145 @@ class DocumentService:
         except Exception as e:
             logger.error(f"Error getting user documents: {e}")
             raise ValidationError(f"Failed to get documents: {str(e)}") from e
+
+    async def get_user_stats(self, user_id: int) -> dict[str, Any]:
+        """
+        Get user statistics for dashboard.
+
+        Returns:
+            dict with:
+                - totalDocuments: int
+                - totalWords: int
+                - totalCost: float (from payments)
+                - totalTokens: int
+        """
+        try:
+            # Get total documents count
+            doc_count_result = await self.db.execute(
+                select(func.count(Document.id)).where(Document.user_id == user_id)
+            )
+            total_documents = doc_count_result.scalar() or 0
+
+            # Get total words from all documents
+            # Calculate word count from content
+            docs_result = await self.db.execute(
+                select(Document).where(Document.user_id == user_id)
+            )
+            documents = docs_result.scalars().all()
+
+            total_words = 0
+            total_tokens = 0
+            for doc in documents:
+                # Calculate word count
+                content_text = ""
+                if doc.content:
+                    content_text = str(doc.content)
+                elif doc.title and doc.topic:
+                    content_text = f"{doc.title} {doc.topic}"
+
+                word_count = len(content_text.split()) if content_text else 0
+                total_words += word_count
+
+                # Sum tokens
+                total_tokens += int(doc.tokens_used or 0)
+
+            # Get total cost from payments
+            payments_result = await self.db.execute(
+                select(func.sum(Payment.amount)).where(
+                    Payment.user_id == user_id, Payment.status == "completed"
+                )
+            )
+            total_cost = float(payments_result.scalar() or 0)
+
+            return {
+                "totalDocuments": total_documents,
+                "totalWords": total_words,
+                "totalCost": total_cost,
+                "totalTokens": total_tokens,
+            }
+        except Exception as e:
+            logger.error(f"Error getting user stats: {e}")
+            raise ValidationError(f"Failed to get user stats: {str(e)}") from e
+
+    async def get_recent_activity(
+        self, user_id: int, limit: int = 10
+    ) -> list[dict[str, Any]]:
+        """
+        Get recent activity for user dashboard.
+
+        Returns list of activities based on document status changes.
+        """
+        try:
+            # Get recent documents ordered by updated_at
+            result = await self.db.execute(
+                select(Document)
+                .where(Document.user_id == user_id)
+                .order_by(Document.updated_at.desc())
+                .limit(limit)
+            )
+            documents = result.scalars().all()
+
+            activities = []
+            for doc in documents:
+                # Map document status to activity type
+                activity_type = None
+                activity_status = "success"
+
+                if doc.status == "completed":
+                    activity_type = "document_completed"
+                elif doc.status == "sections_generated":
+                    activity_type = "section_generated"
+                elif doc.status == "outline_generated":
+                    activity_type = "outline_generated"
+                elif doc.status == "draft":
+                    activity_type = "document_created"
+                elif doc.status == "generating":
+                    activity_type = "section_generated"
+                    activity_status = "pending"
+                elif doc.status == "failed":
+                    activity_type = "section_generated"
+                    activity_status = "error"
+                elif doc.status == "payment_pending":
+                    activity_type = "document_created"
+                    activity_status = "pending"
+
+                if activity_type:
+                    # Get description based on status
+                    description = ""
+                    if doc.status == "completed":
+                        word_count = len(doc.content.split()) if doc.content else 0
+                        description = f"Thesis completed with {word_count:,} words"
+                    elif doc.status == "sections_generated":
+                        description = "Sections generated successfully"
+                    elif doc.status == "outline_generated":
+                        description = "Complete outline generated"
+                    elif doc.status == "draft":
+                        description = "Document created"
+                    elif doc.status == "generating":
+                        description = "Generation in progress"
+                    elif doc.status == "failed":
+                        description = "Generation failed"
+                    elif doc.status == "payment_pending":
+                        description = "Payment pending"
+
+                    activities.append(
+                        {
+                            "id": doc.id,
+                            "type": activity_type,
+                            "title": doc.title or f"Document {doc.id}",
+                            "description": description,
+                            "timestamp": doc.updated_at.isoformat()
+                            if doc.updated_at
+                            else doc.created_at.isoformat(),
+                            "status": activity_status,
+                            "document_id": doc.id,
+                        }
+                    )
+
+            return activities
+        except Exception as e:
+            logger.error(f"Error getting recent activity: {e}")
+            raise ValidationError(f"Failed to get recent activity: {str(e)}") from e
 
     async def update_document(
         self, document_id: int, user_id: int, **updates: Any

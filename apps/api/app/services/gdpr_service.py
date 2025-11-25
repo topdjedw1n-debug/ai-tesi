@@ -2,12 +2,10 @@
 GDPR compliance service for data export and account deletion
 """
 
-import json
 import logging
 from datetime import datetime
 from typing import Any
 
-from fastapi.responses import JSONResponse
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -86,9 +84,15 @@ class GDPRService:
                     "total_tokens_used": user.total_tokens_used,
                     "total_documents_created": user.total_documents_created,
                     "total_cost": user.total_cost,
-                    "created_at": user.created_at.isoformat() if user.created_at else None,
-                    "updated_at": user.updated_at.isoformat() if user.updated_at else None,
-                    "last_login": user.last_login.isoformat() if user.last_login else None,
+                    "created_at": user.created_at.isoformat()
+                    if user.created_at
+                    else None,
+                    "updated_at": user.updated_at.isoformat()
+                    if user.updated_at
+                    else None,
+                    "last_login": user.last_login.isoformat()
+                    if user.last_login
+                    else None,
                 },
                 "documents": [
                     {
@@ -104,9 +108,15 @@ class GDPRService:
                         "ai_model": doc.ai_model,
                         "tokens_used": doc.tokens_used,
                         "generation_time_seconds": doc.generation_time_seconds,
-                        "created_at": doc.created_at.isoformat() if doc.created_at else None,
-                        "updated_at": doc.updated_at.isoformat() if doc.updated_at else None,
-                        "completed_at": doc.completed_at.isoformat() if doc.completed_at else None,
+                        "created_at": doc.created_at.isoformat()
+                        if doc.created_at
+                        else None,
+                        "updated_at": doc.updated_at.isoformat()
+                        if doc.updated_at
+                        else None,
+                        "completed_at": doc.completed_at.isoformat()
+                        if doc.completed_at
+                        else None,
                     }
                     for doc in documents
                 ],
@@ -120,7 +130,9 @@ class GDPRService:
                         "word_count": section.word_count,
                         "status": section.status,
                         "tokens_used": section.tokens_used,
-                        "created_at": section.created_at.isoformat() if section.created_at else None,
+                        "created_at": section.created_at.isoformat()
+                        if section.created_at
+                        else None,
                     }
                     for section in sections
                 ],
@@ -131,7 +143,9 @@ class GDPRService:
                         "currency": payment.currency,
                         "status": payment.status,
                         "stripe_payment_intent_id": payment.stripe_payment_intent_id,
-                        "created_at": payment.created_at.isoformat() if payment.created_at else None,
+                        "created_at": payment.created_at.isoformat()
+                        if payment.created_at
+                        else None,
                     }
                     for payment in payments
                 ],
@@ -140,8 +154,12 @@ class GDPRService:
                         "id": consent.id,
                         "consent_type": consent.consent_type,
                         "granted": consent.granted,
-                        "granted_at": consent.granted_at.isoformat() if consent.granted_at else None,
-                        "revoked_at": consent.revoked_at.isoformat() if consent.revoked_at else None,
+                        "granted_at": consent.granted_at.isoformat()
+                        if consent.granted_at
+                        else None,
+                        "revoked_at": consent.revoked_at.isoformat()
+                        if consent.revoked_at
+                        else None,
                         "ip_address": consent.ip_address,
                     }
                     for consent in consents
@@ -209,7 +227,9 @@ class GDPRService:
             user.stripe_customer_id = None
 
             # Delete consents (sensitive data)
-            await self.db.execute(delete(UserConsent).where(UserConsent.user_id == user_id))
+            await self.db.execute(
+                delete(UserConsent).where(UserConsent.user_id == user_id)
+            )
 
             # Delete documents (cascade will handle sections)
             await self.db.execute(delete(Document).where(Document.user_id == user_id))
@@ -248,4 +268,3 @@ class GDPRService:
         # client = Minio(...)
         # client.remove_object(bucket_name, object_name)
         pass
-

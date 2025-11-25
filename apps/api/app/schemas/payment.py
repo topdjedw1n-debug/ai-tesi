@@ -14,12 +14,12 @@ class PaymentCreate(BaseModel):
     document_id: int | None = None
     discount_code: str | None = Field(None, max_length=50)
 
-    @field_validator('amount')
+    @field_validator("amount")
     @classmethod
     def validate_amount(cls, v):
         """Ensure amount has max 2 decimal places"""
         if v.as_tuple().exponent < -2:
-            raise ValueError('Amount cannot have more than 2 decimal places')
+            raise ValueError("Amount cannot have more than 2 decimal places")
         return v
 
 
@@ -38,7 +38,8 @@ class PaymentResponse(BaseModel):
     id: int
     user_id: int
     document_id: int | None
-    stripe_payment_intent_id: str
+    stripe_session_id: str | None
+    stripe_payment_intent_id: str | None
     amount: Decimal
     currency: str
     status: str
@@ -56,4 +57,3 @@ class WebhookEvent(BaseModel):
 
     type: str
     data: dict
-

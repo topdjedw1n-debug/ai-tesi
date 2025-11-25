@@ -265,30 +265,33 @@ class RAGRetriever:
     async def search_perplexity(self, query: str) -> list[SourceDoc]:
         """
         Search using Perplexity API for real-time search results
-        
+
         Args:
             query: Search query
-            
+
         Returns:
             List of SourceDoc instances
         """
         if not settings.PERPLEXITY_API_KEY:
             logger.debug("Perplexity API key not configured, skipping")
             return []
-        
+
         try:
             headers = {
                 "Authorization": f"Bearer {settings.PERPLEXITY_API_KEY}",
                 "Content-Type": "application/json",
             }
-            
+
             data = {
                 "model": "pplx-7b-online",
                 "messages": [
-                    {"role": "user", "content": f"Search for academic papers about: {query}"}
+                    {
+                        "role": "user",
+                        "content": f"Search for academic papers about: {query}",
+                    }
                 ],
             }
-            
+
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     "https://api.perplexity.ai/chat/completions",
@@ -297,15 +300,15 @@ class RAGRetriever:
                 )
                 response.raise_for_status()
                 result = response.json()
-            
+
             # Parse Perplexity response
             # Perplexity returns chat completion with citations in content
             source_docs: list[SourceDoc] = []
-            
+
             if "choices" in result and len(result["choices"]) > 0:
                 content = result["choices"][0].get("message", {}).get("content", "")
                 citations = result.get("citations", [])
-                
+
                 # Extract source information from citations
                 for citation in citations[:10]:  # Limit to 10 results
                     # Perplexity citations may have different formats
@@ -329,10 +332,12 @@ class RAGRetriever:
                             url=citation,
                         )
                         source_docs.append(source_doc)
-            
-            logger.info(f"Retrieved {len(source_docs)} sources from Perplexity for query: {query}")
+
+            logger.info(
+                f"Retrieved {len(source_docs)} sources from Perplexity for query: {query}"
+            )
             return source_docs
-            
+
         except httpx.HTTPError as e:
             logger.warning(f"HTTP error retrieving from Perplexity: {e}")
             return []
@@ -343,22 +348,22 @@ class RAGRetriever:
     async def search_tavily(self, query: str) -> list[SourceDoc]:
         """
         Search using Tavily API for academic and web sources
-        
+
         Args:
             query: Search query
-            
+
         Returns:
             List of SourceDoc instances
         """
         if not settings.TAVILY_API_KEY:
             logger.debug("Tavily API key not configured, skipping")
             return []
-        
+
         try:
             headers = {
                 "Content-Type": "application/json",
             }
-            
+
             data = {
                 "api_key": settings.TAVILY_API_KEY,
                 "query": query,
@@ -367,7 +372,7 @@ class RAGRetriever:
                 "include_raw_content": False,
                 "max_results": 10,
             }
-            
+
             async with httpx.AsyncClient(timeout=30.0) as client:
                 response = await client.post(
                     "https://api.tavily.com/search",
@@ -376,25 +381,31 @@ class RAGRetriever:
                 )
                 response.raise_for_status()
                 result = response.json()
-            
+
             # Parse Tavily response
             source_docs: list[SourceDoc] = []
-            
+
             if "results" in result:
                 for item in result["results"][:10]:  # Limit to 10 results
                     source_doc = SourceDoc(
                         title=item.get("title", "Unknown"),
-                        authors=[item.get("author", "Unknown")] if item.get("author") else [],
+                        authors=[item.get("author", "Unknown")]
+                        if item.get("author")
+                        else [],
                         year=self._extract_year_from_content(item.get("content", "")),
-                        abstract=item.get("content", "")[:500] if item.get("content") else None,
+                        abstract=item.get("content", "")[:500]
+                        if item.get("content")
+                        else None,
                         url=item.get("url"),
                         venue=item.get("published_date"),
                     )
                     source_docs.append(source_doc)
-            
-            logger.info(f"Retrieved {len(source_docs)} sources from Tavily for query: {query}")
+
+            logger.info(
+                f"Retrieved {len(source_docs)} sources from Tavily for query: {query}"
+            )
             return source_docs
-            
+
         except httpx.HTTPError as e:
             logger.warning(f"HTTP error retrieving from Tavily: {e}")
             return []
@@ -405,33 +416,110 @@ class RAGRetriever:
     async def search_semantic_scholar(self, query: str) -> list[SourceDoc]:
         """
         Search using Semantic Scholar API (wraps existing retrieve method)
-        
+
         Args:
             query: Search query
-            
+
         Returns:
             List of SourceDoc instances
         """
         if not settings.SEMANTIC_SCHOLAR_ENABLED:
             logger.debug("Semantic Scholar disabled, skipping")
             return []
-        
+
         # Use existing retrieve method
         return await self.retrieve(query, limit=10)
+
+    async def search_serper(self, query: str) -> list[SourceDoc]:
+        """
+        Search using Serper API for Google search results
+
+        Args:
+            query: Search query
+
+        Returns:
+            List of SourceDoc instances
+        """
+        if not settings.SERPER_API_KEY:
+            logger.debug("Serper API key not configured, skipping")
+            return []
+
+        try:
+            headers = {
+                "X-API-KEY": settings.SERPER_API_KEY,
+                "Content-Type": "application/json",
+            }
+
+            data = {
+                "q": query,
+                "num": 10,  # Number of results
+            }
+
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(
+                    "https://google.serper.dev/search",
+                    headers=headers,
+                    json=data,
+                )
+                response.raise_for_status()
+                result = response.json()
+
+            # Parse Serper response
+            source_docs: list[SourceDoc] = []
+
+            # Serper returns results in 'organic' array
+            if "organic" in result:
+                for item in result["organic"][:10]:  # Limit to 10 results
+                    # Extract title, snippet (as abstract), and link (as url)
+                    title = item.get("title", "Unknown")
+                    snippet = item.get("snippet", "")
+                    url = item.get("link", "")
+
+                    # Try to extract year from snippet or date
+                    year = self._extract_year_from_content(snippet)
+
+                    # Try to extract author from snippet or title
+                    authors = []
+                    if snippet:
+                        # Simple heuristic: first part of snippet might contain author info
+                        # This is a basic implementation - could be improved
+                        pass
+
+                    source_doc = SourceDoc(
+                        title=title,
+                        authors=authors,
+                        year=year,
+                        abstract=snippet[:500] if snippet else None,
+                        url=url,
+                        venue=None,  # Serper doesn't provide venue info
+                    )
+                    source_docs.append(source_doc)
+
+            logger.info(
+                f"Retrieved {len(source_docs)} sources from Serper for query: {query}"
+            )
+            return source_docs
+
+        except httpx.HTTPError as e:
+            logger.warning(f"HTTP error retrieving from Serper: {e}")
+            return []
+        except Exception as e:
+            logger.warning(f"Error retrieving from Serper: {e}")
+            return []
 
     async def retrieve_sources(self, query: str, limit: int = 20) -> list[SourceDoc]:
         """
         Retrieve sources from all enabled search APIs and combine results
-        
+
         Args:
             query: Search query
             limit: Maximum number of results to return (default: 20)
-            
+
         Returns:
             List of SourceDoc instances (deduplicated, top results)
         """
         results: list[SourceDoc] = []
-        
+
         # Search Semantic Scholar
         if settings.SEMANTIC_SCHOLAR_ENABLED:
             try:
@@ -439,7 +527,7 @@ class RAGRetriever:
                 results.extend(semantic_results)
             except Exception as e:
                 logger.warning(f"Failed to retrieve from Semantic Scholar: {e}")
-        
+
         # Search Perplexity
         if settings.PERPLEXITY_API_KEY:
             try:
@@ -447,7 +535,7 @@ class RAGRetriever:
                 results.extend(perplexity_results)
             except Exception as e:
                 logger.warning(f"Failed to retrieve from Perplexity: {e}")
-        
+
         # Search Tavily
         if settings.TAVILY_API_KEY:
             try:
@@ -455,33 +543,41 @@ class RAGRetriever:
                 results.extend(tavily_results)
             except Exception as e:
                 logger.warning(f"Failed to retrieve from Tavily: {e}")
-        
+
+        # Search Serper
+        if settings.SERPER_API_KEY:
+            try:
+                serper_results = await self.search_serper(query)
+                results.extend(serper_results)
+            except Exception as e:
+                logger.warning(f"Failed to retrieve from Serper: {e}")
+
         # Deduplicate sources
         deduplicated = self._deduplicate_sources(results)
-        
+
         # Return top results
         top_results = deduplicated[:limit]
-        
+
         logger.info(
             f"Retrieved {len(top_results)} total sources (after deduplication) "
             f"from {len(results)} raw results for query: {query}"
         )
-        
+
         return top_results
 
     def _deduplicate_sources(self, sources: list[SourceDoc]) -> list[SourceDoc]:
         """
         Remove duplicate sources based on title, URL, or DOI
-        
+
         Args:
             sources: List of SourceDoc instances
-            
+
         Returns:
             Deduplicated list of SourceDoc instances
         """
         seen: set[str] = set()
         deduplicated: list[SourceDoc] = []
-        
+
         for source in sources:
             # Create unique key from title, URL, or DOI
             if source.doi:
@@ -492,18 +588,18 @@ class RAGRetriever:
             else:
                 # Use title as key
                 key = f"title:{source.title.lower().strip()}"
-            
+
             if key not in seen:
                 seen.add(key)
                 deduplicated.append(source)
-        
+
         return deduplicated
 
     @staticmethod
     def _extract_year_from_content(content: str) -> int:
         """Extract year from content string"""
         import re
-        
+
         # Try to find 4-digit year (1900-2099)
         # Use non-capturing group to get full year match
         year_matches = re.findall(r"\b(?:19|20)\d{2}\b", content)
@@ -516,7 +612,7 @@ class RAGRetriever:
                     return year
             except (ValueError, IndexError):
                 pass
-        
+
         # Default to current year
         return datetime.now().year
 

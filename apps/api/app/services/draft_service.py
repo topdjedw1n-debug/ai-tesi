@@ -9,7 +9,7 @@ from typing import Any
 from sqlalchemy import delete, desc, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.exceptions import NotFoundError, ValidationError
+from app.core.exceptions import NotFoundError
 from app.models.document import Document, DocumentDraft
 
 logger = logging.getLogger(__name__)
@@ -283,5 +283,6 @@ class DraftService:
 
         deleted_count = result.rowcount
         if deleted_count > 0:
-            logger.info(f"Cleaned up {deleted_count} expired drafts (older than {DRAFT_RETENTION_DAYS} days)")
-
+            logger.info(
+                f"Cleaned up {deleted_count} expired drafts (older than {DRAFT_RETENTION_DAYS} days)"
+            )

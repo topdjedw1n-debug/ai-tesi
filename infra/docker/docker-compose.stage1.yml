@@ -1,0 +1,66 @@
+version: '3.8'
+
+# ЕТАП 1: Тільки базова інфраструктура (БЕЗ API/Web)
+# Використовуйте цей файл для першого запуску
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: ai-thesis-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - ai-thesis-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: ai-thesis-redis
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - ai-thesis-network
+
+  minio:
+    image: minio/minio:latest
+    container_name: ai-thesis-minio
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - minio_data:/data
+    ports:
+      - "9000:9000"  # API
+      - "9001:9001"  # Console (для доступу з браузера)
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+      start_period: 20s
+    networks:
+      - ai-thesis-network
+
+volumes:
+  postgres_data:
+  minio_data:
+  redis_data:
+
+networks:
+  ai-thesis-network:
+    name: ai-thesis-network

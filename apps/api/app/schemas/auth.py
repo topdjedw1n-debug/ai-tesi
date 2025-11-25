@@ -33,6 +33,9 @@ class TokenResponse(BaseModel):
     """Schema for authentication token response"""
 
     access_token: str
+    refresh_token: str | None = (
+        None  # Optional for refresh endpoint (doesn't return new refresh token)
+    )
     token_type: str = "bearer"
     expires_in: int
     user: dict

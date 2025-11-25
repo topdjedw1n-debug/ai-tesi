@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { apiClient, API_ENDPOINTS } from '@/lib/api'
 import { formatDateTime } from '@/lib/utils'
+import toast from 'react-hot-toast'
 import {
   DocumentTextIcon,
   SparklesIcon,
@@ -46,53 +48,32 @@ export function RecentActivity() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: Fetch real activities from API
-    // For now, use mock data
-    setTimeout(() => {
-      setActivities([
-        {
-          id: 1,
-          type: 'document_completed',
-          title: 'Machine Learning in Healthcare',
-          description: 'Thesis completed with 8,500 words',
-          timestamp: '2024-01-20T14:45:00Z',
-          status: 'success',
-        },
-        {
-          id: 2,
-          type: 'section_generated',
-          title: 'Sustainable Energy Solutions',
-          description: 'Chapter 3: Results and Analysis generated',
-          timestamp: '2024-01-19T16:20:00Z',
-          status: 'success',
-        },
-        {
-          id: 3,
-          type: 'outline_generated',
-          title: 'Digital Marketing Strategies',
-          description: 'Complete outline with 5 chapters generated',
-          timestamp: '2024-01-20T11:00:00Z',
-          status: 'success',
-        },
-        {
-          id: 4,
-          type: 'export_created',
-          title: 'Machine Learning in Healthcare',
-          description: 'PDF export generated successfully',
-          timestamp: '2024-01-20T15:30:00Z',
-          status: 'success',
-        },
-        {
-          id: 5,
-          type: 'section_generated',
-          title: 'Sustainable Energy Solutions',
-          description: 'Chapter 2: Methodology generation failed',
-          timestamp: '2024-01-18T14:15:00Z',
-          status: 'error',
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
+    const fetchActivities = async () => {
+      try {
+        setIsLoading(true)
+        const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.ACTIVITY)
+
+        // Transform API response to component format
+        const activities = (response.activities || []).map((activity: any) => ({
+          id: activity.id,
+          type: activity.type,
+          title: activity.title,
+          description: activity.description,
+          timestamp: activity.timestamp,
+          status: activity.status || 'success',
+        }))
+
+        setActivities(activities)
+      } catch (error) {
+        console.error('Failed to fetch activities:', error)
+        toast.error('Failed to load recent activity')
+        setActivities([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchActivities()
   }, [])
 
   if (isLoading) {

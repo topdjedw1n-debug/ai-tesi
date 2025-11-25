@@ -4,7 +4,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { apiClient, API_ENDPOINTS } from '@/lib/api'
 import { formatDate, sanitizeText } from '@/lib/utils'
+import toast from 'react-hot-toast'
 import {
   DocumentTextIcon,
   EyeIcon,
@@ -42,40 +44,33 @@ export function DocumentsList() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // TODO: Fetch real documents from API
-    // For now, use mock data
-    setTimeout(() => {
-      setDocuments([
-        {
-          id: 1,
-          title: 'Machine Learning in Healthcare',
-          topic: 'The application of machine learning algorithms in medical diagnosis and treatment',
-          status: 'completed',
-          created_at: '2024-01-15T10:30:00Z',
-          updated_at: '2024-01-20T14:45:00Z',
-          word_count: 8500,
-        },
-        {
-          id: 2,
-          title: 'Sustainable Energy Solutions',
-          topic: 'Renewable energy technologies and their impact on climate change',
-          status: 'sections_generated',
-          created_at: '2024-01-18T09:15:00Z',
-          updated_at: '2024-01-19T16:20:00Z',
-          word_count: 6200,
-        },
-        {
-          id: 3,
-          title: 'Digital Marketing Strategies',
-          topic: 'Modern digital marketing approaches for small businesses',
-          status: 'outline_generated',
-          created_at: '2024-01-20T11:00:00Z',
-          updated_at: '2024-01-20T11:00:00Z',
-          word_count: 0,
-        },
-      ])
-      setIsLoading(false)
-    }, 1000)
+    const fetchDocuments = async () => {
+      try {
+        setIsLoading(true)
+        const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.LIST)
+
+        // Transform API response to component format
+        const documents = (response.documents || []).slice(0, 5).map((doc: any) => ({
+          id: doc.id,
+          title: doc.title || `Document ${doc.id}`,
+          topic: doc.topic || '',
+          status: doc.status || 'draft',
+          created_at: doc.created_at,
+          updated_at: doc.updated_at || doc.created_at,
+          word_count: doc.word_count || 0,
+        }))
+
+        setDocuments(documents)
+      } catch (error) {
+        console.error('Failed to fetch documents:', error)
+        toast.error('Failed to load documents')
+        setDocuments([])
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchDocuments()
   }, [])
 
   if (isLoading) {

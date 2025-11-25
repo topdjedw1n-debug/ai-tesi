@@ -66,3 +66,8 @@ black==23.12.1
 isort==5.13.2
 ruff>=0.14.0
 pre-commit==3.6.0
+
+# Testing dependencies
+faker>=20.0.0  # For generating test data
+psutil>=5.9.0  # For memory monitoring in performance tests
+locust>=2.17.0  # For load testing

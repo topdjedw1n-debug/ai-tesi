@@ -5,7 +5,7 @@ Application configuration
 from typing import Any
 from urllib.parse import urlparse
 
-from pydantic import ConfigDict, field_validator, model_validator
+from pydantic import ConfigDict, Field, field_validator, model_validator
 from pydantic_settings import BaseSettings
 
 
@@ -41,12 +41,18 @@ class Settings(BaseSettings):
     # CORS - CRITICAL: Must be explicitly set from ENV (CORS_ALLOWED_ORIGINS)
     # Defaults only for development
     CORS_ALLOWED_ORIGINS: str | None = None  # Comma-separated list from ENV
-    ALLOWED_ORIGINS: list[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://localhost:3001",
-        "http://127.0.0.1:3001",
-    ]
+    # ALLOWED_ORIGINS is set via model_validator, not from ENV directly
+    # This prevents pydantic-settings from trying to parse it as JSON
+    # Use Field with validation_alias to prevent env parsing
+    ALLOWED_ORIGINS: list[str] = Field(
+        default_factory=lambda: [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "http://localhost:3001",
+            "http://127.0.0.1:3001",
+        ],
+        validation_alias="__IGNORE__",  # This alias doesn't exist, so it won't be parsed from ENV
+    )
     ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0", "test"]
 
     # AI Providers
@@ -58,11 +64,26 @@ class Settings(BaseSettings):
     SEMANTIC_SCHOLAR_ENABLED: bool = True
     PERPLEXITY_API_KEY: str | None = None
     TAVILY_API_KEY: str | None = None
+    SERPER_API_KEY: str | None = None
+
+    # Plagiarism Check API
+    COPYSCAPE_API_KEY: str | None = None
+    COPYSCAPE_USERNAME: str | None = None
+
+    # Grammar Check API
+    LANGUAGETOOL_API_URL: str = "https://api.languagetool.org/v2"
+    LANGUAGETOOL_API_KEY: str | None = None
+    LANGUAGETOOL_ENABLED: bool = True
+
+    # Training Data Collection (AI Self-Learning)
+    TRAINING_DATA_COLLECTION_ENABLED: bool = False
+    TRAINING_DATA_DIR: str = "/tmp/training_data"
 
     # Payment
     STRIPE_SECRET_KEY: str | None = None
     STRIPE_WEBHOOK_SECRET: str | None = None
     STRIPE_PUBLISHABLE_KEY: str | None = None
+    FRONTEND_URL: str = "http://localhost:3000"  # Frontend URL for payment redirects
 
     # Monitoring
     SENTRY_DSN: str | None = None
@@ -96,10 +117,40 @@ class Settings(BaseSettings):
     RATE_LIMIT_AUTH_LOCKOUT_MAX_MINUTES: int = 30  # Maximum lockout duration
     DISABLE_RATE_LIMIT: bool = False  # Flag to disable rate limiting entirely
 
+    # Admin Panel Configuration
+    ADMIN_EMAIL: str | None = None  # Primary admin email (for notifications)
+    ADMIN_SESSION_TIMEOUT_MINUTES: int = 30  # Admin session timeout
+    ADMIN_SESSION_UPDATE_ON_ACTIVITY: bool = (
+        True  # Update last_activity on each request
+    )
+    ADMIN_MAX_CONCURRENT_SESSIONS: int = 5  # Maximum concurrent sessions per admin
+    ADMIN_IP_WHITELIST: str | None = (
+        None  # Comma-separated list: "192.168.1.1,10.0.0.1" (empty = all IPs allowed)
+    )
+    ADMIN_2FA_REQUIRED: bool = False  # Require 2FA for admins (not implemented yet)
+    ADMIN_AUDIT_LOG_RETENTION_DAYS: int = 90  # How long to keep audit logs
+    ADMIN_RATE_LIMIT_PER_MINUTE: int = (
+        60  # More restrictive rate limit for admin endpoints
+    )
+    ADMIN_RATE_LIMIT_PER_HOUR: int = 300
+
+    # Maintenance Mode
+    MAINTENANCE_MODE_ENABLED: bool = False
+    MAINTENANCE_MODE_MESSAGE: str = "System maintenance in progress"
+    MAINTENANCE_ALLOWED_IPS: str | None = (
+        None  # Comma-separated list of IPs allowed during maintenance
+    )
+
     # Token usage limits (optional - set to None to disable)
     DAILY_TOKEN_LIMIT: int | None = None  # 1M tokens per day default (None = disabled)
 
-    model_config = ConfigDict(env_file=".env", case_sensitive=True)  # type: ignore[typeddict-unknown-key,assignment]
+    model_config = ConfigDict(
+        env_file=".env",
+        case_sensitive=True,
+        env_ignore_empty=True,  # Ignore empty env vars
+        # Exclude ALLOWED_ORIGINS from env file parsing - it's set via model_validator
+        env_prefix="",  # No prefix needed
+    )  # type: ignore[typeddict-unknown-key,assignment]
 
     @field_validator("SECRET_KEY")
     @classmethod
@@ -158,14 +209,14 @@ class Settings(BaseSettings):
         )
         is_prod = env.lower() in {"production", "prod"}
         is_test = env.lower() == "test"
-        
+
         # Skip validation for test environment
         if is_test:
             return v
-        
+
         # Check for forbidden words (only for non-test envs)
         forbidden_words = ["secret", "password", "admin", "changeme", "default"]
-        
+
         if is_prod:
             if not v or v.strip() == "":
                 # In production, JWT_SECRET or SECRET_KEY must be set
@@ -183,14 +234,12 @@ class Settings(BaseSettings):
             # Development: warn if weak but don't fail
             if v:
                 if len(v) < 32:
-                    raise ValueError(
-                        "JWT_SECRET must be at least 32 characters"
-                    )
+                    raise ValueError("JWT_SECRET must be at least 32 characters")
                 if any(word in v.lower() for word in forbidden_words):
                     raise ValueError(
                         f"JWT_SECRET must not contain forbidden words: {forbidden_words}"
                     )
-        
+
         return v
 
     @field_validator("ALLOWED_ORIGINS")
@@ -203,6 +252,13 @@ class Settings(BaseSettings):
             else "development"
         )
         is_prod = env.lower() in {"production", "prod"}
+
+        # Check if CORS_ALLOWED_ORIGINS is set - if so, skip localhost validation
+        # because model_validator will override ALLOWED_ORIGINS with CORS_ALLOWED_ORIGINS
+        cors_allowed_origins = (
+            info.data.get("CORS_ALLOWED_ORIGINS") if hasattr(info, "data") else None
+        )
+        skip_localhost_check = bool(cors_allowed_origins)
 
         # Reject wildcards in ANY environment
         if any(origin.strip() == "*" for origin in v):
@@ -230,7 +286,8 @@ class Settings(BaseSettings):
                 raise ValueError(f"Invalid CORS origin URL: {origin} - {str(e)}") from e
 
             # In production: reject localhost, 127.0.0.1, 0.0.0.0
-            if is_prod:
+            # BUT skip if CORS_ALLOWED_ORIGINS is set (model_validator will override)
+            if is_prod and not skip_localhost_check:
                 localhost_patterns = ["localhost", "127.0.0.1", "0.0.0.0", "::1"]
                 if any(
                     pattern in parsed.netloc.lower() for pattern in localhost_patterns
@@ -306,6 +363,7 @@ class Settings(BaseSettings):
         """Warn if Stripe not configured"""
         if not v:
             import logging
+
             logging.warning("⚠️ STRIPE_SECRET_KEY not set - payments disabled")
         return v
 
@@ -369,14 +427,19 @@ class Settings(BaseSettings):
                     "DATABASE_URL",
                     "postgresql+asyncpg://postgres:password@localhost:5432/ai_thesis_platform",
                 )
-            
+
             # Development: warn if JWT_SECRET and SECRET_KEY are the same
-            if self.JWT_SECRET and self.SECRET_KEY and self.JWT_SECRET == self.SECRET_KEY:
+            if (
+                self.JWT_SECRET
+                and self.SECRET_KEY
+                and self.JWT_SECRET == self.SECRET_KEY
+            ):
                 import warnings
+
                 warnings.warn(
                     "JWT_SECRET and SECRET_KEY are the same. For better security, use different values.",
                     UserWarning,
-                    stacklevel=2
+                    stacklevel=2,
                 )
 
         return self

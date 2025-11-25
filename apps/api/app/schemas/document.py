@@ -44,7 +44,9 @@ class DocumentBase(BaseModel):
     title: str = Field(..., min_length=1, max_length=500)
     topic: str = Field(..., min_length=10)
     language: str = Field(default="en", max_length=10)
-    target_pages: int = Field(default=50, ge=1, le=1000)
+    target_pages: int = Field(
+        default=50, ge=3, le=1000
+    )  # CRITICAL: Minimum 3 pages as per business rules
 
     @staticmethod
     def _sanitize(text: str) -> str:
@@ -140,7 +142,9 @@ class DocumentUpdate(BaseModel):
     title: str | None = Field(None, min_length=1, max_length=500)
     topic: str | None = Field(None, min_length=10)
     language: str | None = Field(None, max_length=10)
-    target_pages: int | None = Field(None, ge=1, le=1000)
+    target_pages: int | None = Field(
+        None, ge=3, le=1000
+    )  # CRITICAL: Minimum 3 pages as per business rules
 
 
 class DocumentResponse(DocumentBase):

@@ -14,6 +14,9 @@ os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
+os.environ.setdefault(
+    "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
+)  # Single origin for tests
 
 from app.core.database import AsyncSessionLocal, Base, get_engine
 

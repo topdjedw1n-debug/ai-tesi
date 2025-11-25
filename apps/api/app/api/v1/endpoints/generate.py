@@ -3,6 +3,7 @@ AI generation endpoints
 """
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
+from pydantic import BaseModel, Field
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -17,6 +18,9 @@ from app.schemas.document import (
     SectionResponse,
 )
 from app.services.ai_service import AIService
+from app.services.cost_estimator import CostEstimator
+from app.services.grammar_checker import GrammarChecker
+from app.services.plagiarism_checker import PlagiarismChecker
 
 router = APIRouter()
 
@@ -132,3 +136,99 @@ async def get_user_usage(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get usage statistics",
         ) from None
+
+
+@router.get("/estimate-cost")
+async def estimate_cost(
+    provider: str,
+    model: str,
+    target_pages: int,
+    include_rag: bool = True,
+    include_humanization: bool = False,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Estimate cost for document generation before starting
+
+    Args:
+        provider: AI provider ("openai" or "anthropic")
+        model: Model name
+        target_pages: Target number of pages
+        include_rag: Whether RAG is enabled
+        include_humanization: Whether humanization is enabled
+    """
+    try:
+        cost_estimate = CostEstimator.estimate_document_cost(
+            provider=provider,
+            model=model,
+            target_pages=target_pages,
+            include_rag=include_rag,
+            include_humanization=include_humanization,
+        )
+        return cost_estimate
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to estimate cost: {str(e)}",
+        ) from e
+
+
+class PlagiarismCheckRequest(BaseModel):
+    """Request schema for plagiarism check"""
+
+    text: str = Field(..., min_length=10, description="Text to check for plagiarism")
+
+
+@router.post("/check-plagiarism")
+async def check_plagiarism(
+    request: PlagiarismCheckRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Check text for plagiarism using Copyscape API
+
+    Args:
+        request: Plagiarism check request with text
+    """
+    try:
+        checker = PlagiarismChecker()
+        result = await checker.check_text(request.text)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to check plagiarism: {str(e)}",
+        ) from e
+
+
+class GrammarCheckRequest(BaseModel):
+    """Request schema for grammar check"""
+
+    text: str = Field(
+        ..., min_length=10, description="Text to check for grammar errors"
+    )
+    language: str = Field(
+        default="en-US", description="Language code (e.g., en-US, uk-UA)"
+    )
+
+
+@router.post("/check-grammar")
+async def check_grammar(
+    request: GrammarCheckRequest,
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Check text for grammar and spelling errors using LanguageTool API
+
+    Args:
+        request: Grammar check request with text and language
+    """
+    try:
+        checker = GrammarChecker()
+        result = await checker.check_text(request.text, request.language)
+        return result
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to check grammar: {str(e)}",
+        ) from e

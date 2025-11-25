@@ -1,1045 +1,1013 @@
-# 🚀 ДЕТАЛЬНИЙ ПЛАН ІМПЛЕМЕНТАЦІЇ - TesiGo v2.3
+# 🚀 ДЕТАЛЬНИЙ ПЛАН ІМПЛЕМЕНТАЦІЇ - TesiGo v2.4
 
-**Дата створення:** 2025-11-02  
-**Версія:** 1.0  
-**Тривалість:** 3-4 дні до MVP, 1-2 тижні до Production
-
----
-
-## 📋 ФАЗА 1: КРИТИЧНІ SECURITY ФІКСИ (День 1)
-
-### ✅ Task 1.1: IDOR Protection (2 години)
-
-#### Крок 1: Створити helper функцію
-**Файл:** `apps/api/app/api/v1/endpoints/documents.py`
-
-**Промпт для розробки:**
-```
-Додай helper функцію check_document_ownership в файл documents.py:
-1. Функція має приймати document_id, user_id, та db session
-2. Перевірити чи документ існує
-3. Перевірити чи документ належить користувачу
-4. Якщо ні - повертати 404 (не 403, щоб не розкривати існування)
-5. Використати цю функцію у всіх endpoints: GET, PUT, DELETE, /export
-
-Приклад:
-async def check_document_ownership(
-    document_id: int,
-    user_id: int, 
-    db: AsyncSession
-) -> Document:
-    document = await db.get(Document, document_id)
-    if not document or document.user_id != user_id:
-        raise HTTPException(404, "Document not found")
-    return document
-```
-
-**Промпт для QA:**
-```
-Протестуй IDOR protection:
-1. Створи 2 користувачів (user1, user2)
-2. Створи документ як user1
-3. Спробуй отримати документ як user2 - має бути 404
-4. Спробуй оновити документ як user2 - має бути 404
-5. Спробуй видалити документ як user2 - має бути 404
-6. Перевір що user1 все ще має доступ до свого документа
-
-Напиши integration тест для цього в test_idor_protection.py
-```
-
-#### Крок 2: Оновити payment endpoints
-**Файл:** `apps/api/app/api/v1/endpoints/payment.py`
-
-**Промпт для розробки:**
-```
-Додай ownership check для payment endpoints:
-1. В GET /payment/{payment_id} перевір що payment.user_id == current_user.id
-2. В GET /payment/history фільтруй тільки платежі поточного користувача
-3. Використовуй той самий патерн - 404 замість 403
-```
+**Дата оновлення:** 2025-11-03
+**Статус:** Критичні компоненти відсутні
+**Тривалість до MVP:** 7-10 днів
 
 ---
 
-### ✅ Task 1.2: JWT Security (30 хвилин)
+## ⚠️ ПОТОЧНИЙ СТАН ПЛАТФОРМИ
 
-#### Крок 1: Генерація сильних ключів
+### ✅ ВЖЕ РЕАЛІЗОВАНО:
+- **Security:** IDOR Protection, JWT Security, File validation, Backup scripts
+- **Backend:** Background jobs, Retry mechanisms, Token tracking, DraftService
+- **Services:** GDPR service (базовий), CircuitBreaker, RetryStrategy
+- **Testing:** Integration tests suite, Load testing (частково)
+- **AI:** OpenAI/Anthropic інтеграція, базовий RAG (Semantic Scholar)
 
-**Промпт для розробки:**
-```
-1. Створи скрипт scripts/generate_secrets.py:
-   - Генеруй SECRET_KEY (32+ символів)
-   - Генеруй JWT_SECRET (32+ символів, інший ніж SECRET_KEY)
-   - Виведи в консоль з інструкціями для .env
-
-2. Оновити apps/api/app/core/config.py:
-   - Додай валідатор для SECRET_KEY та JWT_SECRET
-   - Мінімум 32 символи
-   - Не можуть містити слова: secret, password, test, admin
-   - JWT_SECRET має відрізнятися від SECRET_KEY
-
-3. В auth_service.py:
-   - Додай expiration до JWT payload (1 година для access, 7 днів для refresh)
-   - Додай iss (issuer) та aud (audience) claims
-```
-
-**Промпт для QA:**
-```
-Протестуй JWT security:
-1. Спробуй запустити з коротким SECRET_KEY (< 32 chars) - має бути помилка
-2. Спробуй з SECRET_KEY="secretpassword123" - має бути відхилено
-3. Спробуй з однаковими SECRET_KEY та JWT_SECRET - має бути помилка
-4. Перевір що токен експайриться через 1 годину
-5. Перевір що refresh токен працює 7 днів
-```
+### ❌ НЕ РЕАЛІЗОВАНО (блокери для production):
+1. **Адмін-панель** - ПОВНІСТЮ ВІДСУТНЯ
+2. **Система повернень** - RefundService НЕ ІСНУЄ
+3. **Платіжна інтеграція з frontend** - форма оплати відсутня
+4. **WebSocket real-time** - частково реалізовано
+5. **Search APIs** - код є, але не інтегровано (Perplexity, Tavily)
+6. **Динамічне ціноутворення** - відсутнє
+7. **Валідація мінімум 3 сторінки** - відсутня
+8. **Frontend-Backend інтеграція** - багато mock даних
 
 ---
 
-### ✅ Task 1.3: File Magic Bytes Validation (2 години)
+## 📋 ФАЗА 1: КРИТИЧНІ БЛОКЕРИ (3-4 дні)
 
-#### Крок 1: Створити валідатор
+### 🔴 Task 1.1: АДМІН-ПАНЕЛЬ (2-3 дні) - **НАЙВИЩИЙ ПРІОРИТЕТ!**
 
-**Файл:** `apps/api/app/services/file_validator.py`
+**Без адмін-панелі НЕМОЖЛИВО:**
+- Обробляти запити на повернення
+- Блокувати порушників
+- Змінювати ціни
+- Моніторити платформу
 
-**Промпт для розробки:**
-```
-Створи новий файл file_validator.py з класом FileValidator:
+#### Frontend компоненти для створення:
 
-1. Визнач magic bytes для різних типів:
-   PDF_MAGIC = b'%PDF'
-   DOCX_MAGIC = b'PK\x03\x04'  # ZIP signature
-   TXT_MAGIC = [b'\xef\xbb\xbf', b'']  # UTF-8 BOM або без
-
-2. Визнач заборонені signatures:
-   FORBIDDEN = [
-     b'MZ',       # Windows EXE
-     b'\x7fELF',  # Linux executable
-     b'#!/',      # Shell script
-     b'<?php',    # PHP
-   ]
-
-3. Метод validate_file_content(file: UploadFile, expected_type: str):
-   - Прочитай перші 1024 байти
-   - Перевір на заборонені signatures
-   - Перевір що magic bytes відповідають expected_type
-   - Для DOCX додатково перевір ZIP структуру
-
-4. Метод check_zip_bomb(file: UploadFile):
-   - Для ZIP/DOCX перевір compression ratio
-   - Якщо ratio > 100 - відхили як potential zip bomb
-
-5. Інтегруй в CustomRequirementsService.extract_text()
+**Файл:** `apps/web/app/admin/layout.tsx`
+```typescript
+export default function AdminLayout({ children }) {
+  return (
+    <div className="admin-layout">
+      <AdminSidebar>
+        <NavLink href="/admin/dashboard">Dashboard</NavLink>
+        <NavLink href="/admin/users">Користувачі</NavLink>
+        <NavLink href="/admin/refunds">
+          Повернення <Badge>{pendingCount}</Badge>
+        </NavLink>
+        <NavLink href="/admin/payments">Платежі</NavLink>
+        <NavLink href="/admin/settings">Налаштування</NavLink>
+      </AdminSidebar>
+      <main>{children}</main>
+    </div>
+  )
+}
 ```
 
-**Промпт для QA:**
-```
-Створи тести для file validation:
+**Файл:** `apps/web/app/admin/dashboard/page.tsx`
+```typescript
+export default function AdminDashboard() {
+  const [stats, setStats] = useState({
+    totalUsers: 0,
+    todayRevenue: 0,
+    activeJobs: 0,
+    pendingRefunds: 0
+  })
 
-1. test_valid_pdf() - завантаж справжній PDF
-2. test_valid_docx() - завантаж справжній DOCX
-3. test_fake_pdf() - створи файл з .pdf розширенням але текстовим вмістом
-4. test_executable_upload() - спробуй завантажити .exe (має бути відхилено)
-5. test_script_upload() - спробуй завантажити .sh скрипт
-6. test_zip_bomb() - створи файл з високим compression ratio
+  useEffect(() => {
+    fetch('/api/v1/admin/dashboard/stats')
+      .then(res => res.json())
+      .then(setStats)
+  }, [])
 
-Всі тести в test_file_security.py
-```
+  return (
+    <div>
+      <h1>Адмін панель</h1>
 
----
+      {/* Статистичні картки */}
+      <StatsGrid>
+        <StatCard title="Користувачів" value={stats.totalUsers} />
+        <StatCard title="Виручка сьогодні" value={`€${stats.todayRevenue}`} />
+        <StatCard title="Активні генерації" value={stats.activeJobs} />
+        <StatCard
+          title="Запити на повернення"
+          value={stats.pendingRefunds}
+          alert={stats.pendingRefunds > 0}
+        />
+      </StatsGrid>
 
-### ✅ Task 1.4: Basic Backup Script (1 година)
-
-#### Крок 1: Створити backup скрипт
-
-**Файл:** `scripts/backup.sh`
-
-**Промпт для розробки:**
-```
-Створи backup.sh скрипт:
-
-1. Конфігурація:
-   BACKUP_DIR="/backups"
-   TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-   
-2. PostgreSQL backup:
-   pg_dump з параметрами:
-   - --format=custom
-   - --compress=9
-   - Збереження в $BACKUP_DIR/db/postgres_$TIMESTAMP.dump
-
-3. MinIO backup:
-   tar -czf для /minio/data/documents/
-
-4. Видалення старих (> 7 днів):
-   find $BACKUP_DIR -type f -mtime +7 -delete
-
-5. Створи scripts/restore.sh:
-   - Приймає шлях до backup файлу
-   - Питає підтвердження
-   - Відновлює через pg_restore
-
-6. Додай до crontab інструкцію:
-   0 2 * * * /scripts/backup.sh
+      {/* Графіки */}
+      <ChartsSection>
+        <RevenueChart period="week" />
+        <DocumentsChart period="month" />
+      </ChartsSection>
+    </div>
+  )
+}
 ```
 
-**Промпт для QA:**
-```
-Протестуй backup/restore:
+**Файл:** `apps/web/app/admin/refunds/page.tsx`
+```typescript
+export default function RefundRequests() {
+  const [requests, setRequests] = useState([])
+  const [filter, setFilter] = useState('pending')
 
-1. Створи тестові дані (користувач, документ, платіж)
-2. Запусти backup.sh
-3. Перевір що файли створені в /backups
-4. Видали тестові дані з БД
-5. Запусти restore.sh з backup файлом
-6. Перевір що дані відновлені
-7. Перевір що старі backups видаляються через 7 днів
-```
+  const approveRefund = async (requestId) => {
+    const response = await fetch(`/api/v1/admin/refunds/${requestId}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ comment: 'Approved by admin' })
+    })
+    if (response.ok) {
+      toast.success('Повернення схвалено')
+      fetchRequests()
+    }
+  }
 
----
+  const rejectRefund = async (requestId, reason) => {
+    const response = await fetch(`/api/v1/admin/refunds/${requestId}/reject`, {
+      method: 'POST',
+      body: JSON.stringify({ reason })
+    })
+    if (response.ok) {
+      toast.success('Запит відхилено')
+      fetchRequests()
+    }
+  }
 
-## 📋 ФАЗА 2: ФУНКЦІОНАЛЬНІ ФІКСИ (День 2-3)
+  return (
+    <div>
+      <Tabs value={filter} onChange={setFilter}>
+        <Tab value="pending">Очікують ({requests.filter(r => r.status === 'pending').length})</Tab>
+        <Tab value="approved">Схвалені</Tab>
+        <Tab value="rejected">Відхилені</Tab>
+      </Tabs>
 
-### ✅ Task 2.1: Інтеграція BackgroundJobService з WebSocket (5 годин)
-
-#### Крок 1: Створити WebSocket manager
-
-**Файл:** `apps/api/app/services/websocket_manager.py`
-
-**Промпт для розробки:**
-```
-Створи WebSocket manager для real-time прогресу:
-
-1. WebSocket Manager:
-   from fastapi import WebSocket
-   from typing import Dict, List
-   from contextvars import ContextVar
-   
-   # Ізоляція контекстів через ContextVar
-   user_context: ContextVar[dict] = ContextVar('user_context', default={})
-   
-   class ConnectionManager:
-     def __init__(self):
-       self.active_connections: Dict[int, List[WebSocket]] = {}
-     
-     async def connect(self, websocket: WebSocket, user_id: int):
-       await websocket.accept()
-       if user_id not in self.active_connections:
-         self.active_connections[user_id] = []
-       self.active_connections[user_id].append(websocket)
-       
-       # Ізольований контекст для користувача
-       user_context.set({"user_id": user_id, "session_id": str(uuid.uuid4())})
-     
-     async def send_progress(self, user_id: int, message: dict):
-       if user_id in self.active_connections:
-         for connection in self.active_connections[user_id]:
-           await connection.send_json(message)
-   
-   manager = ConnectionManager()
-
-2. WebSocket endpoint:
-   @router.websocket("/ws/generation/{document_id}")
-   async def generation_progress(
-     websocket: WebSocket,
-     document_id: int,
-     current_user: User = Depends(get_current_user_ws)
-   ):
-     await manager.connect(websocket, current_user.id)
-     try:
-       while True:
-         # Keep connection alive
-         await websocket.receive_text()
-     except WebSocketDisconnect:
-       manager.disconnect(websocket, current_user.id)
+      <Table>
+        {requests.map(request => (
+          <TableRow key={request.id}>
+            <TableCell>{request.user_email}</TableCell>
+            <TableCell>€{request.amount}</TableCell>
+            <TableCell>{request.reason}</TableCell>
+            <TableCell>{request.created_at}</TableCell>
+            <TableCell>
+              {request.status === 'pending' && (
+                <>
+                  <Button onClick={() => approveRefund(request.id)}>
+                    Схвалити
+                  </Button>
+                  <Button onClick={() => rejectRefund(request.id)}>
+                    Відхилити
+                  </Button>
+                </>
+              )}
+            </TableCell>
+          </TableRow>
+        ))}
+      </Table>
+    </div>
+  )
+}
 ```
 
-#### Крок 2: Додати Smart Queue з пріоритетами
+#### Backend endpoints для розширення:
 
-**Файл:** `apps/api/app/services/job_queue.py`
+**Файл:** `apps/api/app/api/v1/endpoints/admin.py` (додати до існуючого)
+```python
+@router.get("/admin/dashboard/stats")
+async def get_dashboard_stats(admin: User = Depends(get_admin_user)):
+    """Повна статистика для dashboard"""
+    stats = {
+        "users": {
+            "total": await db.query(User).count(),
+            "today": await db.query(User).filter(
+                User.created_at >= datetime.now().date()
+            ).count(),
+            "active_last_7_days": await db.query(User).filter(
+                User.last_login >= datetime.now() - timedelta(days=7)
+            ).count()
+        },
+        "revenue": {
+            "today": await calculate_revenue("day"),
+            "week": await calculate_revenue("week"),
+            "month": await calculate_revenue("month")
+        },
+        "documents": {
+            "total": await db.query(Document).count(),
+            "generating": await db.query(Document).filter(
+                Document.status == "generating"
+            ).count()
+        },
+        "refunds": {
+            "pending": await db.query(RefundRequest).filter(
+                RefundRequest.status == "pending"
+            ).count()
+        }
+    }
+    return stats
 
-**Промпт для розробки:**
-```
-Створи Smart Queue для пріоритизації:
+@router.post("/admin/users/{user_id}/block")
+async def block_user(
+    user_id: int,
+    reason: str,
+    admin: User = Depends(get_admin_user)
+):
+    user = await db.get(User, user_id)
+    user.is_active = False
+    user.blocked_reason = reason
+    user.blocked_by = admin.id
+    await db.commit()
 
-1. Queue Manager:
-   from queue import PriorityQueue
-   from dataclasses import dataclass, field
-   
-   @dataclass(order=True)
-   class JobItem:
-     priority: int
-     job_id: str = field(compare=False)
-     document_id: int = field(compare=False)
-     pages: int = field(compare=False)
-     created_at: datetime = field(compare=False)
-   
-   class SmartQueue:
-     def __init__(self):
-       self.queue = PriorityQueue()
-       self.processing = set()
-       
-     def add_job(self, job: AIGenerationJob):
-       # Пріоритет: менші документи першими
-       priority = job.target_pages  # 10 pages = priority 10
-       if job.user.is_premium:
-         priority -= 1000  # Premium users first
-       
-       item = JobItem(
-         priority=priority,
-         job_id=job.id,
-         document_id=job.document_id,
-         pages=job.target_pages
-       )
-       self.queue.put(item)
-     
-     async def get_next_job(self) -> JobItem:
-       if not self.queue.empty():
-         return self.queue.get()
-       return None
+    # Audit log
+    await log_admin_action(admin.id, "block_user", user_id, {"reason": reason})
+    return {"status": "user_blocked"}
 
-2. Auto-scaling workers:
-   class WorkerPool:
-     MIN_WORKERS = 2
-     MAX_WORKERS = 10
-     
-     def __init__(self):
-       self.workers = []
-       self.scale_to(self.MIN_WORKERS)
-     
-     def scale_to(self, count: int):
-       count = max(self.MIN_WORKERS, min(count, self.MAX_WORKERS))
-       
-       # Add workers
-       while len(self.workers) < count:
-         worker = BackgroundWorker()
-         self.workers.append(worker)
-         asyncio.create_task(worker.run())
-       
-       # Remove workers
-       while len(self.workers) > count:
-         worker = self.workers.pop()
-         await worker.stop()
-     
-     async def auto_scale(self):
-       # Scale based on queue size
-       queue_size = smart_queue.queue.qsize()
-       
-       if queue_size > 20:
-         self.scale_to(10)  # Max workers
-       elif queue_size > 10:
-         self.scale_to(5)   # Medium load
-       else:
-         self.scale_to(2)   # Min workers
-```
-
-#### Крок 3: Створити endpoint для async генерації
-
-**Файл:** `apps/api/app/api/v1/endpoints/generate.py`
-
-**Промпт для розробки:**
-```
-Додай новий endpoint POST /generate/document-async:
-
-1. Прийми параметри:
-   - title: str
-   - pages: int
-   - model: str
-   - requirements: Optional[str]
-
-2. Створи job в БД:
-   job = AIGenerationJob(
-     document_id=document.id,
-     status="queued",
-     progress=0
-   )
-
-3. Запусти background task:
-   background_tasks.add_task(
-     background_job_service.generate_document_async,
-     document.id, job.id
-   )
-
-4. Поверни:
-   {
-     "job_id": job.id,
-     "status": "queued",
-     "check_url": f"/api/v1/jobs/{job.id}/status"
-   }
-
-5. Додай endpoint GET /jobs/{job_id}/status:
-   - Повертай поточний статус та прогрес
-   - Якщо completed - додай document_id
-```
-
-**Промпт для QA:**
-```
-Тест async генерації:
-
-1. Створи запит на генерацію через /generate/document-async
-2. Отримай job_id
-3. Перевіряй статус кожні 2 секунди через /jobs/{job_id}/status
-4. Переконайся що progress змінюється (0 -> 25 -> 50 -> 75 -> 100)
-5. Коли status="completed", перевір що document_id повернувся
-6. Отримай документ через GET /documents/{document_id}
-7. Перевір що контент згенерований
-
-Напиши async тест з asyncio.sleep між перевірками
+@router.get("/admin/refunds")
+async def list_refund_requests(
+    status: str = "pending",
+    admin: User = Depends(get_admin_user)
+):
+    requests = await db.query(RefundRequest).filter(
+        RefundRequest.status == status
+    ).all()
+    return requests
 ```
 
 ---
 
-### ✅ Task 2.2: Webhook Signature Verification (2 години)
+### 🔴 Task 1.2: СИСТЕМА ПОВЕРНЕНЬ (2 дні)
 
-**Файл:** `apps/api/app/api/v1/endpoints/payment.py`
+**Критично для EU compliance!**
 
-**Промпт для розробки:**
-```
-Оновити POST /payment/webhook:
+#### Створення RefundService:
 
-1. Отримай signature з headers:
-   sig_header = request.headers.get('Stripe-Signature')
+**Файл:** `apps/api/app/services/refund_service.py`
+```python
+from decimal import Decimal
+import stripe
+from datetime import datetime, timedelta
 
-2. Верифікуй signature:
-   try:
-     event = stripe.Webhook.construct_event(
-       payload=await request.body(),
-       sig_header=sig_header,
-       secret=settings.STRIPE_WEBHOOK_SECRET
-     )
-   except stripe.error.SignatureVerificationError:
-     raise HTTPException(400, "Invalid signature")
+class RefundService:
+    def __init__(self, db: AsyncSession):
+        self.db = db
+        self.stripe = stripe
 
-3. Обробляй тільки верифіковані events:
-   if event['type'] == 'payment_intent.succeeded':
-     # Оновити статус платежу
-   elif event['type'] == 'payment_intent.failed':
-     # Обробити невдалий платіж
+    async def request_refund(
+        self,
+        user_id: int,
+        payment_id: int,
+        reason_category: str,
+        reason_text: str
+    ) -> RefundRequest:
+        """Створити запит на повернення"""
 
-4. Додай idempotency:
-   - Збережи event_id в БД
-   - Якщо event вже оброблений - return 200 без повторної обробки
-```
+        # Валідація
+        payment = await self.db.get(Payment, payment_id)
+        if not payment or payment.user_id != user_id:
+            raise ValidationError("Payment not found")
 
-**Промпт для QA:**
-```
-Тест webhook security:
+        if payment.status == "refunded":
+            raise ValidationError("Already refunded")
 
-1. Спробуй POST на /payment/webhook без signature - має бути 400
-2. Спробуй з невірною signature - має бути 400
-3. Створи валідний webhook з правильною signature
-4. Відправ той самий webhook двічі - має обробитися тільки раз
-5. Перевір що платіж оновлюється тільки для верифікованих webhooks
-```
+        # Перевірка часу (24 години)
+        time_passed = datetime.utcnow() - payment.created_at
+        if time_passed.total_seconds() > 86400:
+            raise ValidationError("Refund period expired (24 hours)")
 
----
+        # Створення запиту
+        refund_request = RefundRequest(
+            payment_id=payment_id,
+            user_id=user_id,
+            reason_category=reason_category,
+            reason_text=reason_text,
+            status="pending"
+        )
 
-### ✅ Task 2.3: Retry Механізми з Circuit Breaker (3 години)
+        self.db.add(refund_request)
+        await self.db.commit()
 
-**Файл:** `apps/api/app/services/ai_service.py`
+        # Email адміністраторам
+        await self._notify_admins(refund_request)
 
-**Промпт для розробки:**
-```
-Додай retry логіку з Circuit Breaker в AIService:
+        return refund_request
 
-1. Створи Circuit Breaker:
-   from enum import Enum
-   from datetime import datetime, timedelta
-   
-   class CircuitState(Enum):
-     CLOSED = "closed"  # Normal operation
-     OPEN = "open"      # Failing, reject requests
-     HALF_OPEN = "half_open"  # Testing recovery
-   
-   class CircuitBreaker:
-     def __init__(self, failure_threshold=5, recovery_timeout=60):
-       self.failure_threshold = failure_threshold
-       self.recovery_timeout = recovery_timeout
-       self.failure_count = 0
-       self.last_failure_time = None
-       self.state = CircuitState.CLOSED
-     
-     def call(self, func, *args, **kwargs):
-       if self.state == CircuitState.OPEN:
-         if self._should_attempt_reset():
-           self.state = CircuitState.HALF_OPEN
-         else:
-           raise Exception("Circuit breaker is OPEN")
-       
-       try:
-         result = func(*args, **kwargs)
-         self._on_success()
-         return result
-       except Exception as e:
-         self._on_failure()
-         raise e
-     
-     def _on_success(self):
-       self.failure_count = 0
-       self.state = CircuitState.CLOSED
-     
-     def _on_failure(self):
-       self.failure_count += 1
-       self.last_failure_time = datetime.now()
-       if self.failure_count >= self.failure_threshold:
-         self.state = CircuitState.OPEN
-     
-     def _should_attempt_reset(self):
-       return (datetime.now() - self.last_failure_time).seconds >= self.recovery_timeout
+    async def process_refund(
+        self,
+        request_id: int,
+        approved: bool,
+        admin_id: int,
+        comment: str = None
+    ):
+        """Обробити рішення адміністратора"""
+        request = await self.db.get(RefundRequest, request_id)
 
-2. Створи RetryStrategy з Circuit Breaker:
-   class RetryStrategy:
-     delays = [2, 4, 8, 16, 32]  # exponential backoff
-     max_retries = 5
-     circuit_breaker = CircuitBreaker()
-     
-     fallback_models = {
-       "gpt-4": ["gpt-4-turbo", "gpt-3.5-turbo"],
-       "claude-3.5-sonnet": ["claude-3-opus", "gpt-4"]
-     }
+        if approved:
+            # Stripe refund
+            payment = await self.db.get(Payment, request.payment_id)
+            refund = stripe.Refund.create(
+                payment_intent=payment.stripe_payment_intent_id,
+                reason="requested_by_customer"
+            )
 
-2. Декоратор @with_retry:
-   - Лови RateLimitError, APIError
-   - Чекай згідно delays[attempt]
-   - Після 3 невдач - спробуй fallback модель
-   - Логуй кожну спробу
+            request.status = "approved"
+            request.stripe_refund_id = refund.id
+            request.refunded_at = datetime.utcnow()
 
-3. Оновити generate_content():
-   @with_retry
-   async def generate_content(self, prompt, model):
-     try:
-       response = await openai_client.chat.completions.create(...)
-     except RateLimitError as e:
-       logger.warning(f"Rate limit hit: {e}")
-       raise  # Декоратор обробить
-     except Exception as e:
-       logger.error(f"Unexpected error: {e}")
-       raise
+            payment.status = "refunded"
+            payment.refunded_amount = payment.amount
+        else:
+            request.status = "rejected"
 
-4. Додай детальний checkpoint saving:
-   class CheckpointManager:
-     CHECKPOINT_INTERVAL = 300  # 5 minutes
-     
-     async def save_checkpoint(self, job_id: str, data: dict):
-       checkpoint = {
-         "job_id": job_id,
-         "document_id": data["document_id"],
-         "progress": data["progress"],
-         "generated_sections": data["generated_sections"],
-         "current_section": data["current_section"],
-         "tokens_used": data["tokens_used"],
-         "timestamp": datetime.now().isoformat()
-       }
-       
-       # Зберігаємо в Redis для швидкого доступу
-       await redis_client.setex(
-         f"checkpoint:{job_id}",
-         3600,  # TTL 1 hour
-         json.dumps(checkpoint)
-       )
-       
-       # Backup в БД
-       await db.execute(
-         "INSERT INTO checkpoints (job_id, data) VALUES ($1, $2) "
-         "ON CONFLICT (job_id) DO UPDATE SET data = $2",
-         job_id, json.dumps(checkpoint)
-       )
-     
-     async def load_checkpoint(self, job_id: str):
-       # Спробуй Redis першим
-       data = await redis_client.get(f"checkpoint:{job_id}")
-       if data:
-         return json.loads(data)
-       
-       # Fallback на БД
-       result = await db.fetchone(
-         "SELECT data FROM checkpoints WHERE job_id = $1",
-         job_id
-       )
-       return json.loads(result["data"]) if result else None
-     
-     async def auto_checkpoint(self, job_id: str):
-       while job_is_running:
-         await asyncio.sleep(self.CHECKPOINT_INTERVAL)
-         await self.save_checkpoint(job_id, current_state)
+        request.reviewed_by = admin_id
+        request.review_comment = comment
+        request.reviewed_at = datetime.utcnow()
+
+        await self.db.commit()
+
+        # Email користувачу
+        await self._notify_user(request, approved)
 ```
 
-**Промпт для QA:**
-```
-Тест retry механізмів:
+#### База даних - таблиця refund_requests:
 
-1. Mock OpenAI API щоб повертав RateLimitError перші 2 рази
-2. Перевір що генерація успішна на 3-й раз
-3. Перевір що delays правильні (2, 4, 8 секунд)
-4. Mock повний failure для gpt-4
-5. Перевір що fallback на gpt-3.5-turbo працює
-6. Симулюй crash після 50% генерації
-7. Перевір що checkpoint зберігся і генерація продовжується
+**Файл:** `apps/api/alembic/versions/xxx_add_refund_requests.py`
+```python
+def upgrade():
+    op.create_table(
+        'refund_requests',
+        sa.Column('id', sa.Integer(), primary_key=True),
+        sa.Column('payment_id', sa.Integer(), sa.ForeignKey('payments.id')),
+        sa.Column('user_id', sa.Integer(), sa.ForeignKey('users.id')),
+        sa.Column('reason_category', sa.String(50), nullable=False),
+        sa.Column('reason_text', sa.Text(), nullable=False),
+        sa.Column('status', sa.String(20), default='pending'),
+        sa.Column('reviewed_by', sa.Integer(), sa.ForeignKey('users.id')),
+        sa.Column('review_comment', sa.Text()),
+        sa.Column('reviewed_at', sa.DateTime()),
+        sa.Column('stripe_refund_id', sa.String(255)),
+        sa.Column('refunded_at', sa.DateTime()),
+        sa.Column('created_at', sa.DateTime(), server_default=sa.func.now()),
+        sa.Column('updated_at', sa.DateTime(), server_default=sa.func.now())
+    )
 
-Використовуй pytest-mock для мокування API
-```
-
----
-
-### ✅ Task 2.4: Simple Token Tracking (1 година)
-
-**Файл:** `apps/api/app/services/ai_service.py`
-
-**Промпт для розробки:**
-```
-Додай простий tracking токенів в AIService без складної логіки цін:
-
-1. Після кожного виклику AI зберігай токени в документ:
-   async def generate_content(self, prompt, model, document_id):
-     response = await openai_client.chat.completions.create(...)
-     
-     # Оновити токени
-     if response.usage:
-       document = await db.get(Document, document_id)
-       document.tokens_used += response.usage.total_tokens
-       await db.commit()
-       
-       # Простий лог для моніторингу
-       logger.info(f"AI usage: doc={document_id}, model={model}, tokens={response.usage.total_tokens}")
-     
-     return response.choices[0].message.content
-
-2. Додай простий daily limit (опціонально):
-   # В settings.py
-   DAILY_TOKEN_LIMIT = 1000000  # 1M токенів на день (або None щоб вимкнути)
-   
-   # Перевірка (якщо потрібна)
-   if settings.DAILY_TOKEN_LIMIT:
-     today_tokens = await db.query(
-       func.sum(Document.tokens_used)
-     ).filter(
-       Document.created_at >= datetime.now().date()
-     ).scalar()
-     
-     if today_tokens > settings.DAILY_TOKEN_LIMIT:
-       logger.warning(f"Daily limit exceeded: {today_tokens}")
-       # Можна продовжити або raise error - як вирішите
-
-3. Admin статистика (вже є в admin_service.py):
-   # Endpoint вже існує: GET /api/v1/admin/stats
-   # Просто переконайся що показує total_tokens_used
+    op.create_index('idx_refund_requests_status', 'refund_requests', ['status'])
+    op.create_index('idx_refund_requests_user', 'refund_requests', ['user_id'])
 ```
 
-**Промпт для QA:**
-```
-Тест простого token tracking:
+#### Frontend форма запиту:
 
-1. Тест збереження токенів:
-   - Згенеруй контент для документа
-   - Перевір що tokens_used оновився в БД
-   - Перевір що токени додаються (не перезаписуються)
-   
-2. Тест daily limits:
-   - Створи користувача з daily_token_limit=1000
-   - Згенеруй контент що використає 800 токенів
-   - Спробуй згенерувати ще 300 токенів - має бути 429 error
-   
-3. Тест admin статистики:
-   - Створи 3 документи з різними tokens_used
-   - Виклич GET /admin/stats
-   - Перевір total_tokens_all_time
-   - Перевір average_tokens_per_document
+**Файл:** `apps/web/components/RefundRequestForm.tsx`
+```typescript
+export function RefundRequestForm({ paymentId, onSuccess }) {
+  const [reason, setReason] = useState('')
+  const [category, setCategory] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsSubmitting(true)
+
+    const response = await fetch('/api/v1/refunds/request', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        payment_id: paymentId,
+        reason_category: category,
+        reason_text: reason
+      })
+    })
+
+    if (response.ok) {
+      toast.success('Запит на повернення відправлено')
+      onSuccess()
+    } else {
+      toast.error('Помилка при створенні запиту')
+    }
+    setIsSubmitting(false)
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h3>Запросити повернення</h3>
+      <p className="text-sm text-gray-500">
+        Повернення можливе протягом 24 годин після оплати
+      </p>
+
+      <select
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+        required
+      >
+        <option value="">Оберіть причину</option>
+        <option value="technical_issue">Технічна проблема</option>
+        <option value="quality_issue">Незадовільна якість</option>
+        <option value="wrong_content">Невідповідний контент</option>
+        <option value="other">Інша причина</option>
+      </select>
+
+      <textarea
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+        placeholder="Детально опишіть причину (мінімум 50 символів)"
+        minLength={50}
+        required
+        rows={4}
+      />
+
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? 'Відправлення...' : 'Відправити запит'}
+      </Button>
+    </form>
+  )
+}
 ```
 
 ---
 
-### ✅ Task 2.5: Search APIs Integration (2 години)
+### 🔴 Task 1.3: ПЛАТІЖНА ІНТЕГРАЦІЯ З FRONTEND (2 дні)
 
-**Файл:** `apps/api/app/services/ai_pipeline/rag_retriever.py`
+**Backend працює, але frontend НЕ МАЄ форми оплати!**
 
-**Промпт для розробки:**
-```
-Додай інтеграцію Search APIs до існуючого RAG retriever:
+#### Stripe Checkout інтеграція:
 
-1. Додай Perplexity API для real-time search:
-   async def search_perplexity(self, query: str):
-     headers = {
-       "Authorization": f"Bearer {settings.PERPLEXITY_API_KEY}",
-       "Content-Type": "application/json"
-     }
-     
-     data = {
-       "model": "pplx-7b-online",
-       "messages": [
-         {"role": "user", "content": f"Search for: {query}"}
-       ]
-     }
-     
-     async with httpx.AsyncClient() as client:
-       response = await client.post(
-         "https://api.perplexity.ai/chat/completions",
-         headers=headers,
-         json=data
-       )
-     
-     return response.json()
+**Файл:** `apps/web/components/PaymentForm.tsx`
+```typescript
+import { loadStripe } from '@stripe/stripe-js'
+import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 
-2. Додай Tavily API для academic search:
-   async def search_tavily(self, query: str):
-     # Similar structure for Tavily API
-     pass
+const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY)
 
-3. Комбінуй результати:
-   async def retrieve_sources(self, query: str):
-     results = []
-     
-     # Existing Semantic Scholar
-     if settings.SEMANTIC_SCHOLAR_ENABLED:
-       results.extend(await self.search_semantic_scholar(query))
-     
-     # New APIs
-     if settings.PERPLEXITY_API_KEY:
-       results.extend(await self.search_perplexity(query))
-     
-     if settings.TAVILY_API_KEY:
-       results.extend(await self.search_tavily(query))
-     
-     return results[:20]  # Top 20 sources
-```
+export function PaymentForm({ documentId, pages, onSuccess }) {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [isProcessing, setIsProcessing] = useState(false)
 
-**Промпт для QA:**
-```
-Тест Search APIs:
+  const amount = pages * 0.50 // €0.50 за сторінку
 
-1. Mock всі API responses
-2. Перевір що retrieve_sources комбінує результати
-3. Перевір fallback якщо один API недоступний
-4. Перевір дедуплікацію джерел
-5. Перевір форматування citations
-```
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setIsProcessing(true)
 
----
+    // Створити checkout session
+    const response = await fetch('/api/v1/payment/create-checkout', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        document_id: documentId,
+        pages: pages
+      })
+    })
 
-### ✅ Task 2.6: Auto-save Implementation (3 години)
+    const { checkout_url } = await response.json()
 
-**Файл:** `apps/api/app/services/draft_service.py`
+    // Перенаправити на Stripe Checkout
+    window.location.href = checkout_url
+  }
 
-**Промпт для розробки:**
-```
-Створи DraftService для auto-save:
+  return (
+    <div className="payment-form">
+      <h3>Оплата документа</h3>
 
-1. Модель DocumentDraft:
-   class DocumentDraft(Base):
-     __tablename__ = "document_drafts"
-     
-     id = Column(Integer, primary_key=True)
-     document_id = Column(Integer, ForeignKey("documents.id"))
-     user_id = Column(Integer, ForeignKey("users.id"))
-     content = Column(Text)
-     version = Column(Integer, default=1)
-     created_at = Column(DateTime, default=func.now())
-     auto_save = Column(Boolean, default=True)
+      <div className="price-breakdown">
+        <div className="flex justify-between">
+          <span>Кількість сторінок:</span>
+          <span>{pages}</span>
+        </div>
+        <div className="flex justify-between">
+          <span>Ціна за сторінку:</span>
+          <span>€0.50</span>
+        </div>
+        <div className="flex justify-between font-bold text-lg">
+          <span>Загальна вартість:</span>
+          <span>€{amount.toFixed(2)}</span>
+        </div>
+      </div>
 
-2. Endpoint POST /documents/{id}/draft:
-   - Приймає частковий контент
-   - Зберігає як draft
-   - Повертає version number
+      <div className="mt-6">
+        <p className="text-sm text-gray-600 mb-4">
+          ⚠️ Після оплати автоматична відміна неможлива.
+          Повернення можливе тільки протягом 24 годин за запитом.
+        </p>
 
-3. Endpoint GET /documents/{id}/draft/latest:
-   - Повертає останній draft
-   - Include timestamp
-
-4. Auto-delete старих drafts:
-   - Зберігати максимум 10 версій
-   - Видаляти drafts старші 30 днів
-
-5. Recovery endpoint GET /documents/recover:
-   - Знайти документи зі статусом "generating"
-   - Повернути список з можливістю відновлення
+        <Button
+          onClick={handleSubmit}
+          disabled={isProcessing}
+          className="w-full"
+        >
+          {isProcessing ? 'Обробка...' : `Оплатити €${amount.toFixed(2)}`}
+        </Button>
+      </div>
+    </div>
+  )
+}
 ```
 
-**Промпт для QA:**
-```
-Тест auto-save:
+#### Success/Cancel сторінки:
 
-1. Створи документ
-2. Збережи draft 15 разів
-3. Перевір що тільки останні 10 версій збереглися
-4. Отримай latest draft - має бути версія 15
-5. Симулюй crash (змінити статус на "generating")
-6. Виклич /documents/recover
-7. Перевір що документ в списку для відновлення
-8. Перевір auto-delete через 30 днів (змінити created_at в БД)
-```
+**Файл:** `apps/web/app/payment/success/page.tsx`
+```typescript
+export default function PaymentSuccess() {
+  const searchParams = useSearchParams()
+  const sessionId = searchParams.get('session_id')
+  const [status, setStatus] = useState('verifying')
 
----
+  useEffect(() => {
+    // Перевірити статус платежу
+    fetch(`/api/v1/payment/verify?session_id=${sessionId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          setStatus('success')
+          toast.success('Оплата успішна! Генерація почалась.')
+          // Перенаправити на сторінку документа
+          setTimeout(() => {
+            router.push(`/documents/${data.document_id}`)
+          }, 3000)
+        }
+      })
+  }, [sessionId])
 
-### ✅ Task 2.7: GDPR Consent Implementation (2 години)
-
-**Файл:** `apps/api/app/services/gdpr_service.py`
-
-**Промпт для розробки:**
-```
-Створи GDPR consent management:
-
-1. Модель для consent:
-   class UserConsent(Base):
-     __tablename__ = "user_consents"
-     
-     id = Column(Integer, primary_key=True)
-     user_id = Column(Integer, ForeignKey("users.id"))
-     consent_type = Column(String)  # 'essential', 'analytics', 'marketing'
-     granted = Column(Boolean)
-     granted_at = Column(DateTime)
-     ip_address = Column(String)
-     user_agent = Column(String)
-
-2. При реєстрації через magic link:
-   @router.post("/auth/magic-link/verify")
-   async def verify_magic_link(
-     code: str,
-     gdpr_consent: bool = False,
-     analytics_consent: bool = False,
-     marketing_consent: bool = False
-   ):
-     # Перевір що essential consent = true
-     if not gdpr_consent:
-       raise HTTPException(400, "GDPR consent is required")
-     
-     # Створи користувача
-     user = await create_user(email)
-     
-     # Збережи consents
-     consents = [
-       UserConsent(user_id=user.id, consent_type="essential", granted=True),
-       UserConsent(user_id=user.id, consent_type="analytics", granted=analytics_consent),
-       UserConsent(user_id=user.id, consent_type="marketing", granted=marketing_consent)
-     ]
-     db.add_all(consents)
-     await db.commit()
-
-3. Data export endpoint:
-   @router.get("/user/export-data")
-   async def export_user_data(current_user: User = Depends(get_current_user)):
-     data = {
-       "user": user.dict(),
-       "documents": [d.dict() for d in user.documents],
-       "payments": [p.dict() for p in user.payments],
-       "consents": [c.dict() for c in user.consents]
-     }
-     return JSONResponse(content=data, headers={
-       "Content-Disposition": f"attachment; filename=user_data_{user.id}.json"
-     })
-
-4. Right to be forgotten:
-   @router.delete("/user/delete-account")
-   async def delete_account(current_user: User = Depends(get_current_user)):
-     # Анонімізація замість видалення
-     user.email = f"deleted_{user.id}@deleted.com"
-     user.full_name = "DELETED USER"
-     
-     # Видалити документи з MinIO
-     for doc in user.documents:
-       await delete_from_storage(doc.docx_path)
-       await delete_from_storage(doc.pdf_path)
-     
-     # Видалити sensitive data
-     await db.execute("DELETE FROM user_consents WHERE user_id = $1", user.id)
-     
-     await db.commit()
-     return {"status": "account_deleted"}
-```
-
-**Промпт для QA:**
-```
-Тест GDPR compliance:
-
-1. Спробуй зареєструватись без gdpr_consent=true - має бути помилка
-2. Зареєструйся з consent
-3. Експортуй дані через /user/export-data
-4. Перевір що JSON містить всі дані користувача
-5. Видали акаунт через /user/delete-account
-6. Перевір що email анонімізований
-7. Перевір що файли видалені з MinIO
+  return (
+    <div className="text-center py-20">
+      {status === 'verifying' && (
+        <>
+          <Spinner size="lg" />
+          <p>Перевіряємо платіж...</p>
+        </>
+      )}
+      {status === 'success' && (
+        <>
+          <CheckCircleIcon className="w-20 h-20 text-green-500 mx-auto" />
+          <h1 className="text-2xl font-bold mt-4">Оплата успішна!</h1>
+          <p>Ваш документ генерується. Перенаправляємо...</p>
+        </>
+      )}
+    </div>
+  )
+}
 ```
 
 ---
 
-## 📋 ФАЗА 3: TESTING & QA (День 3-4)
+## 📋 ФАЗА 2: ВАЖЛИВІ КОМПОНЕНТИ (3-4 дні)
 
-### ✅ Task 3.1: Integration Tests Suite
+### 🟡 Task 2.1: УНІФІКАЦІЯ AI ГЕНЕРАЦІЇ (1 день)
 
-**Промпт для розробки:**
+**Проблема:** Два методи генерації - AIService (без RAG) та SectionGenerator (з RAG)
+
+**Рішення:** Використовувати тільки SectionGenerator
+
+**Файл:** `apps/api/app/services/ai_pipeline/generator.py` (оновити)
+```python
+# Змінити метод retrieve() на retrieve_sources()
+async def generate_section(self, ...):
+    # Замість:
+    # source_docs = await self.rag_retriever.retrieve(query, limit=10)
+
+    # Використовувати:
+    source_docs = await self.rag_retriever.retrieve_sources(query, limit=20)
+    # Це включить Perplexity, Tavily, Semantic Scholar
 ```
-Створи comprehensive integration test suite в tests/integration/:
 
-1. test_full_user_journey.py:
-   - Реєстрація через magic link
-   - Створення документа
-   - Генерація контенту
-   - Оплата
-   - Експорт документа
+**Файл:** `apps/api/app/api/v1/endpoints/generate.py` (оновити)
+```python
+# Використовувати SectionGenerator замість AIService
+from app.services.ai_pipeline.generator import SectionGenerator
 
-2. test_security_suite.py:
-   - IDOR tests (спроби доступу до чужих ресурсів)
-   - JWT expiration tests
-   - File upload security tests
-   - Rate limiting tests
+@router.post("/generate/section")
+async def generate_section(request: SectionRequest, ...):
+    generator = SectionGenerator()
+    result = await generator.generate_section(
+        document=document,
+        section_title=request.section_title,
+        section_index=request.section_index,
+        provider=document.ai_provider,
+        model=document.ai_model,
+        humanize=True  # Завжди humanize
+    )
+    return result
+```
 
-3. test_error_handling.py:
-   - API failures з retry
-   - Payment failures
-   - Invalid inputs
-   - Database connection loss
+### 🟡 Task 2.2: ІНТЕГРАЦІЯ SEARCH APIs (1 день)
 
-4. test_performance.py:
-   - Concurrent user tests (10 користувачів одночасно)
-   - Large document generation (200 сторінок)
-   - Memory usage monitoring
+**Файл:** `apps/api/app/services/ai_pipeline/rag_retriever.py` (активувати існуючий код)
+```python
+async def retrieve_sources(self, query: str, limit: int = 20):
+    """Використати ВСІ доступні search APIs"""
+    results = []
 
-Використовуй pytest-asyncio, pytest-mock, faker для тестових даних
+    # Паралельні запити до всіх APIs
+    tasks = []
+
+    if settings.SEMANTIC_SCHOLAR_API_KEY:
+        tasks.append(self.search_semantic_scholar(query))
+
+    if settings.PERPLEXITY_API_KEY:
+        tasks.append(self.search_perplexity(query))
+
+    if settings.TAVILY_API_KEY:
+        tasks.append(self.search_tavily(query))
+
+    if settings.SERPER_API_KEY:
+        tasks.append(self.search_serper(query))  # Додати новий метод
+
+    # Виконати всі паралельно
+    all_results = await asyncio.gather(*tasks, return_exceptions=True)
+
+    # Об'єднати результати
+    for result in all_results:
+        if not isinstance(result, Exception):
+            results.extend(result)
+
+    # Дедуплікація та сортування
+    return self._deduplicate_sources(results)[:limit]
+```
+
+### 🟡 Task 2.3: ДИНАМІЧНЕ ЦІНОУТВОРЕННЯ (1 день)
+
+**Файл:** `apps/api/app/models/pricing.py` (створити)
+```python
+class PricingConfig(Base):
+    __tablename__ = "pricing_config"
+
+    id = Column(Integer, primary_key=True)
+    price_per_page = Column(Decimal(10, 2), default=0.50)
+    currency = Column(String(3), default="EUR")
+    min_pages = Column(Integer, default=3)
+    max_pages = Column(Integer, default=200)
+    updated_at = Column(DateTime, default=func.now())
+    updated_by = Column(Integer, ForeignKey("users.id"))
+```
+
+**Файл:** `apps/api/app/services/pricing_service.py` (створити)
+```python
+class PricingService:
+    async def get_current_price(self) -> Decimal:
+        config = await self.db.query(PricingConfig).first()
+        return config.price_per_page if config else Decimal("0.50")
+
+    async def update_price(self, price: Decimal, admin_id: int):
+        config = await self.db.query(PricingConfig).first()
+        if not config:
+            config = PricingConfig()
+            self.db.add(config)
+
+        config.price_per_page = price
+        config.updated_by = admin_id
+        config.updated_at = datetime.utcnow()
+        await self.db.commit()
+```
+
+### 🟡 Task 2.4: ВАЛІДАЦІЯ МІНІМУМ 3 СТОРІНКИ (0.5 дня)
+
+**Backend валідація:**
+
+**Файл:** `apps/api/app/schemas/document.py`
+```python
+class DocumentCreate(BaseModel):
+    title: str
+    topic: str
+    language: str = "en"
+    target_pages: int = Field(ge=3, le=200)  # Мінімум 3, максимум 200
+
+    @validator('target_pages')
+    def validate_pages(cls, v):
+        if v < 3:
+            raise ValueError("Мінімум 3 сторінки для замовлення")
+        return v
+```
+
+**Frontend валідація:**
+
+**Файл:** `apps/web/components/DocumentForm.tsx`
+```typescript
+const [pages, setPages] = useState(3)  // Default 3
+
+<input
+  type="number"
+  min={3}
+  max={200}
+  value={pages}
+  onChange={(e) => {
+    const value = parseInt(e.target.value)
+    if (value < 3) {
+      toast.error('Мінімум 3 сторінки')
+      setPages(3)
+    } else if (value > 200) {
+      toast.error('Максимум 200 сторінок')
+      setPages(200)
+    } else {
+      setPages(value)
+    }
+  }}
+/>
+<p className="text-sm text-gray-500">Мінімальне замовлення: 3 сторінки (€1.50)</p>
 ```
 
 ---
 
-### ✅ Task 3.2: Load Testing
+## 📋 ФАЗА 3: ІНТЕГРАЦІЯ ТА ОПТИМІЗАЦІЯ (2-3 дні)
 
-**Промпт для розробки:**
+### 🟠 Task 3.1: ПОВНА FRONTEND-BACKEND ІНТЕГРАЦІЯ (2 дні)
+
+**Замінити всі mock дані на реальні API виклики:**
+
+**Файл:** `apps/web/components/dashboard/StatsOverview.tsx`
+```typescript
+// ЗАМІНИТИ mock дані
+useEffect(() => {
+  // Замість setTimeout з фейковими даними:
+  fetch('/api/v1/admin/stats', {
+    headers: { 'Authorization': `Bearer ${token}` }
+  })
+    .then(res => res.json())
+    .then(data => {
+      setStats({
+        totalDocuments: data.documents.total,
+        totalWords: data.documents.total_words,
+        totalCost: data.revenue.total,
+        totalTokens: data.tokens.total
+      })
+      setIsLoading(false)
+    })
+}, [])
 ```
-Створи load testing скрипти з locust в tests/load/:
 
-1. locustfile.py:
-   class UserBehavior(HttpUser):
-     wait_time = between(1, 3)
-     
-     @task(1)
-     def create_document(self):
-       self.client.post("/api/v1/documents", json={...})
-     
-     @task(3)
-     def list_documents(self):
-       self.client.get("/api/v1/documents")
-     
-     @task(2)
-     def generate_content(self):
-       self.client.post("/api/v1/generate/outline", json={...})
+**Файл:** `apps/web/components/providers/AuthProvider.tsx`
+```typescript
+// Завершити всі TODO в AuthProvider
+const checkAuth = async () => {
+  try {
+    const token = localStorage.getItem('auth_token')
+    if (!token) {
+      setIsLoading(false)
+      return
+    }
 
-2. Запуск:
-   locust -f locustfile.py --host=http://localhost:8000 --users=50 --spawn-rate=5
+    // ЗАМІНИТИ коментар на реальний виклик
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
 
-3. Метрики для моніторингу:
-   - Response time < 2s (p95)
-   - Error rate < 1%
-   - RPS > 100
+    if (response.ok) {
+      const userData = await response.json()
+      setUser(userData)
+    } else {
+      localStorage.removeItem('auth_token')
+    }
+  } catch (error) {
+    console.error('Auth check failed:', error)
+  } finally {
+    setIsLoading(false)
+  }
+}
+```
+
+### 🟠 Task 3.2: WEBSOCKET REAL-TIME ПРОГРЕС (1 день)
+
+**Файл:** `apps/api/app/services/websocket_manager.py` (створити)
+```python
+from fastapi import WebSocket
+from typing import Dict, List
+import json
+
+class ConnectionManager:
+    def __init__(self):
+        self.active_connections: Dict[int, List[WebSocket]] = {}
+
+    async def connect(self, websocket: WebSocket, user_id: int):
+        await websocket.accept()
+        if user_id not in self.active_connections:
+            self.active_connections[user_id] = []
+        self.active_connections[user_id].append(websocket)
+
+    async def disconnect(self, websocket: WebSocket, user_id: int):
+        if user_id in self.active_connections:
+            self.active_connections[user_id].remove(websocket)
+
+    async def send_progress(self, user_id: int, message: dict):
+        if user_id in self.active_connections:
+            for connection in self.active_connections[user_id]:
+                await connection.send_json(message)
+
+manager = ConnectionManager()
+```
+
+**Файл:** `apps/web/components/GenerationProgress.tsx` (створити)
+```typescript
+export function GenerationProgress({ documentId }) {
+  const [progress, setProgress] = useState({
+    percentage: 0,
+    currentSection: '',
+    estimatedTime: ''
+  })
+
+  useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8000/ws/generation/${documentId}`)
+
+    ws.onmessage = (event) => {
+      const data = JSON.parse(event.data)
+      setProgress({
+        percentage: data.progress_percentage,
+        currentSection: data.current_section,
+        estimatedTime: data.estimated_time
+      })
+    }
+
+    return () => ws.close()
+  }, [documentId])
+
+  return (
+    <div>
+      <div className="progress-bar">
+        <div
+          className="progress-fill"
+          style={{ width: `${progress.percentage}%` }}
+        />
+      </div>
+      <p>Генерується: {progress.currentSection}</p>
+      <p>Залишилось: {progress.estimatedTime}</p>
+    </div>
+  )
+}
+```
+
+### 🟠 Task 3.3: EMAIL ПОВІДОМЛЕННЯ (1 день)
+
+**Файл:** `apps/api/app/services/notification_service.py` (створити)
+```python
+class NotificationService:
+    async def notify_document_ready(self, document_id: int):
+        document = await self.db.get(Document, document_id)
+        user = await self.db.get(User, document.user_id)
+
+        # Email template
+        subject = "Ваш документ готовий! ✅"
+        body = f"""
+        Шановний {user.full_name or 'користувачу'},
+
+        Ваш документ "{document.title}" успішно згенеровано!
+
+        Деталі:
+        - Сторінок: {document.pages_generated}
+        - Мова: {document.language}
+
+        Переглянути та завантажити:
+        {settings.FRONTEND_URL}/documents/{document_id}
+
+        З повагою,
+        Команда TesiGo
+        """
+
+        await send_email(user.email, subject, body)
+
+    async def notify_generation_failed(self, document_id: int, error: str):
+        # Аналогічно для помилок
+        pass
 ```
 
 ---
 
-## 📋 ФАЗА 4: DEPLOYMENT PREPARATION (День 4)
+## 📋 ФАЗА 4: DEPLOYMENT (1-2 дні)
 
-### ✅ Task 4.1: Environment Setup
+### 🟢 Task 4.1: PRODUCTION ENVIRONMENT (1 день)
 
-**Промпт для DevOps:**
+**Створити production .env:**
+```bash
+# .env.production
+ENVIRONMENT=production
+DEBUG=false
+SECRET_KEY=[generate with: python -c 'import secrets; print(secrets.token_urlsafe(48))']
+JWT_SECRET=[generate separately]
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost/tesigo_prod
+REDIS_URL=redis://localhost:6379
+
+# AI Keys
+OPENAI_API_KEY=sk-...
+ANTHROPIC_API_KEY=sk-ant-...
+PERPLEXITY_API_KEY=pplx-...
+TAVILY_API_KEY=tvly_...
+SERPER_API_KEY=...
+
+# Stripe
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+STRIPE_PUBLISHABLE_KEY=pk_live_...
+
+# Domains
+FRONTEND_URL=https://tesigo.com
+BACKEND_URL=https://api.tesigo.com
+CORS_ALLOWED_ORIGINS=https://tesigo.com,https://www.tesigo.com
 ```
-Підготуй production environment:
 
-1. Створи .env.production:
-   ENVIRONMENT=production
-   DEBUG=false
-   SECRET_KEY=[generated 32+ chars]
-   JWT_SECRET=[generated 32+ chars]
-   DATABASE_URL=postgresql+asyncpg://...
-   REDIS_URL=redis://...
-   OPENAI_API_KEY=sk-...
-   STRIPE_SECRET_KEY=sk_live_...
-   STRIPE_WEBHOOK_SECRET=whsec_...
+**SSL сертифікат:**
+```bash
+# Install certbot
+sudo apt install certbot python3-certbot-nginx
 
-2. Налаштуй Docker:
-   docker-compose -f docker-compose.prod.yml build
-   docker-compose -f docker-compose.prod.yml up -d
+# Get certificate
+sudo certbot --nginx -d tesigo.com -d www.tesigo.com -d api.tesigo.com
+```
 
-3. SSL сертифікати:
-   certbot --nginx -d tesigo.com -d www.tesigo.com
+**Docker production:**
+```bash
+# Build
+docker-compose -f docker-compose.prod.yml build
 
-4. Nginx конфігурація для reverse proxy
+# Run
+docker-compose -f docker-compose.prod.yml up -d
 
-5. Systemd service для auto-restart
+# Migrations
+docker exec tesigo-api alembic upgrade head
+```
+
+### 🟢 Task 4.2: MONITORING (0.5 дня)
+
+**Prometheus + Grafana:**
+```yaml
+# docker-compose.monitoring.yml
+version: '3.8'
+services:
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
 ```
 
 ---
 
-## 📊 МЕТРИКИ УСПІХУ
+## 📊 ЧЕКЛИСТ ГОТОВНОСТІ
 
-### MVP Ready Checklist:
-- [ ] Всі 4 security issues виправлені
-- [ ] Background jobs працюють
-- [ ] Retry механізми активні
-- [ ] Cost control впроваджений
-- [ ] Auto-save функціонує
-- [ ] 50%+ test coverage
-- [ ] Load test пройдений (50 users)
+### ✅ Вже готово:
+- [x] Security (IDOR, JWT, File validation)
+- [x] Background jobs
+- [x] Retry mechanisms
+- [x] Token tracking
+- [x] Integration tests
+- [x] GDPR service (базовий)
 
-### Production Ready Checklist:
-- [ ] SSL налаштований
-- [ ] Monitoring активний (Prometheus + Grafana)
-- [ ] Backup автоматизований
-- [ ] Logs централізовані
-- [ ] Alerts налаштовані
-- [ ] Documentation оновлена
-- [ ] 80%+ test coverage
+### ❌ Критичні блокери (must have):
+- [ ] **Адмін-панель** - без неї неможливо керувати
+- [ ] **Система повернень** - EU compliance вимога
+- [ ] **Платіжна форма** - без неї немає монетизації
+
+### 🟡 Важливо (should have):
+- [ ] Уніфікація AI генерації
+- [ ] Інтеграція всіх Search APIs
+- [ ] Динамічне ціноутворення
+- [ ] Валідація 3 сторінок
+- [ ] WebSocket real-time
+- [ ] Email повідомлення
+
+### 🟢 Nice to have:
+- [ ] 80% test coverage
+- [ ] Monitoring dashboards
+- [ ] Auto-scaling
 
 ---
 
-## 📊 ПІДСУМОК ОНОВЛЕНИЙ
+## ⏱️ TIMELINE
 
-**Загальний час:** ~4-5 днів (40-48 годин)
+**Загальний час до production: 7-10 днів**
 
-**Оновлені компоненти:**
-- ✅ **WebSocket** для real-time прогресу
-- ✅ **Smart Queue** з пріоритетами (малі документи першими)
-- ✅ **Auto-scaling workers** (2-10 воркерів)
-- ✅ **Circuit Breaker** pattern для надійності
-- ✅ **ContextVar** для ізоляції контекстів
-- ✅ **Детальні Checkpoints** (Redis + DB backup)
-- ✅ **GDPR Consent** при реєстрації
-- ❌ ~~Price quotes~~ (відхилено - не потрібно)
+- **Дні 1-3:** Критичні блокери (адмін-панель, повернення, платежі)
+- **Дні 4-6:** Важливі компоненти (AI, ціни, інтеграція)
+- **Дні 7-8:** Оптимізація та тестування
+- **Дні 9-10:** Deployment та monitoring
 
-## 🚀 КОМАНДИ ДЛЯ ШВИДКОГО СТАРТУ
+---
+
+## 🚀 КОМАНДИ ДЛЯ СТАРТУ
 
 ```bash
-# День 1 - Security
-./scripts/fix-security.sh
+# Міграції для refund_requests
+cd apps/api
+alembic revision --autogenerate -m "Add refund requests"
+alembic upgrade head
 
-# День 2-3 - Features + нові компоненти
-pytest tests/ -v --cov=app --cov-report=html
+# Запуск з адмін-панеллю
+cd apps/web
+npm run dev
 
-# День 3-4 - Testing
-locust -f tests/load/locustfile.py --host=http://localhost:8000
+# Backend
+cd apps/api
+uvicorn main:app --reload
 
-# День 4-5 - Deploy
-docker-compose -f docker-compose.prod.yml up -d
+# Тестування
+pytest tests/ -v --cov=app
 ```
 
 ---
 
-## 📝 ШАБЛОНИ ПРОМПТІВ
-
-### Для розробника:
-```
-Задача: [назва]
-Файл: [шлях]
-Вимоги:
-1. [вимога 1]
-2. [вимога 2]
-Приклад коду: [якщо є]
-Тести: обов'язково додати unit тести
-```
-
-### Для QA:
-```
-Тестувати: [функціональність]
-Сценарії:
-1. Позитивний: [опис]
-2. Негативний: [опис]
-3. Edge cases: [опис]
-Очікуваний результат: [опис]
-Написати тести в: [файл]
-```
-
----
-
-**Документ створено:** 2025-11-02  
-**Готовий до виконання!**
+**Документ оновлено:** 2025-11-03
+**Статус:** Готовий до виконання
+**Пріоритет:** КРИТИЧНІ компоненти першими!

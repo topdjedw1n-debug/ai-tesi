@@ -15,7 +15,10 @@ from app.core.config import settings
 from app.core.exceptions import AIProviderError, NotFoundError
 from app.models.auth import User
 from app.models.document import Document, DocumentOutline, DocumentSection
+from app.services.ai_pipeline.citation_formatter import CitationStyle
+from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
+from app.services.cost_estimator import CostEstimator
 from app.services.retry_strategy import RetryStrategy
 
 logger = logging.getLogger(__name__)
@@ -28,7 +31,9 @@ class AIService:
         self.db = db
         # Initialize circuit breakers for each provider
         self._openai_circuit = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
-        self._anthropic_circuit = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
+        self._anthropic_circuit = CircuitBreaker(
+            failure_threshold=5, recovery_timeout=60
+        )
         # Initialize retry strategies with circuit breakers
         self._openai_retry = RetryStrategy(
             max_retries=3, delays=[2, 4, 8], circuit_breaker=self._openai_circuit
@@ -41,11 +46,11 @@ class AIService:
         """Check if daily token limit is exceeded (optional)"""
         if settings.DAILY_TOKEN_LIMIT is None:
             return  # Daily limit disabled
-        
+
         try:
             # Get start of today
             today_start = datetime.combine(date.today(), datetime.min.time())
-            
+
             # Calculate total tokens used today
             today_tokens_result = await self.db.execute(
                 select(func.sum(Document.tokens_used)).where(
@@ -53,7 +58,7 @@ class AIService:
                 )
             )
             today_tokens = today_tokens_result.scalar() or 0
-            
+
             if today_tokens >= settings.DAILY_TOKEN_LIMIT:
                 logger.warning(
                     f"Daily token limit exceeded: {today_tokens}/{settings.DAILY_TOKEN_LIMIT}"
@@ -108,7 +113,7 @@ class AIService:
 
             # Get tokens used from response
             tokens_used = outline_data.get("tokens_used", 0)
-            
+
             # Update document status
             await self.db.execute(
                 update(Document)
@@ -123,7 +128,7 @@ class AIService:
             )
 
             await self.db.commit()
-            
+
             # Log token usage for monitoring
             logger.info(
                 f"AI usage: doc={document_id}, model={document.ai_model}, "
@@ -144,6 +149,50 @@ class AIService:
             logger.error(f"Error generating outline: {e}")
             raise AIProviderError(f"Failed to generate outline: {str(e)}") from e
 
+    async def estimate_generation_cost(
+        self,
+        document_id: int,
+        user_id: int,
+        include_humanization: bool = False,
+    ) -> dict[str, Any]:
+        """
+        Estimate cost for generating a document before starting
+
+        Args:
+            document_id: Document ID
+            user_id: User ID
+            include_humanization: Whether humanization will be used
+
+        Returns:
+            Cost estimation dictionary
+        """
+        try:
+            # Get document
+            result = await self.db.execute(
+                select(Document).where(
+                    Document.id == document_id, Document.user_id == user_id
+                )
+            )
+            document = result.scalar_one_or_none()
+
+            if not document:
+                raise NotFoundError("Document not found")
+
+            # Estimate cost
+            cost_estimate = CostEstimator.estimate_document_cost(
+                provider=document.ai_provider,
+                model=document.ai_model,
+                target_pages=document.target_pages,
+                include_rag=True,  # Always enabled now
+                include_humanization=include_humanization,
+            )
+
+            return cost_estimate
+
+        except Exception as e:
+            logger.error(f"Error estimating cost: {e}")
+            raise AIProviderError(f"Failed to estimate cost: {str(e)}") from e
+
     async def generate_section(
         self,
         document_id: int,
@@ -152,7 +201,7 @@ class AIService:
         user_id: int,
         additional_requirements: str | None = None,
     ) -> dict[str, Any]:
-        """Generate a specific section using AI"""
+        """Generate a specific section using AI with RAG"""
         try:
             # Get document
             result = await self.db.execute(
@@ -168,17 +217,45 @@ class AIService:
             # Check daily token limit (optional)
             await self._check_daily_token_limit()
 
-            # Generate section content using AI
+            # Use SectionGenerator for RAG-enhanced generation
             start_time = time.time()
-            section_content = await self._call_ai_provider(
+            section_generator = SectionGenerator()
+
+            # Get previously generated sections for context
+            context_result = await self.db.execute(
+                select(DocumentSection)
+                .where(DocumentSection.document_id == document_id)
+                .where(DocumentSection.section_index < section_index)
+                .order_by(DocumentSection.section_index)
+            )
+            context_sections = []
+            for prev_section in context_result.scalars().all():
+                context_sections.append(
+                    {
+                        "title": prev_section.title,
+                        "content": prev_section.content or "",
+                    }
+                )
+
+            # Generate section with RAG
+            section_result = await section_generator.generate_section(
+                document=document,
+                section_title=section_title,
+                section_index=section_index,
                 provider=document.ai_provider,
                 model=document.ai_model,
-                prompt=self._build_section_prompt(
-                    document, section_title, section_index, additional_requirements
-                ),
+                citation_style=CitationStyle.APA,  # Default to APA
+                humanize=False,  # Can be made configurable later
+                context_sections=context_sections if context_sections else None,
+                additional_requirements=additional_requirements,
             )
 
             generation_time = int(time.time() - start_time)
+
+            # Estimate tokens used (approximate: ~4 chars per token)
+            # This is a rough estimate since SectionGenerator doesn't return token count
+            content_length = len(section_result.get("content", ""))
+            estimated_tokens = max(content_length // 4, 100)  # Minimum 100 tokens
 
             # Save or update section
             result = await self.db.execute(
@@ -189,10 +266,11 @@ class AIService:
             )
             section = result.scalar_one_or_none()
 
+            content = section_result.get("content", "")
             if section:
-                section.content = section_content.get("content", "")
+                section.content = content
                 section.status = "completed"
-                section.tokens_used = section_content.get("tokens_used", 0)
+                section.tokens_used = estimated_tokens
                 section.generation_time_seconds = generation_time
                 section.completed_at = datetime.utcnow()
             else:
@@ -200,45 +278,45 @@ class AIService:
                     document_id=document_id,
                     title=section_title,
                     section_index=section_index,
-                    content=section_content.get("content", ""),
+                    content=content,
                     status="completed",
-                    tokens_used=section_content.get("tokens_used", 0),
+                    tokens_used=estimated_tokens,
                     generation_time_seconds=generation_time,
                     completed_at=datetime.utcnow(),
                 )
                 self.db.add(section)
 
-            # Get tokens used from response
-            tokens_used = section_content.get("tokens_used", 0)
-            
             # Update document tokens and time
             await self.db.execute(
                 update(Document)
                 .where(Document.id == document_id)
                 .values(
-                    tokens_used=Document.tokens_used + tokens_used,
+                    tokens_used=Document.tokens_used + estimated_tokens,
                     generation_time_seconds=Document.generation_time_seconds
                     + generation_time,
                 )
             )
 
             await self.db.commit()
-            
+
             # Log token usage for monitoring
             logger.info(
                 f"AI usage: doc={document_id}, model={document.ai_model}, "
-                f"provider={document.ai_provider}, tokens={tokens_used}, "
-                f"type=section, section_index={section_index}"
+                f"provider={document.ai_provider}, tokens={estimated_tokens}, "
+                f"type=section, section_index={section_index}, sources={section_result.get('sources_used', 0)}"
             )
 
             return {
                 "document_id": document_id,
                 "section_title": section_title,
                 "section_index": section_index,
-                "content": section_content.get("content", ""),
+                "content": content,
                 "status": "completed",
-                "tokens_used": section_content.get("tokens_used", 0),
+                "tokens_used": estimated_tokens,
                 "generation_time_seconds": generation_time,
+                "citations": section_result.get("citations", []),
+                "bibliography": section_result.get("bibliography", []),
+                "sources_used": section_result.get("sources_used", 0),
             }
 
         except Exception as e:
@@ -284,6 +362,7 @@ class AIService:
 
     async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
         """Call OpenAI API with circuit breaker and retry"""
+
         async def _make_request():
             import openai
 
@@ -309,12 +388,13 @@ class AIService:
             tokens_used = response.usage.total_tokens if response.usage else 0
 
             return {"content": content, "tokens_used": tokens_used}
-        
+
         # Call with retry strategy and circuit breaker
         return await self._openai_retry.execute_with_retry(_make_request)
 
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
+
         async def _make_request():
             import anthropic
 
@@ -335,7 +415,7 @@ class AIService:
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
             return {"content": content, "tokens_used": tokens_used}
-        
+
         # Call with retry strategy and circuit breaker
         return await self._anthropic_retry.execute_with_retry(_make_request)
 
@@ -368,36 +448,5 @@ For each section, include:
 Additional Requirements: {additional_requirements or 'None specified'}
 
 Please respond with a JSON structure containing the outline data.
-"""
-        return prompt.strip()
-
-    def _build_section_prompt(
-        self,
-        document: Document,
-        section_title: str,
-        section_index: int,
-        additional_requirements: str | None = None,
-    ) -> str:
-        """Build prompt for section generation"""
-        prompt = f"""
-Write a comprehensive academic section for a thesis with the following details:
-
-Document Topic: {document.topic}
-Section Title: {section_title}
-Section Index: {section_index}
-Language: {document.language}
-Target Pages: {document.target_pages}
-
-Please write this section with:
-- Academic tone and style
-- Proper structure and flow
-- Evidence-based arguments
-- Appropriate citations (use [Author, Year] format)
-- Clear transitions between paragraphs
-- Professional language suitable for academic publication
-
-Additional Requirements: {additional_requirements or 'None specified'}
-
-Please provide only the section content without any meta-commentary.
 """
         return prompt.strip()
