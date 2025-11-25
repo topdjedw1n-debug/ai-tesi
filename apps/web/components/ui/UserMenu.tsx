@@ -4,11 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Button } from './Button'
-import { 
-  UserCircleIcon, 
-  Cog6ToothIcon, 
+import {
+  UserCircleIcon,
+  Cog6ToothIcon,
   ArrowRightOnRectangleIcon,
-  ChevronDownIcon 
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
 
 interface UserMenuProps {
@@ -53,7 +53,7 @@ export function UserMenu({ user }: UserMenuProps) {
                 {user.is_verified ? 'Verified' : 'Unverified'}
               </p>
             </div>
-            
+
             <Link
               href="/dashboard"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -62,7 +62,7 @@ export function UserMenu({ user }: UserMenuProps) {
               <UserCircleIcon className="mr-3 h-4 w-4" />
               Dashboard
             </Link>
-            
+
             <Link
               href="/dashboard/profile"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -71,7 +71,7 @@ export function UserMenu({ user }: UserMenuProps) {
               <UserCircleIcon className="mr-3 h-4 w-4" />
               Профіль
             </Link>
-            
+
             <Link
               href="/dashboard/settings"
               className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
@@ -80,7 +80,7 @@ export function UserMenu({ user }: UserMenuProps) {
               <Cog6ToothIcon className="mr-3 h-4 w-4" />
               Налаштування
             </Link>
-            
+
             <button
               onClick={handleLogout}
               className="flex w-full items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"

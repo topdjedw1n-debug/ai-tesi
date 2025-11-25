@@ -1,0 +1,51 @@
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        files: ^apps/api/.*\.py$
+        language_version: python3.11
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.8
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+        files: ^apps/api/.*\.py$
+      - id: ruff-format
+        files: ^apps/api/.*\.py$
+
+  - repo: local
+    hooks:
+      - id: mypy
+        name: mypy type checking (incremental)
+        entry: bash -c 'cd apps/api && source ../../qa_venv/bin/activate && python -m mypy app/ --config-file mypy.ini --incremental'
+        language: system
+        types: [python]
+        files: ^apps/api/.*\.py$
+        pass_filenames: true
+        always_run: false
+        verbose: true
+        # Uses system Python from venv (mypy already installed in qa_venv)
+
+  - repo: local
+    hooks:
+      - id: pytest
+        name: pytest - quick check
+        entry: bash -c 'cd apps/api && source ../../qa_venv/bin/activate && pytest tests/ -q --maxfail=3'
+        language: system
+        types: [python]
+        files: ^apps/api/.*\.py$
+        pass_filenames: false
+        always_run: true
+        verbose: true

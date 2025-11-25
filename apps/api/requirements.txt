@@ -6,6 +6,7 @@ python-multipart==0.0.6
 # Database
 sqlalchemy[asyncio]==2.0.23
 asyncpg==0.29.0
+aiosqlite==0.19.0
 alembic==1.12.1
 
 # Authentication & Security
@@ -17,16 +18,21 @@ python-magic==0.4.27
 openai==1.3.7
 anthropic==0.7.8
 
+# Payment
+stripe==10.12.0
+
 # HTTP Client
 httpx==0.25.2
 
 # Configuration
+pydantic>=2.0.1,<3.0.0
 pydantic-settings==2.0.3
 
 # File Processing
 python-docx==1.1.0
 weasyprint==60.2
 reportlab==4.0.7
+pypdf==3.17.4
 
 # Storage
 minio==7.2.0
@@ -47,8 +53,21 @@ loguru==0.7.2
 
 # Monitoring
 sentry-sdk[fastapi]==1.38.0
+prometheus-fastapi-instrumentator==6.1.0
+
+# Security & Vulnerability Scanning
+safety>=3.2.0
 
 # Development
 pytest==7.4.3
 pytest-asyncio==0.21.1
-httpx==0.25.2
+pytest-cov==4.1.0
+black==23.12.1
+isort==5.13.2
+ruff>=0.14.0
+pre-commit==3.6.0
+
+# Testing dependencies
+faker>=20.0.0  # For generating test data
+psutil>=5.9.0  # For memory monitoring in performance tests
+locust>=2.17.0  # For load testing

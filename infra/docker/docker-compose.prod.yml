@@ -64,6 +64,8 @@ services:
       - MINIO_BUCKET=${MINIO_BUCKET}
       - MINIO_SECURE=${MINIO_SECURE}
       - SECRET_KEY=${SECRET_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     ports:
       - "8000:8000"
     depends_on:

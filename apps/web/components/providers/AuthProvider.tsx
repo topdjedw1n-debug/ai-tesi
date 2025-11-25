@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { apiClient, API_ENDPOINTS, setTokens, clearTokens, getAccessToken } from '@/lib/api'
 
 interface User {
   id: number
@@ -43,22 +44,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const checkAuth = async () => {
     try {
-      const token = localStorage.getItem('auth_token')
+      const token = getAccessToken()
       if (!token) {
         setIsLoading(false)
         return
       }
 
-      // TODO: Verify token with backend
-      // For now, just check if token exists
-      const userData = localStorage.getItem('user_data')
-      if (userData) {
-        setUser(JSON.parse(userData))
+      // Verify token with backend
+      try {
+        const userData = await apiClient.get(API_ENDPOINTS.AUTH.ME)
+        setUser(userData)
+
+        // Update user data in localStorage
+        localStorage.setItem('user_data', JSON.stringify(userData))
+      } catch (error) {
+        // Token is invalid, clear storage
+        clearTokens()
+        setUser(null)
       }
     } catch (error) {
       console.error('Auth check failed:', error)
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user_data')
+      clearTokens()
+      setUser(null)
     } finally {
       setIsLoading(false)
     }
@@ -67,20 +74,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const login = async (email: string) => {
     try {
       setIsLoading(true)
-      
-      // TODO: Call backend API to send magic link
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/magic-link`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      })
 
-      if (!response.ok) {
-        throw new Error('Failed to send magic link')
-      }
-
+      await apiClient.post(API_ENDPOINTS.AUTH.MAGIC_LINK, { email })
       toast.success('Magic link sent to your email!')
     } catch (error) {
       console.error('Login failed:', error)
@@ -94,30 +89,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const verifyMagicLink = async (token: string): Promise<boolean> => {
     try {
       setIsLoading(true)
-      
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/verify-magic-link`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ token }),
-      })
 
-      if (!response.ok) {
-        throw new Error('Invalid or expired magic link')
-      }
+      const data = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_MAGIC_LINK, { token })
 
-      const data = await response.json()
-      
-      if (data.success) {
-        localStorage.setItem('auth_token', data.token)
+      // Backend returns access_token and refresh_token
+      if (data.access_token && data.refresh_token && data.user) {
+        setTokens(data.access_token, data.refresh_token)
         localStorage.setItem('user_data', JSON.stringify(data.user))
         setUser(data.user)
         toast.success('Successfully signed in!')
         router.push('/dashboard')
         return true
       }
-      
+
       return false
     } catch (error) {
       console.error('Magic link verification failed:', error)
@@ -130,14 +114,23 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = async () => {
     try {
-      // TODO: Call backend API to invalidate session
-      localStorage.removeItem('auth_token')
-      localStorage.removeItem('user_data')
+      // Token will be added automatically by apiRequest
+      try {
+        await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT)
+      } catch (error) {
+        // Continue with logout even if API call fails (token might already be expired)
+        console.error('Logout API call failed:', error)
+      }
+
+      clearTokens()
       setUser(null)
       toast.success('Successfully signed out!')
       router.push('/')
     } catch (error) {
       console.error('Logout failed:', error)
+      // Clear tokens anyway
+      clearTokens()
+      setUser(null)
       toast.error('Failed to sign out')
     }
   }

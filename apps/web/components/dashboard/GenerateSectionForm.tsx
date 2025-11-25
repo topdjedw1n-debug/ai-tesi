@@ -6,14 +6,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { apiClient, API_ENDPOINTS } from '@/lib/api'
 import toast from 'react-hot-toast'
 
 const generateSectionSchema = z.object({
   topic: z.string().min(1, 'Topic is required').max(500, 'Topic must be less than 500 characters'),
   language: z.string().min(2, 'Language is required'),
-  pages: z.number().min(1, 'Must be at least 1 page').max(100, 'Must be less than 100 pages'),
+  pages: z.number().min(3, 'Must be at least 3 pages').max(100, 'Must be less than 100 pages'), // CRITICAL: Minimum 3 pages
   additionalRequirements: z.string().optional(),
-  aiProvider: z.enum(['openai', 'anthropic']).default('openai'),
+  aiProvider: z.enum(['openai', 'anthropic']),
   aiModel: z.string().min(1, 'AI model is required'),
 })
 
@@ -72,38 +73,28 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
 
   const onSubmit = async (data: GenerateSectionFormData) => {
     setIsGenerating(true)
-    
+
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch('/api/v1/generate/outline', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          // TODO: Add authentication header
-        },
-        body: JSON.stringify({
+      const result = await apiClient.post(
+        API_ENDPOINTS.GENERATE.OUTLINE,
+        {
           topic: data.topic,
           language: data.language,
           target_pages: data.pages,
           additional_requirements: data.additionalRequirements,
           ai_provider: data.aiProvider,
           ai_model: data.aiModel,
-        }),
-      })
+        }
+      )
 
-      if (!response.ok) {
-        throw new Error('Failed to generate outline')
-      }
-
-      const result = await response.json()
       toast.success('Document outline generated successfully!')
-      
+
       if (onSuccess) {
         onSuccess(result.document_id)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating outline:', error)
-      toast.error('Failed to generate outline. Please try again.')
+      toast.error(error.message || 'Failed to generate outline. Please try again.')
     } finally {
       setIsGenerating(false)
     }
@@ -256,5 +247,3 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
     </div>
   )
 }
-
-

@@ -1,0 +1,189 @@
+# AI Assistant Instructions for TesiGo Project
+
+## 🎯 Primary Directive
+You are working on TesiGo - an AI-powered academic paper generation platform. Focus on shipping working code, not perfect code.
+
+## 📚 Documentation Hierarchy
+1. **FIRST:** Read `/docs/MASTER_DOCUMENT.md` - contains ALL technical truth
+2. **SECOND:** Check `/docs/DECISIONS_LOG.md` - for architectural decisions  
+3. **THIRD:** Use `/docs/QUICK_START.md` - for setup instructions
+4. **IGNORE:** Everything in `/docs/archive/` and `/reports/` - outdated
+
+## ⚙️ Technical Constraints
+
+### Required Versions
+- Python: 3.11+ (STRICT - use 3.11, not 3.12+)
+- Node.js: 18+
+- PostgreSQL: 15
+- Redis: 7
+
+### Technology Stack
+- Backend: FastAPI (not Django!)
+- Frontend: Next.js 14 with App Router
+- Database: PostgreSQL with SQLAlchemy
+- Cache: Redis
+- Storage: MinIO
+- AI: OpenAI and Anthropic ONLY
+
+### Business Rules
+- Payment model: Pay-per-page (€0.50/page)
+- Currency: EUR only
+- Max document: 200 pages
+- Languages: EN, DE, FR, ES, IT, CS (primary markets)
+- Search APIs: Perplexity, Tavily, Serper, Semantic Scholar (for RAG)
+- No subscriptions, only per-page payment
+
+## ✅ DO
+
+### AI Fine-tuning (Planned)
+- Collect high-quality documents (4+ stars)
+- Monthly retraining when 100+ documents available
+- Test on 10% traffic before full deployment
+- Track improvement metrics
+
+### Code Style
+```python
+# Always use type hints
+async def generate_document(
+    user_id: int,
+    pages: int,
+    model: str = "gpt-4"
+) -> Document:
+    pass
+
+# Always use async for I/O
+async with aiohttp.ClientSession() as session:
+    response = await session.post(url, json=data)
+
+# Always validate with Pydantic
+class DocumentCreate(BaseModel):
+    title: str = Field(..., min_length=1, max_length=500)
+    pages: int = Field(..., ge=1, le=200)
+```
+
+### Error Handling
+- Return proper HTTP status codes
+- Include error codes for support
+- Log with correlation IDs
+- Never expose internal details
+
+### Security
+- Check document ownership on EVERY endpoint
+- Validate file magic bytes, not just extensions
+- Use parameterized queries (no f-strings in SQL!)
+- Sanitize all user input
+
+## ❌ DON'T
+
+### Features NOT to implement
+- Live preview during generation
+- Cancel generation functionality  
+- Self-hosted AI models (for now)
+- Alternative AI providers beyond OpenAI/Anthropic
+- Multi-currency
+- Subscription model
+- Social features
+- Blockchain/crypto
+
+### Code Anti-patterns
+```python
+# DON'T: Sync code in async context
+def sync_function():  # BAD in FastAPI
+    pass
+
+# DON'T: Raw SQL with f-strings
+query = f"SELECT * FROM users WHERE id = {user_id}"  # SQL INJECTION!
+
+# DON'T: Store sensitive data in code
+API_KEY = "sk-1234567890"  # Use environment variables!
+
+# DON'T: Ignore type hints
+def process(data):  # Missing types!
+    pass
+```
+
+## 🔧 Common Tasks
+
+### Add New Endpoint
+1. Define Pydantic schemas in `app/schemas/`
+2. Add endpoint to `app/api/v1/endpoints/`
+3. Add service logic to `app/services/`
+4. Update MASTER_DOCUMENT.md Section 4
+
+### Fix Security Issue
+1. Check MASTER_DOCUMENT.md Section 6.2 for critical fixes
+2. Implement ownership checks for IDOR
+3. Validate magic bytes for files
+4. Add to DECISIONS_LOG.md
+
+### Debug Production Issue
+1. Check correlation ID in logs
+2. Look for error code in MASTER_DOCUMENT.md Section 9
+3. Check monitoring dashboards
+4. Review recent deployments
+
+## 🚀 Deployment
+
+### Local Development
+```bash
+cd infra/docker && docker-compose up -d
+cd apps/api && uvicorn main:app --reload
+cd apps/web && npm run dev
+```
+
+### Production
+- Use docker-compose.prod.yml
+- Set ENVIRONMENT=production
+- Ensure all secrets are strong (32+ chars)
+- Run health checks before traffic
+
+## 📋 Critical TODOs (Before Launch)
+
+From MASTER_DOCUMENT.md Section 6.2:
+1. **IDOR Protection** - Add ownership checks (2 hours)
+2. **JWT Hardening** - Strong keys + expiration (30 min)
+3. **File Validation** - Magic bytes check (2 hours)  
+4. **Backup Script** - Basic 3-2-1 backup (1 hour)
+
+## 🎨 UI/UX Guidelines
+
+- Simple and clean design
+- Mobile responsive
+- Show progress for long operations
+- User-friendly error messages
+- Auto-save every 30 seconds
+- NO live preview, NO cancel button
+
+## 📝 Documentation Updates
+
+When changing code:
+1. Update MASTER_DOCUMENT.md if it affects API/setup
+2. Add decision to DECISIONS_LOG.md if architectural
+3. Don't create new documentation files
+4. Don't update files in /archive or /reports
+
+## 💡 Philosophy
+
+- **Ship fast, iterate later**
+- **Working > Perfect**
+- **Simple > Complex**
+- **Explicit > Implicit**
+- **Security is not optional**
+- **User data is sacred**
+
+## 🚫 Final Warnings
+
+1. **NEVER** implement features marked as "DON'T" above
+2. **NEVER** use Python 3.12+ (breaks dependencies)
+3. **NEVER** commit secrets to git
+4. **NEVER** skip ownership checks on user data
+5. **NEVER** trust user input without validation
+6. **ALWAYS** check DECISIONS_LOG.md before adding complexity
+
+---
+
+**When in doubt:**
+1. Check MASTER_DOCUMENT.md
+2. Follow existing patterns in codebase
+3. Choose simple solution over clever one
+4. Ask for clarification rather than assume

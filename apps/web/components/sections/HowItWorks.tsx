@@ -42,7 +42,7 @@ export function HowItWorks() {
             From idea to finished thesis in 4 simple steps
           </p>
           <p className="mt-6 text-lg leading-8 text-gray-600">
-            Our streamlined process makes thesis writing efficient and stress-free. 
+            Our streamlined process makes thesis writing efficient and stress-free.
             Get professional results in a fraction of the time.
           </p>
         </div>

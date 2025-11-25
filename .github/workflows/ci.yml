@@ -1,0 +1,267 @@
+name: CI Quality Gates
+
+on:
+  pull_request:
+    branches: [main, develop]
+  push:
+    branches: [main, develop]
+
+jobs:
+  python-version-gate:
+    name: Python Version Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Check Python version
+        run: |
+          python --version
+          python -c "import sys; assert sys.version_info >= (3, 11), f'Python 3.11+ required, got {sys.version}'"
+
+      - name: Verify pyproject.toml
+        run: |
+          cd apps/api
+          python -c "import tomllib; data = tomllib.load(open('pyproject.toml', 'rb')); assert data['project']['requires-python'] >= '>=3.11'"
+
+  ruff-check:
+    name: Ruff Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff
+        run: |
+          cd apps/api
+          ruff check . --output-format=github
+        continue-on-error: false
+
+      - name: Upload Ruff report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ruff-report
+          path: apps/api/.ruff_cache
+
+  mypy-check:
+    name: MyPy Type Checking
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install mypy
+
+      - name: Run MyPy
+        run: |
+          cd apps/api
+          mypy app/ --config-file mypy.ini --show-error-codes --show-error-context 2>&1 | tee mypy-report.txt
+        continue-on-error: true
+
+      - name: Upload MyPy report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: mypy-report
+          path: apps/api/mypy-report.txt
+
+      - name: Check MyPy errors (progressive threshold)
+        run: |
+          cd apps/api
+          CURRENT_ERRORS=$(mypy app/ --config-file mypy.ini 2>&1 | grep -c "error:" || echo "0")
+          BASELINE_ERRORS=151  # Actual baseline when CI was added (2025-11-02)
+          TARGET_ERRORS=50
+
+          echo "MyPy errors found: $CURRENT_ERRORS"
+          echo "Baseline (when CI was added): $BASELINE_ERRORS"
+          echo "Target: ≤$TARGET_ERRORS"
+
+          # Progressive: errors must decrease over time, not increase from baseline
+          if [ "$CURRENT_ERRORS" -gt "$BASELINE_ERRORS" ]; then
+            echo "❌ MyPy errors increased from baseline ($BASELINE_ERRORS → $CURRENT_ERRORS)"
+            echo "Please fix errors before adding new code."
+            exit 1
+          elif [ "$CURRENT_ERRORS" -gt "$TARGET_ERRORS" ]; then
+            echo "⚠️  MyPy errors: $CURRENT_ERRORS (target: ≤$TARGET_ERRORS)"
+            echo "Progress: $((BASELINE_ERRORS - CURRENT_ERRORS)) errors fixed since baseline"
+            echo "✅ Errors decreasing, but continue improving toward target"
+          else
+            echo "✅ MyPy errors: $CURRENT_ERRORS (within target ≤$TARGET_ERRORS)"
+          fi
+        continue-on-error: false
+
+  pytest-tests:
+    name: Pytest Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-asyncio pytest-cov
+
+      - name: Run tests
+        run: |
+          cd apps/api
+          pytest tests/ -v --tb=short
+        continue-on-error: false
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-report
+          path: apps/api/.pytest_cache
+
+  coverage-check:
+    name: Coverage Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd apps/api
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest pytest-cov coverage
+
+      - name: Run tests with coverage
+        run: |
+          cd apps/api
+          pytest tests/ --cov=app --cov-report=xml --cov-report=term --cov-report=html
+        continue-on-error: false
+
+      - name: Check coverage threshold (global)
+        run: |
+          cd apps/api
+          coverage report --fail-under=70
+        continue-on-error: false
+
+      - name: Check critical modules coverage
+        run: |
+          cd apps/api
+          echo "Checking critical modules coverage..."
+
+          # Check admin_service (currently 25%, target 60% minimum)
+          ADMIN_COV=$(coverage report --include="app/services/admin_service.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
+          if (( $(echo "$ADMIN_COV < 60" | bc -l) )); then
+            echo "⚠️  admin_service.py coverage: ${ADMIN_COV}% (target: ≥60%)"
+          else
+            echo "✅ admin_service.py coverage: ${ADMIN_COV}%"
+          fi
+
+          # Check humanizer (currently 20%, target 60% minimum)
+          HUMANIZER_COV=$(coverage report --include="app/services/ai_pipeline/humanizer.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
+          if (( $(echo "$HUMANIZER_COV < 60" | bc -l) )); then
+            echo "⚠️  humanizer.py coverage: ${HUMANIZER_COV}% (target: ≥60%)"
+          else
+            echo "✅ humanizer.py coverage: ${HUMANIZER_COV}%"
+          fi
+
+          # Check background_jobs (currently 20%, target 60% minimum)
+          JOBS_COV=$(coverage report --include="app/services/background_jobs.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
+          if (( $(echo "$JOBS_COV < 60" | bc -l) )); then
+            echo "⚠️  background_jobs.py coverage: ${JOBS_COV}% (target: ≥60%)"
+          else
+            echo "✅ background_jobs.py coverage: ${JOBS_COV}%"
+          fi
+
+          echo ""
+          echo "Note: Module coverage warnings don't block merge, but should be improved."
+        continue-on-error: true
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./apps/api/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+      - name: Upload HTML coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html
+          path: apps/api/htmlcov
+
+  runtime-smoke-test:
+    name: Runtime Health Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Compose
+        run: |
+          docker-compose --version
+
+      - name: Start services
+        run: |
+          cd infra/docker
+          docker-compose up -d postgres redis minio
+          sleep 10
+
+      - name: Check /health endpoint
+        run: |
+          cd apps/api
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          uvicorn main:app --host 0.0.0.0 --port 8000 &
+          sleep 5
+          curl -f http://localhost:8000/health || exit 1
+
+      - name: Upload logs
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: runtime-logs
+          path: apps/api/logs
+
+  node-version-gate:
+    name: Node.js Version Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check .nvmrc exists
+        run: |
+          if [ -f "apps/web/.nvmrc" ]; then
+            echo "✅ .nvmrc found"
+            cat apps/web/.nvmrc
+          else
+            echo "⚠️ .nvmrc not found"
+          fi

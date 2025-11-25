@@ -82,3 +82,17 @@ logs
 # Temporary files
 *.tmp
 *.temp
+
+# Python testing & coverage
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+htmlcov/
+coverage.xml
+*.coverage
+
+# Additional virtual environments
+qa_venv/
+
+# API Keys (не комітити!)
+docs/AI_API_KEYS.md
