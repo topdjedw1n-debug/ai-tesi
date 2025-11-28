@@ -29,7 +29,7 @@ async def test_create_document_success(db_session):
         language="en",
         target_pages=15,
         ai_provider="openai",
-        ai_model="gpt-4"
+        ai_model="gpt-4",
     )
 
     # Verify result
@@ -66,7 +66,7 @@ async def test_get_document_success(db_session):
         topic="AI in Education",
         language="en",
         target_pages=15,
-        status="draft"
+        status="draft",
     )
     db_session.add(document)
     await db_session.commit()
@@ -111,10 +111,7 @@ async def test_get_user_documents_with_pagination(db_session):
     # Create multiple documents
     for i in range(5):
         document = Document(
-            user_id=user.id,
-            title=f"Thesis {i}",
-            topic=f"Topic {i}",
-            status="draft"
+            user_id=user.id, title=f"Thesis {i}", topic=f"Topic {i}", status="draft"
         )
         db_session.add(document)
     await db_session.commit()
@@ -141,10 +138,7 @@ async def test_update_document_success(db_session):
 
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Original Title",
-        topic="Original Topic",
-        status="draft"
+        user_id=user.id, title="Original Title", topic="Original Topic", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
@@ -156,7 +150,7 @@ async def test_update_document_success(db_session):
         document_id=document.id,
         user_id=user.id,
         title="Updated Title",
-        topic="Updated Topic"
+        topic="Updated Topic",
     )
 
     assert result["message"] == "Document updated successfully"
@@ -178,10 +172,7 @@ async def test_delete_document_success(db_session):
 
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
@@ -213,7 +204,7 @@ async def test_export_document_docx_fails_on_incomplete(db_session):
         user_id=user.id,
         title="Incomplete Thesis",
         topic="AI in Education",
-        status="draft"  # Not completed
+        status="draft",  # Not completed
     )
     db_session.add(document)
     await db_session.commit()
@@ -222,11 +213,9 @@ async def test_export_document_docx_fails_on_incomplete(db_session):
     # Create service and try to export
     service = DocumentService(db_session)
 
-    with pytest.raises(ValidationError, match="Document is not completed"):
+    with pytest.raises(ValidationError, match="Document is not ready for export"):
         await service.export_document(
-            document_id=document.id,
-            format="docx",
-            user_id=user.id
+            document_id=document.id, format="docx", user_id=user.id
         )
 
 
@@ -244,7 +233,7 @@ async def test_export_document_pdf_fails_on_incomplete(db_session):
         user_id=user.id,
         title="Incomplete Thesis",
         topic="AI in Education",
-        status="draft"  # Not completed
+        status="draft",  # Not completed
     )
     db_session.add(document)
     await db_session.commit()
@@ -253,11 +242,9 @@ async def test_export_document_pdf_fails_on_incomplete(db_session):
     # Create service and try to export
     service = DocumentService(db_session)
 
-    with pytest.raises(ValidationError, match="Document is not completed"):
+    with pytest.raises(ValidationError, match="Document is not ready for export"):
         await service.export_document(
-            document_id=document.id,
-            format="pdf",
-            user_id=user.id
+            document_id=document.id, format="pdf", user_id=user.id
         )
 
 
@@ -276,7 +263,7 @@ async def test_export_document_pdf_unsupported_format(db_session):
         title="Complete Thesis",
         topic="AI in Education",
         status="completed",
-        content="Test content"
+        content="Test content",
     )
     db_session.add(document)
     await db_session.commit()
@@ -288,8 +275,8 @@ async def test_export_document_pdf_unsupported_format(db_session):
     with pytest.raises(ValidationError, match="Unsupported export format"):
         await service.export_document(
             document_id=document.id,
-            format="txt",  # Unsupported format
-            user_id=user.id
+            format="txt",
+            user_id=user.id,  # Unsupported format
         )
 
 
@@ -305,9 +292,7 @@ async def test_update_document_not_found(db_session):
 
     with pytest.raises(NotFoundError):
         await service.update_document(
-            document_id=999,
-            user_id=user.id,
-            title="Updated Title"
+            document_id=999, user_id=user.id, title="Updated Title"
         )
 
 
@@ -321,7 +306,9 @@ async def test_delete_document_not_found(db_session):
 
     service = DocumentService(db_session)
 
-    with pytest.raises((NotFoundError, ValidationError)):  # Can raise NotFoundError or ValidationError
+    with pytest.raises(
+        (NotFoundError, ValidationError)
+    ):  # Can raise NotFoundError or ValidationError
         await service.delete_document(document_id=999, user_id=user.id)
 
 
@@ -350,10 +337,7 @@ async def test_get_document_sections_success(db_session):
 
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
@@ -366,7 +350,7 @@ async def test_get_document_sections_success(db_session):
             title=f"Section {i}",
             section_index=i,
             content=f"Content {i}",
-            status="completed"
+            status="completed",
         )
         db_session.add(section)
     await db_session.commit()
@@ -374,11 +358,9 @@ async def test_get_document_sections_success(db_session):
     # Create service and get sections
     service = DocumentService(db_session)
     sections = await service.get_document_sections(
-        document_id=document.id,
-        user_id=user.id
+        document_id=document.id, user_id=user.id
     )
 
     assert len(sections) == 3
     assert sections[0]["title"] == "Section 0"
     assert sections[2]["title"] == "Section 2"
-

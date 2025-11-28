@@ -129,16 +129,33 @@ class AdminService:
             )
             stuck_running = stuck_running_result.scalar()
 
-            # Return flat structure for frontend compatibility
+            # Return nested structure for better organization
             return {
-                "total_users": total_users,
-                "active_users_today": active_users,  # Actually last 30 days
-                "total_documents": total_documents,
-                "completed_documents": completed_documents,
-                "total_revenue": 0.0,  # Not using payments in MVP
-                "revenue_today": 0.0,
-                "pending_refunds": 0,
-                "active_jobs": recent_jobs,
+                "users": {
+                    "total": total_users,
+                    "active_last_30_days": active_users,
+                },
+                "documents": {
+                    "total": total_documents,
+                    "completed": completed_documents,
+                },
+                "payments": {
+                    "total_revenue": 0.0,
+                    "revenue_today": 0.0,
+                    "pending_refunds": 0,
+                },
+                "ai_usage": {
+                    "total_jobs": total_ai_jobs,
+                    "total_tokens": total_tokens,
+                    "avg_tokens_per_doc": float(avg_tokens_per_doc),
+                    "total_cost_cents": total_cost_cents,
+                },
+                "system_health": {
+                    "active_jobs": recent_jobs,
+                    "stuck_queued": stuck_queued,
+                    "stuck_running": stuck_running,
+                },
+                "generated_at": datetime.utcnow().isoformat(),
             }
 
         except Exception as e:

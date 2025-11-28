@@ -146,8 +146,7 @@ export function PaymentsTable({
       sortable: true,
       render: (payment) => (
         <span className="text-gray-300">
-          {formatDateOnly(payment.completed_at)}
-            : '—'}
+          {payment.completed_at ? formatDateOnly(payment.completed_at) : '—'}
         </span>
       ),
     },
