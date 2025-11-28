@@ -143,12 +143,21 @@ class AIService:
                 f"type=outline"
             )
 
+            # Calculate estimated sections and word count from outline
+            sections = outline_data.get("sections", [])
+            estimated_sections = len(sections)
+            estimated_word_count = sum(
+                section.get("estimated_words", 0) for section in sections
+            )
+
             return {
                 "document_id": document_id,
                 "outline": outline_data,
                 "status": "completed",
                 "tokens_used": outline_data.get("tokens_used", 0),
                 "generation_time_seconds": generation_time,
+                "estimated_sections": estimated_sections,
+                "estimated_word_count": estimated_word_count,
             }
 
         except Exception as e:
