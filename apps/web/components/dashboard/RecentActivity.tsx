@@ -51,22 +51,14 @@ export function RecentActivity() {
     const fetchActivities = async () => {
       try {
         setIsLoading(true)
-        const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.ACTIVITY)
-
-        // Transform API response to component format
-        const activities = (response.activities || []).map((activity: any) => ({
-          id: activity.id,
-          type: activity.type,
-          title: activity.title,
-          description: activity.description,
-          timestamp: activity.timestamp,
-          status: activity.status || 'success',
-        }))
-
-        setActivities(activities)
+        // TODO: Implement /api/v1/documents/activity endpoint on backend
+        // For now, using mock empty data
+        // const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.ACTIVITY)
+        
+        // Mock empty activities until backend endpoint is implemented
+        setActivities([])
       } catch (error) {
         console.error('Failed to fetch activities:', error)
-        toast.error('Failed to load recent activity')
         setActivities([])
       } finally {
         setIsLoading(false)

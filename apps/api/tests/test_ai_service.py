@@ -114,8 +114,9 @@ async def test_build_section_prompt(db_session):
     # Create service
     service = AIService(db_session)
 
-    # Build prompt
-    prompt = service._build_section_prompt(
+    # Build prompt using PromptBuilder (not AIService private method)
+    from app.services.ai_pipeline.prompt_builder import PromptBuilder
+    prompt = PromptBuilder.build_section_prompt(
         document=document,
         section_title="Introduction",
         section_index=0,
@@ -123,11 +124,11 @@ async def test_build_section_prompt(db_session):
     )
 
     # Verify prompt structure
-    assert "AI in Education" in prompt
+    assert document.topic in prompt
     assert "Introduction" in prompt
-    assert "0" in prompt
+    assert "0" in prompt or "Section Index: 0" in prompt
     assert "Use formal academic style" in prompt
-    assert "Academic tone" in prompt or "academic" in prompt.lower()
+    assert "academic" in prompt.lower()
 
 
 @pytest.mark.asyncio

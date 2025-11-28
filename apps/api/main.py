@@ -16,6 +16,7 @@ from loguru import logger
 from app.api.v1.endpoints import (
     admin,
     admin_auth,
+    admin_dashboard,
     admin_documents,
     admin_payments,
     auth,
@@ -89,8 +90,9 @@ app.add_middleware(TrustedHostMiddleware, allowed_hosts=settings.ALLOWED_HOSTS)
 # Rate limiting
 setup_rate_limiter(app)
 
-# CSRF protection for state-changing requests
-app.add_middleware(CSRFMiddleware)
+# CSRF protection for state-changing requests (disabled in development)
+if settings.ENVIRONMENT == "production":
+    app.add_middleware(CSRFMiddleware)
 
 # Maintenance mode middleware (should be early in the stack)
 app.add_middleware(MaintenanceModeMiddleware)
@@ -169,6 +171,9 @@ app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(
+    admin_dashboard.router, prefix="/api/v1/admin", tags=["admin-dashboard"]
+)
 app.include_router(
     admin_auth.router, prefix="/api/v1/admin/auth", tags=["admin-authentication"]
 )

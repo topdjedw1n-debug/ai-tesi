@@ -9,6 +9,20 @@
 
 ---
 
+## ⚠️ CRITICAL FOR DEVELOPERS
+
+**Before writing ANY temporary solution (mock data, hardcode, skip validation):**
+
+1. 📝 Add entry to `/docs/MVP_PLAN.md` → "ТИМЧАСОВІ РІШЕННЯ"
+2. 💾 Add TODO comment in code with reference
+3. ⏰ Specify date, reason, and action plan
+
+**Read full protocol:** [`docs/TEMPORARY_SOLUTIONS_PROTOCOL.md`](./docs/TEMPORARY_SOLUTIONS_PROTOCOL.md)
+
+**This is NOT optional. This is MANDATORY. Always. Forever.**
+
+---
+
 ## 🚀 Quick Start
 
 ```bash

@@ -96,7 +96,7 @@ curl http://localhost:3000/api/health
 ### 2. Create Test User
 ```bash
 # Request magic link
-curl -X POST http://localhost:8000/api/v1/auth/magic-link/request \
+curl -X POST http://localhost:8000/api/v1/auth/magic-link \
   -H "Content-Type: application/json" \
   -d '{"email": "test@example.com"}'
 ```

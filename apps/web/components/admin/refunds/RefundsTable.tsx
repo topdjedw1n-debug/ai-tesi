@@ -1,6 +1,6 @@
 'use client'
 
-import { format } from 'date-fns'
+import { formatDateOnly } from '@/lib/utils/date'
 import { RefundRequest } from '@/lib/api/admin'
 import { DataTable, Column } from '../ui/DataTable'
 import {
@@ -134,7 +134,7 @@ export function RefundsTable({
       sortable: true,
       render: (refund) => (
         <span className="text-gray-300">
-          {format(new Date(refund.submitted_at), 'MMM dd, yyyy')}
+          {formatDateOnly(refund.submitted_at)}
         </span>
       ),
     },
@@ -144,9 +144,7 @@ export function RefundsTable({
       sortable: true,
       render: (refund) => (
         <span className="text-gray-300">
-          {refund.reviewed_at
-            ? format(new Date(refund.reviewed_at), 'MMM dd, yyyy')
-            : '—'}
+          {formatDateOnly(refund.reviewed_at)}
         </span>
       ),
     },

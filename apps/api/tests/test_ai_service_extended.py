@@ -102,15 +102,18 @@ async def test_generate_section_success_mock(db_session):
     # Create service
     service = AIService(db_session)
 
-    # Mock AI response from _call_ai_provider
-    mock_response = {
+    # Mock SectionGenerator.generate_section method
+    mock_section_result = {
         "content": "This is the introduction section content.",
-        "tokens_used": 100
+        "citations": [],
+        "metadata": {}
     }
 
-    # Mock _call_ai_provider method on the service instance
-    with patch.object(service, '_call_ai_provider', new_callable=AsyncMock) as mock_ai_call:
-        mock_ai_call.return_value = mock_response
+    # Mock SectionGenerator class
+    with patch('app.services.ai_service.SectionGenerator') as MockSectionGenerator:
+        mock_generator = AsyncMock()
+        mock_generator.generate_section.return_value = mock_section_result
+        MockSectionGenerator.return_value = mock_generator
 
         result = await service.generate_section(
             document_id=document.id,

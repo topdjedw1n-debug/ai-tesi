@@ -24,12 +24,13 @@ from app.schemas.auth import (
 )
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
+from app.core.config import settings
 
 router = APIRouter()
 
 
 @router.post("/magic-link", response_model=MagicLinkResponse)
-@rate_limit("3/hour")  # Per-user/IP rate limit: 3/hr with progressive backoff
+@rate_limit(f"{settings.RATE_LIMIT_MAGIC_LINK_PER_HOUR}/hour")  # Default: 3/hour (from config)
 async def request_magic_link(
     request: Request,
     magic_link_request: MagicLinkRequest,
@@ -388,3 +389,63 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
             details={"reason": "internal_error", "error": str(e)},
         )
         raise AuthenticationError("Failed to get user information") from e
+
+
+# ============================================================================
+# SIMPLE ADMIN LOGIN FOR TESTING (NO MAGIC LINK)
+# ============================================================================
+
+from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
+from app.models.auth import User
+from app.core.config import settings
+from app.core.security import create_access_token
+
+
+class AdminLoginRequest(BaseModel):
+    """Simple admin login request"""
+    email: EmailStr
+    password: str
+
+
+@router.post("/admin-login")
+async def admin_simple_login(
+    login_data: AdminLoginRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    TESTING ONLY: Simple admin login without magic link
+    
+    Use: POST /api/v1/auth/admin-login
+    Body: {"email": "admin@tesigo.com", "password": "admin123"}
+    """
+    # Get admin user
+    result = await db.execute(
+        select(User).where(
+            User.email == login_data.email,
+            User.is_admin == True,  # noqa: E712
+            User.is_active == True,  # noqa: E712
+        )
+    )
+    user = result.scalar_one_or_none()
+    
+    if not user:
+        raise AuthenticationError("Invalid credentials or not an admin")
+    
+    # Check password (simplified for testing)
+    if login_data.password != settings.ADMIN_TEMP_PASSWORD:
+        raise AuthenticationError("Invalid credentials")
+    
+    # Create token
+    access_token = create_access_token(user.id)
+    
+    return {
+        "access_token": access_token,
+        "token_type": "bearer",
+        "user": {
+            "id": user.id,
+            "email": user.email,
+            "full_name": user.full_name,
+            "is_admin": user.is_admin,
+        }
+    }

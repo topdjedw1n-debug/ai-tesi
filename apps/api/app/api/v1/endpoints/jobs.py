@@ -4,6 +4,7 @@ Job status and async generation endpoints
 import logging
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, WebSocket, WebSocketDisconnect, status
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -95,11 +96,11 @@ async def get_job_status(
 
         # Get job
         result = await db.execute(
-            AIGenerationJob.__table__.select().where(
+            select(AIGenerationJob).where(
                 AIGenerationJob.id == job_id, AIGenerationJob.user_id == current_user.id
             )
         )
-        job = result.first()
+        job = result.scalar_one_or_none()
 
         if not job:
             raise HTTPException(
@@ -108,10 +109,10 @@ async def get_job_status(
 
         return JobStatusResponse(
             job_id=job_id,
-            status=job["status"],
-            progress=job["progress"],
-            document_id=job["document_id"],
-            error_message=job["error_message"],
+            status=job.status,
+            progress=job.progress,
+            document_id=job.document_id,
+            error_message=job.error_message,
         )
     except HTTPException:
         raise

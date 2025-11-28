@@ -118,11 +118,12 @@ async def test_unblock_user(client, admin_token, test_user):
     """Test unblock user endpoint"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     # First block the user
-    await client.put(
+    block_response = await client.put(
         f"/api/v1/admin/users/{test_user.id}/block",
-        json={"reason": "Test"},
+        json={"reason": "Test reason"},  # min_length=5
         headers=headers,
     )
+    assert block_response.status_code == 200  # Ensure block succeeded
 
     # Then unblock
     response = await client.put(

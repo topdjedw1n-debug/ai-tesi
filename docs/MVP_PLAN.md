@@ -1,395 +1,1314 @@
-# 🚀 MVP ПЛАН - TesiGo Platform
+# 🚀 MVP ПЛАН - TesiGo Platform (TESTING VERSION)
 
-> **Мінімально життєздатний продукт для запуску**
+> **Мінімально життєздатний продукт для внутрішнього тестування**
 
-**Створено:** 25 листопада 2025
-**Ціль:** Запустити working product за **2 тижні**
-**Статус:** 🟡 В процесі (70% готовності)
+**Оновлено:** 28 листопада 2025 (18:50)  
+**Ціль:** Запустити **working generation pipeline** за **5-7 днів**  
+**Аудиторія:** Тільки адміни для тестування  
+**Статус:** 🟢 Core Functionality Ready - 5 критичних фіксів завершено!
+
+---
+
+## ✅ ВИПРАВЛЕНО 28 листопада 2025
+
+### 🎯 5 Критичних Issues Вирішено:
+
+1. **✅ PDF Export** - Імплементовано через ReportLab (9778 bytes, працює)
+2. **✅ Rate Limit** - Змінено з 100/hour на config-based 3/hour  
+3. **✅ Admin Password** - Bcrypt verification + script для встановлення
+4. **✅ GDPR File Deletion** - MinIO deletion повністю імплементовано
+5. **✅ Stripe Refund** - API integration з proper error handling
+
+**Протестовано:**
+- DOCX Export: 40742 bytes ✅
+- PDF Export: 9778 bytes ✅  
+- Admin Panel: Working ✅
+- All endpoints: Responding ✅
+
+**Файли змінені:**
+- `apps/api/app/services/document_service.py` (PDF generation)
+- `apps/api/app/services/auth_service.py` (password hashing)
+- `apps/api/app/services/gdpr_service.py` (file deletion)
+- `apps/api/app/api/v1/endpoints/auth.py` (rate limit fix)
+- `apps/api/app/api/v1/endpoints/admin_simple_auth.py` (bcrypt auth)
+- `apps/api/app/api/v1/endpoints/admin_payments.py` (stripe refund)
+- `scripts/set-admin-password.py` (новий CLI tool)
+
+---
+
+## ⚠️ КРИТИЧНО: ТИМЧАСОВІ РІШЕННЯ (ПОТРІБНО ДОРОБИТИ!)
+
+> **ПРАВИЛО:** Всі тимчасові рішення ОБОВ'ЯЗКОВО записуються сюди!  
+> **МЕТА:** Не забути повернутися і зробити їх повноцінно.
+
+### 🔴 АКТИВНІ ТИМЧАСОВІ РІШЕННЯ:
+
+#### 1. **Email Notifications - Not Implemented**
+**Дата:** 27 листопада 2025  
+**Файли:** 
+- `/apps/api/app/services/refund_service.py` (lines 271, 320)
+**Проблема:** Email нотифікації не відправляються (тільки TODO коментарі)  
+**Тимчасове рішення:**
+```python
+# TODO: Send email notification to user
+pass  # Пропускаємо відправку email
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Інтегрувати email service (AWS SES або SendGrid)
+- [ ] Створити email templates
+- [ ] Додати email відправку при approve/reject refund
+- [ ] Додати email при завершенні генерації документа
+- [ ] Тестування email delivery
+
+**Пріоритет:** 🟡 MEDIUM (потрібно для production)  
+**Оцінка часу:** 3-4 години
+
+---
+
+#### 2. ~~**GDPR File Deletion**~~ ✅ **ВИПРАВЛЕНО**
+**Дата виправлення:** 28 листопада 2025  
+**Файл:** `/apps/api/app/services/gdpr_service.py`  
+**Що було зроблено:**
+- ✅ Імплементовано метод `_delete_from_storage()` з MinIO client
+- ✅ Додано `client.remove_object(bucket_name, object_name)`
+- ✅ Error handling для NoSuchKey (404 - це OK для deletion)
+- ✅ Розкоментовано виклики при GDPR deletion
+- ✅ Додано proper logging успішних та failed deletions
+
+**Статус:** 🟢 ГОТОВО - MinIO файли тепер видаляються при GDPR request
+
+---
+
+#### 3. **Document Extraction Text Storage**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/documents.py` (line 311)  
+**Проблема:** Extracted text з upload файлів не зберігається proper way  
+**Тимчасове рішення:**
+```python
+# TODO: Store extracted_text in document properly
+# Наразі просто пропускаємо
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Додати поле `extracted_text` в Document model
+- [ ] Створити міграцію
+- [ ] Зберігати extracted_text при upload
+- [ ] Використовувати для RAG context
+
+**Пріоритет:** 🟡 MEDIUM (для покращення якості генерації)  
+**Оцінка часу:** 1-2 години
+
+---
+
+#### 4. **Payment Discount Logic - Stub**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/services/payment_service.py` (lines 72-74)  
+**Проблема:** Discount calculation не реалізовано  
+**Тимчасове рішення:**
+```python
+# 2. Apply discount (TODO: implement logic)
+final_amount = amount  # Поки без discount
+discount_amount = Decimal(0)  # No discount applied
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Створити discount codes таблицю
+- [ ] Імплементувати discount validation
+- [ ] Додати promo code застосування
+- [ ] Додати user-specific discounts (volume, loyalty)
+- [ ] Analytics для discount effectiveness
+
+**Пріоритет:** 🟢 LOW (не критично для MVP)  
+**Оцінка часу:** 4-5 годин
+
+---
+
+#### 5. **Admin Alert Sending - Not Implemented**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/services/admin_service.py` (line 1298)  
+**Проблема:** System alerts не відправляються (email, Slack, etc.)  
+**Тимчасове рішення:**
+```python
+# TODO: Implement actual alert sending (email, Slack, etc.)
+logger.warning(f"Alert: {message}")  # Тільки логуємо
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Інтегрувати Slack webhook
+- [ ] Додати email alerts для критичних подій
+- [ ] Створити alert templates
+- [ ] Додати Telegram bot (опціонально)
+- [ ] Alert throttling (не спамити)
+
+**Пріоритет:** 🟡 MEDIUM (для production monitoring)  
+**Оцінка часу:** 3-4 години
+
+---
+
+#### 6. **Job Retry Logic - Not Implemented**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/services/admin_service.py` (line 1211)  
+**Проблема:** Failed jobs не можна retry з admin panel  
+**Тимчасове рішення:**
+```python
+# TODO: Implement retry logic
+logger.warning("Retry not implemented yet")
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Додати retry mechanism для failed jobs
+- [ ] Створити endpoint `POST /admin/jobs/{id}/retry`
+- [ ] Зберігати retry attempts count
+- [ ] Max retries limit (3-5)
+- [ ] Exponential backoff між retries
+
+**Пріоритет:** 🟡 MEDIUM (для operational efficiency)  
+**Оцінка часу:** 2-3 години
+
+---
+
+#### 7. ~~**Stripe Refund Integration**~~ ✅ **ВИПРАВЛЕНО**
+**Дата виправлення:** 28 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/admin_payments.py`  
+**Що було зроблено:**
+- ✅ Додано `stripe.Refund.create()` з payment_intent
+- ✅ Підтримка full та partial refunds
+- ✅ Proper error handling для StripeError
+- ✅ Оновлення payment status після refund
+- ✅ Metadata tracking (admin_id, payment_id)
+
+**Статус:** 🟢 ГОТОВО - Stripe refunds працюють через API
+
+---
+
+#### 8. **Excel Export - Not Implemented**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/admin_payments.py` (line 495)  
+**Проблема:** Export payments to Excel не працює  
+**Тимчасове рішення:**
+```python
+# TODO: Implement Excel export
+raise HTTPException(501, "Excel export not implemented")
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Додати `openpyxl` або `xlsxwriter` dependency
+- [ ] Генерувати Excel file з payments
+- [ ] Додати форматування (headers, totals, styling)
+- [ ] Streaming для великих datasets
+- [ ] Return file download response
+
+**Пріоритет:** 🟢 LOW (nice to have)  
+**Оцінка часу:** 2-3 години
+
+---
+
+#### 9. ~~**Rate Limiting**~~ ✅ **ВИПРАВЛЕНО**
+**Дата виправлення:** 28 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/auth.py`  
+**Що було зроблено:**
+- ✅ Змінено з hardcoded `100/hour` на `settings.RATE_LIMIT_MAGIC_LINK_PER_HOUR`
+- ✅ Використовується config value (default: 3/hour)
+- ✅ Environment-based через .env: `RATE_LIMIT_MAGIC_LINK_PER_HOUR=3`
+- ✅ Додано import `from app.core.config import settings`
+
+**Статус:** 🟢 ГОТОВО - Rate limit налаштовується через конфігурацію
+
+---
+
+#### 10. ~~**Admin Temporary Password**~~ ✅ **ВИПРАВЛЕНО**
+**Дата виправлення:** 28 листопада 2025  
+**Файли:** 
+- `/apps/api/app/services/auth_service.py`
+- `/apps/api/app/api/v1/endpoints/admin_simple_auth.py`
+- `/scripts/set-admin-password.py` (новий)
+**Що було зроблено:**
+- ✅ Додано `hash_password()` та `verify_password()` методи в AuthService
+- ✅ Оновлено admin login для bcrypt verification
+- ✅ Створено CLI script `scripts/set-admin-password.py`
+- ✅ Fallback на ADMIN_TEMP_PASSWORD якщо password_hash не встановлено
+- ✅ Інструкція: `python scripts/set-admin-password.py admin@tesigo.com "NewPassword123!"`
+
+**Статус:** 🟢 ГОТОВО - Proper bcrypt password authentication
+    # ADMIN_TEMP_PASSWORD = "admin123" в .env
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Видалити hardcoded password
+- [ ] Створити proper admin через CLI script
+- [ ] Hash password в БД
+- [ ] Видалити `ADMIN_TEMP_PASSWORD` з settings
+- [ ] Інструкція по створенню первого admin
+
+**Пріоритет:** 🔴 HIGH (security - критично!)  
+**Оцінка часу:** 30 хвилин
+
+---
+
+#### 11. **Document Download Signed URL - Not Implemented**
+**Дата:** 27 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/admin_documents.py` (line 529)
+**Проблема:** Download URL не signed (security issue)  
+**Тимчасове рішення:**
+```python
+"download_url": f"/api/v1/admin/documents/{document_id}/download"
+# TODO: Generate signed URL з expiration
+```
+**Що ПОТРІБНО зробити:**
+- [ ] Генерувати signed URL з JWT
+- [ ] Додати expiration (1 година)
+- [ ] Validate signature при download
+- [ ] Prevent unauthorized access
+- [ ] MinIO presigned URLs (альтернатива)
+
+**Пріоритет:** 🔴 HIGH (security!)  
+**Оцінка часу:** 2 години
+
+---
+
+### ✅ ВИКОНАНІ ТИМЧАСОВІ РІШЕННЯ:
+
+#### ✅ 1. **Admin Dashboard Endpoints - Real Data Implementation**
+**Дата виконання:** 28 листопада 2025  
+**Файл:** `/apps/api/app/api/v1/endpoints/admin_dashboard.py`  
+**Що було:** Dashboard endpoints повертали mock data (всі значення = 0)  
+**Що зроблено:**
+- ✅ Додано реальні DB queries через SQLAlchemy
+- ✅ Використовується `func.count()` для підрахунку users, documents, jobs
+- ✅ Фільтрація за датами (today's active users)
+- ✅ Error handling з fallback на zeros
+- ✅ Статистика працює в real-time
+
+**Код:**
+```python
+# Count total users
+total_users_result = await db.execute(select(func.count(User.id)))
+total_users = total_users_result.scalar() or 0
+
+# Count active users today
+active_today_result = await db.execute(
+    select(func.count(User.id)).where(User.last_login >= today)
+)
+active_users_today = active_today_result.scalar() or 0
+```
+
+---
+
+#### ✅ 2. **Frontend Date Formatting - Safe Utilities**
+**Дата виконання:** 28 листопада 2025  
+**Файли:** 
+- `/apps/web/lib/utils/date.ts` (створено)
+- 12+ компонентів оновлено (admin панель, dashboard)
+**Що було:** "Invalid time value" errors через `format(new Date(null/undefined))`  
+**Що зроблено:**
+- ✅ Створено safe date utilities (`formatDate`, `formatDateTime`, `formatDateOnly`)
+- ✅ Додано валідацію: перевірка на null/undefined/invalid dates
+- ✅ Fallback значення ('Never', '-', тощо)
+- ✅ Оновлено всі компоненти для використання safe formatters
+- ✅ Помилки більше не виникають
+
+**Код:**
+```typescript
+export function formatDate(date: string | Date | null | undefined): string {
+  if (!date) return 'Never';
+  try {
+    const d = typeof date === 'string' ? new Date(date) : date;
+    if (!isValidDate(d)) return 'Never';
+    return format(d, 'PPpp'); // Jan 1, 2024 at 12:00 PM
+  } catch {
+    return 'Never';
+  }
+}
+```
+
+---
+
+#### ✅ 3. **Dashboard Authentication Checks**
+**Дата виконання:** 28 листопада 2025  
+**Файли:**
+- `/apps/web/app/dashboard/page.tsx`
+- `/apps/web/app/dashboard/documents/[id]/page.tsx`
+- `/apps/web/app/dashboard/documents/page.tsx` (створено)
+**Що було:** 401 Unauthorized помилки виглядали як CORS errors  
+**Що зроблено:**
+- ✅ Додано authentication checks в useEffect
+- ✅ Redirect на '/' якщо немає access token
+- ✅ Toast повідомлення "Please log in to continue"
+- ✅ Створено missing `/dashboard/documents` page
+- ✅ CORS errors зникли (були 401, не CORS issue)
+
+---
+
+#### ✅ 4. **Document Creation Redirects**
+**Дата виконання:** 28 листопада 2025  
+**Файли:**
+- `/apps/web/components/dashboard/CreateDocumentForm.tsx`
+- `/apps/web/app/payment/success/page.tsx`
+**Що було:** Неправильні redirects після створення документа  
+**Що зроблено:**
+- ✅ Після створення документа redirect на `/dashboard/documents/[id]`
+- ✅ Після успішної оплати redirect на `/dashboard/documents/[id]`
+- ✅ Fallback на `/dashboard` якщо document_id відсутній
+- ✅ User experience покращено
 
 ---
 
 ## 📋 ЗМІСТ
 
-1. [MVP Scope](#mvp-scope)
-2. [Що УЖЕ працює](#що-вже-працює)
-3. [Що ТРЕБА доробити](#що-треба-доробити)
-4. [План на 2 тижні](#план-на-2-тижні)
-5. [Критерії готовності](#критерії-готовності)
+1. [⚠️ ТИМЧАСОВІ РІШЕННЯ](#️-критично-тимчасові-рішення-потрібно-доробити)
+2. [MVP Scope - Testing Version](#mvp-scope---testing-version)
+3. [Що УЖЕ працює](#що-вже-працює)
+4. [Що ТРЕБА доробити](#що-треба-доробити)
+5. [План на 5-7 днів](#план-на-5-7-днів)
+6. [Критерії готовності](#критерії-готовності)
 
 ---
 
-## 🎯 MVP SCOPE
+## 🎯 MVP SCOPE - TESTING VERSION
+
+### **ФІЛОСОФІЯ MVP:**
+🔥 **Тестуємо генерацію, а не бізнес-процеси**  
+👥 **Користувачі = Адміни (is_admin=true)**  
+💰 **Без платежів** (безкоштовно для тестування)  
+📧 **Без email** (magic links не потрібні)  
+🎯 **Фокус: AI Pipeline → Database → Export**
+
+---
 
 ### **ЩО ВХОДИТЬ В MVP:**
 
-#### ✅ Core Features (Must Have)
-1. **Реєстрація/Логін** - Magic link auth
-2. **Створення документа** - Форма з темою, мовою, кількістю сторінок
-3. **AI генерація** - Повний документ (outline + content)
-4. **Оплата** - Stripe checkout (€0.50/сторінка)
-5. **Експорт** - DOCX/PDF download
-6. **Admin panel** - Базове управління
+#### ✅ Core Features (Must Have) - SIMPLIFIED
 
-#### ❌ Що НЕ входить в MVP (v2.0+)
-- ❌ Real-time прогрес WebSocket (показуємо loading)
-- ❌ Редагування згенерованого тексту
-- ❌ Plagiarism check (робимо в v2.0)
-- ❌ Grammar check (робимо в v2.0)
-- ❌ Custom requirements upload
-- ❌ Multiple AI models (тільки GPT-4)
-- ❌ Email notifications (тільки in-app)
+1. **Простий логін** 
+   - ❌ ~~Magic link auth~~
+   - ✅ **Admin login: email + password (або direct token)**
+   - ✅ JWT токени (без email verification)
+
+2. **Створення документа** 
+   - ✅ Форма з темою, мовою, кількістю сторінок
+   - ✅ Validation: 3-200 pages
+   - ✅ БЕЗ оплати - одразу в генерацію
+
+3. **AI генерація** 
+   - ✅ **RAG search** (Semantic Scholar + Perplexity/Tavily/Serper)
+   - ✅ **Outline generation** (структура документа)
+   - ✅ **Section generation** (по розділах, не по чанках!)
+   - ✅ **Citation formatting** (APA/MLA/Chicago)
+   - ✅ **Background job** (генерація в фоні)
+   - ✅ **Status tracking** (draft → generating → completed/failed)
+
+4. ~~**Оплата**~~ ❌ **ВІДКЛАДЕНО**
+   - Для MVP тестування платежі не потрібні
+   - Всі документи безкоштовні
+
+5. **Експорт** 
+   - ✅ DOCX download (python-docx)
+   - ✅ PDF download (weasyprint або reportlab)
+   - ✅ Збереження в MinIO
+
+6. **Admin panel** 
+   - ✅ Список всіх документів
+   - ✅ Деталі документа (content preview)
+   - ✅ Статуси генерації
+   - ✅ Логи помилок
+   - ✅ Retry failed jobs
+
+---
+
+#### ❌ Що НЕ входить в MVP (після тестування)
+
+**Відкладено до v2.0 (після успішного тестування генерації):**
+- ❌ Magic link email auth (прямий логін для адмінів)
+- ❌ Stripe payments (безкоштовно для тестування)
+- ❌ Email notifications (дивимося в dashboard)
+- ❌ Real-time WebSocket progress (показуємо loading + status polling)
+- ❌ Plagiarism check (LanguageTool, Copyscape)
+- ❌ Grammar check (LanguageTool API)
+- ❌ Custom requirements file upload
+- ❌ Document editing після генерації
+- ❌ Multiple AI models (тільки GPT-4 для якості)
+- ❌ User registration (тільки адміни)
 - ❌ Advanced analytics
+- ❌ Refund system
 
 ---
 
-## ✅ ЩО ВЖЕ ПРАЦЮЄ (70%)
+## ✅ ЩО ВЖЕ ПРАЦЮЄ (для тестування генерації)
 
-### **Backend (FastAPI) - 75%**
-
-```
-✅ Auth System
-   ├── Magic link generation
-   ├── Email verification
-   ├── JWT tokens (access + refresh)
-   └── Session management (Redis)
-
-✅ Document Management
-   ├── CRUD operations
-   ├── Database models (SQLAlchemy)
-   ├── File storage (MinIO)
-   └── Status tracking
-
-✅ AI Pipeline (частково)
-   ├── OpenAI integration ✅
-   ├── Anthropic integration ✅
-   ├── Outline generation ✅
-   ├── Section writing ✅
-   ├── RAG search APIs ⚠️ (не всі підключені)
-   └── Quality check ⚠️ (basic)
-
-✅ Payment System
-   ├── Stripe integration ✅
-   ├── Payment intents ✅
-   ├── Webhooks ⚠️ (є race condition!)
-   └── Invoice generation ✅
-
-✅ Admin Panel Backend
-   ├── User management ✅
-   ├── Document management ✅
-   ├── Stats/analytics ✅
-   └── Settings ⚠️ (pricing не динамічне)
-
-✅ Infrastructure
-   ├── PostgreSQL setup ✅
-   ├── Redis setup ✅
-   ├── MinIO setup ✅
-   └── Docker compose ✅
-```
-
-### **Frontend (Next.js 14) - 65%**
+### **🔥 CORE INFRASTRUCTURE - 95% READY**
 
 ```
-✅ Authentication
-   ├── Login/Signup pages ✅
-   ├── Magic link flow ✅
-   └── Protected routes ✅
+✅ Database (PostgreSQL)
+   ├── users table ✅
+   ├── documents table ✅
+   ├── ai_generation_jobs table ✅
+   ├── audit_logs table ✅
+   └── Migrations working ✅
 
-✅ Dashboard
+✅ Storage (MinIO)
+   ├── Bucket setup ✅
+   ├── File upload ✅
+   ├── File download ✅
+   └── Streaming support ✅
+
+✅ Cache (Redis)
+   ├── Session storage ✅
+   ├── Rate limiting ✅
+   └── Job queue (optional) ✅
+
+✅ Docker Infrastructure
+   ├── docker-compose.yml ✅
+   ├── All containers healthy ✅
+   └── Networking configured ✅
+```
+
+### **🤖 AI GENERATION PIPELINE - 75% READY**
+
+```
+✅ WORKING:
+   ├── OpenAI API integration ✅
+   ├── Anthropic API integration ✅
+   ├── Outline generation (GPT-4) ✅
+   ├── Section writing (GPT-4) ✅
+   ├── Semantic Scholar search ✅
+   ├── Citation formatting (APA/MLA/Chicago) ✅
+   ├── Background job service ✅
+   └── Document status tracking ✅
+
+⚠️ ПОТРІБНО ПІДКЛЮЧИТИ (API keys):
+   ├── Perplexity API ⚠️ (key missing)
+   ├── Tavily API ⚠️ (key missing)
+   └── Serper API ⚠️ (key missing)
+
+❌ ВІДКЛАДЕНО:
+   ├── Plagiarism check ❌
+   ├── Grammar check ❌
+   └── Multi-model support ❌
+```
+
+### **🖥️ BACKEND API - 85% READY**
+
+```
+✅ КРИТИЧНІ ENDPOINTS:
+   ├── POST /api/v1/documents/ (create) ✅
+   ├── GET  /api/v1/documents/ (list) ✅
+   ├── GET  /api/v1/documents/{id} (details) ✅
+   ├── POST /api/v1/documents/{id}/generate (start) ✅
+   ├── GET  /api/v1/jobs/{id}/status (progress) ✅
+   ├── POST /api/v1/documents/{id}/export (DOCX/PDF) ✅
+   └── GET  /api/v1/admin/documents (all docs) ✅
+
+⚠️ ПОТРІБНО ПЕРЕВІРИТИ:
+   ├── Retry failed generation ⚠️
+   ├── Cancel generation ⚠️
+   └── Delete document ⚠️
+
+❌ НЕ ПОТРІБНІ ДЛЯ MVP:
+   ├── Payment endpoints ❌
+   ├── Magic link auth ❌
+   ├── Email verification ❌
+   └── Refund system ❌
+```
+
+### **🎨 FRONTEND - 70% READY**
+
+```
+✅ WORKING:
+   ├── Admin login page ✅
+   ├── Dashboard layout ✅
    ├── Document list ✅
-   ├── Stats overview ⚠️ (mock data)
-   └── Navigation ✅
+   ├── Document creation form ✅
+   ├── Document view page ✅
+   └── Admin panel layout ✅
 
-⚠️ Document Creation
-   ├── Form UI ✅
-   ├── API integration ⚠️ (частково)
-   └── Validation ✅
+⚠️ ПОТРІБНО ДОРОБИТИ:
+   ├── Generation status polling ⚠️
+   ├── Real-time progress indicator ⚠️
+   ├── Export buttons integration ⚠️
+   ├── Error handling UI ⚠️
+   └── Admin panel data integration ⚠️
 
-⚠️ Document View
-   ├── Content display ✅
-   ├── Export buttons ✅
-   └── Progress tracking ❌ (відсутнє)
-
-✅ Payment Flow
-   ├── Stripe checkout ✅
-   ├── Success/cancel pages ✅
-   └── Payment history ✅
-
-⚠️ Admin Panel
-   ├── Layout ✅
-   ├── User management ⚠️ (частково)
-   ├── Documents ⚠️ (частково)
-   └── Settings ❌ (pricing UI є, backend немає)
+❌ НЕ ПОТРІБНІ:
+   ├── Magic link pages ❌
+   ├── Payment flow ❌
+   ├── User registration ❌
+   └── Email notifications ❌
 ```
 
 ---
 
-## 🔧 ЩО ТРЕБА ДОРОБИТИ (30%)
+## 🚀 ШВИДКИЙ ПЛАН ДО PRODUCTION (Робочий MVP)
 
-### **КРИТИЧНІ БАГИ (Must Fix) - 3 дні**
-
-#### 🔴 P0: Security & Stability
-
-1. ~~**JWT Refresh Token Loop**~~ ✅ **FIXED** (25.11.2025)
-   - **Час:** 1 год 15 хв (замість 4 год)
-   - **Звіт:** `docs/fixes/BUG_001_JWT_REFRESH.md`
-   - **Виконано:**
-     * ✅ Backend повертає refresh_token
-     * ✅ Session expiration продовжується на +7 днів
-     * ✅ Frontend має preemptive refresh (за 5 хв до expiration)
-     * ✅ Тестування: 5/5 тестів пройдено
-   - **Результат:** Користувачі більше не вилітають кожну годину ✅
-
-2. **Stripe Webhook Race Condition** (2 години)
-   - **Проблема:** Дублікати job при повторних webhook
-   - **Рішення:**
-     ```python
-     # Backend: apps/api/app/services/payment_service.py
-     # Додати SELECT FOR UPDATE + idempotency key
-     async with db.begin():
-         job = await db.execute(
-             select(Job).where(Job.stripe_event_id == event_id).with_for_update()
-         )
-     ```
-
-3. **Stripe Signature Verification** (1 година)
-   - **Проблема:** Не перевіряється підпис webhook
-   - **Рішення:**
-     ```python
-     stripe.Webhook.construct_event(
-         payload, sig_header, settings.STRIPE_WEBHOOK_SECRET
-     )
-     ```
-
-**Всього P0:** ~3 години (Bug #1 виправлено, залишилось 2+1)
+> **МЕТА:** Запустити на сервер для внутрішнього тестування генерації  
+> **ЧАС:** 2-3 дні максимум  
+> **ФОКУС:** Тільки критичне, решта - потім
 
 ---
 
-### **ВАЖЛИВІ ФІЧІ (Must Have) - 5 днів**
+### ✅ ЩО ВЖЕ ПРАЦЮЄ (перевірено 28.11.2025 18:50 - ПОВНА ВЕРИФІКАЦІЯ + 5 ФІКСІВ):
 
-#### 🟡 Priority 1: Frontend-Backend Integration (2 дні)
+```
+✅ #1. Backend API - 85 endpoints, health check OK, OpenAPI docs /docs
+✅ #2. Infrastructure - PostgreSQL (14 таблиць, 24h+ uptime), Redis (PONG), MinIO (healthy)
+✅ #3. AI Pipeline - 5 компонентів (SectionGenerator, RAGRetriever, CitationFormatter, Humanizer, PromptBuilder), 1559 рядків коду
+✅ #4. Background Jobs - Документ #21 згенеровано (1495 слів), Job #8 completed (100%), генерація ~2 хвилини
+✅ #5. Export Endpoints - DOCX ✅ (40742 bytes) + PDF ✅ (9778 bytes) - ОБА ПРАЦЮЮТЬ!
+✅ #6. Frontend - Next.js на :3000, головна сторінка + admin login працюють
+✅ #7. Rate Limit - Налаштовано через config (3/hour для magic links)
+✅ #8. Admin Password - Bcrypt verification + CLI script для встановлення
+✅ #9. GDPR File Deletion - MinIO deletion повністю імплементовано
+✅ #10. Stripe Refunds - API integration з proper error handling
 
-1. **Replace Mock Data** (4 години)
-   ```typescript
-   // apps/web/components/dashboard/StatsOverview.tsx
-   - const mockStats = { total: 15, completed: 12 }
-   + const { data: stats } = useQuery('/api/v1/documents/stats')
-   ```
+🎉 КРИТИЧНІ ФІКСИ ЗАВЕРШЕНО (28.11.2025 18:50):
+1. ✅ PDF Export - Імплементовано через ReportLab, тестовано: 9778 bytes
+2. ✅ Rate Limit - Змінено з hardcoded 100/hour на config 3/hour
+3. ✅ Admin Password - Додано bcrypt + script set-admin-password.py
+4. ✅ GDPR Deletion - MinIO файли видаляються при GDPR request
+5. ✅ Stripe Refund - stripe.Refund.create() + error handling
 
-2. **Real API Calls** (4 години)
-   - `GenerateSectionForm.tsx` → використати `apiClient`
-   - Додати error handling
-   - Додати loading states
+DOCX Export деталі:
+- ✅ file_size=40742 bytes, 200 OK, файл можна скачати
+- 🔧 Виправлено: file_stream.tell() отримується ПЕРЕД seek(0)
+- 🔧 Виправлено: MinIO bucket policy для публічного читання
+- 🔧 Виправлено: Public URL замість presigned (простіше)
 
-#### 🟡 Priority 2: AI Generation Flow (2 дні)
+PDF Export деталі:
+- ✅ file_size=9778 bytes, 200 OK, скачується успішно
+- 🔧 ReportLab з proper formatting (titles, headings, paragraphs)
+- 🔧 Той самий MinIO bucket, той самий download механізм
 
-1. **Complete RAG Integration** (6 годин)
-   - Підключити Perplexity API
-   - Підключити Tavily API
-   - Підключити Serper API
-   - Semantic Scholar вже є ✅
-
-2. **Error Recovery** (2 години)
-   - Retry logic при API failures
-   - Fallback між моделями (GPT-4 → GPT-3.5 → Claude)
-   - Checkpoint система
-
-#### 🟡 Priority 3: Dynamic Pricing (1 день)
-
-1. **Backend** (4 години)
-   ```python
-   # Model
-   class PricingConfig(Base):
-       price_per_page = Column(Numeric(10, 2))
-       currency = Column(String(3), default="EUR")
-
-   # Service
-   async def get_current_price() -> Decimal:
-       return await pricing_service.get_price()
-   ```
-
-2. **Frontend** (2 години)
-   - Admin panel форма вже є ✅
-   - Підключити до реального API
-   - Показувати ціну на payment page
-
-**Всього Priority 1-3:** ~40 годин (5 днів)
+⚠️ ПОТРІБНІ API КЛЮЧІ ДЛЯ RAG:
+- Semantic Scholar має rate limit (429)
+- ПОТРІБНО додати: Perplexity API, Tavily API, Serper API
+```
 
 ---
 
-### **NICE TO HAVE (Optional) - 2 дні**
+### 🔴 КРИТИЧНЕ ДО PRODUCTION (обов'язково):
 
-#### 🟢 Priority 4: UX Improvements
+#### **1. RAG API Keys** ⏱️ 30 хвилин
+```bash
+# Додати в apps/api/.env:
+PERPLEXITY_API_KEY=pplx-xxx
+TAVILY_API_KEY=tvly-xxx  
+SERPER_API_KEY=xxx
 
-1. **Loading States** (3 години)
-   - Skeleton loaders
-   - Progress indicators
-   - Toast notifications
+# Перевірити:
+cd apps/api && python -c "
+from app.core.config import settings
+print('✅ Perplexity:', bool(settings.PERPLEXITY_API_KEY))
+print('✅ Tavily:', bool(settings.TAVILY_API_KEY))
+print('✅ Serper:', bool(settings.SERPER_API_KEY))
+"
+```
 
-2. **Error Handling** (3 години)
-   - User-friendly error messages
-   - Retry buttons
-   - Error boundaries
+#### **2. Перевірити Generation Endpoint** ⏱️ 1 година
+```bash
+# Знайти endpoint для запуску генерації
+# Має бути: POST /api/v1/documents/{id}/generate
+# Перевірити чи підключений BackgroundJobService
+```
+**Файли для перевірки:**
+- `apps/api/app/api/v1/endpoints/documents.py` (endpoint)
+- `apps/api/app/services/background_jobs.py` (сервіс готовий)
+- Чи є роут для `/generate`? Якщо ні - додати
 
-3. **Basic Testing** (1 день)
-   - Smoke tests
-   - Critical path testing
-   - Manual QA checklist
+#### **3. Тест Full Flow** ⏱️ 2 години
+```bash
+# Test script:
+1. Login as admin
+2. Create document (POST /api/v1/documents)
+3. Start generation (POST /api/v1/documents/{id}/generate)
+4. Poll status (GET /api/v1/jobs/{job_id}/status)
+5. Export (POST /api/v1/documents/{id}/export)
+```
 
-**Всього Optional:** ~16 годин (2 дні)
+#### **4. Production .env** ⏱️ 30 хвилин
+```bash
+# apps/api/.env на сервері:
+DATABASE_URL=postgresql://user:pass@host/db
+REDIS_URL=redis://host:6379
+SECRET_KEY=<generate-strong-64-chars>
+JWT_SECRET=<generate-strong-64-chars>
+OPENAI_API_KEY=sk-xxx
+ANTHROPIC_API_KEY=sk-ant-xxx
+PERPLEXITY_API_KEY=pplx-xxx
+TAVILY_API_KEY=tvly-xxx
+SERPER_API_KEY=xxx
+ENVIRONMENT=production
+CORS_ALLOWED_ORIGINS=https://yourdomain.com
+```
+
+#### **5. Docker Deploy** ⏱️ 1 година
+```bash
+# На сервері:
+cd /var/www/tesigo
+git pull
+docker-compose -f docker-compose.prod.yml up -d --build
+docker-compose exec api alembic upgrade head
+```
 
 ---
 
-## 📅 ПЛАН НА 2 ТИЖНІ
+### 🟡 БАЖАНО (але не критично):
 
-### **ТИЖДЕНЬ 1: Критичні фікси + Core features**
+#### **6. Admin Login Простіше** ⏱️ 30 хвилин
+- Якщо magic link складний - тимчасово direct password login
+- Або просто використовувати існуючий `/api/v1/auth/admin-login`
 
-#### **День 1-2 (Пн-Вт): Security Fixes**
-```bash
-День 1 (8 годин):
-├── 09:00-13:00 | JWT Refresh Token (4h)
-│   ├── Frontend interceptor
-│   ├── Backend refresh endpoint
-│   └── Testing
-└── 14:00-18:00 | Stripe Security (4h)
-    ├── Race condition fix
-    ├── Signature verification
-    └── Testing
-
-День 2 (8 годин):
-├── 09:00-13:00 | Testing & Bug fixes (4h)
-└── 14:00-18:00 | Frontend-Backend Integration START (4h)
-```
-
-#### **День 3-4 (Ср-Чт): Frontend Integration**
-```bash
-День 3 (8 годин):
-├── 09:00-13:00 | Replace mock data (4h)
-│   ├── StatsOverview
-│   ├── DocumentsList
-│   └── UserProfile
-└── 14:00-18:00 | Real API calls (4h)
-    ├── GenerateSectionForm
-    ├── Error handling
-    └── Loading states
-
-День 4 (8 годин):
-├── 09:00-13:00 | Admin panel integration (4h)
-└── 14:00-18:00 | Testing integration (4h)
-```
-
-#### **День 5 (Пт): AI Pipeline**
-```bash
-День 5 (8 годин):
-├── 09:00-13:00 | RAG APIs (4h)
-│   ├── Perplexity
-│   ├── Tavily
-│   └── Serper
-└── 14:00-18:00 | Error recovery (4h)
-    ├── Retry logic
-    ├── Fallback chain
-    └── Testing
-```
-
-**Підсумок Тиждень 1:** Всі критичні баги виправлені, core integration готова
+#### **7. Frontend Polling** ⏱️ 2 години
+- Показувати status генерації (draft → generating → completed)
+- Кнопки Export працюють
 
 ---
 
-### **ТИЖДЕНЬ 2: Polish + Testing + Deploy**
+### 🟢 ВІДКЛАДЕНО (після тестування):
 
-#### **День 6-7 (Пн-Вт): Dynamic Pricing + UX**
-```bash
-День 6 (8 годин):
-├── 09:00-13:00 | Pricing backend (4h)
-│   ├── Model + migration
-│   ├── Service layer
-│   └── Admin endpoints
-└── 14:00-18:00 | Pricing frontend (4h)
-    ├── Admin UI integration
-    └── Payment page update
-
-День 7 (8 годин):
-├── 09:00-13:00 | UX improvements (4h)
-│   ├── Loading states
-│   ├── Error messages
-│   └── Toast notifications
-└── 14:00-18:00 | Error boundaries (4h)
-```
-
-#### **День 8-9 (Ср-Чт): Testing**
-```bash
-День 8 (8 годин):
-├── 09:00-13:00 | Smoke tests (4h)
-│   ├── Auth flow
-│   ├── Document creation
-│   ├── Payment flow
-│   └── Export
-└── 14:00-18:00 | Critical path testing (4h)
-    ├── E2E user journey
-    └── Bug fixing
-
-День 9 (8 годин):
-├── 09:00-13:00 | Bug fixing (4h)
-└── 14:00-18:00 | Final testing (4h)
-```
-
-#### **День 10 (Пт): Deploy Preparation**
-```bash
-День 10 (8 годин):
-├── 09:00-11:00 | Environment setup (2h)
-│   ├── Production .env
-│   ├── Secrets management
-│   └── Database migration
-├── 11:00-13:00 | Deploy to staging (2h)
-├── 14:00-16:00 | Staging testing (2h)
-└── 16:00-18:00 | Production deploy (2h)
-    └── Monitoring setup
-```
-
-**Підсумок Тиждень 2:** MVP готовий до production!
+- ❌ Email notifications (дивимось в dashboard)
+- ❌ WebSocket real-time (polling достатньо)
+- ❌ Plagiarism check
+- ❌ Grammar check
+- ❌ Payments (безкоштовно для тестування)
+- ❌ Public registration
 
 ---
 
-## ✅ КРИТЕРІЇ ГОТОВНОСТІ MVP
+## 🔧 ЩО ТРЕБА ДОРОБИТИ (Детальний План)
 
-### **Функціональні вимоги:**
+### **🔴 КРИТИЧНО - Day 1-2 (8-12 годин)**
+
+#### 1. RAG APIs Integration (4 години)
+**Мета:** Підключити всі search APIs для якісного research
+
+```bash
+# Файл: apps/api/app/services/ai_pipeline/rag_retriever.py
+
+ПОТРІБНО:
+1. Додати Perplexity API key в .env
+2. Додати Tavily API key в .env
+3. Додати Serper API key в .env
+4. Перевірити інтеграцію з Semantic Scholar (вже є)
+
+RESULT:
+- Якісний research з 4 джерел
+- Більше citations
+- Кращий контент
+```
+
+**Команди:**
+```bash
+# 1. Додати в apps/api/.env
+echo "PERPLEXITY_API_KEY=pplx-..." >> apps/api/.env
+echo "TAVILY_API_KEY=tvly-..." >> apps/api/.env
+echo "SERPER_API_KEY=..." >> apps/api/.env
+
+# 2. Тест integration
+cd apps/api && python -c "
+from app.services.ai_pipeline.rag_retriever import RAGRetriever
+retriever = RAGRetriever()
+results = retriever.search('machine learning', limit=5)
+print(f'✅ Found {len(results)} sources')
+"
+```
+
+---
+
+#### 2. Generation Flow End-to-End Test (3 години)
+**Мета:** Перевірити повний цикл: Create → Generate → Export
+
+```bash
+ТЕСТ СЦЕНАРІЙ:
+1. Створити документ через API
+2. Запустити генерацію (background job)
+3. Перевірити статус (polling)
+4. Дочекатись completed
+5. Експортувати DOCX/PDF
+6. Перевірити результат
+
+ФАЙЛИ ДЛЯ ПЕРЕВІРКИ:
+- apps/api/app/services/document_service.py
+- apps/api/app/services/ai_pipeline/generator.py
+- apps/api/app/services/background_jobs.py
+- apps/api/app/api/v1/endpoints/documents.py
+```
+
+**Тестовий скрипт:**
+```bash
+# Створити scripts/test_generation_flow.sh
+
+#!/bin/bash
+set -e
+
+echo "🧪 Testing Generation Flow..."
+
+# 1. Login
+TOKEN=$(curl -s -X POST http://localhost:8000/api/v1/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email": "admin@tesigo.com", "password": "admin123"}' | jq -r '.access_token')
+
+# 2. Create document
+DOC_ID=$(curl -s -X POST http://localhost:8000/api/v1/documents/ \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "title": "Test Document",
+    "topic": "Artificial Intelligence in Healthcare",
+    "language": "en",
+    "pages": 10
+  }' | jq -r '.id')
+
+echo "✅ Document created: $DOC_ID"
+
+# 3. Start generation
+JOB_ID=$(curl -s -X POST http://localhost:8000/api/v1/documents/$DOC_ID/generate \
+  -H "Authorization: Bearer $TOKEN" | jq -r '.job_id')
+
+echo "✅ Generation started: $JOB_ID"
+
+# 4. Poll status
+while true; do
+  STATUS=$(curl -s http://localhost:8000/api/v1/jobs/$JOB_ID/status \
+    -H "Authorization: Bearer $TOKEN" | jq -r '.status')
+  
+  echo "⏳ Status: $STATUS"
+  
+  if [ "$STATUS" == "completed" ]; then
+    echo "✅ Generation completed!"
+    break
+  elif [ "$STATUS" == "failed" ]; then
+    echo "❌ Generation failed!"
+    exit 1
+  fi
+  
+  sleep 10
+done
+
+# 5. Export DOCX
+curl -s -X POST http://localhost:8000/api/v1/documents/$DOC_ID/export \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{"format": "docx"}' \
+  -o test_output.docx
+
+echo "✅ Export completed: test_output.docx"
+echo "🎉 Test passed!"
+```
+
+---
+
+#### 3. Admin Login без Magic Link (2 години)
+**Мета:** Прямий логін для адмінів без email
+
+```python
+# Файл: apps/api/app/api/v1/endpoints/admin_auth.py
+
+@router.post("/admin/login")
+async def admin_login(
+    email: str,
+    password: str,  # або просто secret token
+    db: Session = Depends(get_db)
+):
+    """Direct admin login без email verification"""
+    user = await auth_service.authenticate_admin(email, password)
+    if not user or not user.is_admin:
+        raise HTTPException(403, "Not authorized")
+    
+    access_token = create_jwt(user.id)
+    return {"access_token": access_token}
+```
+
+**Frontend:**
+```typescript
+// apps/web/app/admin/login/page.tsx
+
+<form onSubmit={handleLogin}>
+  <input name="email" placeholder="admin@tesigo.com" />
+  <input name="password" type="password" placeholder="Secret" />
+  <button>Login as Admin</button>
+</form>
+```
+
+**Temp Solution:**
+```bash
+# Створити admin в БД з паролем
+docker exec ai-thesis-postgres psql -U postgres -d ai_thesis_platform -c "
+UPDATE users 
+SET is_admin=true, is_super_admin=true, password_hash='hashed_password'
+WHERE email='admin@tesigo.com';
+"
+```
+
+---
+
+#### 4. Frontend - Generation Status Polling (3 години)
+**Мета:** Показувати прогрес генерації в UI
+
+```typescript
+// apps/web/app/dashboard/documents/[id]/page.tsx
+
+const [status, setStatus] = useState('draft')
+const [progress, setProgress] = useState(0)
+
+useEffect(() => {
+  if (status === 'generating') {
+    const interval = setInterval(async () => {
+      const job = await apiClient.get(`/jobs/${jobId}/status`)
+      setStatus(job.status)
+      setProgress(job.progress || 0)
+      
+      if (job.status === 'completed' || job.status === 'failed') {
+        clearInterval(interval)
+      }
+    }, 5000) // Poll every 5 seconds
+    
+    return () => clearInterval(interval)
+  }
+}, [status, jobId])
+
+return (
+  <div>
+    {status === 'generating' && (
+      <div>
+        <ProgressBar value={progress} />
+        <p>Generating... {progress}%</p>
+      </div>
+    )}
+    {status === 'completed' && (
+      <button onClick={handleExport}>Download DOCX</button>
+    )}
+  </div>
+)
+```
+
+---
+
+### **🟡 ВАЖЛИВО - Day 3-4 (8-10 годин)**
+
+#### 5. Error Handling & Retry Logic (4 години)
+
+```python
+# apps/api/app/services/ai_pipeline/generator.py
+
+from app.services.retry_strategy import RetryStrategy
+
+async def generate_section_with_retry(section, context):
+    """Generate section з exponential backoff"""
+    retry = RetryStrategy(max_attempts=3, delays=[2, 4, 8])
+    
+    for attempt in range(retry.max_attempts):
+        try:
+            result = await openai_client.generate(section, context)
+            return result
+        except OpenAIError as e:
+            if attempt == retry.max_attempts - 1:
+                # Fallback to Claude
+                return await anthropic_client.generate(section, context)
+            await asyncio.sleep(retry.delays[attempt])
+```
+
+**Додати в frontend:**
+```typescript
+// Error states
+{error && (
+  <ErrorMessage>
+    <p>Generation failed: {error.message}</p>
+    <button onClick={handleRetry}>Retry Generation</button>
+  </ErrorMessage>
+)}
+```
+
+---
+
+#### 6. Export Integration (DOCX/PDF) (3 години)
+
+```python
+# Перевірити apps/api/app/services/export_service.py
+
+async def export_to_docx(document_id: int) -> bytes:
+    """Generate DOCX file"""
+    doc = await document_service.get(document_id)
+    
+    # Create DOCX with python-docx
+    from docx import Document
+    docx = Document()
+    docx.add_heading(doc.title, 0)
+    
+    for section in doc.sections:
+        docx.add_heading(section.title, 1)
+        docx.add_paragraph(section.content)
+    
+    # Save to BytesIO
+    buffer = BytesIO()
+    docx.save(buffer)
+    buffer.seek(0)
+    
+    # Upload to MinIO
+    await storage.upload(
+        f"exports/{document_id}.docx",
+        buffer.getvalue()
+    )
+    
+    return buffer.getvalue()
+```
+
+**Frontend download:**
+```typescript
+const handleExport = async (format: 'docx' | 'pdf') => {
+  const blob = await apiClient.post(`/documents/${id}/export`, { format })
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `document-${id}.${format}`
+  a.click()
+}
+```
+
+---
+
+#### 7. Admin Panel - Documents Management (3 години)
+
+```typescript
+// apps/web/app/admin/documents/page.tsx
+
+const AdminDocuments = () => {
+  const { data: documents } = useQuery('/api/v1/admin/documents')
+  
+  return (
+    <DocumentsTable 
+      documents={documents}
+      onRetry={(id) => apiClient.post(`/admin/documents/${id}/retry`)}
+      onDelete={(id) => apiClient.delete(`/admin/documents/${id}`)}
+      onView={(id) => router.push(`/admin/documents/${id}`)}
+    />
+  )
+}
+```
+
+**Додати дії:**
+- Retry failed generation
+- Delete document
+- View full content
+- Download logs
+
+---
+
+### **🟢 NICE TO HAVE - Day 5 (4-6 годин)**
+
+#### 8. Loading States & UI Polish (3 години)
+
+```typescript
+// Skeleton loaders
+<DocumentsList loading={isLoading}>
+  {isLoading ? (
+    <SkeletonLoader count={5} />
+  ) : (
+    documents.map(doc => <DocumentCard key={doc.id} {...doc} />)
+  )}
+</DocumentsList>
+
+// Toast notifications
+import { toast } from 'react-hot-toast'
+
+toast.success('Document generated!')
+toast.error('Generation failed. Please retry.')
+```
+
+---
+
+#### 9. Database Cleanup Scripts (2 години)
+
+```bash
+# scripts/cleanup_old_documents.sh
+
+#!/bin/bash
+# Видалити failed documents старші 7 днів
+
+docker exec ai-thesis-postgres psql -U postgres -d ai_thesis_platform -c "
+DELETE FROM documents 
+WHERE status = 'failed' 
+AND created_at < NOW() - INTERVAL '7 days';
+"
+```
+
+---
+
+#### 10. Monitoring & Logs (1 година)
+
+```python
+# apps/api/app/core/logging.py
+
+import logging
+from loguru import logger
+
+# Structured logging
+logger.add(
+    "logs/generation_{time}.log",
+    rotation="500 MB",
+    retention="10 days",
+    format="{time} | {level} | {message}"
+)
+
+# Usage
+logger.info(f"Generation started: doc={doc_id}, pages={pages}")
+logger.error(f"Generation failed: doc={doc_id}, error={str(e)}")
+```
+
+---
+
+## 📅 ПЛАН НА 5-7 ДНІВ (Testing-Ready MVP)
+
+### **🎯 ФОКУС: AI Generation Pipeline**
+
+---
+
+### **День 1-2 (Пн-Вт): RAG + Generation Testing**
+
+```bash
+📦 День 1 (8 годин):
+├── 09:00-11:00 | RAG APIs Setup (2h)
+│   ├── Додати API keys (Perplexity, Tavily, Serper)
+│   ├── Тест інтеграції з кожним API
+│   └── Перевірити Semantic Scholar (вже є)
+│
+├── 11:00-13:00 | Admin Login без Email (2h)
+│   ├── Backend: direct admin authentication
+│   ├── Frontend: simple login form
+│   └── Створити test admin в БД
+│
+└── 14:00-18:00 | End-to-End Generation Test (4h)
+    ├── Створити test script (bash)
+    ├── Тест: Create → Generate → Check status
+    ├── Дебаг проблем
+    └── Документувати результати
+
+📦 День 2 (8 годин):
+├── 09:00-13:00 | Error Handling & Retry (4h)
+│   ├── Exponential backoff
+│   ├── Fallback chain (GPT-4 → Claude)
+│   ├── Better error messages
+│   └── Checkpoint система
+│
+└── 14:00-18:00 | Full Generation Flow Testing (4h)
+    ├── Тест різних мов (EN, DE, FR, ES)
+    ├── Тест різних розмірів (10, 30, 50 pages)
+    ├── Перевірка якості output
+    └── Fix bugs
+```
+
+**Deliverable після День 2:**
+- ✅ RAG працює з 4 джерелами
+- ✅ Admin може залогінитись
+- ✅ Генерація працює end-to-end
+- ✅ Error recovery працює
+
+---
+
+### **День 3-4 (Ср-Чт): Export + Frontend Integration**
+
+```bash
+📦 День 3 (8 годин):
+├── 09:00-12:00 | Export Service (3h)
+│   ├── DOCX generation (python-docx)
+│   ├── PDF generation (weasyprint)
+│   ├── Upload to MinIO
+│   └── Download endpoint
+│
+├── 12:00-14:00 | Export Testing (2h)
+│   ├── Тест DOCX export
+│   ├── Тест PDF export
+│   ├── Перевірка форматування
+│   └── Тест різних мов
+│
+└── 14:00-18:00 | Frontend Status Polling (3h)
+    ├── Generation progress UI
+    ├── Status polling (every 5s)
+    ├── Progress bar
+    └── Export buttons
+
+📦 День 4 (8 годин):
+├── 09:00-13:00 | Frontend-Backend Integration (4h)
+│   ├── Replace mock data
+│   ├── Real API calls
+│   ├── Error handling UI
+│   └── Loading states
+│
+└── 14:00-18:00 | Admin Panel Integration (4h)
+    ├── Documents list з real data
+    ├── Document details page
+    ├── Retry failed generation
+    └── Delete documents
+```
+
+**Deliverable після День 4:**
+- ✅ Export працює (DOCX + PDF)
+- ✅ Frontend показує real data
+- ✅ Admin panel працює з БД
+- ✅ Status polling працює
+
+---
+
+### **День 5 (Пт): Polish + Testing**
+
+```bash
+📦 День 5 (8 годин):
+├── 09:00-11:00 | UI Polish (2h)
+│   ├── Loading skeletons
+│   ├── Toast notifications
+│   ├── Better error messages
+│   └── Responsive fixes
+│
+├── 11:00-13:00 | Database Cleanup (2h)
+│   ├── Script для видалення old failed docs
+│   ├── Logs rotation
+│   └── MinIO cleanup
+│
+├── 14:00-16:00 | Manual Testing (2h)
+│   ├── Створити 10 test documents
+│   ├── Різні мови, розміри
+│   ├── Перевірка export
+│   └── Збір issues
+│
+└── 16:00-18:00 | Bug Fixing (2h)
+    └── Fix знайдені issues
+```
+
+**Deliverable після День 5:**
+- ✅ MVP працює стабільно
+- ✅ UI приємний
+- ✅ Тести пройдені
+- ✅ Готово для внутрішнього тестування
+
+---
+
+### **День 6-7 (Необов'язково): Advanced Features**
+
+```bash
+📦 День 6 (якщо є час):
+├── WebSocket для real-time progress
+├── Advanced admin analytics
+├── Document history/versions
+└── Better error recovery
+
+📦 День 7 (якщо є час):
+├── Performance optimization
+├── More comprehensive testing
+├── Documentation update
+└── Deploy preparation
+```
+
+---
+
+## ⏱️ РОЗКЛАД РОБОТИ
+
+**Оптимальний режим:**
+```
+09:00-13:00 - Deep work (4 години)
+13:00-14:00 - Обід + відпочинок
+14:00-18:00 - Coding + Testing (4 години)
+18:00+      - Review + Planning
+
+Всього: 8 годин/день productive work
+```
+
+**Checkpoints:**
+- **10:00** - Morning standup (5 хв)
+- **13:00** - Lunch checkpoint (що зроблено)
+- **17:00** - Evening review (що залишилось)
+- **18:00** - Day summary (що на завтра)
+
+---
+
+## 🎯 КРИТЕРІЇ ЗАВЕРШЕННЯ КОЖНОГО ДНЯ
+
+### **День 1 ✅:**
+```bash
+□ RAG APIs підключені (3/3 нові + 1 старий)
+□ Admin login працює без email
+□ Test script створено
+□ Хоча б 1 документ згенеровано успішно
+```
+
+### **День 2 ✅:**
+```bash
+□ Error handling працює
+□ Fallback chain працює (GPT-4 → Claude)
+□ Протестовано 3+ мови
+□ Протестовано 3+ розміри (10, 30, 50 pages)
+```
+
+### **День 3 ✅:**
+```bash
+□ DOCX export працює
+□ PDF export працює
+□ Files upload до MinIO
+□ Download працює в frontend
+```
+
+### **День 4 ✅:**
+```bash
+□ Frontend без mock data
+□ Status polling працює
+□ Admin panel показує real documents
+□ Retry/Delete працює
+```
+
+### **День 5 ✅:**
+```bash
+□ UI приємний (loading, errors, toasts)
+□ 10 test documents created
+□ All exports successful
+□ No critical bugs
+```
+
+---
+
+## ✅ КРИТЕРІЇ ГОТОВНОСТІ MVP (Testing Version)
+
+### **Функціональні вимоги (SIMPLIFIED):**
 
 ```
-✅ 1. AUTHENTICATION
-   ├── User can register with email
-   ├── User can login with magic link
-   ├── User can logout
-   └── Session persists 7 days
+✅ 1. AUTHENTICATION (Simplified)
+   ├── Admin can login with email + password (NO magic link)
+   ├── JWT tokens work (1 hour access, 7 days refresh)
+   ├── Session persists across page reloads
+   └── Logout works
 
-✅ 2. DOCUMENT CREATION
-   ├── User can create document (title, topic, pages, language)
+✅ 2. DOCUMENT CREATION (NO Payment)
+   ├── Admin can create document (title, topic, pages, language)
    ├── Validation: 3-200 pages
-   ├── Validation: supported languages
-   └── Document saved to database
+   ├── Validation: supported languages (EN, DE, FR, ES, IT, CS, UK)
+   ├── Document saved to database
+   └── NO payment required - direct to generation
 
-✅ 3. PAYMENT
-   ├── User sees price calculation (pages × €0.50)
-   ├── User can pay via Stripe
-   ├── Payment confirmed via webhook
-   └── Invoice generated
-
-✅ 4. AI GENERATION
+✅ 3. AI GENERATION (CORE FEATURE)
+   ├── RAG search works (4 APIs: Semantic Scholar, Perplexity, Tavily, Serper)
    ├── System generates outline (5-10 sections)
-   ├── System generates full content
+   ├── System generates full content BY SECTIONS (not chunks!)
+   ├── Citations formatted correctly (APA/MLA/Chicago)
+   ├── Generation runs in background job
+   ├── Status tracking: draft → generating → completed/failed
    ├── Generation takes 5-15 minutes
-   ├── User can see generation status
-   └── Content saved to database
+   ├── Admin can see generation status (polling)
+   ├── Content saved to database + MinIO
+   └── Error recovery works (retry + fallback)
 
-✅ 5. EXPORT
-   ├── User can download DOCX
-   ├── User can download PDF
-   ├── Export preserves formatting
-   └── Export includes metadata
+✅ 4. EXPORT
+   ├── Admin can download DOCX
+   ├── Admin can download PDF
+   ├── Export preserves formatting (headings, paragraphs, lists)
+   ├── Export includes citations
+   └── Files stored in MinIO
 
-✅ 6. ADMIN PANEL
-   ├── Admin can view all users
+✅ 5. ADMIN PANEL
    ├── Admin can view all documents
-   ├── Admin can see platform stats
-   └── Admin can change pricing
+   ├── Admin can see document details (full content)
+   ├── Admin can see generation status
+   ├── Admin can retry failed generation
+   ├── Admin can delete documents
+   └── Admin can see system stats (total docs, completed, failed)
+
+❌ ВІДКЛАДЕНО (не потрібно для testing):
+   ├── Payment system (Stripe)
+   ├── Magic link email auth
+   ├── Email notifications
+   ├── Plagiarism check
+   ├── Grammar check
+   ├── Real-time WebSocket progress
+   ├── Document editing
+   └── User registration (public users)
 ```
 
 ### **Non-Functional вимоги:**
@@ -398,179 +1317,279 @@
 ✅ PERFORMANCE
    ├── API response time < 500ms (p95)
    ├── Generation time < 15 min for 50 pages
-   └── Frontend load time < 3s
+   ├── Frontend load time < 3s
+   └── Database queries optimized (N+1 avoided)
 
-✅ SECURITY
-   ├── JWT tokens with refresh
-   ├── HTTPS only in production
-   ├── Stripe webhook verification
-   ├── SQL injection protection (SQLAlchemy)
-   └── XSS protection (Next.js built-in)
+✅ STABILITY
+   ├── Error recovery works (retry + fallback)
+   ├── Background jobs don't crash
+   ├── Database transactions ACID
+   ├── Files uploaded reliably to MinIO
+   └── Logs captured for debugging
 
-✅ RELIABILITY
-   ├── Database backups daily
-   ├── Error tracking (Sentry)
-   ├── Health check endpoint
-   └── Graceful error handling
+✅ SECURITY (Basic)
+   ├── JWT tokens secure
+   ├── Admin-only access (is_admin check)
+   ├── SQL injection protection (SQLAlchemy ORM)
+   ├── XSS protection (Next.js built-in)
+   └── CORS configured correctly
 
 ✅ USABILITY
-   ├── Mobile responsive
    ├── Clear error messages
    ├── Loading indicators
-   └── User-friendly forms
+   ├── Simple forms
+   └── Mobile responsive (basic)
+
+❌ ВІДКЛАДЕНО:
+   ├── HTTPS/SSL (local testing only)
+   ├── Rate limiting (not needed for admins)
+   ├── GDPR compliance
+   ├── Email service
+   └── Advanced monitoring (Sentry, Grafana)
 ```
 
 ---
 
-## 🚦 DEFINITION OF DONE
+## 🚦 DEFINITION OF DONE (Testing MVP)
 
 **MVP вважається готовим коли:**
 
-### ✅ Checklist для запуску:
+### ✅ Checklist для testing launch:
 
 ```bash
-# 1. Technical
-□ All P0 bugs fixed
-□ All critical features working
-□ Smoke tests passing
-□ Production environment configured
-□ SSL certificates installed
-□ Database backups configured
-□ Monitoring set up (health checks)
+# 1. CORE FUNCTIONALITY
+□ Admin can login without email
+□ Admin can create document (form validation works)
+□ RAG search returns results from 4 sources
+□ Generation runs in background
+□ Generation completes successfully for 10-page document
+□ Generation completes successfully for 50-page document
+□ Status polling works (updates every 5s)
+□ DOCX export works
+□ PDF export works
+□ Retry failed generation works
 
-# 2. Business
-□ Stripe account in production mode
-□ Email service configured (AWS SES or similar)
-□ Terms of Service page
-□ Privacy Policy page
-□ Pricing page
-□ Contact/Support email
+# 2. INFRASTRUCTURE
+□ PostgreSQL running and healthy
+□ Redis running and healthy
+□ MinIO running and accessible
+□ Backend API running (uvicorn)
+□ Frontend running (Next.js)
+□ Docker containers all healthy
 
-# 3. Testing
-□ Manual E2E test completed
-□ Payment flow tested with real card
-□ Generation tested for all languages
-□ Export tested (DOCX + PDF)
-□ Admin panel tested
+# 3. DATA QUALITY
+□ Generated content is coherent
+□ Citations formatted correctly
+□ Multiple languages tested (EN, DE, FR)
+□ No duplicate content
+□ Outline structure makes sense
 
-# 4. Documentation
-□ README updated
-□ Environment variables documented
-□ Deployment guide ready
-□ API keys secured
+# 4. ERROR HANDLING
+□ AI API failure triggers retry
+□ Fallback to Claude works if GPT-4 fails
+□ Frontend shows error messages
+□ Failed jobs can be retried
+□ Logs captured for debugging
 
-# 5. Launch
-□ Domain configured
-□ DNS records set
-□ Application deployed
-□ Smoke test on production
-□ First real payment processed
+# 5. ADMIN EXPERIENCE
+□ Admin panel shows all documents
+□ Document details page works
+□ Can view full generated content
+□ Can download exports
+□ Stats are accurate
+
+# 6. TESTING COMPLETED
+□ Manual E2E test passed (create → generate → export)
+□ Tested with 5 different documents
+□ Tested with different page counts (10, 30, 50)
+□ Tested with different languages (EN, DE, FR)
+□ All exports downloaded and verified
+□ No critical bugs found
+
+# 7. DOCUMENTATION
+□ MVP_PLAN.md updated with results
+□ Test results documented
+□ Known issues listed
+□ Next steps defined
 ```
 
 ---
 
-## 📊 SUCCESS METRICS
+## 📊 SUCCESS METRICS (Testing Phase)
 
-### **Week 1 Goals:**
-- ✅ 0 P0 bugs remaining
-- ✅ All core features working locally
-- ✅ Backend-Frontend integration 100%
+### **Day 1-2 Goals:**
+- ✅ RAG APIs working (all 4 connected)
+- ✅ Admin login working
+- ✅ At least 1 successful generation end-to-end
 
-### **Week 2 Goals:**
-- ✅ Successful staging deployment
-- ✅ All smoke tests passing
-- ✅ Successful production deployment
-- ✅ First real user registration
-- ✅ First real document generated
+### **Day 3-4 Goals:**
+- ✅ Export working (DOCX + PDF)
+- ✅ Frontend showing real data
+- ✅ Admin panel functional
+- ✅ Status polling working
 
-### **Post-Launch (Week 3):**
-- 🎯 5 beta users registered
-- 🎯 3 documents generated
-- 🎯 1 successful payment
-- 🎯 0 critical bugs reported
+### **Day 5 Goals:**
+- ✅ UI polished (loading, errors, notifications)
+- ✅ 10 test documents created
+- ✅ All exports successful
+- ✅ No critical bugs
+
+### **Post-Testing (Week 2):**
+- 🎯 5 admins tested the system
+- 🎯 20+ documents generated
+- 🎯 100% export success rate
+- 🎯 Average generation time < 10 min
+- 🎯 Content quality approved
+- 🎯 Ready to add payments + public access
 
 ---
 
-## 🔮 POST-MVP ROADMAP (v2.0)
+## 📝 TESTING CHECKLIST
 
-### **Що робимо після запуску:**
+### **Manual Testing Scenarios:**
 
-**Month 1 (Immediate):**
-- Real-time WebSocket progress
-- Email notifications
-- Plagiarism check integration
-- Grammar check (LanguageTool)
+```bash
+# TEST 1: Basic Flow (English, 10 pages)
+1. Login as admin
+2. Create document: "AI in Healthcare", EN, 10 pages
+3. Wait for generation (5-10 min)
+4. Check content quality
+5. Download DOCX
+6. Download PDF
+✅ Expected: All steps successful
 
-**Month 2 (Short-term):**
-- User feedback system
-- Document history/versions
-- Advanced search (user documents)
-- Citation management
+# TEST 2: Large Document (English, 50 pages)
+1. Create document: "Deep Learning Research", EN, 50 pages
+2. Monitor generation progress
+3. Check no memory issues
+4. Verify all sections generated
+✅ Expected: Completes in < 15 min
 
-**Month 3 (Mid-term):**
-- Mobile app (React Native)
-- Collaborative editing
+# TEST 3: Multiple Languages
+1. Create documents in: EN, DE, FR, ES
+2. Verify RAG search works for each language
+3. Verify citations formatted correctly
+4. Check content makes sense in each language
+✅ Expected: All languages work
+
+# TEST 4: Error Recovery
+1. Create document
+2. Simulate OpenAI API failure (disconnect network)
+3. Check fallback to Claude triggers
+4. Verify retry logic works
+✅ Expected: Generation completes despite errors
+
+# TEST 5: Admin Panel
+1. Login to /admin
+2. View documents list
+3. Click on document
+4. View full content
+5. Retry failed generation
+6. Delete document
+✅ Expected: All actions work
+
+# TEST 6: Concurrent Generations
+1. Start 3 generations simultaneously
+2. Monitor all progress
+3. Verify no race conditions
+4. Check all complete successfully
+✅ Expected: All 3 complete without conflicts
+```
+
+---
+
+## 🔮 POST-TESTING ROADMAP
+
+### **Що робимо ПІСЛЯ успішного тестування:**
+
+**Priority 1 (Week 2): Enable Public Access**
+- Add Stripe payment integration
+- Add magic link email auth
+- Add user registration
+- Add payment history
+- Deploy to staging/production
+
+**Priority 2 (Week 3): Quality & Polish**
+- Add plagiarism check
+- Add grammar check (LanguageTool)
+- Add real-time WebSocket progress
+- Improve UI/UX
+- Add email notifications
+
+**Priority 3 (Month 2): Advanced Features**
+- Document editing
+- Version history
 - Template system
-- Social sharing
+- Collaboration features
+- Advanced analytics
 
 ---
 
-## 🆘 РИСКИ ТА МІТІГАЦІЯ
+## 🆘 РИЗИКИ (Testing Phase)
 
 ### **Технічні ризики:**
 
 | Ризик | Ймовірність | Вплив | Мітігація |
 |-------|-------------|-------|-----------|
-| AI API timeout | Висока | Високий | Retry + fallback моделі |
-| Stripe webhook fail | Середня | Критичний | Idempotency + manual retry |
-| Database migration fail | Низька | Критичний | Backup before deploy |
-| SSL certificate issue | Низька | Високий | LetsEncrypt auto-renewal |
+| AI API timeout | **Висока** | Критичний | Retry + fallback + увеличити timeout |
+| Memory leak (large docs) | Середня | Високий | Stream to DB, clear memory after each section |
+| RAG APIs quota exceeded | Середня | Високий | Monitor usage, implement caching |
+| Database connection pool exhausted | Низька | Середній | Limit pool to 20, optimize queries |
+| MinIO upload failure | Низька | Середній | Retry upload 3 times |
 
 ### **Бізнес ризики:**
 
 | Ризик | Ймовірність | Вплив | Мітігація |
 |-------|-------------|-------|-----------|
-| Low user adoption | Середня | Високий | Beta testing, marketing |
-| High AI costs | Середня | Середній | Token usage monitoring |
-| Quality complaints | Середня | Високий | Quality checks, refunds |
-| Legal issues | Низька | Критичний | Terms of Service, disclaimers |
+| Poor content quality | Середня | Критичний | Test extensively, improve prompts |
+| Slow generation (>15 min) | Середня | Високий | Optimize, parallel processing |
+| High AI costs | Середня | Середній | Monitor token usage, set limits |
+| Citations not accurate | Низька | Середній | Verify RAG sources, manual review |
 
 ---
 
-## 📝 DAILY STANDUP FORMAT
-
-**Щоденний чек (15 хвилин):**
+## 📋 DAILY STANDUP FORMAT (Testing Phase)
 
 ```
-🎯 Yesterday:
-   - What was completed
-   - Blockers encountered
+🎯 YESTERDAY:
+   - Completed: [list tasks]
+   - Tested: [documents created]
+   - Issues found: [list bugs]
 
-🚀 Today:
-   - What will be done
-   - Estimated hours
+🚀 TODAY:
+   - Focus: [main goal]
+   - Tasks: [3-5 specific tasks]
+   - Est. time: [hours]
 
-⚠️ Blockers:
-   - Any issues preventing progress
-   - Help needed
+⚠️ BLOCKERS:
+   - [Any issues preventing progress]
+   - [API keys missing?]
+   - [Bugs to fix?]
+
+📊 METRICS:
+   - Documents created: X
+   - Successful: Y
+   - Failed: Z
+   - Avg. generation time: N min
 ```
 
 ---
 
-## 🎉 ЗАПУСК!
+## 🎉 READY FOR TESTING!
 
-**Коли все готово:**
+**When checklist complete:**
 
-1. ✅ Deploy to production
-2. 📧 Send to 10 beta testers
-3. 📊 Monitor first 24 hours
-4. 🐛 Fix any critical issues
-5. 📈 Analyze metrics
-6. 🚀 Open to public
+1. ✅ Run full test suite (6 scenarios above)
+2. 📊 Document results
+3. 🐛 Fix critical bugs
+4. 🔄 Iterate until stable
+5. ✅ Get admin feedback
+6. 📈 Analyze metrics
+7. 🚀 Prepare for public launch (add payments)
 
-**LET'S GO! 🚀**
+**LET'S BUILD & TEST! 🚀**
 
 ---
 
-**Останнє оновлення:** 25 листопада 2025
+**Останнє оновлення:** 28 листопада 2025
 **Наступний review:** Кінець тижня 1

@@ -41,14 +41,15 @@ async def test_create_refund_request(refund_service, mock_db):
     mock_payment.user_id = 1
     mock_payment.status = "completed"
 
-    mock_result = MagicMock()
-    mock_result.scalar_one_or_none.return_value = mock_payment
-    mock_db.execute.return_value = mock_result
+    mock_payment_result = MagicMock()
+    mock_payment_result.scalar_one_or_none.return_value = mock_payment
 
     # Mock existing refund check (no existing refund)
     mock_existing_result = MagicMock()
     mock_existing_result.scalar_one_or_none.return_value = None
-    mock_db.execute.return_value = mock_existing_result
+
+    # Use side_effect for multiple execute calls
+    mock_db.execute.side_effect = [mock_payment_result, mock_existing_result]
 
     # Mock commit
     mock_db.commit = AsyncMock()
@@ -139,13 +140,14 @@ async def test_get_refunds_list(refund_service, mock_db):
     # Mock count query
     mock_count_result = MagicMock()
     mock_count_result.scalar.return_value = 10
-    mock_db.execute.return_value = mock_count_result
 
     # Mock refunds query
     mock_refunds = [MagicMock(id=i, status="pending") for i in range(5)]
-    mock_result = MagicMock()
-    mock_result.scalars.return_value.all.return_value = mock_refunds
-    mock_db.execute.return_value = mock_result
+    mock_refunds_result = MagicMock()
+    mock_refunds_result.scalars.return_value.all.return_value = mock_refunds
+
+    # Use side_effect for two execute calls (count, then list)
+    mock_db.execute.side_effect = [mock_count_result, mock_refunds_result]
 
     result = await refund_service.get_refunds_list(
         status="pending",
@@ -231,21 +233,34 @@ async def test_reject_refund(refund_service, mock_db):
 @pytest.mark.asyncio
 async def test_get_refund_stats(refund_service, mock_db):
     """Test get_refund_stats returns statistics"""
-    # Mock database results
-    mock_result = MagicMock()
-    mock_result.scalar.side_effect = [
-        100,  # total_requests
-        20,  # pending
-        60,  # approved
-        20,  # rejected
-        Decimal("5000.00"),  # total_refunded_amount
-    ]
-    mock_db.execute.return_value = mock_result
+    # Mock 6 separate execute calls
+    mock_total = MagicMock()
+    mock_total.scalar.return_value = 100  # total_requests
 
-    # Mock average processing time
-    mock_avg_result = MagicMock()
-    mock_avg_result.scalar.return_value = 24.5  # hours
-    mock_db.execute.return_value = mock_avg_result
+    mock_pending = MagicMock()
+    mock_pending.scalar.return_value = 20  # pending
+
+    mock_approved = MagicMock()
+    mock_approved.scalar.return_value = 60  # approved
+
+    mock_rejected = MagicMock()
+    mock_rejected.scalar.return_value = 20  # rejected
+
+    mock_refunded_amount = MagicMock()
+    mock_refunded_amount.scalar.return_value = Decimal("5000.00")  # total_refunded_amount
+
+    mock_avg_time = MagicMock()
+    mock_avg_time.scalar.return_value = 24.5  # average processing time in hours
+
+    # Use side_effect for 6 sequential execute calls
+    mock_db.execute.side_effect = [
+        mock_total,
+        mock_pending,
+        mock_approved,
+        mock_rejected,
+        mock_refunded_amount,
+        mock_avg_time,
+    ]
 
     stats = await refund_service.get_refund_stats()
 
@@ -254,4 +269,8 @@ async def test_get_refund_stats(refund_service, mock_db):
     assert "approved" in stats
     assert "rejected" in stats
     assert "total_refunded_amount" in stats
+    assert stats["total_requests"] == 100
+    assert stats["pending"] == 20
+    assert stats["approved"] == 60
+    assert stats["rejected"] == 20
     assert stats["total_requests"] == 100

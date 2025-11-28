@@ -1,6 +1,6 @@
 'use client'
 
-import { format } from 'date-fns'
+import { formatDateOnly, formatDateTime } from '@/lib/utils/date'
 import { DataTable, Column } from '../ui/DataTable'
 import {
   EyeIcon,
@@ -12,7 +12,7 @@ import {
   ArrowPathIcon,
   EllipsisVerticalIcon,
 } from '@heroicons/react/24/outline'
-import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react'
+import { Menu, Transition } from '@headlessui/react'
 
 interface Payment {
   id: number
@@ -136,7 +136,7 @@ export function PaymentsTable({
       sortable: true,
       render: (payment) => (
         <span className="text-gray-300">
-          {format(new Date(payment.created_at), 'MMM dd, yyyy')}
+          {formatDateOnly(payment.created_at)}
         </span>
       ),
     },
@@ -146,8 +146,7 @@ export function PaymentsTable({
       sortable: true,
       render: (payment) => (
         <span className="text-gray-300">
-          {payment.completed_at
-            ? format(new Date(payment.completed_at), 'MMM dd, yyyy')
+          {formatDateOnly(payment.completed_at)}
             : '—'}
         </span>
       ),
@@ -157,10 +156,10 @@ export function PaymentsTable({
       label: 'Actions',
       render: (payment) => (
         <Menu as="div" className="relative inline-block text-left">
-          <MenuButton className="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-300 hover:text-white">
+          <Menu.Button className="inline-flex items-center px-2 py-1 text-sm font-medium text-gray-300 hover:text-white">
             <span className="sr-only">Open options</span>
             <EllipsisVerticalIcon className="h-5 w-5" />
-          </MenuButton>
+          </Menu.Button>
           <Transition
             enter="transition ease-out duration-100"
             enterFrom="transform opacity-0 scale-95"
@@ -169,44 +168,44 @@ export function PaymentsTable({
             leaveFrom="transform opacity-100 scale-100"
             leaveTo="transform opacity-0 scale-95"
           >
-            <MenuItems className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+            <Menu.Items className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-gray-800 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
               <div className="py-1">
-                <MenuItem>
-                  {({ focus }) => (
+                <Menu.Item>
+                  {({ active }) => (
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
                         onPaymentClick && onPaymentClick(payment)
                       }}
                       className={`${
-                        focus ? 'bg-gray-700 text-white' : 'text-gray-300'
+                        active ? 'bg-gray-700 text-white' : 'text-gray-300'
                       } group flex items-center px-4 py-2 text-sm w-full`}
                     >
                       <EyeIcon className="mr-3 h-5 w-5" aria-hidden="true" />
                       View Details
                     </button>
                   )}
-                </MenuItem>
+                </Menu.Item>
                 {payment.status === 'completed' && (
-                  <MenuItem>
-                    {({ focus }) => (
+                  <Menu.Item>
+                    {({ active }) => (
                       <button
                         onClick={(e) => {
                           e.stopPropagation()
                           onRefund && onRefund(payment.id)
                         }}
                         className={`${
-                          focus ? 'bg-gray-700 text-white' : 'text-gray-300'
+                          active ? 'bg-gray-700 text-white' : 'text-gray-300'
                         } group flex items-center px-4 py-2 text-sm w-full`}
                       >
                         <ArrowPathIcon className="mr-3 h-5 w-5" aria-hidden="true" />
                         Initiate Refund
                       </button>
                     )}
-                  </MenuItem>
+                  </Menu.Item>
                 )}
               </div>
-            </MenuItems>
+            </Menu.Items>
           </Transition>
         </Menu>
       ),

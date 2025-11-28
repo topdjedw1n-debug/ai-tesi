@@ -236,7 +236,7 @@ export default function AdminSettingsPage() {
 
         {activeTab === 'limits' && (
           <LimitSettingsForm
-            initialSettings={limitSettings || undefined}
+            initialSettings={limitSettings ? { ...limitSettings, daily_token_limit: limitSettings.daily_token_limit ?? null } : undefined}
             onSave={handleSaveLimits}
             isLoading={isSaving}
           />
@@ -244,7 +244,7 @@ export default function AdminSettingsPage() {
 
         {activeTab === 'maintenance' && (
           <MaintenanceSettingsForm
-            initialSettings={maintenanceSettings || undefined}
+            initialSettings={maintenanceSettings ? { ...maintenanceSettings, estimated_end_time: maintenanceSettings.estimated_end_time ?? null } : undefined}
             onSave={handleSaveMaintenance}
             isLoading={isSaving}
           />

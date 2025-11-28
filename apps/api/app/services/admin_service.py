@@ -3,12 +3,14 @@ Admin service for platform monitoring and management
 """
 
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any
 
 import structlog
 from sqlalchemy import and_, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.exceptions import NotFoundError
 from app.core.logging import log_security_audit_event
 from app.models.admin import AdminAuditLog
 from app.models.document import AIGenerationJob, Document
@@ -127,27 +129,16 @@ class AdminService:
             )
             stuck_running = stuck_running_result.scalar()
 
+            # Return flat structure for frontend compatibility
             return {
-                "users": {"total": total_users, "active_last_30_days": active_users},
-                "documents": {
-                    "total": total_documents,
-                    "completed": completed_documents,
-                },
-                "ai_usage": {
-                    "total_jobs": total_ai_jobs,
-                    "total_tokens_all_time": total_tokens,
-                    "total_tokens_from_jobs": total_tokens_from_jobs,
-                    "total_tokens_from_documents": total_tokens_from_docs,
-                    "average_tokens_per_document": round(avg_tokens_per_doc, 2),
-                    "total_cost_cents": total_cost_cents,
-                    "recent_jobs_24h": recent_jobs,
-                    "stuck_jobs": {
-                        "queued": stuck_queued,
-                        "running": stuck_running,
-                        "total": stuck_queued + stuck_running,
-                    },
-                },
-                "generated_at": datetime.utcnow().isoformat(),
+                "total_users": total_users,
+                "active_users_today": active_users,  # Actually last 30 days
+                "total_documents": total_documents,
+                "completed_documents": completed_documents,
+                "total_revenue": 0.0,  # Not using payments in MVP
+                "revenue_today": 0.0,
+                "pending_refunds": 0,
+                "active_jobs": recent_jobs,
             }
 
         except Exception as e:
@@ -310,14 +301,15 @@ class AdminService:
             Dictionary with updated user info
 
         Raises:
-            ValueError: If user not found or already blocked
+            NotFoundError: If user not found
+            ValueError: If already blocked
         """
         try:
             result = await self.db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
             if not user:
-                raise ValueError("User not found")
+                raise NotFoundError("User not found")
 
             if not user.is_active:
                 raise ValueError("User is already blocked")
@@ -333,11 +325,12 @@ class AdminService:
                 "id": user.id,
                 "email": user.email,
                 "is_active": user.is_active,
+                "status": "blocked",
                 "blocked_at": datetime.utcnow().isoformat(),
                 "reason": reason,
             }
 
-        except ValueError:
+        except (NotFoundError, ValueError):
             await self.db.rollback()
             raise
         except Exception as e:
@@ -357,14 +350,15 @@ class AdminService:
             Dictionary with updated user info
 
         Raises:
-            ValueError: If user not found or already active
+            NotFoundError: If user not found
+            ValueError: If already active
         """
         try:
             result = await self.db.execute(select(User).where(User.id == user_id))
             user = result.scalar_one_or_none()
 
             if not user:
-                raise ValueError("User not found")
+                raise NotFoundError("User not found")
 
             if user.is_active:
                 raise ValueError("User is already active")
@@ -380,10 +374,11 @@ class AdminService:
                 "id": user.id,
                 "email": user.email,
                 "is_active": user.is_active,
+                "status": "active",
                 "unblocked_at": datetime.utcnow().isoformat(),
             }
 
-        except ValueError:
+        except (NotFoundError, ValueError):
             await self.db.rollback()
             raise
         except Exception as e:

@@ -294,6 +294,23 @@ class BackgroundJobService:
                     await db.commit()
                     return
 
+                # Step 4.5: Combine sections into final document content
+                logger.info(f"Combining {len(completed_sections)} sections into document {document_id}")
+                final_content = "\n\n".join([
+                    f"# {section.title}\n\n{section.content}"
+                    for section in sorted(completed_sections, key=lambda s: s.section_index)
+                ])
+                
+                await db.execute(
+                    update(Document)
+                    .where(Document.id == document_id)
+                    .values(
+                        content=final_content,
+                        status="sections_generated"
+                    )
+                )
+                await db.commit()
+
                 # Step 5: Export to DOCX
                 logger.info(f"Exporting document {document_id} to DOCX")
                 try:

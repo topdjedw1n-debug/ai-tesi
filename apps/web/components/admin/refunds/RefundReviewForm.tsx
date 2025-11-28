@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { RefundDetails } from '@/lib/api/admin'
-import { format } from 'date-fns'
+import { formatDateOnly, formatDateTime } from '@/lib/utils/date'
 import {
   CheckCircleIcon,
   XCircleIcon,
@@ -112,7 +112,7 @@ export function RefundReviewForm({
           <h3 className="text-sm font-medium text-gray-400 mb-2">User Information</h3>
           <p className="text-white font-medium">{refund.user.email}</p>
           <p className="text-sm text-gray-400">
-            Registered: {format(new Date(refund.user.registered_at), 'MMM dd, yyyy')}
+            Registered: {formatDateOnly(refund.user.registered_at)}
           </p>
           <p className="text-sm text-gray-400">User ID: {refund.user.id}</p>
         </div>
@@ -126,7 +126,7 @@ export function RefundReviewForm({
             Payment ID: #{refund.payment.id}
           </p>
           <p className="text-sm text-gray-400">
-            Date: {format(new Date(refund.payment.created_at), 'MMM dd, yyyy')}
+            Date: {formatDateOnly(refund.payment.created_at)}
           </p>
           <p className="text-sm text-gray-400">Status: {refund.payment.status}</p>
         </div>
@@ -149,7 +149,7 @@ export function RefundReviewForm({
           <div>
             <span className="text-sm text-gray-400">Submitted:</span>
             <span className="ml-2 text-white">
-              {format(new Date(refund.submitted_at), 'MMM dd, yyyy HH:mm')}
+              {formatDateTime(refund.submitted_at)}
             </span>
           </div>
         </div>
@@ -215,18 +215,18 @@ export function RefundReviewForm({
               <div>
                 <span className="text-sm text-gray-400">Risk Score:</span>
                 <span className={`ml-2 font-medium ${getAIRiskColor()}`}>
-                  {(refund.risk_score * 100).toFixed(0)}%
+                  {((refund.risk_score ?? 0) * 100).toFixed(0)}%
                 </span>
                 <div className="mt-2 w-full bg-gray-600 rounded-full h-2">
                   <div
                     className={`h-2 rounded-full ${
-                      refund.risk_score < 0.3
+                      (refund.risk_score ?? 0) < 0.3
                         ? 'bg-green-500'
-                        : refund.risk_score < 0.7
+                        : (refund.risk_score ?? 0) < 0.7
                         ? 'bg-yellow-500'
                         : 'bg-red-500'
                     }`}
-                    style={{ width: `${refund.risk_score * 100}%` }}
+                    style={{ width: `${(refund.risk_score ?? 0) * 100}%` }}
                   />
                 </div>
               </div>
@@ -328,7 +328,7 @@ export function RefundReviewForm({
           </h3>
           {refund.reviewed_at && (
             <p className="text-sm text-gray-400 mb-2">
-              Reviewed: {format(new Date(refund.reviewed_at), 'MMM dd, yyyy HH:mm')}
+              Reviewed: {formatDateTime(refund.reviewed_at)}
             </p>
           )}
           {refund.admin_comment && (

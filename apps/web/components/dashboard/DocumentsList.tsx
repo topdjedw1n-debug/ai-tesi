@@ -63,7 +63,8 @@ export function DocumentsList() {
         setDocuments(documents)
       } catch (error) {
         console.error('Failed to fetch documents:', error)
-        toast.error('Failed to load documents')
+        // Don't show error toast - auth check will redirect
+        // toast.error('Failed to load documents')
         setDocuments([])
       } finally {
         setIsLoading(false)

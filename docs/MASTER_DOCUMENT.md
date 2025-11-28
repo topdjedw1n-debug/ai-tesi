@@ -202,8 +202,8 @@ Kubernetes           # Production (optional)
 ### 4.1 Authentication Endpoints
 
 ```python
-POST   /api/v1/auth/magic-link/request   # Request magic link
-POST   /api/v1/auth/magic-link/verify    # Verify magic link
+POST   /api/v1/auth/magic-link          # Request magic link
+POST   /api/v1/auth/verify-magic-link   # Verify magic link
 POST   /api/v1/auth/refresh              # Refresh JWT token
 POST   /api/v1/auth/logout               # Logout user
 GET    /api/v1/auth/me                   # Get current user

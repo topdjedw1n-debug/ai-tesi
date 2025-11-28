@@ -45,7 +45,12 @@ export default function PaymentSuccessPage() {
           // Redirect to document page after 3 seconds
           if (data.document_id) {
             setTimeout(() => {
-              router.push(`/dashboard`)
+              router.push(`/dashboard/documents/${data.document_id}`)
+            }, 3000)
+          } else {
+            // Fallback to dashboard if no document_id
+            setTimeout(() => {
+              router.push('/dashboard')
             }, 3000)
           }
         } else {

@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { UserDetails as UserDetailsType } from '@/lib/api/admin'
-import { format } from 'date-fns'
+import { formatDateTime, formatDateOnly } from '@/lib/utils/date'
 import {
   LockClosedIcon,
   LockOpenIcon,
@@ -167,15 +167,13 @@ export function UserDetails({
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-2">Registered</h3>
               <p className="text-white">
-                {format(new Date(user.registered_at), 'MMM dd, yyyy HH:mm')}
+                {formatDateTime(user.registered_at)}
               </p>
             </div>
             <div>
               <h3 className="text-sm font-medium text-gray-400 mb-2">Last Login</h3>
               <p className="text-white">
-                {user.last_login
-                  ? format(new Date(user.last_login), 'MMM dd, yyyy HH:mm')
-                  : 'Never'}
+                {formatDateTime(user.last_login, 'Never')}
               </p>
             </div>
             <div>
@@ -228,7 +226,7 @@ export function UserDetails({
                     <div>
                       <p className="text-white font-medium">{doc.title || 'Untitled'}</p>
                       <p className="text-sm text-gray-400">
-                        {doc.status} • {doc.created_at ? format(new Date(doc.created_at), 'MMM dd, yyyy') : '—'}
+                        {doc.status} • {formatDateOnly(doc.created_at)}
                       </p>
                     </div>
                   </div>
@@ -265,7 +263,7 @@ export function UserDetails({
                         €{payment.amount?.toFixed(2) || '0.00'}
                       </p>
                       <p className="text-sm text-gray-400">
-                        {payment.status} • {payment.created_at ? format(new Date(payment.created_at), 'MMM dd, yyyy') : '—'}
+                        {payment.status} • {formatDateOnly(payment.created_at)}
                       </p>
                     </div>
                   </div>

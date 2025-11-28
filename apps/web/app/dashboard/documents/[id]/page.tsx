@@ -45,8 +45,16 @@ export default function DocumentDetailPage() {
   const [isGenerating, setIsGenerating] = useState(false)
 
   useEffect(() => {
+    // Check if user is authenticated
+    const token = getAccessToken()
+    if (!token) {
+      toast.error('Please sign in to view documents')
+      router.push('/')
+      return
+    }
+    
     fetchDocument()
-  }, [documentId])
+  }, [documentId, router])
 
   const fetchDocument = async () => {
     try {

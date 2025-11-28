@@ -102,7 +102,7 @@ export default function AdminUserDetailsPage() {
 
   const handleSendEmail = () => {
     // TODO: Open email modal
-    toast.info('Email functionality coming soon')
+    toast('Email functionality coming soon', { icon: 'ℹ️' })
   }
 
   const handleViewDocuments = () => {

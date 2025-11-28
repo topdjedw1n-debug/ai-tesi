@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { UserDetails } from '@/lib/api/admin'
 import { DataTable, Column } from '../ui/DataTable'
-import { format } from 'date-fns'
+import { formatDateOnly } from '@/lib/utils/date'
 import {
   UserIcon,
   LockClosedIcon,
@@ -24,7 +24,7 @@ interface UsersTableProps {
   onSendEmail?: (user: UserDetails) => void
   selectable?: boolean
   selectedRows?: Set<number>
-  onSelectionChange?: (selected: Set<number>) => void
+  onSelectionChange?: (selected: Set<string | number>) => void
   loading?: boolean
 }
 
@@ -91,7 +91,7 @@ export function UsersTable({
       sortable: true,
       render: (user) => (
         <span className="text-gray-300">
-          {format(new Date(user.registered_at), 'MMM dd, yyyy')}
+          {formatDateOnly(user.registered_at)}
         </span>
       ),
     },
@@ -101,9 +101,7 @@ export function UsersTable({
       sortable: true,
       render: (user) => (
         <span className="text-gray-300">
-          {user.last_login
-            ? format(new Date(user.last_login), 'MMM dd, yyyy')
-            : 'Never'}
+          {formatDateOnly(user.last_login, 'Never')}
         </span>
       ),
     },

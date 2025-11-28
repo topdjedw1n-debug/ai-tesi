@@ -101,7 +101,7 @@ export default function AdminUsersPage() {
 
   const handleSendEmail = (user: UserDetails) => {
     // TODO: Open email modal
-    toast.info('Email functionality coming soon')
+    toast('Email functionality coming soon', { icon: 'ℹ️' })
   }
 
   const handleBulkBlock = async () => {

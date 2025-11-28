@@ -35,7 +35,7 @@ class TestExtractUserIDFromPayload:
         with pytest.raises(AuthenticationError) as exc_info:
             extract_user_id_from_payload(payload)
 
-        assert "invalid user ID" in str(exc_info.value).lower()
+        assert "invalid user id" in str(exc_info.value).lower()
 
     def test_missing_sub_raises_error(self):
         """Test that missing 'sub' raises AuthenticationError"""
@@ -60,7 +60,7 @@ class TestExtractUserIDFromPayload:
         with pytest.raises(AuthenticationError) as exc_info:
             extract_user_id_from_payload(payload)
 
-        assert "invalid user ID" in str(exc_info.value).lower()
+        assert "invalid user id" in str(exc_info.value).lower()
 
     def test_negative_sub_raises_error(self):
         """Test that negative user ID raises error"""

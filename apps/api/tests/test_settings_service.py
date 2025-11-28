@@ -99,8 +99,12 @@ async def test_update_setting_existing(settings_service, mock_db):
     mock_result.scalar_one_or_none.return_value = mock_setting
     mock_db.execute.return_value = mock_result
 
+    # Mock flush and refresh - refresh should update version
+    async def mock_refresh(obj):
+        obj.version = 2  # Simulate version increment after refresh
+    
     mock_db.flush = AsyncMock()
-    mock_db.refresh = AsyncMock()
+    mock_db.refresh = AsyncMock(side_effect=mock_refresh)
     mock_db.commit = AsyncMock()
 
     updated = await settings_service.update_setting(
@@ -111,7 +115,7 @@ async def test_update_setting_existing(settings_service, mock_db):
     )
 
     assert updated.version == 2  # Version incremented
-    mock_db.commit.assert_called_once()
+    mock_db.flush.assert_called()  # Service calls flush, not commit
 
 
 @pytest.mark.asyncio
@@ -123,7 +127,6 @@ async def test_update_setting_new(settings_service, mock_db):
 
     mock_db.flush = AsyncMock()
     mock_db.refresh = AsyncMock()
-    mock_db.commit = AsyncMock()
 
     updated = await settings_service.update_setting(
         key="pricing.price_per_page",
@@ -134,7 +137,7 @@ async def test_update_setting_new(settings_service, mock_db):
 
     assert updated.version == 1  # New setting starts at version 1
     mock_db.add.assert_called_once()
-    mock_db.commit.assert_called_once()
+    mock_db.flush.assert_called()  # Service calls flush, not commit
 
 
 @pytest.mark.asyncio

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { format } from 'date-fns'
+import { formatDateTime } from '@/lib/utils/date'
 import {
   CurrencyDollarIcon,
   UserIcon,
@@ -13,7 +13,7 @@ import {
   XCircleIcon,
   ClockIcon,
   ArrowPathIcon,
-  ExternalLinkIcon,
+  ArrowTopRightOnSquareIcon,
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -169,7 +169,7 @@ export default function AdminPaymentDetailsPage() {
               rel="noopener noreferrer"
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
             >
-              <ExternalLinkIcon className="h-4 w-4 mr-2" />
+              <ArrowTopRightOnSquareIcon className="h-4 w-4 mr-2" />
               View in Stripe
             </a>
           )}
@@ -276,12 +276,12 @@ export default function AdminPaymentDetailsPage() {
             <div className="space-y-2 text-sm text-gray-300">
               <div>
                 <span className="text-gray-400">Created:</span>{' '}
-                {format(new Date(payment.created_at), 'MMM dd, yyyy HH:mm')}
+                {formatDateTime(payment.created_at)}
               </div>
               {payment.completed_at && (
                 <div>
                   <span className="text-gray-400">Completed:</span>{' '}
-                  {format(new Date(payment.completed_at), 'MMM dd, yyyy HH:mm')}
+                  {formatDateTime(payment.completed_at)}
                 </div>
               )}
             </div>

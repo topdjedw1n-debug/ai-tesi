@@ -1,3 +1,7 @@
+'use client'
+
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Suspense } from 'react'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { DocumentsList } from '@/components/dashboard/DocumentsList'
@@ -5,8 +9,22 @@ import { StatsOverview } from '@/components/dashboard/StatsOverview'
 import { RecentActivity } from '@/components/dashboard/RecentActivity'
 import { CreateDocumentForm } from '@/components/dashboard/CreateDocumentForm'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { getAccessToken } from '@/lib/api'
+import toast from 'react-hot-toast'
 
 export default function DashboardPage() {
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = getAccessToken()
+    if (!token) {
+      toast.error('Please sign in to access the dashboard')
+      router.push('/')
+      return
+    }
+  }, [router])
+
   return (
     <DashboardLayout>
       <div className="space-y-6">

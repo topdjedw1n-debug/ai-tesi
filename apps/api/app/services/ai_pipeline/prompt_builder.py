@@ -25,7 +25,21 @@ class PromptBuilder:
         Returns:
             Formatted prompt string
         """
-        prompt = f"""Generate a detailed academic thesis outline for the following topic:
+        # Language map for explicit instructions
+        language_instructions = {
+            'en': 'Write ONLY in English',
+            'it': 'Scrivi SOLO in italiano',
+            'de': 'Schreiben Sie NUR auf Deutsch',
+            'fr': 'Écrivez UNIQUEMENT en français',
+            'es': 'Escribe SOLO en español',
+            'cs': 'Pište POUZE v češtině',
+            'uk': 'Пишіть ТІЛЬКИ українською',
+        }
+        lang_instruction = language_instructions.get(document.language, f'Write ONLY in {document.language}')
+        
+        prompt = f"""IMPORTANT: {lang_instruction}. Do not use any other language.
+
+Generate a detailed academic thesis outline for the following topic:
 
 Topic: {document.topic}
 Language: {document.language}
@@ -86,7 +100,21 @@ Please respond with a JSON structure containing the outline data."""
             for i, source in enumerate(retrieved_sources[:5], 1):  # Limit to top 5
                 sources_text += f"{i}. {source}\n"
 
-        prompt = f"""Write a comprehensive academic section for a thesis with the following details:
+        # Language map for explicit instructions
+        language_instructions = {
+            'en': 'Write ONLY in English',
+            'it': 'Scrivi SOLO in italiano',
+            'de': 'Schreiben Sie NUR auf Deutsch',
+            'fr': 'Écrivez UNIQUEMENT en français',
+            'es': 'Escribe SOLO en español',
+            'cs': 'Pište POUZE v češtině',
+            'uk': 'Пишіть ТІЛЬКИ українською',
+        }
+        lang_instruction = language_instructions.get(document.language, f'Write ONLY in {document.language}')
+        
+        prompt = f"""CRITICAL: {lang_instruction}. The ENTIRE content must be in this language. Do NOT use any other language.
+
+Write a comprehensive academic section for a thesis with the following details:
 
 Document Topic: {document.topic}
 Section Title: {section_title}

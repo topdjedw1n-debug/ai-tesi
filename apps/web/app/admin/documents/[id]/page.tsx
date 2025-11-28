@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { format } from 'date-fns'
+import { formatDateTime } from '@/lib/utils/date'
 import {
   DocumentTextIcon,
   ClockIcon,
@@ -252,9 +252,9 @@ export default function AdminDocumentDetailsPage() {
               <div className="space-y-1 text-sm text-gray-300">
                 <p>Tokens Used: {document.tokens_used?.toLocaleString() || 0}</p>
                 <p>Generation Time: {document.generation_time_seconds || 0}s</p>
-                <p>Created: {format(new Date(document.created_at), 'MMM dd, yyyy HH:mm')}</p>
+                <p>Created: {formatDateTime(document.created_at)}</p>
                 {document.completed_at && (
-                  <p>Completed: {format(new Date(document.completed_at), 'MMM dd, yyyy HH:mm')}</p>
+                  <p>Completed: {formatDateTime(document.completed_at)}</p>
                 )}
               </div>
             </div>
@@ -285,15 +285,11 @@ export default function AdminDocumentDetailsPage() {
                     <div className="grid grid-cols-2 gap-4 text-sm text-gray-300">
                       <div>
                         <span className="text-gray-400">Started:</span>{' '}
-                        {job.started_at
-                          ? format(new Date(job.started_at), 'MMM dd, yyyy HH:mm')
-                          : 'N/A'}
+                        {formatDateTime(job.started_at, 'N/A')}
                       </div>
                       <div>
                         <span className="text-gray-400">Completed:</span>{' '}
-                        {job.completed_at
-                          ? format(new Date(job.completed_at), 'MMM dd, yyyy HH:mm')
-                          : 'N/A'}
+                        {formatDateTime(job.completed_at, 'N/A')}
                       </div>
                       <div>
                         <span className="text-gray-400">Tokens:</span> {job.tokens_used || 0}

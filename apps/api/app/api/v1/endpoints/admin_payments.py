@@ -348,16 +348,75 @@ async def initiate_refund(
                 error_code="INVALID_STATUS",
             )
 
-        # TODO: Integrate with Stripe API to create refund
-        # For now, just mark as refunded
-        from sqlalchemy import update
+        # Use Stripe API to create refund
+        import stripe
+        from app.core.config import settings
 
+        if not settings.STRIPE_SECRET_KEY:
+            raise APIException(
+                detail="Stripe not configured",
+                status_code=500,
+                error_code="STRIPE_NOT_CONFIGURED",
+            )
+
+        if not payment.stripe_payment_intent_id:
+            raise APIException(
+                detail="Payment does not have Stripe payment intent ID",
+                status_code=400,
+                error_code="NO_PAYMENT_INTENT",
+            )
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
         refund_amount = amount or float(payment.amount)
+        refund_amount_cents = int(refund_amount * 100)
 
-        await db.execute(
-            update(Payment).where(Payment.id == payment_id).values(status="refunded")
-        )
-        await db.commit()
+        try:
+            # Create refund in Stripe
+            stripe_refund = stripe.Refund.create(
+                payment_intent=payment.stripe_payment_intent_id,
+                amount=refund_amount_cents,
+                reason="requested_by_customer",
+                metadata={
+                    "admin_id": str(current_user.id),
+                    "payment_id": str(payment_id),
+                },
+            )
+
+            # Update payment status
+            from sqlalchemy import update
+
+            if refund_amount >= float(payment.amount):
+                # Full refund
+                await db.execute(
+                    update(Payment).where(Payment.id == payment_id).values(status="refunded")
+                )
+            else:
+                # Partial refund - keep as completed
+                pass
+
+            await db.commit()
+
+            logger.info(
+                f"Refund processed: payment_id={payment_id}, amount={refund_amount}, "
+                f"stripe_refund_id={stripe_refund.id}"
+            )
+
+        except stripe.error.StripeError as e:
+            await db.rollback()
+            logger.error(f"Stripe refund error: {e}")
+            raise APIException(
+                detail=f"Stripe refund failed: {str(e)}",
+                status_code=400,
+                error_code="STRIPE_ERROR",
+            ) from e
+        except Exception as e:
+            await db.rollback()
+            logger.error(f"Error processing refund: {e}")
+            raise APIException(
+                detail="Failed to process refund",
+                status_code=500,
+                error_code="INTERNAL_SERVER_ERROR",
+            ) from e
 
         # Log admin action (critical)
         admin_service = AdminService(db)

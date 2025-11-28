@@ -27,6 +27,9 @@ class Settings(BaseSettings):
     # Security
     # CRITICAL: No default value - must be provided via ENV in production
     SECRET_KEY: str | None = None
+    
+    # Admin temporary password for testing (NOT FOR PRODUCTION!)
+    ADMIN_TEMP_PASSWORD: str = "admin123"  # Change this or use ENV variable
 
     # JWT Configuration (ENV-based, no defaults)
     JWT_SECRET: str | None = None  # Prefer JWT_SECRET over SECRET_KEY if set

@@ -205,20 +205,17 @@ class GDPRService:
             documents = documents_result.scalars().all()
 
             # Delete files from storage (MinIO/S3)
-            # Note: This is a placeholder - actual implementation depends on storage setup
             deleted_files = []
             for doc in documents:
                 if doc.docx_path:
-                    # TODO: Implement actual MinIO/S3 deletion
-                    # await self._delete_from_storage(doc.docx_path)
+                    await self._delete_from_storage(doc.docx_path)
                     deleted_files.append(doc.docx_path)
-                    logger.debug(f"Would delete DOCX: {doc.docx_path}")
+                    logger.info(f"Deleted DOCX: {doc.docx_path}")
 
                 if doc.pdf_path:
-                    # TODO: Implement actual MinIO/S3 deletion
-                    # await self._delete_from_storage(doc.pdf_path)
+                    await self._delete_from_storage(doc.pdf_path)
                     deleted_files.append(doc.pdf_path)
-                    logger.debug(f"Would delete PDF: {doc.pdf_path}")
+                    logger.info(f"Deleted PDF: {doc.pdf_path}")
 
             # Anonymize user data instead of hard delete
             user.email = f"deleted_{user.id}@deleted.com"
@@ -257,14 +254,47 @@ class GDPRService:
     async def _delete_from_storage(self, file_path: str) -> None:
         """
         Delete file from MinIO/S3 storage.
-        This is a placeholder - implement actual storage deletion.
 
         Args:
-            file_path: Path to file in storage
+            file_path: Path to file in storage (e.g., "s3://bucket/path/to/file.pdf")
         """
-        # TODO: Implement MinIO/S3 file deletion
-        # Example:
-        # from minio import Minio
-        # client = Minio(...)
-        # client.remove_object(bucket_name, object_name)
-        pass
+        try:
+            from minio import Minio
+            from minio.error import S3Error
+            from app.core.config import settings
+
+            # Parse S3 path
+            if not file_path.startswith("s3://"):
+                logger.warning(f"Invalid storage path format: {file_path}")
+                return
+
+            # Extract bucket and object name from s3://bucket/path/to/file
+            path_parts = file_path.replace("s3://", "").split("/", 1)
+            if len(path_parts) != 2:
+                logger.warning(f"Invalid S3 path structure: {file_path}")
+                return
+
+            bucket_name, object_name = path_parts
+
+            # Create MinIO client
+            client = Minio(
+                settings.MINIO_ENDPOINT,
+                access_key=settings.MINIO_ACCESS_KEY,
+                secret_key=settings.MINIO_SECRET_KEY,
+                secure=settings.MINIO_SECURE,
+            )
+
+            # Delete object
+            client.remove_object(bucket_name, object_name)
+            logger.info(f"✅ Deleted file from storage: {object_name}")
+
+        except S3Error as e:
+            if e.code == "NoSuchKey":
+                # File doesn't exist - that's OK for deletion
+                logger.info(f"File already deleted or doesn't exist: {file_path}")
+            else:
+                logger.error(f"S3 error deleting file {file_path}: {e}")
+                # Don't raise - we want GDPR deletion to continue even if storage fails
+        except Exception as e:
+            logger.error(f"Error deleting file from storage {file_path}: {e}")
+            # Don't raise - continue with other deletions

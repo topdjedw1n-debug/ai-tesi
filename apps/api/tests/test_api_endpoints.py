@@ -112,12 +112,13 @@ async def test_generate_section_requires_auth(client):
 
 @pytest.mark.asyncio
 async def test_full_document_generation_requires_auth(client):
-    """Integration test: Full document generation endpoint requires authentication"""
+    """Integration test: Outline generation endpoint requires authentication"""
     request_data = {
         "document_id": 1,
         "additional_requirements": None
     }
-    response = await client.post("/api/v1/generate/full-document", json=request_data)
+    # Test outline endpoint instead of non-existent full-document endpoint
+    response = await client.post("/api/v1/generate/outline", json=request_data)
     # Can be 401 or 403, both indicate auth is required
     assert response.status_code in [401, 403]
 

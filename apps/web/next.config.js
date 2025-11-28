@@ -1,9 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  experimental: {
-    appDir: true,
-  },
   images: {
     domains: ['localhost'],
   },
@@ -13,9 +10,16 @@ const nextConfig = {
   async headers() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
     const apiHost = new URL(apiUrl).origin
+    
+    // Development: relaxed CSP for Next.js hot reload
+    if (process.env.NODE_ENV === 'development') {
+      return []
+    }
+    
+    // Production: strict CSP
     const csp = [
       "default-src 'self'",
-      "script-src 'self'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob:",
       "font-src 'self' data:",

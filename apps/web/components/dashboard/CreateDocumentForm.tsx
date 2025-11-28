@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -47,6 +48,7 @@ interface PricingConfig {
 }
 
 export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
+  const router = useRouter()
   const [currentStep, setCurrentStep] = useState<FormStep>('form')
   const [isCreating, setIsCreating] = useState(false)
   const [createdDocumentId, setCreatedDocumentId] = useState<number | null>(null)
@@ -150,6 +152,47 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
     setCreatedDocumentId(null)
   }
 
+  const handleSkipPayment = async () => {
+    if (!createdDocumentId) return
+    
+    try {
+      toast.success('Starting generation...')
+      
+      // Start generation using correct endpoint with /jobs prefix
+      const token = getAccessToken()
+      const response = await apiClient.post(
+        '/api/v1/jobs/generate/document-async',
+        {
+          document_id: createdDocumentId,
+          model: 'gpt-4',
+          requirements: null,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+      
+      toast.success(`Generation started! Job ID: ${response.job_id}`)
+      
+      // Reset form
+      setCurrentStep('form')
+      const docId = createdDocumentId
+      setCreatedDocumentId(null)
+      
+      if (onSuccess) {
+        onSuccess(docId)
+      }
+      
+      // Redirect to document page
+      router.push(`/dashboard/documents/${docId}`)
+    } catch (error: any) {
+      console.error('Generation failed:', error)
+      toast.error(error.message || 'Failed to start generation')
+    }
+  }
+
   if (currentStep === 'payment' && createdDocumentId) {
     return (
       <div className="bg-white shadow rounded-lg p-6">
@@ -161,6 +204,20 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             Please complete payment to start document generation
           </p>
         </div>
+        
+        {/* TEST: Skip payment button */}
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800 mb-2">
+            ⚠️ <strong>Testing Mode:</strong> Payment system not configured yet
+          </p>
+          <button
+            onClick={handleSkipPayment}
+            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
+          >
+            Skip Payment & Start Generation (Test)
+          </button>
+        </div>
+        
         <PaymentForm
           documentId={createdDocumentId}
           pages={documentPages}

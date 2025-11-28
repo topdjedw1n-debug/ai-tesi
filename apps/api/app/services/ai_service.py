@@ -3,6 +3,7 @@ from typing import Optional
 AI service for generating content using various providers
 """
 
+import json
 import logging
 import time
 from datetime import date, datetime
@@ -97,6 +98,12 @@ class AIService:
             )
 
             generation_time = int(time.time() - start_time)
+
+            # DEBUG: Print raw AI response to stdout (shows in docker logs)
+            print(f"\n=== DEBUG OUTLINE START ===")
+            print(f"Keys: {list(outline_data.keys())}")
+            print(f"Full data (first 1000 chars): {str(outline_data)[:1000]}")
+            print(f"=== DEBUG OUTLINE END ===\n")
 
             # Save outline
             outline = DocumentOutline(
@@ -387,7 +394,13 @@ class AIService:
             content = response.choices[0].message.content
             tokens_used = response.usage.total_tokens if response.usage else 0
 
-            return {"content": content, "tokens_used": tokens_used}
+            # Parse JSON from content string
+            try:
+                parsed_content = json.loads(content)
+                return {**parsed_content, "tokens_used": tokens_used}
+            except json.JSONDecodeError:
+                # If not valid JSON, return as-is
+                return {"content": content, "tokens_used": tokens_used}
 
         # Call with retry strategy and circuit breaker
         return await self._openai_retry.execute_with_retry(_make_request)
@@ -414,7 +427,13 @@ class AIService:
             content = response.content[0].text
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
-            return {"content": content, "tokens_used": tokens_used}
+            # Parse JSON from content string
+            try:
+                parsed_content = json.loads(content)
+                return {**parsed_content, "tokens_used": tokens_used}
+            except json.JSONDecodeError:
+                # If not valid JSON, return as-is
+                return {"content": content, "tokens_used": tokens_used}
 
         # Call with retry strategy and circuit breaker
         return await self._anthropic_retry.execute_with_retry(_make_request)
@@ -430,23 +449,57 @@ Topic: {document.topic}
 Language: {document.language}
 Target Pages: {document.target_pages}
 
-Please provide a structured outline with:
-1. Introduction
-2. Literature Review
-3. Methodology
-4. Results/Analysis
-5. Discussion
-6. Conclusion
-7. References
-
-For each section, include:
-- Main points to cover
-- Sub-sections
-- Estimated word count
-- Key concepts to address
-
 Additional Requirements: {additional_requirements or 'None specified'}
 
-Please respond with a JSON structure containing the outline data.
+CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
+{{
+  "sections": [
+    {{
+      "title": "Introduction",
+      "main_points": ["Overview of the topic", "Research objectives", "Thesis structure"],
+      "subsections": ["Background", "Problem Statement", "Objectives"],
+      "estimated_words": 400,
+      "key_concepts": ["Topic Introduction", "Research Context"]
+    }},
+    {{
+      "title": "Literature Review",
+      "main_points": ["Previous research", "Theoretical framework", "Research gaps"],
+      "subsections": ["Historical Context", "Current State", "Gaps"],
+      "estimated_words": 800,
+      "key_concepts": ["Literature Analysis", "Research Gaps"]
+    }},
+    {{
+      "title": "Methodology",
+      "main_points": ["Research design", "Data collection", "Analysis methods"],
+      "subsections": ["Research Design", "Data Collection", "Analysis"],
+      "estimated_words": 600,
+      "key_concepts": ["Research Methods", "Data Analysis"]
+    }},
+    {{
+      "title": "Results",
+      "main_points": ["Key findings", "Data analysis", "Results interpretation"],
+      "subsections": ["Main Findings", "Data Presentation", "Analysis"],
+      "estimated_words": 800,
+      "key_concepts": ["Research Results", "Data Findings"]
+    }},
+    {{
+      "title": "Discussion",
+      "main_points": ["Results interpretation", "Implications", "Limitations"],
+      "subsections": ["Interpretation", "Implications", "Limitations"],
+      "estimated_words": 600,
+      "key_concepts": ["Results Discussion", "Research Implications"]
+    }},
+    {{
+      "title": "Conclusion",
+      "main_points": ["Summary", "Key findings", "Future research"],
+      "subsections": ["Summary", "Contributions", "Future Work"],
+      "estimated_words": 400,
+      "key_concepts": ["Research Conclusion", "Future Directions"]
+    }}
+  ]
+}}
+
+Generate {max(3, min(10, document.target_pages // 10))} main sections appropriate for this topic.
+Respond with ONLY the JSON object, no additional text or markdown formatting.
 """
         return prompt.strip()

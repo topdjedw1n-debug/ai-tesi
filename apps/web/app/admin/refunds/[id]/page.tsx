@@ -40,7 +40,7 @@ export default function AdminRefundDetailsPage() {
     try {
       await adminApiClient.approveRefund(
         refund.id,
-        refundAmount || undefined,
+        refundAmount !== undefined ? refundAmount : null,
         adminComment
       )
       toast.success('Refund approved successfully')

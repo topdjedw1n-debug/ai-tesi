@@ -14,9 +14,11 @@ class DocumentStatus(str, Enum):
     """Document status enumeration"""
 
     DRAFT = "draft"
+    GENERATING = "generating"
     OUTLINE_GENERATED = "outline_generated"
     SECTIONS_GENERATED = "sections_generated"
     COMPLETED = "completed"
+    FAILED = "failed"
 
 
 class AIProvider(str, Enum):
@@ -264,9 +266,6 @@ class DocumentVersionResponse(BaseModel):
 class ExportRequest(BaseModel):
     """Schema for document export request"""
 
-    document_id: int = Field(
-        ..., gt=0, description="Document ID must be greater than 0"
-    )
     format: str = Field(..., pattern="^(docx|pdf)$")
     include_metadata: bool = True
     include_citations: bool = True

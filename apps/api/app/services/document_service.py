@@ -680,6 +680,7 @@ class DocumentService:
         self, document_id: int, format: str, user_id: int
     ) -> dict[str, Any]:
         """Export document to DOCX or PDF format"""
+        logger.info(f"🚀 Starting export_document: doc_id={document_id}, format={format}, user_id={user_id}")
         try:
             from docx import Document as DocxDocument
             from minio import Minio
@@ -687,6 +688,7 @@ class DocumentService:
 
             from app.core.config import settings
 
+            logger.info(f"📄 Getting document {document_id} from database...")
             # Get document with sections
             result = await self.db.execute(
                 select(Document)
@@ -696,12 +698,13 @@ class DocumentService:
             document = result.scalar_one_or_none()
 
             if not document:
+                logger.error(f"❌ Document {document_id} not found for user {user_id}")
                 raise NotFoundError("Document not found")
 
-            # Check if document is completed
-            if document.status != "completed":
+            # Check if document has content or sections
+            if document.status not in ["completed", "sections_generated"]:
                 raise ValidationError(
-                    "Document is not completed. Cannot export incomplete documents."
+                    "Document is not ready for export. Status must be 'completed' or 'sections_generated'."
                 )
 
             # Generate file based on format
@@ -735,13 +738,120 @@ class DocumentService:
 
                 # Save to BytesIO
                 file_stream = io.BytesIO()
+                logger.info(f"Saving DOCX document for doc_id={document_id}")
                 docx.save(file_stream)
-                file_stream.seek(0)
-                file_size = file_stream.tell()
+                file_size = file_stream.tell()  # Get size BEFORE seeking to 0
+                logger.info(f"DOCX saved, file_size after save: {file_size} bytes")
                 file_stream.seek(0)
 
                 file_extension = "docx"
                 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+
+            elif format == "pdf":
+                # Create PDF document using ReportLab
+                from reportlab.lib import colors
+                from reportlab.lib.pagesizes import letter
+                from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
+                from reportlab.lib.units import inch
+                from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
+
+                # Create PDF in memory
+                file_stream = io.BytesIO()
+                pdf = SimpleDocTemplate(
+                    file_stream,
+                    pagesize=letter,
+                    rightMargin=72,
+                    leftMargin=72,
+                    topMargin=72,
+                    bottomMargin=18,
+                )
+
+                # Container for PDF elements
+                elements = []
+                styles = getSampleStyleSheet()
+
+                # Custom styles
+                title_style = ParagraphStyle(
+                    "CustomTitle",
+                    parent=styles["Heading1"],
+                    fontSize=24,
+                    textColor=colors.HexColor("#1a1a1a"),
+                    spaceAfter=30,
+                    alignment=1,  # Center
+                )
+
+                heading_style = ParagraphStyle(
+                    "CustomHeading",
+                    parent=styles["Heading2"],
+                    fontSize=16,
+                    textColor=colors.HexColor("#2c3e50"),
+                    spaceAfter=12,
+                )
+
+                body_style = ParagraphStyle(
+                    "CustomBody",
+                    parent=styles["Normal"],
+                    fontSize=11,
+                    leading=14,
+                    spaceAfter=12,
+                )
+
+                # Add title
+                elements.append(Paragraph(document.title, title_style))
+                elements.append(Spacer(1, 0.2 * inch))
+
+                # Add metadata
+                metadata = f"""
+                <b>Topic:</b> {document.topic}<br/>
+                <b>Language:</b> {document.language}<br/>
+                <b>Created:</b> {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}
+                """
+                elements.append(Paragraph(metadata, body_style))
+                elements.append(Spacer(1, 0.3 * inch))
+
+                # Add content
+                if document.content:
+                    # Split content by paragraphs
+                    for paragraph in document.content.split("\n\n"):
+                        if paragraph.strip():
+                            # Escape HTML special characters
+                            safe_text = (
+                                paragraph.replace("&", "&amp;")
+                                .replace("<", "&lt;")
+                                .replace(">", "&gt;")
+                            )
+                            elements.append(Paragraph(safe_text, body_style))
+                elif document.sections:
+                    # Add sections
+                    for section in sorted(
+                        document.sections, key=lambda s: s.section_index
+                    ):
+                        # Section heading
+                        elements.append(Paragraph(section.title, heading_style))
+                        elements.append(Spacer(1, 0.1 * inch))
+
+                        # Section content
+                        if section.content:
+                            for paragraph in section.content.split("\n\n"):
+                                if paragraph.strip():
+                                    safe_text = (
+                                        paragraph.replace("&", "&amp;")
+                                        .replace("<", "&lt;")
+                                        .replace(">", "&gt;")
+                                    )
+                                    elements.append(Paragraph(safe_text, body_style))
+
+                        elements.append(Spacer(1, 0.2 * inch))
+
+                # Build PDF
+                logger.info(f"Generating PDF document for doc_id={document_id}")
+                pdf.build(elements)
+                file_size = file_stream.tell()
+                logger.info(f"PDF generated, file_size: {file_size} bytes")
+                file_stream.seek(0)
+
+                file_extension = "pdf"
+                content_type = "application/pdf"
 
             else:
                 raise ValidationError(f"Unsupported export format: {format}")
@@ -754,10 +864,22 @@ class DocumentService:
                 secure=settings.MINIO_SECURE,
             )
 
+            # Ensure bucket exists
+            try:
+                if not client.bucket_exists(settings.MINIO_BUCKET):
+                    logger.info(f"Creating bucket: {settings.MINIO_BUCKET}")
+                    client.make_bucket(settings.MINIO_BUCKET)
+                    logger.info(f"Bucket created: {settings.MINIO_BUCKET}")
+            except S3Error as e:
+                logger.error(f"Failed to check/create bucket: {e}")
+                # Continue anyway - bucket might exist but check failed
+
             # Generate object name
             object_name = (
                 f"documents/{user_id}/{document_id}/{document_id}.{file_extension}"
             )
+
+            logger.info(f"Uploading {format} file: {object_name} ({file_size} bytes)")
 
             # Upload file
             try:
@@ -768,18 +890,14 @@ class DocumentService:
                     length=file_size,
                     content_type=content_type,
                 )
+                logger.info(f"Successfully uploaded to MinIO: {object_name}")
             except S3Error as e:
                 logger.error(f"Failed to upload document to MinIO: {e}")
                 raise ValidationError("Failed to upload document to storage") from e
 
-            # Generate presigned URL (expires in 1 hour)
-            try:
-                download_url = client.presigned_get_object(
-                    settings.MINIO_BUCKET, object_name, expires=timedelta(hours=1)
-                )
-            except S3Error as e:
-                logger.error(f"Failed to generate presigned URL: {e}")
-                raise ValidationError("Failed to generate download URL") from e
+            # Generate public download URL (since bucket is public)
+            download_url = f"http://{settings.MINIO_ENDPOINT}/{settings.MINIO_BUCKET}/{object_name}"
+            logger.info(f"Generated download URL: {download_url}")
 
             # Update document path
             storage_path = f"s3://{settings.MINIO_BUCKET}/{object_name}"

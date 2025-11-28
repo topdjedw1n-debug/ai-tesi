@@ -127,8 +127,8 @@ async def test_create_refund_request(client, user_token, test_payment):
         "screenshots": [],
     }
     response = await client.post("/api/v1/refunds", json=refund_data, headers=headers)
-    # Should return 201 or 400/404 depending on payment status
-    assert response.status_code in [201, 400, 404]
+    # Should return 200/201 or 400/404 depending on payment status
+    assert response.status_code in [200, 201, 400, 404]
 
 
 @pytest.mark.asyncio

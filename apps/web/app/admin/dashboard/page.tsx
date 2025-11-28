@@ -67,6 +67,15 @@ export default function AdminDashboardPage() {
           </p>
         </div>
         <div className="flex gap-2">
+          <button
+            onClick={() => {
+              // Admin token works for user endpoints too (admin is a user)
+              window.location.href = '/dashboard'
+            }}
+            className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm font-medium"
+          >
+            📝 Create Document
+          </button>
           {(['day', 'week', 'month', 'year'] as const).map((p) => (
             <button
               key={p}

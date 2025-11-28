@@ -32,9 +32,10 @@ export function StatsOverview() {
           totalCost: data.totalCost || 0,
           totalTokens: data.totalTokens || 0,
         })
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch stats:', error)
-        toast.error('Failed to load statistics')
+        // Don't show error toast - auth check will redirect
+        // toast.error('Failed to load statistics')
       } finally {
         setIsLoading(false)
       }

@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
 
@@ -20,15 +21,19 @@ export default function AdminLoginPage() {
       return
     }
 
+    if (!password.trim()) {
+      toast.error('Please enter your password')
+      return
+    }
+
     setIsLoading(true)
 
     try {
-      // TODO: Replace with actual admin login endpoint
-      // For now, using magic link flow
-      const response = await adminApiClient.login(email)
+      // Use simple password-based admin login
+      const response = await adminApiClient.simpleLogin(email, password)
 
       // Store admin tokens
-      setTokens(response.access_token, response.refresh_token)
+      setTokens(response.access_token, response.refresh_token || '')
 
       // Store admin user data
       localStorage.setItem('admin_user', JSON.stringify(response.user))
@@ -75,7 +80,24 @@ export default function AdminLoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-              placeholder="admin@example.com"
+              placeholder="admin@tesigo.com"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-gray-300">
+              Password
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 block w-full px-3 py-2 border border-gray-600 rounded-md shadow-sm bg-gray-800 text-white placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter password"
             />
           </div>
 

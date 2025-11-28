@@ -36,6 +36,8 @@ services:
       - MINIO_SECRET_KEY=minioadmin
       - MINIO_BUCKET=ai-thesis-documents
       - MINIO_SECURE=false
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
     ports:
       - "8000:8000"
     depends_on:
@@ -83,6 +85,8 @@ services:
       - "9001:9001"
     volumes:
       - minio_data:/data
+    networks:
+      - ai-thesis-network
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
       interval: 30s
@@ -97,6 +101,8 @@ services:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - ai-thesis-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -111,6 +117,8 @@ services:
     depends_on:
       minio:
         condition: service_healthy
+    networks:
+      - ai-thesis-network
     entrypoint: >
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;

@@ -46,6 +46,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const token = getAccessToken()
       if (!token) {
+        // Check if logged in as admin
+        const adminUser = localStorage.getItem('admin_user')
+        if (adminUser) {
+          try {
+            const userData = JSON.parse(adminUser)
+            setUser(userData) // Admin can use user dashboard
+          } catch (e) {
+            // Invalid JSON
+          }
+        }
         setIsLoading(false)
         return
       }
@@ -58,9 +68,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Update user data in localStorage
         localStorage.setItem('user_data', JSON.stringify(userData))
       } catch (error) {
-        // Token is invalid, clear storage
-        clearTokens()
-        setUser(null)
+        // Token is invalid, check if admin
+        const adminUser = localStorage.getItem('admin_user')
+        if (adminUser) {
+          try {
+            const userData = JSON.parse(adminUser)
+            setUser(userData) // Admin can use user dashboard
+          } catch (e) {
+            clearTokens()
+            setUser(null)
+          }
+        } else {
+          clearTokens()
+          setUser(null)
+        }
       }
     } catch (error) {
       console.error('Auth check failed:', error)
