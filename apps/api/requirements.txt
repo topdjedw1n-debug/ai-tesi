@@ -17,6 +17,7 @@ python-magic==0.4.27
 # AI Providers
 openai==1.3.7
 anthropic==0.7.8
+tavily-python==0.3.3
 
 # Payment
 stripe==10.12.0

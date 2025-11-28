@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 import httpx
+from tavily import TavilyClient
 
 from app.core.config import settings
 from app.services.ai_pipeline.citation_formatter import SourceDocument
@@ -54,6 +55,7 @@ class RAGRetriever:
         cache_dir: str | None = None,
         max_results: int = 10,
         semantic_scholar_api_key: str | None = None,
+        tavily_api_key: str | None = None,
     ):
         """
         Initialize RAG retriever
@@ -62,7 +64,9 @@ class RAGRetriever:
             cache_dir: Directory for local vector cache (optional)
             max_results: Maximum number of results to retrieve
             semantic_scholar_api_key: Semantic Scholar API key (optional but recommended)
+            tavily_api_key: Tavily API key for web search (optional)
         """
+        # Semantic Scholar setup
         self.api_key = (
             semantic_scholar_api_key
             or settings.SEMANTIC_SCHOLAR_API_KEY
@@ -72,6 +76,18 @@ class RAGRetriever:
         self.max_results = max_results
         self.cache_dir = Path(cache_dir) if cache_dir else Path("/tmp/rag_cache")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
+
+        # Tavily setup
+        self.tavily_key = (
+            tavily_api_key or settings.TAVILY_API_KEY or os.getenv("TAVILY_API_KEY")
+        )
+        self.tavily_client = None
+        if self.tavily_key:
+            try:
+                self.tavily_client = TavilyClient(api_key=self.tavily_key)
+                logger.info("Tavily client initialized successfully")
+            except Exception as e:
+                logger.warning(f"Failed to initialize Tavily client: {e}")
 
     async def retrieve(
         self,
@@ -306,7 +322,8 @@ class RAGRetriever:
             source_docs: list[SourceDoc] = []
 
             if "choices" in result and len(result["choices"]) > 0:
-                content = result["choices"][0].get("message", {}).get("content", "")
+                # Content is included for context but not parsed here
+                # Citations are the primary data source
                 citations = result.get("citations", [])
 
                 # Extract source information from citations
@@ -345,70 +362,65 @@ class RAGRetriever:
             logger.warning(f"Error retrieving from Perplexity: {e}")
             return []
 
-    async def search_tavily(self, query: str) -> list[SourceDoc]:
+    async def search_tavily(self, query: str, max_results: int = 10) -> list[SourceDoc]:
         """
         Search using Tavily API for academic and web sources
 
         Args:
             query: Search query
+            max_results: Maximum number of results to return
 
         Returns:
             List of SourceDoc instances
         """
-        if not settings.TAVILY_API_KEY:
-            logger.debug("Tavily API key not configured, skipping")
+        if not self.tavily_client:
+            logger.debug("Tavily client not initialized, skipping")
             return []
 
         try:
-            headers = {
-                "Content-Type": "application/json",
-            }
-
-            data = {
-                "api_key": settings.TAVILY_API_KEY,
-                "query": query,
-                "search_depth": "advanced",
-                "include_answer": False,
-                "include_raw_content": False,
-                "max_results": 10,
-            }
-
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
-                    "https://api.tavily.com/search",
-                    headers=headers,
-                    json=data,
-                )
-                response.raise_for_status()
-                result = response.json()
+            # Use Tavily Python SDK
+            response = self.tavily_client.search(
+                query=query,
+                search_depth="advanced",  # More thorough search
+                max_results=max_results,
+                include_answer=False,
+                include_raw_content=False,
+                include_domains=[
+                    "scholar.google.com",
+                    "arxiv.org",
+                    "pubmed.ncbi.nlm.nih.gov",
+                    ".edu",
+                ],
+            )
 
             # Parse Tavily response
             source_docs: list[SourceDoc] = []
 
-            if "results" in result:
-                for item in result["results"][:10]:  # Limit to 10 results
-                    source_doc = SourceDoc(
-                        title=item.get("title", "Unknown"),
-                        authors=[item.get("author", "Unknown")]
-                        if item.get("author")
-                        else [],
-                        year=self._extract_year_from_content(item.get("content", "")),
-                        abstract=item.get("content", "")[:500]
-                        if item.get("content")
-                        else None,
-                        url=item.get("url"),
-                        venue=item.get("published_date"),
-                    )
-                    source_docs.append(source_doc)
+            results = response.get("results", [])
+            for item in results:
+                # Extract year from content or published_date
+                year = self._extract_year_from_content(
+                    item.get("content", "") + " " + item.get("published_date", "")
+                )
+
+                source_doc = SourceDoc(
+                    title=item.get("title", "Unknown"),
+                    authors=[item.get("author")] if item.get("author") else [],
+                    year=year or datetime.now().year,
+                    abstract=item.get("content", "")[:500]
+                    if item.get("content")
+                    else None,
+                    url=item.get("url"),
+                    venue=item.get("published_date"),
+                    citation_count=item.get("score", 0),  # Use relevance score as proxy
+                )
+                source_docs.append(source_doc)
 
             logger.info(
                 f"Retrieved {len(source_docs)} sources from Tavily for query: {query}"
             )
             return source_docs
 
-        except httpx.HTTPError as e:
-            logger.warning(f"HTTP error retrieving from Tavily: {e}")
-            return []
         except Exception as e:
             logger.warning(f"Error retrieving from Tavily: {e}")
             return []
