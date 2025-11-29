@@ -31,7 +31,7 @@
 
 ### Step 2: Add Entry to MVP_PLAN.md
 
-**File:** `/docs/MVP_PLAN.md`  
+**File:** `/docs/MVP_PLAN.md`
 **Section:** "⚠️ КРИТИЧНО: ТИМЧАСОВІ РІШЕННЯ"
 
 **Template:**

@@ -2,7 +2,7 @@
 
 > Simple password-based admin authentication for testing
 
-**Created:** 2025-11-27  
+**Created:** 2025-11-27
 **Status:** ✅ WORKING
 
 ---
@@ -146,7 +146,7 @@ curl http://localhost:8000/api/v1/admin/dashboard \
 ### Database State
 
 ```sql
-SELECT id, email, full_name, is_admin, is_super_admin, is_active 
+SELECT id, email, full_name, is_admin, is_super_admin, is_active
 FROM users WHERE email='admin@tesigo.com';
 
 -- Result:
@@ -291,8 +291,8 @@ Now that admin authentication works:
 
 ---
 
-**Last Updated:** 2025-11-27  
-**Author:** AI Assistant  
+**Last Updated:** 2025-11-27
+**Author:** AI Assistant
 **Related Docs:**
 - `/docs/MVP_PLAN.md` - MVP testing plan
 - `/docs/COMPONENTS_CHECKLIST.md` - Component verification

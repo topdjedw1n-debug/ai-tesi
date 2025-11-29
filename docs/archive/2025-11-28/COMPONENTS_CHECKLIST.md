@@ -1,6 +1,6 @@
 # ✅ TesiGo - Чеклист Компонентів для Перевірки
 
-> **Дата створення:** 27 листопада 2025  
+> **Дата створення:** 27 листопада 2025
 > **Призначення:** Детальна мапа всіх компонентів системи для перевірки готовності
 
 ---
@@ -368,7 +368,7 @@ open http://localhost:3000/admin/settings
 **Команда перевірки:**
 ```bash
 # Перевірити чи сторінка існує
-curl -s http://localhost:3000/admin/login | grep "Admin" 
+curl -s http://localhost:3000/admin/login | grep "Admin"
 
 open http://localhost:3000/admin/login
 ```
@@ -567,7 +567,7 @@ curl -X POST http://localhost:8000/api/v1/auth/admin-login \
   -H "Content-Type: application/json" \
   -d '{"email":"admin@tesigo.com","password":"admin123"}'
 ```
-**Credentials:** admin@tesigo.com / admin123  
+**Credentials:** admin@tesigo.com / admin123
 **Guide:** `/docs/ADMIN_LOGIN_GUIDE.md`
 
 **admin_documents.py (6 endpoints):**
@@ -706,7 +706,7 @@ print('✅ RAG retriever OK')
 **Команда перевірки:**
 ```bash
 # Тест rate limiting
-for i in {1..10}; do 
+for i in {1..10}; do
   curl -s http://localhost:8000/api/v1/auth/me 2>&1 | head -1
 done
 # Має показати rate limit після N requests
@@ -738,7 +738,7 @@ docker exec ai-thesis-postgres psql -U postgres -d ai_thesis_platform -c "\dt"
 
 # Перевірити дані
 docker exec ai-thesis-postgres psql -U postgres -d ai_thesis_platform -c "
-SELECT 
+SELECT
   (SELECT COUNT(*) FROM users) as users,
   (SELECT COUNT(*) FROM documents) as documents,
   (SELECT COUNT(*) FROM payments) as payments;
@@ -900,7 +900,7 @@ cd apps/api && pytest --cov=app tests/
    ```bash
    ls -la apps/web/lib/api/
    ```
-   
+
 2. **Admin Components** (StatsGrid, SimpleChart, etc.)
    ```bash
    find apps/web/components/admin -name "*.tsx"
@@ -966,6 +966,6 @@ cd apps/api && pytest --cov=app tests/
 
 ---
 
-**Створено:** 27 листопада 2025  
-**Автор:** AI Assistant  
+**Створено:** 27 листопада 2025
+**Автор:** AI Assistant
 **Призначення:** Детальна перевірка всіх компонентів системи

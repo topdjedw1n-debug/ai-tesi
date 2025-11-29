@@ -1,5 +1,5 @@
 # 📋 ЗАТВЕРДЖЕНІ РІШЕННЯ - TesiGo v2.3
-**Дата створення:** 2025-11-02  
+**Дата створення:** 2025-11-02
 **Статус:** Активний документ
 
 ---
@@ -64,15 +64,15 @@ if estimated_cost > available_balance:
 class RetryStrategy:
     # Exponential backoff
     delays = [2, 4, 8, 16, 32]  # секунди
-    
+
     # Provider fallback
     fallback_chain = [
         "gpt-4",
-        "gpt-4-turbo", 
+        "gpt-4-turbo",
         "gpt-3.5-turbo",
         "claude-3.5-sonnet"
     ]
-    
+
     # Checkpoints кожні 5 хвилин
     checkpoint_interval = 300
 ```
@@ -100,7 +100,7 @@ class RetryStrategy:
 ```python
 class MemoryOptimizedGeneration:
     MAX_PAGES_PER_DOCUMENT = 200
-    
+
     # Генерація по ЛОГІЧНИХ розділах
     async def generate_by_sections(outline):
         for section in outline["sections"]:
@@ -179,12 +179,12 @@ class TransactionalService:
 @router.post("/generate/document")
 async def generate_async(request, background_tasks: BackgroundTasks):
     job_id = await create_job(document_id)
-    
+
     background_tasks.add_task(
         background_job_service.generate_document_async,
         document_id, job_id
     )
-    
+
     return {
         "job_id": job_id,
         "status": "queued",
@@ -220,10 +220,10 @@ class IsolatedAIService:
     ):
         # Кожен документ = окрема сесія
         session_id = f"doc_{document_id}_{uuid.uuid4()}"
-        
+
         # Новий AI client для кожного!
-        ai_client = OpenAI()  
-        
+        ai_client = OpenAI()
+
         messages = [{
             "role": "system",
             "content": f"""
@@ -233,12 +233,12 @@ class IsolatedAIService:
             DO NOT reference other documents.
             """
         }]
-        
+
         response = await ai_client.chat.completions.create(
             messages=messages,
             seed=document_id  # Консистентність в межах документа
         )
-        
+
         del ai_client  # Очищаємо після використання
 ```
 
@@ -300,7 +300,7 @@ class SecureEmailVerification:
             status="pending"
         )
         # Тільки після верифікації створюємо user
-    
+
     # Email canonicalization
     def normalize_email(email: str):
         local, domain = email.rsplit('@', 1)
@@ -345,12 +345,12 @@ class SecurePaymentService:
             document_id=document_id,
             stripe_payment_intent_id=intent.id
         )
-    
+
     # Idempotency
     payment_intent = stripe.PaymentIntent.create(
         idempotency_key=unique_key  # Захист від дублікатів
     )
-    
+
     # Webhook security
     event = stripe.Webhook.construct_event(
         payload, sig_header, WEBHOOK_SECRET
@@ -394,13 +394,13 @@ class SecurePaymentService:
 ```python
 class PricingConfiguration(Base):
     __tablename__ = "pricing_config"
-    
+
     price_per_page = Column(Numeric(10, 4))
     currency = Column(String(3), default="EUR")
     discount_percentage = Column(Numeric(5, 2))
     bulk_pricing_json = Column(JSON)  # {"50+": 0.45}
     promo_codes_json = Column(JSON)   # {"STUDENT20": 20}
-    
+
     # Admin може змінити через UI
 ```
 
@@ -447,7 +447,7 @@ class GDPRCompliance:
         user.full_name = "DELETED USER"
         # Видаляємо файли
         await delete_from_storage(documents)
-    
+
     # Data portability
     async def export_user_data(user_id: int):
         return {
@@ -456,7 +456,7 @@ class GDPRCompliance:
             "payments": payment_history,
             "activity_log": all_activities
         }
-    
+
     # Consent management
     consents = ["essential", "analytics", "marketing"]
 ```
@@ -524,7 +524,7 @@ python -c "import secrets; print(secrets.token_urlsafe(32))"
 def validate_secrets(cls, v, field):
     if not v or len(v) < 32:
         raise ValueError(f"{field.name} must be at least 32 characters")
-    
+
     weak_secrets = ["secret", "password", "12345", "admin", "default"]
     if any(weak in v.lower() for weak in weak_secrets):
         raise ValueError(f"{field.name} is too weak!")
@@ -547,7 +547,7 @@ class EnhancedFileValidator:
         'docx': b'PK\x03\x04',
         'txt': [b'\xef\xbb\xbf', b'']
     }
-    
+
     FORBIDDEN_SIGNATURES = [
         b'MZ',          # Windows EXE/DLL
         b'\x7fELF',     # Linux executable
@@ -555,16 +555,16 @@ class EnhancedFileValidator:
         b'<?php',       # PHP
         b'<script',     # JavaScript
     ]
-    
+
     async def validate_file_content(self, file: UploadFile, expected_type: str):
         content_start = await file.read(1024)
         await file.seek(0)
-        
+
         # Перевірка на виконувані файли
         for forbidden in self.FORBIDDEN_SIGNATURES:
             if forbidden in content_start:
                 raise ValidationError("Forbidden file type")
-        
+
         # Перевірка правильного типу
         if expected_type == 'pdf':
             if not content_start.startswith(self.FILE_SIGNATURES['pdf']):
@@ -644,7 +644,7 @@ find $BACKUP_DIR -type f -mtime +7 -delete
    if not content.startswith(expected_magic):
        raise ValidationError("Invalid file type")
    ```
-   
+
 4. **File Size** - БЕЗ обмежень (можуть бути 100+ MB файли)
    ```python
    # НЕ обмежуємо розмір!
@@ -852,11 +852,11 @@ class LargeFileHandler:
     """
     Обробка великих файлів без обмежень розміру
     """
-    
+
     # БЕЗ обмеження розміру!
     MAX_FILE_SIZE = None  # Користувачі можуть мати 100+ MB
     CHUNK_SIZE = 1024 * 1024  # 1MB chunks для streaming
-    
+
     async def upload_large_file_streaming(
         self,
         file: UploadFile,
@@ -865,37 +865,37 @@ class LargeFileHandler:
         """
         Streaming upload для великих файлів
         """
-        
+
         # 1. Створюємо temporary file
         temp_path = f"/tmp/upload_{document_id}_{uuid.uuid4()}"
         bytes_written = 0
-        
+
         try:
             # 2. Streaming write по chunks
             async with aiofiles.open(temp_path, 'wb') as f:
                 while chunk := await file.read(self.CHUNK_SIZE):
                     await f.write(chunk)
                     bytes_written += len(chunk)
-                    
+
                     # 3. Progress tracking
                     await self.update_upload_progress(
                         document_id,
                         bytes_written,
                         file.size if file.size else None
                     )
-                    
+
                     # 4. Перевірка перших байтів (magic bytes)
                     if bytes_written == self.CHUNK_SIZE:
                         await self.validate_file_start(temp_path)
-            
+
             # 5. Обробка після завантаження
             await self.process_large_file(temp_path, document_id)
-            
+
         finally:
             # 6. Cleanup
             if os.path.exists(temp_path):
                 os.remove(temp_path)
-    
+
     async def process_large_file_chunked(
         self,
         file_path: str,
@@ -904,35 +904,35 @@ class LargeFileHandler:
         """
         Обробка великого файлу по частинах
         """
-        
+
         file_size = os.path.getsize(file_path)
-        
+
         # Для PDF - streaming parser
         if file_path.endswith('.pdf'):
             async for page in self.stream_pdf_pages(file_path):
                 text = await self.extract_text_from_page(page)
                 await self.save_extracted_text(document_id, text)
-                
+
         # Для DOCX - по параграфах
         elif file_path.endswith('.docx'):
             async for paragraph in self.stream_docx_paragraphs(file_path):
                 await self.save_extracted_text(document_id, paragraph)
-    
+
     async def stream_pdf_pages(self, file_path: str):
         """
         Streaming читання PDF по сторінках
         """
-        
+
         # PyPDF2 підтримує streaming
         reader = PdfReader(file_path)
-        
+
         for page_num in range(len(reader.pages)):
             yield reader.pages[page_num]
-            
+
             # Звільняємо пам'ять після кожної сторінки
             if page_num % 10 == 0:
                 gc.collect()
-    
+
     async def update_upload_progress(
         self,
         document_id: int,
@@ -942,14 +942,14 @@ class LargeFileHandler:
         """
         WebSocket оновлення прогресу
         """
-        
+
         progress = {
             "document_id": document_id,
             "bytes_uploaded": bytes_uploaded,
             "total_bytes": total_bytes,
             "percentage": (bytes_uploaded / total_bytes * 100) if total_bytes else None
         }
-        
+
         # Відправка через WebSocket
         await websocket_manager.send_progress(document_id, progress)
 ```
@@ -1009,10 +1009,10 @@ class CorrelationMiddleware:
     async def __call__(self, request, call_next):
         correlation_id = request.headers.get('X-Correlation-ID') or str(uuid.uuid4())
         correlation_id_var.set(correlation_id)
-        
+
         with logger.contextualize(correlation_id=correlation_id):
             response = await call_next(request)
-        
+
         response.headers['X-Correlation-ID'] = correlation_id
         return response
 
@@ -1088,22 +1088,22 @@ class BackupStrategy:
         "incremental": "0 2 * * 1-6",  # Щодня
         "wal": "*/15 * * * *"     # WAL кожні 15 хв
     }
-    
+
     async def automated_backup(self):
         # 1. PostgreSQL backup
         pg_dump --format=custom --compress=9
-        
+
         # 2. Encrypt
         gpg --encrypt --recipient backup@tesigo.com
-        
+
         # 3. Upload to 3 locations
         await upload_to_s3(backup)      # AWS S3
         await upload_to_gcs(backup)     # Google Cloud
         await upload_to_nas(backup)     # Local NAS
-        
+
         # 4. Verify
         await verify_backup_integrity()
-        
+
         # 5. Cleanup old (30 days retention)
         await cleanup_old_backups()
 
@@ -1130,27 +1130,27 @@ class DisasterRecovery:
         "high": "4 hours",      # Document generation
         "medium": "12 hours"    # Other features
     }
-    
+
     # Recovery Point Objective (макс втрата даних)
     RPO = {
         "database": "15 minutes",
         "files": "1 hour",
         "cache": "24 hours"
     }
-    
+
     async def execute_recovery(disaster_type: str):
         # 1. Assess damage
         damage = assess_damage()
-        
+
         # 2. Notify team (Telegram, Email)
         notify_team(damage)
-        
+
         # 3. Recovery by priority
         restore_database()      # Priority 1
         restore_auth()          # Priority 2
         restore_storage()       # Priority 3
         rebuild_cache()         # Priority 4
-        
+
         # 4. Verify integrity
         verify_recovery()
 ```

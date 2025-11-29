@@ -5,7 +5,7 @@
 🔴 КРИТИЧНІ (HIGH) - 5 items - ~9.5 годин
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. ⚠️  File Storage Deletion (GDPR)           [2-3h] 🚨 LEGAL COMPLIANCE
-2. 💰 Stripe Refund Integration                [2-3h] 🚨 MONEY OPERATIONS  
+2. 💰 Stripe Refund Integration                [2-3h] 🚨 MONEY OPERATIONS
 3. 🔒 Rate Limiting - Production               [1h]   🚨 SECURITY
 4. 🔑 Admin Temporary Password                 [30m]  🚨 SECURITY CRITICAL
 5. 📁 Document Download Signed URL             [2h]   🚨 DATA PROTECTION

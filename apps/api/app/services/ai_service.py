@@ -100,10 +100,10 @@ class AIService:
             generation_time = int(time.time() - start_time)
 
             # DEBUG: Print raw AI response to stdout (shows in docker logs)
-            print(f"\n=== DEBUG OUTLINE START ===")
+            print("\n=== DEBUG OUTLINE START ===")
             print(f"Keys: {list(outline_data.keys())}")
             print(f"Full data (first 1000 chars): {str(outline_data)[:1000]}")
-            print(f"=== DEBUG OUTLINE END ===\n")
+            print("=== DEBUG OUTLINE END ===\n")
 
             # Save outline
             outline = DocumentOutline(

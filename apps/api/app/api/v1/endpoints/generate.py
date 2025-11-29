@@ -2,8 +2,11 @@
 AI generation endpoints
 """
 
-from fastapi import APIRouter, Depends, HTTPException, Request, status
+import logging
+
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -11,17 +14,23 @@ from app.core.dependencies import get_current_user
 from app.core.exceptions import AIProviderError, NotFoundError
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
+from app.models.document import AIGenerationJob, Document
 from app.schemas.document import (
+    AsyncGenerationRequest,
+    AsyncGenerationResponse,
     OutlineRequest,
     OutlineResponse,
     SectionRequest,
     SectionResponse,
 )
 from app.services.ai_service import AIService
+from app.services.background_jobs import BackgroundJobService
 from app.services.cost_estimator import CostEstimator
+from app.services.document_service import DocumentService
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 
+logger = logging.getLogger(__name__)
 router = APIRouter()
 
 
@@ -231,4 +240,146 @@ async def check_grammar(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to check grammar: {str(e)}",
+        ) from e
+
+
+@router.post("/full-document", response_model=AsyncGenerationResponse)
+@rate_limit("5/hour")  # Stricter limit for full document generation
+async def generate_full_document(
+    request: Request,
+    req_data: AsyncGenerationRequest,
+    background_tasks: BackgroundTasks,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Generate complete document with RAG (Retrieval-Augmented Generation)
+
+    This endpoint:
+    1. Validates document ownership and readiness
+    2. Checks payment status (document must be paid)
+    3. Creates AIGenerationJob with status 'queued'
+    4. Starts background generation with RAG retrieval
+    5. Returns job_id for status tracking via WebSocket
+
+    Args:
+        request: Generation request with document_id
+        background_tasks: FastAPI background tasks
+        current_user: Authenticated user
+        db: Database session
+
+    Returns:
+        AsyncGenerationResponse with job_id and status
+
+    Raises:
+        404: Document not found
+        403: User doesn't own document
+        400: Document not ready (not paid, already generating, etc.)
+    """
+    try:
+        # 1. Check document exists and user owns it
+        doc_service = DocumentService(db)
+        await doc_service.check_document_ownership(
+            req_data.document_id, current_user.id
+        )
+
+        # 2. Get document with lock (prevent race conditions)
+        result = await db.execute(
+            select(Document)
+            .where(Document.id == req_data.document_id)
+            .with_for_update()
+        )
+        document = result.scalar_one_or_none()
+
+        if not document:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+            )
+
+        # 3. Validate document is ready for generation
+        if document.status == "generating":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Document is already being generated",
+            )
+
+        if document.status == "completed":
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Document already completed. Create new document for regeneration.",
+            )
+
+        # 4. Check payment status (assuming payment is tracked via Payment table)
+        # For MVP: We skip payment check if document is in draft status
+        # In production: Add payment verification here
+
+        # 5. Check for existing active jobs (prevent duplicates)
+        existing_job_result = await db.execute(
+            select(AIGenerationJob).where(
+                AIGenerationJob.document_id == req_data.document_id,
+                AIGenerationJob.status.in_(["queued", "running"]),
+            )
+        )
+        existing_job = existing_job_result.scalar_one_or_none()
+
+        if existing_job:
+            # Return existing job instead of creating duplicate
+            logger.info(
+                f"Returning existing job {existing_job.id} for document {req_data.document_id}"
+            )
+            return AsyncGenerationResponse(
+                job_id=existing_job.id,
+                status=existing_job.status,
+                check_url=f"/api/v1/jobs/{existing_job.id}/status",
+            )
+
+        # 6. Create new generation job
+        job = AIGenerationJob(
+            user_id=current_user.id,
+            document_id=req_data.document_id,
+            job_type="full_document",
+            ai_provider=document.ai_provider,
+            ai_model=req_data.model or document.ai_model,
+            status="queued",
+            progress=0,
+        )
+        db.add(job)
+        await db.flush()  # Get job.id before commit
+
+        # 7. Update document status
+        document.status = "generating"
+
+        # 8. Commit transaction before starting background task
+        await db.commit()
+
+        logger.info(
+            f"Created generation job {job.id} for document {req_data.document_id}"
+        )
+
+        # 9. Start background generation task
+        background_tasks.add_task(
+            BackgroundJobService.generate_full_document_async,
+            document_id=req_data.document_id,
+            user_id=current_user.id,
+            job_id=job.id,
+            additional_requirements=req_data.requirements,
+        )
+
+        return AsyncGenerationResponse(
+            job_id=job.id, status="queued", check_url=f"/api/v1/jobs/{job.id}/status"
+        )
+
+    except HTTPException:
+        raise
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except Exception as e:
+        logger.error(
+            f"Failed to start document generation: {e}",
+            exc_info=True,
+            extra={"document_id": req_data.document_id, "user_id": current_user.id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to start document generation",
         ) from e

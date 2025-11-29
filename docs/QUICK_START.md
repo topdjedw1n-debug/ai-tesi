@@ -38,7 +38,7 @@ cd ../../apps/api
 cp .env.example .env
 # Edit .env - add your OpenAI/Anthropic keys
 
-# Frontend  
+# Frontend
 cd ../web
 cp .env.local.example .env.local
 ```
@@ -173,10 +173,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ## 🚦 Next Steps
 
 1. **Read full documentation:** [MASTER_DOCUMENT.md](./MASTER_DOCUMENT.md)
-2. **Understand decisions:** [DECISIONS_LOG.md](./DECISIONS_LOG.md)
-3. **Setup production:** See Section 7 in MASTER_DOCUMENT
+2. **Understand decisions:** [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md)
+3. **Setup production:** [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md)
 4. **Run tests:** `pytest tests/`
-5. **Check security:** Fix critical issues from Section 6.2
+5. **Check security:** Fix critical issues from Section 6.2 in MASTER_DOCUMENT
 
 ---
 
@@ -211,11 +211,11 @@ mypy app/
 ## 🆘 Getting Help
 
 1. Check [MASTER_DOCUMENT.md](./MASTER_DOCUMENT.md) - Section 9: Known Issues
-2. Search in [DECISIONS_LOG.md](./DECISIONS_LOG.md) for reasoning
+2. Search in [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md) for reasoning
 3. Check Docker logs: `docker-compose logs <service>`
 4. Check app logs: `tail -f apps/api/logs/app.log`
 
 ---
 
-**Time to first request: ~5 minutes**  
+**Time to first request: ~5 minutes**
 **Time to production-ready: See MASTER_DOCUMENT.md Section 7.3**
