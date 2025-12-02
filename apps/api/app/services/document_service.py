@@ -579,19 +579,23 @@ class DocumentService:
         from minio.error import S3Error
 
         from app.core.config import settings
+        from app.services.storage_service import StorageService
 
         missing_files = []
         orphaned_files = []
         storage_files = []
 
         try:
-            # Initialize MinIO client
+            # Initialize MinIO client for list_objects (StorageService doesn't have this yet)
             client = Minio(
                 settings.MINIO_ENDPOINT,
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
                 secure=settings.MINIO_SECURE,
             )
+            
+            # Initialize StorageService for file_exists checks
+            storage_service = StorageService()
 
             # Get all documents with file paths
             result = await self.db.execute(
@@ -601,29 +605,18 @@ class DocumentService:
             )
             documents = result.scalars().all()
 
-            # Check files referenced in DB exist in storage
+            # Check files referenced in DB exist in storage using StorageService
             for doc in documents:
                 if doc.docx_path:
-                    try:
-                        # Extract object name from path
-                        object_name = doc.docx_path.replace(
-                            f"s3://{settings.MINIO_BUCKET}/", ""
-                        )
-                        object_name = object_name.lstrip("/")
-                        client.stat_object(settings.MINIO_BUCKET, object_name)
-                    except S3Error:
+                    exists = await storage_service.file_exists(doc.docx_path)
+                    if not exists:
                         missing_files.append(
                             {"document_id": doc.id, "file": doc.docx_path}
                         )
 
                 if doc.pdf_path:
-                    try:
-                        object_name = doc.pdf_path.replace(
-                            f"s3://{settings.MINIO_BUCKET}/", ""
-                        )
-                        object_name = object_name.lstrip("/")
-                        client.stat_object(settings.MINIO_BUCKET, object_name)
-                    except S3Error:
+                    exists = await storage_service.file_exists(doc.pdf_path)
+                    if not exists:
                         missing_files.append(
                             {"document_id": doc.id, "file": doc.pdf_path}
                         )
@@ -743,6 +736,7 @@ class DocumentService:
                 file_size = file_stream.tell()  # Get size BEFORE seeking to 0
                 logger.info(f"DOCX saved, file_size after save: {file_size} bytes")
                 file_stream.seek(0)
+                file_data = file_stream.getvalue()  # Get bytes for upload
 
                 file_extension = "docx"
                 content_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -849,30 +843,13 @@ class DocumentService:
                 file_size = file_stream.tell()
                 logger.info(f"PDF generated, file_size: {file_size} bytes")
                 file_stream.seek(0)
+                file_data = file_stream.getvalue()  # Get bytes for upload
 
                 file_extension = "pdf"
                 content_type = "application/pdf"
 
             else:
                 raise ValidationError(f"Unsupported export format: {format}")
-
-            # Upload to MinIO
-            client = Minio(
-                settings.MINIO_ENDPOINT,
-                access_key=settings.MINIO_ACCESS_KEY,
-                secret_key=settings.MINIO_SECRET_KEY,
-                secure=settings.MINIO_SECURE,
-            )
-
-            # Ensure bucket exists
-            try:
-                if not client.bucket_exists(settings.MINIO_BUCKET):
-                    logger.info(f"Creating bucket: {settings.MINIO_BUCKET}")
-                    client.make_bucket(settings.MINIO_BUCKET)
-                    logger.info(f"Bucket created: {settings.MINIO_BUCKET}")
-            except S3Error as e:
-                logger.error(f"Failed to check/create bucket: {e}")
-                # Continue anyway - bucket might exist but check failed
 
             # Generate object name
             object_name = (
@@ -881,19 +858,17 @@ class DocumentService:
 
             logger.info(f"Uploading {format} file: {object_name} ({file_size} bytes)")
 
-            # Upload file
-            try:
-                client.put_object(
-                    settings.MINIO_BUCKET,
-                    object_name,
-                    file_stream,
-                    length=file_size,
-                    content_type=content_type,
-                )
-                logger.info(f"Successfully uploaded to MinIO: {object_name}")
-            except S3Error as e:
-                logger.error(f"Failed to upload document to MinIO: {e}")
-                raise ValidationError("Failed to upload document to storage") from e
+            # Upload file using StorageService
+            from app.services.storage_service import StorageService
+            
+            storage_service = StorageService()
+            storage_path = await storage_service.upload_file(
+                object_name, 
+                file_data, 
+                content_type
+            )
+            
+            logger.info(f"Successfully uploaded to MinIO: {storage_path}")
 
             # Generate public download URL (since bucket is public)
             download_url = f"http://{settings.MINIO_ENDPOINT}/{settings.MINIO_BUCKET}/{object_name}"

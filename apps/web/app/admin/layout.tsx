@@ -9,3 +9,4 @@ export default function AdminLayoutWrapper({
 }) {
   return <AdminLayout>{children}</AdminLayout>
 }
+

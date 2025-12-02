@@ -175,3 +175,4 @@ class CostEstimator:
             "input_price_per_1m": input_price,
             "output_price_per_1m": output_price,
         }
+

@@ -458,3 +458,4 @@ class TestCSRFProtection:
             403,
             422,
         ], f"Unexpected response: {response.status_code}"
+

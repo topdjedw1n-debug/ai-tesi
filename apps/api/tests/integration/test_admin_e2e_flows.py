@@ -242,3 +242,4 @@ async def test_make_admin_flow(client, admin_token, test_user):
             )
             if response.status_code == 200:
                 assert response.json().get("is_admin") is False
+

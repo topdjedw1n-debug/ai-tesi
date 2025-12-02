@@ -135,3 +135,4 @@ class SettingHistoryResponse(BaseModel):
 
     key: str
     history: list[SettingHistoryEntry]
+

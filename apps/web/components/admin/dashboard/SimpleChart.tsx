@@ -73,3 +73,4 @@ export function SimpleChart({ title, data, color = 'blue', height = 200 }: Simpl
     </div>
   )
 }
+

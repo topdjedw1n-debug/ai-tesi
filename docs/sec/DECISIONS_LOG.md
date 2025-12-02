@@ -158,6 +158,95 @@ fallback: GPT-4 → GPT-3.5 → Claude
 - Можна показувати прогрес
 - Resilient to failures
 
+### DR-012: Redis Checkpoints for Generation Recovery
+**Date:** 01.12.2025
+**Status:** ✅ Accepted & Implemented
+**Context:** 
+- Problem: 100-page document = 45 min generation, crash at 85% = loss of 35 min AI costs ($5-10 wasted)
+- User paid but received nothing, must regenerate from scratch = doubled costs
+- Need recovery mechanism to resume generation from last completed section
+
+**Decision:** Use Redis for checkpoint storage (not DB table)
+
+**Technical Implementation:**
+```python
+# Checkpoint structure:
+checkpoint = {
+    "document_id": int,
+    "last_completed_section_index": int,
+    "total_sections": int,
+    "completed_at": str (ISO timestamp),
+    "status": "in_progress"
+}
+
+# Storage: Redis key "checkpoint:doc:{document_id}"
+# TTL: 3600 seconds (1 hour)
+# Save: After each section completes
+# Load: On job start
+# Clear: On success OR failure
+```
+
+**Consequences:**
+- ✅ **Cost savings:** $5-10 per failed document avoided
+- ✅ **User satisfaction:** No "lost my payment" complaints  
+- ✅ **System reliability:** Handles crashes gracefully
+- ✅ **Time savings:** No full regeneration needed
+- ⚠️ **Limitation:** Checkpoint lost if Redis restarts (acceptable - rare event)
+- ⚠️ **Memory:** One checkpoint per active document (~200 bytes)
+
+**Alternatives Considered:**
+1. **Database table for checkpoints**
+   - ❌ Slower than Redis (I/O overhead)
+   - ❌ Requires migrations, adds schema complexity
+   - ❌ Permanent storage not needed (temporary data)
+   
+2. **No checkpointing (status quo)**
+   - ❌ Wastes API costs on crash
+   - ❌ Poor user experience
+   - ❌ No recovery mechanism
+
+3. **File-based checkpoints (JSON files)**
+   - ❌ Slower than Redis
+   - ❌ Disk I/O overhead
+   - ❌ No automatic cleanup
+
+**Trade-off Analysis:**
+- **Speed:** Redis (milliseconds) vs DB (10-50ms) vs File (50-200ms)
+- **Reliability:** Redis 99.9% uptime sufficient for temporary data
+- **Complexity:** Redis = simple set/get/delete vs DB = migrations/models
+- **Auto-cleanup:** Redis TTL vs manual cleanup for DB/File
+
+**Why Redis Won:**
+- Temporary data (1 hour max lifecycle)
+- Fast read/write (< 1ms)
+- Built-in TTL (no cleanup code needed)
+- Already in infrastructure
+- Simple implementation (3 Redis calls)
+
+**Implementation Details:**
+- Files modified: `background_jobs.py` (+92 lines)
+- Tests created: `test_checkpoint_recovery.py` (+394 lines, 4 test cases)
+- Time: 2h 15min actual (vs 2-3h planned)
+- Tasks: 3.7.1-3.7.6 (save, load, cleanup, idempotency, metrics)
+
+**Known Risks & Mitigations:**
+- **Risk:** Redis connection failure
+  - **Mitigation:** Try/except blocks, log warning, continue generation without checkpoint
+  - **Impact:** Non-critical, checkpoint is optimization not requirement
+  
+- **Risk:** Checkpoint out of sync with DB
+  - **Mitigation:** Idempotency check (query DB before generating each section)
+  - **Impact:** Prevented by defensive check
+
+- **Risk:** TTL too short for long generations
+  - **Mitigation:** 1 hour TTL sufficient for 200 pages (~60 min generation)
+  - **Impact:** Acceptable, 200 pages is max limit
+
+**Success Metrics:**
+- Checkpoint save rate: > 99% (measure in production)
+- Recovery success rate: > 95% (when checkpoint exists)
+- Cost savings: Estimated $50-100/month (10-20 crashes avoided)
+
 ### Caching strategy
 **Рішення:** Cache тільки технічні дані
 **НЕ кешуємо:** Згенерований контент

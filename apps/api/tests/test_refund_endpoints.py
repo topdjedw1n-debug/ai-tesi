@@ -168,3 +168,4 @@ async def test_admin_refunds_stats(client, admin_token):
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/refunds/stats", headers=headers)
     assert response.status_code in [200, 403]
+

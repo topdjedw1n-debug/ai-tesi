@@ -98,6 +98,12 @@ class DocumentSection(Base):
     content = Column(Text)
     word_count = Column(Integer, default=0)
 
+    # Quality metrics
+    grammar_score = Column(Float, nullable=True)  # 0-100, higher is better
+    plagiarism_score = Column(Float, nullable=True)  # 0-100, lower is better (% plagiarism)
+    ai_detection_score = Column(Float, nullable=True)  # 0-100, lower is better (% AI-generated)
+    quality_score = Column(Float, nullable=True)  # 0-100, higher is better (overall quality)
+
     # Generation state
     status = Column(
         String(50), default="pending"

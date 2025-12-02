@@ -27,9 +27,6 @@ class Settings(BaseSettings):
     # Security
     # CRITICAL: No default value - must be provided via ENV in production
     SECRET_KEY: str | None = None
-    
-    # Admin temporary password for testing (NOT FOR PRODUCTION!)
-    ADMIN_TEMP_PASSWORD: str = "admin123"  # Change this or use ENV variable
 
     # JWT Configuration (ENV-based, no defaults)
     JWT_SECRET: str | None = None  # Prefer JWT_SECRET over SECRET_KEY if set
@@ -61,6 +58,42 @@ class Settings(BaseSettings):
     # AI Providers
     OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
+
+    # AI Retry & Fallback Configuration (Task 3.1-3.2)
+    AI_MAX_RETRIES: int = 3  # Number of retry attempts per provider
+    AI_RETRY_DELAYS: str = "2,4,8"  # Comma-separated delays in seconds (exponential backoff)
+    AI_ENABLE_FALLBACK: bool = True  # Enable fallback to other providers
+    # Fallback chain: Try providers in order until one succeeds
+    # Format: "provider:model,provider:model,..."
+    # Default: GPT-4 → GPT-3.5 Turbo → Claude 3.5 Sonnet
+    AI_FALLBACK_CHAIN: str = (
+        "openai:gpt-4,"
+        "openai:gpt-3.5-turbo,"
+        "anthropic:claude-3-5-sonnet-20241022"
+    )
+
+    # Quality Thresholds Configuration (Task 3.2 - Quality Gates)
+    # Grammar check threshold: max errors before regeneration
+    QUALITY_MAX_GRAMMAR_ERRORS: int = 10  # LanguageTool error count threshold
+    
+    # Plagiarism check threshold: min uniqueness percentage
+    QUALITY_MIN_PLAGIARISM_UNIQUENESS: float = 85.0  # 85% unique = 15% plagiarism allowed
+    
+    # AI detection threshold: max AI-generated percentage
+    QUALITY_MAX_AI_DETECTION_SCORE: float = 55.0  # Above 55% triggers multi-pass humanization
+    
+    # Regeneration limits: max attempts to regenerate failing section
+    QUALITY_MAX_REGENERATE_ATTEMPTS: int = 2  # Try initial + 2 regenerations = 3 total
+    
+    # Enable/disable quality gates (for testing/debugging)
+    QUALITY_GATES_ENABLED: bool = True  # Set False to disable rejection logic
+    
+    # Context limit: max previous sections to include in context (prevents token explosion)
+    QUALITY_GATES_MAX_CONTEXT_SECTIONS: int = 10  # Last 10 sections = ~30KB context
+
+    # Partial Completion (Decision: 85% threshold, 01.12.2025)
+    PARTIAL_COMPLETION_ENABLED: bool = True
+    PARTIAL_COMPLETION_THRESHOLD: float = 0.85  # 85% - deliver if 43/50 sections OK
 
     # Search APIs for RAG
     SEMANTIC_SCHOLAR_API_KEY: str | None = None
@@ -537,6 +570,47 @@ class Settings(BaseSettings):
     def jwt_secret_key(self) -> str:
         """Get JWT secret key - prefer JWT_SECRET over SECRET_KEY"""
         return self.JWT_SECRET if self.JWT_SECRET else self.SECRET_KEY  # type: ignore
+
+    @property
+    def AI_RETRY_DELAYS_LIST(self) -> list[int]:
+        """
+        Parse retry delays from comma-separated string to list of integers.
+        
+        Example:
+            AI_RETRY_DELAYS="2,4,8" → [2, 4, 8]
+        
+        Returns:
+            List of delay values in seconds
+        """
+        try:
+            return [int(x.strip()) for x in self.AI_RETRY_DELAYS.split(",") if x.strip()]
+        except (ValueError, AttributeError):
+            # Fallback to default if parsing fails
+            return [2, 4, 8]
+
+    @property
+    def AI_FALLBACK_CHAIN_LIST(self) -> list[tuple[str, str]]:
+        """
+        Parse fallback chain from comma-separated string to list of (provider, model) tuples.
+        
+        Example:
+            AI_FALLBACK_CHAIN="openai:gpt-4,anthropic:claude-3-5-sonnet" 
+            → [("openai", "gpt-4"), ("anthropic", "claude-3-5-sonnet")]
+        
+        Returns:
+            List of (provider, model) tuples
+        """
+        try:
+            chain = []
+            for item in self.AI_FALLBACK_CHAIN.split(","):
+                item = item.strip()
+                if ":" in item:
+                    provider, model = item.split(":", 1)
+                    chain.append((provider.strip(), model.strip()))
+            return chain if chain else [("openai", "gpt-4")]
+        except (ValueError, AttributeError):
+            # Fallback to default if parsing fails
+            return [("openai", "gpt-4")]
 
 
 # Create settings instance

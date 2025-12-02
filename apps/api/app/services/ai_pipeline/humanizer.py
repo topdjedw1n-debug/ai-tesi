@@ -69,10 +69,23 @@ class Humanizer:
                 preservation_rate = (
                     preserved_count / len(citations) if citations else 1.0
                 )
-                if preservation_rate < 0.8:  # Warn if <80% citations preserved
-                    logger.warning(
-                        f"Citation preservation rate: {preservation_rate:.2%}. "
-                        f"Expected ≥80%."
+                if preservation_rate < 0.8:  # Reject if <80% citations preserved
+                    logger.error(
+                        f"Citation preservation failed: {preservation_rate:.2%} "
+                        f"(expected ≥80%). Returning original text to preserve citations."
+                    )
+                    # Log which citations were lost for debugging
+                    lost_citations = [
+                        cit["original"] for cit in citations 
+                        if cit["original"] not in humanized_text
+                    ]
+                    logger.debug(f"Lost citations: {lost_citations}")
+                    
+                    # SAFE: Return original text instead of broken humanized version
+                    return text
+                else:
+                    logger.info(
+                        f"Citations preserved successfully: {preservation_rate:.2%}"
                     )
 
             return humanized_text
@@ -145,3 +158,89 @@ class Humanizer:
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")
             raise
+
+    async def humanize_multi_pass(
+        self,
+        text: str,
+        provider: str,
+        model: str,
+        target_ai_score: float = 50.0,
+        max_attempts: int = 2,
+        preserve_citations: bool = True,
+    ) -> tuple[str, float]:
+        """
+        Multi-pass humanization to achieve target AI detection score
+
+        Iteratively humanizes text with increasing temperature until
+        AI detection score drops below target threshold.
+
+        Args:
+            text: Original text to humanize
+            provider: AI provider ("openai" or "anthropic")
+            model: Model name
+            target_ai_score: Target AI detection score (default: 50.0%)
+            max_attempts: Max humanization attempts (default: 2)
+            preserve_citations: Whether to preserve citation markers
+
+        Returns:
+            Tuple of (humanized_text, final_ai_score)
+        """
+        from app.services.ai_detection_checker import AIDetectionChecker
+
+        ai_checker = AIDetectionChecker()
+        current_text = text
+        temperatures = [0.9, 1.0, 1.1, 1.2]  # Progressive increase
+
+        for attempt in range(max_attempts):
+            # Check current AI score
+            detection_result = await ai_checker.check_text(current_text)
+
+            if not detection_result["checked"]:
+                logger.warning(
+                    f"AI detection failed on attempt {attempt + 1}: "
+                    f"{detection_result.get('error', 'Unknown')}. Using text as-is."
+                )
+                break
+
+            current_ai_score = detection_result["ai_probability"]
+            provider_used = detection_result.get("provider", "unknown")
+            logger.info(
+                f"Humanization attempt {attempt + 1}/{max_attempts}: "
+                f"AI score = {current_ai_score:.1f}% (provider: {provider_used})"
+            )
+
+            # Check if target achieved
+            if current_ai_score <= target_ai_score:
+                logger.info(
+                    f"✅ Target AI score achieved: {current_ai_score:.1f}% <= {target_ai_score:.1f}%"
+                )
+                return current_text, current_ai_score
+
+            # Humanize with progressive temperature
+            temp = temperatures[min(attempt, len(temperatures) - 1)]
+            self.temperature = temp
+            logger.info(
+                f"Re-humanizing with temperature={temp} (attempt {attempt + 1}/{max_attempts})"
+            )
+
+            current_text = await self.humanize(
+                text=current_text,
+                provider=provider,
+                model=model,
+                preserve_citations=preserve_citations,
+            )
+
+        # Max attempts reached - check final score
+        final_detection = await ai_checker.check_text(current_text)
+        final_score = (
+            final_detection.get("ai_probability", 100.0)
+            if final_detection["checked"]
+            else 100.0
+        )
+
+        logger.warning(
+            f"⚠️ Max humanization attempts ({max_attempts}) reached. "
+            f"Final AI score: {final_score:.1f}%"
+        )
+
+        return current_text, final_score

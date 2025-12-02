@@ -170,3 +170,4 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
     </>
   )
 }
+

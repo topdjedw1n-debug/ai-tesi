@@ -13,10 +13,11 @@ from fastapi import (
     UploadFile,
     status,
 )
+from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
-from app.core.dependencies import get_current_user
+from app.core.dependencies import get_current_user, verify_download_token
 from app.core.exceptions import NotFoundError, ValidationError
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
@@ -30,10 +31,11 @@ from app.schemas.document import (
 )
 from app.services.custom_requirements_service import CustomRequirementsService
 from app.services.document_service import DocumentService
+from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
 
-router = APIRouter()
+router = APIRouter()  # 307 redirect for trailing slash is standard REST API behavior
 
 
 @router.post("/", response_model=DocumentResponse)
@@ -332,3 +334,98 @@ async def upload_custom_requirements(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to process custom requirements file: {str(e)}",
         ) from e
+
+
+@router.get("/download")
+async def download_document_secure(
+    token: str = Query(..., description="Signed download token"),
+    db: AsyncSession = Depends(get_db),
+):
+    """
+    Secure document download endpoint with JWT token validation.
+    
+    Token must contain document_id and user_id claims.
+    Only the document owner can download.
+    """
+    try:
+        # Verify token and extract claims
+        payload = verify_download_token(token)
+        document_id = payload["document_id"]
+        user_id = payload["user_id"]
+        
+        # Get document from database
+        document_service = DocumentService(db)
+        document = await document_service.get_document_by_id(document_id)
+        
+        if not document:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Document not found"
+            )
+        
+        # Verify ownership (CRITICAL security check)
+        if document.user_id != user_id:
+            logger.warning(
+                f"SECURITY: Download attempt with mismatched ownership. "
+                f"Token user_id={user_id}, Document user_id={document.user_id}, "
+                f"Document ID={document_id}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied"
+            )
+        
+        # Check if document has file path in storage (prefer DOCX over PDF)
+        file_path = document.docx_path or document.pdf_path
+        
+        if not file_path:
+            # If no file, return content as text (fallback)
+            logger.info(f"No file path for document {document_id}, returning content")
+            content = document.content or "No content available"
+            return StreamingResponse(
+                iter([content.encode('utf-8')]),
+                media_type="text/plain",
+                headers={
+                    "Content-Disposition": f'attachment; filename="{document.title}.txt"'
+                }
+            )
+        
+        # Initialize StorageService
+        storage_service = StorageService()
+        
+        # Determine media type and file extension based on file path
+        media_type = "application/octet-stream"
+        file_extension = ".docx"  # default
+        
+        if file_path.endswith(".docx"):
+            media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            file_extension = ".docx"
+        elif file_path.endswith(".pdf"):
+            media_type = "application/pdf"
+            file_extension = ".pdf"
+        
+        logger.info(
+            f"Document download: user_id={user_id}, document_id={document_id}, "
+            f"file_path={file_path}"
+        )
+        
+        # Stream file from MinIO using StorageService
+        file_stream = storage_service.download_file_stream(file_path)
+        
+        return StreamingResponse(
+            file_stream,
+            media_type=media_type,
+            headers={
+                "Content-Disposition": f'attachment; filename="{document.title}{file_extension}"'
+            }
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error downloading document: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to download document"
+        ) from e
+

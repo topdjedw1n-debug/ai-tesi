@@ -14,6 +14,7 @@ from app.core.dependencies import require_permission
 from app.core.exceptions import APIException
 from app.core.logging import log_security_audit_event
 from app.core.permissions import AdminPermissions
+from app.core.security import create_download_token
 from app.models.auth import User
 from app.models.document import AIGenerationJob, Document
 from app.services.admin_service import AdminService
@@ -521,12 +522,17 @@ async def download_document(
             correlation_id=correlation_id,
         )
 
+        # Generate signed download URL
+        download_token = create_download_token(
+            document_id=document.id, user_id=current_user.id, expiration_minutes=60
+        )
+
         # Return document content (in production, this would be a signed URL or file download)
         return {
             "document_id": document_id,
             "title": document.title,
             "content": document.content,
-            "download_url": f"/api/v1/admin/documents/{document_id}/download",  # TODO: Generate signed URL
+            "download_url": f"/api/v1/documents/download?token={download_token}",
         }
     except APIException:
         raise

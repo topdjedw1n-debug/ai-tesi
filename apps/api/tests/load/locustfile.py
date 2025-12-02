@@ -233,3 +233,4 @@ class AuthenticatedTesiGoUser(TesiGoUser):
         if not self.auth_token:
             # Skip authenticated tasks
             self.tasks = [self.get_health]
+

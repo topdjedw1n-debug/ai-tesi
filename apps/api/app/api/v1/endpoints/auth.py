@@ -432,8 +432,15 @@ async def admin_simple_login(
     if not user:
         raise AuthenticationError("Invalid credentials or not an admin")
     
-    # Check password (simplified for testing)
-    if login_data.password != settings.ADMIN_TEMP_PASSWORD:
+    # Check password using bcrypt
+    if not user.password_hash:
+        raise AuthenticationError(
+            "Admin password not set. Use scripts/set-admin-password.py to set a secure password."
+        )
+    
+    # Verify password with bcrypt
+    from app.services.auth_service import AuthService
+    if not AuthService.verify_password(login_data.password, user.password_hash):
         raise AuthenticationError("Invalid credentials")
     
     # Create token

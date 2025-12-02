@@ -2,11 +2,14 @@
 
 ## 🔴 КРИТИЧНЕ: Правила якості роботи
 
-**ОБОВ'ЯЗКОВО перед КОЖНОЮ задачею прочитати:** `/.github/AGENT_QUALITY_RULES.md`
+**⚠️ ПЕРЕД КОЖНОЮ ЗАДАЧЕЮ:**
+1. **ПРОЧИТАТИ:** `/.github/AGENT_QUALITY_RULES.md` (200 lines - work methodology)
+2. **ПЕРЕВІРИТИ:** Відповідність 5 core documents (listed in "Documentation Hierarchy")
+3. **ЗАСТОСУВАТИ:** Quality checklist (питання до себе перед підтвердженням)
 
 **Головне правило:** ❌ **НЕ робити задачу "щоб просто зробити"**
 
-### Мінімальний чеклист:
+### Мінімальний чеклист з AGENT_QUALITY_RULES.md:
 - [ ] Зрозумів що треба? Є сумніви? → ЗАПИТАТИ
 - [ ] Перевірив РЕАЛЬНИЙ код (read_file/grep_search)?
 - [ ] Відповідає документації (MASTER_DOCUMENT, DECISIONS_LOG)?
@@ -560,6 +563,10 @@ All AI calls use circuit breaker pattern for resilience.
 
 ## Documentation Hierarchy
 
+**🔴 CRITICAL - Read BEFORE every task:**
+0. **Quality Rules:** [`/.github/AGENT_QUALITY_RULES.md`](./AGENT_QUALITY_RULES.md) - **HOW to work** (mandatory checklist)
+
+**📚 Core Documentation - Read for context:**
 1. **Primary:** [`docs/MASTER_DOCUMENT.md`](../docs/MASTER_DOCUMENT.md) - Complete technical reference
 2. **Setup:** [`docs/QUICK_START.md`](../docs/QUICK_START.md) - Local development setup
 3. **Decisions:** [`docs/sec/DECISIONS_LOG.md`](../docs/sec/DECISIONS_LOG.md) - Architecture decisions

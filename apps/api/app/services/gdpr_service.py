@@ -259,42 +259,20 @@ class GDPRService:
             file_path: Path to file in storage (e.g., "s3://bucket/path/to/file.pdf")
         """
         try:
-            from minio import Minio
-            from minio.error import S3Error
-            from app.core.config import settings
+            from app.services.storage_service import StorageService
 
-            # Parse S3 path
-            if not file_path.startswith("s3://"):
-                logger.warning(f"Invalid storage path format: {file_path}")
-                return
+            # Initialize StorageService
+            storage_service = StorageService()
 
-            # Extract bucket and object name from s3://bucket/path/to/file
-            path_parts = file_path.replace("s3://", "").split("/", 1)
-            if len(path_parts) != 2:
-                logger.warning(f"Invalid S3 path structure: {file_path}")
-                return
-
-            bucket_name, object_name = path_parts
-
-            # Create MinIO client
-            client = Minio(
-                settings.MINIO_ENDPOINT,
-                access_key=settings.MINIO_ACCESS_KEY,
-                secret_key=settings.MINIO_SECRET_KEY,
-                secure=settings.MINIO_SECURE,
-            )
-
-            # Delete object
-            client.remove_object(bucket_name, object_name)
-            logger.info(f"✅ Deleted file from storage: {object_name}")
-
-        except S3Error as e:
-            if e.code == "NoSuchKey":
-                # File doesn't exist - that's OK for deletion
-                logger.info(f"File already deleted or doesn't exist: {file_path}")
+            # Delete file using StorageService (silent mode for GDPR)
+            success = await storage_service.delete_file(file_path, silent=True)
+            
+            if success:
+                logger.info(f"✅ Deleted file from storage: {file_path}")
             else:
-                logger.error(f"S3 error deleting file {file_path}: {e}")
-                # Don't raise - we want GDPR deletion to continue even if storage fails
+                logger.warning(f"File deletion failed or not found: {file_path}")
+
         except Exception as e:
             logger.error(f"Error deleting file from storage {file_path}: {e}")
             # Don't raise - continue with other deletions
+

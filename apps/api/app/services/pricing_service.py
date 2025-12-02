@@ -170,3 +170,4 @@ class PricingService:
         except Exception as e:
             logger.error(f"Error validating pages: {e}", exc_info=True)
             return False, "Error validating page count"
+

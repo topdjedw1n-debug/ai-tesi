@@ -274,3 +274,4 @@ async def test_get_refund_stats(refund_service, mock_db):
     assert stats["approved"] == 60
     assert stats["rejected"] == 20
     assert stats["total_requests"] == 100
+

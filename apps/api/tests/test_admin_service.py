@@ -381,3 +381,4 @@ async def test_critical_actions_list():
     assert "change_pricing" in CRITICAL_ACTIONS
     assert "enable_maintenance" in CRITICAL_ACTIONS
     assert "approve_large_refund" in CRITICAL_ACTIONS
+

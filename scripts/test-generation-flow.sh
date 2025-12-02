@@ -89,12 +89,12 @@ POLL_INTERVAL=10
 while [ $ELAPSED -lt $MAX_WAIT ]; do
   STATUS_RESPONSE=$(curl -s "$API_URL/api/v1/jobs/$JOB_ID/status" \
     -H "Authorization: Bearer $TOKEN")
-  
+
   CURRENT_STATUS=$(echo "$STATUS_RESPONSE" | jq -r '.status')
   PROGRESS=$(echo "$STATUS_RESPONSE" | jq -r '.progress // 0')
-  
+
   echo -e "${YELLOW}⏳ Status: $CURRENT_STATUS | Progress: ${PROGRESS}%${NC}"
-  
+
   if [ "$CURRENT_STATUS" == "completed" ]; then
     echo -e "${GREEN}✅ Generation completed!${NC}"
     break
@@ -104,7 +104,7 @@ while [ $ELAPSED -lt $MAX_WAIT ]; do
     echo "Error: $ERROR_MSG"
     exit 1
   fi
-  
+
   sleep $POLL_INTERVAL
   ELAPSED=$((ELAPSED + POLL_INTERVAL))
 done

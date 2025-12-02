@@ -17,6 +17,9 @@ class User(Base):
     id = Column(Integer, primary_key=True, index=True)
     email = Column(String(255), unique=True, index=True, nullable=False)
     full_name = Column(String(255), nullable=True)
+    
+    # Password hash for admin login (nullable for regular users who use magic links)
+    password_hash = Column(String(255), nullable=True)
 
     # Account status
     is_active = Column(Boolean, default=True)

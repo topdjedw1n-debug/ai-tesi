@@ -256,3 +256,4 @@ async def test_get_maintenance_message(settings_service, mock_db):
     message = await settings_service.get_maintenance_message()
 
     assert message == "Custom maintenance message"
+

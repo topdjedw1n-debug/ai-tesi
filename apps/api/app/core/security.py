@@ -35,3 +35,32 @@ def create_access_token(user_id: int) -> str:
         to_encode["aud"] = settings.JWT_AUD
 
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+
+
+def create_download_token(
+    document_id: int, user_id: int, expiration_minutes: int = 60
+) -> str:
+    """
+    Create JWT token for secure document download.
+    
+    Args:
+        document_id: ID of the document to download
+        user_id: ID of the user requesting download
+        expiration_minutes: Token expiration time (default: 60 minutes)
+    
+    Returns:
+        JWT token string for download authorization
+    """
+    now = datetime.utcnow()
+    expire = now + timedelta(minutes=expiration_minutes)
+    to_encode = {
+        "document_id": document_id,
+        "user_id": user_id,
+        "type": "download",
+        "exp": expire,
+        "iat": now,
+        "iss": "tesigo-api",
+        "aud": "tesigo-download",
+    }
+    return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+

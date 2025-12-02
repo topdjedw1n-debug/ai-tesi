@@ -123,3 +123,4 @@ export function DocumentFilters({ onFilterChange, initialFilters }: DocumentFilt
     </div>
   )
 }
+

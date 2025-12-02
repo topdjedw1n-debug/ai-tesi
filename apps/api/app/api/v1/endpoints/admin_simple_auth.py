@@ -67,23 +67,21 @@ async def admin_simple_login(
             detail="Invalid credentials or not an admin",
         )
     
-    # Verify password (use proper bcrypt verification if password_hash exists)
-    if user.password_hash:
-        # Production: use bcrypt verification
-        if not AuthService.verify_password(login_data.password, user.password_hash):
-            logger.warning(f"Admin login failed: invalid password - {login_data.email}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
-            )
-    else:
-        # Fallback for testing only (if no password_hash set)
-        if settings.ADMIN_TEMP_PASSWORD and login_data.password != settings.ADMIN_TEMP_PASSWORD:
-            logger.warning(f"Admin login failed: invalid temp password - {login_data.email}")
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid credentials",
-            )
+    # Verify password (bcrypt only - no fallback)
+    if not user.password_hash:
+        logger.error(f"Admin login failed: password_hash not set - {login_data.email}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Admin password not configured. Use scripts/set-admin-password.py",
+        )
+    
+    # Production: use bcrypt verification
+    if not AuthService.verify_password(login_data.password, user.password_hash):
+        logger.warning(f"Admin login failed: invalid password - {login_data.email}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid credentials",
+        )
     
     # Update last login
     user.last_login = datetime.utcnow()

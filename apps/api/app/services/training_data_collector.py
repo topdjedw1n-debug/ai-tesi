@@ -146,3 +146,4 @@ class TrainingDataCollector:
                 "enabled": self.enabled,
                 "error": str(e),
             }
+
