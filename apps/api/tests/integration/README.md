@@ -111,4 +111,3 @@ locust -f locustfile.py --host=http://localhost:8000 --users=50 --spawn-rate=5 -
 - Rate limiting may be disabled in test environment
 - Some tests may skip if dependencies (like Stripe/OpenAI) are not configured
 - Performance tests are marked with `@pytest.mark.slow` and can take several minutes
-

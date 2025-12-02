@@ -350,6 +350,7 @@ async def initiate_refund(
 
         # Use Stripe API to create refund
         import stripe
+
         from app.core.config import settings
 
         if not settings.STRIPE_SECRET_KEY:
@@ -388,7 +389,9 @@ async def initiate_refund(
             if refund_amount >= float(payment.amount):
                 # Full refund
                 await db.execute(
-                    update(Payment).where(Payment.id == payment_id).values(status="refunded")
+                    update(Payment)
+                    .where(Payment.id == payment_id)
+                    .values(status="refunded")
                 )
             else:
                 # Partial refund - keep as completed
@@ -625,4 +628,3 @@ async def get_payment_stats(
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR",
         ) from e
-

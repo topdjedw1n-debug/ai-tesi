@@ -172,4 +172,3 @@ async def test_update_maintenance_settings(client, admin_token):
         headers=headers,
     )
     assert response.status_code in [200, 403]
-

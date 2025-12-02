@@ -100,9 +100,15 @@ class DocumentSection(Base):
 
     # Quality metrics
     grammar_score = Column(Float, nullable=True)  # 0-100, higher is better
-    plagiarism_score = Column(Float, nullable=True)  # 0-100, lower is better (% plagiarism)
-    ai_detection_score = Column(Float, nullable=True)  # 0-100, lower is better (% AI-generated)
-    quality_score = Column(Float, nullable=True)  # 0-100, higher is better (overall quality)
+    plagiarism_score = Column(
+        Float, nullable=True
+    )  # 0-100, lower is better (% plagiarism)
+    ai_detection_score = Column(
+        Float, nullable=True
+    )  # 0-100, lower is better (% AI-generated)
+    quality_score = Column(
+        Float, nullable=True
+    )  # 0-100, higher is better (overall quality)
 
     # Generation state
     status = Column(

@@ -134,4 +134,3 @@ async def test_retry_with_circuit_breaker():
     result = await strategy.execute_with_retry(fail_then_succeed)
     assert result == "success"
     assert call_count == 3
-

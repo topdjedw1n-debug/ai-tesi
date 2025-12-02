@@ -95,8 +95,8 @@ AI: [reads MVP_PLAN.md]
     [reads actual code file]
     [grep_search for TODO]
     [compares description vs code]
-    
-RESULT: "Found mismatch: docs say X, 
+
+RESULT: "Found mismatch: docs say X,
          but code is Y. Fixing docs."
 ```
 
@@ -106,9 +106,9 @@ User: "Check item 2 in MVP_PLAN"
 
 AI: [reads only MVP_PLAN.md]
     [doesn't check real code]
-    
+
 RESULT: "All correct, matches code"
-    
+
 → ERROR: Didn't verify real code
 ```
 

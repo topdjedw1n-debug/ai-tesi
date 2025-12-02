@@ -463,4 +463,3 @@ class RefundService:
             "average_processing_time_hours": avg_processing_time_hours,
             "approval_rate": round(approval_rate, 2),
         }
-

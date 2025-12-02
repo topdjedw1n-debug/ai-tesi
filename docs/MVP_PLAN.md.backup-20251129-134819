@@ -364,7 +364,7 @@ raise HTTPException(501, "Excel export not implemented")
 - ❌ Perplexity API key (RAG quality boost)
 - ❌ Serper API key (RAG quality boost)
 - ⚠️ Documents endpoint trailing slash fix
-- ⚠️ Frontend polling integration  
+- ⚠️ Frontend polling integration
 - ⚠️ Error handling UI
 
 **ВІДКЛАДЕНО:**

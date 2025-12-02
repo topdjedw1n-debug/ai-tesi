@@ -5,6 +5,7 @@ Authentication endpoints
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, RateLimitError, ValidationError
 from app.core.logging import log_security_audit_event
@@ -24,13 +25,14 @@ from app.schemas.auth import (
 )
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService
-from app.core.config import settings
 
 router = APIRouter()
 
 
 @router.post("/magic-link", response_model=MagicLinkResponse)
-@rate_limit(f"{settings.RATE_LIMIT_MAGIC_LINK_PER_HOUR}/hour")  # Default: 3/hour (from config)
+@rate_limit(
+    f"{settings.RATE_LIMIT_MAGIC_LINK_PER_HOUR}/hour"
+)  # Default: 3/hour (from config)
 async def request_magic_link(
     request: Request,
     magic_link_request: MagicLinkRequest,
@@ -397,13 +399,15 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
 
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
-from app.models.auth import User
+
 from app.core.config import settings
 from app.core.security import create_access_token
+from app.models.auth import User
 
 
 class AdminLoginRequest(BaseModel):
     """Simple admin login request"""
+
     email: EmailStr
     password: str
 
@@ -415,7 +419,7 @@ async def admin_simple_login(
 ):
     """
     TESTING ONLY: Simple admin login without magic link
-    
+
     Use: POST /api/v1/auth/admin-login
     Body: {"email": "admin@tesigo.com", "password": "admin123"}
     """
@@ -428,24 +432,25 @@ async def admin_simple_login(
         )
     )
     user = result.scalar_one_or_none()
-    
+
     if not user:
         raise AuthenticationError("Invalid credentials or not an admin")
-    
+
     # Check password using bcrypt
     if not user.password_hash:
         raise AuthenticationError(
             "Admin password not set. Use scripts/set-admin-password.py to set a secure password."
         )
-    
+
     # Verify password with bcrypt
     from app.services.auth_service import AuthService
+
     if not AuthService.verify_password(login_data.password, user.password_hash):
         raise AuthenticationError("Invalid credentials")
-    
+
     # Create token
     access_token = create_access_token(user.id)
-    
+
     return {
         "access_token": access_token,
         "token_type": "bearer",
@@ -454,5 +459,5 @@ async def admin_simple_login(
             "email": user.email,
             "full_name": user.full_name,
             "is_admin": user.is_admin,
-        }
+        },
     }

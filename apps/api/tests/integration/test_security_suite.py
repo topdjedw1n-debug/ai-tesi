@@ -257,7 +257,10 @@ class TestIDORProtection:
 
         # Create document for user1
         document = Document(
-            user_id=user1.id, title="My Document", topic="My Test Topic", status="draft"  # min_length=10 for topic
+            user_id=user1.id,
+            title="My Document",
+            topic="My Test Topic",
+            status="draft",  # min_length=10 for topic
         )
         db_session.add(document)
         await db_session.commit()
@@ -458,4 +461,3 @@ class TestCSRFProtection:
             403,
             422,
         ], f"Unexpected response: {response.status_code}"
-

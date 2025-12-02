@@ -9,13 +9,13 @@ from app.models.document import Document
 
 # Multilingual system prompts for AI models
 SYSTEM_PROMPTS = {
-    'en': "You are an expert academic writer specializing in thesis and research paper generation.",
-    'it': "Sei un esperto scrittore accademico specializzato nella generazione di tesi e lavori di ricerca.",
-    'es': "Eres un escritor académico experto especializado en la generación de tesis y trabajos de investigación.",
-    'de': "Sie sind ein erfahrener akademischer Autor, der auf die Erstellung von Abschlussarbeiten und Forschungsarbeiten spezialisiert ist.",
-    'cs': "Jste odborný akademický autor specializující se na tvorbu diplomových a výzkumných prací.",
-    'fr': "Vous êtes un rédacteur académique expert spécialisé dans la génération de thèses et de travaux de recherche.",
-    'uk': "Ви експерт з академічного письма, що спеціалізується на створенні дипломних та дослідницьких робіт."
+    "en": "You are an expert academic writer specializing in thesis and research paper generation.",
+    "it": "Sei un esperto scrittore accademico specializzato nella generazione di tesi e lavori di ricerca.",
+    "es": "Eres un escritor académico experto especializado en la generación de tesis y trabajos de investigación.",
+    "de": "Sie sind ein erfahrener akademischer Autor, der auf die Erstellung von Abschlussarbeiten und Forschungsarbeiten spezialisiert ist.",
+    "cs": "Jste odborný akademický autor specializující se na tvorbu diplomových a výzkumných prací.",
+    "fr": "Vous êtes un rédacteur académique expert spécialisé dans la génération de thèses et de travaux de recherche.",
+    "uk": "Ви експерт з академічного письма, що спеціалізується на створенні дипломних та дослідницьких робіт.",
 }
 
 
@@ -26,14 +26,14 @@ class PromptBuilder:
     def get_system_prompt(language: str) -> str:
         """
         Get system prompt in target language
-        
+
         Args:
             language: Language code (en, it, es, de, cs, fr, uk)
-        
+
         Returns:
             System prompt in specified language
         """
-        return SYSTEM_PROMPTS.get(language, SYSTEM_PROMPTS['en'])
+        return SYSTEM_PROMPTS.get(language, SYSTEM_PROMPTS["en"])
 
     @staticmethod
     def build_outline_prompt(
@@ -51,16 +51,18 @@ class PromptBuilder:
         """
         # Language map for explicit instructions
         language_instructions = {
-            'en': 'Write ONLY in English',
-            'it': 'Scrivi SOLO in italiano',
-            'de': 'Schreiben Sie NUR auf Deutsch',
-            'fr': 'Écrivez UNIQUEMENT en français',
-            'es': 'Escribe SOLO en español',
-            'cs': 'Pište POUZE v češtině',
-            'uk': 'Пишіть ТІЛЬКИ українською',
+            "en": "Write ONLY in English",
+            "it": "Scrivi SOLO in italiano",
+            "de": "Schreiben Sie NUR auf Deutsch",
+            "fr": "Écrivez UNIQUEMENT en français",
+            "es": "Escribe SOLO en español",
+            "cs": "Pište POUZE v češtině",
+            "uk": "Пишіть ТІЛЬКИ українською",
         }
-        lang_instruction = language_instructions.get(document.language, f'Write ONLY in {document.language}')
-        
+        lang_instruction = language_instructions.get(
+            document.language, f"Write ONLY in {document.language}"
+        )
+
         prompt = f"""IMPORTANT: {lang_instruction}. Do not use any other language.
 
 Generate a detailed academic thesis outline for the following topic:
@@ -126,16 +128,16 @@ Please respond with a JSON structure containing the outline data."""
 
         # Language names for clear instruction
         language_names = {
-            'en': 'English',
-            'it': 'italiano (Italian)',
-            'es': 'español (Spanish)',
-            'de': 'Deutsch (German)',
-            'cs': 'čeština (Czech)',
-            'fr': 'français (French)',
-            'uk': 'українська (Ukrainian)'
+            "en": "English",
+            "it": "italiano (Italian)",
+            "es": "español (Spanish)",
+            "de": "Deutsch (German)",
+            "cs": "čeština (Czech)",
+            "fr": "français (French)",
+            "uk": "українська (Ukrainian)",
         }
         lang_name = language_names.get(document.language, document.language)
-        
+
         prompt = f"""CRITICAL INSTRUCTION - READ CAREFULLY:
 You MUST write this ENTIRE response in {lang_name}.
 Using ANY other language (especially English) is STRICTLY FORBIDDEN.

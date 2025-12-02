@@ -59,7 +59,7 @@
 
 ### 1. Admin Auth - FIXED ✅ (14:52)
 **Було:** `AttributeError: 'User' object has no attribute 'password_hash'` (500 error)
-**Виправлено:** 
+**Виправлено:**
 - Додано `password_hash` поле в User model
 - Створено SQL міграцію 002_add_password_hash.sql
 - Переписано AuthService на bcrypt напряму (обхід passlib bug)
@@ -211,7 +211,7 @@ Final Flow (100% Functional):
    - Humanize (temp=0.9) ✅
    - Citation preservation check (<80% → return original) ✅ FIXED
    - Grammar check (LanguageTool) ✅ INTEGRATED
-   - Plagiarism check (Copyscape) ✅ INTEGRATED  
+   - Plagiarism check (Copyscape) ✅ INTEGRATED
    - AI detection (GPTZero/Originality) ✅ INTEGRATED
    - Quality validation (4 checks) ✅ INTEGRATED
    - Save to DB with ALL quality scores ✅
@@ -283,7 +283,7 @@ Final Flow (100% Functional):
   - **Файли:** `apps/api/app/services/ai_pipeline/generator.py`
   - **Час:** 1-1.5h → **ACTUAL: 45 min**
   - **Пріоритет:** 🔴 P0 (incorrect bibliography = academic integrity violation)
-  - **Виправлено:** 
+  - **Виправлено:**
     - Додано метод `_score_citation_match()` з алгоритмом scoring (year +50, author +30, title +20)
     - Замінено `next()` first-match на `max()` з best score
     - Додано debug logging для matched citations
@@ -326,7 +326,7 @@ Final Flow (100% Functional):
     3. ✅ Calculate score: 100 - (issues × 5)
     4. ✅ Log warnings якщо >5 issues
     5. ✅ WebSocket progress updates
-  - **Файли змінено:** 
+  - **Файли змінено:**
     - `apps/api/app/services/background_jobs.py` (+50 lines)
     - `apps/api/app/models/document.py` (+2 fields)
   - **Час:** 1.5-2h → **ACTUAL: 45 min**
@@ -386,7 +386,7 @@ Final Flow (100% Functional):
    - **Improvement:** Додати diminishing returns:
      ```python
      # For first 10 issues: -5 per issue
-     # For 11-20 issues: -2 per issue  
+     # For 11-20 issues: -2 per issue
      # For 21+ issues: -1 per issue
      if total_issues <= 10:
          score = 100 - (total_issues * 5)
@@ -406,7 +406,7 @@ Final Flow (100% Functional):
      ```python
      # Grammar: 70-85% (15% range)
      grammar_progress = 70 + (section_index / total_sections) * 15
-     
+
      # Plagiarism: 85-98% (13% range)
      plagiarism_progress = 85 + (section_index / total_sections) * 13
      ```
@@ -455,7 +455,7 @@ Final Flow (100% Functional):
          for issue in matches:
              if issue["rule"]["category"] == "TYPOGRAPHY":
                  humanized_content = apply_suggestion(
-                     humanized_content, 
+                     humanized_content,
                      issue["replacements"][0]
                  )
          logger.info(f"Auto-fixed {fixed_count} simple grammar issues")
@@ -515,7 +515,7 @@ Final Flow (100% Functional):
 
 1. **Unit Tests for AIDetectionChecker** (2h, 🟡 P2)
    - **Current:** Тільки integration tests
-   - **Add:** 
+   - **Add:**
      - `test_gptzero_api_call` - mock GPTZero response
      - `test_originality_fallback` - mock fallback chain
      - `test_ai_detection_threshold` - verify 55% threshold logic
@@ -586,7 +586,7 @@ Final Flow (100% Functional):
 
 - [x] **2.8.** Інтегрувати AI detection в pipeline ✅ **DONE 30.11.2025**
   - **Location:** `background_jobs.py` lines 328-385 (після plagiarism check)
-  - **Logic:** 
+  - **Logic:**
     - Check AI score via AIDetectionChecker
     - If AI > 55% → trigger multi-pass humanization (target: <50%)
     - WebSocket progress updates: stage `ai_detection_check_section_{index}`
@@ -595,7 +595,7 @@ Final Flow (100% Functional):
 
 - [x] **2.9.** Multi-pass humanization logic ✅ **DONE 30.11.2025**
   - **Location:** `humanizer.py` новий метод `humanize_multi_pass()` (87 рядків)
-  - **Logic:** 
+  - **Logic:**
     - Iterative humanization до target AI score <50%
     - Progressive temperature: [0.9, 1.0, 1.1, 1.2]
     - Max 2 attempts (configurable)
@@ -604,7 +604,7 @@ Final Flow (100% Functional):
 
 - [x] **2.10.** Додати AI detection config ✅ **DONE 30.11.2025**
   - **Keys:** `GPTZERO_API_KEY`, `ORIGINALITY_AI_API_KEY`, `AI_DETECTION_ENABLED`
-  - **Files:** 
+  - **Files:**
     - `.env.example` створено (44 рядки)
     - `AI_API_KEYS.md` оновлено (додано GPTZero + Originality.ai docs)
   - **Час виконання:** 15 min (план: 10 min)
@@ -612,7 +612,7 @@ Final Flow (100% Functional):
 **Phase 3 Summary:**
 - ✅ **Статус:** ЗАВЕРШЕНО (4/4 tasks done)
 - ⏱️ **Час:** 3h 0min (план: 3-4h, 🚀 на upper bound)
-- 📁 **Файли створено:** 
+- 📁 **Файли створено:**
   - `ai_detection_checker.py` (208 рядків)
   - `.env.example` (44 рядки)
   - `004_add_ai_detection_score.sql` (12 рядків)
@@ -621,7 +621,7 @@ Final Flow (100% Functional):
   - `background_jobs.py` (+58 рядків - AI detection integration)
   - `document.py` (+1 рядок - ai_detection_score field)
   - `AI_API_KEYS.md` (+22 рядки - GPTZero/Originality docs)
-- 🧪 **Тести:** 
+- 🧪 **Тести:**
   - ✅ 4/4 integration tests passed
   - ✅ 13/13 regression tests passed (0 failures)
   - ✅ Python syntax: OK (всі файли)
@@ -1035,25 +1035,25 @@ Final Flow (100% Functional):
   - **New logic:**
     ```python
     MAX_REGENERATE_ATTEMPTS = 2
-    
+
     for attempt in range(MAX_REGENERATE_ATTEMPTS):
         humanized = await humanizer.humanize(content)
-        
+
         # Quality checks (from Task 2.4-2.5)
         grammar_result = await grammar_checker.check(humanized)
         plagiarism_result = await plagiarism_checker.check(humanized)
-        
+
         # Quality gates
         if grammar_result['error_count'] > 10:
             logger.warning(f"Too many grammar errors: {grammar_result['error_count']}")
             content = await regenerate_section_with_grammar_focus()
             continue
-        
+
         if plagiarism_result['uniqueness_percentage'] < 85:
             logger.warning(f"Low uniqueness: {plagiarism_result['uniqueness_percentage']}%")
             content = await regenerate_section_with_stricter_prompt()
             continue
-        
+
         # Passed all checks
         section.content = humanized
         section.grammar_score = grammar_result['error_count']
@@ -1086,7 +1086,7 @@ Final Flow (100% Functional):
     ```python
     async def test_full_generation_meets_quality_standards():
         # ... existing test code ...
-        
+
         # NEW: Quality threshold assertions
         assert result.grammar_errors < 10, f"Too many errors: {result.grammar_errors}"
         assert result.plagiarism_score > 85, f"Low uniqueness: {result.plagiarism_score}%"
@@ -1113,7 +1113,7 @@ Final Flow (100% Functional):
         "timestamp": datetime.utcnow()
     }
     await redis.set(f"checkpoint:{document.id}", json.dumps(checkpoint), ex=3600)
-    
+
     # On job restart:
     checkpoint = await redis.get(f"checkpoint:{document.id}")
     if checkpoint:
@@ -1162,7 +1162,7 @@ Final Flow (100% Functional):
         # Remove template injection attempts
         text = re.sub(r'\{\{.*?\}\}', '', text)
         text = re.sub(r'\{%.*?%\}', '', text)
-        
+
         # Remove instruction override attempts
         dangerous_phrases = [
             "ignore all instructions",
@@ -1173,7 +1173,7 @@ Final Flow (100% Functional):
         ]
         for phrase in dangerous_phrases:
             text = text.replace(phrase.lower(), "[FILTERED]")
-        
+
         return text
     ```
   - **Apply to:** `document.topic`, `document.additional_requirements`, `section_title`
@@ -1195,7 +1195,7 @@ Final Flow (100% Functional):
             error_msg = error_msg.replace(settings.OPENAI_API_KEY, "[REDACTED]")
         if settings.ANTHROPIC_API_KEY in error_msg:
             error_msg = error_msg.replace(settings.ANTHROPIC_API_KEY, "[REDACTED]")
-        
+
         logger.error(f"AI API error: {error_msg}")
         raise AIProviderError(error_msg)  # Never log original exception with keys
     ```
@@ -1319,7 +1319,7 @@ docker-compose exec api alembic upgrade head
 ## 🟡 СЕРЕДНІЙ ПРІОРИТЕТ (після MVP)
 
 - Email notifications (3-4h)
-- Document extraction storage (1-2h)  
+- Document extraction storage (1-2h)
 - Admin alerts (Slack/Email) (3-4h)
 - Job retry logic (2-3h)
 
@@ -1346,7 +1346,7 @@ docker-compose exec api alembic upgrade head
 ### ❌ Що НЕ входить (відкладено):
 - Magic link auth
 - Stripe payments
-- Email notifications  
+- Email notifications
 - Real-time WebSocket
 - Plagiarism/Grammar check
 - Custom requirements upload
@@ -1369,7 +1369,7 @@ docker-compose exec api alembic upgrade head
 - ✅ Generation: 1488 words, 3 min
 → JWT token 187 chars ✅
 
-# 2. List documents  
+# 2. List documents
 GET /api/v1/documents/
 → 7 documents ✅
 

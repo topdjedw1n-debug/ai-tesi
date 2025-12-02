@@ -65,38 +65,38 @@ class RateLimitError(APIException):
 class QualityThresholdNotMetError(APIException):
     """
     Quality thresholds not met after maximum regeneration attempts
-    
+
     Raised when section quality fails to meet standards after all retry attempts:
     - Grammar errors > QUALITY_MAX_GRAMMAR_ERRORS
     - Plagiarism score > (100 - QUALITY_MIN_PLAGIARISM_UNIQUENESS)
     - AI detection score > QUALITY_MAX_AI_DETECTION_SCORE
-    
+
     This is a 422 Unprocessable Entity error.
     User should be notified and potentially offered refund.
-    
+
     Example:
         Section failed after 2 regeneration attempts:
         - Grammar: 15 errors (threshold: 10)
         - Plagiarism: 75% unique (threshold: 85%)
         → raise QualityThresholdNotMetError("Quality standards not met")
     """
-    
-    def __init__(self, detail: str = "Quality standards not met after regeneration attempts"):
+
+    def __init__(
+        self, detail: str = "Quality standards not met after regeneration attempts"
+    ):
         super().__init__(
-            detail,
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "QUALITY_THRESHOLD_NOT_MET"
+            detail, status.HTTP_422_UNPROCESSABLE_ENTITY, "QUALITY_THRESHOLD_NOT_MET"
         )
 
 
 class AllProvidersFailedError(APIException):
     """
     All AI providers in fallback chain failed
-    
-    Raised when all configured AI providers (OpenAI, Anthropic) 
+
+    Raised when all configured AI providers (OpenAI, Anthropic)
     have been attempted and all failed.
     This is a 503 Service Unavailable error indicating temporary issue.
-    
+
     Example:
         Fallback chain: GPT-4 → GPT-3.5 → Claude
         All 3 failed → raise AllProvidersFailedError
@@ -104,7 +104,5 @@ class AllProvidersFailedError(APIException):
 
     def __init__(self, detail: str = "All AI providers failed"):
         super().__init__(
-            detail, 
-            status.HTTP_503_SERVICE_UNAVAILABLE, 
-            "ALL_PROVIDERS_FAILED"
+            detail, status.HTTP_503_SERVICE_UNAVAILABLE, "ALL_PROVIDERS_FAILED"
         )

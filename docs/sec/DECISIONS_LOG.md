@@ -161,7 +161,7 @@ fallback: GPT-4 → GPT-3.5 → Claude
 ### DR-012: Redis Checkpoints for Generation Recovery
 **Date:** 01.12.2025
 **Status:** ✅ Accepted & Implemented
-**Context:** 
+**Context:**
 - Problem: 100-page document = 45 min generation, crash at 85% = loss of 35 min AI costs ($5-10 wasted)
 - User paid but received nothing, must regenerate from scratch = doubled costs
 - Need recovery mechanism to resume generation from last completed section
@@ -188,7 +188,7 @@ checkpoint = {
 
 **Consequences:**
 - ✅ **Cost savings:** $5-10 per failed document avoided
-- ✅ **User satisfaction:** No "lost my payment" complaints  
+- ✅ **User satisfaction:** No "lost my payment" complaints
 - ✅ **System reliability:** Handles crashes gracefully
 - ✅ **Time savings:** No full regeneration needed
 - ⚠️ **Limitation:** Checkpoint lost if Redis restarts (acceptable - rare event)
@@ -199,7 +199,7 @@ checkpoint = {
    - ❌ Slower than Redis (I/O overhead)
    - ❌ Requires migrations, adds schema complexity
    - ❌ Permanent storage not needed (temporary data)
-   
+
 2. **No checkpointing (status quo)**
    - ❌ Wastes API costs on crash
    - ❌ Poor user experience
@@ -233,7 +233,7 @@ checkpoint = {
 - **Risk:** Redis connection failure
   - **Mitigation:** Try/except blocks, log warning, continue generation without checkpoint
   - **Impact:** Non-critical, checkpoint is optimization not requirement
-  
+
 - **Risk:** Checkpoint out of sync with DB
   - **Mitigation:** Idempotency check (query DB before generating each section)
   - **Impact:** Prevented by defensive check

@@ -266,7 +266,7 @@ class GDPRService:
 
             # Delete file using StorageService (silent mode for GDPR)
             success = await storage_service.delete_file(file_path, silent=True)
-            
+
             if success:
                 logger.info(f"✅ Deleted file from storage: {file_path}")
             else:
@@ -275,4 +275,3 @@ class GDPRService:
         except Exception as e:
             logger.error(f"Error deleting file from storage {file_path}: {e}")
             # Don't raise - continue with other deletions
-

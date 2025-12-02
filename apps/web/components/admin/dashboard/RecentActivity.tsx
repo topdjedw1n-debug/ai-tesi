@@ -65,4 +65,3 @@ export function RecentActivity({ activities }: RecentActivityProps) {
     </div>
   )
 }
-

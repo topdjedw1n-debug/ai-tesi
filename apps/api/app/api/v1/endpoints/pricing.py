@@ -127,4 +127,3 @@ async def get_current_price_admin(
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR",
         ) from e
-

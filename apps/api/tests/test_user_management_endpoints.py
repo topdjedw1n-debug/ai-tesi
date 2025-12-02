@@ -245,4 +245,3 @@ async def test_send_email_to_user(client, admin_token, test_user):
         headers=headers,
     )
     assert response.status_code in [200, 403]
-

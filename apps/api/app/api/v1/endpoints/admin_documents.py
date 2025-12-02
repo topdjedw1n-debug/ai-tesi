@@ -254,8 +254,10 @@ async def get_document_details(
                     "completed_at": job.completed_at.isoformat()
                     if job.completed_at
                     else None,
-                    "total_tokens": getattr(job, 'total_tokens', 0),  # Safe attribute access
-                    "cost_cents": getattr(job, 'cost_cents', 0),
+                    "total_tokens": getattr(
+                        job, "total_tokens", 0
+                    ),  # Safe attribute access
+                    "cost_cents": getattr(job, "cost_cents", 0),
                 }
                 for job in jobs
             ],

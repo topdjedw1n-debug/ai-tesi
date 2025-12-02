@@ -42,12 +42,12 @@ def create_download_token(
 ) -> str:
     """
     Create JWT token for secure document download.
-    
+
     Args:
         document_id: ID of the document to download
         user_id: ID of the user requesting download
         expiration_minutes: Token expiration time (default: 60 minutes)
-    
+
     Returns:
         JWT token string for download authorization
     """
@@ -63,4 +63,3 @@ def create_download_token(
         "aud": "tesigo-download",
     }
     return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
-

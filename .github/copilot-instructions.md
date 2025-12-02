@@ -28,7 +28,7 @@
 
 **Refund Policy:**
 - Auto-refund on technical system errors
-- User-requested refunds require admin approval with justification  
+- User-requested refunds require admin approval with justification
 - NO automatic cancellation after payment
 
 **Last Updated:** 28 листопада 2025 | **Version:** 2.3 | **Status:** 🟡 Core functionality focus
@@ -112,7 +112,7 @@ async def start_generation(
     db.add(job)
     await db.flush()  # Get job.id before commit
     await db.commit()
-    
+
     # Start in background AFTER commit
     background_tasks.add_task(
         BackgroundJobService.generate_full_document_async,
@@ -126,10 +126,10 @@ async def generate_full_document_async(document_id, user_id, job_id):
         # Update to "running"
         await db.execute(update(AIGenerationJob).where(...).values(status="running"))
         await db.commit()
-        
+
         # Do work, send WebSocket updates
         await manager.send_progress(user_id, {"progress": 45})
-        
+
         # Mark complete
         await db.execute(update(AIGenerationJob).where(...).values(status="completed"))
         await db.commit()
@@ -146,7 +146,7 @@ async def generate_full_document_async(document_id, user_id, job_id):
 **RAG Sources:**
 - ✅ Semantic Scholar (implemented)
 - 🔜 Perplexity API (to implement)
-- 🔜 Tavily API (to implement) 
+- 🔜 Tavily API (to implement)
 - 🔜 Serper API (to implement)
 
 **Flow:**
@@ -480,7 +480,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 class DocumentService:
     def __init__(self, db: AsyncSession):
         self.db = db
-    
+
     async def create_document(
         self, data: DocumentCreate, user_id: int
     ) -> Document:

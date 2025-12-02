@@ -147,4 +147,3 @@ class PlagiarismChecker:
         result = await self.check_text(content)
         result["section_title"] = section_title
         return result
-

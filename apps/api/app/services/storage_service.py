@@ -17,10 +17,11 @@ Created: 2025-11-29
 Related to: Storage Service implementation (MVP_PLAN.md)
 """
 
+import logging
+from collections.abc import AsyncGenerator
 from datetime import timedelta
 from io import BytesIO
-from typing import AsyncGenerator, Optional
-import logging
+from typing import Optional
 
 from fastapi import HTTPException
 from minio import Minio
@@ -164,9 +165,7 @@ class StorageService:
                     status_code=500, detail=f"Failed to download file: {str(e)}"
                 ) from e
 
-    async def download_file_stream(
-        self, file_path: str
-    ) -> AsyncGenerator[bytes, None]:
+    async def download_file_stream(self, file_path: str) -> AsyncGenerator[bytes, None]:
         """
         Stream file from MinIO (for large files).
 

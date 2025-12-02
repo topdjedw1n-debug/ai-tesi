@@ -106,4 +106,3 @@ export function BulkActions({
     </div>
   )
 }
-

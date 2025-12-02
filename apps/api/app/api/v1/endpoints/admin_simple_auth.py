@@ -3,14 +3,13 @@ Simple admin authentication for testing (password-based)
 """
 
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.database import get_db
 from app.core.security import create_access_token
 from app.models.auth import User
@@ -44,12 +43,12 @@ async def admin_simple_login(
 ):
     """
     Simple admin login for testing (no magic link required)
-    
+
     For testing only! Uses plain password comparison.
     In production, use proper password hashing.
     """
     ip = request.client.host if request.client else "unknown"
-    
+
     # Get admin user
     result = await db.execute(
         select(User).where(
@@ -59,14 +58,16 @@ async def admin_simple_login(
         )
     )
     user = result.scalar_one_or_none()
-    
+
     if not user:
-        logger.warning(f"Admin login failed: user not found or not admin - {login_data.email}")
+        logger.warning(
+            f"Admin login failed: user not found or not admin - {login_data.email}"
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials or not an admin",
         )
-    
+
     # Verify password (bcrypt only - no fallback)
     if not user.password_hash:
         logger.error(f"Admin login failed: password_hash not set - {login_data.email}")
@@ -74,7 +75,7 @@ async def admin_simple_login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Admin password not configured. Use scripts/set-admin-password.py",
         )
-    
+
     # Production: use bcrypt verification
     if not AuthService.verify_password(login_data.password, user.password_hash):
         logger.warning(f"Admin login failed: invalid password - {login_data.email}")
@@ -82,20 +83,20 @@ async def admin_simple_login(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials",
         )
-    
+
     # Update last login
     user.last_login = datetime.utcnow()
     await db.commit()
-    
+
     # Create token (using existing function from security.py)
     access_token = create_access_token(user.id)
-    
+
     # For refresh token, create a long-lived access token (simplified for testing)
     # In production, implement proper refresh token logic
     refresh_token = access_token  # Simplified for MVP testing
-    
+
     logger.info(f"Admin login successful: {user.email} from {ip}")
-    
+
     return AdminSimpleLoginResponse(
         access_token=access_token,
         refresh_token=refresh_token,

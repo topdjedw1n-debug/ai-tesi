@@ -8,4 +8,3 @@ export const metadata = {
 export default function SnakePage() {
   return <SnakeGame />
 }
-

@@ -20,12 +20,12 @@ from app.core import database
 from app.core.config import settings
 from app.core.exceptions import NotFoundError, QualityThresholdNotMetError
 from app.models.document import AIGenerationJob, Document, DocumentSection
+from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_service import AIService
 from app.services.document_service import DocumentService
-from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.quality_validator import QualityValidator
@@ -48,6 +48,7 @@ async def get_redis() -> aioredis.Redis:
             socket_timeout=5,
         )
     return _redis_client
+
 
 # Type variable for background task functions
 F = TypeVar("F", bound=Callable[..., Any])
@@ -98,28 +99,25 @@ def background_task_error_handler(task_name: str):
 
 
 async def send_periodic_heartbeat(
-    user_id: int,
-    job_id: int,
-    document_id: int,
-    interval: int = 10
+    user_id: int, job_id: int, document_id: int, interval: int = 10
 ) -> None:
     """
     Send periodic heartbeat to keep WebSocket connection alive during long generations
-    
+
     Prevents browser and proxy timeouts:
     - Chrome: 5 min idle timeout
     - Safari: 30 sec idle timeout
     - Nginx: 60 sec default timeout
     - CloudFlare: 100 sec timeout
-    
+
     Automatically stops when job completes or fails by checking DB status.
-    
+
     Args:
         user_id: User ID for WebSocket routing
         job_id: Job ID for frontend correlation
         document_id: Document ID for debugging
         interval: Seconds between heartbeats (default: 10)
-    
+
     Example:
         heartbeat_task = asyncio.create_task(
             send_periodic_heartbeat(user_id, job_id, doc_id)
@@ -132,20 +130,21 @@ async def send_periodic_heartbeat(
     while True:
         try:
             await asyncio.sleep(interval)
-            
+
             # Check if job still running (fetch fresh from DB)
             async with database.AsyncSessionLocal() as db:
                 result = await db.execute(
-                    select(AIGenerationJob)
-                    .where(AIGenerationJob.id == job_id)
+                    select(AIGenerationJob).where(AIGenerationJob.id == job_id)
                 )
                 job = result.scalar_one_or_none()
-                
+
                 # Stop if job finished/failed/not found
                 if not job or job.status not in ["running", "generating"]:
-                    logger.info(f"Heartbeat stopped: job {job_id} status={job.status if job else 'not_found'}")
+                    logger.info(
+                        f"Heartbeat stopped: job {job_id} status={job.status if job else 'not_found'}"
+                    )
                     break
-            
+
             # Send heartbeat via WebSocket
             await manager.send_progress(
                 user_id,
@@ -157,7 +156,7 @@ async def send_periodic_heartbeat(
                 },
             )
             logger.debug(f"💓 Heartbeat sent for job {job_id}")
-            
+
         except asyncio.CancelledError:
             # Task cancelled (normal shutdown)
             logger.info(f"Heartbeat task cancelled for job {job_id}")
@@ -171,19 +170,18 @@ async def send_periodic_heartbeat(
 
 # ========== Quality Gate Helper Functions (Task 3.2) ==========
 
+
 async def _check_grammar_quality(
-    content: str,
-    language: str,
-    threshold: int
+    content: str, language: str, threshold: int
 ) -> tuple[float | None, int, bool, str | None]:
     """
     Check grammar quality and return results
-    
+
     Args:
         content: Text to check
         language: Language code (en, de, fr, etc.)
         threshold: Max allowed errors (from QUALITY_MAX_GRAMMAR_ERRORS)
-    
+
     Returns:
         Tuple of (score, error_count, passed, error_message)
         - score: Grammar score (0-100, None if check failed)
@@ -196,39 +194,42 @@ async def _check_grammar_quality(
         grammar_result = await grammar_checker.check_text(
             text=content, language=language
         )
-        
+
         if grammar_result.get("checked"):
             matches = grammar_result.get("matches", [])
             error_count = len(matches)
-            
+
             # Calculate score: max 100, -5 per issue
             score = max(0.0, 100.0 - (error_count * 5.0))
-            
+
             passed = error_count <= threshold
-            error_msg = None if passed else f"Grammar: {error_count} errors (max: {threshold})"
-            
+            error_msg = (
+                None if passed else f"Grammar: {error_count} errors (max: {threshold})"
+            )
+
             return (score, error_count, passed, error_msg)
         else:
             # Check failed but don't block (non-critical)
-            logger.warning(f"Grammar check skipped: {grammar_result.get('error', 'Unknown')}")
+            logger.warning(
+                f"Grammar check skipped: {grammar_result.get('error', 'Unknown')}"
+            )
             return (None, 0, True, None)  # Pass by default if check unavailable
-            
+
     except Exception as e:
         logger.error(f"Grammar check exception: {e}")
         return (None, 0, True, None)  # Pass by default on error
 
 
 async def _check_plagiarism_quality(
-    content: str,
-    threshold: float
+    content: str, threshold: float
 ) -> tuple[float | None, float, bool, str | None]:
     """
     Check plagiarism and return results
-    
+
     Args:
         content: Text to check
         threshold: Min required uniqueness % (from QUALITY_MIN_PLAGIARISM_UNIQUENESS)
-    
+
     Returns:
         Tuple of (plagiarism_score, uniqueness, passed, error_message)
         - plagiarism_score: Plagiarism % (0-100, None if check failed)
@@ -239,42 +240,44 @@ async def _check_plagiarism_quality(
     try:
         plagiarism_checker = PlagiarismChecker()
         plagiarism_result = await plagiarism_checker.check_text(text=content)
-        
+
         if plagiarism_result.get("checked"):
             uniqueness = plagiarism_result.get("uniqueness_percentage", 100.0)
             plagiarism_score = 100.0 - uniqueness
-            
+
             passed = uniqueness >= threshold
-            error_msg = None if passed else f"Plagiarism: {uniqueness:.1f}% unique (min: {threshold}%)"
-            
+            error_msg = (
+                None
+                if passed
+                else f"Plagiarism: {uniqueness:.1f}% unique (min: {threshold}%)"
+            )
+
             return (plagiarism_score, uniqueness, passed, error_msg)
         else:
             # Check failed but don't block (non-critical)
-            logger.warning(f"Plagiarism check skipped: {plagiarism_result.get('error', 'Unknown')}")
+            logger.warning(
+                f"Plagiarism check skipped: {plagiarism_result.get('error', 'Unknown')}"
+            )
             return (None, 100.0, True, None)  # Pass by default if check unavailable
-            
+
     except Exception as e:
         logger.error(f"Plagiarism check exception: {e}")
         return (None, 100.0, True, None)  # Pass by default on error
 
 
 async def _check_ai_detection_quality(
-    content: str,
-    threshold: float,
-    humanizer: Humanizer,
-    provider: str,
-    model: str
+    content: str, threshold: float, humanizer: Humanizer, provider: str, model: str
 ) -> tuple[float | None, str, str, bool, str | None]:
     """
     Check AI detection score and run multi-pass if needed
-    
+
     Args:
         content: Text to check
         threshold: Max allowed AI % (from QUALITY_MAX_AI_DETECTION_SCORE)
         humanizer: Humanizer instance for multi-pass
         provider: AI provider (openai/anthropic)
         model: AI model name
-    
+
     Returns:
         Tuple of (ai_score, final_content, provider_used, passed, error_message)
         - ai_score: AI detection % (0-100, None if check failed)
@@ -286,16 +289,18 @@ async def _check_ai_detection_quality(
     try:
         ai_checker = AIDetectionChecker()
         ai_result = await ai_checker.check_text(text=content)
-        
+
         if ai_result.get("checked"):
             ai_score = ai_result.get("ai_probability", 0.0)
             provider_used = ai_result.get("provider", "unknown")
             final_content = content
-            
+
             # If score too high, try multi-pass humanization
             if ai_score > threshold:
-                logger.info(f"AI score {ai_score:.1f}% > {threshold}%, running multi-pass...")
-                
+                logger.info(
+                    f"AI score {ai_score:.1f}% > {threshold}%, running multi-pass..."
+                )
+
                 final_content, final_ai_score = await humanizer.humanize_multi_pass(
                     text=content,
                     provider=provider,
@@ -304,19 +309,29 @@ async def _check_ai_detection_quality(
                     max_attempts=2,
                     preserve_citations=True,
                 )
-                
+
                 ai_score = final_ai_score
                 logger.info(f"After multi-pass: AI score = {final_ai_score:.1f}%")
-            
+
             passed = ai_score <= threshold
-            error_msg = None if passed else f"AI detection: {ai_score:.1f}% (max: {threshold}%)"
-            
+            error_msg = (
+                None if passed else f"AI detection: {ai_score:.1f}% (max: {threshold}%)"
+            )
+
             return (ai_score, final_content, provider_used, passed, error_msg)
         else:
             # Check failed but don't block (non-critical)
-            logger.warning(f"AI detection check skipped: {ai_result.get('error', 'Unknown')}")
-            return (None, content, "unknown", True, None)  # Pass by default if check unavailable
-            
+            logger.warning(
+                f"AI detection check skipped: {ai_result.get('error', 'Unknown')}"
+            )
+            return (
+                None,
+                content,
+                "unknown",
+                True,
+                None,
+            )  # Pass by default if check unavailable
+
     except Exception as e:
         logger.error(f"AI detection check exception: {e}")
         return (None, content, "unknown", True, None)  # Pass by default on error
@@ -428,24 +443,34 @@ class BackgroundJobService:
                     checkpoint_raw = await redis.get(f"checkpoint:doc:{document_id}")
                     if checkpoint_raw:
                         checkpoint = json.loads(checkpoint_raw)
-                        start_section_index = checkpoint.get("last_completed_section_index", 0)
-                        logger.info(f"♻️ Resuming generation from section {start_section_index + 1}/{len(sections)}")
-                        
+                        start_section_index = checkpoint.get(
+                            "last_completed_section_index", 0
+                        )
+                        logger.info(
+                            f"♻️ Resuming generation from section {start_section_index + 1}/{len(sections)}"
+                        )
+
                         # Send WebSocket notification about resume
                         await manager.send_progress(
                             user_id,
                             {
-                                "progress": int((start_section_index / len(sections)) * 100),
+                                "progress": int(
+                                    (start_section_index / len(sections)) * 100
+                                ),
                                 "stage": f"Resuming from section {start_section_index + 1}",
                                 "status": "generating",
                                 "document_id": document_id,
                             },
                         )
                     else:
-                        logger.info(f"Starting fresh generation for document {document_id}")
+                        logger.info(
+                            f"Starting fresh generation for document {document_id}"
+                        )
                 except Exception as checkpoint_error:
                     # ⚠️ Non-critical: log warning and start from beginning
-                    logger.warning(f"⚠️ Failed to load checkpoint: {checkpoint_error}. Starting from beginning.")
+                    logger.warning(
+                        f"⚠️ Failed to load checkpoint: {checkpoint_error}. Starting from beginning."
+                    )
                     start_section_index = 0
 
                 total_sections = len(sections)  # Calculate once for progress tracking
@@ -455,7 +480,9 @@ class BackgroundJobService:
 
                     # ✅ Skip sections that were completed before checkpoint
                     if section_index <= start_section_index:
-                        logger.info(f"⏭️ Skipping already completed section {section_index}")
+                        logger.info(
+                            f"⏭️ Skipping already completed section {section_index}"
+                        )
                         continue
 
                     current_section = section_data  # For word count target
@@ -463,17 +490,18 @@ class BackgroundJobService:
                     try:
                         # ✅ TASK 3.7.5: Idempotency - check if section already completed
                         existing_section_result = await db.execute(
-                            select(DocumentSection)
-                            .where(
+                            select(DocumentSection).where(
                                 DocumentSection.document_id == document_id,
                                 DocumentSection.section_index == section_index,
                                 DocumentSection.status == "completed",
                             )
                         )
                         existing_section = existing_section_result.scalar_one_or_none()
-                        
+
                         if existing_section:
-                            logger.info(f"⏭️ Section {section_index} already completed (idempotency), skipping")
+                            logger.info(
+                                f"⏭️ Section {section_index} already completed (idempotency), skipping"
+                            )
                             continue
 
                         # Update section status to generating
@@ -495,8 +523,12 @@ class BackgroundJobService:
                                 DocumentSection.section_index < section_index,
                                 DocumentSection.status == "completed",
                             )
-                            .order_by(DocumentSection.section_index.desc())  # Most recent first
-                            .limit(settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS)  # ✅ Limit context
+                            .order_by(
+                                DocumentSection.section_index.desc()
+                            )  # Most recent first
+                            .limit(
+                                settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS
+                            )  # ✅ Limit context
                         )
                         context_sections = context_result.scalars().all()
                         context_list = (
@@ -510,28 +542,32 @@ class BackgroundJobService:
 
                         # ========== REGENERATION LOOP START (Task 3.2 - Quality Gates) ==========
                         # Try generation up to MAX_REGENERATE_ATTEMPTS times if quality gates fail
-                        
+
                         final_content = None
                         final_grammar_score = None
                         final_plagiarism_score = None
                         final_ai_score = None
                         final_quality_score = None
                         quality_errors = []
-                        
-                        for attempt in range(settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1):
+
+                        for attempt in range(
+                            settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
+                        ):
                             attempt_num = attempt + 1
                             logger.info(
                                 f"Section {section_index} attempt {attempt_num}/"
                                 f"{settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1}: {section_title}"
                             )
-                            
+
                             # WebSocket: Notify attempt number
                             await manager.send_progress(
                                 user_id,
                                 {
                                     "stage": f"generating_section_{section_index}_attempt_{attempt_num}",
-                                    "progress": min(95, 50 + (section_index / total_sections) * 40),
-                                    "message": f"Generating section {section_index} (attempt {attempt_num})"
+                                    "progress": min(
+                                        95, 50 + (section_index / total_sections) * 40
+                                    ),
+                                    "message": f"Generating section {section_index} (attempt {attempt_num})",
                                 },
                             )
 
@@ -561,66 +597,95 @@ class BackgroundJobService:
 
                             # ========== QUALITY GATES START ==========
                             # ✅ BUG FIX: Always run ALL checks (for metrics), only block if gates enabled
-                            
+
                             gates_passed = True
                             attempt_errors = []
-                            
+
                             # GATE 1: Grammar Check (ALWAYS RUN)
-                            grammar_score, grammar_errors, grammar_passed, grammar_error_msg = await _check_grammar_quality(
+                            (
+                                grammar_score,
+                                grammar_errors,
+                                grammar_passed,
+                                grammar_error_msg,
+                            ) = await _check_grammar_quality(
                                 humanized_content,
                                 document.language,
-                                settings.QUALITY_MAX_GRAMMAR_ERRORS
+                                settings.QUALITY_MAX_GRAMMAR_ERRORS,
                             )
                             final_grammar_score = grammar_score  # Save for DB
-                            
+
                             if not grammar_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
                                 attempt_errors.append(grammar_error_msg)
-                                logger.warning(f"❌ Grammar gate FAILED: {grammar_error_msg}")
+                                logger.warning(
+                                    f"❌ Grammar gate FAILED: {grammar_error_msg}"
+                                )
                             else:
-                                logger.info(f"✅ Grammar gate: {grammar_errors} errors (passed={grammar_passed})")
-                            
+                                logger.info(
+                                    f"✅ Grammar gate: {grammar_errors} errors (passed={grammar_passed})"
+                                )
+
                             # GATE 2: Plagiarism Check (ALWAYS RUN)
-                            plagiarism_score, uniqueness, plagiarism_passed, plagiarism_error_msg = await _check_plagiarism_quality(
+                            (
+                                plagiarism_score,
+                                uniqueness,
+                                plagiarism_passed,
+                                plagiarism_error_msg,
+                            ) = await _check_plagiarism_quality(
                                 humanized_content,
-                                settings.QUALITY_MIN_PLAGIARISM_UNIQUENESS
+                                settings.QUALITY_MIN_PLAGIARISM_UNIQUENESS,
                             )
                             final_plagiarism_score = plagiarism_score  # Save for DB
-                            
+
                             if not plagiarism_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
                                 attempt_errors.append(plagiarism_error_msg)
-                                logger.warning(f"❌ Plagiarism gate FAILED: {plagiarism_error_msg}")
+                                logger.warning(
+                                    f"❌ Plagiarism gate FAILED: {plagiarism_error_msg}"
+                                )
                             else:
-                                logger.info(f"✅ Plagiarism gate: {uniqueness:.1f}% unique (passed={plagiarism_passed})")
-                            
+                                logger.info(
+                                    f"✅ Plagiarism gate: {uniqueness:.1f}% unique (passed={plagiarism_passed})"
+                                )
+
                             # GATE 3: AI Detection Check (ALWAYS RUN, includes multi-pass humanization)
-                            ai_score, humanized_content, provider_used, ai_passed, ai_error_msg = await _check_ai_detection_quality(
+                            (
+                                ai_score,
+                                humanized_content,
+                                provider_used,
+                                ai_passed,
+                                ai_error_msg,
+                            ) = await _check_ai_detection_quality(
                                 humanized_content,
                                 settings.QUALITY_MAX_AI_DETECTION_SCORE,
                                 humanizer,
                                 document.ai_provider,
-                                document.ai_model
+                                document.ai_model,
                             )
                             final_ai_score = ai_score  # Save for DB
-                            
+
                             if not ai_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
                                 attempt_errors.append(ai_error_msg)
-                                logger.warning(f"❌ AI detection gate FAILED: {ai_error_msg}")
+                                logger.warning(
+                                    f"❌ AI detection gate FAILED: {ai_error_msg}"
+                                )
                             else:
-                                logger.info(f"✅ AI detection gate: {ai_score:.1f}% AI (passed={ai_passed})")
+                                logger.info(
+                                    f"✅ AI detection gate: {ai_score:.1f}% AI (passed={ai_passed})"
+                                )
 
-                            
                             # ========== QUALITY GATES DECISION ==========
-                            
+
                             if not settings.QUALITY_GATES_ENABLED or gates_passed:
                                 # ALL GATES PASSED or GATES DISABLED ✅
                                 final_content = humanized_content
                                 quality_errors = []  # Clear errors
-                                logger.info(f"✅ Section {section_index} passed all quality gates (enabled={settings.QUALITY_GATES_ENABLED})")
+                                logger.info(
+                                    f"✅ Section {section_index} passed all quality gates (enabled={settings.QUALITY_GATES_ENABLED})"
+                                )
                                 break  # Exit regeneration loop, save section
-                                
+
                             elif attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS:
                                 # GATES FAILED but ATTEMPTS REMAIN → REGENERATE
                                 quality_errors = attempt_errors
@@ -628,51 +693,62 @@ class BackgroundJobService:
                                     f"⚠️ Section {section_index} attempt {attempt_num} failed quality gates: "
                                     f"{', '.join(attempt_errors)}. Regenerating..."
                                 )
-                                
+
                                 # WebSocket: Notify regeneration
                                 await manager.send_progress(
                                     user_id,
                                     {
                                         "stage": f"regenerating_section_{section_index}",
-                                        "progress": min(95, 50 + (section_index / total_sections) * 40),
-                                        "message": f"Quality check failed, regenerating section {section_index}..."
+                                        "progress": min(
+                                            95,
+                                            50 + (section_index / total_sections) * 40,
+                                        ),
+                                        "message": f"Quality check failed, regenerating section {section_index}...",
                                     },
                                 )
-                                
+
                                 continue  # Try again with next attempt
-                                
+
                             else:
                                 # GATES FAILED and NO ATTEMPTS LEFT → FAIL JOB
                                 error_detail = f"Section {section_index} quality validation failed after {settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} attempts: {', '.join(attempt_errors)}"
                                 logger.error(f"❌ {error_detail}")
                                 raise QualityThresholdNotMetError(detail=error_detail)
-                        
+
                         # ========== REGENERATION LOOP END ==========
-                        
+
                         # If we reached here, section passed all quality gates
                         # Run final quality validation (non-blocking, for stats only)
-                        
+
                         try:
-                            logger.info(f"📊 Running quality validation for section {section_index}...")
-                            
+                            logger.info(
+                                f"📊 Running quality validation for section {section_index}..."
+                            )
+
                             quality_validator = QualityValidator()
                             quality_result = await quality_validator.validate_section(
                                 content=final_content,
                                 outline_section={
                                     "title": section_title,
-                                    "target_word_count": current_section.get("word_count", 500),
+                                    "target_word_count": current_section.get(
+                                        "word_count", 500
+                                    ),
                                 },
                             )
-                            
-                            final_quality_score = quality_result.get("overall_score", 75.0)
-                            
+
+                            final_quality_score = quality_result.get(
+                                "overall_score", 75.0
+                            )
+
                             logger.info(
                                 f"Quality validation: score={final_quality_score:.1f}, "
                                 f"issues={len(quality_result.get('issues', []))}"
                             )
-                            
+
                         except Exception as e:
-                            logger.error(f"Quality validation failed for section {section_index}: {e}")
+                            logger.error(
+                                f"Quality validation failed for section {section_index}: {e}"
+                            )
                             final_quality_score = 75.0  # Neutral score on error
 
                         # ✅ BUG FIX: Defensive check - final_content must be set
@@ -733,13 +809,13 @@ class BackgroundJobService:
                                 "last_completed_section_index": section_index,
                                 "total_sections": len(sections),
                                 "completed_at": datetime.utcnow().isoformat(),
-                                "status": "in_progress"
+                                "status": "in_progress",
                             }
                             redis = await get_redis()
                             await redis.set(
                                 f"checkpoint:doc:{document_id}",
                                 json.dumps(checkpoint_data),
-                                ex=3600  # TTL: 1 hour
+                                ex=3600,  # TTL: 1 hour
                             )
                             logger.info(
                                 f"✅ Checkpoint saved: section {section_index}/{len(sections)} "
@@ -747,11 +823,15 @@ class BackgroundJobService:
                             )
                         except Exception as checkpoint_error:
                             # ⚠️ Non-critical: log warning but continue generation
-                            logger.warning(f"⚠️ Failed to save checkpoint: {checkpoint_error}")
+                            logger.warning(
+                                f"⚠️ Failed to save checkpoint: {checkpoint_error}"
+                            )
 
                     except QualityThresholdNotMetError as e:
                         # ✅ Quality gates failed after all regeneration attempts
-                        logger.error(f"❌ Quality threshold not met for section {section_index}: {e}")
+                        logger.error(
+                            f"❌ Quality threshold not met for section {section_index}: {e}"
+                        )
                         await db.execute(
                             update(DocumentSection)
                             .where(
@@ -761,7 +841,7 @@ class BackgroundJobService:
                             .values(status="failed_quality", error_message=str(e))
                         )
                         await db.commit()
-                        
+
                         # Send WebSocket error notification
                         await manager.send_error(
                             user_id,
@@ -769,10 +849,10 @@ class BackgroundJobService:
                                 "error": "quality_threshold_not_met",
                                 "section": section_index,
                                 "message": f"Section {section_index} quality validation failed after {settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} attempts",
-                                "details": str(e)
-                            }
+                                "details": str(e),
+                            },
                         )
-                        
+
                         # Continue with next section (partial completion strategy)
                         continue
 
@@ -810,19 +890,22 @@ class BackgroundJobService:
                     return
 
                 # Step 4.5: Combine sections into final document content
-                logger.info(f"Combining {len(completed_sections)} sections into document {document_id}")
-                final_content = "\n\n".join([
-                    f"# {section.title}\n\n{section.content}"
-                    for section in sorted(completed_sections, key=lambda s: s.section_index)
-                ])
-                
+                logger.info(
+                    f"Combining {len(completed_sections)} sections into document {document_id}"
+                )
+                final_content = "\n\n".join(
+                    [
+                        f"# {section.title}\n\n{section.content}"
+                        for section in sorted(
+                            completed_sections, key=lambda s: s.section_index
+                        )
+                    ]
+                )
+
                 await db.execute(
                     update(Document)
                     .where(Document.id == document_id)
-                    .values(
-                        content=final_content,
-                        status="sections_generated"
-                    )
+                    .values(content=final_content, status="sections_generated")
                 )
                 await db.commit()
 
@@ -852,7 +935,7 @@ class BackgroundJobService:
                 try:
                     redis = await get_redis()
                     await redis.delete(f"checkpoint:doc:{document_id}")
-                    logger.info(f"✅ Checkpoint cleared after successful completion")
+                    logger.info("✅ Checkpoint cleared after successful completion")
                 except Exception as checkpoint_error:
                     # ⚠️ Non-critical: log warning
                     logger.warning(f"⚠️ Failed to clear checkpoint: {checkpoint_error}")
@@ -944,7 +1027,7 @@ class BackgroundJobService:
         """
         # ✅ STEP 1.2: WebSocket heartbeat task (prevents 5-10 min timeouts)
         heartbeat_task = None
-        
+
         async with database.AsyncSessionLocal() as db:
             try:
                 # Update job to running
@@ -973,7 +1056,7 @@ class BackgroundJobService:
                         user_id=user_id,
                         job_id=job_id,
                         document_id=document_id,
-                        interval=10  # 10 seconds (prevents Chrome 5 min, Nginx 60 sec timeouts)
+                        interval=10,  # 10 seconds (prevents Chrome 5 min, Nginx 60 sec timeouts)
                     )
                 )
                 logger.info(f"💓 Heartbeat task started for job {job_id}")
@@ -1028,10 +1111,12 @@ class BackgroundJobService:
                     try:
                         redis = await get_redis()
                         await redis.delete(f"checkpoint:doc:{document_id}")
-                        logger.info(f"✅ Checkpoint cleared after failure")
+                        logger.info("✅ Checkpoint cleared after failure")
                     except Exception as checkpoint_error:
                         # ⚠️ Non-critical: log warning
-                        logger.warning(f"⚠️ Failed to clear checkpoint on failure: {checkpoint_error}")
+                        logger.warning(
+                            f"⚠️ Failed to clear checkpoint on failure: {checkpoint_error}"
+                        )
 
                     # Notify WebSocket clients
                     await manager.send_progress(
@@ -1047,7 +1132,7 @@ class BackgroundJobService:
                 except Exception:
                     logger.error(f"Failed to update job {job_id} status to failed")
                 raise  # Re-raise to maintain error logging
-            
+
             finally:
                 # ✅ STEP 1.2: Cleanup heartbeat task
                 if heartbeat_task and not heartbeat_task.done():

@@ -76,11 +76,12 @@ class Humanizer:
                     )
                     # Log which citations were lost for debugging
                     lost_citations = [
-                        cit["original"] for cit in citations 
+                        cit["original"]
+                        for cit in citations
                         if cit["original"] not in humanized_text
                     ]
                     logger.debug(f"Lost citations: {lost_citations}")
-                    
+
                     # SAFE: Return original text instead of broken humanized version
                     return text
                 else:

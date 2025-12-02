@@ -2,8 +2,8 @@
 
 > **Тільки ті ризики, з якими треба працювати ЗАРАЗ**
 
-**Дата створення:** 01.12.2025  
-**Статус:** 🔴 ACTION REQUIRED  
+**Дата створення:** 01.12.2025
+**Статус:** 🔴 ACTION REQUIRED
 **Owner:** @maxmaxvel + AI Agent
 
 ---
@@ -40,7 +40,7 @@ except Exception as e:
         return (None, 0, False, f"API error: {e}")  # ❌ FAIL on error
     else:
         return (None, 0, True, None)  # ⚠️ Pass for dev/testing
-        
+
 # 3. Production .env:
 QUALITY_GATES_STRICT_MODE=true
 ```
@@ -50,15 +50,15 @@ QUALITY_GATES_STRICT_MODE=true
 - `app/services/background_jobs.py` (3 helper functions)
 - `.env.example` (+1 line)
 
-**Дедлайн:** ⚠️ Before production launch  
-**Час:** 2h  
+**Дедлайн:** ⚠️ Before production launch
+**Час:** 2h
 **Пріоритет:** 🔴 P0
 
 ---
 
 ### 2. Issue #3: API Rate Limits (Phase 2)
 
-**Проблема:** GPTZero = 50 req/hour, Copyscape = 100 req/hour  
+**Проблема:** GPTZero = 50 req/hour, Copyscape = 100 req/hour
 **Ризик:** 5 concurrent docs × 20 sections × 3 attempts = 300 calls/hour → **API BLOCKING**
 
 **Сценарій:**
@@ -104,8 +104,8 @@ if rate_limit_exceeded:
 - `app/services/background_jobs.py` (rate limiter decorators)
 - `app/services/quality_check_queue.py` (+150 lines NEW)
 
-**Дедлайн:** ⚠️ Before scaling to 20+ concurrent jobs  
-**Час:** 3h  
+**Дедлайн:** ⚠️ Before scaling to 20+ concurrent jobs
+**Час:** 3h
 **Пріоритет:** 🔴 P0 (blocker for scale)
 
 ---
@@ -124,7 +124,7 @@ User платить €25 → Генерація 45/50 секцій OK → Се�
 
 **Статистика ймовірності failure:**
 - 20 sections: 64% ймовірність хоча б 1 fail
-- 50 sections: 92% ймовірність хоча б 1 fail  
+- 50 sections: 92% ймовірність хоча б 1 fail
 - 100 sections: 99% ймовірність хоча б 1 fail
 
 **Рішення - Partial Completion Fallback (CRITICAL - Strategy 1):**
@@ -154,8 +154,8 @@ else:  # <80% готово
 - `app/services/background_jobs.py` (після generation loop)
 - `app/schemas/job.py` (add quality_warnings: List[str])
 
-**Дедлайн:** ⚠️ BEFORE production launch  
-**Час:** 1h (після user approval)  
+**Дедлайн:** ⚠️ BEFORE production launch
+**Час:** 1h (після user approval)
 **Пріоритет:** 🟡 P1 (**CRITICAL** - Risk #2 Strategy 1)
 
 ---
@@ -174,7 +174,7 @@ T=10min: User думає "зависло" → reload page
 
 **Browser/proxy timeouts:**
 - Chrome: ~5 min
-- Safari: ~30 sec  
+- Safari: ~30 sec
 - Nginx: 60 sec (default)
 - CloudFlare: 100 sec
 
@@ -187,11 +187,11 @@ async def send_periodic_heartbeat(user_id: int, job_id: int):
     """Send heartbeat every 10 seconds during long operations"""
     while True:
         await asyncio.sleep(10)
-        
+
         job = await db.get(AIGenerationJob, job_id)
         if job.status not in ["running", "generating"]:
             break
-            
+
         await manager.send_progress(user_id, {
             "type": "heartbeat",
             "job_id": job_id,
@@ -206,8 +206,8 @@ asyncio.create_task(send_periodic_heartbeat(user_id, job.id))
 **Файли:**
 - `app/services/background_jobs.py` (в generate_full_document_async)
 
-**Дедлайн:** ⚠️ Before production  
-**Час:** 20 min  
+**Дедлайн:** ⚠️ Before production
+**Час:** 20 min
 **Пріоритет:** 🟡 P1 (**MUST IMPLEMENT** - Risk #3 Strategy 1)
 
 ---
@@ -249,8 +249,8 @@ websocket.onclose = async () => {
 - `app/api/v1/endpoints/jobs.py` (GET /jobs/{id}/progress endpoint)
 - `apps/web/lib/websocket.ts` (fallback logic)
 
-**Дедлайн:** Before production  
-**Час:** 30 min  
+**Дедлайн:** Before production
+**Час:** 30 min
 **Пріоритет:** 🟡 P1 (**RECOMMENDED** - Risk #3 Strategy 3)
 
 ---
@@ -279,15 +279,15 @@ pytest tests/test_quality_gates.py -v
 - 3 тести мають пройти
 - Можливо потрібні minor fixes (imports, mocks)
 
-**Дедлайн:** Перед Phase 4  
-**Час:** 30 min  
+**Дедлайн:** Перед Phase 4
+**Час:** 30 min
 **Пріоритет:** 🟡 P1
 
 ---
 
 ### 7. Issue #8: Partial Completion - User Decision (Phase 2)
 
-**Проблема:** Якщо 5/20 секцій падають → що робити?  
+**Проблема:** Якщо 5/20 секцій падають → що робити?
 **Ризик:** User отримує 75% документа але платить 100%
 
 **Сценарії:**
@@ -308,12 +308,12 @@ if completion_rate < 0.80:  # 80%? 85%? 90%?
     # AUTO REFUND
     await refund_service.auto_refund(payment_id)
     job.status = "failed_insufficient_quality"
-    
+
 elif completion_rate < 1.0:  # 80-99%
     # DELIVER WITH WARNING
     job.status = "completed_with_warnings"
     await notify_user(f"Document {completion_rate:.0%} complete")
-    
+
 else:  # 100%
     # PERFECT
     job.status = "completed"
@@ -324,8 +324,8 @@ else:  # 100%
 2. Чи показувати missing sections в UI?
 3. Чи давати discount якщо < 100%?
 
-**Дедлайн:** Перед production launch  
-**Час:** 1h (після рішення User)  
+**Дедлайн:** Перед production launch
+**Час:** 1h (після рішення User)
 **Пріоритет:** 🟡 P1
 
 ---
@@ -359,8 +359,8 @@ export QUALITY_MIN_PLAGIARISM_UNIQUENESS=99.0
 - Frontend показує error message ✅
 - Job status в DB = "failed_quality" ✅
 
-**Дедлайн:** Перед Phase 4  
-**Час:** 20 min  
+**Дедлайн:** Перед Phase 4
+**Час:** 20 min
 **Пріоритет:** 🟡 P1
 
 ---
@@ -399,8 +399,8 @@ case "regenerating_section":
 - `apps/web/components/GenerationProgress.tsx` (~30 lines)
 - `apps/web/lib/websocket.ts` (update handler)
 
-**Дедлайн:** Перед public beta  
-**Час:** 1h  
+**Дедлайн:** Перед public beta
+**Час:** 1h
 **Пріоритет:** 🟡 P1
 
 ---
@@ -445,8 +445,8 @@ section.content = final_content  # Safe now ✅
 **Файли:**
 - `app/services/background_jobs.py` (defensive check після line 530)
 
-**Дедлайн:** Before production  
-**Час:** 10 min  
+**Дедлайн:** Before production
+**Час:** 10 min
 **Пріоритет:** 🟢 P2 (bugs are theoretical, not observed)
 
 ---
@@ -491,8 +491,8 @@ context_result = await db.execute(
 - `app/core/config.py` (+5 lines)
 - `app/services/background_jobs.py` (query update)
 
-**Дедлайн:** Before 100+ section documents  
-**Час:** 15 min  
+**Дедлайн:** Before 100+ section documents
+**Час:** 15 min
 **Пріоритет:** 🟢 P2 (optimization, not requirement)
 
 ---
@@ -510,8 +510,8 @@ context_result = await db.execute(
 # No errors in logs
 ```
 
-**Дедлайн:** Коли буде час  
-**Час:** 15 min  
+**Дедлайн:** Коли буде час
+**Час:** 15 min
 **Пріоритет:** 🟢 P2
 
 ---
@@ -535,8 +535,8 @@ const avgScore = scores
     .reduce((a, b) => a + b, 0) / scores.length;
 ```
 
-**Дедлайн:** Before admin panel launch  
-**Час:** 1h  
+**Дедлайн:** Before admin panel launch
+**Час:** 1h
 **Пріоритет:** 🟢 P2
 
 ---
@@ -600,14 +600,13 @@ const avgScore = scores
 
 ## 📞 Contact
 
-**Critical issues:** @maxmaxvel  
-**Technical questions:** AI Agent  
-**User decisions needed:**  
+**Critical issues:** @maxmaxvel
+**Technical questions:** AI Agent
+**User decisions needed:**
 - Issue #3 (partial completion threshold: 80%? 85%? 90%?)
 - Issue #7 (same as #3 - user approval needed)
 
 ---
 
-**Last Updated:** 02.12.2025 00:15 (додано 3 CRITICAL strategies з Risk #2 та Risk #3)  
+**Last Updated:** 02.12.2025 00:15 (додано 3 CRITICAL strategies з Risk #2 та Risk #3)
 **Next Review:** After fixing P0 issues + implementing heartbeats + user decision
-

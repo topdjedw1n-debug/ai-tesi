@@ -108,4 +108,3 @@ export function PaymentFilters({ onFilterChange, initialFilters }: PaymentFilter
     </div>
   )
 }
-

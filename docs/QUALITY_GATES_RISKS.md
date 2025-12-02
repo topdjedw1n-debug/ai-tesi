@@ -2,8 +2,8 @@
 
 > **Документ для tracking ризиків імплементації Phase 2 (Quality Gates Logic)**
 
-**Дата створення:** 01.12.2025  
-**Статус:** 🟡 Active Monitoring  
+**Дата створення:** 01.12.2025
+**Статус:** 🟡 Active Monitoring
 **Owner:** AI Agent + Max
 
 ---
@@ -33,8 +33,8 @@
 
 ### 📊 Problem Statement
 
-**What:** Regeneration loop може збільшити час генерації до 3x у worst case  
-**Why:** Кожна секція може мати до 3 спроб (initial + 2 regenerations)  
+**What:** Regeneration loop може збільшити час генерації до 3x у worst case
+**Why:** Кожна секція може мати до 3 спроб (initial + 2 regenerations)
 **When:** Кожна генерація документа
 
 ### 📈 Impact Analysis
@@ -46,7 +46,7 @@
 
 З regeneration (worst case):
 - 15 секцій × 1 спроба = 30 хв
-- 3 секції × 2 спроби = 12 хв  
+- 3 секції × 2 спроби = 12 хв
 - 2 секції × 3 спроби = 12 хв
 TOTAL: 54 хвилини (+35%)
 ```
@@ -155,8 +155,8 @@ else:
 
 ### 📊 Problem Statement
 
-**What:** Документ може fail після всіх regeneration attempts  
-**Why:** Якщо quality thresholds не досягнуті після 3 спроб  
+**What:** Документ може fail після всіх regeneration attempts
+**Why:** Якщо quality thresholds не досягнуті після 3 спроб
 **When:** ~5-10% jobs (statistically)
 
 ### 📈 Impact Analysis
@@ -234,7 +234,7 @@ if sections_completed >= 0.80 * total_sections:
         f"Section {failed_section_index} below quality threshold (plagiarism: {score}%)"
     ]
     document.status = "completed"
-    
+
     # Send email з попередженням
     await send_email(
         user_id,
@@ -256,7 +256,7 @@ else:
 - Документ не 100% quality
 - Потрібен clear disclaimer
 
-**Implementation:** Sub-task 2.10.1 (30 min)  
+**Implementation:** Sub-task 2.10.1 (30 min)
 **Decision:** ⏸️ **WAITING FOR USER APPROVAL**
 
 ---
@@ -291,7 +291,7 @@ def get_quality_threshold(total_sections: int) -> dict:
 
 **Reasoning:** Довгі документи статистично мають більше failing sections. Slight relaxation (80% vs 85%) acceptable.
 
-**Implementation:** v2.4 enhancement  
+**Implementation:** v2.4 enhancement
 **Decision:** ⏸️ Consider after data collection
 
 ---
@@ -310,19 +310,19 @@ class QualityReviewQueue:
                 DocumentSection.status == "quality_review_pending"
             )
         )
-    
+
     async def approve_section(self, section_id: int, admin_id: int):
         # Admin каже "79% unique = OK для цього контексту"
         section.status = "completed"
         section.manually_approved = True
         section.approved_by = admin_id
         await db.commit()
-        
+
         # Resume job generation
         await resume_generation(document_id)
 ```
 
-**Implementation:** Phase 4 (Security & Admin) - 2h  
+**Implementation:** Phase 4 (Security & Admin) - 2h
 **Decision:** ⏸️ Add to roadmap
 
 ---
@@ -353,7 +353,7 @@ showQualityFailureModal({
 });
 ```
 
-**Implementation:** Phase 3 checkpoint + Frontend - 1h  
+**Implementation:** Phase 3 checkpoint + Frontend - 1h
 **Decision:** ⏸️ Add to v2.4
 
 ---
@@ -378,7 +378,7 @@ showQualityFailureModal({
 - Складніша payment flow
 - Stripe fees на кожен section (не practical)
 
-**Implementation:** v3.0 architecture redesign  
+**Implementation:** v3.0 architecture redesign
 **Decision:** ❌ Reject (too complex for MVP)
 
 ---
@@ -387,7 +387,7 @@ showQualityFailureModal({
 
 - **Target:** Job failure rate < 2%
 - **Current:** Unknown (Phase 2 not deployed)
-- **Monitoring:** 
+- **Monitoring:**
   - Track `jobs.status = "failed_quality"` count
   - Track `refund_reason = "quality_threshold"` amount
   - Alert if failures > 3% in 24h window
@@ -405,8 +405,8 @@ showQualityFailureModal({
 
 ### 📊 Problem Statement
 
-**What:** WebSocket connection може disconnect під час довгої regeneration  
-**Why:** Browser/proxy timeouts (typically 60-300 sec)  
+**What:** WebSocket connection може disconnect під час довгої regeneration
+**Why:** Browser/proxy timeouts (typically 60-300 sec)
 **When:** Секція з multiple regenerations (6+ хвилин без updates)
 
 ### 📈 Impact Analysis
@@ -471,12 +471,12 @@ async def send_periodic_heartbeat(user_id: int, job_id: int):
     """Send heartbeat every 10 seconds during long operations"""
     while True:
         await asyncio.sleep(10)
-        
+
         # Check if job still running
         job = await db.get(AIGenerationJob, job_id)
         if job.status not in ["running", "generating"]:
             break
-            
+
         # Send heartbeat
         await manager.send_progress(user_id, {
             "type": "heartbeat",
@@ -490,7 +490,7 @@ async def send_periodic_heartbeat(user_id: int, job_id: int):
 asyncio.create_task(send_periodic_heartbeat(user_id, job_id))
 ```
 
-**Implementation:** Sub-task 2.10.2 (20 min)  
+**Implementation:** Sub-task 2.10.2 (20 min)
 **Decision:** ✅ **MUST IMPLEMENT before production**
 
 ---
@@ -515,7 +515,7 @@ await send_progress("Adding citations...")  # 105 sec
 await send_progress("Section 5 completed")  # 120 sec
 ```
 
-**Implementation:** Enhance SectionGenerator.generate_section() - 1h  
+**Implementation:** Enhance SectionGenerator.generate_section() - 1h
 **Decision:** ⏸️ Consider for v2.4
 
 ---
@@ -549,13 +549,13 @@ websocket.onclose = async () => {
     // Fetch last known progress from DB
     const progress = await fetch(`/api/jobs/${jobId}/progress`);
     updateUI(progress);  // Show last known state
-    
+
     // Try reconnect
     setTimeout(reconnect, 2000);
 };
 ```
 
-**Implementation:** Sub-task 2.10.3 (30 min)  
+**Implementation:** Sub-task 2.10.3 (30 min)
 **Decision:** ✅ **RECOMMENDED** (good fallback mechanism)
 
 ---
@@ -570,15 +570,15 @@ websocket.onclose = async () => {
 class DocumentWebSocket {
     private reconnectAttempts = 0;
     private maxReconnectAttempts = 5;
-    
+
     connect() {
         this.ws = new WebSocket(WS_URL);
-        
+
         this.ws.onclose = () => {
             if (this.reconnectAttempts < this.maxReconnectAttempts) {
                 const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
                 console.log(`Reconnecting in ${delay}ms...`);
-                
+
                 setTimeout(() => {
                     this.reconnectAttempts++;
                     this.connect();
@@ -588,12 +588,12 @@ class DocumentWebSocket {
                 this.startPolling();
             }
         };
-        
+
         this.ws.onopen = () => {
             this.reconnectAttempts = 0;  // Reset on successful connect
         };
     }
-    
+
     startPolling() {
         // Fallback: Poll API кожні 5 секунд
         this.pollInterval = setInterval(async () => {
@@ -604,7 +604,7 @@ class DocumentWebSocket {
 }
 ```
 
-**Implementation:** Frontend update - 45 min  
+**Implementation:** Frontend update - 45 min
 **Decision:** ⏸️ Add to Phase 3
 
 ---
@@ -628,7 +628,7 @@ async def get_job_progress(job_id: int):
     }
 ```
 
-**Implementation:** Backend endpoint (15 min) + Frontend polling (30 min)  
+**Implementation:** Backend endpoint (15 min) + Frontend polling (30 min)
 **Decision:** ⏸️ Nice to have for v2.5
 
 ---
@@ -639,7 +639,7 @@ async def get_job_progress(job_id: int):
 - **Current:** Unknown (no monitoring yet)
 - **Monitoring:**
   - Track `websocket_disconnects` counter
-  - Track `average_connection_duration` 
+  - Track `average_connection_duration`
   - Alert if disconnect rate > 10%
 
 **Review Date:** After 50 documents generated
@@ -666,7 +666,7 @@ quality_gate_failures_total = Counter(
 )
 
 quality_gate_regenerations_total = Counter(
-    "quality_gate_regenerations_total", 
+    "quality_gate_regenerations_total",
     "Total regeneration attempts"
 )
 
@@ -735,7 +735,7 @@ groups:
           severity: critical
         annotations:
           summary: "Quality gate failure rate > 3%"
-          
+
       - alert: SlowGenerationTime
         expr: histogram_quantile(0.95, document_generation_duration_seconds) > 3600
         for: 15m
@@ -743,7 +743,7 @@ groups:
           severity: warning
         annotations:
           summary: "95th percentile generation time > 1 hour"
-          
+
       - alert: FrequentWebSocketDisconnects
         expr: rate(websocket_disconnects_total[5m]) > 0.1
         for: 5m
@@ -758,9 +758,9 @@ groups:
 ## Decision Log
 
 ### Decision #1: Accept Performance Trade-off
-**Date:** 01.12.2025  
-**Decision:** ✅ **ACCEPTED**  
-**Reasoning:** 
+**Date:** 01.12.2025
+**Decision:** ✅ **ACCEPTED**
+**Reasoning:**
 - Quality improvement more valuable than speed
 - 35% slower acceptable для 99% satisfaction goal
 - Можна оптимізувати пізніше якщо буде проблема
@@ -770,8 +770,8 @@ groups:
 ---
 
 ### Decision #2: Partial Completion Strategy
-**Date:** 01.12.2025  
-**Decision:** ⏸️ **PENDING USER APPROVAL**  
+**Date:** 01.12.2025
+**Decision:** ⏸️ **PENDING USER APPROVAL**
 **Options:**
 1. **A: Strict (current)** - Fail entire document якщо 1 section failed
 2. **B: Relaxed** - Deliver document якщо 80%+ completed з warning
@@ -797,8 +797,8 @@ groups:
 ---
 
 ### Decision #3: Heartbeat Implementation
-**Date:** 01.12.2025  
-**Decision:** ✅ **APPROVED - Must implement**  
+**Date:** 01.12.2025
+**Decision:** ✅ **APPROVED - Must implement**
 **Reasoning:**
 - Critical для UX
 - Simple implementation (20 min)
@@ -809,8 +809,8 @@ groups:
 ---
 
 ### Decision #4: State Persistence in DB
-**Date:** 01.12.2025  
-**Decision:** ✅ **APPROVED - Recommended**  
+**Date:** 01.12.2025
+**Decision:** ✅ **APPROVED - Recommended**
 **Reasoning:**
 - Good fallback mechanism
 - Enables reconnect without data loss
@@ -821,8 +821,8 @@ groups:
 ---
 
 ### Decision #5: Adaptive Thresholds
-**Date:** 01.12.2025  
-**Decision:** ⏸️ **DEFERRED - Collect data first**  
+**Date:** 01.12.2025
+**Decision:** ⏸️ **DEFERRED - Collect data first**
 **Reasoning:**
 - Need real failure data before adjusting thresholds
 - Risk of lowering quality too much
@@ -836,8 +836,8 @@ groups:
 
 ### 📊 Problem Statement
 
-**What:** Regeneration loop може зациклитися якщо `final_content` залишається `None`  
-**Why:** Якщо всі quality gates DISABLED або всі checks повертають `passed=True` незалежно від спроб  
+**What:** Regeneration loop може зациклитися якщо `final_content` залишається `None`
+**Why:** Якщо всі quality gates DISABLED або всі checks повертають `passed=True` незалежно від спроб
 **When:** Edge case коли `QUALITY_GATES_ENABLED=False` АБО helper functions завжди pass
 
 ### 📈 Impact Analysis
@@ -849,16 +849,16 @@ final_content = None  # ❌ NEVER set if gates disabled!
 
 for attempt in range(settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1):
     # ... generation ...
-    
+
     # Line 491-496: Break condition
     if not settings.QUALITY_GATES_ENABLED or gates_passed:
         final_content = humanized_content  # ✅ Set here
         break  # Exit loop
-    
+
     # Line 498-514: Regeneration
     elif attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS:
         continue  # Next attempt
-    
+
     # Line 516-519: Failure
     else:
         raise QualityThresholdNotMetError(...)
@@ -875,12 +875,12 @@ QUALITY_GATES_ENABLED = False
 
 for attempt in range(3):
     # Generate...
-    
+
     # Line 491: Should break immediately
     if not settings.QUALITY_GATES_ENABLED:  # True
         final_content = humanized_content  # Set
         break  # Should exit
-    
+
     # ... never reached ...
 
 # Result: ✅ OK - breaks on first attempt
@@ -893,9 +893,9 @@ QUALITY_GATES_ENABLED = True
 for attempt in range(3):
     # Generate...
     humanized_content = "..."
-    
+
     gates_passed = True  # All gates passed
-    
+
     # Line 491: Check condition
     if not settings.QUALITY_GATES_ENABLED or gates_passed:  # gates_passed=True
         final_content = humanized_content  # ✅ Should set
@@ -910,21 +910,21 @@ QUALITY_GATES_ENABLED = True
 
 for attempt in range(3):
     humanized_content = "..."
-    
+
     try:
         gates_passed = True
-        
+
         # GATE 1: Grammar - EXCEPTION thrown
         grammar_score, ... = await _check_grammar_quality(...)  # ❌ Raises exception
-        
+
         # Lines 428-433: Exception caught by helper
         # Helper returns (None, 0, True, None)  # passed=True by default!
-        
+
     except Exception as e:
         # NOT caught here - exception bubbles up!
         # final_content never set ❌
         raise
-    
+
 # Result: ❌ CRASH - exception propagates, final_content=None
 ```
 
@@ -933,15 +933,15 @@ for attempt in range(3):
 for attempt in range(3):
     humanized_content = "..."
     gates_passed = False  # All checks fail
-    
+
     # Line 491: Skip (gates not passed)
     if gates_passed:  # False
         ...
-    
+
     # Line 498: Check attempts
     elif attempt < 2:  # True for attempt 0,1
         continue  # Regenerate
-    
+
     else:  # attempt=2 (last)
         raise QualityThresholdNotMetError(...)  # ✅ Correct behavior
 
@@ -972,7 +972,7 @@ word_count = len(final_content.split())  # AttributeError if None!
 # Line 447: GATE 2 only runs if GATE 1 passed
 if settings.QUALITY_GATES_ENABLED and gates_passed:  # ❌ Short-circuit
     plagiarism_score, ... = await _check_plagiarism_quality(...)
-    
+
 # Problem: Якщо grammar failed, plagiarism check не виконується
 # Result: final_plagiarism_score = None (не set)
 # Impact: DB save з None scores
@@ -1016,7 +1016,7 @@ if final_content is None:
 section.content = final_content  # Safe now
 ```
 
-**Implementation:** Bug fix - 5 min  
+**Implementation:** Bug fix - 5 min
 **Decision:** ✅ **MUST FIX**
 
 ---
@@ -1036,13 +1036,13 @@ if settings.QUALITY_GATES_ENABLED:  # Always run all checks
     if not grammar_passed:
         gates_passed = False
         attempt_errors.append(grammar_error_msg)
-    
+
     # Plagiarism (always run, even if grammar failed)
     plagiarism_score, ... = await _check_plagiarism_quality(...)
     if not plagiarism_passed:
         gates_passed = False
         attempt_errors.append(plagiarism_error_msg)
-    
+
     # AI Detection (always run)
     ai_score, ... = await _check_ai_detection_quality(...)
     if not ai_passed:
@@ -1059,7 +1059,7 @@ if settings.QUALITY_GATES_ENABLED:  # Always run all checks
 - Повільніше (3 API calls замість можливо 1)
 - Більше витрат (plagiarism check дорогий)
 
-**Implementation:** Refactor quality gates - 30 min  
+**Implementation:** Refactor quality gates - 30 min
 **Decision:** ⏸️ Consider for v2.4
 
 ---
@@ -1100,7 +1100,7 @@ if gates_enabled:
 - Витрати навіть якщо gates disabled
 - Повільніше (завжди 3 API calls)
 
-**Implementation:** Quality checks refactor - 45 min  
+**Implementation:** Quality checks refactor - 45 min
 **Decision:** ⏸️ Defer to v2.5
 
 ---
@@ -1109,8 +1109,8 @@ if gates_enabled:
 
 ### 📊 Problem Statement
 
-**What:** Кожна regeneration спроба створює нові об'єкти які не очищаються  
-**Why:** Python garbage collector не збирає об'єкти поки loop не завершиться  
+**What:** Кожна regeneration спроба створює нові об'єкти які не очищаються
+**Why:** Python garbage collector не збирає об'єкти поки loop не завершиться
 **When:** Довгі документи (100+ sections) з multiple regenerations
 
 ### 📈 Impact Analysis
@@ -1172,9 +1172,9 @@ import gc
 for attempt in range(settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1):
     section_result = await section_generator.generate_section(...)
     humanized_content = await humanizer.humanize(...)
-    
+
     # Quality checks...
-    
+
     if gates_passed:
         final_content = humanized_content
         break
@@ -1183,7 +1183,7 @@ for attempt in range(settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1):
         del section_result
         del humanized_content
         gc.collect()  # Force garbage collection
-        
+
         continue
 ```
 
@@ -1196,7 +1196,7 @@ for attempt in range(settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1):
 - Може сповільнити regeneration
 - Python GC normally sufficient
 
-**Implementation:** 10 min  
+**Implementation:** 10 min
 **Decision:** ⏸️ Only if memory issues observed
 
 ---
@@ -1217,7 +1217,7 @@ async def generate_section_isolated(section_data):
 # Each process dies after section → memory freed
 ```
 
-**Implementation:** Major refactor - 8h  
+**Implementation:** Major refactor - 8h
 **Decision:** ❌ Overkill for MVP
 
 ---
@@ -1226,8 +1226,8 @@ async def generate_section_isolated(section_data):
 
 ### 📊 Problem Statement
 
-**What:** Multiple regeneration attempts можуть створити deadlock в PostgreSQL  
-**Why:** Кожна спроба робить UPDATE на DocumentSection БЕЗ commit  
+**What:** Multiple regeneration attempts можуть створити deadlock в PostgreSQL
+**Why:** Кожна спроба робить UPDATE на DocumentSection БЕЗ commit
 **When:** Concurrent generation jobs + regeneration
 
 ### 📈 Impact Analysis
@@ -1245,12 +1245,12 @@ await db.commit()  # ✅ Committed
 # Line 378: Regeneration loop starts
 for attempt in range(3):
     # ... generation ...
-    
+
     # Line 538: Try to update section
     section = await db.get(DocumentSection, section_id)  # ❌ Lock acquired
     section.content = final_content
     # await db.commit()  # ❌ NOT committed yet!
-    
+
     # If another job tries to read this section:
     # SELECT * FROM document_sections WHERE id = 5 FOR UPDATE
     # → BLOCKS waiting for lock ❌
@@ -1295,7 +1295,7 @@ for section in sections:
     # ... generate section ...
     section.content = final_content
     await db.commit()  # ✅ Commit immediately, release lock
-    
+
     # Next section starts fresh transaction ✅
 ```
 
@@ -1326,7 +1326,7 @@ except TimeoutError:
     # Retry...
 ```
 
-**Implementation:** 30 min  
+**Implementation:** 30 min
 **Decision:** ⏸️ Only if deadlocks observed
 
 ---
@@ -1335,8 +1335,8 @@ except TimeoutError:
 
 ### 📊 Problem Statement
 
-**What:** Grammar/Plagiarism/AI detection APIs мають rate limits  
-**Why:** Regeneration = 3x more API calls per section  
+**What:** Grammar/Plagiarism/AI detection APIs мають rate limits
+**Why:** Regeneration = 3x more API calls per section
 **When:** Масштабування до 20+ concurrent documents
 
 ### 📈 Impact Analysis
@@ -1409,21 +1409,21 @@ class RateLimitedAPIClient:
         self.time_window = time_window  # seconds
         self.requests = deque()
         self.lock = asyncio.Lock()
-    
+
     async def call_api(self, api_func, *args, **kwargs):
         async with self.lock:
             now = datetime.utcnow()
-            
+
             # Remove old requests outside window
             while self.requests and self.requests[0] < now - timedelta(seconds=self.time_window):
                 self.requests.popleft()
-            
+
             # Check if we hit limit
             if len(self.requests) >= self.max_requests:
                 wait_time = (self.requests[0] + timedelta(seconds=self.time_window) - now).total_seconds()
                 logger.info(f"Rate limit reached, waiting {wait_time:.1f}s...")
                 await asyncio.sleep(wait_time + 0.1)
-            
+
             # Make request
             self.requests.append(now)
             return await api_func(*args, **kwargs)
@@ -1437,7 +1437,7 @@ ai_result = await gpt_zero_limiter.call_api(
 )
 ```
 
-**Implementation:** 2h  
+**Implementation:** 2h
 **Decision:** ⏸️ **REQUIRED before 20+ concurrent jobs**
 
 ---
@@ -1454,7 +1454,7 @@ except RateLimitError:
     ai_result = await originality_client.check(content)
 ```
 
-**Implementation:** 1h  
+**Implementation:** 1h
 **Decision:** ⏸️ Add to Phase 3
 
 ---
@@ -1491,7 +1491,7 @@ return result
 - Cache можна обійти (slight content changes)
 - Memory usage в Redis
 
-**Implementation:** 1h  
+**Implementation:** 1h
 **Decision:** ⏸️ Nice to have for v2.5
 
 ---
@@ -1500,8 +1500,8 @@ return result
 
 ### 📊 Problem Statement
 
-**What:** Helper functions ловлять exceptions і повертають `passed=True` by default  
-**Why:** "Non-critical" philosophy - continue якщо check failed  
+**What:** Helper functions ловлять exceptions і повертають `passed=True` by default
+**Why:** "Non-critical" philosophy - continue якщо check failed
 **When:** API unavailable або network error
 
 ### 📈 Impact Analysis
@@ -1567,7 +1567,7 @@ Plagiarism API call takes 120 seconds (timeout)
 async def _check_plagiarism_quality(...):
     try:
         plagiarism_result = await plagiarism_checker.check_text(...)
-        
+
         if plagiarism_result.get("checked"):
             # Normal path
             return (plagiarism_score, uniqueness, passed, error_msg)
@@ -1575,7 +1575,7 @@ async def _check_plagiarism_quality(...):
             # API returned error but no exception
             error = plagiarism_result.get("error", "Unknown error")
             logger.error(f"Plagiarism check failed: {error}")
-            
+
             # НОВИЙ BEHAVIOR: Fail громко
             if settings.QUALITY_GATES_STRICT_MODE:
                 raise APIException(
@@ -1590,10 +1590,10 @@ async def _check_plagiarism_quality(...):
                     message=f"Plagiarism API error: {error}. Document {doc_id} passed without check."
                 )
                 return (None, 100.0, True, None)
-                
+
     except Exception as e:
         logger.error(f"Plagiarism check exception: {e}")
-        
+
         # НОВИЙ: Distinguish network errors vs API errors
         if isinstance(e, (TimeoutError, ConnectionError)):
             # Temporary issue - maybe retry?
@@ -1613,7 +1613,7 @@ async def _check_plagiarism_quality(...):
 QUALITY_GATES_STRICT_MODE: bool = True  # Fail громко або pass silently?
 ```
 
-**Implementation:** 1h  
+**Implementation:** 1h
 **Decision:** ✅ **MUST IMPLEMENT**
 
 ---
@@ -1626,30 +1626,30 @@ QUALITY_GATES_STRICT_MODE: bool = True  # Fail громко або pass silently
 @router.get("/health/quality-services")
 async def check_quality_services():
     results = {}
-    
+
     # Test grammar API
     try:
         await grammar_checker.check_text("test", "en")
         results["grammar"] = {"status": "ok"}
     except Exception as e:
         results["grammar"] = {"status": "error", "message": str(e)}
-    
+
     # Test plagiarism API
     try:
         await plagiarism_checker.check_text("test")
         results["plagiarism"] = {"status": "ok"}
     except Exception as e:
         results["plagiarism"] = {"status": "error", "message": str(e)}
-    
+
     # Test AI detection API
     try:
         await ai_checker.check_text("test")
         results["ai_detection"] = {"status": "ok"}
     except Exception as e:
         results["ai_detection"] = {"status": "error", "message": str(e)}
-    
+
     overall_status = "ok" if all(r["status"] == "ok" for r in results.values()) else "degraded"
-    
+
     return {
         "status": overall_status,
         "services": results,
@@ -1665,7 +1665,7 @@ Prometheus alert:
 - Notify admin via Telegram/Email
 ```
 
-**Implementation:** 45 min  
+**Implementation:** 45 min
 **Decision:** ⏸️ Add to monitoring setup
 
 ---
@@ -1674,8 +1674,8 @@ Prometheus alert:
 
 ### 📊 Problem Statement
 
-**What:** `context_sections` може стати величезним для пізніх секцій  
-**Why:** Кожна секція додає ~2KB content, 100 sections = 200KB context  
+**What:** `context_sections` може стати величезним для пізніх секцій
+**Why:** Кожна секція додає ~2KB content, 100 sections = 200KB context
 **When:** Довгі документи (100+ sections)
 
 ### 📈 Impact Analysis
@@ -1767,7 +1767,7 @@ context_result = await db.execute(
 - Less global coherence (може втратити зв'язок з початком)
 - Але last 10 sections = enough for local coherence
 
-**Implementation:** 15 min  
+**Implementation:** 15 min
 **Decision:** ✅ **RECOMMENDED** (add QUALITY_GATES_MAX_CONTEXT_SECTIONS=10)
 
 ---
@@ -1780,21 +1780,21 @@ context_result = await db.execute(
 if len(context_sections) > 20:
     # First 10: Full content (recent)
     recent_context = context_sections[-10:]
-    
+
     # Older sections: Summarize
     old_context = context_sections[:-10]
     summary = await ai_service.summarize(
         text="\n\n".join(s.content for s in old_context),
         max_words=500
     )
-    
+
     context_list = [
         {"summary": summary},  # Condensed old context
         *[{"title": s.title, "content": s.content} for s in recent_context]
     ]
 ```
 
-**Implementation:** 2h  
+**Implementation:** 2h
 **Decision:** ❌ Overkill, use Strategy 1 instead
 
 ---
@@ -1852,16 +1852,16 @@ if len(context_sections) > 20:
 
 ### Issue #1: Tests Not Run Live (🟡 Medium)
 
-**Problem:** Test file created but not executed with pytest  
-**Risk:** Mocks may have errors, tests might fail on first run  
-**Impact:** Development workflow disruption (15-30 min to fix)  
-**Mitigation:** 
+**Problem:** Test file created but not executed with pytest
+**Risk:** Mocks may have errors, tests might fail on first run
+**Impact:** Development workflow disruption (15-30 min to fix)
+**Mitigation:**
 ```bash
 cd /Users/maxmaxvel/AI\ TESI/apps/api
 pytest tests/test_quality_gates.py -v
 ```
-**Expected:** Should pass, but may need minor import/mock fixes  
-**Deadline:** Before Phase 3 start  
+**Expected:** Should pass, but may need minor import/mock fixes
+**Deadline:** Before Phase 3 start
 **Priority:** 🟡 Medium
 
 ---
@@ -1875,8 +1875,8 @@ except Exception as e:
     return (None, 0, True, None)  # ❌ Pass by default!
 ```
 
-**Risk:** API failures (GPTZero down, Copyscape timeout) → content passes without real check  
-**Business Impact:** 
+**Risk:** API failures (GPTZero down, Copyscape timeout) → content passes without real check
+**Business Impact:**
 - False positives: 70% plagiarism passes as "OK"
 - Reputation damage
 - Potential legal issues with plagiarized content
@@ -1899,15 +1899,15 @@ except Exception as e:
         return (None, 0, True, None)  # ⚠️ Pass for dev/testing
 ```
 
-**Status:** ⏸️ Acceptable for MVP (better pass than block all documents)  
-**Deadline:** Before production launch  
+**Status:** ⏸️ Acceptable for MVP (better pass than block all documents)
+**Deadline:** Before production launch
 **Priority:** 🔴 HIGH CRITICAL
 
 ---
 
 ### Issue #3: API Rate Limits Not Validated (🔴 HIGH - Risk #7)
 
-**Problem:** GPTZero = 50 req/hour, Copyscape = 100 req/hour  
+**Problem:** GPTZero = 50 req/hour, Copyscape = 100 req/hour
 **Risk:** 5 concurrent docs × 3 attempts × 20 sections = 300 API calls/hour → **API BLOCKING**
 
 **Calculation:**
@@ -1944,15 +1944,15 @@ if rate_limit_exceeded:
     await queue_for_later()  # Process when limit resets
 ```
 
-**Current Status:** ⏸️ OK for MVP (1-2 documents at a time)  
-**Deadline:** Before scaling to 20+ concurrent jobs  
+**Current Status:** ⏸️ OK for MVP (1-2 documents at a time)
+**Deadline:** Before scaling to 20+ concurrent jobs
 **Priority:** 🔴 HIGH BLOCKER FOR SCALE
 
 ---
 
 ### Issue #4: Context Limit Not Tested (🟢 LOW)
 
-**Problem:** Added `.limit(10)` and `.order_by(.desc())` but not executed  
+**Problem:** Added `.limit(10)` and `.order_by(.desc())` but not executed
 **Risk:** SQL query might fail if syntax incorrect
 
 **Code:**
@@ -1962,17 +1962,17 @@ if rate_limit_exceeded:
 .limit(settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS)  # ✅ Limit context
 ```
 
-**Expected Behavior:** Query last 10 sections successfully  
-**Potential Issue:** SQLAlchemy dialect incompatibility (unlikely)  
-**Mitigation:** Run one test document with 15+ sections  
-**Status:** ✅ Should work (standard SQLAlchemy pattern)  
+**Expected Behavior:** Query last 10 sections successfully
+**Potential Issue:** SQLAlchemy dialect incompatibility (unlikely)
+**Mitigation:** Run one test document with 15+ sections
+**Status:** ✅ Should work (standard SQLAlchemy pattern)
 **Priority:** 🟢 LOW
 
 ---
 
 ### Issue #5: WebSocket Error Notification Not Tested (🟡 Medium)
 
-**Problem:** `await manager.send_error(...)` called but not verified  
+**Problem:** `await manager.send_error(...)` called but not verified
 **Risk:** Frontend may not receive error notification
 
 **Code Location:** Lines 604-615 in background_jobs.py
@@ -1997,15 +1997,15 @@ export QUALITY_MIN_PLAGIARISM_UNIQUENESS=99.0
 # Start generation, watch WebSocket messages in browser console
 ```
 
-**Expected:** Frontend receives error object and shows user-friendly message  
-**Fallback:** If WebSocket fails, job status in DB shows "failed_quality"  
+**Expected:** Frontend receives error object and shows user-friendly message
+**Fallback:** If WebSocket fails, job status in DB shows "failed_quality"
 **Priority:** 🟡 Medium
 
 ---
 
 ### Issue #6: Quality Scores Can Be NULL (🟡 Medium)
 
-**Problem:** If API fails → `final_ai_score = None` → DB field NULL  
+**Problem:** If API fails → `final_ai_score = None` → DB field NULL
 **Impact:** Admin statistics show "N/A" instead of real scores
 
 **Current Behavior:**
@@ -2033,15 +2033,15 @@ final_plagiarism_score = plagiarism_score or 50.0
 - ✅ Pros: Complete statistics, no NULLs
 - ❌ Cons: Fake scores (50.0 doesn't mean real quality)
 
-**Decision:** ⏸️ Keep NULL for now (better than fake data)  
-**Mitigation:** Admin UI handles NULLs gracefully ("API Check Failed")  
+**Decision:** ⏸️ Keep NULL for now (better than fake data)
+**Mitigation:** Admin UI handles NULLs gracefully ("API Check Failed")
 **Priority:** 🟡 Medium
 
 ---
 
 ### Issue #7: Regeneration Time Impact (🟡 Medium - Risk #1)
 
-**Problem:** 3 attempts × 20 sections = +35% generation time  
+**Problem:** 3 attempts × 20 sections = +35% generation time
 **Risk:** User expects 10 min → receives 13.5 min
 
 **User Experience:**
@@ -2071,14 +2071,14 @@ showMessage(`We're ensuring high quality - worth the wait! ✨`);
 }
 ```
 
-**Status:** Documented in Risk #1, acceptable trade-off  
+**Status:** Documented in Risk #1, acceptable trade-off
 **Priority:** 🟡 Medium
 
 ---
 
 ### Issue #8: Partial Completion Not Fully Tested (🟡 Medium - Risk #2)
 
-**Problem:** If section 5/20 fails quality → continue with others → 19 sections delivered  
+**Problem:** If section 5/20 fails quality → continue with others → 19 sections delivered
 **Risk:** User receives incomplete document (95% complete)
 
 **Current Implementation:**
@@ -2087,7 +2087,7 @@ except QualityThresholdNotMetError as e:
     # Mark section as failed_quality
     section.status = "failed_quality"
     await db.commit()
-    
+
     # Continue with next section ✅
     continue  # Instead of crashing entire job
 ```
@@ -2126,7 +2126,7 @@ if completion_rate < 0.8:  # Less than 80%
         reason=f"Only {completion_rate:.0%} completed"
     )
     job.status = "failed_insufficient_quality"
-    
+
 elif completion_rate < 1.0:  # 80-99%
     # DELIVER with warning
     job.status = "completed_with_warnings"
@@ -2134,20 +2134,20 @@ elif completion_rate < 1.0:  # 80-99%
         message=f"Document delivered ({completion_rate:.0%} complete). "
                 f"Sections {failed_sections} failed quality checks."
     )
-    
+
 else:  # 100%
     # PERFECT
     job.status = "completed"
 ```
 
-**Decision Required:** @maxmaxvel approval on threshold (80%? 90%? 95%?)  
+**Decision Required:** @maxmaxvel approval on threshold (80%? 90%? 95%?)
 **Priority:** 🟡 Medium (Critical for business logic)
 
 ---
 
 ### Issue #9: Section Order After Context Query (🟢 LOW - VERIFIED)
 
-**Problem (Initially Suspected):** Changed `order_by(section_index)` → `order_by(section_index.desc())`  
+**Problem (Initially Suspected):** Changed `order_by(section_index)` → `order_by(section_index.desc())`
 **Risk:** Context sections in reverse order?
 
 **Analysis:**
@@ -2170,7 +2170,7 @@ context_list = [
 - Context sections already ordered correctly
 - No reversal needed
 
-**Status:** ✅ VERIFIED - No issue  
+**Status:** ✅ VERIFIED - No issue
 **Priority:** 🟢 LOW (False alarm)
 
 ---
@@ -2234,7 +2234,7 @@ context_list = [
 
 ### Risk #1: Redis Connection Failure (🟡 Medium - NON-CRITICAL)
 
-**Problem:** Redis недоступний → checkpoint не збережеться  
+**Problem:** Redis недоступний → checkpoint не збережеться
 **Scenario:**
 ```python
 # Generation at section 15/20 (75% complete)
@@ -2268,14 +2268,14 @@ except Exception as checkpoint_error:
 3. No impact on document delivery
 4. If crash happens → standard regeneration (same as before)
 
-**Status:** ✅ Handled gracefully  
+**Status:** ✅ Handled gracefully
 **Priority:** 🟡 Medium (optimization, not requirement)
 
 ---
 
 ### Risk #2: Checkpoint Out of Sync with DB (🟢 LOW - PREVENTED)
 
-**Problem:** Redis says "section 10 completed" but DB has only 8 sections  
+**Problem:** Redis says "section 10 completed" but DB has only 8 sections
 **Scenario:**
 ```python
 # Redis checkpoint
@@ -2325,14 +2325,14 @@ if existing_section:
 - No reliance on checkpoint accuracy alone
 - Idempotent: can safely run twice without duplicates
 
-**Status:** ✅ Prevented by defensive check  
+**Status:** ✅ Prevented by defensive check
 **Priority:** 🟢 LOW (handled by idempotency)
 
 ---
 
 ### Risk #3: Checkpoint TTL Too Short (🟢 LOW - ACCEPTABLE)
 
-**Problem:** TTL = 1 hour, but 200-page generation = 60-90 min  
+**Problem:** TTL = 1 hour, but 200-page generation = 60-90 min
 **Scenario:**
 ```python
 # Start generation at 10:00
@@ -2352,7 +2352,7 @@ checkpoint = await redis.get(f"checkpoint:doc:123")  # ❌ None (expired)
 - If crash near end + Redis expires → checkpoint lost
 - Rare edge case (99% of docs < 50 pages)
 
-**Probability:** 
+**Probability:**
 - 0.1% (200-page documents are rare)
 - 0.01% (crash + checkpoint expiry overlap)
 - **Combined:** 0.001% (1 in 100,000 documents)
@@ -2387,14 +2387,14 @@ await redis.expire(f"checkpoint:doc:{document_id}", 3600)  # Reset TTL
 
 **Future:** If 200-page docs become common → increase TTL to 2h
 
-**Status:** ✅ Acceptable risk  
+**Status:** ✅ Acceptable risk
 **Priority:** 🟢 LOW (edge case)
 
 ---
 
 ### Risk #4: Race Condition on Job Start (🟢 LOW - HANDLED)
 
-**Problem:** Two workers start same job simultaneously  
+**Problem:** Two workers start same job simultaneously
 **Scenario:**
 ```python
 # Worker 1 (10:00:00.000):
@@ -2433,14 +2433,14 @@ background_tasks.add_task(
 - Job status prevents duplicate starts
 - Background task queue is single-threaded per job
 
-**Status:** ✅ Already handled by existing system  
+**Status:** ✅ Already handled by existing system
 **Priority:** 🟢 LOW (non-issue)
 
 ---
 
 ### Risk #5: JSON Parsing Error (🟢 LOW - DEFENSIVE)
 
-**Problem:** Redis contains corrupted JSON → `json.loads()` crashes  
+**Problem:** Redis contains corrupted JSON → `json.loads()` crashes
 **Scenario:**
 ```python
 # Checkpoint saved incorrectly (network corruption)
@@ -2478,14 +2478,14 @@ except Exception as checkpoint_error:
 - Same behavior as if checkpoint didn't exist
 - Generation continues normally
 
-**Status:** ✅ Defensive error handling  
+**Status:** ✅ Defensive error handling
 **Priority:** 🟢 LOW (edge case)
 
 ---
 
 ### Risk #6: Memory Usage (🟢 LOW - MINIMAL)
 
-**Problem:** Many active documents → many checkpoints → Redis memory exhaustion  
+**Problem:** Many active documents → many checkpoints → Redis memory exhaustion
 **Scenario:**
 ```python
 # 1000 concurrent documents generating
@@ -2506,14 +2506,14 @@ except Exception as checkpoint_error:
 redis-cli INFO memory | grep used_memory_human
 ```
 
-**Status:** ✅ Non-issue  
+**Status:** ✅ Non-issue
 **Priority:** 🟢 LOW (scale problem only)
 
 ---
 
 ### Risk #7: Checkpoint Not Cleared (🟡 Medium - MEMORY LEAK)
 
-**Problem:** Exception before cleanup → checkpoint remains in Redis forever  
+**Problem:** Exception before cleanup → checkpoint remains in Redis forever
 **Scenario:**
 ```python
 # Generation completes successfully
@@ -2531,7 +2531,7 @@ await redis.delete(f"checkpoint:doc:123")  # Line ~756
 - Memory usage grows slowly
 - Eventually cleaned by TTL (1 hour)
 
-**Probability:** 
+**Probability:**
 - 0.1% (crash before cleanup)
 - But TTL handles it automatically
 
@@ -2554,7 +2554,7 @@ await redis.delete(f"checkpoint:doc:{document_id}")
 - Checkpoint auto-deleted
 - Max leak: 1 hour per document
 
-**Status:** ✅ Handled by TTL  
+**Status:** ✅ Handled by TTL
 **Priority:** 🟡 Medium (monitored, not critical)
 
 ---
@@ -2615,5 +2615,5 @@ grep "Resuming from section" /var/log/tesigo/app.log
 
 ---
 
-**Last Updated:** 01.12.2025 23:15 (Phase 3 completion + risk analysis)  
+**Last Updated:** 01.12.2025 23:15 (Phase 3 completion + risk analysis)
 **Next Review:** After pytest execution and user decision

@@ -64,4 +64,3 @@ volumes:
 networks:
   ai-thesis-network:
     name: ai-thesis-network
-

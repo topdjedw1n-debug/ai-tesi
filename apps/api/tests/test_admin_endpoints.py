@@ -131,4 +131,3 @@ async def test_admin_dashboard_metrics_endpoint(client, admin_token):
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/dashboard/metrics", headers=headers)
     assert response.status_code in [200, 403]
-

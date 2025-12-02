@@ -247,7 +247,9 @@ async def test_get_refund_stats(refund_service, mock_db):
     mock_rejected.scalar.return_value = 20  # rejected
 
     mock_refunded_amount = MagicMock()
-    mock_refunded_amount.scalar.return_value = Decimal("5000.00")  # total_refunded_amount
+    mock_refunded_amount.scalar.return_value = Decimal(
+        "5000.00"
+    )  # total_refunded_amount
 
     mock_avg_time = MagicMock()
     mock_avg_time.scalar.return_value = 24.5  # average processing time in hours
@@ -274,4 +276,3 @@ async def test_get_refund_stats(refund_service, mock_db):
     assert stats["approved"] == 60
     assert stats["rejected"] == 20
     assert stats["total_requests"] == 100
-

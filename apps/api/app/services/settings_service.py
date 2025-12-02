@@ -312,4 +312,3 @@ class SettingsService:
         except Exception as e:
             logger.error(f"Error getting maintenance message: {e}")
             return "System maintenance in progress"
-

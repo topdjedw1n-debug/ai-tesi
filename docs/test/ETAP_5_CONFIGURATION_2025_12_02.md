@@ -1,8 +1,8 @@
 # 📋 ЕТАП 5: CONFIGURATION FILES ANALYSIS - ЗВІТ
 
-**Дата виконання:** 2 грудня 2025  
-**Час виконання:** ~25 хвилин  
-**Виконавець:** AI Agent  
+**Дата виконання:** 2 грудня 2025
+**Час виконання:** ~25 хвилин
+**Виконавець:** AI Agent
 **Оцінка:** **48/100** 🔴 CRITICAL ISSUES FOUND
 
 ---
@@ -54,7 +54,7 @@
 
 ### 1. Frontend: Відсутня документація ENV змінних (CRITICAL)
 
-**Статус:** 🔴 БЛОКЕР  
+**Статус:** 🔴 БЛОКЕР
 **Файл:** `apps/web/.env.example` - **НЕ ІСНУЄ**
 
 **Проблема:**
@@ -99,7 +99,7 @@ EOF
 
 ### 2. SMTP: Повністю не налаштований (CRITICAL)
 
-**Статус:** 🔴 БЛОКЕР  
+**Статус:** 🔴 БЛОКЕР
 **Файл:** `apps/api/.env.example` (lines 58-63)
 
 **Проблема:**
@@ -145,7 +145,7 @@ def _validate_api_keys_and_secrets(self) -> None:
 # 🔴 CRITICAL: Email Configuration (REQUIRED FOR PRODUCTION)
 # ==========================================
 # TesiGo uses magic link authentication - SMTP MUST BE CONFIGURED
-# 
+#
 # Recommended: AWS SES (https://aws.amazon.com/ses/)
 # Free tier: 62,000 emails/month
 #
@@ -164,8 +164,8 @@ EMAIL_FROM_NAME=TesiGo Platform
 
 ### 3. MinIO: Insecure Default Credentials (HIGH)
 
-**Статус:** 🟡 HIGH PRIORITY  
-**Файли:** 
+**Статус:** 🟡 HIGH PRIORITY
+**Файли:**
 - `apps/api/.env.example` (lines 52-56)
 - `infra/docker/docker-compose.yml` (lines 75-76, 84-85)
 
@@ -217,7 +217,7 @@ MINIO_SECRET_KEY=minioadmin  # CHANGE IN PRODUCTION
 
 ### 4. Database Migrations: No Alembic (MEDIUM)
 
-**Статус:** 🟡 MEDIUM RISK  
+**Статус:** 🟡 MEDIUM RISK
 **Файл:** `apps/api/alembic.ini` - **НЕ ІСНУЄ**
 
 **Проблема:**
@@ -254,7 +254,7 @@ Migration Files (5 total):
    # Перенести існуючі SQL migrations в Alembic
    # Додати autogenerate support
    ```
-   
+
 2. **Залишити raw SQL** (documented decision):
    - Додати в `docs/sec/DECISIONS_LOG.md`: "Чому raw SQL замість Alembic"
    - Створити migration checklist в docs/
@@ -266,7 +266,7 @@ Migration Files (5 total):
 
 ### 5. Quality Check APIs: Частково не налаштовані (MEDIUM)
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Файл:** `apps/api/.env.example` (lines 31-50)
 
 **Проблема:**
@@ -327,8 +327,8 @@ QUALITY_GATES_ENABLED=false  # Disable AI/plagiarism checks
 
 ### 6. .env.template vs .env.example - Дубльовані файли
 
-**Статус:** 🟡 CLEANUP  
-**Файли:** 
+**Статус:** 🟡 CLEANUP
+**Файли:**
 - `apps/api/.env.example` (80 lines)
 - `apps/api/.env.template` (78 lines)
 
@@ -365,7 +365,7 @@ git commit -m "cleanup: Remove duplicate .env.template (use .env.example only)"
 
 ### 7. CORS: Development Defaults в Production (MEDIUM)
 
-**Статус:** 🟡 REQUIRES ATTENTION  
+**Статус:** 🟡 REQUIRES ATTENTION
 **Файл:** `apps/api/app/core/config.py` (lines 74-81, 325-378)
 
 **Проблема:**
@@ -415,7 +415,7 @@ CORS_ALLOWED_ORIGINS=http://localhost:3000
 
 ### 8. Docker: Hardcoded credentials в compose файлі (LOW)
 
-**Статус:** 🟢 LOW PRIORITY  
+**Статус:** 🟢 LOW PRIORITY
 **Файл:** `infra/docker/docker-compose.yml` (lines 9-11, 32, 84-85)
 
 **Проблема:**
@@ -552,15 +552,15 @@ def validate_production_requirements(self):
     if is_prod:
         # Force DEBUG=False
         object.__setattr__(self, "DEBUG", False)
-        
+
         # Require JWT_SECRET or SECRET_KEY
         if not self.JWT_SECRET and not self.SECRET_KEY:
             raise ValueError("Either JWT_SECRET or SECRET_KEY must be set")
-        
+
         # Require DATABASE_URL
         if not self.DATABASE_URL:
             raise ValueError("DATABASE_URL must be set")
-        
+
         # Validate API keys
         self._validate_api_keys_and_secrets()
 ```
@@ -578,7 +578,7 @@ def validate_production_requirements(self):
 @field_validator("JWT_SECRET")
 def validate_jwt_secret(cls, v: str | None, info):
     forbidden_words = ["secret", "password", "admin", "changeme", "default"]
-    
+
     if is_prod:
         if len(v) < 32:
             raise ValueError("JWT_SECRET must be at least 32 characters")
@@ -800,7 +800,7 @@ cat >> apps/api/.env.example << 'EOF'
 # 🔴 CRITICAL: Email Configuration (REQUIRED FOR PRODUCTION)
 # ==========================================
 # TesiGo uses magic link authentication - SMTP MUST BE CONFIGURED
-# 
+#
 # Recommended providers:
 # - AWS SES: https://aws.amazon.com/ses/ (Free tier: 62,000 emails/month)
 # - Mailgun: https://www.mailgun.com/ (Free tier: 5,000 emails/month)
@@ -889,8 +889,8 @@ git commit -m "cleanup: Remove duplicate .env.template (use .env.example only)"
 
 ### Key Insight:
 
-> Backend configuration є **ДУЖЕ ЯКІСНИМ** (65/100) з сильною Pydantic validation.  
-> Frontend configuration є **WEAK** (30/100) через відсутність документації.  
+> Backend configuration є **ДУЖЕ ЯКІСНИМ** (65/100) з сильною Pydantic validation.
+> Frontend configuration є **WEAK** (30/100) через відсутність документації.
 > Production deployment блокується **SMTP** (no magic links) та **frontend ENV** (unknown requirements).
 
 ---
@@ -962,7 +962,7 @@ read_file apps/web/Dockerfile (1-50)
 read_file infra/docker/docker-compose.yml (1-138)  # Complete
 
 # Security scan
-grep_search apps/api/**/*.py 
+grep_search apps/api/**/*.py
   pattern: "sk-|SECRET_KEY\s*=\s*[\"']|JWT_SECRET\s*=\s*[\"']|STRIPE_SECRET_KEY\s*=\s*[\"']"
   result: 11 matches, all safe (no real secrets)
 ```
@@ -980,9 +980,9 @@ grep_search apps/api/**/*.py
 
 ---
 
-**Звіт створено:** 2 грудня 2025  
-**Автор:** AI Agent (AGENT_QUALITY_RULES.md compliant)  
-**Джерела:** 15+ config files read, 10+ file searches, 1 security scan  
+**Звіт створено:** 2 грудня 2025
+**Автор:** AI Agent (AGENT_QUALITY_RULES.md compliant)
+**Джерела:** 15+ config files read, 10+ file searches, 1 security scan
 **Протокол:** Виконано згідно AGENT_QUALITY_RULES.md (proof-based analysis)
 
 ---

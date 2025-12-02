@@ -459,4 +459,3 @@ class NotificationService:
 
 # Global instance
 notification_service = NotificationService()
-

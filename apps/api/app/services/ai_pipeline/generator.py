@@ -63,16 +63,14 @@ async def retry_with_backoff(
 
     for attempt in range(max_retries):
         try:
-            logger.debug(
-                f"{operation_name}: Attempt {attempt + 1}/{max_retries}"
-            )
+            logger.debug(f"{operation_name}: Attempt {attempt + 1}/{max_retries}")
             result = await func()
-            
+
             if attempt > 0:
                 logger.info(
                     f"{operation_name}: Succeeded on attempt {attempt + 1}/{max_retries}"
                 )
-            
+
             return result
 
         except exceptions as e:
@@ -97,7 +95,9 @@ async def retry_with_backoff(
     # This should never be reached, but for type safety
     if last_exception:
         raise last_exception
-    raise RuntimeError(f"{operation_name}: Retry logic error - no exception but no success")
+    raise RuntimeError(
+        f"{operation_name}: Retry logic error - no exception but no success"
+    )
 
 
 # ============================================================================
@@ -185,14 +185,14 @@ class SectionGenerator:
 
             # Step 4: Generate section content using AI with automatic fallback
             logger.info(f"Generating section content: {section_title}")
-            
+
             # Use fallback chain instead of single provider (Task 3.2)
             # Note: provider/model parameters are now ignored in favor of fallback chain
             # This ensures maximum reliability with automatic fallback
             section_content = await self._call_ai_with_fallback(
                 prompt=prompt,
                 language=document.language,
-                purpose=f"Section: {section_title}"
+                purpose=f"Section: {section_title}",
             )
 
             # Store prompt for training data collection
@@ -297,53 +297,68 @@ class SectionGenerator:
     ) -> float:
         """
         Score how well a citation matches a source document
-        
+
         Args:
             citation: Citation dict with 'year', 'authors', 'original' keys
             source: Source document to match against
-            
+
         Returns:
             Match score (higher = better match, 0 = no match)
-            
+
         Scoring algorithm:
             - Exact year match: +50 points
             - Author last name match: +30 points per matching author
             - Title word overlap: +20 points
         """
         score = 0.0
-        
+
         # 1. Year matching (most reliable indicator)
         if citation.get("year") and str(source.year) == str(citation["year"]):
             score += 50.0
-        
+
         # 2. Author matching (check last names)
         citation_authors = citation.get("authors", [])
         if citation_authors and source.authors:
             for citation_author in citation_authors:
                 # Extract last name (last word in author string)
                 citation_last_name = citation_author.strip().split()[-1].lower()
-                
+
                 for source_author in source.authors:
                     source_last_name = source_author.strip().split()[-1].lower()
-                    
-                    if citation_last_name in source_last_name or source_last_name in citation_last_name:
+
+                    if (
+                        citation_last_name in source_last_name
+                        or source_last_name in citation_last_name
+                    ):
                         score += 30.0
                         break  # Count each citation author only once
-        
+
         # 3. Title similarity (check for word overlap)
         citation_text = citation.get("original", "").lower()
         title_words = set(source.title.lower().split())
-        
+
         # Remove common words
-        stop_words = {"the", "a", "an", "and", "or", "of", "in", "on", "at", "to", "for"}
+        stop_words = {
+            "the",
+            "a",
+            "an",
+            "and",
+            "or",
+            "of",
+            "in",
+            "on",
+            "at",
+            "to",
+            "for",
+        }
         title_words = title_words - stop_words
-        
+
         matching_words = sum(1 for word in title_words if word in citation_text)
         if matching_words > 0:
             score += 20.0
-        
+
         return score
-    
+
     def _cleanup_memory(self) -> None:
         """
         Clean up memory after section generation
@@ -382,10 +397,12 @@ class SectionGenerator:
             # Still try basic gc
             gc.collect()
 
-    async def _call_ai_provider(self, provider: str, model: str, prompt: str, language: str = 'en') -> str:
+    async def _call_ai_provider(
+        self, provider: str, model: str, prompt: str, language: str = "en"
+    ) -> str:
         """
         Call AI provider for section generation (DEPRECATED - use _call_ai_with_fallback instead)
-        
+
         This method is kept for backward compatibility but should not be used directly.
         Use _call_ai_with_fallback() for automatic provider fallback.
         """
@@ -399,31 +416,31 @@ class SectionGenerator:
     async def _call_ai_with_fallback(
         self,
         prompt: str,
-        language: str = 'en',
+        language: str = "en",
         purpose: str = "generation",
     ) -> str:
         """
         Call AI with automatic fallback chain on failure.
-        
+
         Tries providers in order from AI_FALLBACK_CHAIN config until one succeeds.
         Each provider already has retry logic (_call_openai/_call_anthropic).
-        
+
         Default fallback chain:
         1. OpenAI GPT-4 (best quality)
         2. OpenAI GPT-3.5 Turbo (cheaper fallback)
         3. Anthropic Claude 3.5 Sonnet (different provider)
-        
+
         Args:
             prompt: The prompt to send to AI
             language: Language code for system prompt (default: 'en')
             purpose: Description of what this call is for (for logging)
-        
+
         Returns:
             Generated text from first successful provider
-        
+
         Raises:
             AllProvidersFailedError: If all providers in chain fail
-        
+
         Example:
             >>> text = await self._call_ai_with_fallback(
             >>>     prompt="Generate introduction...",
@@ -438,12 +455,16 @@ class SectionGenerator:
             logger.info(f"Fallback disabled, using default provider for {purpose}")
             # Use first provider from chain as default
             provider, model = settings.AI_FALLBACK_CHAIN_LIST[0]
-            return await self._call_openai(model, prompt, language) if provider == "openai" else await self._call_anthropic(model, prompt, language)
+            return (
+                await self._call_openai(model, prompt, language)
+                if provider == "openai"
+                else await self._call_anthropic(model, prompt, language)
+            )
 
         # Try each provider in fallback chain
         fallback_chain = settings.AI_FALLBACK_CHAIN_LIST
         last_error: Exception | None = None
-        
+
         logger.info(
             f"Starting AI call with fallback for {purpose}. "
             f"Chain: {' → '.join(f'{p}:{m}' for p, m in fallback_chain)}"
@@ -455,7 +476,7 @@ class SectionGenerator:
                     f"Attempting provider {index + 1}/{len(fallback_chain)}: "
                     f"{provider}/{model} for {purpose}"
                 )
-                
+
                 if provider == "openai":
                     result = await self._call_openai(model, prompt, language)
                 elif provider == "anthropic":
@@ -463,7 +484,7 @@ class SectionGenerator:
                 else:
                     logger.warning(f"Unknown provider '{provider}', skipping")
                     continue
-                
+
                 logger.info(
                     f"✅ Success with {provider}/{model} for {purpose} "
                     f"(attempt {index + 1}/{len(fallback_chain)})"
@@ -477,10 +498,10 @@ class SectionGenerator:
                     f"❌ Failed {provider}/{model} for {purpose}: "
                     f"{exception_name}: {str(e)[:200]}"
                 )
-                
+
                 # If this is not the last provider, continue to next
                 if index < len(fallback_chain) - 1:
-                    logger.info(f"Falling back to next provider in chain...")
+                    logger.info("Falling back to next provider in chain...")
                     continue
                 else:
                     logger.error(
@@ -492,20 +513,22 @@ class SectionGenerator:
         error_detail = (
             f"All AI providers failed for {purpose}. "
             f"Tried {len(fallback_chain)} providers. "
-            f"Last error: {type(last_error).__name__}: {str(last_error)[:200]}" if last_error else "Unknown error"
+            f"Last error: {type(last_error).__name__}: {str(last_error)[:200]}"
+            if last_error
+            else "Unknown error"
         )
         raise AllProvidersFailedError(error_detail)
 
-    async def _call_openai(self, model: str, prompt: str, language: str = 'en') -> str:
+    async def _call_openai(self, model: str, prompt: str, language: str = "en") -> str:
         """
         Call OpenAI API with automatic retry on transient failures
-        
+
         Retries on:
         - Timeout errors
-        - Rate limit errors  
+        - Rate limit errors
         - API connection errors
         - General API errors
-        
+
         Uses exponential backoff: 2s, 4s, 8s delays
         """
         try:
@@ -515,7 +538,7 @@ class SectionGenerator:
                 raise ValueError("OpenAI API key not configured")
 
             client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
-            
+
             # Get language-specific system prompt
             system_prompt = PromptBuilder.get_system_prompt(language)
 
@@ -549,23 +572,25 @@ class SectionGenerator:
                 max_retries=settings.AI_MAX_RETRIES,
                 delays=settings.AI_RETRY_DELAYS_LIST,
                 exceptions=retryable_exceptions,
-                operation_name=f"OpenAI {model}"
+                operation_name=f"OpenAI {model}",
             )
 
         except Exception as e:
             logger.error(f"OpenAI API error (all retries exhausted): {e}")
             raise
 
-    async def _call_anthropic(self, model: str, prompt: str, language: str = 'en') -> str:
+    async def _call_anthropic(
+        self, model: str, prompt: str, language: str = "en"
+    ) -> str:
         """
         Call Anthropic API with automatic retry on transient failures
-        
+
         Retries on:
         - Timeout errors
         - Rate limit errors
         - API connection errors
         - General API errors
-        
+
         Uses exponential backoff: 2s, 4s, 8s delays
         """
         try:
@@ -575,7 +600,7 @@ class SectionGenerator:
                 raise ValueError("Anthropic API key not configured")
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
-            
+
             # Get language-specific system prompt
             system_prompt = PromptBuilder.get_system_prompt(language)
 
@@ -604,7 +629,7 @@ class SectionGenerator:
                 max_retries=settings.AI_MAX_RETRIES,
                 delays=settings.AI_RETRY_DELAYS_LIST,
                 exceptions=retryable_exceptions,
-                operation_name=f"Anthropic {model}"
+                operation_name=f"Anthropic {model}",
             )
 
         except Exception as e:

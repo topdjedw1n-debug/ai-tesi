@@ -4,7 +4,7 @@
 -- Date: 2025-11-30
 
 -- Add quality_score column (nullable, will be populated during generation)
-ALTER TABLE document_sections 
+ALTER TABLE document_sections
 ADD COLUMN IF NOT EXISTS quality_score FLOAT;
 
 -- Add comment for documentation

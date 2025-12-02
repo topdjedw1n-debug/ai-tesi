@@ -179,7 +179,9 @@ class AIDetectionChecker:
             }
 
         except httpx.HTTPStatusError as e:
-            logger.error(f"Originality.ai API HTTP error: {e.response.status_code} - {e}")
+            logger.error(
+                f"Originality.ai API HTTP error: {e.response.status_code} - {e}"
+            )
             return {
                 "checked": False,
                 "error": f"HTTP {e.response.status_code}",

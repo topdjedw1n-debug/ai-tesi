@@ -107,4 +107,3 @@ class RefundStatsResponse(BaseModel):
     total_refunded_amount: Decimal
     average_processing_time_hours: float | None
     approval_rate: float  # percentage
-

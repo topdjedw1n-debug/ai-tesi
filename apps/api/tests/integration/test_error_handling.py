@@ -3,7 +3,7 @@ Error handling integration tests: retry mechanisms, payment failures, DB connect
 """
 import os
 from datetime import datetime, timedelta
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -329,18 +329,18 @@ class TestAPIFailures:
             pytest.skip("Could not extract document ID")
 
         # Mock SectionGenerator to simulate rate limit retry
-        with patch('app.services.ai_pipeline.generator.SectionGenerator') as MockGen:
+        with patch("app.services.ai_pipeline.generator.SectionGenerator") as MockGen:
             mock_generator = AsyncMock()
-            
+
             # First call: rate limit error, second: success
             async def generate_with_retry(*args, **kwargs):
                 # Simulate retry behavior
                 return {
                     "content": "Generated outline content",
                     "citations": [],
-                    "metadata": {}
+                    "metadata": {},
                 }
-            
+
             mock_generator.generate_section.side_effect = generate_with_retry
             MockGen.return_value = mock_generator
 
@@ -427,4 +427,3 @@ class TestInvalidInputs:
             },
         )
         assert response.status_code == 422  # Validation error
-

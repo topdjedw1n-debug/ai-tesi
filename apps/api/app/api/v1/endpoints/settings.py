@@ -387,4 +387,3 @@ async def get_setting_history(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to get history for setting {key}: {str(e)}",
         ) from e
-

@@ -593,7 +593,7 @@ class DocumentService:
                 secret_key=settings.MINIO_SECRET_KEY,
                 secure=settings.MINIO_SECURE,
             )
-            
+
             # Initialize StorageService for file_exists checks
             storage_service = StorageService()
 
@@ -673,11 +673,11 @@ class DocumentService:
         self, document_id: int, format: str, user_id: int
     ) -> dict[str, Any]:
         """Export document to DOCX or PDF format"""
-        logger.info(f"🚀 Starting export_document: doc_id={document_id}, format={format}, user_id={user_id}")
+        logger.info(
+            f"🚀 Starting export_document: doc_id={document_id}, format={format}, user_id={user_id}"
+        )
         try:
             from docx import Document as DocxDocument
-            from minio import Minio
-            from minio.error import S3Error
 
             from app.core.config import settings
 
@@ -747,7 +747,11 @@ class DocumentService:
                 from reportlab.lib.pagesizes import letter
                 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
                 from reportlab.lib.units import inch
-                from reportlab.platypus import PageBreak, Paragraph, SimpleDocTemplate, Spacer
+                from reportlab.platypus import (
+                    Paragraph,
+                    SimpleDocTemplate,
+                    Spacer,
+                )
 
                 # Create PDF in memory
                 file_stream = io.BytesIO()
@@ -860,14 +864,12 @@ class DocumentService:
 
             # Upload file using StorageService
             from app.services.storage_service import StorageService
-            
+
             storage_service = StorageService()
             storage_path = await storage_service.upload_file(
-                object_name, 
-                file_data, 
-                content_type
+                object_name, file_data, content_type
             )
-            
+
             logger.info(f"Successfully uploaded to MinIO: {storage_path}")
 
             # Generate public download URL (since bucket is public)

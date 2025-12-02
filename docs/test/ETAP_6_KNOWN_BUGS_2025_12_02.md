@@ -2,9 +2,9 @@
 
 > **Комплексний аналіз всіх відомих багів, ризиків та проблем проекту**
 
-**Дата виконання:** 2 грудня 2025  
-**Виконав:** AI Agent (з дотриманням AGENT_QUALITY_RULES.md)  
-**Тривалість:** 40 хвилин  
+**Дата виконання:** 2 грудня 2025
+**Виконав:** AI Agent (з дотриманням AGENT_QUALITY_RULES.md)
+**Тривалість:** 40 хвилин
 **Статус:** ✅ ЗАВЕРШЕНО
 
 ---
@@ -69,8 +69,8 @@ Risk Categories:
 
 ### 1.1 ✅ BUG_001: JWT Refresh Token Loop (FIXED)
 
-**Статус:** ✅ FIXED (25 листопада 2025)  
-**Пріоритет:** P0 (Critical)  
+**Статус:** ✅ FIXED (25 листопада 2025)
+**Пріоритет:** P0 (Critical)
 **Час виправлення:** 1 година 15 хвилин
 
 **Проблема:**
@@ -109,8 +109,8 @@ Risk Categories:
 
 #### Issue #2: Pass on API Error (Phase 2)
 
-**Статус:** 🔴 ACTIVE  
-**Пріоритет:** P0  
+**Статус:** 🔴 ACTIVE
+**Пріоритет:** P0
 **Час виправлення:** 2 години
 
 **Проблема:**
@@ -144,7 +144,7 @@ except Exception as e:
         return (None, 0, False, f"API error: {e}")  # ❌ FAIL on error
     else:
         return (None, 0, True, None)  # ⚠️ Pass for dev/testing
-        
+
 # 3. Production .env:
 QUALITY_GATES_STRICT_MODE=true
 ```
@@ -160,8 +160,8 @@ QUALITY_GATES_STRICT_MODE=true
 
 #### Issue #3: API Rate Limits (Phase 2)
 
-**Статус:** 🔴 ACTIVE  
-**Пріоритет:** P0  
+**Статус:** 🔴 ACTIVE
+**Пріоритет:** P0
 **Час виправлення:** 3 години
 
 **Проблема:**
@@ -217,8 +217,8 @@ if rate_limit_exceeded:
 
 #### Risk #2: Partial Completion Strategy (Phase 2 - Strategy 1)
 
-**Статус:** 🟡 ACTIVE  
-**Пріоритет:** P1 (CRITICAL для бізнесу)  
+**Статус:** 🟡 ACTIVE
+**Пріоритет:** P1 (CRITICAL для бізнесу)
 **Час виправлення:** 1 година (after user approval)
 
 **Проблема:**
@@ -229,7 +229,7 @@ User платить €25 → Генерація 45/50 секцій OK → Се�
 
 **Статистика ймовірності failure:**
 - 20 sections: **64%** ймовірність хоча б 1 fail
-- 50 sections: **92%** ймовірність хоча б 1 fail  
+- 50 sections: **92%** ймовірність хоча б 1 fail
 - 100 sections: **99%** ймовірність хоча б 1 fail
 
 **Impact Score:** 🔴 8/10 (financial loss + user dissatisfaction)
@@ -267,15 +267,15 @@ else:  # <80% готово
 
 #### Risk #3: WebSocket Heartbeats (Phase 2 - Strategy 1)
 
-**Статус:** 🟡 ACTIVE  
-**Пріоритет:** P1 (MUST IMPLEMENT)  
+**Статус:** 🟡 ACTIVE
+**Пріоритет:** P1 (MUST IMPLEMENT)
 **Час виправлення:** 20 хвилин
 
 **Проблема:**
 - WebSocket disconnect під час довгої regeneration (6+ min без updates)
 - Browser/proxy timeouts:
   - Chrome: ~5 min
-  - Safari: ~30 sec  
+  - Safari: ~30 sec
   - Nginx: 60 sec (default)
   - CloudFlare: 100 sec
 
@@ -296,11 +296,11 @@ async def send_periodic_heartbeat(user_id: int, job_id: int):
     """Send heartbeat every 10 seconds"""
     while True:
         await asyncio.sleep(10)
-        
+
         job = await db.get(AIGenerationJob, job_id)
         if job.status not in ["running", "generating"]:
             break
-            
+
         await manager.send_progress(user_id, {
             "type": "heartbeat",
             "job_id": job_id,
@@ -321,8 +321,8 @@ asyncio.create_task(send_periodic_heartbeat(user_id, job.id))
 
 #### Risk #3: State Persistence in DB (Phase 2 - Strategy 3)
 
-**Статус:** 🟡 RECOMMENDED  
-**Пріоритет:** P1  
+**Статус:** 🟡 RECOMMENDED
+**Пріоритет:** P1
 **Час виправлення:** 30 хвилин
 
 **Проблема:**
@@ -369,8 +369,8 @@ websocket.onclose = async () => {
 
 #### Issue #1: Tests Not Run (Phase 2)
 
-**Статус:** 🟡 ACTIVE  
-**Пріоритет:** P1  
+**Статус:** 🟡 ACTIVE
+**Пріоритет:** P1
 **Час виправлення:** 30 хвилин
 
 **Проблема:**
@@ -401,8 +401,8 @@ pytest tests/test_quality_gates.py -v
 
 #### Issue #8: Partial Completion - User Decision (Phase 2)
 
-**Статус:** 🟡 PENDING USER INPUT  
-**Пріоритет:** P1  
+**Статус:** 🟡 PENDING USER INPUT
+**Пріоритет:** P1
 **Час виправлення:** 1 година (after decision)
 
 **Проблема:** Duplicate of Risk #2 (see above)
@@ -416,8 +416,8 @@ pytest tests/test_quality_gates.py -v
 
 #### Issue #5: WebSocket Error Notification (Phase 2)
 
-**Статус:** 🟡 NOT TESTED  
-**Пріоритет:** P1  
+**Статус:** 🟡 NOT TESTED
+**Пріоритет:** P1
 **Час виправлення:** 20 хвилин
 
 **Проблема:**
@@ -443,8 +443,8 @@ export QUALITY_MIN_PLAGIARISM_UNIQUENESS=99.0
 
 #### Issue #7: Time Impact UI (Phase 2)
 
-**Статус:** 🟡 UX ISSUE  
-**Пріоритет:** P2  
+**Статус:** 🟡 UX ISSUE
+**Пріоритет:** P2
 **Час виправлення:** 1 година
 
 **Проблема:**
@@ -486,7 +486,7 @@ const estimateTime = (sections: number) => {
 
 **Файл:** `tests/test_quality_integration.py::TestQualityValidationIntegration::test_websocket_progress_includes_quality_score`
 
-**Статус:** ❌ FAILED  
+**Статус:** ❌ FAILED
 **Пріоритет:** P2 (not critical)
 
 **Проблема:**
@@ -513,7 +513,7 @@ AssertionError: expected 'quality_score' in websocket message
 
 **Файл:** `tests/test_rate_limiter_integration.py::test_excessive_traffic_triggers_429`
 
-**Статус:** ❌ FAILED  
+**Статус:** ❌ FAILED
 **Пріоритет:** P2 (not critical, але має працювати)
 
 **Проблема:**
@@ -544,7 +544,7 @@ AssertionError: Expected 429 status code, got 200
 
 #### TODO #1: Email Notifications (refund_service.py)
 
-**Локація:** 
+**Локація:**
 - `app/services/refund_service.py` line 271
 - `app/services/refund_service.py` line 320
 
@@ -557,7 +557,7 @@ AssertionError: Expected 429 status code, got 200
 # TODO: Send email notification to user
 ```
 
-**Статус:** 🔴 CRITICAL (якщо SMTP configured)  
+**Статус:** 🔴 CRITICAL (якщо SMTP configured)
 **Пріоритет:** P1
 
 **Проблема:**
@@ -598,7 +598,7 @@ async def approve_refund(...):
 # For now, return simple totals
 ```
 
-**Статус:** 🟢 LOW  
+**Статус:** 🟢 LOW
 **Пріоритет:** P3
 
 **Проблема:**
@@ -626,7 +626,7 @@ async def approve_refund(...):
 // TODO: Implement /api/v1/documents/activity endpoint on backend
 ```
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Пріоритет:** P2
 
 **Проблема:**
@@ -656,7 +656,7 @@ async def approve_refund(...):
 // Line 133: screenshots: formData.screenshotUrls, // TODO: Replace with actual uploaded URLs
 ```
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Пріоритет:** P2
 
 **Проблема:**
@@ -679,7 +679,7 @@ async def approve_refund(...):
 
 #### TODO #7-8: Admin Features
 
-**Локація:** 
+**Локація:**
 - `apps/web/app/admin/users/page.tsx` line 103, 161
 - `apps/web/app/admin/users/[id]/page.tsx` line 104
 
@@ -689,7 +689,7 @@ async def approve_refund(...):
 // Line 161: TODO: Implement sorting on backend
 ```
 
-**Статус:** 🟢 LOW  
+**Статус:** 🟢 LOW
 **Пріоритет:** P3
 
 **Проблема:**
@@ -711,7 +711,7 @@ async def approve_refund(...):
 // TODO: Implement settings save
 ```
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Пріоритет:** P2
 
 **Проблема:**
@@ -732,7 +732,7 @@ async def approve_refund(...):
 
 **Джерело:** `grep_search` for ownership checks
 
-**Статус:** 🔴 PARTIAL  
+**Статус:** 🔴 PARTIAL
 **Пріоритет:** P0
 
 **Проблема:**
@@ -765,11 +765,11 @@ async def endpoint(..., document_id: int, current_user: User = Depends(...)):
     resource = await db.get(Document, document_id)
     if not resource:
         raise HTTPException(404, "Not found")
-    
+
     # 2. Check ownership
     if resource.user_id != current_user.id:
         raise HTTPException(404, "Not found")  # Or 403
-    
+
     # 3. Process request
     ...
 ```
@@ -788,7 +788,7 @@ async def endpoint(..., document_id: int, current_user: User = Depends(...)):
 
 **Джерело:** ЕТАП 5 security scan
 
-**Статус:** ✅ NO ISSUES FOUND  
+**Статус:** ✅ NO ISSUES FOUND
 **Result:** grep_search for `sk-|SECRET_KEY=|JWT_SECRET=` → 11 matches, all safe
 
 **Висновок:** No hardcoded secrets in codebase ✅
@@ -801,8 +801,8 @@ async def endpoint(..., document_id: int, current_user: User = Depends(...)):
 
 ### 6.1 🔴 SMTP Not Configured
 
-**Статус:** 🔴 BLOCKER  
-**Пріоритет:** P0  
+**Статус:** 🔴 BLOCKER
+**Пріоритет:** P0
 **Час виправлення:** 15 хвилин (setup AWS SES)
 
 **Проблема:**
@@ -828,8 +828,8 @@ SMTP_PASSWORD=None
 
 ### 6.2 🔴 Frontend .env.example Missing
 
-**Статус:** 🔴 BLOCKER  
-**Пріоритет:** P0  
+**Статус:** 🔴 BLOCKER
+**Пріоритет:** P0
 **Час виправлення:** 5 хвилин
 
 **Проблема:**
@@ -844,7 +844,7 @@ SMTP_PASSWORD=None
 
 ### 6.3 🟡 MinIO Insecure Defaults
 
-**Статус:** 🟡 HIGH  
+**Статус:** 🟡 HIGH
 **Пріоритет:** P1
 
 **Проблема:** `minioadmin/minioadmin` credentials everywhere
@@ -857,7 +857,7 @@ SMTP_PASSWORD=None
 
 ### 6.4 🟡 No Alembic Migrations
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Пріоритет:** P2
 
 **Проблема:** Using raw SQL migrations (no rollback capability)
@@ -870,7 +870,7 @@ SMTP_PASSWORD=None
 
 ### 6.5 🟡 Quality Check APIs Partially Configured
 
-**Статус:** 🟡 MEDIUM  
+**Статус:** 🟡 MEDIUM
 **Пріоритет:** P2
 
 **Проблема:**
@@ -1268,9 +1268,9 @@ Reference: docs/test/ETAP_5_CONFIGURATION_2025_12_02.md
 
 ---
 
-**Звіт створено:** 2 грудня 2025  
-**Автор:** AI Agent (AGENT_QUALITY_RULES.md compliant)  
-**Джерела:** 6 документів, 4 code scans, ЕТАП 4-5 results  
+**Звіт створено:** 2 грудня 2025
+**Автор:** AI Agent (AGENT_QUALITY_RULES.md compliant)
+**Джерела:** 6 документів, 4 code scans, ЕТАП 4-5 results
 **Методологія:** Evidence-based analysis (no assumptions)
 
 ---

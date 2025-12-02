@@ -343,7 +343,7 @@ async def download_document_secure(
 ):
     """
     Secure document download endpoint with JWT token validation.
-    
+
     Token must contain document_id and user_id claims.
     Only the document owner can download.
     """
@@ -352,17 +352,16 @@ async def download_document_secure(
         payload = verify_download_token(token)
         document_id = payload["document_id"]
         user_id = payload["user_id"]
-        
+
         # Get document from database
         document_service = DocumentService(db)
         document = await document_service.get_document_by_id(document_id)
-        
+
         if not document:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Document not found"
+                status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
             )
-        
+
         # Verify ownership (CRITICAL security check)
         if document.user_id != user_id:
             logger.warning(
@@ -371,61 +370,59 @@ async def download_document_secure(
                 f"Document ID={document_id}"
             )
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Access denied"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
             )
-        
+
         # Check if document has file path in storage (prefer DOCX over PDF)
         file_path = document.docx_path or document.pdf_path
-        
+
         if not file_path:
             # If no file, return content as text (fallback)
             logger.info(f"No file path for document {document_id}, returning content")
             content = document.content or "No content available"
             return StreamingResponse(
-                iter([content.encode('utf-8')]),
+                iter([content.encode("utf-8")]),
                 media_type="text/plain",
                 headers={
                     "Content-Disposition": f'attachment; filename="{document.title}.txt"'
-                }
+                },
             )
-        
+
         # Initialize StorageService
         storage_service = StorageService()
-        
+
         # Determine media type and file extension based on file path
         media_type = "application/octet-stream"
         file_extension = ".docx"  # default
-        
+
         if file_path.endswith(".docx"):
             media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             file_extension = ".docx"
         elif file_path.endswith(".pdf"):
             media_type = "application/pdf"
             file_extension = ".pdf"
-        
+
         logger.info(
             f"Document download: user_id={user_id}, document_id={document_id}, "
             f"file_path={file_path}"
         )
-        
+
         # Stream file from MinIO using StorageService
         file_stream = storage_service.download_file_stream(file_path)
-        
+
         return StreamingResponse(
             file_stream,
             media_type=media_type,
             headers={
                 "Content-Disposition": f'attachment; filename="{document.title}{file_extension}"'
-            }
+            },
         )
-    
+
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error downloading document: {str(e)}")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to download document"
+            detail="Failed to download document",
         ) from e
-

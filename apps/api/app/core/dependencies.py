@@ -175,13 +175,13 @@ async def get_admin_user(current_user: User = Depends(get_current_user)) -> User
 def verify_download_token(token: str) -> dict:
     """
     Verify JWT token for secure document download.
-    
+
     Args:
         token: JWT token string
-    
+
     Returns:
         Decoded token payload with document_id and user_id
-    
+
     Raises:
         HTTPException: 403 if token invalid or expired
     """
@@ -193,16 +193,16 @@ def verify_download_token(token: str) -> dict:
             audience="tesigo-download",
             issuer="tesigo-api",
         )
-        
+
         # Validate token type
         if payload.get("type") != "download":
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="Invalid token type",
             )
-        
+
         return payload
-    
+
     except JWTError as e:
         logger.warning(f"Download token validation failed: {str(e)}")
         raise HTTPException(

@@ -102,7 +102,7 @@ async def test_update_setting_existing(settings_service, mock_db):
     # Mock flush and refresh - refresh should update version
     async def mock_refresh(obj):
         obj.version = 2  # Simulate version increment after refresh
-    
+
     mock_db.flush = AsyncMock()
     mock_db.refresh = AsyncMock(side_effect=mock_refresh)
     mock_db.commit = AsyncMock()
@@ -256,4 +256,3 @@ async def test_get_maintenance_message(settings_service, mock_db):
     message = await settings_service.get_maintenance_message()
 
     assert message == "Custom maintenance message"
-

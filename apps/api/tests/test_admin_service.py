@@ -37,29 +37,29 @@ def admin_service(mock_db):
 @pytest.mark.asyncio
 async def test_get_platform_stats(admin_service, mock_db):
     """Test get_platform_stats returns correct statistics"""
-    # Метод робить 11 викликів execute: user_count, active_users, doc_count, 
-    # completed_docs, total_jobs, tokens_from_jobs, tokens_from_docs, 
+    # Метод робить 11 викликів execute: user_count, active_users, doc_count,
+    # completed_docs, total_jobs, tokens_from_jobs, tokens_from_docs,
     # avg_tokens, total_cost, recent_jobs, stuck_queued, stuck_running
-    
+
     # Create separate mock results for each execute call
     def create_scalar_result(value):
         mock_result = MagicMock()
         mock_result.scalar.return_value = value
         return mock_result
-    
+
     mock_db.execute.side_effect = [
-        create_scalar_result(100),       # total_users
-        create_scalar_result(50),        # active_users
-        create_scalar_result(200),       # total_documents
-        create_scalar_result(150),       # completed_documents
-        create_scalar_result(500),       # total_ai_jobs
-        create_scalar_result(1000000),   # total_tokens_from_jobs
-        create_scalar_result(500000),    # total_tokens_from_docs
-        create_scalar_result(5000),      # avg_tokens_per_doc
-        create_scalar_result(10000),     # total_cost_cents
-        create_scalar_result(10),        # recent_jobs
-        create_scalar_result(2),         # stuck_queued
-        create_scalar_result(1),         # stuck_running
+        create_scalar_result(100),  # total_users
+        create_scalar_result(50),  # active_users
+        create_scalar_result(200),  # total_documents
+        create_scalar_result(150),  # completed_documents
+        create_scalar_result(500),  # total_ai_jobs
+        create_scalar_result(1000000),  # total_tokens_from_jobs
+        create_scalar_result(500000),  # total_tokens_from_docs
+        create_scalar_result(5000),  # avg_tokens_per_doc
+        create_scalar_result(10000),  # total_cost_cents
+        create_scalar_result(10),  # recent_jobs
+        create_scalar_result(2),  # stuck_queued
+        create_scalar_result(1),  # stuck_running
     ]
 
     stats = await admin_service.get_platform_stats()
@@ -69,11 +69,11 @@ async def test_get_platform_stats(admin_service, mock_db):
     assert "documents" in stats
     assert "ai_usage" in stats
     assert "generated_at" in stats
-    
+
     # Check user stats
     assert stats["users"]["total"] == 100
     assert stats["users"]["active_last_30_days"] == 50
-    
+
     # Check document stats
     assert stats["documents"]["total"] == 200
     assert stats["documents"]["completed"] == 150
@@ -177,7 +177,7 @@ async def test_make_admin(admin_service, mock_db):
     mock_result_user.scalar_one_or_none.return_value = mock_user
     mock_result_admin = MagicMock()
     mock_result_admin.scalar_one_or_none.return_value = mock_admin
-    
+
     mock_db.execute.side_effect = [mock_result_user, mock_result_admin]
 
     mock_db.commit = AsyncMock()
@@ -305,22 +305,22 @@ async def test_get_dashboard_metrics(admin_service, mock_db):
     # Mock database results - метод робить 9 викликів execute
     mock_result1 = MagicMock()
     mock_result1.scalar.return_value = Decimal("1000.00")  # MRR
-    
+
     mock_result2 = MagicMock()
     mock_result2.scalar.return_value = 100  # total_active_users
-    
+
     mock_result3 = MagicMock()
     mock_result3.scalar.return_value = 150  # total_users_all
-    
+
     mock_result4 = MagicMock()
     mock_result4.scalar.return_value = 50  # users_with_payments
-    
+
     mock_result5 = MagicMock()
     mock_result5.scalar.return_value = 5  # churned_users
-    
+
     mock_result6 = MagicMock()
     mock_result6.scalar.return_value = 2  # total_refunds
-    
+
     mock_result7 = MagicMock()
     mock_result7.scalar.return_value = 100  # total_payments
 
@@ -359,7 +359,9 @@ async def test_send_email_to_user(admin_service, mock_db):
     mock_db.commit = AsyncMock()
 
     # Patch notification_service.send_email instead
-    with patch("app.services.notification_service.notification_service.send_email") as mock_send_email:
+    with patch(
+        "app.services.notification_service.notification_service.send_email"
+    ) as mock_send_email:
         mock_send_email.return_value = True
 
         result = await admin_service.send_email_to_user(
@@ -381,4 +383,3 @@ async def test_critical_actions_list():
     assert "change_pricing" in CRITICAL_ACTIONS
     assert "enable_maintenance" in CRITICAL_ACTIONS
     assert "approve_large_refund" in CRITICAL_ACTIONS
-

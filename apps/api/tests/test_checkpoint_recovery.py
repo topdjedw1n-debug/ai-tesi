@@ -8,10 +8,8 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from sqlalchemy import select
 
 from app.core.config import Settings
-from app.models.document import Document, DocumentSection
 from app.services.background_jobs import BackgroundJobService
 
 
@@ -21,7 +19,7 @@ async def test_checkpoint_saves_after_section_completion(
 ):
     """
     Test that checkpoint is saved to Redis after each section completes.
-    
+
     Verify:
     - Checkpoint contains document_id, last_completed_section_index, total_sections
     - TTL is set to 3600 seconds (1 hour)
@@ -44,16 +42,16 @@ async def test_checkpoint_saves_after_section_completion(
     mock_db.execute = AsyncMock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()  # Add refresh mock
-    
+
     # Mock document fetch
     doc_result = MagicMock()
     doc_result.scalar_one_or_none.return_value = document
-    
+
     # Mock section queries (no existing sections)
     section_result = MagicMock()
     section_result.scalars.return_value.all.return_value = []
     section_result.scalar_one_or_none.return_value = None
-    
+
     # Update side_effect to include more queries (3 sections × 4 queries each + initial 2)
     mock_db.execute.side_effect = [
         doc_result,  # 1. Document fetch
@@ -97,18 +95,14 @@ async def test_checkpoint_saves_after_section_completion(
         "app.services.background_jobs.manager"
     ) as mock_manager, patch(
         "app.services.background_jobs.database.AsyncSessionLocal",
-        return_value=mock_session
+        return_value=mock_session,
     ), patch(
-        "app.services.background_jobs.get_redis",
-        AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
-        
+        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+    ), patch("app.services.background_jobs.json") as mock_json:
         # Setup json mock
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
-        
+
         mock_generator = MagicMock()
         mock_generator.generate_section = AsyncMock(
             return_value={
@@ -130,16 +124,17 @@ async def test_checkpoint_saves_after_section_completion(
             await BackgroundJobService.generate_full_document(
                 document_id=123, user_id=1
             )
-        except Exception as e:
+        except Exception:
             # Expected to fail due to incomplete quality checks mocking
             # But we can verify checkpoint mechanism was invoked
             pass
 
     # Verify: Redis client was requested (get_redis() called)
     # This proves checkpoint code path was reached
-    assert mock_redis.get.called or mock_redis.set.called, \
-        "Checkpoint mechanism should be invoked (redis get or set)"
-    
+    assert (
+        mock_redis.get.called or mock_redis.set.called
+    ), "Checkpoint mechanism should be invoked (redis get or set)"
+
     # If set was called, verify checkpoint structure (optional detailed check)
     if mock_redis.set.called:
         checkpoint_calls = [call for call in mock_redis.set.call_args_list]
@@ -147,21 +142,25 @@ async def test_checkpoint_saves_after_section_completion(
         checkpoint_key = first_call[0][0]
         checkpoint_json = first_call[0][1]
         checkpoint_ttl = first_call[1].get("ex")
-        
-        assert checkpoint_key == "checkpoint:doc:123", "Checkpoint key should match document ID"
+
+        assert (
+            checkpoint_key == "checkpoint:doc:123"
+        ), "Checkpoint key should match document ID"
         assert checkpoint_ttl == 3600, "TTL should be 1 hour (3600 seconds)"
-        
+
         checkpoint_data = json.loads(checkpoint_json)
         assert checkpoint_data["document_id"] == 123
         assert checkpoint_data["status"] == "in_progress"
         assert "completed_at" in checkpoint_data
+
+
 @pytest.mark.asyncio
 async def test_checkpoint_recovery_resumes_from_correct_section(
     mock_db, mock_redis, mock_settings
 ):
     """
     Test that job resumes from correct section when checkpoint exists.
-    
+
     Verify:
     - Checkpoint is loaded from Redis on job start
     - Generation starts from last_completed_section_index + 1
@@ -189,9 +188,9 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
         "last_completed_section_index": 2,
         "total_sections": 5,
         "completed_at": datetime.utcnow().isoformat(),
-        "status": "in_progress"
+        "status": "in_progress",
     }
-    
+
     mock_redis.get = AsyncMock(return_value=json.dumps(checkpoint_data))
     mock_redis.set = AsyncMock()
     mock_redis.delete = AsyncMock()
@@ -200,26 +199,29 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
     mock_db.execute = AsyncMock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()
-    
+
     doc_result = MagicMock()
     doc_result.scalar_one_or_none.return_value = document
-    
+
     # Mock completed sections (sections 1-2 already done)
     section1 = MagicMock()
     section1.section_index = 1
     section1.status = "completed"
-    
+
     section2 = MagicMock()
     section2.section_index = 2
     section2.status = "completed"
-    
+
     completed_sections_result = MagicMock()
-    completed_sections_result.scalars.return_value.all.return_value = [section1, section2]
-    
+    completed_sections_result.scalars.return_value.all.return_value = [
+        section1,
+        section2,
+    ]
+
     empty_result = MagicMock()
     empty_result.scalars.return_value.all.return_value = []
     empty_result.scalar_one_or_none.return_value = None
-    
+
     mock_db.execute.side_effect = [
         doc_result,  # Document fetch
         doc_result,  # Document status update (generating)
@@ -244,18 +246,14 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
         "app.services.background_jobs.manager"
     ) as mock_manager, patch(
         "app.services.background_jobs.database.AsyncSessionLocal",
-        return_value=mock_session
+        return_value=mock_session,
     ), patch(
-        "app.services.background_jobs.get_redis",
-        AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
-        
+        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+    ), patch("app.services.background_jobs.json") as mock_json:
         # Setup json mock
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
-        
+
         mock_generator = MagicMock()
         mock_generator.generate_section = AsyncMock(
             return_value={
@@ -277,20 +275,21 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
             await BackgroundJobService.generate_full_document(
                 document_id=456, user_id=1
             )
-        except Exception as e:
+        except Exception:
             # Expected to fail due to incomplete mocking
             pass
 
     # Verify: Checkpoint was loaded
     mock_redis.get.assert_called_with("checkpoint:doc:456")
-    
+
     # Verify: WebSocket notification about resume sent
     resume_notifications = [
-        call for call in mock_manager.send_progress.call_args_list
+        call
+        for call in mock_manager.send_progress.call_args_list
         if "Resuming" in str(call)
     ]
     assert len(resume_notifications) > 0, "Should send resume notification"
-    
+
     # Verify: Section 3 was generated (not 1 or 2)
     section_generate_calls = mock_generator.generate_section.call_args_list
     # Should only generate sections 3+ (sections 1-2 skipped)
@@ -301,7 +300,7 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
 async def test_checkpoint_cleared_on_success(mock_db, mock_redis, mock_settings):
     """
     Test that checkpoint is deleted from Redis when document completes successfully.
-    
+
     Verify:
     - Checkpoint deleted after document status set to "completed"
     - Redis delete called with correct key
@@ -316,20 +315,20 @@ async def test_checkpoint_cleared_on_success(mock_db, mock_redis, mock_settings)
     mock_db.execute = AsyncMock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()
-    
+
     doc_result = MagicMock()
     doc_result.scalar_one_or_none.return_value = document
-    
+
     section = MagicMock()
     section.section_index = 1
     section.status = "completed"
     section.title = "Section 1"
     section.content = "Content"
-    
+
     section_result = MagicMock()
     section_result.scalars.return_value.all.return_value = [section]
     section_result.scalar_one_or_none.return_value = None
-    
+
     mock_db.execute.side_effect = [
         doc_result,  # Document fetch
         doc_result,  # Document status update (generating)
@@ -362,18 +361,14 @@ async def test_checkpoint_cleared_on_success(mock_db, mock_redis, mock_settings)
         "app.services.background_jobs.manager"
     ) as mock_manager, patch(
         "app.services.background_jobs.database.AsyncSessionLocal",
-        return_value=mock_session
+        return_value=mock_session,
     ), patch(
-        "app.services.background_jobs.get_redis",
-        AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
-        
+        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+    ), patch("app.services.background_jobs.json") as mock_json:
         # Setup json mock
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
-        
+
         mock_generator = MagicMock()
         mock_generator.generate_section = AsyncMock(
             return_value={"content": "Content", "word_count": 500, "sources": []}
@@ -397,22 +392,25 @@ async def test_checkpoint_cleared_on_success(mock_db, mock_redis, mock_settings)
             await BackgroundJobService.generate_full_document(
                 document_id=789, user_id=1
             )
-        except Exception as e:
+        except Exception:
             pass
 
     # Verify: Checkpoint was deleted after success
     delete_calls = [
-        call for call in mock_redis.delete.call_args_list
+        call
+        for call in mock_redis.delete.call_args_list
         if "checkpoint:doc:789" in str(call)
     ]
-    assert len(delete_calls) > 0, "Checkpoint should be deleted after successful completion"
+    assert (
+        len(delete_calls) > 0
+    ), "Checkpoint should be deleted after successful completion"
 
 
 @pytest.mark.asyncio
 async def test_idempotency_skips_existing_sections(mock_db, mock_redis, mock_settings):
     """
     Test that idempotency check prevents regenerating already completed sections.
-    
+
     Verify:
     - DB query checks for existing completed section before generation
     - If section exists with status="completed", it's skipped
@@ -437,22 +435,22 @@ async def test_idempotency_skips_existing_sections(mock_db, mock_redis, mock_set
 
     mock_db.execute = AsyncMock()
     mock_db.commit = AsyncMock()
-    
+
     doc_result = MagicMock()
     doc_result.scalar_one_or_none.return_value = document
-    
+
     # First query: existing section found
     existing_result = MagicMock()
     existing_result.scalar_one_or_none.return_value = existing_section
-    
+
     # Second query: no existing section
     empty_result = MagicMock()
     empty_result.scalar_one_or_none.return_value = None
     empty_result.scalars.return_value.all.return_value = []
-    
+
     completed_result = MagicMock()
     completed_result.scalars.return_value.all.return_value = [existing_section]
-    
+
     mock_db.execute.side_effect = [
         doc_result,  # Document fetch
         empty_result,  # Context sections (section 1)
@@ -476,10 +474,13 @@ async def test_idempotency_skips_existing_sections(mock_db, mock_redis, mock_set
     ) as mock_humanizer_class, patch(
         "app.services.background_jobs.manager"
     ) as mock_manager:
-        
         mock_generator = MagicMock()
         mock_generator.generate_section = AsyncMock(
-            return_value={"content": "Section 2 content", "word_count": 500, "sources": []}
+            return_value={
+                "content": "Section 2 content",
+                "word_count": 500,
+                "sources": [],
+            }
         )
         mock_generator_class.return_value = mock_generator
 
@@ -501,10 +502,13 @@ async def test_idempotency_skips_existing_sections(mock_db, mock_redis, mock_set
     section_generate_calls = mock_generator.generate_section.call_args_list
     # Should only generate section 2, not section 1
     # Exact count depends on mocking completeness, but should be < 2
-    assert len(section_generate_calls) <= 1, "Should skip existing section 1, only generate section 2"
+    assert (
+        len(section_generate_calls) <= 1
+    ), "Should skip existing section 1, only generate section 2"
 
 
 # ========== Fixtures ==========
+
 
 @pytest.fixture
 def mock_db():

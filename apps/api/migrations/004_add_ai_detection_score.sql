@@ -7,5 +7,5 @@ ALTER TABLE document_sections
 ADD COLUMN IF NOT EXISTS ai_detection_score FLOAT NULL;
 
 -- Add comment for documentation
-COMMENT ON COLUMN document_sections.ai_detection_score IS 
+COMMENT ON COLUMN document_sections.ai_detection_score IS
 'AI detection probability (0-100, lower is better = more human-like). NULL if not checked. Threshold: 55% (target: <50%).';

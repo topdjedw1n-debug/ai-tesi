@@ -116,4 +116,3 @@ class StreamingGenerator:
                 "X-Accel-Buffering": "no",  # Disable nginx buffering
             },
         )
-

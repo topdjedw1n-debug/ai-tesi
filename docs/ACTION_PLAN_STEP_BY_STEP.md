@@ -1,6 +1,6 @@
 # 🎯 ПОКРОКОВИЙ ПЛАН ДО PRODUCTION
 
-> **Дата створення:** 01.12.2025  
+> **Дата створення:** 01.12.2025
 > **Статус MVP:** 96% готовий
 
 ---
@@ -16,7 +16,7 @@
 
 ## ФАЗА 1: КРИТИЧНІ БЛОКЕРИ (P0)
 
-> **Мета:** Виправити критичні проблеми які можуть зламати production  
+> **Мета:** Виправити критичні проблеми які можуть зламати production
 > **Блокує запуск:** ✅ ТАК
 
 ---
@@ -25,7 +25,7 @@
 
 **Статус:** ✅ ВИКОНАНО 01.12.2025
 
-**Проблема:**  
+**Проблема:**
 Rate limiter був виправлений 28.11, але НЕ протестований після fix. При 20+ одночасних jobs можливі API rate limits від OpenAI/Anthropic.
 
 **Що було зроблено:**
@@ -57,10 +57,10 @@ Rate limiter був виправлений 28.11, але НЕ протестов
 - ✅ Система стабільна під навантаженням
 - ✅ Redis failure обробляється gracefully (fallback to memory)
 
-**Priority:** 🔴 P0  
-**Blocker:** ✅ YES  
+**Priority:** 🔴 P0
+**Blocker:** ✅ YES
 **Dependencies:** None
-    
+
     # All should either succeed (201) or be rate-limited (429)
     # None should crash (500)
     assert all(r.status_code in [201, 429] for r in responses)
@@ -106,8 +106,8 @@ if storage_options is not None:
 - ✅ 25 concurrent jobs → no 500 errors
 - ✅ Redis failure → graceful fallback (503 або allow)
 
-**Priority:** 🔴 P0  
-**Blocker:** ✅ YES  
+**Priority:** 🔴 P0
+**Blocker:** ✅ YES
 **Dependencies:** None
 
 
@@ -199,15 +199,15 @@ if storage_options is not None:
 - ✅ Logs показують heartbeat lifecycle
 - ✅ Error handling не ламає generation
 
-**Priority:** 🔴 P0  
-**Priority:** 🔴 P0  
-**Blocker:** ✅ YES (critical UX)  
+**Priority:** 🔴 P0
+**Priority:** 🔴 P0
+**Blocker:** ✅ YES (critical UX)
 **Dependencies:** None
 
 ---
 
 ### 📍 КРОК 1.3: API Keys для AI Detection
-**Проблема:**  
+**Проблема:**
 GPTZero та Originality.ai API зараз моковані в тестах. Реальна AI detection не працює.
 
 **Що зробити:**
@@ -257,9 +257,9 @@ cat >> docs/AI_API_KEYS.md << EOF
 
 ## GPTZero API
 
-**Provider:** GPTZero  
-**Pricing:** $20/month (1000 checks)  
-**Docs:** https://gptzero.me/docs  
+**Provider:** GPTZero
+**Pricing:** $20/month (1000 checks)
+**Docs:** https://gptzero.me/docs
 **Key format:** gptzero_xxxxxxxxxxxxxxxxxxxxx
 
 **Setup:**
@@ -270,9 +270,9 @@ cat >> docs/AI_API_KEYS.md << EOF
 
 ## Originality.ai API
 
-**Provider:** Originality.ai  
-**Pricing:** $20/month (500 checks)  
-**Docs:** https://originality.ai/api-documentation  
+**Provider:** Originality.ai
+**Pricing:** $20/month (500 checks)
+**Docs:** https://originality.ai/api-documentation
 **Key format:** orig_xxxxxxxxxxxxxxxxxxxxxx
 
 **Setup:**
@@ -290,10 +290,10 @@ EOF
 - ✅ Config завантажує keys
 - ✅ Test API call працює (real response)
 
-**Priority:** 🔴 P0  
-**Time:** 5 min (якщо швидко реєстрація)  
-**Priority:** 🔴 P0  
-**Blocker:** ✅ YES (AI detection не працює без keys)  
+**Priority:** 🔴 P0
+**Time:** 5 min (якщо швидко реєстрація)
+**Priority:** 🔴 P0
+**Blocker:** ✅ YES (AI detection не працює без keys)
 **Dependencies:** None
 
 ---
@@ -309,10 +309,10 @@ EOF
 
 ## ФАЗА 2: ВАЖЛИВІ ПОКРАЩЕННЯ (P1) - 2h 55min
 
-> **Мета:** Покращити reliability та UX  
+> **Мета:** Покращити reliability та UX
 ## ФАЗА 2: ВАЖЛИВІ ПОКРАЩЕННЯ (P1)
 
-> **Мета:** Покращити reliability та UX  
+> **Мета:** Покращити reliability та UX
 > **Блокує запуск:** ❌ НІ (але сильно рекомендовано)
 
 ---
@@ -355,10 +355,10 @@ EOF
 
 **→ Переходимо до Кроку 2.2 (implementation з 85% threshold)**
 
-**Priority:** 🟡 P1  
-**Time:** 5 min (твоє рішення)  
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO (but needs decision before 2.2)  
+**Priority:** 🟡 P1
+**Time:** 5 min (твоє рішення)
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO (but needs decision before 2.2)
 **Dependencies:** Блокує крок 2.2
 
 ---
@@ -395,16 +395,16 @@ if completion_rate >= PARTIAL_COMPLETION_THRESHOLD:
         f"Section {idx} failed quality checks after 3 attempts"
         for idx in failed_sections
     ]
-    
+
     document.status = "completed"
     document.quality_warnings = job.quality_warnings
-    
+
     logger.warning(
         f"Document {document.id} delivered with warnings: "
         f"{completed_sections}/{total_sections} sections completed "
         f"({completion_rate:.1%})"
     )
-    
+
     # Send email notification with warning
     await send_email(
         user.email,
@@ -413,17 +413,17 @@ if completion_rate >= PARTIAL_COMPLETION_THRESHOLD:
              f"{completed_sections} out of {total_sections} sections completed. "
              f"Some sections may have minor issues. Download now."
     )
-    
+
 else:
     # Below threshold → refund
     job.status = "failed_quality"
-    
+
     logger.error(
         f"Document {document.id} failed quality: "
         f"only {completed_sections}/{total_sections} completed "
         f"({completion_rate:.1%}, threshold: {PARTIAL_COMPLETION_THRESHOLD:.1%})"
     )
-    
+
     # Trigger automatic refund
     payment = await db.get(Payment, document.payment_id)
     if payment:
@@ -433,7 +433,7 @@ else:
         )
         payment.status = "refunded"
         await db.commit()
-    
+
     # Send apology email
     await send_email(
         user.email,
@@ -454,7 +454,7 @@ await db.commit()
 
 class Settings(BaseSettings):
     # ... existing settings ...
-    
+
     # Partial Completion (added 01.12.2025)
     PARTIAL_COMPLETION_ENABLED: bool = True
     PARTIAL_COMPLETION_THRESHOLD: float = 0.85  # 85%
@@ -479,7 +479,7 @@ async def test_partial_completion_above_threshold():
     """Document with 90% completion should be delivered"""
     # Generate document with 9/10 sections OK, 1 failed
     result = await generate_document(total_sections=10, failed_sections=[9])
-    
+
     assert result.status == "completed_with_warnings"
     assert len(result.quality_warnings) == 1
     assert result.quality_warnings[0] == "Section 9 failed quality checks after 3 attempts"
@@ -489,7 +489,7 @@ async def test_partial_completion_below_threshold():
     """Document with 70% completion should be refunded"""
     # Generate document with 7/10 sections OK, 3 failed
     result = await generate_document(total_sections=10, failed_sections=[7,8,9])
-    
+
     assert result.status == "failed_quality"
     assert payment.status == "refunded"
 ```
@@ -501,11 +501,11 @@ async def test_partial_completion_below_threshold():
 - ✅ quality_warnings зберігаються в DB
 - ✅ Frontend показує warnings (якщо є)
 
-**Priority:** 🟡 P1  
-**Time:** 1h  
-**Blocker:** ❌ NO  
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Time:** 1h
+**Blocker:** ❌ NO
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO
 **Dependencies:** Крок 2.1 (user decision)
 
 ---
@@ -555,15 +555,15 @@ async def get_job_progress(
     Fallback for WebSocket disconnect.
     """
     job = await db.get(AIGenerationJob, job_id)
-    
+
     if not job:
         raise HTTPException(404, "Job not found")
-    
+
     # IDOR protection
     document = await db.get(Document, job.document_id)
     if document.user_id != current_user.id:
         raise HTTPException(403, "Not authorized")
-    
+
     return {
         "job_id": job.id,
         "status": job.status,
@@ -583,14 +583,14 @@ let pollInterval: NodeJS.Timeout | null = null;
 
 websocket.onclose = () => {
   console.warn("WebSocket disconnected, falling back to polling");
-  
+
   // Start polling progress every 2 seconds
   pollInterval = setInterval(async () => {
     const response = await fetch(`/api/v1/jobs/${jobId}/progress`);
     const data = await response.json();
-    
+
     updateProgressUI(data.progress, data.current_section);
-    
+
     if (data.status === "completed" || data.status === "failed") {
       clearInterval(pollInterval!);
       handleCompletion(data);
@@ -613,11 +613,11 @@ websocket.onopen = () => {
 - ✅ Frontend fallback на polling при disconnect
 - ✅ Polling зупиняється при reconnect
 
-**Priority:** 🟡 P1  
-**Time:** 30 min  
-**Blocker:** ❌ NO  
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Time:** 30 min
+**Blocker:** ❌ NO
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO
 **Dependencies:** None
 
 ---
@@ -636,9 +636,9 @@ async def test_exponential_backoff_retry():
             APITimeoutError("Timeout"),
             {"choices": [{"message": {"content": "Success"}}]}
         ]
-        
+
         result = await retry_with_backoff(mock_openai, max_retries=3)
-        
+
         assert result["choices"][0]["message"]["content"] == "Success"
         assert mock_openai.call_count == 3
 
@@ -647,13 +647,13 @@ async def test_provider_fallback_chain():
     """Test fallback GPT-4 → GPT-3.5 → Claude"""
     with mock.patch('generator._call_openai') as mock_openai, \
          mock.patch('generator._call_anthropic') as mock_anthropic:
-        
+
         # OpenAI fails, Anthropic succeeds
         mock_openai.side_effect = APIError("OpenAI down")
         mock_anthropic.return_value = {"content": "Success from Claude"}
-        
+
         result = await _call_ai_with_fallback(prompt="Test")
-        
+
         assert result["content"] == "Success from Claude"
         assert mock_openai.call_count == 2  # GPT-4 + GPT-3.5
         assert mock_anthropic.call_count == 1  # Claude
@@ -663,10 +663,10 @@ async def test_all_providers_fail():
     """Test AllProvidersFailedError when all fail"""
     with mock.patch('generator._call_openai') as mock_openai, \
          mock.patch('generator._call_anthropic') as mock_anthropic:
-        
+
         mock_openai.side_effect = APIError("OpenAI down")
         mock_anthropic.side_effect = APIError("Anthropic down")
-        
+
         with pytest.raises(AllProvidersFailedError):
             await _call_ai_with_fallback(prompt="Test")
 ```
@@ -684,9 +684,9 @@ async def test_quality_gate_regenerates_section():
             {"uniqueness_percentage": 60.0},
             {"uniqueness_percentage": 90.0}
         ]
-        
+
         result = await generate_section_with_quality_gates(...)
-        
+
         assert mock_check.call_count == 2  # Regenerated once
         assert result.plagiarism_score == 90.0
 
@@ -696,12 +696,12 @@ async def test_quality_gate_max_attempts():
     with mock.patch('plagiarism_checker.check') as mock_check:
         # All attempts fail
         mock_check.return_value = {"uniqueness_percentage": 60.0}
-        
+
         with pytest.raises(QualityThresholdNotMetError):
             await generate_section_with_quality_gates(
                 max_attempts=3
             )
-        
+
         assert mock_check.call_count == 3
 ```
 
@@ -720,12 +720,12 @@ pytest tests/test_quality_gates.py -v
 - ✅ 3/3 quality gate tests pass
 - ✅ Test coverage > 80% для generator.py
 
-**Priority:** 🟡 P1  
-**Time:** 30 min  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Time:** 30 min
+**Blocker:** ❌ NO
 **Dependencies:** Phase 1 complete
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO
 **Dependencies:** Phase 1 complete
 
 ---
@@ -788,12 +788,12 @@ WEBSOCKET TEST CHECKLIST:
 - ✅ No disconnect на 5+ min generation
 - ✅ Polling fallback працює
 
-**Priority:** 🟡 P1  
-**Time:** 20 min  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Time:** 20 min
+**Blocker:** ❌ NO
 **Dependencies:** Крок 1.2 (heartbeats)
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO
 **Dependencies:** Крок 1.2 (heartbeats)
 
 ---
@@ -816,20 +816,20 @@ export function estimateGenerationTime(pages: number): {
 } {
   // Base rate: 25 pages/minute (from benchmarks)
   const PAGES_PER_MINUTE = 25;
-  
+
   // Add overhead for quality checks
   const QUALITY_OVERHEAD = 1.2; // +20%
-  
+
   const baseMinutes = pages / PAGES_PER_MINUTE;
   const withOverhead = baseMinutes * QUALITY_OVERHEAD;
-  
+
   // Round up to nearest minute
   const estimatedMinutes = Math.ceil(withOverhead);
-  
+
   // Provide range (±20%)
   const min = Math.max(1, Math.floor(estimatedMinutes * 0.8));
   const max = Math.ceil(estimatedMinutes * 1.2);
-  
+
   return {
     estimatedMinutes,
     estimatedRange: `${min}-${max} minutes`
@@ -854,12 +854,12 @@ export default function DocumentPage() {
   const { estimatedMinutes, estimatedRange } = estimateGenerationTime(
     document.target_pages
   );
-  
+
   return (
     <div>
       <p>Target pages: {document.target_pages}</p>
       <p>Estimated time: {estimatedRange}</p>
-      
+
       {isGenerating && (
         <div>
           <ProgressBar progress={progress} />
@@ -879,11 +879,11 @@ export default function DocumentPage() {
 export function useGenerationProgress(jobId: number) {
   const [progress, setProgress] = useState(0);
   const [startTime] = useState(Date.now());
-  
+
   const elapsedMinutes = (Date.now() - startTime) / 60000;
   const estimatedTotalMinutes = elapsedMinutes / (progress / 100);
   const remainingMinutes = Math.ceil(estimatedTotalMinutes - elapsedMinutes);
-  
+
   return {
     progress,
     remainingMinutes: Math.max(0, remainingMinutes)
@@ -897,13 +897,13 @@ export function useGenerationProgress(jobId: number) {
 - ✅ Remaining time updates during generation
 - ✅ Completed time matches estimate
 
-**Priority:** 🟡 P1  
-**Time:** 1h  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Time:** 1h
+**Blocker:** ❌ NO
 **Dependencies:** None
 
-**Priority:** 🟡 P1  
-**Blocker:** ❌ NO  
+**Priority:** 🟡 P1
+**Blocker:** ❌ NO
 **Dependencies:** None
 
 ---
@@ -918,13 +918,13 @@ export function useGenerationProgress(jobId: number) {
 
 ## ФАЗА 3: ФІНАЛЬНИЙ POLISH (P2) - 2h 40min
 
-> **Мета:** Додаткові improvements, не критичні  
+> **Мета:** Додаткові improvements, не критичні
 > **Блокує запуск:** ❌ НІ (можна defer)
 
 ---
 ## ФАЗА 3: ФІНАЛЬНИЙ POLISH (P2)
 
-> **Мета:** Додаткові improvements, не критичні  
+> **Мета:** Додаткові improvements, не критичні
 > **Блокує запуск:** ❌ НІ (можна defer)
 
 ---
@@ -942,7 +942,7 @@ if len(final_content) < 100:  # Minimum content length
 section.content = final_content
 ```
 
-**Priority:** 🟢 P2  
+**Priority:** 🟢 P2
 **Time:** 10 min
 
 ---
@@ -959,7 +959,7 @@ section.content = final_content
 context_sections = completed_sections[-settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS:]
 ```
 
-**Priority:** 🟢 P2  
+**Priority:** 🟢 P2
 **Time:** 15 min
 
 ---
@@ -972,12 +972,12 @@ context_sections = completed_sections[-settings.QUALITY_GATES_MAX_CONTEXT_SECTIO
 async def test_large_document_context_limit():
     """Generate 20+ sections, verify only last 10 used for context"""
     result = await generate_document(sections=20)
-    
+
     # Check context size in logs
     assert "Using 10 context sections" in logs
 ```
 
-**Priority:** 🟢 P2  
+**Priority:** 🟢 P2
 **Time:** 15 min
 
 ---
@@ -992,8 +992,8 @@ async def test_large_document_context_limit():
       <td>{document.id}</td>
       <td>{document.title}</td>
       <td>
-        {document.grammar_score !== null 
-          ? document.grammar_score 
+        {document.grammar_score !== null
+          ? document.grammar_score
           : <span className="text-gray-400">N/A</span>
         }
       </td>
@@ -1008,7 +1008,7 @@ async def test_large_document_context_limit():
 }
 ```
 
-**Priority:** 🟢 P2  
+**Priority:** 🟢 P2
 **Time:** 1h
 
 ---
@@ -1088,7 +1088,7 @@ AI_ENABLE_FALLBACK=true
 AI_FALLBACK_CHAIN=openai:gpt-4,openai:gpt-3.5-turbo,anthropic:claude-3-5-sonnet-20241022
 ```
 
-**Priority:** 🔴 REQUIRED  
+**Priority:** 🔴 REQUIRED
 **Time:** 30 min
 
 ---
@@ -1132,7 +1132,7 @@ bash scripts/run-smoke-tests.sh
 # Expected: All critical endpoints return 200/201
 ```
 
-**Priority:** 🔴 REQUIRED  
+**Priority:** 🔴 REQUIRED
 **Time:** 1h
 
 ---
@@ -1152,7 +1152,7 @@ bash scripts/run-smoke-tests.sh
 # - Disk space < 10GB
 ```
 
-**Priority:** 🟡 RECOMMENDED  
+**Priority:** 🟡 RECOMMENDED
 **Time:** 30 min
 
 ---
@@ -1227,6 +1227,6 @@ READY TO LAUNCH: [ ]
 
 ---
 
-**Last updated:** 01.12.2025  
-**Author:** AI Assistant  
+**Last updated:** 01.12.2025
+**Author:** AI Assistant
 **Status:** 🟢 ACTIONABLE PLAN READY
