@@ -802,6 +802,21 @@ class BackgroundJobService:
                             f"Quality: {final_quality_score:.1f if final_quality_score else 'N/A'}"
                         )
 
+                        # WebSocket: Send quality check completion
+                        await manager.send_progress(
+                            user_id,
+                            {
+                                "stage": "quality_check",
+                                "progress": min(95, 50 + (section_index / total_sections) * 40),
+                                "message": f"Section {section_index} quality validated",
+                                "quality_score": final_quality_score,
+                                "quality_passed": True,
+                                "grammar_score": final_grammar_score,
+                                "plagiarism_score": final_plagiarism_score,
+                                "ai_detection_score": final_ai_score,
+                            },
+                        )
+
                         # ✅ TASK 3.7.1: Save checkpoint after section completion
                         try:
                             checkpoint_data = {
