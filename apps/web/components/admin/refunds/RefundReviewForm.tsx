@@ -27,7 +27,7 @@ export function RefundReviewForm({
   const [decision, setDecision] = useState<'approve' | 'reject' | null>(null)
   const [adminComment, setAdminComment] = useState('')
   const [refundAmount, setRefundAmount] = useState<string>(
-    refund.payment.amount.toString()
+    (refund.payment?.amount || refund.amount).toString()
   )
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAnalyzing, setIsAnalyzing] = useState(false)
@@ -62,7 +62,7 @@ export function RefundReviewForm({
       // Reset form
       setDecision(null)
       setAdminComment('')
-      setRefundAmount(refund.payment.amount.toString())
+      setRefundAmount((refund.payment?.amount || refund.amount).toString())
     } catch (error) {
       console.error('Error submitting review:', error)
     } finally {
@@ -110,25 +110,25 @@ export function RefundReviewForm({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-gray-700 rounded p-4">
           <h3 className="text-sm font-medium text-gray-400 mb-2">User Information</h3>
-          <p className="text-white font-medium">{refund.user.email}</p>
+          <p className="text-white font-medium">{refund.user?.email || refund.user_email}</p>
           <p className="text-sm text-gray-400">
-            Registered: {formatDateOnly(refund.user.registered_at)}
+            Registered: {formatDateOnly(refund.user?.registered_at || refund.created_at)}
           </p>
-          <p className="text-sm text-gray-400">User ID: {refund.user.id}</p>
+          <p className="text-sm text-gray-400">User ID: {refund.user?.id || refund.user_id}</p>
         </div>
 
         <div className="bg-gray-700 rounded p-4">
           <h3 className="text-sm font-medium text-gray-400 mb-2">Payment Information</h3>
           <p className="text-white font-medium">
-            €{refund.payment.amount.toFixed(2)} {refund.payment.currency}
+            €{(refund.payment?.amount || refund.amount).toFixed(2)} {refund.payment?.currency || 'EUR'}
           </p>
           <p className="text-sm text-gray-400">
-            Payment ID: #{refund.payment.id}
+            Payment ID: #{refund.payment?.id || refund.payment_id}
           </p>
           <p className="text-sm text-gray-400">
-            Date: {formatDateOnly(refund.payment.created_at)}
+            Date: {formatDateOnly(refund.payment?.created_at || refund.created_at)}
           </p>
-          <p className="text-sm text-gray-400">Status: {refund.payment.status}</p>
+          <p className="text-sm text-gray-400">Status: {refund.payment?.status || refund.status}</p>
         </div>
       </div>
 
@@ -149,7 +149,7 @@ export function RefundReviewForm({
           <div>
             <span className="text-sm text-gray-400">Submitted:</span>
             <span className="ml-2 text-white">
-              {formatDateTime(refund.submitted_at)}
+              {formatDateTime(refund.submitted_at || refund.created_at)}
             </span>
           </div>
         </div>
@@ -274,14 +274,14 @@ export function RefundReviewForm({
                 type="number"
                 step="0.01"
                 min="0"
-                max={refund.payment.amount}
+                max={refund.payment?.amount || refund.amount}
                 value={refundAmount}
                 onChange={(e) => setRefundAmount(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter refund amount"
               />
               <p className="mt-1 text-xs text-gray-400">
-                Maximum: €{refund.payment.amount.toFixed(2)}
+                Maximum: €{(refund.payment?.amount || refund.amount).toFixed(2)}
               </p>
             </div>
           )}

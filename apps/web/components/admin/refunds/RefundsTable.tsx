@@ -134,7 +134,7 @@ export function RefundsTable({
       sortable: true,
       render: (refund) => (
         <span className="text-gray-300">
-          {formatDateOnly(refund.submitted_at)}
+          {formatDateOnly(refund.submitted_at || refund.created_at)}
         </span>
       ),
     },

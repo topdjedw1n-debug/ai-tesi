@@ -39,20 +39,60 @@ from main import app  # noqa: E402
 
 @pytest.fixture
 async def client():
-    """Create async test client with rate limiting enabled"""
-    # Force re-initialization of rate limiter with DISABLE_RATE_LIMIT=false
+    """
+    Create async test client with rate limiting ENABLED.
+    
+    CRITICAL: Creates a NEW FastAPI app instance to avoid middleware conflicts.
+    The global app from main.py has rate limiting disabled via conftest.py,
+    so we need a fresh app to test rate limiting properly.
+    """
     import app.middleware.rate_limit as rl_module
+    from app.core.config import settings
+    from fastapi import FastAPI
 
-    rl_module._limiter = None  # Clear cached limiter
-    rl_module._redis_client = None  # Clear cached Redis client
+    # Store original values to restore later
+    original_disable = settings.DISABLE_RATE_LIMIT
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
-        yield ac
+    # Force enable rate limiting for this test
+    settings.DISABLE_RATE_LIMIT = False
 
-    # Cleanup after test - reset limiter to allow next test fresh state
+    # Clear module-level caches
     rl_module._limiter = None
     rl_module._redis_client = None
-    # Wait a bit for rate limit window to expire (for memory storage)
+
+    # Initialize Redis and clear rate limit state for test isolation
+    try:
+        from app.middleware.rate_limit import init_redis
+        await init_redis()
+        redis_client = rl_module._redis_client
+        if redis_client:
+            # Clear all rate limit keys
+            keys = await redis_client.keys("rate_limit:*")
+            if keys:
+                await redis_client.delete(*keys)
+    except Exception as e:
+        print(f"Warning: Redis not available, using memory storage: {e}")
+
+    # Create a minimal test app with rate limiting enabled
+    test_app = FastAPI()
+    
+    # Add rate limiter middleware to test app
+    from app.middleware.rate_limit import setup_rate_limiter
+    setup_rate_limiter(test_app)
+    
+    # Add a simple health endpoint for testing
+    @test_app.get("/health")
+    async def health():
+        return {"status": "ok"}
+
+    async with AsyncClient(app=test_app, base_url="http://test") as ac:
+        yield ac
+
+    # Cleanup: restore original state
+    settings.DISABLE_RATE_LIMIT = original_disable
+    rl_module._limiter = None
+    rl_module._redis_client = None
+    # Wait for rate limit window to expire
     await asyncio.sleep(0.1)
 
 

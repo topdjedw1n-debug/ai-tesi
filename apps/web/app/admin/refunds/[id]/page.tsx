@@ -40,8 +40,8 @@ export default function AdminRefundDetailsPage() {
     try {
       await adminApiClient.approveRefund(
         refund.id,
-        refundAmount !== undefined ? refundAmount : null,
-        adminComment
+        adminComment,
+        true // process_immediately
       )
       toast.success('Refund approved successfully')
       router.push('/admin/refunds')

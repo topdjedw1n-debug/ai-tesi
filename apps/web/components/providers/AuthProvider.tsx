@@ -5,25 +5,56 @@ import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
 import { apiClient, API_ENDPOINTS, setTokens, clearTokens, getAccessToken } from '@/lib/api'
 
+/**
+ * User data structure returned from authentication
+ * @interface User
+ */
 interface User {
+  /** Unique user identifier */
   id: number
+  /** User's email address */
   email: string
+  /** Email verification status */
   is_verified: boolean
+  /** Account creation timestamp */
   created_at: string
+  /** Total AI tokens consumed by user */
   total_tokens_used: number
+  /** Total cost in euros */
   total_cost: number
 }
 
+/**
+ * Authentication context type definition
+ * @interface AuthContextType
+ */
 interface AuthContextType {
+  /** Current authenticated user or null */
   user: User | null
+  /** Loading state during auth operations */
   isLoading: boolean
+  /** Request magic link via email */
   login: (email: string) => Promise<void>
+  /** Sign out current user */
   logout: () => Promise<void>
+  /** Verify magic link token and authenticate */
   verifyMagicLink: (token: string) => Promise<boolean>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
+/**
+ * Hook to access authentication context
+ * @returns {AuthContextType} Authentication context with user, loading state, and auth methods
+ * @throws {Error} If used outside AuthProvider
+ * @example
+ * ```tsx
+ * const { user, login, logout } = useAuth()
+ * if (user) {
+ *   console.log('Logged in as:', user.email)
+ * }
+ * ```
+ */
 export function useAuth() {
   const context = useContext(AuthContext)
   if (context === undefined) {

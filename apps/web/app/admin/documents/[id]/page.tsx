@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { adminApiClient } from '@/lib/api/admin'
+import { adminApiClient, AdminDocument } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { formatDateTime } from '@/lib/utils/date'
 import {
@@ -15,24 +15,17 @@ import {
 } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
-interface DocumentDetails {
-  id: number
-  user_id: number
-  user_email: string | null
-  title: string
-  topic: string
-  language: string
-  target_pages: number
-  status: string
-  ai_provider: string
-  ai_model: string
-  tokens_used: number
-  generation_time_seconds: number
-  created_at: string
-  completed_at: string | null
-  content: string | null
-  outline: any
-  jobs: Array<{
+interface DocumentDetails extends AdminDocument {
+  topic?: string
+  language?: string
+  target_pages?: number
+  ai_provider?: string
+  ai_model?: string
+  tokens_used?: number
+  generation_time_seconds?: number
+  content?: string | null
+  outline?: any
+  jobs?: Array<{
     id: number
     status: string
     started_at: string | null
@@ -237,10 +230,10 @@ export default function AdminDocumentDetailsPage() {
                 Document Info
               </h3>
               <div className="space-y-1 text-sm text-gray-300">
-                <p>Language: {document.language.toUpperCase()}</p>
+                <p>Language: {document.language?.toUpperCase() || 'N/A'}</p>
                 <p>Target Pages: {document.target_pages}</p>
-                <p>AI Provider: {document.ai_provider}</p>
-                <p>AI Model: {document.ai_model}</p>
+                <p>AI Provider: {document.ai_provider || 'N/A'}</p>
+                <p>AI Model: {document.ai_model || 'N/A'}</p>
               </div>
             </div>
 

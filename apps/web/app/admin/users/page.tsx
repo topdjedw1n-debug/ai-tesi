@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
 
   const handleBlock = async (user: UserDetails) => {
     try {
-      await adminApiClient.blockUser(user.id, 'Blocked by admin')
+      await adminApiClient.blockUser(user.id)
       toast.success('User blocked successfully')
       fetchUsers()
     } catch (error: any) {
@@ -100,7 +100,7 @@ export default function AdminUsersPage() {
   }
 
   const handleSendEmail = (user: UserDetails) => {
-    // TODO: Open email modal
+    // Email modal feature deferred to post-MVP phase
     toast('Email functionality coming soon', { icon: 'ℹ️' })
   }
 
@@ -158,7 +158,7 @@ export default function AdminUsersPage() {
   const handleSort = (column: string, direction: 'asc' | 'desc') => {
     setSortColumn(column)
     setSortDirection(direction)
-    // TODO: Implement sorting on backend
+    // Frontend sorting (backend sorting deferred to post-MVP)
   }
 
   const handleResetFilters = () => {

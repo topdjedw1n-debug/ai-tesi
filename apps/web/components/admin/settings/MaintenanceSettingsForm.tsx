@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { WrenchScrewdriverIcon } from '@heroicons/react/24/outline'
-
-interface MaintenanceSettings {
-  enabled: boolean
-  message: string
-  allowed_ips: string[]
-  estimated_end_time: string | null
-}
+import { MaintenanceSettings } from '@/lib/api/admin'
 
 interface MaintenanceSettingsFormProps {
   initialSettings?: MaintenanceSettings

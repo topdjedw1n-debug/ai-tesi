@@ -1,17 +1,31 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import dynamic from 'next/dynamic'
 import { adminApiClient, PlatformStats, DashboardCharts, DashboardActivity, DashboardMetrics } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { StatsGrid } from '@/components/admin/dashboard/StatsGrid'
-import { SimpleChart } from '@/components/admin/dashboard/SimpleChart'
-import { RecentActivity } from '@/components/admin/dashboard/RecentActivity'
 import toast from 'react-hot-toast'
+
+// Lazy load heavy chart components
+const StatsGrid = dynamic(() => import('@/components/admin/dashboard/StatsGrid').then(mod => ({ default: mod.StatsGrid })), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+})
+
+const SimpleChart = dynamic(() => import('@/components/admin/dashboard/SimpleChart').then(mod => ({ default: mod.SimpleChart })), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+})
+
+const RecentActivity = dynamic(() => import('@/components/admin/dashboard/RecentActivity').then(mod => ({ default: mod.RecentActivity })), {
+  loading: () => <LoadingSpinner />,
+  ssr: false,
+})
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<PlatformStats | null>(null)
   const [charts, setCharts] = useState<DashboardCharts | null>(null)
-  const [activity, setActivity] = useState<DashboardActivity | null>(null)
+  const [activity, setActivity] = useState<DashboardActivity[] | null>(null)
   const [metrics, setMetrics] = useState<DashboardMetrics | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [period, setPeriod] = useState<'day' | 'week' | 'month' | 'year'>('week')
@@ -136,24 +150,24 @@ export default function AdminDashboardPage() {
         <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
           <SimpleChart
             title="Revenue"
-            data={charts.revenue.map((d) => ({ date: d.date, value: d.revenue || 0 }))}
+            data={charts.revenue.map((d) => ({ date: d.date, value: d.amount || 0 }))}
             color="green"
           />
           <SimpleChart
             title="New Users"
-            data={charts.users.map((d) => ({ date: d.date, value: d.new_users || 0 }))}
+            data={charts.users.map((d) => ({ date: d.date, value: d.count || 0 }))}
             color="blue"
           />
           <SimpleChart
             title="Documents"
-            data={charts.documents.map((d) => ({ date: d.date, value: d.documents || 0 }))}
+            data={charts.documents.map((d) => ({ date: d.date, value: d.count || 0 }))}
             color="purple"
           />
         </div>
       )}
 
       {/* Recent Activity */}
-      {activity && <RecentActivity activities={activity.activities} />}
+      {activity && <RecentActivity activities={activity} />}
     </div>
   )
 }
