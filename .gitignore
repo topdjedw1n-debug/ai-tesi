@@ -28,12 +28,16 @@ ENV/
 env.bak/
 venv.bak/
 
-# Environment variables
+# Environment variables (NEVER COMMIT!)
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Specific .env locations (explicit)
+apps/api/.env
+infra/docker/.env
 
 # Node.js
 node_modules/

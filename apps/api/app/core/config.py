@@ -188,6 +188,7 @@ class Settings(BaseSettings):
         env_file=".env",
         case_sensitive=True,
         env_ignore_empty=True,  # Ignore empty env vars
+        extra='allow',  # Allow extra fields from .env (for backward compatibility)
         # Exclude ALLOWED_ORIGINS from env file parsing - it's set via model_validator
         env_prefix="",  # No prefix needed
     )  # type: ignore[typeddict-unknown-key,assignment]
