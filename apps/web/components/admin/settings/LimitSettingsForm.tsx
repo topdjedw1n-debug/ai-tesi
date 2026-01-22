@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { ShieldCheckIcon } from '@heroicons/react/24/outline'
-
-interface LimitSettings {
-  max_concurrent_generations: number
-  max_documents_per_user: number
-  max_pages_per_document: number
-  daily_token_limit: number | null
-}
+import { LimitSettings } from '@/lib/api/admin'
 
 interface LimitSettingsFormProps {
   initialSettings?: LimitSettings

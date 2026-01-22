@@ -48,7 +48,7 @@ export default function AdminUserDetailsPage() {
     if (!user) return
 
     try {
-      await adminApiClient.blockUser(user.id, 'Blocked by admin')
+      await adminApiClient.blockUser(user.id)
       toast.success('User blocked successfully')
       fetchUserDetails()
     } catch (error: any) {
@@ -101,7 +101,7 @@ export default function AdminUserDetailsPage() {
   }
 
   const handleSendEmail = () => {
-    // TODO: Open email modal
+    // Email modal feature deferred to post-MVP phase
     toast('Email functionality coming soon', { icon: 'ℹ️' })
   }
 

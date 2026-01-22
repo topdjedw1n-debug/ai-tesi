@@ -51,12 +51,10 @@ export function RecentActivity() {
     const fetchActivities = async () => {
       try {
         setIsLoading(true)
-        // TODO: Implement /api/v1/documents/activity endpoint on backend
-        // For now, using mock empty data
-        // const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.ACTIVITY)
-        
-        // Mock empty activities until backend endpoint is implemented
-        setActivities([])
+        const response = await apiClient.get<{ activities: Activity[] }>(
+          API_ENDPOINTS.DOCUMENTS.ACTIVITY
+        )
+        setActivities(response.activities || [])
       } catch (error) {
         console.error('Failed to fetch activities:', error)
         setActivities([])

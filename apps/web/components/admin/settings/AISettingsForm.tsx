@@ -2,15 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { SparklesIcon } from '@heroicons/react/24/outline'
-
-interface AISettings {
-  default_provider: string
-  default_model: string
-  fallback_models: string[]
-  max_retries: number
-  timeout_seconds: number
-  temperature_default: number
-}
+import { AISettings } from '@/lib/api/admin'
 
 interface AISettingsFormProps {
   initialSettings?: AISettings

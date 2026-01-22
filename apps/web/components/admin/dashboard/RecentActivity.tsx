@@ -56,7 +56,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
             <div className="flex-1 min-w-0">
               <p className="text-sm text-white">{getActivityText(activity)}</p>
               <p className="text-xs text-gray-400 mt-1">
-                {format(parseISO(activity.timestamp), 'MMM dd, yyyy HH:mm')}
+                {format(parseISO(activity.timestamp || activity.created_at), 'MMM dd, yyyy HH:mm')}
               </p>
             </div>
           </div>

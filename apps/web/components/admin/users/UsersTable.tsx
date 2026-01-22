@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { UserDetails } from '@/lib/api/admin'
 import { DataTable, Column } from '../ui/DataTable'
-import { formatDateOnly } from '@/lib/utils/date'
+import { formatDateOnly } from '@/lib/utils'
 import {
   UserIcon,
   LockClosedIcon,

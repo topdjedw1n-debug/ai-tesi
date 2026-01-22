@@ -2,13 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { CurrencyDollarIcon } from '@heroicons/react/24/outline'
-
-interface PricingSettings {
-  price_per_page: number
-  min_pages: number
-  max_pages: number
-  currencies: string[]
-}
+import { PricingSettings } from '@/lib/api/admin'
 
 interface PricingSettingsFormProps {
   initialSettings?: PricingSettings

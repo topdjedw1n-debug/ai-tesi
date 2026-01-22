@@ -39,6 +39,7 @@ export default function AdminSettingsPage() {
       if (pricing['pricing.price_per_page'] !== undefined || pricing['price_per_page'] !== undefined) {
         setPricingSettings({
           price_per_page: pricing['pricing.price_per_page'] || pricing['price_per_page'] || 0.5,
+          currency: pricing['pricing.currency'] || pricing['currency'] || 'EUR',
           min_pages: pricing['pricing.min_pages'] || pricing['min_pages'] || 3,
           max_pages: pricing['pricing.max_pages'] || pricing['max_pages'] || 200,
           currencies: pricing['pricing.currencies'] || pricing['currencies'] || ['EUR'],
@@ -50,9 +51,12 @@ export default function AdminSettingsPage() {
         setAISettings({
           default_provider: ai['ai.default_provider'] || ai['default_provider'] || 'openai',
           default_model: ai['ai.default_model'] || ai['default_model'] || 'gpt-4',
+          available_models: ai['ai.available_models'] || ai['available_models'] || ['gpt-4', 'gpt-3.5-turbo'],
           fallback_models: ai['ai.fallback_models'] || ai['fallback_models'] || [],
+          max_tokens: ai['ai.max_tokens'] || ai['max_tokens'] || 8000,
           max_retries: ai['ai.max_retries'] || ai['max_retries'] || 3,
           timeout_seconds: ai['ai.timeout_seconds'] || ai['timeout_seconds'] || 300,
+          temperature: ai['ai.temperature'] || ai['temperature'] || 0.7,
           temperature_default: ai['ai.temperature_default'] || ai['temperature_default'] || 0.7,
         })
       }
@@ -64,13 +68,16 @@ export default function AdminSettingsPage() {
           max_documents_per_user: limits['limits.max_documents_per_user'] || limits['max_documents_per_user'] || 100,
           max_pages_per_document: limits['limits.max_pages_per_document'] || limits['max_pages_per_document'] || 200,
           daily_token_limit: limits['limits.daily_token_limit'] || limits['daily_token_limit'] || null,
+          rate_limit_per_minute: limits['limits.rate_limit_per_minute'] || limits['rate_limit_per_minute'] || 60,
         })
       }
 
       const maintenance = allSettings.maintenance || {}
       if (maintenance['maintenance.enabled'] !== undefined || maintenance['enabled'] !== undefined) {
         setMaintenanceSettings({
+          maintenance_mode: maintenance['maintenance.enabled'] || maintenance['enabled'] || false,
           enabled: maintenance['maintenance.enabled'] || maintenance['enabled'] || false,
+          maintenance_message: maintenance['maintenance.message'] || maintenance['message'] || 'System maintenance in progress',
           message: maintenance['maintenance.message'] || maintenance['message'] || 'System maintenance in progress',
           allowed_ips: maintenance['maintenance.allowed_ips'] || maintenance['allowed_ips'] || [],
           estimated_end_time: maintenance['maintenance.estimated_end_time'] || maintenance['estimated_end_time'] || null,

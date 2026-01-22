@@ -304,3 +304,22 @@ class JobStatusResponse(BaseModel):
     progress: int
     document_id: int | None = None
     error_message: str | None = None
+
+
+class ActivityItem(BaseModel):
+    """Schema for activity item"""
+
+    model_config = ConfigDict(from_attributes=True)
+
+    id: int
+    type: str  # document_created, outline_generated, section_generated, document_completed, export_created
+    title: str
+    description: str
+    timestamp: datetime
+    status: str  # success, error, pending
+
+
+class ActivityListResponse(BaseModel):
+    """Schema for activity list response"""
+
+    activities: list[ActivityItem]

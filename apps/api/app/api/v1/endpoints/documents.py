@@ -100,6 +100,32 @@ async def list_documents(
         ) from None
 
 
+@router.get("/activity")
+@rate_limit("100/hour")
+async def get_recent_activity(
+    request: Request,
+    limit: int = Query(10, ge=1, le=50),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get recent activity for user dashboard"""
+    try:
+        document_service = DocumentService(db)
+        activities = await document_service.get_recent_activity(
+            current_user.id, limit=limit
+        )
+        return {"activities": activities}
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get recent activity",
+        ) from None
+
+
 @router.get("/{document_id}", response_model=DocumentResponse)
 @rate_limit("100/hour")
 async def get_document(
@@ -177,32 +203,6 @@ async def get_user_stats(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get user stats",
-        ) from None
-
-
-@router.get("/activity")
-@rate_limit("100/hour")
-async def get_recent_activity(
-    request: Request,
-    limit: int = Query(10, ge=1, le=50),
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-):
-    """Get recent activity for user dashboard"""
-    try:
-        document_service = DocumentService(db)
-        activities = await document_service.get_recent_activity(
-            current_user.id, limit=limit
-        )
-        return {"activities": activities}
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
-        ) from e
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get recent activity",
         ) from None
 
 

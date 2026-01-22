@@ -363,6 +363,7 @@ class DocumentService:
                     activity_type = "outline_generated"
                 elif doc.status == "draft":
                     activity_type = "document_created"
+                    activity_status = "pending"  # Draft is pending, not success
                 elif doc.status == "generating":
                     activity_type = "section_generated"
                     activity_status = "pending"
