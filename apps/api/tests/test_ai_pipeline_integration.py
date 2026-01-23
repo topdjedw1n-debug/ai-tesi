@@ -8,20 +8,19 @@ Target Coverage:
 - citation_formatter.py: 25.30% → 50%+
 """
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
-from datetime import datetime
 
-from app.services.ai_pipeline.humanizer import Humanizer
-from app.services.ai_pipeline.generator import SectionGenerator, retry_with_backoff
+import pytest
+
+from app.models.document import Document
 from app.services.ai_pipeline.citation_formatter import (
     CitationFormatter,
     CitationStyle,
     SourceDocument,
 )
+from app.services.ai_pipeline.generator import SectionGenerator, retry_with_backoff
+from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.rag_retriever import SourceDoc
-from app.models.document import Document
-
 
 # ============================================================================
 # FIXTURES
@@ -87,9 +86,9 @@ def sample_document():
 def sample_generated_text():
     """Sample generated text with citations"""
     return """
-    Machine learning has revolutionized healthcare diagnostics (Smith & Doe, 2023). 
-    Recent studies show that deep learning models can achieve 95% accuracy in 
-    medical image classification (Johnson, 2022). The theoretical foundations 
+    Machine learning has revolutionized healthcare diagnostics (Smith & Doe, 2023).
+    Recent studies show that deep learning models can achieve 95% accuracy in
+    medical image classification (Johnson, 2022). The theoretical foundations
     of these approaches are well-established (Brown et al., 2021).
     """
 
@@ -100,7 +99,9 @@ def mock_openai_response():
     mock_response = MagicMock()
     mock_choice = MagicMock()
     mock_message = MagicMock()
-    mock_message.content = "Humanized text with preserved citations (Smith & Doe, 2023)."
+    mock_message.content = (
+        "Humanized text with preserved citations (Smith & Doe, 2023)."
+    )
     mock_choice.message = mock_message
     mock_response.choices = [mock_choice]
     return mock_response
@@ -133,7 +134,9 @@ def generator_instance(sample_source_docs):
     """SectionGenerator with mocked RAG retriever"""
     generator = SectionGenerator()
     # Mock RAG retriever to return sample docs
-    generator.rag_retriever.retrieve_sources = AsyncMock(return_value=sample_source_docs)
+    generator.rag_retriever.retrieve_sources = AsyncMock(
+        return_value=sample_source_docs
+    )
     return generator
 
 
@@ -145,7 +148,9 @@ def generator_instance(sample_source_docs):
 @pytest.mark.asyncio
 @patch("app.core.config.settings.OPENAI_API_KEY", "test-openai-key")
 @patch("openai.AsyncOpenAI")
-async def test_humanize_basic(mock_openai_class, humanizer_instance, mock_openai_response):
+async def test_humanize_basic(
+    mock_openai_class, humanizer_instance, mock_openai_response
+):
     """Test basic humanization with OpenAI"""
     # Setup mock
     mock_client = MagicMock()
@@ -178,7 +183,9 @@ async def test_humanize_basic(mock_openai_class, humanizer_instance, mock_openai
 @pytest.mark.asyncio
 @patch("app.core.config.settings.OPENAI_API_KEY", "test-openai-key")
 @patch("openai.AsyncOpenAI")
-@patch("app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text")
+@patch(
+    "app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text"
+)
 async def test_humanize_preserve_citations(
     mock_extract, mock_openai_class, humanizer_instance, sample_generated_text
 ):
@@ -187,12 +194,21 @@ async def test_humanize_preserve_citations(
     mock_extract.side_effect = [
         # First call (before humanization)
         [
-            {"original": "(Smith & Doe, 2023)", "year": 2023, "authors": ["Smith", "Doe"]},
+            {
+                "original": "(Smith & Doe, 2023)",
+                "year": 2023,
+                "authors": ["Smith", "Doe"],
+            },
             {"original": "(Johnson, 2022)", "year": 2022, "authors": ["Johnson"]},
-            {"original": "(Brown et al., 2021)", "year": 2021, "authors": ["Brown"], "et_al": True},
+            {
+                "original": "(Brown et al., 2021)",
+                "year": 2021,
+                "authors": ["Brown"],
+                "et_al": True,
+            },
         ]
     ]
-    
+
     # Setup mock - return text with ALL 3 citations preserved (100%)
     mock_client = MagicMock()
     mock_response = MagicMock()
@@ -222,19 +238,21 @@ async def test_humanize_preserve_citations(
 @pytest.mark.asyncio
 @patch("app.core.config.settings.OPENAI_API_KEY", "test-openai-key")
 @patch("openai.AsyncOpenAI")
-@patch("app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text")
+@patch(
+    "app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text"
+)
 async def test_humanize_citations_lost_returns_original(
     mock_extract, mock_openai_class, humanizer_instance
 ):
     """Test that original text returned if citations are lost"""
     original_text = "Text with citation (Smith, 2023) and another (Doe, 2022)."
-    
+
     # Mock citation extraction to return 2 citations from original
     mock_extract.return_value = [
         {"original": "(Smith, 2023)", "year": 2023, "authors": ["Smith"]},
         {"original": "(Doe, 2022)", "year": 2022, "authors": ["Doe"]},
     ]
-    
+
     # Setup mock - return text WITHOUT citations (0% preserved)
     mock_client = MagicMock()
     mock_response = MagicMock()
@@ -333,7 +351,7 @@ async def test_generate_section_with_rag(
     mock_choice = MagicMock()
     mock_message = MagicMock()
     mock_message.content = """
-    Machine learning has transformed healthcare (Smith & Doe, 2023). 
+    Machine learning has transformed healthcare (Smith & Doe, 2023).
     Deep learning models show promising results (Johnson, 2022).
     """
     mock_choice.message = mock_message
@@ -373,7 +391,9 @@ async def test_generate_section_with_context(
     # Setup mock
     mock_client = MagicMock()
     mock_response = MagicMock()
-    mock_response.usage = MagicMock(total_tokens=150, prompt_tokens=100, completion_tokens=50)
+    mock_response.usage = MagicMock(
+        total_tokens=150, prompt_tokens=100, completion_tokens=50
+    )
     mock_choice = MagicMock()
     mock_message = MagicMock()
     mock_message.content = "Section content referencing previous context."
@@ -416,7 +436,9 @@ async def test_generate_section_with_humanization(
 
     # First call: generation
     mock_gen_response = MagicMock()
-    mock_gen_response.usage = MagicMock(total_tokens=200, prompt_tokens=150, completion_tokens=50)
+    mock_gen_response.usage = MagicMock(
+        total_tokens=200, prompt_tokens=150, completion_tokens=50
+    )
     mock_gen_choice = MagicMock()
     mock_gen_message = MagicMock()
     mock_gen_message.content = "Generated content (Smith, 2023)."
@@ -425,7 +447,9 @@ async def test_generate_section_with_humanization(
 
     # Second call: humanization
     mock_human_response = MagicMock()
-    mock_human_response.usage = MagicMock(total_tokens=180, prompt_tokens=140, completion_tokens=40)
+    mock_human_response.usage = MagicMock(
+        total_tokens=180, prompt_tokens=140, completion_tokens=40
+    )
     mock_human_choice = MagicMock()
     mock_human_message = MagicMock()
     mock_human_message.content = "Humanized content (Smith, 2023)."
@@ -619,11 +643,13 @@ def test_format_chicago_reference(citation_formatter_instance):
     assert "Neural Networks Theory" in result
 
 
-@pytest.mark.skip(reason="extract_citations_from_text not implemented yet - returns empty list")
+@pytest.mark.skip(
+    reason="extract_citations_from_text not implemented yet - returns empty list"
+)
 def test_extract_citations_from_text(citation_formatter_instance):
     """Test extracting citations from generated text"""
     text = """
-    Recent research shows promising results (Smith, 2023). 
+    Recent research shows promising results (Smith, 2023).
     Multiple studies confirm this (Doe & Johnson, 2022; Brown et al., 2021).
     """
 
@@ -677,7 +703,10 @@ def test_format_apa_reference_no_journal_title(citation_formatter_instance):
     result = CitationFormatter.format_reference(source, style=CitationStyle.APA)
 
     # Should format as book citation (note: extra space before title is actual formatter output)
-    assert "Smith, John (2023).  Machine Learning Handbook." in result or "Smith, John (2023). Machine Learning Handbook." in result
+    assert (
+        "Smith, John (2023).  Machine Learning Handbook." in result
+        or "Smith, John (2023). Machine Learning Handbook." in result
+    )
     assert "Academic Press" in result
     assert "New York" in result
 
@@ -825,7 +854,11 @@ def test_format_chicago_notes_bibliography_format(citation_formatter_instance):
 
     # Chicago: Author(s). "Title." Journal vol, no. issue (year): pages.
     # Note: Formatter keeps original "Last, First" format from input
-    assert "Brown, Robert" in result and "White, Carol" in result and "Green, David" in result
+    assert (
+        "Brown, Robert" in result
+        and "White, Carol" in result
+        and "Green, David" in result
+    )
     assert '"Historical Analysis."' in result
     assert "Historical Journal 78, no. 2" in result
     assert "(2022)" in result
@@ -840,7 +873,9 @@ def test_format_chicago_notes_bibliography_format(citation_formatter_instance):
 @pytest.mark.asyncio
 @patch("app.core.config.settings.OPENAI_API_KEY", "test-openai-key")
 @patch("app.core.config.settings.ANTHROPIC_API_KEY", "test-anthropic-key")
-@patch("app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text")
+@patch(
+    "app.services.ai_pipeline.citation_formatter.CitationFormatter.extract_citations_from_text"
+)
 @patch("openai.AsyncOpenAI")
 async def test_full_pipeline_rag_to_citations(
     mock_openai_class, mock_extract_citations, sample_document, sample_source_docs
@@ -848,8 +883,10 @@ async def test_full_pipeline_rag_to_citations(
     """Test full pipeline: RAG → Generation → Citations → Bibliography"""
     # Setup generator with mocked RAG
     generator = SectionGenerator()
-    generator.rag_retriever.retrieve_sources = AsyncMock(return_value=sample_source_docs)
-    
+    generator.rag_retriever.retrieve_sources = AsyncMock(
+        return_value=sample_source_docs
+    )
+
     # Mock citation extraction (method returns empty list by default)
     mock_extract_citations.return_value = [
         {"author": "Smith & Doe", "year": 2023, "original": "(Smith & Doe, 2023)"},
@@ -860,11 +897,13 @@ async def test_full_pipeline_rag_to_citations(
     # Mock AI response with citations
     mock_client = MagicMock()
     mock_response = MagicMock()
-    mock_response.usage = MagicMock(total_tokens=250, prompt_tokens=180, completion_tokens=70)
+    mock_response.usage = MagicMock(
+        total_tokens=250, prompt_tokens=180, completion_tokens=70
+    )
     mock_choice = MagicMock()
     mock_message = MagicMock()
     mock_message.content = """
-    Machine learning is transforming healthcare (Smith & Doe, 2023). 
+    Machine learning is transforming healthcare (Smith & Doe, 2023).
     Deep learning models achieve high accuracy (Johnson, 2022).
     The theoretical foundations are well-established (Brown et al., 2021).
     """
@@ -904,14 +943,18 @@ async def test_full_pipeline_with_humanization(
     """Test full flow including humanization pass"""
     # Setup generator
     generator = SectionGenerator()
-    generator.rag_retriever.retrieve_sources = AsyncMock(return_value=sample_source_docs)
+    generator.rag_retriever.retrieve_sources = AsyncMock(
+        return_value=sample_source_docs
+    )
 
     # Mock AI responses (generation + humanization)
     mock_client = MagicMock()
 
     # First call: generation
     mock_gen_response = MagicMock()
-    mock_gen_response.usage = MagicMock(total_tokens=220, prompt_tokens=160, completion_tokens=60)
+    mock_gen_response.usage = MagicMock(
+        total_tokens=220, prompt_tokens=160, completion_tokens=60
+    )
     mock_gen_choice = MagicMock()
     mock_gen_message = MagicMock()
     mock_gen_message.content = "Generated section content (Smith, 2023)."
@@ -920,7 +963,9 @@ async def test_full_pipeline_with_humanization(
 
     # Second call: humanization
     mock_human_response = MagicMock()
-    mock_human_response.usage = MagicMock(total_tokens=210, prompt_tokens=155, completion_tokens=55)
+    mock_human_response.usage = MagicMock(
+        total_tokens=210, prompt_tokens=155, completion_tokens=55
+    )
     mock_human_choice = MagicMock()
     mock_human_message = MagicMock()
     mock_human_message.content = "Humanized section content (Smith, 2023)."

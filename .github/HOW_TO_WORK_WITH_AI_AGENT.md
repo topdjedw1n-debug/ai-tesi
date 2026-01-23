@@ -57,14 +57,14 @@
 AI: "## Plan
      1. Restate: Виправити помилку в payment_service.py
      2. Assumptions: Помилка пов'язана з [X]
-     3. Plan: 
+     3. Plan:
         - read_file payment_service.py
         - Знайти проблему
         - Виправити
         - Показати diff
      4. Risks: Може вплинути на webhook
      5. Output: Виправлений код + proof
-     
+
      Чекаю підтвердження."
 
 ТИ: "Так, починай"

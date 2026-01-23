@@ -3,6 +3,7 @@ Pricing API endpoints for dynamic pricing
 """
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,7 @@ router = APIRouter()
 async def get_current_price(
     request: Request,
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Get current pricing configuration (public endpoint).
 
@@ -50,7 +51,7 @@ async def calculate_price(
     request: Request,
     pages: int,
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Calculate total price for given number of pages (public endpoint).
 
@@ -103,7 +104,7 @@ async def get_current_price_admin(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Get current pricing configuration (admin endpoint).
 

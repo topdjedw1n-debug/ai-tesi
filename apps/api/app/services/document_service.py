@@ -84,7 +84,7 @@ class DocumentService:
             # Calculate word count and reading time from document content/title/topic
             content_text = ""
             if document.content:
-                content_text = document.content
+                content_text = str(document.content)
             elif document.title and document.topic:
                 content_text = f"{document.title} {document.topic}"
 
@@ -141,7 +141,7 @@ class DocumentService:
             # Calculate word count and reading time from document content/title/topic
             content_text = ""
             if document.content:
-                content_text = document.content
+                content_text = str(document.content)
             elif document.title and document.topic:
                 content_text = f"{document.title} {document.topic}"
 
@@ -505,7 +505,7 @@ class DocumentService:
                 .where(DocumentSection.document_id == document_id)
                 .order_by(DocumentSection.section_index)
             )
-            sections = result.scalars().all()
+            sections: list[DocumentSection] = list(result.scalars().all())
 
             return [
                 {
@@ -609,14 +609,14 @@ class DocumentService:
             # Check files referenced in DB exist in storage using StorageService
             for doc in documents:
                 if doc.docx_path:
-                    exists = await storage_service.file_exists(doc.docx_path)
+                    exists = await storage_service.file_exists(str(doc.docx_path))
                     if not exists:
                         missing_files.append(
                             {"document_id": doc.id, "file": doc.docx_path}
                         )
 
                 if doc.pdf_path:
-                    exists = await storage_service.file_exists(doc.pdf_path)
+                    exists = await storage_service.file_exists(str(doc.pdf_path))
                     if not exists:
                         missing_files.append(
                             {"document_id": doc.id, "file": doc.pdf_path}

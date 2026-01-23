@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class StreamingGenerator:
     """Generate large documents with streaming support"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize streaming generator"""
         self.section_generator = SectionGenerator()
 

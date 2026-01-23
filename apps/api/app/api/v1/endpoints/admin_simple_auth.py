@@ -4,6 +4,7 @@ Simple admin authentication for testing (password-based)
 
 import logging
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
@@ -40,7 +41,7 @@ async def admin_simple_login(
     request: Request,
     login_data: AdminSimpleLoginRequest,
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Simple admin login for testing (no magic link required)
 
@@ -85,11 +86,11 @@ async def admin_simple_login(
         )
 
     # Update last login
-    user.last_login = datetime.utcnow()
+    user.last_login = datetime.utcnow()  # type: ignore[assignment]
     await db.commit()
 
     # Create token (using existing function from security.py)
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(int(user.id))
 
     # For refresh token, create a long-lived access token (simplified for testing)
     # In production, implement proper refresh token logic
@@ -111,7 +112,7 @@ async def admin_simple_login(
 
 
 @router.get("/admin/check")
-async def admin_check():
+async def admin_check() -> dict[str, str]:
     """Health check for admin auth"""
     return {
         "status": "ok",

@@ -18,7 +18,7 @@ async def test_get_user_usage_correctness(db_session):
         email="test@example.com",
         full_name="Test User",
         total_documents_created=5,
-        total_tokens_used=1000
+        total_tokens_used=1000,
     )
     db_session.add(user)
     await db_session.commit()
@@ -46,9 +46,7 @@ async def test_generate_outline_not_found(db_session):
     # Try to generate outline for non-existent document
     with pytest.raises(AIProviderError, match="Failed to generate outline"):
         await service.generate_outline(
-            document_id=999,
-            user_id=1,
-            additional_requirements=None
+            document_id=999, user_id=1, additional_requirements=None
         )
 
 
@@ -69,7 +67,7 @@ async def test_build_outline_prompt(db_session):
         language="en",
         target_pages=15,
         ai_provider="openai",
-        ai_model="gpt-4"
+        ai_model="gpt-4",
     )
     db_session.add(document)
     await db_session.commit()
@@ -79,7 +77,9 @@ async def test_build_outline_prompt(db_session):
     service = AIService(db_session)
 
     # Build prompt
-    prompt = service._build_outline_prompt(document, additional_requirements="Be thorough")
+    prompt = service._build_outline_prompt(
+        document, additional_requirements="Be thorough"
+    )
 
     # Verify prompt structure
     assert "AI in Education" in prompt
@@ -105,22 +105,23 @@ async def test_build_section_prompt(db_session):
         title="Test Thesis",
         topic="AI in Education",
         language="en",
-        target_pages=15
+        target_pages=15,
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
 
     # Create service
-    service = AIService(db_session)
+    AIService(db_session)
 
     # Build prompt using PromptBuilder (not AIService private method)
     from app.services.ai_pipeline.prompt_builder import PromptBuilder
+
     prompt = PromptBuilder.build_section_prompt(
         document=document,
         section_title="Introduction",
         section_index=0,
-        additional_requirements="Use formal academic style"
+        additional_requirements="Use formal academic style",
     )
 
     # Verify prompt structure
@@ -184,8 +185,5 @@ async def test_call_ai_provider_unsupported(db_session):
 
     with pytest.raises(AIProviderError, match="Unsupported AI provider"):
         await service._call_ai_provider(
-            provider="unsupported_provider",
-            model="test-model",
-            prompt="Test prompt"
+            provider="unsupported_provider", model="test-model", prompt="Test prompt"
         )
-

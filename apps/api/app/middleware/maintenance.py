@@ -2,8 +2,10 @@
 Maintenance mode middleware
 """
 
+from collections.abc import Callable
+
 from fastapi import Request, status
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from app.core.database import AsyncSessionLocal
@@ -20,16 +22,16 @@ class MaintenanceModeMiddleware(BaseHTTPMiddleware):
     - Returns 503 Service Unavailable with maintenance message
     """
 
-    async def dispatch(self, request: Request, call_next):
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Skip maintenance check for admin endpoints
         if request.url.path.startswith("/api/v1/admin"):
             # Admin endpoints are allowed during maintenance
-            response = await call_next(request)
+            response: Response = await call_next(request)
             return response
 
         # Skip health check endpoint
         if request.url.path in ["/health", "/"]:
-            response = await call_next(request)
+            response: Response = await call_next(request)
             return response
 
         # Check maintenance mode
@@ -61,5 +63,5 @@ class MaintenanceModeMiddleware(BaseHTTPMiddleware):
             pass
 
         # Continue with request
-        response = await call_next(request)
+        response: Response = await call_next(request)
         return response

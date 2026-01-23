@@ -141,7 +141,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                                     mock_db.execute.return_value.scalars.return_value.all.return_value = []
 
                                     # Execute - should raise exception
-                                    service = BackgroundJobService()
+                                    BackgroundJobService()
 
                                     with pytest.raises(
                                         QualityThresholdNotMetError
@@ -163,9 +163,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                                             )
 
                                             # Check quality
-                                            grammar_ok = await mock_grammar(
-                                                content, "en", 10
-                                            )
+                                            await mock_grammar(content, "en", 10)
                                             plagiarism_ok = await mock_plagiarism(
                                                 content, 85.0
                                             )

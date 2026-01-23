@@ -29,7 +29,7 @@ export function MaintenanceSettingsForm({
 
   useEffect(() => {
     if (initialSettings) {
-      setEnabled(initialSettings.enabled)
+      setEnabled(initialSettings.enabled ?? false)
       setMessage(initialSettings.message || 'System maintenance in progress')
       setAllowedIPs(initialSettings.allowed_ips || [])
       setEstimatedEndTime(initialSettings.estimated_end_time || '')
@@ -56,7 +56,9 @@ export function MaintenanceSettingsForm({
     }
 
     await onSave({
+      maintenance_mode: enabled,
       enabled,
+      maintenance_message: message.trim(),
       message: message.trim(),
       allowed_ips: allowedIPs,
       estimated_end_time: estimatedEndTime || null,

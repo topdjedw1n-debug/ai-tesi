@@ -92,11 +92,11 @@ async def get_document(
         select(Document).where(Document.id == doc_id)
     )
     doc = result.scalar_one_or_none()
-    
+
     # IDOR CHECK - MANDATORY
     if not doc or doc.user_id != current_user.id:
         raise HTTPException(404, "Document not found")
-    
+
     return doc
 ```
 
@@ -110,9 +110,9 @@ async def process_document(document_id: int):
         doc = await db.get(Document, document_id)
         doc.status = "processing"
         await db.commit()  # Must commit explicitly!
-        
+
         # Do work...
-        
+
         doc.status = "completed"
         await db.commit()
 ```
@@ -129,7 +129,7 @@ async with db.begin():
     existing = result.scalar_one_or_none()
     if existing:
         return  # Already processed
-    
+
     # Create new payment within lock
     payment = Payment(...)
     db.add(payment)
@@ -166,7 +166,7 @@ async def create_payment_intent(
 ):
     # Calculate amount
     amount_cents = int(data.pages * settings.PRICE_PER_PAGE * 100)
-    
+
     # Create Stripe intent
     intent = stripe.PaymentIntent.create(
         amount=amount_cents,
@@ -177,7 +177,7 @@ async def create_payment_intent(
             "pages": data.pages
         }
     )
-    
+
     # Store in DB
     payment = Payment(
         user_id=current_user.id,
@@ -188,7 +188,7 @@ async def create_payment_intent(
     )
     db.add(payment)
     await db.commit()
-    
+
     return {"client_secret": intent.client_secret}
 ```
 
@@ -202,7 +202,7 @@ async def stripe_webhook(
 ):
     payload = await request.body()
     sig = request.headers.get("stripe-signature")
-    
+
     # Verify signature
     try:
         event = stripe.Webhook.construct_event(
@@ -212,11 +212,11 @@ async def stripe_webhook(
         raise HTTPException(400, "Invalid payload")
     except stripe.error.SignatureVerificationError:
         raise HTTPException(400, "Invalid signature")
-    
+
     if event["type"] == "payment_intent.succeeded":
         intent = event["data"]["object"]
         document_id = int(intent["metadata"]["document_id"])
-        
+
         # CRITICAL: Prevent duplicate processing
         async with db.begin():
             existing_job = await db.execute(
@@ -226,19 +226,19 @@ async def stripe_webhook(
             )
             if existing_job.scalar_one_or_none():
                 return {"status": "already_processed"}
-            
+
             # Create job within lock
             job = AIGenerationJob(
                 document_id=document_id,
                 status="queued"
             )
             db.add(job)
-        
+
         # Start generation AFTER commit
         background_tasks.add_task(
             generate_document, document_id, job.id
         )
-    
+
     return {"status": "ok"}
 ```
 
@@ -256,7 +256,7 @@ async def generate_section(
     db: AsyncSession
 ):
     generator = SectionGenerator()
-    
+
     result = await generator.generate_section(
         title=outline_item["title"],
         requirements=outline_item["requirements"],
@@ -264,7 +264,7 @@ async def generate_section(
         previous_sections=context_sections,  # For continuity
         language="en"
     )
-    
+
     return {
         "title": outline_item["title"],
         "content": result["content"],
@@ -278,14 +278,14 @@ from app.services.ai_pipeline.rag_retriever import RAGRetriever
 
 async def search_sources(query: str, limit: int = 5):
     retriever = RAGRetriever()
-    
+
     # Search academic sources
     results = await retriever.search(
         query=query,
         sources=["semantic_scholar"],  # Add more as implemented
         limit=limit
     )
-    
+
     return [
         {
             "title": r.title,
@@ -310,9 +310,9 @@ async def generate_with_progress(document_id: int, user_id: int):
         "progress": 10,
         "message": "Generating outline..."
     })
-    
+
     # ... do work ...
-    
+
     await manager.send_progress(user_id, {
         "document_id": document_id,
         "stage": "section_1",
@@ -386,7 +386,7 @@ async def log_audit_event(
     await db.commit()
 
 # Usage
-await log_audit_event(db, user.id, "document.created", 
+await log_audit_event(db, user.id, "document.created",
     {"document_id": doc.id, "pages": 50}, request.client.host)
 ```
 
@@ -408,7 +408,7 @@ async def client():
 @pytest.fixture
 async def auth_headers(client):
     # Create test user and get token
-    response = await client.post("/api/v1/auth/test-login", 
+    response = await client.post("/api/v1/auth/test-login",
         json={"email": "test@test.com"})
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -443,20 +443,248 @@ async def test_payment_creation(client, auth_headers):
             id="pi_test123",
             client_secret="secret_test"
         )
-        
+
         response = await client.post(
             "/api/v1/payment/create-intent",
             json={"document_id": 1, "pages": 50},
             headers=auth_headers
         )
-        
+
         assert response.status_code == 200
         assert "client_secret" in response.json()
 ```
 
 ---
 
+## 🛡️ Defense-in-Depth Validation
+
+> **After finding a bug's root cause, add validation at EVERY layer.**
+> Based on obra/superpowers systematic debugging methodology.
+
+### Why Multiple Layers?
+
+Single validation: "We fixed the bug"
+Multiple layers: "We made the bug impossible"
+
+Different layers catch different cases:
+- Entry validation catches most bugs
+- Business logic catches edge cases
+- Environment guards prevent context-specific dangers
+- Debug logging helps when other layers fail
+
+### The Four Layers
+
+#### Layer 1: Entry Point Validation
+**Purpose:** Reject obviously invalid input at API boundary
+
+```python
+from app.core.exceptions import ValidationError
+
+@router.post("/documents")
+async def create_document(
+    data: DocumentCreate,
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user)
+):
+    # Layer 1: Entry validation
+    if not data.topic or data.topic.strip() == "":
+        raise ValidationError("Topic cannot be empty")
+
+    if not 3 <= data.page_count <= 200:
+        raise ValidationError("Page count must be 3-200")
+
+    if data.language not in ["en", "de", "fr", "es", "it", "cs", "uk"]:
+        raise ValidationError(f"Unsupported language: {data.language}")
+
+    # Proceed to service layer
+    doc = await document_service.create(db, data, user.id)
+    return doc
+```
+
+#### Layer 2: Business Logic Validation
+**Purpose:** Ensure data makes sense for this operation
+
+```python
+# app/services/document_service.py
+
+async def create_document(
+    db: AsyncSession,
+    data: DocumentCreate,
+    user_id: UUID
+) -> Document:
+    # Layer 2: Business logic validation
+    if not user_id:
+        raise ValidationError("User ID required for document creation")
+
+    # Check user exists and is active
+    user = await db.get(User, user_id)
+    if not user:
+        raise NotFoundError("User not found")
+    if not user.is_active:
+        raise ValidationError("User account is not active")
+
+    # Check user hasn't exceeded quota
+    count = await db.execute(
+        select(func.count()).select_from(Document)
+        .where(Document.user_id == user_id)
+        .where(Document.created_at > datetime.utcnow() - timedelta(days=1))
+    )
+    if count.scalar() >= 10:
+        raise ValidationError("Daily document limit exceeded")
+
+    # Create document
+    doc = Document(**data.dict(), user_id=user_id)
+    db.add(doc)
+    await db.commit()
+    return doc
+```
+
+#### Layer 3: Environment Guards
+**Purpose:** Prevent dangerous operations in specific contexts
+
+```python
+# app/services/storage_service.py
+
+async def save_document_file(
+    file_path: str,
+    content: bytes
+) -> str:
+    # Layer 3: Environment guards
+    if settings.ENVIRONMENT == "test":
+        # Refuse to save outside temp directory in tests
+        import tempfile
+        normalized_path = os.path.normpath(os.path.abspath(file_path))
+        temp_dir = tempfile.gettempdir()
+
+        if not normalized_path.startswith(temp_dir):
+            raise ValueError(
+                f"Refusing file save outside temp dir during tests: {file_path}"
+            )
+
+    # In production, verify MinIO is accessible
+    if settings.ENVIRONMENT == "production":
+        try:
+            minio_client.bucket_exists(settings.MINIO_BUCKET)
+        except Exception as e:
+            logger.error("MinIO not accessible", exc_info=True)
+            raise ServiceUnavailableError("Storage service unavailable")
+
+    # Proceed with save
+    await minio_client.put_object(
+        settings.MINIO_BUCKET,
+        file_path,
+        io.BytesIO(content),
+        len(content)
+    )
+    return file_path
+```
+
+#### Layer 4: Debug Instrumentation
+**Purpose:** Capture context for forensics when something goes wrong
+
+```python
+import traceback
+from loguru import logger
+
+async def generate_document_sections(
+    document_id: UUID,
+    outline: list[dict]
+) -> list[dict]:
+    # Layer 4: Debug instrumentation
+    logger.debug("Starting section generation", extra={
+        "document_id": str(document_id),
+        "outline_count": len(outline),
+        "environment": settings.ENVIRONMENT,
+        "worker_pid": os.getpid(),
+        "stack": traceback.format_stack()
+    })
+
+    sections = []
+    for i, item in enumerate(outline):
+        logger.debug(f"Generating section {i+1}/{len(outline)}", extra={
+            "document_id": str(document_id),
+            "section_title": item["title"],
+            "target_pages": item["pages"]
+        })
+
+        section = await ai_service.generate_section(item)
+        sections.append(section)
+
+    logger.info("Section generation complete", extra={
+        "document_id": str(document_id),
+        "sections_generated": len(sections),
+        "total_pages": sum(s.get("pages", 0) for s in sections)
+    })
+
+    return sections
+```
+
+### Real Example: Empty Directory Bug
+
+**Bug:** Empty `working_directory` caused file operations in wrong location
+
+**Data flow traced:**
+1. Frontend sends `{working_directory: null}`
+2. Pydantic converts to empty string
+3. `create_document()` receives empty string
+4. `storage_service.save_file('')` uses `process.cwd()`
+5. Files saved in source code directory instead of temp
+
+**Four layers added:**
+
+```python
+# Layer 1: API Entry Point
+@router.post("/documents")
+async def create_document(data: DocumentCreate):
+    if not data.working_directory or data.working_directory.strip() == "":
+        raise ValidationError("working_directory cannot be empty")
+    if not os.path.exists(data.working_directory):
+        raise ValidationError(f"Directory does not exist: {data.working_directory}")
+    # ...
+
+# Layer 2: Service Layer
+async def create_document(db, data, user_id):
+    if not data.working_directory:
+        raise ValidationError("working_directory required")
+    if not os.path.isdir(data.working_directory):
+        raise ValidationError("working_directory must be a directory")
+    # ...
+
+# Layer 3: Storage Layer (Environment Guard)
+async def save_file(file_path: str, content: bytes):
+    if settings.ENVIRONMENT == "test":
+        import tempfile
+        if not file_path.startswith(tempfile.gettempdir()):
+            raise ValueError(f"Refusing save outside temp: {file_path}")
+    # ...
+
+# Layer 4: Debug Logging
+logger.debug("File save operation", extra={
+    "file_path": file_path,
+    "cwd": os.getcwd(),
+    "environment": settings.ENVIRONMENT,
+    "stack": traceback.format_stack()
+})
+```
+
+**Result:** Bug impossible to reproduce. All 265 tests passed.
+
+### Applying the Pattern
+
+When you find a bug:
+
+1. **Trace the data flow** - Where does bad value originate? Where used?
+2. **Map all checkpoints** - List every point data passes through
+3. **Add validation at each layer** - Entry, business, environment, debug
+4. **Test each layer** - Try to bypass layer 1, verify layer 2 catches it
+
+**Key insight:** Don't stop at one validation point. Add checks at every layer.
+
+---
+
 ## ❌ Anti-Patterns (What NOT to Do)
+
+````
 
 ### Database
 ```python

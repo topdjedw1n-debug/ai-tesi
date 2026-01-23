@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminApiClient, RefundRequest, RefundStats } from '@/lib/api/admin'
 import { RefundsTable } from '@/components/admin/refunds/RefundsTable'
@@ -21,16 +21,7 @@ export default function AdminRefundsPage() {
   const [total, setTotal] = useState(0)
   const [pendingCount, setPendingCount] = useState(0)
 
-  useEffect(() => {
-    fetchData()
-    const interval = setInterval(() => {
-      fetchPendingCount()
-    }, 30000) // Refresh pending count every 30 seconds
-
-    return () => clearInterval(interval)
-  }, [activeTab, page, perPage])
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true)
       const status = activeTab === 'all' ? undefined : activeTab
@@ -51,9 +42,9 @@ export default function AdminRefundsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [activeTab, page, perPage])
 
-  const fetchPendingCount = async () => {
+  const fetchPendingCount = useCallback(async () => {
     try {
       const response = await adminApiClient.getPendingRefunds()
       setPendingCount(response.count || 0)
@@ -61,7 +52,16 @@ export default function AdminRefundsPage() {
       // Silent fail for background refresh
       console.error('Failed to fetch pending count:', error)
     }
-  }
+  }, [])
+
+  useEffect(() => {
+    fetchData()
+    const interval = setInterval(() => {
+      fetchPendingCount()
+    }, 30000) // Refresh pending count every 30 seconds
+
+    return () => clearInterval(interval)
+  }, [fetchData, fetchPendingCount])
 
   const handleRefundClick = (refund: RefundRequest) => {
     router.push(`/admin/refunds/${refund.id}`)

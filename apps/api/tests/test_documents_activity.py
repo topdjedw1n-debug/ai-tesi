@@ -3,23 +3,26 @@ Tests for /api/v1/documents/activity endpoint
 """
 
 import os
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
 
-from main import app  # noqa: E402
 from app.core.database import AsyncSessionLocal, Base, get_engine
+from app.core.security import create_access_token
 from app.models.auth import User
 from app.models.document import Document
-from app.core.security import create_access_token
+from main import app  # noqa: E402
 
 
 @pytest.fixture
@@ -76,9 +79,7 @@ async def test_activity_returns_empty_for_new_user(
     client: AsyncClient, test_user: User, auth_headers: dict
 ):
     """Test that activity returns empty list for user with no documents"""
-    response = await client.get(
-        "/api/v1/documents/activity", headers=auth_headers
-    )
+    response = await client.get("/api/v1/documents/activity", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert "activities" in data
@@ -109,14 +110,12 @@ async def test_activity_returns_user_documents(
     test_db.add_all([doc1, doc2])
     await test_db.commit()
 
-    response = await client.get(
-        "/api/v1/documents/activity", headers=auth_headers
-    )
+    response = await client.get("/api/v1/documents/activity", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert "activities" in data
     assert len(data["activities"]) == 2
-    
+
     # Check activity structure
     activity = data["activities"][0]
     assert "id" in activity
@@ -143,7 +142,7 @@ async def test_activity_idor_protection(
     )
     test_db.add(other_user)
     await test_db.flush()
-    
+
     other_doc = Document(
         user_id=other_user.id,
         title="Other User Document",
@@ -151,7 +150,7 @@ async def test_activity_idor_protection(
         status="completed",
     )
     test_db.add(other_doc)
-    
+
     # Create document for test user
     my_doc = Document(
         user_id=test_user.id,
@@ -163,12 +162,10 @@ async def test_activity_idor_protection(
     await test_db.commit()
 
     # Fetch activities for test user
-    response = await client.get(
-        "/api/v1/documents/activity", headers=auth_headers
-    )
+    response = await client.get("/api/v1/documents/activity", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
-    
+
     # Should only see own document
     assert len(data["activities"]) == 1
     assert data["activities"][0]["title"] == "My Document"
@@ -211,9 +208,7 @@ async def test_activity_limit_parameter(
 
 
 @pytest.mark.asyncio
-async def test_activity_limit_validation(
-    client: AsyncClient, auth_headers: dict
-):
+async def test_activity_limit_validation(client: AsyncClient, auth_headers: dict):
     """Test limit parameter validation"""
     # Test limit=0 (below minimum)
     response = await client.get(
@@ -237,10 +232,10 @@ async def test_activity_ordering(
 ):
     """Test activities are ordered by most recent first"""
     from datetime import datetime, timedelta
-    
+
     # Create documents with explicit timestamps
     now = datetime.utcnow()
-    
+
     doc1 = Document(
         user_id=test_user.id,
         title="First Document",
@@ -250,7 +245,7 @@ async def test_activity_ordering(
     )
     test_db.add(doc1)
     await test_db.flush()
-    
+
     doc2 = Document(
         user_id=test_user.id,
         title="Second Document",
@@ -261,12 +256,10 @@ async def test_activity_ordering(
     test_db.add(doc2)
     await test_db.commit()
 
-    response = await client.get(
-        "/api/v1/documents/activity", headers=auth_headers
-    )
+    response = await client.get("/api/v1/documents/activity", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
-    
+
     # Most recent should be first
     assert len(data["activities"]) == 2
     assert data["activities"][0]["title"] == "Second Document"
@@ -289,7 +282,7 @@ async def test_activity_status_mapping(
         ("failed", "error"),
         ("outline_generated", "success"),
     ]
-    
+
     for doc_status, expected_activity_status in statuses:
         doc = Document(
             user_id=test_user.id,
@@ -300,15 +293,13 @@ async def test_activity_status_mapping(
         test_db.add(doc)
     await test_db.commit()
 
-    response = await client.get(
-        "/api/v1/documents/activity", headers=auth_headers
-    )
+    response = await client.get("/api/v1/documents/activity", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
-    
+
     # Verify status mapping
     activities_by_title = {a["title"]: a for a in data["activities"]}
-    
+
     for doc_status, expected_activity_status in statuses:
         title = f"Doc {doc_status}"
         assert title in activities_by_title

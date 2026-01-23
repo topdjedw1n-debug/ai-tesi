@@ -31,12 +31,12 @@ export function AISettingsForm({
 
   useEffect(() => {
     if (initialSettings) {
-      setDefaultProvider(initialSettings.default_provider)
-      setDefaultModel(initialSettings.default_model)
+      setDefaultProvider(initialSettings.default_provider ?? '')
+      setDefaultModel(initialSettings.default_model ?? '')
       setFallbackModels(initialSettings.fallback_models || [])
-      setMaxRetries(initialSettings.max_retries)
-      setTimeoutSeconds(initialSettings.timeout_seconds)
-      setTemperatureDefault(initialSettings.temperature_default)
+      setMaxRetries(initialSettings.max_retries ?? 3)
+      setTimeoutSeconds(initialSettings.timeout_seconds ?? 30)
+      setTemperatureDefault(initialSettings.temperature_default ?? 0.7)
     }
   }, [initialSettings])
 
@@ -56,9 +56,12 @@ export function AISettingsForm({
     await onSave({
       default_provider: defaultProvider,
       default_model: defaultModel,
+      available_models: [],
       fallback_models: fallbackModels,
+      max_tokens: 4000,
       max_retries: maxRetries,
       timeout_seconds: timeoutSeconds,
+      temperature: temperatureDefault,
       temperature_default: temperatureDefault,
     })
   }

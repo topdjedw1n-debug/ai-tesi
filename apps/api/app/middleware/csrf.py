@@ -2,8 +2,8 @@
 Simple CSRF middleware requiring X-CSRF-Token for state-changing requests.
 """
 
-from collections.abc import Callable
 import os
+from collections.abc import Callable
 
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -14,15 +14,16 @@ class CSRFMiddleware(BaseHTTPMiddleware):
 
     This is a minimal protection layer for browser-based requests. For proper
     CSRF protection, pair with same-site cookies and rotating CSRF tokens.
-    
+
     Disabled in development environment.
     """
 
-    async def dispatch(self, request: Request, call_next: Callable):  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: Callable) -> Response:
         # Skip CSRF check in development
         if os.getenv("ENVIRONMENT", "development") == "development":
-            return await call_next(request)
-            
+            response: Response = await call_next(request)
+            return response
+
         if request.method.upper() in {"POST", "PUT", "PATCH", "DELETE"}:
             token = request.headers.get("X-CSRF-Token")
             if token is None or len(token) < 16:
@@ -31,4 +32,5 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     status_code=403,
                     media_type="application/json",
                 )
-        return await call_next(request)
+        response: Response = await call_next(request)
+        return response

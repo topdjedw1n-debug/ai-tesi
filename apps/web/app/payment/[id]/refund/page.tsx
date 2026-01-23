@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Image from 'next/image'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { refundsApiClient, RefundRequestCreate } from '@/lib/api/refunds'
@@ -32,13 +33,7 @@ export default function RequestRefundPage() {
     screenshotUrls: [] as string[],
   })
 
-  useEffect(() => {
-    if (paymentId) {
-      fetchPayment()
-    }
-  }, [paymentId])
-
-  const fetchPayment = async () => {
+  const fetchPayment = useCallback(async () => {
     try {
       setIsLoading(true)
       // Use apiClient which handles auth automatically
@@ -64,7 +59,13 @@ export default function RequestRefundPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [paymentId, router])
+
+  useEffect(() => {
+    if (paymentId) {
+      fetchPayment()
+    }
+  }, [paymentId, fetchPayment])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -273,9 +274,11 @@ export default function RequestRefundPage() {
               <div className="mt-4 grid grid-cols-3 gap-4">
                 {formData.screenshotUrls.map((url, index) => (
                   <div key={index} className="relative">
-                    <img
+                    <Image
                       src={url}
                       alt={`Screenshot ${index + 1}`}
+                      width={200}
+                      height={128}
                       className="w-full h-32 object-cover rounded border border-gray-300"
                     />
                     <button

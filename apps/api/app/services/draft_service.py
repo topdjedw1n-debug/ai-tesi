@@ -222,8 +222,8 @@ class DraftService:
 
         # Restore document content from draft
         document.content = draft.content
-        document.status = "draft"  # Reset status to draft
-        document.updated_at = datetime.now()
+        document.status = "draft"  # type: ignore[assignment]  # Reset status to draft
+        document.updated_at = datetime.now()  # type: ignore[assignment]
 
         await self.db.commit()
 

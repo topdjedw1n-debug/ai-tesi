@@ -21,7 +21,6 @@ import logging
 from collections.abc import AsyncGenerator
 from datetime import timedelta
 from io import BytesIO
-from typing import Optional
 
 from fastapi import HTTPException
 from minio import Minio
@@ -35,9 +34,9 @@ logger = logging.getLogger(__name__)
 class StorageService:
     """Centralized MinIO/S3 storage operations."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize service with lazy client loading."""
-        self._client: Optional[Minio] = None
+        self._client: Minio | None = None
 
     @property
     def client(self) -> Minio:
@@ -142,6 +141,7 @@ class StorageService:
         Raises:
             HTTPException: 404 if not found, 500 if download fails
         """
+        object_name = self._parse_s3_path(file_path)
         try:
             bucket_name, object_name = self._parse_path(file_path)
 
@@ -153,7 +153,7 @@ class StorageService:
             response.release_conn()
 
             logger.info(f"✅ Downloaded from MinIO: {object_name} ({len(data)} bytes)")
-            return data
+            return bytes(data)  # Explicit cast to bytes
 
         except S3Error as e:
             if e.code == "NoSuchKey":
@@ -287,7 +287,7 @@ class StorageService:
             logger.info(
                 f"Generated presigned URL: {object_name} (expires in {expiry_seconds}s)"
             )
-            return url
+            return str(url)  # Explicit cast to str
 
         except S3Error as e:
             logger.error(f"Failed to generate presigned URL: {e}")

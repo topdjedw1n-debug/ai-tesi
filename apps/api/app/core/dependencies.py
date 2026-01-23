@@ -3,6 +3,7 @@ FastAPI dependencies for authentication and authorization
 """
 
 import logging
+from collections.abc import Callable
 
 from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -292,7 +293,7 @@ async def get_current_user_ws(
         raise WebSocketException(code=1011, reason="Internal error") from e
 
 
-def require_permission(permission: AdminPermissions):
+def require_permission(permission: AdminPermissions) -> Callable:
     """
     Factory function to create a dependency that checks for a specific permission.
 
@@ -333,7 +334,9 @@ def require_permission(permission: AdminPermissions):
         # Check permission in database
         from app.services.permission_service import check_user_permission
 
-        has_permission = await check_user_permission(db, current_user.id, permission)
+        has_permission = await check_user_permission(
+            db, int(current_user.id), permission
+        )
 
         if not has_permission:
             logger.warning(

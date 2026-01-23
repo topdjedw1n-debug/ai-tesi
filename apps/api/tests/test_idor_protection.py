@@ -19,29 +19,29 @@ async def test_document_access_different_user(db_session):
     # Create user1
     user1 = User(email="user1@example.com", full_name="User 1")
     db_session.add(user1)
-    
+
     # Create user2
     user2 = User(email="user2@example.com", full_name="User 2")
     db_session.add(user2)
-    
+
     await db_session.commit()
     await db_session.refresh(user1)
     await db_session.refresh(user2)
-    
+
     # Create document for user2
     document = Document(
         user_id=user2.id,
         title="User 2's Document",
         topic="Secret Topic",
-        status="draft"
+        status="draft",
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # user1 tries to access user2's document - should get 404
     service = DocumentService(db_session)
-    
+
     with pytest.raises(NotFoundError, match="Document not found"):
         await service.check_document_ownership(document.id, user1.id)
 
@@ -56,21 +56,21 @@ async def test_document_update_different_user(db_session):
     await db_session.commit()
     await db_session.refresh(user1)
     await db_session.refresh(user2)
-    
+
     # Create document for user2
     document = Document(
         user_id=user2.id,
         title="User 2's Document",
         topic="Secret Topic",
-        status="draft"
+        status="draft",
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # user1 tries to update user2's document
     service = DocumentService(db_session)
-    
+
     with pytest.raises(NotFoundError, match="Document not found"):
         await service.check_document_ownership(document.id, user1.id)
 
@@ -85,21 +85,21 @@ async def test_document_delete_different_user(db_session):
     await db_session.commit()
     await db_session.refresh(user1)
     await db_session.refresh(user2)
-    
+
     # Create document for user2
     document = Document(
         user_id=user2.id,
         title="User 2's Document",
         topic="Secret Topic",
-        status="draft"
+        status="draft",
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # user1 tries to delete user2's document
     service = DocumentService(db_session)
-    
+
     with pytest.raises(NotFoundError, match="Document not found"):
         await service.check_document_ownership(document.id, user1.id)
 
@@ -114,22 +114,22 @@ async def test_document_export_different_user(db_session):
     await db_session.commit()
     await db_session.refresh(user1)
     await db_session.refresh(user2)
-    
+
     # Create document for user2
     document = Document(
         user_id=user2.id,
         title="User 2's Document",
         topic="Secret Topic",
         status="completed",
-        content="Secret content"
+        content="Secret content",
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # user1 tries to export user2's document
     service = DocumentService(db_session)
-    
+
     with pytest.raises(NotFoundError, match="Document not found"):
         await service.check_document_ownership(document.id, user1.id)
 
@@ -142,22 +142,19 @@ async def test_document_owner_can_access(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create document for user
     document = Document(
-        user_id=user.id,
-        title="My Document",
-        topic="My Topic",
-        status="draft"
+        user_id=user.id, title="My Document", topic="My Topic", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # Owner should be able to access
     service = DocumentService(db_session)
     result = await service.check_document_ownership(document.id, user.id)
-    
+
     assert result.id == document.id
     assert result.user_id == user.id
 
@@ -172,22 +169,22 @@ async def test_payment_access_different_user(db_session):
     await db_session.commit()
     await db_session.refresh(user1)
     await db_session.refresh(user2)
-    
+
     # Create payment for user2
     payment = Payment(
         user_id=user2.id,
         stripe_payment_intent_id="pi_test_123",
         amount=100.00,
         currency="EUR",
-        status="completed"
+        status="completed",
     )
     db_session.add(payment)
     await db_session.commit()
     await db_session.refresh(payment)
-    
+
     # user1 tries to access user2's payment - should get 404
     service = PaymentService(db_session)
-    
+
     with pytest.raises(ValueError, match="Payment not found"):
         await service.check_payment_ownership(payment.id, user1.id)
 
@@ -200,23 +197,23 @@ async def test_payment_owner_can_access(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create payment for user
     payment = Payment(
         user_id=user.id,
         stripe_payment_intent_id="pi_test_123",
         amount=100.00,
         currency="EUR",
-        status="completed"
+        status="completed",
     )
     db_session.add(payment)
     await db_session.commit()
     await db_session.refresh(payment)
-    
+
     # Owner should be able to access
     service = PaymentService(db_session)
     result = await service.check_payment_ownership(payment.id, user.id)
-    
+
     assert result.id == payment.id
     assert result.user_id == user.id
 
@@ -229,10 +226,10 @@ async def test_nonexistent_document_access(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Try to access non-existent document
     service = DocumentService(db_session)
-    
+
     with pytest.raises(NotFoundError, match="Document not found"):
         await service.check_document_ownership(99999, user.id)
 
@@ -245,10 +242,9 @@ async def test_nonexistent_payment_access(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Try to access non-existent payment
     service = PaymentService(db_session)
-    
+
     with pytest.raises(ValueError, match="Payment not found"):
         await service.check_payment_ownership(99999, user.id)
-

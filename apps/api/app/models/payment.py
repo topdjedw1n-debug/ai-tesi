@@ -50,5 +50,5 @@ class Payment(Base):
     user = relationship("User", back_populates="payments")
     document = relationship("Document", back_populates="payment", uselist=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Payment(id={self.id}, user_id={self.user_id}, status={self.status})>"

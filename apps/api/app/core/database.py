@@ -8,7 +8,7 @@ import time
 from typing import Any
 
 import sqlalchemy
-from sqlalchemy import event, text
+from sqlalchemy import event, select, text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -119,14 +119,24 @@ def _create_engine_safe() -> AsyncEngine:
 
         @event.listens_for(_engine.sync_engine, "before_cursor_execute")
         def before_cursor_execute(
-            conn, cursor, statement, parameters, context, executemany
-        ):  # type: ignore[no-redef]
+            conn: Any,
+            cursor: Any,
+            statement: str,
+            parameters: Any,
+            context: Any,
+            executemany: bool,
+        ) -> None:
             context._query_start_time = time.time()
 
         @event.listens_for(_engine.sync_engine, "after_cursor_execute")
         def after_cursor_execute(
-            conn, cursor, statement, parameters, context, executemany
-        ):  # type: ignore[no-redef]
+            conn: Any,
+            cursor: Any,
+            statement: str,
+            parameters: Any,
+            context: Any,
+            executemany: bool,
+        ) -> None:
             total_ms = (
                 time.time() - getattr(context, "_query_start_time", time.time())
             ) * 1000
@@ -183,7 +193,7 @@ async def get_db() -> AsyncSession:
             await session.close()
 
 
-async def init_db():
+async def init_db() -> None:
     """Initialize database tables"""
     try:
         engine = get_engine()
@@ -262,7 +272,7 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
     Returns:
         dict with status (healthy/needs-attention/critical) and checks details
     """
-    checks = {
+    checks: dict[str, Any] = {
         "connectivity": False,
         "table_counts": {},
         "indexes_ok": False,
@@ -286,9 +296,15 @@ async def verify_db_backup(db: AsyncSession) -> dict[str, Any]:
         )
         tables = [row[0] for row in result.fetchall()]
 
-        for table in tables:
-            count_result = await db.execute(text(f"SELECT COUNT(*) FROM {table}"))
-            checks["table_counts"][table] = count_result.scalar()
+        # Use SQLAlchemy identifier() to safely quote table names
+        from sqlalchemy import column, func
+        from sqlalchemy import table as sa_table
+
+        for table_name in tables:
+            # Create a table reference safely
+            tbl = sa_table(table_name, column("id"))  # dummy column for count
+            count_result = await db.execute(select(func.count()).select_from(tbl))
+            checks["table_counts"][table_name] = count_result.scalar()
 
         # Check critical indexes exist
         index_result = await db.execute(

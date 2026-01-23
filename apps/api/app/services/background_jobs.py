@@ -54,7 +54,7 @@ async def get_redis() -> aioredis.Redis:
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def background_task_error_handler(task_name: str):
+def background_task_error_handler(task_name: str) -> Callable[[F], F]:
     """
     Decorator for background tasks to provide consistent error handling
 
@@ -548,7 +548,6 @@ class BackgroundJobService:
                         final_plagiarism_score = None
                         final_ai_score = None
                         final_quality_score = None
-                        quality_errors = []
 
                         for attempt in range(
                             settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
@@ -680,7 +679,6 @@ class BackgroundJobService:
                             if not settings.QUALITY_GATES_ENABLED or gates_passed:
                                 # ALL GATES PASSED or GATES DISABLED ✅
                                 final_content = humanized_content
-                                quality_errors = []  # Clear errors
                                 logger.info(
                                     f"✅ Section {section_index} passed all quality gates (enabled={settings.QUALITY_GATES_ENABLED})"
                                 )
@@ -688,7 +686,6 @@ class BackgroundJobService:
 
                             elif attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS:
                                 # GATES FAILED but ATTEMPTS REMAIN → REGENERATE
-                                quality_errors = attempt_errors
                                 logger.warning(
                                     f"⚠️ Section {section_index} attempt {attempt_num} failed quality gates: "
                                     f"{', '.join(attempt_errors)}. Regenerating..."
@@ -807,7 +804,9 @@ class BackgroundJobService:
                             user_id,
                             {
                                 "stage": "quality_check",
-                                "progress": min(95, 50 + (section_index / total_sections) * 40),
+                                "progress": min(
+                                    95, 50 + (section_index / total_sections) * 40
+                                ),
                                 "message": f"Section {section_index} quality validated",
                                 "quality_score": final_quality_score,
                                 "quality_passed": True,
@@ -858,7 +857,7 @@ class BackgroundJobService:
                         await db.commit()
 
                         # Send WebSocket error notification
-                        await manager.send_error(
+                        await manager.send_progress(  # was: send_error (method does not exist)
                             user_id,
                             {
                                 "error": "quality_threshold_not_met",

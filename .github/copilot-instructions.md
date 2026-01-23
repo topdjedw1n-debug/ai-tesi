@@ -50,6 +50,24 @@
 If you've tried 3+ fixes and issue persists → **STOP**.
 Say: "This may be an architectural issue, not a bug. Let's discuss approach."
 
+### Debugging Iron Law
+**❌ NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST**
+
+Before proposing ANY fix:
+1. Complete root cause investigation (Phase 1)
+2. Understand the pattern (Phase 2)
+3. Form and test hypothesis (Phase 3)
+4. Only then implement fix (Phase 4)
+
+**See:** `.github/DEBUG_PROTOCOL.md` for full systematic debugging process.
+
+**Red flags that you're violating this:**
+- "Quick fix for now"
+- "Just try changing X"
+- "I think the problem is..." (without evidence)
+- Proposing solutions before tracing data flow
+- Each fix reveals new problem elsewhere
+
 ---
 
 ## 🟠 P1: ARCHITECTURE CONSTRAINTS
@@ -83,7 +101,7 @@ apps/web/
 # ✅ Endpoints: Use dependency injection
 async def endpoint(db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(User))
-    
+
 # ✅ Background jobs: Use context manager
 async def background_task():
     async with AsyncSessionLocal() as db:
@@ -98,7 +116,7 @@ async def background_task():
 async def endpoint(user: User = Depends(get_current_user)): ...
 
 # Admins: Password → Session
-@router.get("/admin-endpoint")  
+@router.get("/admin-endpoint")
 async def endpoint(admin: User = Depends(get_admin_user)): ...
 ```
 
@@ -168,10 +186,11 @@ raise NotFoundError("Document not found")           # 404
 | Priority | Document | Use For |
 |----------|----------|---------|
 | 1 | **This file** (`copilot-instructions.md`) | How to work, rules, constraints |
-| 2 | **`AI_PLAYBOOK.md`** | Code patterns, examples, "how we do X" |
-| 3 | **`docs/MASTER_DOCUMENT.md`** | Full technical reference |
-| 4 | **`docs/sec/DECISIONS_LOG.md`** | Why we chose X over Y |
-| 5 | **`docs/MVP_PLAN.md`** | Current status, TODOs, temporary solutions |
+| 2 | **`DEBUG_PROTOCOL.md`** | Systematic debugging (4 phases, root cause) |
+| 3 | **`AI_PLAYBOOK.md`** | Code patterns, examples, "how we do X" |
+| 4 | **`docs/MASTER_DOCUMENT.md`** | Full technical reference |
+| 5 | **`docs/sec/DECISIONS_LOG.md`** | Why we chose X over Y |
+| 6 | **`docs/MVP_PLAN.md`** | Current status, TODOs, temporary solutions |
 
 **Ignore:** `/docs/archive/`, `/reports/` (outdated)
 
@@ -251,7 +270,7 @@ raise NotFoundError("Document not found")           # 404
 cd apps/api && pytest tests/ -v                    # Run tests
 cd apps/api && uvicorn main:app --reload           # Start dev server
 
-# Frontend  
+# Frontend
 cd apps/web && npm run dev                         # Start dev server
 cd apps/web && npm test                            # Run tests
 
@@ -267,4 +286,5 @@ cd infra/docker && docker-compose up -d            # Start DB/Redis/MinIO
 
 **Remember: Quality > Speed. Proof > Assumptions. Ask > Guess.**
 
+**For debugging, see: `.github/DEBUG_PROTOCOL.md`**
 **For patterns and examples, see: `.github/AI_PLAYBOOK.md`**

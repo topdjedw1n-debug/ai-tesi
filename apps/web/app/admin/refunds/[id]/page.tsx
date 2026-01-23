@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient, RefundDetails } from '@/lib/api/admin'
 import { RefundReviewForm } from '@/components/admin/refunds/RefundReviewForm'
@@ -14,13 +14,7 @@ export default function AdminRefundDetailsPage() {
   const [refund, setRefund] = useState<RefundDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (refundId) {
-      fetchRefundDetails()
-    }
-  }, [refundId])
-
-  const fetchRefundDetails = async () => {
+  const fetchRefundDetails = useCallback(async () => {
     try {
       setIsLoading(true)
       const refundData = await adminApiClient.getRefund(refundId)
@@ -32,7 +26,13 @@ export default function AdminRefundDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [refundId, router])
+
+  useEffect(() => {
+    if (refundId) {
+      fetchRefundDetails()
+    }
+  }, [refundId, fetchRefundDetails])
 
   const handleApprove = async (refundAmount: number | null, adminComment: string) => {
     if (!refund) return

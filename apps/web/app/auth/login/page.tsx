@@ -37,7 +37,7 @@ export default function LoginPage() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
           <p className="text-gray-600 mb-6">
-            We've sent a magic link to <span className="font-semibold">{email}</span>
+            We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>
           </p>
           <p className="text-sm text-gray-500 mb-4">
             Click the link in the email to sign in. The link will expire in 15 minutes.
@@ -89,7 +89,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <button
               onClick={() => router.push('/auth/register')}
               className="text-blue-600 hover:text-blue-700 font-medium"

@@ -117,7 +117,7 @@ class PaymentService:
                 "currency": currency,
             }
 
-        except stripe.error.StripeError as e:
+        except stripe.error.StripeError as e:  # type: ignore[attr-defined]
             logger.error(f"❌ Stripe error: {e}")
             raise ValueError(f"Payment creation failed: {str(e)}") from e
         except Exception as e:
@@ -213,7 +213,7 @@ class PaymentService:
             self.db.add(payment)
 
             # 7. Update document status to payment_pending
-            document.status = "payment_pending"
+            document.status = "payment_pending"  # type: ignore[assignment]
 
             await self.db.commit()
             await self.db.refresh(payment)
@@ -229,7 +229,7 @@ class PaymentService:
                 "currency": "EUR",
             }
 
-        except stripe.error.StripeError as e:
+        except stripe.error.StripeError as e:  # type: ignore[attr-defined]
             logger.error(f"❌ Stripe error: {e}")
             await self.db.rollback()
             raise ValueError(f"Checkout creation failed: {str(e)}") from e
@@ -242,19 +242,19 @@ class PaymentService:
         """Get or create Stripe customer"""
         if user.stripe_customer_id:
             try:
-                stripe.Customer.retrieve(user.stripe_customer_id)
-                return user.stripe_customer_id
-            except stripe.error.InvalidRequestError:
+                stripe.Customer.retrieve(str(user.stripe_customer_id))
+                return str(user.stripe_customer_id)
+            except stripe.error.InvalidRequestError:  # type: ignore[attr-defined]
                 logger.warning(f"Customer {user.stripe_customer_id} not found")
 
         # Create new customer
         customer = stripe.Customer.create(
-            email=user.email,
-            name=user.full_name or user.email,
+            email=str(user.email),
+            name=str(user.full_name or user.email),
             metadata={"user_id": str(user.id)},
         )
 
-        user.stripe_customer_id = customer.id
+        user.stripe_customer_id = customer.id  # type: ignore[assignment]
         await self.db.commit()
 
         logger.info(f"✅ Created Stripe customer: {customer.id}")
@@ -292,7 +292,7 @@ class PaymentService:
                 logger.warning(f"⚠️ Unhandled event: {event_type}")
                 return None
 
-        except stripe.error.SignatureVerificationError as e:
+        except stripe.error.SignatureVerificationError as e:  # type: ignore[attr-defined]
             logger.error(f"❌ Invalid signature: {e}")
             raise ValueError("Invalid webhook signature") from e
         except Exception as e:
@@ -327,8 +327,8 @@ class PaymentService:
             return payment
 
         # Update payment with payment intent ID and status
-        payment.status = "completed"
-        payment.completed_at = datetime.utcnow()
+        payment.status = "completed"  # type: ignore[assignment]
+        payment.completed_at = datetime.utcnow()  # type: ignore[assignment]
         if payment_intent_id:
             payment.stripe_payment_intent_id = payment_intent_id
 
@@ -340,7 +340,7 @@ class PaymentService:
             document = doc_result.scalar_one_or_none()
             if document:
                 # Mark document as ready for generation
-                document.status = "generating"
+                document.status = "generating"  # type: ignore[assignment]
                 logger.info(
                     f"✅ Document {document.id} ready for generation after payment"
                 )
@@ -376,8 +376,8 @@ class PaymentService:
             return payment
 
         # Update payment
-        payment.status = "completed"
-        payment.completed_at = datetime.utcnow()
+        payment.status = "completed"  # type: ignore[assignment]
+        payment.completed_at = datetime.utcnow()  # type: ignore[assignment]
         payment.payment_method = intent.get("payment_method_types", [None])[0]
 
         # Update document status if exists
@@ -387,7 +387,7 @@ class PaymentService:
             )
             document = doc_result.scalar_one_or_none()
             if document and document.status == "payment_pending":
-                document.status = "generating"
+                document.status = "generating"  # type: ignore[assignment]
 
         await self.db.commit()
         await self.db.refresh(payment)
@@ -408,7 +408,7 @@ class PaymentService:
         if not payment:
             raise ValueError(f"Payment not found: {payment_intent_id}")
 
-        payment.status = "failed"
+        payment.status = "failed"  # type: ignore[assignment]
         payment.failure_reason = intent.get("last_payment_error", {}).get(
             "message", "Unknown"
         )
@@ -419,7 +419,7 @@ class PaymentService:
             )
             document = doc_result.scalar_one_or_none()
             if document:
-                document.status = "payment_failed"
+                document.status = "payment_failed"  # type: ignore[assignment]
 
         await self.db.commit()
         await self.db.refresh(payment)
@@ -438,7 +438,7 @@ class PaymentService:
         payment = result.scalar_one_or_none()
 
         if payment:
-            payment.status = "canceled"
+            payment.status = "canceled"  # type: ignore[assignment]
             await self.db.commit()
             await self.db.refresh(payment)
             logger.info(f"🚫 Payment {payment.id} canceled")
@@ -478,7 +478,7 @@ class PaymentService:
 
             for payment in expired_payments:
                 # Mark payment as expired
-                payment.status = "expired"
+                payment.status = "expired"  # type: ignore[assignment]
                 expired_count += 1
 
                 # Delete draft document if exists

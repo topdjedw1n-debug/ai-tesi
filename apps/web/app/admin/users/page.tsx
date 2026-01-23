@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminApiClient, UserDetails } from '@/lib/api/admin'
 import { UsersTable } from '@/components/admin/users/UsersTable'
@@ -22,11 +22,7 @@ export default function AdminUsersPage() {
   const [sortColumn, setSortColumn] = useState<string | undefined>()
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc')
 
-  useEffect(() => {
-    fetchUsers()
-  }, [page, perPage, search, status])
-
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       setIsLoading(true)
       const params: any = {
@@ -45,7 +41,11 @@ export default function AdminUsersPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [page, perPage, search, status])
+
+  useEffect(() => {
+    fetchUsers()
+  }, [fetchUsers])
 
   const handleUserClick = (user: UserDetails) => {
     router.push(`/admin/users/${user.id}`)

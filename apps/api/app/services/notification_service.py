@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class NotificationService:
     """Service for sending email notifications"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize email service with SMTP configuration"""
         self.fastmail: FastMail | None = None
 
@@ -23,12 +23,14 @@ class NotificationService:
         if self.is_configured():
             try:
                 self.connection_config = ConnectionConfig(
-                    MAIL_USERNAME=settings.SMTP_USER,
-                    MAIL_PASSWORD=settings.SMTP_PASSWORD,
-                    MAIL_FROM=settings.EMAILS_FROM_EMAIL or settings.SMTP_USER,
+                    MAIL_USERNAME=settings.SMTP_USER or "",
+                    MAIL_PASSWORD=settings.SMTP_PASSWORD or "",
+                    MAIL_FROM=settings.EMAILS_FROM_EMAIL
+                    or settings.SMTP_USER
+                    or "noreply@tesigo.com",
                     MAIL_FROM_NAME=settings.EMAILS_FROM_NAME or "TesiGo Platform",
                     MAIL_PORT=settings.SMTP_PORT or 587,
-                    MAIL_SERVER=settings.SMTP_HOST,
+                    MAIL_SERVER=settings.SMTP_HOST or "localhost",
                     MAIL_STARTTLS=settings.SMTP_TLS,
                     MAIL_SSL_TLS=False,  # Use STARTTLS instead
                     USE_CREDENTIALS=True,

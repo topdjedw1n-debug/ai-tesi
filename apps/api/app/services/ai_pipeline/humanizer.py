@@ -146,7 +146,7 @@ class Humanizer:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-            response = await client.messages.create(
+            response = await client.messages.create(  # type: ignore[attr-defined]
                 model=model,
                 max_tokens=4000,
                 temperature=temperature,

@@ -57,10 +57,10 @@ class CustomRequirementsService:
                 )
             if ext != ALLOWED_MIME_TYPES[file.content_type]:
                 raise ValidationError("File extension does not match content type")
-        
+
         # Validate file content with magic bytes check
         await FileValidator.validate_file_content(file, file.content_type)
-        
+
         # Check for ZIP bomb attacks
         await FileValidator.check_zip_bomb(file)
 
@@ -82,7 +82,9 @@ class CustomRequirementsService:
 
             extracted_text = "\n\n".join(text_parts)
             if not extracted_text or not extracted_text.strip():
-                raise ValidationError("PDF file appears to be empty or contains no extractable text")
+                raise ValidationError(
+                    "PDF file appears to be empty or contains no extractable text"
+                )
 
             return extracted_text
         except Exception as e:
@@ -108,7 +110,9 @@ class CustomRequirementsService:
 
             extracted_text = "\n\n".join(text_parts)
             if not extracted_text or not extracted_text.strip():
-                raise ValidationError("DOCX file appears to be empty or contains no extractable text")
+                raise ValidationError(
+                    "DOCX file appears to be empty or contains no extractable text"
+                )
 
             return extracted_text
         except Exception as e:
@@ -152,10 +156,12 @@ class CustomRequirementsService:
         content_type = file.content_type
         if content_type == "application/pdf":
             return await CustomRequirementsService.extract_text_from_pdf(file)
-        elif content_type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        elif (
+            content_type
+            == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        ):
             return await CustomRequirementsService.extract_text_from_docx(file)
         elif content_type == "text/plain":
             return await CustomRequirementsService.extract_text_from_txt(file)
         else:
             raise ValidationError(f"Unsupported file type: {content_type}")
-

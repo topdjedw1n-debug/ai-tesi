@@ -57,7 +57,7 @@ class GDPRService:
                         DocumentSection.document_id.in_(document_ids)
                     )
                 )
-                sections = sections_result.scalars().all()
+                sections: list[Any] = sections_result.scalars().all()
 
             # Get payments
             payments_result = await self.db.execute(
@@ -153,12 +153,13 @@ class GDPRService:
                     {
                         "id": consent.id,
                         "consent_type": consent.consent_type,
-                        "granted": consent.granted,
-                        "granted_at": consent.granted_at.isoformat()
-                        if consent.granted_at
+                        "granted": consent.consented,
+                        "granted_at": consent.created_at.isoformat()
+                        if consent.created_at
                         else None,
-                        "revoked_at": consent.revoked_at.isoformat()
-                        if consent.revoked_at
+                        "revoked_at": consent.updated_at.isoformat()
+                        if not consent.consented
+                        and consent.updated_at != consent.created_at
                         else None,
                         "ip_address": consent.ip_address,
                     }
@@ -208,20 +209,20 @@ class GDPRService:
             deleted_files = []
             for doc in documents:
                 if doc.docx_path:
-                    await self._delete_from_storage(doc.docx_path)
+                    await self._delete_from_storage(str(doc.docx_path))
                     deleted_files.append(doc.docx_path)
                     logger.info(f"Deleted DOCX: {doc.docx_path}")
 
                 if doc.pdf_path:
-                    await self._delete_from_storage(doc.pdf_path)
+                    await self._delete_from_storage(str(doc.pdf_path))
                     deleted_files.append(doc.pdf_path)
                     logger.info(f"Deleted PDF: {doc.pdf_path}")
 
             # Anonymize user data instead of hard delete
-            user.email = f"deleted_{user.id}@deleted.com"
-            user.full_name = "DELETED USER"
-            user.is_active = False
-            user.stripe_customer_id = None
+            user.email = f"deleted_{user.id}@deleted.com"  # type: ignore[assignment]
+            user.full_name = "DELETED USER"  # type: ignore[assignment]
+            user.is_active = False  # type: ignore[assignment]
+            user.stripe_customer_id = None  # type: ignore[assignment]
 
             # Delete consents (sensitive data)
             await self.db.execute(

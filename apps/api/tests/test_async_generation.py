@@ -15,30 +15,27 @@ async def test_async_generation_creates_job(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # Create job
     job = AIGenerationJob(
         document_id=document.id,
         user_id=user.id,
         job_type="document_generation",
         status="queued",
-        progress=0
+        progress=0,
     )
     db_session.add(job)
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     # Verify job was created
     assert job.id is not None
     assert job.status == "queued"
@@ -54,32 +51,30 @@ async def test_job_status_updates(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # Create job
     job = AIGenerationJob(
         document_id=document.id,
         user_id=user.id,
         job_type="document_generation",
         status="queued",
-        progress=0
+        progress=0,
     )
     db_session.add(job)
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     # Update to running
     from sqlalchemy import update
+
     await db_session.execute(
         update(AIGenerationJob)
         .where(AIGenerationJob.id == job.id)
@@ -87,7 +82,7 @@ async def test_job_status_updates(db_session):
     )
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     assert job.status == "running"
     assert job.progress == 50
 
@@ -100,33 +95,32 @@ async def test_job_completes_successfully(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # Create job
     job = AIGenerationJob(
         document_id=document.id,
         user_id=user.id,
         job_type="document_generation",
         status="running",
-        progress=50
+        progress=50,
     )
     db_session.add(job)
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     # Mark as completed
-    from sqlalchemy import update
     from datetime import datetime
+
+    from sqlalchemy import update
+
     await db_session.execute(
         update(AIGenerationJob)
         .where(AIGenerationJob.id == job.id)
@@ -134,7 +128,7 @@ async def test_job_completes_successfully(db_session):
     )
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     assert job.status == "completed"
     assert job.progress == 100
     assert job.completed_at is not None
@@ -148,33 +142,32 @@ async def test_job_fails_gracefully(db_session):
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
-    
+
     # Create document
     document = Document(
-        user_id=user.id,
-        title="Test Thesis",
-        topic="AI in Education",
-        status="draft"
+        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
     )
     db_session.add(document)
     await db_session.commit()
     await db_session.refresh(document)
-    
+
     # Create job
     job = AIGenerationJob(
         document_id=document.id,
         user_id=user.id,
         job_type="document_generation",
         status="running",
-        progress=30
+        progress=30,
     )
     db_session.add(job)
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     # Mark as failed
-    from sqlalchemy import update
     from datetime import datetime
+
+    from sqlalchemy import update
+
     await db_session.execute(
         update(AIGenerationJob)
         .where(AIGenerationJob.id == job.id)
@@ -182,14 +175,13 @@ async def test_job_fails_gracefully(db_session):
             status="failed",
             error_message="Test error message",
             success=False,
-            completed_at=datetime.utcnow()
+            completed_at=datetime.utcnow(),
         )
     )
     await db_session.commit()
     await db_session.refresh(job)
-    
+
     assert job.status == "failed"
     assert job.error_message == "Test error message"
     assert job.success is False
     assert job.completed_at is not None
-

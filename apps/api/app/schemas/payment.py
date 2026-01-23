@@ -9,16 +9,18 @@ from pydantic import BaseModel, Field, field_validator
 class PaymentCreate(BaseModel):
     """Request to create payment intent"""
 
-    amount: Decimal = Field(..., gt=0, le=10000, description="Amount in EUR")
+    amount: Decimal = Field(gt=0, le=10000, description="Amount in EUR")
     currency: str = Field(default="EUR", pattern="^[A-Z]{3}$")
     document_id: int | None = None
     discount_code: str | None = Field(None, max_length=50)
 
     @field_validator("amount")
     @classmethod
-    def validate_amount(cls, v):
+    def validate_amount(cls, v: Decimal) -> Decimal:
         """Ensure amount has max 2 decimal places"""
-        if v.as_tuple().exponent < -2:
+        exponent = v.as_tuple().exponent
+        # exponent is int | Literal['n', 'N', 'F'] for special values
+        if isinstance(exponent, int) and exponent < -2:
             raise ValueError("Amount cannot have more than 2 decimal places")
         return v
 

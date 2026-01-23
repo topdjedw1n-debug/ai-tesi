@@ -19,9 +19,9 @@ class SettingsResponse(BaseModel):
 class PricingSettingsUpdate(BaseModel):
     """Schema for updating pricing settings"""
 
-    price_per_page: Decimal = Field(..., description="Price per page in EUR", gt=0)
-    min_pages: int = Field(..., description="Minimum pages", ge=1)
-    max_pages: int = Field(..., description="Maximum pages", le=200)
+    price_per_page: Decimal = Field(description="Price per page in EUR", gt=0)
+    min_pages: int = Field(description="Minimum pages", ge=1)
+    max_pages: int = Field(description="Maximum pages", le=200)
     currencies: list[str] = Field(default=["EUR"], description="Supported currencies")
 
     model_config = {
@@ -39,8 +39,8 @@ class PricingSettingsUpdate(BaseModel):
 class AISettingsUpdate(BaseModel):
     """Schema for updating AI settings"""
 
-    default_provider: str = Field(..., description="Default AI provider")
-    default_model: str = Field(..., description="Default AI model")
+    default_provider: str = Field(description="Default AI provider")
+    default_model: str = Field(description="Default AI model")
     fallback_models: list[str] = Field(
         default_factory=list, description="Fallback models"
     )
@@ -70,11 +70,11 @@ class LimitSettingsUpdate(BaseModel):
     """Schema for updating limit settings"""
 
     max_concurrent_generations: int = Field(
-        ..., description="Max concurrent generations", ge=1
+        description="Max concurrent generations", ge=1
     )
-    max_documents_per_user: int = Field(..., description="Max documents per user", ge=1)
+    max_documents_per_user: int = Field(description="Max documents per user", ge=1)
     max_pages_per_document: int = Field(
-        ..., description="Max pages per document", ge=1, le=200
+        description="Max pages per document", ge=1, le=200
     )
     daily_token_limit: int | None = Field(
         default=None, description="Daily token limit per user (None = unlimited)"
@@ -95,7 +95,7 @@ class LimitSettingsUpdate(BaseModel):
 class MaintenanceSettingsUpdate(BaseModel):
     """Schema for updating maintenance mode settings"""
 
-    enabled: bool = Field(..., description="Enable maintenance mode")
+    enabled: bool = Field(description="Enable maintenance mode")
     message: str = Field(
         default="System maintenance in progress",
         description="Maintenance message",

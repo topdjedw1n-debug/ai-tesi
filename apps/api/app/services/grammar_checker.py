@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class GrammarChecker:
     """Check grammar and spelling using LanguageTool API"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize grammar checker"""
         # LanguageTool can be self-hosted or use public API
         self.api_url = getattr(
@@ -90,7 +90,7 @@ class GrammarChecker:
 
             # Calculate statistics
             total_errors = len(matches)
-            error_types = {}
+            error_types: dict[str, int] = {}
             for match in matches:
                 category = match.get("category", "unknown")
                 error_types[category] = error_types.get(category, 0) + 1

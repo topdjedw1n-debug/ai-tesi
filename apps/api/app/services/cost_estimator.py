@@ -148,7 +148,7 @@ class CostEstimator:
         return CostEstimator.estimate_document_cost(
             provider=provider,
             model=model,
-            target_pages=int(section_pages * 10) / 10,  # Round to 1 decimal
+            target_pages=int(section_pages * 10),  # Round to 1 decimal
             include_rag=include_rag,
             include_humanization=False,
         )

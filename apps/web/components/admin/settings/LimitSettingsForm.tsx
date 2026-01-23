@@ -31,10 +31,10 @@ export function LimitSettingsForm({
 
   useEffect(() => {
     if (initialSettings) {
-      setMaxConcurrentGenerations(initialSettings.max_concurrent_generations)
+      setMaxConcurrentGenerations(initialSettings.max_concurrent_generations ?? 5)
       setMaxDocumentsPerUser(initialSettings.max_documents_per_user)
       setMaxPagesPerDocument(initialSettings.max_pages_per_document)
-      setDailyTokenLimit(initialSettings.daily_token_limit)
+      setDailyTokenLimit(initialSettings.daily_token_limit ?? null)
       setUnlimitedTokens(initialSettings.daily_token_limit === null)
     }
   }, [initialSettings])
@@ -46,6 +46,7 @@ export function LimitSettingsForm({
       max_documents_per_user: maxDocumentsPerUser,
       max_pages_per_document: maxPagesPerDocument,
       daily_token_limit: unlimitedTokens ? null : dailyTokenLimit,
+      rate_limit_per_minute: 60,
     })
   }
 

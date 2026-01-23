@@ -5,7 +5,7 @@ import re
 
 FILE_PATH = "tests/test_ai_pipeline_integration.py"
 
-with open(FILE_PATH, "r") as f:
+with open(FILE_PATH) as f:
     content = f.read()
 
 # Fix 1: test_humanize_citations_lost_returns_original - add mock for extract_citations
@@ -49,13 +49,13 @@ async def test_humanize_citations_lost_returns_original(
 ):
     \"\"\"Test that original text returned if citations are lost\"\"\"
     original_text = "Text with citation (Smith, 2023) and another (Doe, 2022)."
-    
+
     # Mock citation extraction to return 2 citations from original
     mock_extract.return_value = [
         {"original": "(Smith, 2023)", "year": 2023, "authors": ["Smith"]},
         {"original": "(Doe, 2022)", "year": 2022, "authors": ["Doe"]},
     ]
-    
+
     # Setup mock - return text WITHOUT citations (0% preserved)
     mock_client = MagicMock()
     mock_response = MagicMock()
@@ -89,14 +89,14 @@ else:
 
 fix2_pattern = r'(@pytest\.mark\.asyncio\s+@patch\("app\.services\.ai_pipeline\.rag_retriever\.RAGRetriever\.retrieve_sources"\)\s+async def test_generate_section_with_context\(\s+mock_rag, generator_instance, sample_document\s+\):)'
 
-fix2_replacement = r'''@pytest.mark.asyncio
+fix2_replacement = r"""@pytest.mark.asyncio
 @patch("app.core.config.settings.OPENAI_API_KEY", "test-openai-key")
 @patch("app.core.config.settings.ANTHROPIC_API_KEY", "test-anthropic-key")
 @patch("openai.AsyncOpenAI")
 @patch("app.services.ai_pipeline.rag_retriever.RAGRetriever.retrieve_sources")
 async def test_generate_section_with_context(
     mock_rag, mock_openai_class, generator_instance, sample_document
-):'''
+):"""
 
 content = re.sub(fix2_pattern, fix2_replacement, content, flags=re.DOTALL)
 print("✅ Fixed test_generate_section_with_context decorator")

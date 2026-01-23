@@ -27,7 +27,7 @@ router = APIRouter()
 async def get_all_settings(
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, dict[str, Any]]:
     """
     Get all system settings grouped by category.
 
@@ -49,7 +49,7 @@ async def get_settings_by_category(
     category: str,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Get settings for a specific category.
 
@@ -74,7 +74,7 @@ async def update_pricing_settings(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.CHANGE_PRICING)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Update pricing settings.
 
@@ -98,11 +98,13 @@ async def update_pricing_settings(
         }
 
         # Update settings
-        updated = await service.update_pricing_settings(settings_dict, current_user.id)
+        updated = await service.update_pricing_settings(
+            settings_dict, int(current_user.id)
+        )
 
         # Audit log
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="change_pricing",
             target_type="settings",
             target_id=None,
@@ -131,7 +133,7 @@ async def update_ai_settings(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.CHANGE_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Update AI settings.
 
@@ -155,11 +157,11 @@ async def update_ai_settings(
         }
 
         # Update settings
-        updated = await service.update_ai_settings(settings_dict, current_user.id)
+        updated = await service.update_ai_settings(settings_dict, int(current_user.id))
 
         # Audit log
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="update_ai_settings",
             target_type="settings",
             target_id=None,
@@ -188,7 +190,7 @@ async def update_limit_settings(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.CHANGE_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Update limit settings.
 
@@ -210,11 +212,13 @@ async def update_limit_settings(
         }
 
         # Update settings
-        updated = await service.update_limit_settings(settings_dict, current_user.id)
+        updated = await service.update_limit_settings(
+            settings_dict, int(current_user.id)
+        )
 
         # Audit log
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="update_limit_settings",
             target_type="settings",
             target_id=None,
@@ -245,7 +249,7 @@ async def update_maintenance_settings(
         require_permission(AdminPermissions.SYSTEM_MAINTENANCE)
     ),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Update maintenance mode settings.
 
@@ -274,13 +278,13 @@ async def update_maintenance_settings(
 
         # Update settings
         updated = await service.update_maintenance_settings(
-            settings_dict, current_user.id
+            settings_dict, int(current_user.id)
         )
 
         # Audit log (critical action)
         action = "enable_maintenance" if settings.enabled else "disable_maintenance"
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action=action,
             target_type="settings",
             target_id=None,
@@ -310,7 +314,7 @@ async def update_settings_category(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.CHANGE_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Update settings for a specific category (generic endpoint).
 
@@ -334,11 +338,13 @@ async def update_settings_category(
         old_settings = await service.get_settings_by_category(category)
 
         # Update settings
-        updated = await service.update_settings(category, settings, current_user.id)
+        updated = await service.update_settings(
+            category, settings, int(current_user.id)
+        )
 
         # Audit log
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action=f"update_{category}_settings",
             target_type="settings",
             target_id=None,
@@ -368,7 +374,7 @@ async def get_setting_history(
     key: str,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Get history of changes for a specific setting.
 

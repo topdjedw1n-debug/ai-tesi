@@ -10,7 +10,9 @@ from httpx import AsyncClient
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -183,7 +185,7 @@ async def test_settings_update_flow(client, admin_token):
     # 1. Get current settings
     response = await client.get("/api/v1/admin/settings", headers=headers)
     if response.status_code == 200:
-        initial_settings = response.json()
+        response.json()
 
     # 2. Update pricing settings
     pricing_data = {
@@ -201,7 +203,7 @@ async def test_settings_update_flow(client, admin_token):
         # 3. Verify settings were updated
         response = await client.get("/api/v1/admin/settings/pricing", headers=headers)
         if response.status_code == 200:
-            updated_settings = response.json()
+            response.json()
             # Verify price was updated (depends on API response format)
             pass
 

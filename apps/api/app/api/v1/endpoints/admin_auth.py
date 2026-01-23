@@ -63,7 +63,7 @@ async def admin_login(
     request: Request,
     login_data: AdminLoginRequest,
     db: AsyncSession = Depends(get_db),
-):
+) -> AdminLoginResponse:
     """
     Admin login endpoint (separate from user login).
 
@@ -123,7 +123,7 @@ async def admin_login(
                 User.is_active == True,  # noqa: E712
             )
         )
-        user = result.scalar_one_or_none()
+        user: User | None = result.scalar_one_or_none()
 
         if not user:
             raise AuthenticationError("Admin user not found or inactive")
@@ -133,23 +133,23 @@ async def admin_login(
             raise AuthenticationError("Email mismatch")
 
         # Mark token as used
-        magic_token.is_used = True
-        magic_token.used_at = datetime.utcnow()
+        magic_token.is_used = True  # type: ignore[assignment]
+        magic_token.used_at = datetime.utcnow()  # type: ignore[assignment]
 
         # Update user last login
-        user.last_login = datetime.utcnow()
+        user.last_login = datetime.utcnow()  # type: ignore[assignment]
 
         await db.commit()
 
         # Create admin session
         auth_service = AdminAuthService(db)
-        admin_session = await auth_service.create_admin_session(user.id, request)
+        admin_session = await auth_service.create_admin_session(int(user.id), request)
 
         # Audit log
         log_security_audit_event(
             event_type="admin_auth",
             correlation_id=correlation_id,
-            user_id=user.id,
+            user_id=int(user.id),
             ip=ip,
             endpoint="/api/v1/admin/auth/login",
             resource="auth",
@@ -158,7 +158,7 @@ async def admin_login(
         )
 
         return AdminLoginResponse(
-            session_token=admin_session.session_token,
+            session_token=str(admin_session.session_token),
             expires_at=admin_session.expires_at.isoformat(),
             admin={
                 "id": user.id,
@@ -196,19 +196,19 @@ async def admin_logout(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """Logout all admin sessions for current admin"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
 
     try:
         auth_service = AdminAuthService(db)
-        count = await auth_service.logout_all_admin_sessions(current_user.id)
+        count = await auth_service.logout_all_admin_sessions(int(current_user.id))
 
         log_security_audit_event(
             event_type="admin_auth",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint="/api/v1/admin/auth/logout",
             resource="auth",
@@ -232,7 +232,7 @@ async def logout_admin_session(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """Logout a specific admin session (must be own session or super admin)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -259,7 +259,7 @@ async def logout_admin_session(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/auth/logout-session/{session_id}",
             resource="auth",
@@ -284,20 +284,20 @@ async def get_admin_sessions(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> AdminSessionsListResponse:
     """Get all active admin sessions for current admin"""
     try:
         auth_service = AdminAuthService(db)
-        sessions = await auth_service.get_active_sessions(current_user.id)
+        sessions = await auth_service.get_active_sessions(int(current_user.id))
 
         return AdminSessionsListResponse(
             sessions=[
                 AdminSessionResponse(
-                    id=s.id,
-                    admin_id=s.admin_id,
-                    ip_address=s.ip_address,
-                    user_agent=s.user_agent,
-                    is_active=s.is_active,
+                    id=int(s.id),
+                    admin_id=int(s.admin_id),
+                    ip_address=str(s.ip_address) if s.ip_address else None,
+                    user_agent=str(s.user_agent) if s.user_agent else None,
+                    is_active=bool(s.is_active),
                     created_at=s.created_at.isoformat(),
                     last_activity=s.last_activity.isoformat(),
                     expires_at=s.expires_at.isoformat(),
@@ -320,7 +320,7 @@ async def force_logout_admin_session(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """Force logout another admin's session (requires super admin or MANAGE_ADMINS permission)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -331,7 +331,7 @@ async def force_logout_admin_session(
         from app.services.permission_service import check_user_permission
 
         has_permission = await check_user_permission(
-            db, current_user.id, AdminPermissions.MANAGE_ADMINS
+            db, int(current_user.id), AdminPermissions.MANAGE_ADMINS
         )
         if not has_permission:
             raise HTTPException(
@@ -341,12 +341,12 @@ async def force_logout_admin_session(
 
     try:
         auth_service = AdminAuthService(db)
-        await auth_service.force_logout_session(session_id, current_user.id)
+        await auth_service.force_logout_session(session_id, int(current_user.id))
 
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/auth/force-logout/{session_id}",
             resource="auth",

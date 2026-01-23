@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class PlagiarismChecker:
     """Check documents for plagiarism using Copyscape API"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize plagiarism checker"""
         self.api_key = (
             settings.COPYSCAPE_API_KEY

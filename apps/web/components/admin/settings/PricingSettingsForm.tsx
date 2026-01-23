@@ -60,6 +60,7 @@ export function PricingSettingsForm({
 
     await onSave({
       price_per_page: pricePerPage,
+      currency: 'EUR',
       min_pages: minPages,
       max_pages: maxPages,
       currencies,

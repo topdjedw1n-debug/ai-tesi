@@ -187,7 +187,7 @@ class RefundService:
             "total": total,
             "page": page,
             "per_page": per_page,
-            "pages": (total + per_page - 1) // per_page if per_page > 0 else 1,
+            "pages": ((total or 0) + per_page - 1) // per_page if per_page > 0 else 1,
         }
 
     async def approve_refund(
@@ -247,11 +247,11 @@ class RefundService:
             )
 
             # Update refund request
-            refund_request.status = "approved"
-            refund_request.reviewed_at = datetime.utcnow()
-            refund_request.reviewed_by = admin_id
-            refund_request.admin_comment = admin_comment
-            refund_request.refund_amount = refund_amount_decimal
+            refund_request.status = "approved"  # type: ignore[assignment]
+            refund_request.reviewed_at = datetime.utcnow()  # type: ignore[assignment]
+            refund_request.reviewed_by = admin_id  # type: ignore[assignment]
+            refund_request.admin_comment = admin_comment  # type: ignore[assignment]
+            refund_request.refund_amount = refund_amount_decimal  # type: ignore[assignment]
 
             # Update payment status
             if refund_amount_decimal == payment.amount:
@@ -268,11 +268,17 @@ class RefundService:
                 f"stripe_refund_id={stripe_refund.id}"
             )
 
-            # TODO: Send email notification to user
+            # ROOT CAUSE: Email infrastructure not in MVP scope
+            # TRACE: approve_refund() → [email notification layer missing]
+            # IMPACT: Users don't get notified about refund approval (UX issue)
+            # DECISION: Deferred to post-MVP (see MVP_PLAN.md #2)
+            # TODO: Implement email_service.send_refund_approved(user, refund_request)
+            #   Priority: 🟡 MEDIUM | Time: 3-4h | Blocked by: SMTP config in production
+            #   See: docs/MVP_PLAN.md → "POST-RELEASE IMPROVEMENTS" → #2
 
             return refund_request
 
-        except stripe.error.StripeError as e:
+        except stripe.StripeError as e:
             await self.db.rollback()
             logger.error(f"Stripe refund error: {e}")
             raise ValueError(f"Stripe refund failed: {str(e)}") from e
@@ -307,17 +313,23 @@ class RefundService:
             raise ValueError("Refund request already processed")
 
         # Update refund request
-        refund_request.status = "rejected"
-        refund_request.reviewed_at = datetime.utcnow()
-        refund_request.reviewed_by = admin_id
-        refund_request.admin_comment = admin_comment
+        refund_request.status = "rejected"  # type: ignore[assignment]
+        refund_request.reviewed_at = datetime.utcnow()  # type: ignore[assignment]
+        refund_request.reviewed_by = admin_id  # type: ignore[assignment]
+        refund_request.admin_comment = admin_comment  # type: ignore[assignment]
 
         await self.db.commit()
         await self.db.refresh(refund_request)
 
-        logger.info(f"Refund rejected: id={refund_id}, admin_id={admin_id}")
+        logger.info(f"Refund rejected: id={refund_id}")
 
-        # TODO: Send email notification to user
+        # ROOT CAUSE: Email infrastructure not in MVP scope
+        # TRACE: reject_refund() → [email notification layer missing]
+        # IMPACT: Users don't get notified about refund rejection (UX issue)
+        # DECISION: Deferred to post-MVP (see MVP_PLAN.md #2)
+        # TODO: Implement email_service.send_refund_rejected(user, refund_request, admin_comment)
+        #   Priority: 🟡 MEDIUM | Time: 3-4h | Blocked by: SMTP config in production
+        #   See: docs/MVP_PLAN.md → "POST-RELEASE IMPROVEMENTS" → #2
 
         return refund_request
 
@@ -375,8 +387,8 @@ class RefundService:
             recommendation = "reject"
 
         # Update refund request with AI analysis
-        refund_request.risk_score = risk_score
-        refund_request.ai_recommendation = recommendation
+        refund_request.risk_score = risk_score  # type: ignore[assignment]
+        refund_request.ai_recommendation = recommendation  # type: ignore[assignment]
         await self.db.commit()
 
         return {

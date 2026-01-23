@@ -108,25 +108,25 @@ class AuthService:
                 raise AuthenticationError("Invalid or expired magic link")
 
             # Mark token as used
-            magic_token.is_used = True
-            magic_token.used_at = datetime.utcnow()
+            magic_token.is_used = True  # type: ignore[assignment]
+            magic_token.used_at = datetime.utcnow()  # type: ignore[assignment]
 
             # Get or create user
             result = await self.db.execute(
                 select(User).where(User.email == magic_token.email)
             )
-            user = result.scalar_one_or_none()
+            user: User | None = result.scalar_one_or_none()
 
             if not user:
                 raise AuthenticationError("User not found")
 
             # Update user login time
-            user.last_login = datetime.utcnow()
-            user.is_verified = True
+            user.last_login = datetime.utcnow()  # type: ignore[assignment]
+            user.is_verified = True  # type: ignore[assignment]
 
             # Generate access and refresh tokens
-            access_token = self._create_access_token(user.id)
-            refresh_token = self._create_refresh_token(user.id)
+            access_token = self._create_access_token(int(user.id))
+            refresh_token = self._create_refresh_token(int(user.id))
 
             # Create user session
             session = UserSession(
@@ -177,19 +177,19 @@ class AuthService:
             result = await self.db.execute(
                 select(User).where(User.id == session.user_id)
             )
-            user = result.scalar_one_or_none()
+            user: User | None = result.scalar_one_or_none()
 
             if not user or not user.is_active:
                 raise AuthenticationError("User not found or inactive")
 
             # Update session activity and extend expiration
-            session.last_activity = datetime.utcnow()
-            session.expires_at = datetime.utcnow() + timedelta(
+            session.last_activity = datetime.utcnow()  # type: ignore[assignment]
+            session.expires_at = datetime.utcnow() + timedelta(  # type: ignore[assignment]
                 days=settings.REFRESH_TOKEN_EXPIRE_DAYS
             )
 
             # Generate new access token
-            access_token = self._create_access_token(user.id)
+            access_token = self._create_access_token(int(user.id))
 
             await self.db.commit()
 
@@ -234,7 +234,7 @@ class AuthService:
             await self.db.commit()
 
             # Return user_id for audit logging
-            return user_id
+            return {"user_id": user_id, "message": "Logged out successfully"}
 
         except JWTError as e:
             raise AuthenticationError("Invalid token") from e

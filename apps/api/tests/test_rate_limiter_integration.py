@@ -26,7 +26,9 @@ from httpx import AsyncClient
 
 # Set environment variables BEFORE imports
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/1")  # Test DB 1
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -41,14 +43,15 @@ from main import app  # noqa: E402
 async def client():
     """
     Create async test client with rate limiting ENABLED.
-    
+
     CRITICAL: Creates a NEW FastAPI app instance to avoid middleware conflicts.
     The global app from main.py has rate limiting disabled via conftest.py,
     so we need a fresh app to test rate limiting properly.
     """
+    from fastapi import FastAPI
+
     import app.middleware.rate_limit as rl_module
     from app.core.config import settings
-    from fastapi import FastAPI
 
     # Store original values to restore later
     original_disable = settings.DISABLE_RATE_LIMIT
@@ -63,6 +66,7 @@ async def client():
     # Initialize Redis and clear rate limit state for test isolation
     try:
         from app.middleware.rate_limit import init_redis
+
         await init_redis()
         redis_client = rl_module._redis_client
         if redis_client:
@@ -75,11 +79,12 @@ async def client():
 
     # Create a minimal test app with rate limiting enabled
     test_app = FastAPI()
-    
+
     # Add rate limiter middleware to test app
     from app.middleware.rate_limit import setup_rate_limiter
+
     setup_rate_limiter(test_app)
-    
+
     # Add a simple health endpoint for testing
     @test_app.get("/health")
     async def health():

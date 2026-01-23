@@ -5,7 +5,6 @@ Tests error paths: section failures, quality errors, Redis failures, export fail
 Uses SIMPLIFIED approach: patch only AI/quality services, let DB work naturally.
 """
 import json
-from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -13,7 +12,6 @@ import pytest
 from app.core.config import Settings
 from app.core.exceptions import QualityThresholdNotMetError
 from app.services.background_jobs import BackgroundJobService
-
 
 # ============================================================================
 # Test 1: Section Generation Error - Continue with Next
@@ -24,7 +22,7 @@ from app.services.background_jobs import BackgroundJobService
 async def test_section_generation_error_continues(mock_db, mock_redis, mock_settings):
     """
     Test: Section 2 raises exception → mark failed, continue with section 3.
-    
+
     Coverage: Lines 873-887 (exception handler in section loop)
     """
     # Document with 3 sections
@@ -57,12 +55,12 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
     completed_section_1.title = "Section 1"
     completed_section_1.content = "Content 1"
     completed_section_1.section_index = 0
-    
+
     completed_section_3 = MagicMock()
     completed_section_3.title = "Section 3"
     completed_section_3.content = "Content 3"
     completed_section_3.section_index = 2
-    
+
     completed_result = MagicMock()
     completed_result.scalars.return_value.all.return_value = [
         completed_section_1,
@@ -73,7 +71,7 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
     update_result = MagicMock()
     update_result.scalar_one_or_none.return_value = None
     update_result.scalars.return_value.all.return_value = []
-    
+
     mock_db.execute.side_effect = [
         doc_result,  # 1. Fetch document
         update_result,  # 2. Status update to generating
@@ -122,9 +120,7 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         # JSON passthrough
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
@@ -176,13 +172,13 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=100, user_id=1
-        )
+        await BackgroundJobService.generate_full_document(document_id=100, user_id=1)
 
         # Verify: Section 2 failed but job completed with 2/3 sections
-        assert mock_generator.generate_section.call_count == 3, "All 3 sections attempted"
-        
+        assert (
+            mock_generator.generate_section.call_count == 3
+        ), "All 3 sections attempted"
+
         # Verify: Export called (document completed)
         assert mock_doc_service.export_document.called, "Export should be called"
 
@@ -198,7 +194,7 @@ async def test_quality_threshold_error_sends_websocket(
 ):
     """
     Test: QualityThresholdNotMetError → send WebSocket error, continue.
-    
+
     Coverage: Lines 845-872 (QualityThresholdNotMetError handler)
     """
     document = MagicMock()
@@ -228,7 +224,7 @@ async def test_quality_threshold_error_sends_websocket(
     completed_section_1.title = "Section 1"
     completed_section_1.content = "Content 1"
     completed_section_1.section_index = 0
-    
+
     completed_result = MagicMock()
     completed_result.scalars.return_value.all.return_value = [completed_section_1]
 
@@ -236,7 +232,7 @@ async def test_quality_threshold_error_sends_websocket(
     update_result = MagicMock()
     update_result.scalar_one_or_none.return_value = None
     update_result.scalars.return_value.all.return_value = []
-    
+
     mock_db.execute.side_effect = [
         doc_result,
         update_result,
@@ -278,9 +274,7 @@ async def test_quality_threshold_error_sends_websocket(
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -316,7 +310,6 @@ async def test_quality_threshold_error_sends_websocket(
         mock_quality_class.return_value = mock_quality_validator
 
         mock_manager.send_progress = AsyncMock()
-        mock_manager.send_error = AsyncMock()
 
         mock_doc_service = MagicMock()
         mock_doc_service.export_document = AsyncMock(
@@ -325,18 +318,23 @@ async def test_quality_threshold_error_sends_websocket(
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=200, user_id=2
-        )
+        await BackgroundJobService.generate_full_document(document_id=200, user_id=2)
 
-        # Verify: WebSocket error sent
-        assert mock_manager.send_error.called, "WebSocket error should be sent"
-        
-        # Verify error data
-        call_args = mock_manager.send_error.call_args
-        user_id_arg = call_args[0][0]
-        error_data = call_args[0][1]
-        
+        # Verify: WebSocket error sent via send_progress (no separate send_error method)
+        assert mock_manager.send_progress.called, "WebSocket progress should be sent"
+
+        # Find the call with error in message
+        error_call = None
+        for call in mock_manager.send_progress.call_args_list:
+            if len(call[0]) >= 2:
+                user_id_arg, message = call[0][0], call[0][1]
+                if isinstance(message, dict) and "error" in message:
+                    error_call = (user_id_arg, message)
+                    break
+
+        assert error_call is not None, "Error message should be sent via send_progress"
+        user_id_arg, error_data = error_call
+
         assert user_id_arg == 2, "Error sent to correct user"
         assert error_data["error"] == "quality_threshold_not_met"
 
@@ -352,7 +350,7 @@ async def test_all_sections_fail_document_marked_failed(
 ):
     """
     Test: All sections fail → document marked failed, export skipped.
-    
+
     Coverage: Lines 897-905 (zero sections check)
     """
     document = MagicMock()
@@ -420,9 +418,7 @@ async def test_all_sections_fail_document_marked_failed(
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -456,9 +452,7 @@ async def test_all_sections_fail_document_marked_failed(
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=300, user_id=3
-        )
+        await BackgroundJobService.generate_full_document(document_id=300, user_id=3)
 
         # Verify: Export NOT called (0 sections)
         assert not mock_doc_service.export_document.called, "Export should be skipped"
@@ -470,11 +464,13 @@ async def test_all_sections_fail_document_marked_failed(
 
 
 @pytest.mark.asyncio
-@pytest.mark.skip(reason="Flaky: Checkpoint save not called due to earlier generation failure. Needs investigation.")
+@pytest.mark.skip(
+    reason="Flaky: Checkpoint save not called due to earlier generation failure. Needs investigation."
+)
 async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings):
     """
     Test: Redis.set() fails → warning logged, generation continues.
-    
+
     Coverage: Lines 839-843 (checkpoint save error handling)
     """
     document = MagicMock()
@@ -484,9 +480,7 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
     document.language = "en"
     document.ai_provider = "openai"
     document.ai_model = "gpt-4"
-    document.outline = {
-        "sections": [{"title": "Section 1", "target_words": 500}]
-    }
+    document.outline = {"sections": [{"title": "Section 1", "target_words": 500}]}
     document.status = "outline_generated"
 
     doc_result = MagicMock()
@@ -500,7 +494,7 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
     completed_section.title = "Section 1"
     completed_section.content = "Content"
     completed_section.section_index = 0
-    
+
     completed_result = MagicMock()
     completed_result.scalars.return_value.all.return_value = [completed_section]
 
@@ -544,9 +538,7 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -581,13 +573,11 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=400, user_id=4
-        )
+        await BackgroundJobService.generate_full_document(document_id=400, user_id=4)
 
         # Verify: Redis.set was attempted
         assert mock_redis.set.called, "Checkpoint save should be attempted"
-        
+
         # Verify: Export still called (generation continued)
         assert mock_doc_service.export_document.called, "Export should be called"
 
@@ -601,7 +591,7 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
 async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings):
     """
     Test: Redis.get() fails → warning logged, start from section 0.
-    
+
     Coverage: Lines 469-474 (checkpoint load error handling)
     """
     document = MagicMock()
@@ -629,7 +619,10 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
     completed_s1 = MagicMock(title="Section 1", content="Content 1", section_index=0)
     completed_s2 = MagicMock(title="Section 2", content="Content 2", section_index=1)
     completed_result = MagicMock()
-    completed_result.scalars.return_value.all.return_value = [completed_s1, completed_s2]
+    completed_result.scalars.return_value.all.return_value = [
+        completed_s1,
+        completed_s2,
+    ]
 
     # Create mock result for UPDATE/INSERT queries
     update_result = MagicMock()
@@ -678,9 +671,7 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -715,15 +706,15 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=500, user_id=5
-        )
+        await BackgroundJobService.generate_full_document(document_id=500, user_id=5)
 
         # Verify: Redis.get was attempted
         assert mock_redis.get.called, "Checkpoint load should be attempted"
-        
+
         # Verify: Both sections generated (started from 0)
-        assert mock_generator.generate_section.call_count == 2, "Both sections generated"
+        assert (
+            mock_generator.generate_section.call_count == 2
+        ), "Both sections generated"
 
 
 # ============================================================================
@@ -735,7 +726,7 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
 async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
     """
     Test: export_document() fails → warning logged, document still completed.
-    
+
     Coverage: Lines 937-938 (export error handling)
     """
     document = MagicMock()
@@ -745,9 +736,7 @@ async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
     document.language = "en"
     document.ai_provider = "openai"
     document.ai_model = "gpt-4"
-    document.outline = {
-        "sections": [{"title": "Section 1", "target_words": 500}]
-    }
+    document.outline = {"sections": [{"title": "Section 1", "target_words": 500}]}
     document.status = "outline_generated"
 
     doc_result = MagicMock()
@@ -800,9 +789,7 @@ async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
         "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
     ), patch(
         "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch(
-        "app.services.background_jobs.json"
-    ) as mock_json:
+    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -838,13 +825,11 @@ async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(
-            document_id=600, user_id=6
-        )
+        await BackgroundJobService.generate_full_document(document_id=600, user_id=6)
 
         # Verify: Export was attempted
         assert mock_doc_service.export_document.called, "Export should be attempted"
-        
+
         # Verify: Document still completed (DB commits happened)
         assert mock_db.commit.call_count >= 3, "Document should be marked completed"
 

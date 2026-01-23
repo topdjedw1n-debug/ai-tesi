@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminApiClient } from '@/lib/api/admin'
 import { PaymentsTable } from '@/components/admin/payments/PaymentsTable'
@@ -37,11 +37,7 @@ export default function AdminPaymentsPage() {
     max_amount?: string
   }>({})
 
-  useEffect(() => {
-    fetchPayments()
-  }, [page, perPage, filters])
-
-  const fetchPayments = async () => {
+  const fetchPayments = useCallback(async () => {
     try {
       setIsLoading(true)
       const params: any = {
@@ -62,7 +58,11 @@ export default function AdminPaymentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [page, perPage, filters])
+
+  useEffect(() => {
+    fetchPayments()
+  }, [fetchPayments])
 
   const handlePaymentClick = (payment: Payment) => {
     router.push(`/admin/payments/${payment.id}`)

@@ -75,6 +75,19 @@ export default function SnakeGame() {
     })
   }, [food, isPaused, gameOver, gameStarted, checkCollision, generateFood])
 
+  // Reset game
+  const resetGame = useCallback(() => {
+    const initialSnake = INITIAL_SNAKE
+    setSnake(initialSnake)
+    setFood(generateFood(initialSnake))
+    setDirection(INITIAL_DIRECTION)
+    directionRef.current = INITIAL_DIRECTION
+    setGameOver(false)
+    setScore(0)
+    setIsPaused(false)
+    setGameStarted(true)
+  }, [generateFood])
+
   // Handle keyboard input
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
@@ -124,7 +137,7 @@ export default function SnakeGame() {
 
     window.addEventListener('keydown', handleKeyPress)
     return () => window.removeEventListener('keydown', handleKeyPress)
-  }, [gameOver, gameStarted])
+  }, [gameOver, gameStarted, resetGame])
 
   // Start game loop
   useEffect(() => {
@@ -143,19 +156,6 @@ export default function SnakeGame() {
       }
     }
   }, [gameStarted, gameOver, isPaused, gameLoop])
-
-  // Reset game
-  const resetGame = () => {
-    const initialSnake = INITIAL_SNAKE
-    setSnake(initialSnake)
-    setFood(generateFood(initialSnake))
-    setDirection(INITIAL_DIRECTION)
-    directionRef.current = INITIAL_DIRECTION
-    setGameOver(false)
-    setScore(0)
-    setIsPaused(false)
-    setGameStarted(true)
-  }
 
   // Render grid cell
   const renderCell = (x: number, y: number) => {

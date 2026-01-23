@@ -43,8 +43,8 @@ class AIModel(str, Enum):
 class DocumentBase(BaseModel):
     """Base document schema"""
 
-    title: str = Field(..., min_length=1, max_length=500)
-    topic: str = Field(..., min_length=10)
+    title: str = Field(min_length=1, max_length=500)
+    topic: str = Field(min_length=10)
     language: str = Field(default="en", max_length=10)
     target_pages: int = Field(
         default=50, ge=3, le=1000
@@ -83,7 +83,7 @@ class DocumentCreate(DocumentBase):
 
     @field_validator("ai_provider", mode="before")
     @classmethod
-    def validate_ai_provider(cls, v):
+    def validate_ai_provider(cls, v: str | AIProvider | None) -> AIProvider:
         """Validate AI provider enum"""
         if v is None:
             return AIProvider.OPENAI
@@ -92,11 +92,14 @@ class DocumentCreate(DocumentBase):
             if v not in ["openai", "anthropic"]:
                 raise ValueError("ai_provider must be 'openai' or 'anthropic'")
             return AIProvider(v)
-        return v
+        elif isinstance(v, AIProvider):
+            return v
+        else:
+            raise ValueError("ai_provider must be 'openai' or 'anthropic'")
 
     @field_validator("ai_model")
     @classmethod
-    def validate_ai_model(cls, v, info):
+    def validate_ai_model(cls, v: str | None, info: Any) -> str:
         """Validate AI model matches provider"""
         if not v:
             return "gpt-4"  # Default
@@ -266,7 +269,7 @@ class DocumentVersionResponse(BaseModel):
 class ExportRequest(BaseModel):
     """Schema for document export request"""
 
-    format: str = Field(..., pattern="^(docx|pdf)$")
+    format: str = Field(pattern="^(docx|pdf)$")
     include_metadata: bool = True
     include_citations: bool = True
 

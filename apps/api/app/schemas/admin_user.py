@@ -53,8 +53,8 @@ class UserWithStatsResponse(UserDetailsResponse):
 class BulkUserActionRequest(BaseModel):
     """Schema for bulk user operations"""
 
-    user_ids: list[int] = Field(..., min_items=1, max_items=100)
-    action: str = Field(..., pattern="^(block|unblock|delete)$")
+    user_ids: list[int] = Field(min_length=1, max_length=100)
+    action: str = Field(pattern="^(block|unblock|delete)$")
 
     @field_validator("action")
     @classmethod
@@ -78,7 +78,7 @@ class BulkUserActionResult(BaseModel):
 class MakeAdminRequest(BaseModel):
     """Schema for making user admin or revoking admin rights"""
 
-    is_admin: bool = Field(..., description="True to make admin, False to revoke")
+    is_admin: bool = Field(description="True to make admin, False to revoke")
     is_super_admin: bool | None = Field(
         None,
         description="True to make super admin (optional, requires super admin permission)",
@@ -98,10 +98,8 @@ class UserListResponse(BaseModel):
 class SendEmailRequest(BaseModel):
     """Schema for sending email to user"""
 
-    subject: str = Field(..., min_length=1, max_length=500, description="Email subject")
-    message: str = Field(
-        ..., min_length=1, description="Email message (HTML or plain text)"
-    )
+    subject: str = Field(min_length=1, max_length=500, description="Email subject")
+    message: str = Field(min_length=1, description="Email message (HTML or plain text)")
 
 
 class SendEmailResponse(BaseModel):

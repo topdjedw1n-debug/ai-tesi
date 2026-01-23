@@ -38,9 +38,9 @@ class SettingsService:
 
             grouped: dict[str, dict[str, Any]] = {}
             for setting in settings:
-                if setting.category not in grouped:
-                    grouped[setting.category] = {}
-                grouped[setting.category][setting.key] = setting.value
+                if str(setting.category) not in grouped:
+                    grouped[str(setting.category)] = {}
+                grouped[str(setting.category)][str(setting.key)] = setting.value
 
             return grouped
         except Exception as e:
@@ -65,7 +65,7 @@ class SettingsService:
             )
             settings = result.scalars().all()
 
-            return {setting.key: setting.value for setting in settings}
+            return {str(setting.key): setting.value for setting in settings}
         except Exception as e:
             logger.error(f"Error getting settings for category {category}: {e}")
             raise
@@ -114,7 +114,6 @@ class SettingsService:
             # Check if setting exists
             existing = await self.get_setting(key)
 
-            old_value = existing.value if existing else None
             old_version = existing.version if existing else 0
 
             if existing:
@@ -271,8 +270,9 @@ class SettingsService:
         """
         try:
             setting = await self.get_setting("maintenance.enabled")
-            if setting and setting.value is True:
-                return True
+            if setting:
+                # setting.value is already the Python value, not Column
+                return bool(setting.value) if setting.value is not None else False
             return False
         except Exception as e:
             logger.error(f"Error checking maintenance mode: {e}")
@@ -287,11 +287,13 @@ class SettingsService:
         """
         try:
             setting = await self.get_setting("maintenance.allowed_ips")
-            if setting and isinstance(setting.value, list):
-                return setting.value
-            elif setting and isinstance(setting.value, str):
-                # Handle comma-separated string
-                return [ip.strip() for ip in setting.value.split(",") if ip.strip()]
+            if setting and setting.value:
+                value = setting.value
+                if isinstance(value, list):
+                    return value
+                elif isinstance(value, str):
+                    # Handle comma-separated string
+                    return [ip.strip() for ip in value.split(",") if ip.strip()]
             return []
         except Exception as e:
             logger.error(f"Error getting maintenance allowed IPs: {e}")

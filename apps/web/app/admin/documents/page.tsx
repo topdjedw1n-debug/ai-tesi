@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { adminApiClient } from '@/lib/api/admin'
 import { DocumentsTable } from '@/components/admin/documents/DocumentsTable'
@@ -41,11 +41,7 @@ export default function AdminDocumentsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(null)
 
-  useEffect(() => {
-    fetchDocuments()
-  }, [page, perPage, filters])
-
-  const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
     try {
       setIsLoading(true)
       const params: any = {
@@ -65,7 +61,11 @@ export default function AdminDocumentsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [page, perPage, filters])
+
+  useEffect(() => {
+    fetchDocuments()
+  }, [fetchDocuments])
 
   const handleDocumentClick = (document: Document) => {
     router.push(`/admin/documents/${document.id}`)

@@ -112,7 +112,11 @@ async def test_jwt_token_expires_after_1_hour(db_session):
 
     # Should match configured expiry time (allow 1 minute tolerance)
     expected_minutes = settings.ACCESS_TOKEN_EXPIRE_MINUTES
-    assert (expected_minutes - 1) <= time_until_expiry.total_seconds() / 60 <= (expected_minutes + 1)
+    assert (
+        (expected_minutes - 1)
+        <= time_until_expiry.total_seconds() / 60
+        <= (expected_minutes + 1)
+    )
 
 
 @pytest.mark.asyncio
@@ -164,7 +168,7 @@ async def test_jwt_token_with_iss_claim(db_session):
         access_token,
         settings.jwt_secret_key,
         algorithms=[settings.JWT_ALG],
-        options={"verify_iss": False, "verify_aud": False}
+        options={"verify_iss": False, "verify_aud": False},
     )
 
     assert "iss" in payload
@@ -223,7 +227,7 @@ async def test_jwt_token_invalid_iss(db_session):
 
         # Try to decode with wrong issuer
         from jose.exceptions import JWTClaimsError
-        
+
         with pytest.raises(JWTClaimsError):
             jwt.decode(
                 access_token,
@@ -250,7 +254,7 @@ async def test_jwt_token_invalid_signature(db_session):
 
     # Try to decode with wrong secret
     from jose.exceptions import JWTError
-    
+
     with pytest.raises(JWTError):
         jwt.decode(access_token, "wrong-secret-key", algorithms=["HS256"])
 

@@ -3,12 +3,15 @@ Authentication endpoints
 """
 
 from fastapi import APIRouter, Depends, Request
+from pydantic import BaseModel, EmailStr
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.exceptions import AuthenticationError, RateLimitError, ValidationError
 from app.core.logging import log_security_audit_event
+from app.core.security import create_access_token
 from app.middleware.rate_limit import (
     check_auth_lockout,
     clear_auth_failures,
@@ -16,6 +19,7 @@ from app.middleware.rate_limit import (
     rate_limit,
     record_auth_failure,
 )
+from app.models.auth import User
 from app.schemas.auth import (
     MagicLinkRequest,
     MagicLinkResponse,
@@ -37,7 +41,7 @@ async def request_magic_link(
     request: Request,
     magic_link_request: MagicLinkRequest,
     db: AsyncSession = Depends(get_db),
-):
+) -> MagicLinkResponse:
     """Request a magic link for passwordless authentication"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -113,7 +117,7 @@ async def request_magic_link(
 @rate_limit("10/hour")  # Per-user/IP rate limit: 10/hr
 async def verify_magic_link(
     request: Request, magic_link: MagicLinkVerify, db: AsyncSession = Depends(get_db)
-):
+) -> TokenResponse:
     """Verify magic link token and return access token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -200,7 +204,7 @@ async def refresh_token(
     request: Request,
     refresh_request: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db),
-):
+) -> TokenResponse:
     """Refresh access token using refresh token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -283,7 +287,9 @@ async def refresh_token(
 
 @router.post("/logout")
 @rate_limit("5/minute")
-async def logout(request: Request, db: AsyncSession = Depends(get_db)):
+async def logout(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> dict[str, str]:
     """Logout user and invalidate session"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -338,7 +344,9 @@ async def logout(request: Request, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("/me", response_model=UserResponse)
-async def get_current_user(request: Request, db: AsyncSession = Depends(get_db)):
+async def get_current_user(
+    request: Request, db: AsyncSession = Depends(get_db)
+) -> UserResponse:
     """Get current user information"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -397,13 +405,6 @@ async def get_current_user(request: Request, db: AsyncSession = Depends(get_db))
 # SIMPLE ADMIN LOGIN FOR TESTING (NO MAGIC LINK)
 # ============================================================================
 
-from pydantic import BaseModel, EmailStr
-from sqlalchemy import select
-
-from app.core.config import settings
-from app.core.security import create_access_token
-from app.models.auth import User
-
 
 class AdminLoginRequest(BaseModel):
     """Simple admin login request"""
@@ -416,7 +417,7 @@ class AdminLoginRequest(BaseModel):
 async def admin_simple_login(
     login_data: AdminLoginRequest,
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """
     TESTING ONLY: Simple admin login without magic link
 
@@ -449,7 +450,7 @@ async def admin_simple_login(
         raise AuthenticationError("Invalid credentials")
 
     # Create token
-    access_token = create_access_token(user.id)
+    access_token = create_access_token(int(user.id))
 
     return {
         "access_token": access_token,

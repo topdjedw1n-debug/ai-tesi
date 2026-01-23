@@ -3,7 +3,6 @@ Tests for RAG Retriever service (Semantic Scholar, Perplexity, Tavily, Serper)
 Testing: API mocking, error handling, caching, deduplication
 """
 
-import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -13,7 +12,6 @@ import httpx
 import pytest
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
-
 
 # ============================================================================
 # FIXTURES
@@ -47,30 +45,25 @@ def mock_semantic_scholar_response() -> dict[str, Any]:
             {
                 "paperId": "abc123",
                 "title": "Machine Learning in Healthcare",
-                "authors": [
-                    {"name": "John Doe"},
-                    {"name": "Jane Smith"}
-                ],
+                "authors": [{"name": "John Doe"}, {"name": "Jane Smith"}],
                 "year": 2023,
                 "abstract": "This paper explores ML applications in healthcare...",
                 "venue": "Journal of AI Research",
                 "citationCount": 150,
                 "url": "https://semanticscholar.org/paper/abc123",
-                "doi": "10.1234/example.2023"
+                "doi": "10.1234/example.2023",
             },
             {
                 "paperId": "def456",
                 "title": "Deep Learning for Medical Imaging",
-                "authors": [
-                    {"name": "Alice Johnson"}
-                ],
+                "authors": [{"name": "Alice Johnson"}],
                 "year": 2022,
                 "abstract": "Deep learning techniques for medical image analysis...",
                 "venue": "Medical AI Conference",
                 "citationCount": 85,
                 "url": "https://semanticscholar.org/paper/def456",
-                "doi": "10.5678/imaging.2022"
-            }
+                "doi": "10.5678/imaging.2022",
+            },
         ]
     }
 
@@ -83,7 +76,7 @@ def mock_perplexity_response() -> dict[str, Any]:
             {
                 "message": {
                     "role": "assistant",
-                    "content": "Here are academic papers about machine learning..."
+                    "content": "Here are academic papers about machine learning...",
                 }
             }
         ],
@@ -94,10 +87,10 @@ def mock_perplexity_response() -> dict[str, Any]:
                 "year": 2021,
                 "url": "https://example.com/neural-networks",
                 "abstract": "Introduction to neural networks...",
-                "source": "AI Review"
+                "source": "AI Review",
             },
-            "https://arxiv.org/abs/2301.12345"  # Simple URL citation
-        ]
+            "https://arxiv.org/abs/2301.12345",  # Simple URL citation
+        ],
     }
 
 
@@ -112,15 +105,15 @@ def mock_tavily_response() -> dict[str, Any]:
                 "url": "https://arxiv.org/abs/2303.54321",
                 "author": "Carol White",
                 "published_date": "2023-03-15",
-                "score": 0.95
+                "score": 0.95,
             },
             {
                 "title": "BERT: Pre-training of Deep Bidirectional Transformers",
                 "content": "2018 paper on BERT model...",
                 "url": "https://arxiv.org/abs/1810.04805",
                 "published_date": "2018-10-11",
-                "score": 0.92
-            }
+                "score": 0.92,
+            },
         ]
     }
 
@@ -133,13 +126,13 @@ def mock_serper_response() -> dict[str, Any]:
             {
                 "title": "Introduction to Computer Vision - MIT",
                 "snippet": "2022 comprehensive guide to computer vision techniques...",
-                "link": "https://mit.edu/cv-intro"
+                "link": "https://mit.edu/cv-intro",
             },
             {
                 "title": "Object Detection Algorithms Survey",
                 "snippet": "Recent survey (2023) of object detection methods...",
-                "link": "https://scholar.google.com/citations?view=paper"
-            }
+                "link": "https://scholar.google.com/citations?view=paper",
+            },
         ]
     }
 
@@ -157,7 +150,7 @@ def sample_source_docs() -> list[SourceDoc]:
             venue="AI Journal",
             citation_count=100,
             url="https://example.com/ml001",
-            doi="10.1234/ml.2023.001"
+            doi="10.1234/ml.2023.001",
         ),
         SourceDoc(
             title="Deep Learning Applications",
@@ -168,8 +161,8 @@ def sample_source_docs() -> list[SourceDoc]:
             venue="NeurIPS",
             citation_count=50,
             url="https://example.com/dl002",
-            doi="10.5678/dl.2022.002"
-        )
+            doi="10.5678/dl.2022.002",
+        ),
     ]
 
 
@@ -189,12 +182,12 @@ async def test_semantic_scholar_retrieve_success(
         mock_response.status_code = 200
         mock_response.json = MagicMock(return_value=mock_semantic_scholar_response)
         mock_response.raise_for_status = MagicMock()
-        
+
         async_client_instance = MagicMock()
         async_client_instance.get = AsyncMock(return_value=mock_response)
         async_client_instance.__aenter__ = AsyncMock(return_value=async_client_instance)
         async_client_instance.__aexit__ = AsyncMock(return_value=None)
-        
+
         mock_client_class.return_value = async_client_instance
 
         # Act
@@ -222,7 +215,7 @@ async def test_semantic_scholar_retrieve_with_filters(retriever: RAGRetriever):
                 "year": 2023,
                 "citationCount": 200,
                 "abstract": "Abstract text",
-                "url": "https://example.com/p1"
+                "url": "https://example.com/p1",
             },
             {
                 "paperId": "p2",
@@ -231,8 +224,8 @@ async def test_semantic_scholar_retrieve_with_filters(retriever: RAGRetriever):
                 "year": 2015,
                 "citationCount": 5,
                 "abstract": "Old paper",
-                "url": "https://example.com/p2"
-            }
+                "url": "https://example.com/p2",
+            },
         ]
     }
 
@@ -240,20 +233,17 @@ async def test_semantic_scholar_retrieve_with_filters(retriever: RAGRetriever):
         mock_response = MagicMock()
         mock_response.json = MagicMock(return_value=mock_response_data)
         mock_response.raise_for_status = MagicMock()
-        
+
         async_client_instance = MagicMock()
         async_client_instance.get = AsyncMock(return_value=mock_response)
         async_client_instance.__aenter__ = AsyncMock(return_value=async_client_instance)
         async_client_instance.__aexit__ = AsyncMock(return_value=None)
-        
+
         mock_client_class.return_value = async_client_instance
 
         # Act - apply min_citation_count filter
         results = await retriever.retrieve(
-            "AI research",
-            year_min=2020,
-            year_max=2024,
-            min_citation_count=100
+            "AI research", year_min=2020, year_max=2024, min_citation_count=100
         )
 
         # Assert
@@ -267,9 +257,9 @@ async def test_semantic_scholar_http_error_handling(retriever: RAGRetriever):
     """Test handling of HTTP errors from Semantic Scholar API"""
     # Arrange
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
-            "404 Not Found", request=MagicMock(), response=MagicMock()
+            "503 Service Unavailable", request=MagicMock(), response=MagicMock()
         )
         mock_get.return_value = mock_response
 
@@ -301,7 +291,7 @@ async def test_semantic_scholar_api_key_header(retriever: RAGRetriever):
     mock_response_data = {"data": []}
 
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.json.return_value = mock_response_data
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
@@ -322,9 +312,7 @@ async def test_semantic_scholar_api_key_header(retriever: RAGRetriever):
 
 @pytest.mark.asyncio
 async def test_cache_save_and_load(
-    retriever: RAGRetriever,
-    sample_source_docs: list[SourceDoc],
-    temp_cache_dir: Path
+    retriever: RAGRetriever, sample_source_docs: list[SourceDoc], temp_cache_dir: Path
 ):
     """Test saving and loading sources from cache"""
     # Arrange
@@ -349,8 +337,7 @@ async def test_cache_save_and_load(
 
 @pytest.mark.asyncio
 async def test_cache_hit_on_retrieve(
-    retriever: RAGRetriever,
-    sample_source_docs: list[SourceDoc]
+    retriever: RAGRetriever, sample_source_docs: list[SourceDoc]
 ):
     """Test that retrieve() uses cache when available"""
     # Arrange - pre-populate cache
@@ -374,7 +361,7 @@ async def test_cache_miss_on_new_query(retriever: RAGRetriever):
     mock_response_data = {"data": []}
 
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.json.return_value = mock_response_data
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
@@ -388,9 +375,7 @@ async def test_cache_miss_on_new_query(retriever: RAGRetriever):
 
 @pytest.mark.asyncio
 async def test_cache_expiry_after_7_days(
-    retriever: RAGRetriever,
-    sample_source_docs: list[SourceDoc],
-    temp_cache_dir: Path
+    retriever: RAGRetriever, sample_source_docs: list[SourceDoc], temp_cache_dir: Path
 ):
     """Test that cache expires after 7 days"""
     # Arrange - create old cache file
@@ -407,6 +392,7 @@ async def test_cache_expiry_after_7_days(
     cache_file.touch()
     Path(cache_file).touch()  # Update to current time first
     import os
+
     os.utime(cache_file, (old_timestamp, old_timestamp))
 
     # Act - try to load expired cache
@@ -444,9 +430,16 @@ def test_extract_year_from_content():
     # Act & Assert
     assert RAGRetriever._extract_year_from_content("Published in 2023") == 2023
     assert RAGRetriever._extract_year_from_content("The 2022 study showed...") == 2022
-    assert RAGRetriever._extract_year_from_content("19th century research") == datetime.now().year  # No valid year - default
-    assert RAGRetriever._extract_year_from_content("No year here") == datetime.now().year
-    assert RAGRetriever._extract_year_from_content("2015-2020 period") == 2015  # First match
+    assert (
+        RAGRetriever._extract_year_from_content("19th century research")
+        == datetime.now().year
+    )  # No valid year - default
+    assert (
+        RAGRetriever._extract_year_from_content("No year here") == datetime.now().year
+    )
+    assert (
+        RAGRetriever._extract_year_from_content("2015-2020 period") == 2015
+    )  # First match
 
 
 def test_deduplicate_sources_by_doi(sample_source_docs: list[SourceDoc]):
@@ -456,7 +449,7 @@ def test_deduplicate_sources_by_doi(sample_source_docs: list[SourceDoc]):
         title="Different Title",
         authors=["Different Author"],
         year=2024,
-        doi="10.1234/ml.2023.001"  # Same DOI as first doc
+        doi="10.1234/ml.2023.001",  # Same DOI as first doc
     )
     sources = sample_source_docs + [duplicate]
 
@@ -478,22 +471,22 @@ def test_deduplicate_sources_by_url():
             authors=["Author A"],
             year=2023,
             url="https://example.com/paper1",
-            doi=None  # No DOI - URL dedup applies
+            doi=None,  # No DOI - URL dedup applies
         ),
         SourceDoc(
             title="Paper Two",
             authors=["Author B"],
             year=2022,
             url="https://example.com/paper2",
-            doi=None  # No DOI
+            doi=None,  # No DOI
         ),
         SourceDoc(
             title="Duplicate Paper",
             authors=["Author C"],
             year=2023,
             url="https://example.com/paper1",  # Same URL as first
-            doi=None  # No DOI - should be deduplicated by URL
-        )
+            doi=None,  # No DOI - should be deduplicated by URL
+        ),
     ]
 
     # Act
@@ -513,7 +506,7 @@ def test_deduplicate_sources_by_title():
     sources = [
         SourceDoc(title="Machine Learning", authors=[], year=2023),
         SourceDoc(title="Machine Learning", authors=[], year=2023),  # Duplicate
-        SourceDoc(title="Deep Learning", authors=[], year=2022)
+        SourceDoc(title="Deep Learning", authors=[], year=2022),
     ]
 
     # Act
@@ -542,12 +535,12 @@ async def test_perplexity_search_success(
         mock_response = MagicMock()
         mock_response.json = MagicMock(return_value=mock_perplexity_response)
         mock_response.raise_for_status = MagicMock()
-        
+
         async_client_instance = MagicMock()
         async_client_instance.post = AsyncMock(return_value=mock_response)
         async_client_instance.__aenter__ = AsyncMock(return_value=async_client_instance)
         async_client_instance.__aexit__ = AsyncMock(return_value=None)
-        
+
         mock_client_class.return_value = async_client_instance
 
         # Act
@@ -577,7 +570,7 @@ async def test_perplexity_http_error_handling(retriever: RAGRetriever):
     """Test Perplexity API HTTP error handling"""
     # Arrange
     with patch("httpx.AsyncClient.post") as mock_post:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401 Unauthorized", request=MagicMock(), response=MagicMock()
         )
@@ -658,12 +651,12 @@ async def test_serper_search_success(
         mock_response = MagicMock()
         mock_response.json = MagicMock(return_value=mock_serper_response)
         mock_response.raise_for_status = MagicMock()
-        
+
         async_client_instance = MagicMock()
         async_client_instance.post = AsyncMock(return_value=mock_response)
         async_client_instance.__aenter__ = AsyncMock(return_value=async_client_instance)
         async_client_instance.__aexit__ = AsyncMock(return_value=None)
-        
+
         mock_client_class.return_value = async_client_instance
 
         # Act
@@ -694,7 +687,7 @@ async def test_serper_http_error_handling(retriever: RAGRetriever):
     """Test Serper API HTTP error handling"""
     # Arrange
     with patch("httpx.AsyncClient.post") as mock_post:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "429 Rate Limit", request=MagicMock(), response=MagicMock()
         )
@@ -725,11 +718,13 @@ async def test_retrieve_sources_combines_all_apis(retriever: RAGRetriever):
     tavily_docs = [SourceDoc(title="Tavily Paper", authors=[], year=2021)]
     serper_docs = [SourceDoc(title="Serper Paper", authors=[], year=2020)]
 
-    with patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs), \
-         patch.object(retriever, "search_perplexity", return_value=perplexity_docs), \
-         patch.object(retriever, "search_tavily", return_value=tavily_docs), \
-         patch.object(retriever, "search_serper", return_value=serper_docs):
-
+    with patch.object(
+        retriever, "search_semantic_scholar", return_value=semantic_docs
+    ), patch.object(
+        retriever, "search_perplexity", return_value=perplexity_docs
+    ), patch.object(retriever, "search_tavily", return_value=tavily_docs), patch.object(
+        retriever, "search_serper", return_value=serper_docs
+    ):
         # Act
         results = await retriever.retrieve_sources("AI research", limit=10)
 
@@ -748,20 +743,19 @@ async def test_retrieve_sources_deduplicates_results(retriever: RAGRetriever):
     """Test retrieve_sources deduplicates across multiple APIs"""
     # Arrange - same paper from multiple sources
     duplicate_paper = SourceDoc(
-        title="Same Paper",
-        authors=["Author"],
-        year=2023,
-        doi="10.1234/same.2023"
+        title="Same Paper", authors=["Author"], year=2023, doi="10.1234/same.2023"
     )
 
     semantic_docs = [duplicate_paper]
     perplexity_docs = [duplicate_paper]  # Duplicate
 
-    with patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs), \
-         patch.object(retriever, "search_perplexity", return_value=perplexity_docs), \
-         patch.object(retriever, "search_tavily", return_value=[]), \
-         patch.object(retriever, "search_serper", return_value=[]):
-
+    with patch.object(
+        retriever, "search_semantic_scholar", return_value=semantic_docs
+    ), patch.object(
+        retriever, "search_perplexity", return_value=perplexity_docs
+    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+        retriever, "search_serper", return_value=[]
+    ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
 
@@ -775,15 +769,19 @@ async def test_retrieve_sources_respects_limit(retriever: RAGRetriever):
     """Test retrieve_sources respects limit parameter"""
     # Arrange - many results from APIs
     many_docs = [
-        SourceDoc(title=f"Paper {i}", authors=[], year=2023, url=f"https://example.com/{i}")
+        SourceDoc(
+            title=f"Paper {i}", authors=[], year=2023, url=f"https://example.com/{i}"
+        )
         for i in range(50)
     ]
 
-    with patch.object(retriever, "search_semantic_scholar", return_value=many_docs[:25]), \
-         patch.object(retriever, "search_perplexity", return_value=many_docs[25:]), \
-         patch.object(retriever, "search_tavily", return_value=[]), \
-         patch.object(retriever, "search_serper", return_value=[]):
-
+    with patch.object(
+        retriever, "search_semantic_scholar", return_value=many_docs[:25]
+    ), patch.object(
+        retriever, "search_perplexity", return_value=many_docs[25:]
+    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+        retriever, "search_serper", return_value=[]
+    ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
 
@@ -798,11 +796,13 @@ async def test_retrieve_sources_handles_partial_api_failures(retriever: RAGRetri
     # Arrange
     semantic_docs = [SourceDoc(title="Semantic Paper", authors=[], year=2023)]
 
-    with patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs), \
-         patch.object(retriever, "search_perplexity", side_effect=Exception("API error")), \
-         patch.object(retriever, "search_tavily", return_value=[]), \
-         patch.object(retriever, "search_serper", return_value=[]):
-
+    with patch.object(
+        retriever, "search_semantic_scholar", return_value=semantic_docs
+    ), patch.object(
+        retriever, "search_perplexity", side_effect=Exception("API error")
+    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+        retriever, "search_serper", return_value=[]
+    ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
 
@@ -828,7 +828,7 @@ def test_source_doc_to_source_document_conversion():
         venue="AI Conference",
         citation_count=100,
         url="https://example.com/paper",
-        doi="10.1234/test.2023"
+        doi="10.1234/test.2023",
     )
 
     # Act

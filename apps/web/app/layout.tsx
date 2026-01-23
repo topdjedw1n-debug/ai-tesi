@@ -11,7 +11,11 @@ export const metadata: Metadata = {
   description: 'Generate thesis sections with AI assistance',
   keywords: ['thesis', 'AI', 'academic writing', 'research', 'education'],
   authors: [{ name: 'AI Thesis Platform Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({
