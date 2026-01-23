@@ -10,7 +10,7 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# lib/  # Disabled: conflicts with apps/web/lib/
 lib64/
 parts/
 sdist/
