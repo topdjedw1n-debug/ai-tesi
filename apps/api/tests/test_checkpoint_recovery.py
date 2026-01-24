@@ -137,7 +137,7 @@ async def test_checkpoint_saves_after_section_completion(
 
     # If set was called, verify checkpoint structure (optional detailed check)
     if mock_redis.set.called:
-        checkpoint_calls = [call for call in mock_redis.set.call_args_list]
+        checkpoint_calls = list(mock_redis.set.call_args_list)
         first_call = checkpoint_calls[0]
         checkpoint_key = first_call[0][0]
         checkpoint_json = first_call[0][1]
@@ -291,7 +291,6 @@ async def test_checkpoint_recovery_resumes_from_correct_section(
     assert len(resume_notifications) > 0, "Should send resume notification"
 
     # Verify: Section 3 was generated (not 1 or 2)
-    section_generate_calls = mock_generator.generate_section.call_args_list
     # Should only generate sections 3+ (sections 1-2 skipped)
     # Exact verification depends on mocking completeness
 

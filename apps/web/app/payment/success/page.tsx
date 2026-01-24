@@ -131,7 +131,7 @@ export default function PaymentSuccessPage() {
               Payment Verification Failed
             </h1>
             <p className="text-gray-600 mb-6">
-              We couldn't verify your payment. Please check your payment history or contact support.
+              We couldn&apos;t verify your payment. Please check your payment history or contact support.
             </p>
 
             <div className="space-y-3">

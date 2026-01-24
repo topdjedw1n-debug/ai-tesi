@@ -34,7 +34,9 @@ def create_access_token(user_id: int) -> str:
     if settings.JWT_AUD:
         to_encode["aud"] = settings.JWT_AUD
 
-    return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+    return str(
+        jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+    )
 
 
 def create_download_token(
@@ -62,4 +64,6 @@ def create_download_token(
         "iss": "tesigo-api",
         "aud": "tesigo-download",
     }
-    return jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+    return str(
+        jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
+    )

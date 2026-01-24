@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-
+    
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../index.html">All files</a> / <a href="index.html">app/auth/login</a> page.tsx</h1>
         <div class='clearfix'>
-
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/22</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/6</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/5</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/22</span>
             </div>
-
-
+        
+            
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -173,7 +173,9 @@
 <a name='L108'></a><a href='#L108'>108</a>
 <a name='L109'></a><a href='#L109'>109</a>
 <a name='L110'></a><a href='#L110'>110</a>
-<a name='L111'></a><a href='#L111'>111</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -246,6 +248,8 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -320,9 +324,9 @@ export default function <span class="cstat-no" title="statement not covered" ><s
               &lt;path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /&gt;
             &lt;/svg&gt;
           &lt;/div&gt;
-          &lt;h2 className="text-2xl font-bold text-gray-900 mb-2"&gt;Check your email&lt;/h2&gt;
-          &lt;p className="text-gray-600 mb-6"&gt;
-            We've sent a magic link to &lt;span className="font-semibold"&gt;{email}&lt;/span&gt;
+          &lt;h2 className="text-2xl font-bold text-gray-900 mb-2" data-testid="email-sent-title"&gt;Check your email&lt;/h2&gt;
+          &lt;p className="text-gray-600 mb-6" data-testid="email-sent-message"&gt;
+            We&amp;apos;ve sent a magic link to &lt;span className="font-semibold"&gt;{email}&lt;/span&gt;
           &lt;/p&gt;
           &lt;p className="text-sm text-gray-500 mb-4"&gt;
             Click the link in the email to sign in. The link will expire in 15 minutes.
@@ -342,8 +346,8 @@ export default function <span class="cstat-no" title="statement not covered" ><s
     &lt;div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4"&gt;
       &lt;div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8"&gt;
         &lt;div className="text-center mb-8"&gt;
-          &lt;h1 className="text-3xl font-bold text-gray-900 mb-2"&gt;Welcome back&lt;/h1&gt;
-          &lt;p className="text-gray-600"&gt;Sign in to your account with magic link&lt;/p&gt;
+          &lt;h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="login-title"&gt;Welcome back&lt;/h1&gt;
+          &lt;p className="text-gray-600" data-testid="login-subtitle"&gt;Sign in to your account with magic link&lt;/p&gt;
         &lt;/div&gt;
 &nbsp;
         &lt;form onSubmit={handleSubmit} className="space-y-6"&gt;
@@ -357,6 +361,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
               value={email}
               onChange={<span class="fstat-no" title="function not covered" >(e</span>) =&gt; <span class="cstat-no" title="statement not covered" >setEmail(e.target.value)}</span>
               required
+              data-testid="email-input"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="you@example.com"
               disabled={isLoading}
@@ -366,6 +371,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
           &lt;button
             type="submit"
             disabled={isLoading}
+            data-testid="send-magic-link-button"
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           &gt;
             {isLoading ? 'Sending...' : 'Send magic link →'}
@@ -374,7 +380,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
 &nbsp;
         &lt;div className="mt-6 text-center"&gt;
           &lt;p className="text-sm text-gray-600"&gt;
-            Don't have an account?{' '}
+            Don&amp;apos;t have an account?{' '}
             &lt;button
               onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >r</span>outer.push('/auth/register')}</span>
               className="text-blue-600 hover:text-blue-700 font-medium"
@@ -400,7 +406,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-03T11:22:48.185Z
+                at 2026-01-24T13:28:10.930Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
@@ -412,3 +418,4 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         <script src="../../../block-navigation.js"></script>
     </body>
 </html>
+    

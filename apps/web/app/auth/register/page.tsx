@@ -37,7 +37,7 @@ export default function RegisterPage() {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
           <p className="text-gray-600 mb-6">
-            We've sent a magic link to <span className="font-semibold">{email}</span>
+            We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>
           </p>
           <p className="text-sm text-gray-500 mb-4">
             Click the link in the email to complete your registration. The link will expire in 15 minutes.

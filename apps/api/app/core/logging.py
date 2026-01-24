@@ -10,6 +10,7 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import Request
+from fastapi.responses import Response
 from loguru import logger
 from starlette.middleware.base import BaseHTTPMiddleware
 
@@ -94,11 +95,11 @@ def log_security_audit_event(
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware to add correlation ID and log request/response lifecycle."""
 
-    async def dispatch(self, request: Request, call_next):  # type: ignore[override]
+    async def dispatch(self, request: Request, call_next: Any) -> Response:
         correlation_id: str = request.headers.get("X-Request-ID") or str(uuid.uuid4())
         with logger.contextualize(correlation_id=correlation_id):
             logger.info(f"HTTP {request.method} {request.url.path}")
-            response = await call_next(request)
+            response: Response = await call_next(request)
             response.headers["X-Request-ID"] = correlation_id
             logger.info(f"{response.status_code} {request.method} {request.url.path}")
             return response

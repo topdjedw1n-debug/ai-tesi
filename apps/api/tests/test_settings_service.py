@@ -3,13 +3,15 @@ Unit tests for SettingsService
 Tests settings service methods
 """
 import os
-from unittest.mock import AsyncMock, MagicMock
+from unittest.mock import AsyncMock, MagicMock, Mock
 
 import pytest
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -125,6 +127,7 @@ async def test_update_setting_new(settings_service, mock_db):
     mock_result.scalar_one_or_none.return_value = None
     mock_db.execute.return_value = mock_result
 
+    mock_db.add = Mock()
     mock_db.flush = AsyncMock()
     mock_db.refresh = AsyncMock()
 
@@ -148,6 +151,7 @@ async def test_update_settings(settings_service, mock_db):
     mock_result.scalar_one_or_none.return_value = None
     mock_db.execute.return_value = mock_result
 
+    mock_db.add = Mock()
     mock_db.flush = AsyncMock()
     mock_db.refresh = AsyncMock()
     mock_db.commit = AsyncMock()
@@ -190,6 +194,7 @@ async def test_update_pricing_settings(settings_service, mock_db):
     mock_result.scalar_one_or_none.return_value = None
     mock_db.execute.return_value = mock_result
 
+    mock_db.add = Mock()
     mock_db.flush = AsyncMock()
     mock_db.refresh = AsyncMock()
     mock_db.commit = AsyncMock()

@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -44,14 +44,7 @@ export default function AdminPaymentDetailsPage() {
   const [stripeLink, setStripeLink] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (paymentId) {
-      fetchPaymentDetails()
-      fetchStripeLink()
-    }
-  }, [paymentId])
-
-  const fetchPaymentDetails = async () => {
+  const fetchPaymentDetails = useCallback(async () => {
     try {
       setIsLoading(true)
       const paymentData = await adminApiClient.getPayment(paymentId)
@@ -63,16 +56,23 @@ export default function AdminPaymentDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [paymentId, router])
 
-  const fetchStripeLink = async () => {
+  const fetchStripeLink = useCallback(async () => {
     try {
       const linkData = await adminApiClient.getPaymentStripeLink(paymentId)
       setStripeLink(linkData.stripe_link || null)
     } catch (error: any) {
       console.error('Failed to fetch Stripe link:', error)
     }
-  }
+  }, [paymentId])
+
+  useEffect(() => {
+    if (paymentId) {
+      fetchPaymentDetails()
+      fetchStripeLink()
+    }
+  }, [paymentId, fetchPaymentDetails, fetchStripeLink])
 
   const handleRefund = async () => {
     if (!payment) return

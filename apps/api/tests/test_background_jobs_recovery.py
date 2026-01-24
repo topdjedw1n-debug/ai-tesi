@@ -310,7 +310,6 @@ async def test_quality_threshold_error_sends_websocket(
         mock_quality_class.return_value = mock_quality_validator
 
         mock_manager.send_progress = AsyncMock()
-        mock_manager.send_error = AsyncMock()
 
         mock_doc_service = MagicMock()
         mock_doc_service.export_document = AsyncMock(
@@ -321,13 +320,20 @@ async def test_quality_threshold_error_sends_websocket(
         # Execute
         await BackgroundJobService.generate_full_document(document_id=200, user_id=2)
 
-        # Verify: WebSocket error sent
-        assert mock_manager.send_error.called, "WebSocket error should be sent"
+        # Verify: WebSocket error sent via send_progress (no separate send_error method)
+        assert mock_manager.send_progress.called, "WebSocket progress should be sent"
 
-        # Verify error data
-        call_args = mock_manager.send_error.call_args
-        user_id_arg = call_args[0][0]
-        error_data = call_args[0][1]
+        # Find the call with error in message
+        error_call = None
+        for call in mock_manager.send_progress.call_args_list:
+            if len(call[0]) >= 2:
+                user_id_arg, message = call[0][0], call[0][1]
+                if isinstance(message, dict) and "error" in message:
+                    error_call = (user_id_arg, message)
+                    break
+
+        assert error_call is not None, "Error message should be sent via send_progress"
+        user_id_arg, error_data = error_call
 
         assert user_id_arg == 2, "Error sent to correct user"
         assert error_data["error"] == "quality_threshold_not_met"

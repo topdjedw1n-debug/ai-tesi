@@ -43,15 +43,15 @@ class Settings(BaseSettings):
     CORS_ALLOWED_ORIGINS: str | None = None  # Comma-separated list from ENV
     # ALLOWED_ORIGINS is set via model_validator, not from ENV directly
     # This prevents pydantic-settings from trying to parse it as JSON
-    # Use Field with validation_alias to prevent env parsing
+    # Use Field(init=False) to prevent pydantic from parsing this field from ENV
     ALLOWED_ORIGINS: list[str] = Field(
+        init=False,
         default_factory=lambda: [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
             "http://localhost:3001",
             "http://127.0.0.1:3001",
         ],
-        validation_alias="__IGNORE__",  # This alias doesn't exist, so it won't be parsed from ENV
     )
     ALLOWED_HOSTS: list[str] = ["localhost", "127.0.0.1", "0.0.0.0", "test"]
 
@@ -188,13 +188,14 @@ class Settings(BaseSettings):
         env_file=".env",
         case_sensitive=True,
         env_ignore_empty=True,  # Ignore empty env vars
+        extra="allow",  # Allow extra fields from .env (for backward compatibility)
         # Exclude ALLOWED_ORIGINS from env file parsing - it's set via model_validator
         env_prefix="",  # No prefix needed
     )  # type: ignore[typeddict-unknown-key,assignment]
 
     @field_validator("SECRET_KEY")
     @classmethod
-    def validate_secret_key(cls, v: str | None, info) -> str | None:  # type: ignore[override]
+    def validate_secret_key(cls, v: str | None, info: Any) -> str | None:
         """Validate SECRET_KEY - CRITICAL: must be set via ENV (no auto-generation)"""
         env = (
             info.data.get("ENVIRONMENT", "development")
@@ -240,7 +241,7 @@ class Settings(BaseSettings):
 
     @field_validator("JWT_SECRET")
     @classmethod
-    def validate_jwt_secret(cls, v: str | None, info) -> str | None:  # type: ignore[override]
+    def validate_jwt_secret(cls, v: str | None, info: Any) -> str | None:
         """Validate JWT_SECRET - must meet security requirements"""
         env = (
             info.data.get("ENVIRONMENT", "development")
@@ -284,7 +285,7 @@ class Settings(BaseSettings):
 
     @field_validator("ALLOWED_ORIGINS")
     @classmethod
-    def validate_allowed_origins(cls, v: list[str], info):  # type: ignore[override]
+    def validate_allowed_origins(cls, v: list[str], info: Any) -> list[str]:
         """Strengthened CORS validation: reject wildcards in any env, validate URLs, reject localhost in prod"""
         env = (
             info.data.get("ENVIRONMENT", "development")
@@ -348,7 +349,7 @@ class Settings(BaseSettings):
 
     @field_validator("DATABASE_URL")
     @classmethod
-    def validate_database_url(cls, v: str | None, info):  # type: ignore[override]
+    def validate_database_url(cls, v: str | None, info: Any) -> str | None:
         """Validate DATABASE_URL - CRITICAL: must be set and secure in production"""
         env = (
             info.data.get("ENVIRONMENT", "development")
@@ -399,7 +400,7 @@ class Settings(BaseSettings):
 
     @field_validator("STRIPE_SECRET_KEY")
     @classmethod
-    def validate_stripe_key(cls, v: str | None, info) -> str | None:  # type: ignore[override]
+    def validate_stripe_key(cls, v: str | None, info: Any) -> str | None:
         """Warn if Stripe not configured"""
         if not v:
             import logging
@@ -408,7 +409,7 @@ class Settings(BaseSettings):
         return v
 
     @model_validator(mode="after")
-    def validate_production_requirements(self):  # type: ignore[override]
+    def validate_production_requirements(self) -> "Settings":
         """Final validation: ensure critical ENV vars are set in production"""
         is_prod = self.ENVIRONMENT.lower() in {"production", "prod"}
 
@@ -647,7 +648,7 @@ def reload_settings() -> dict[str, Any]:
 
         # Run validation
         try:
-            settings.validate_production_requirements()  # type: ignore[misc]
+            settings.validate_production_requirements()  # type: ignore[operator]
             validation_passed = True
         except ValueError as e:
             validation_passed = False

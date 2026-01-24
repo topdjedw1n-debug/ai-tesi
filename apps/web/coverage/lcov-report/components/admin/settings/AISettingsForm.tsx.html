@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-
+    
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../index.html">All files</a> / <a href="index.html">components/admin/settings</a> AISettingsForm.tsx</h1>
         <div class='clearfix'>
-
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/36</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/25</span>
+                <span class='fraction'>0/35</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/14</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/35</span>
             </div>
-
-
+        
+            
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -294,7 +294,10 @@
 <a name='L229'></a><a href='#L229'>229</a>
 <a name='L230'></a><a href='#L230'>230</a>
 <a name='L231'></a><a href='#L231'>231</a>
-<a name='L232'></a><a href='#L232'>232</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L232'></a><a href='#L232'>232</a>
+<a name='L233'></a><a href='#L233'>233</a>
+<a name='L234'></a><a href='#L234'>234</a>
+<a name='L235'></a><a href='#L235'>235</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -350,6 +353,9 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -558,12 +564,12 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
 &nbsp;
 <span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    if (initialSettings) {</span>
-<span class="cstat-no" title="statement not covered" >      setDefaultProvider(initialSettings.default_provider)</span>
-<span class="cstat-no" title="statement not covered" >      setDefaultModel(initialSettings.default_model)</span>
+<span class="cstat-no" title="statement not covered" >      setDefaultProvider(initialSettings.default_provider ?? '')</span>
+<span class="cstat-no" title="statement not covered" >      setDefaultModel(initialSettings.default_model ?? '')</span>
 <span class="cstat-no" title="statement not covered" >      setFallbackModels(initialSettings.fallback_models || [])</span>
-<span class="cstat-no" title="statement not covered" >      setMaxRetries(initialSettings.max_retries)</span>
-<span class="cstat-no" title="statement not covered" >      setTimeoutSeconds(initialSettings.timeout_seconds)</span>
-<span class="cstat-no" title="statement not covered" >      setTemperatureDefault(initialSettings.temperature_default)</span>
+<span class="cstat-no" title="statement not covered" >      setMaxRetries(initialSettings.max_retries ?? 3)</span>
+<span class="cstat-no" title="statement not covered" >      setTimeoutSeconds(initialSettings.timeout_seconds ?? 30)</span>
+<span class="cstat-no" title="statement not covered" >      setTemperatureDefault(initialSettings.temperature_default ?? 0.7)</span>
     }
   }, [initialSettings])
 &nbsp;
@@ -583,9 +589,12 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
 <span class="cstat-no" title="statement not covered" >    await onSave({</span>
       default_provider: defaultProvider,
       default_model: defaultModel,
+      available_models: [],
       fallback_models: fallbackModels,
+      max_tokens: 4000,
       max_retries: maxRetries,
       timeout_seconds: timeoutSeconds,
+      temperature: temperatureDefault,
       temperature_default: temperatureDefault,
     })
   }
@@ -763,7 +772,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-03T11:22:48.185Z
+                at 2026-01-24T13:28:10.930Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
@@ -775,3 +784,4 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
         <script src="../../../block-navigation.js"></script>
     </body>
 </html>
+    

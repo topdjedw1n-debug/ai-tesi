@@ -47,14 +47,16 @@ logging.basicConfig(level=logging.INFO)
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
-    logger.info("Starting AI Thesis Platform API...")
-    await init_db()
-    logger.info("Database initialized")
-    await init_redis()
+    with logger.contextualize(correlation_id="startup"):
+        logger.info("Starting AI Thesis Platform API...")
+        await init_db()
+        logger.info("Database initialized")
+        await init_redis()
     yield
     # Shutdown
-    logger.info("Shutting down AI Thesis Platform API...")
-    await close_redis()
+    with logger.contextualize(correlation_id="shutdown"):
+        logger.info("Shutting down AI Thesis Platform API...")
+        await close_redis()
 
 
 # Create FastAPI application

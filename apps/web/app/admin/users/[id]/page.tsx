@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient, UserDetails } from '@/lib/api/admin'
 import { UserDetails as UserDetailsComponent } from '@/components/admin/users/UserDetails'
@@ -14,13 +14,7 @@ export default function AdminUserDetailsPage() {
   const [user, setUser] = useState<UserDetails | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (userId) {
-      fetchUserDetails()
-    }
-  }, [userId])
-
-  const fetchUserDetails = async () => {
+  const fetchUserDetails = useCallback(async () => {
     try {
       setIsLoading(true)
       const [userData, documentsData, paymentsData] = await Promise.all([
@@ -42,7 +36,13 @@ export default function AdminUserDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [userId, router])
+
+  useEffect(() => {
+    if (userId) {
+      fetchUserDetails()
+    }
+  }, [userId, fetchUserDetails])
 
   const handleBlock = async () => {
     if (!user) return

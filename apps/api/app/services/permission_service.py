@@ -159,7 +159,9 @@ async def revoke_permission(
 
     # Verify revoker is admin
     revoker = await db.get(User, revoked_by)
-    if not revoker or not revoker.is_admin:
+    if not revoker:
+        raise ValueError("Revoker not found")
+    if not revoker.is_admin:
         raise ValueError("Only admins can revoke permissions")
 
     # Revoke permission

@@ -47,5 +47,5 @@ class AdminIPCheckMiddleware(BaseHTTPMiddleware):
                             detail="IP address not whitelisted for admin access",
                         )
 
-        response = await call_next(request)
+        response: Response = await call_next(request)
         return response

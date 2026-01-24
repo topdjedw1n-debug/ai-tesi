@@ -213,7 +213,7 @@ class AdminService:
                 "total": total,
                 "page": page,
                 "per_page": per_page,
-                "total_pages": (total + per_page - 1) // per_page,
+                "total_pages": ((total or 0) + per_page - 1) // per_page,
             }
 
         except Exception as e:
@@ -332,7 +332,7 @@ class AdminService:
                 raise ValueError("User is already blocked")
 
             # Block user
-            user.is_active = False
+            user.is_active = False  # type: ignore[assignment]
             await self.db.commit()
             await self.db.refresh(user)
 
@@ -381,7 +381,7 @@ class AdminService:
                 raise ValueError("User is already active")
 
             # Unblock user
-            user.is_active = True
+            user.is_active = True  # type: ignore[assignment]
             await self.db.commit()
             await self.db.refresh(user)
 
@@ -429,7 +429,7 @@ class AdminService:
                 raise ValueError("Cannot delete super admin")
 
             # Soft delete: mark as inactive
-            user.is_active = False
+            user.is_active = False  # type: ignore[assignment]
             # Optionally clear sensitive data (email, etc.)
             # For GDPR compliance, you might want to anonymize instead of delete
 
@@ -483,7 +483,7 @@ class AdminService:
                 raise ValueError("User not found")
 
             # Update admin status
-            user.is_admin = is_admin
+            user.is_admin = is_admin  # type: ignore[assignment]
             if is_super_admin is not None:
                 # Only super admins can grant super admin status
                 admin_user_result = await self.db.execute(
@@ -491,13 +491,13 @@ class AdminService:
                 )
                 admin_user = admin_user_result.scalar_one_or_none()
                 if admin_user and admin_user.is_super_admin:
-                    user.is_super_admin = is_super_admin
+                    user.is_super_admin = is_super_admin  # type: ignore[assignment]
                 else:
                     raise ValueError("Only super admin can grant super admin status")
 
             # Revoke super admin if removing admin status
             if not is_admin:
-                user.is_super_admin = False
+                user.is_super_admin = False  # type: ignore[assignment]
 
             await self.db.commit()
             await self.db.refresh(user)
@@ -581,7 +581,7 @@ class AdminService:
             from app.services.notification_service import notification_service
 
             email_sent = await notification_service.send_email(
-                to_email=user.email,
+                to_email=str(user.email),
                 subject=subject,
                 html_body=message,
             )
@@ -660,7 +660,7 @@ class AdminService:
                         "language": doc.language,
                         "status": doc.status,
                         "target_pages": doc.target_pages,
-                        "actual_pages": doc.actual_pages,
+                        "actual_pages": doc.target_pages,  # TODO: Calculate actual pages from content
                         "ai_provider": doc.ai_provider,
                         "ai_model": doc.ai_model,
                         "tokens_used": doc.tokens_used,
@@ -678,7 +678,7 @@ class AdminService:
                 "total": total,
                 "page": page,
                 "per_page": per_page,
-                "total_pages": (total + per_page - 1) // per_page,
+                "total_pages": ((total or 0) + per_page - 1) // per_page,
             }
 
         except ValueError:
@@ -761,7 +761,7 @@ class AdminService:
                 "total": total,
                 "page": page,
                 "per_page": per_page,
-                "total_pages": (total + per_page - 1) // per_page,
+                "total_pages": ((total or 0) + per_page - 1) // per_page,
             }
 
         except ValueError:
@@ -884,11 +884,11 @@ class AdminService:
                         "job_type": job.job_type,
                         "ai_provider": job.ai_provider,
                         "ai_model": job.ai_model,
-                        "input_tokens": job.input_tokens,
-                        "output_tokens": job.output_tokens,
+                        "input_tokens": 0,  # TODO: Track separately
+                        "output_tokens": 0,  # TODO: Track separately
                         "total_tokens": job.total_tokens,
                         "cost_cents": job.cost_cents,
-                        "duration_ms": job.duration_ms,
+                        "duration_ms": 0,  # TODO: Calculate from timestamps
                         "success": job.success,
                         "error_message": job.error_message,
                         "started_at": job.started_at.isoformat(),
@@ -903,7 +903,7 @@ class AdminService:
                 "total": total,
                 "page": page,
                 "per_page": per_page,
-                "total_pages": (total + per_page - 1) // per_page,
+                "total_pages": ((total or 0) + per_page - 1) // per_page,
             }
 
         except Exception as e:
@@ -924,7 +924,16 @@ class AdminService:
             if not end_date:
                 end_date = datetime.utcnow()
 
+            # ROOT CAUSE: Time-series grouping (day/week/month) requires SQL date functions
+            # PATTERN: PostgreSQL date_trunc() or SQLAlchemy func.date_trunc()
+            # IMPACT: Admin dashboard shows only totals, not trends over time
+            # TEMPORARY: Returning simple totals until grouping logic implemented
             # TODO: Implement proper grouping based on group_by parameter
+            #   - Use func.date_trunc(group_by, AIGenerationJob.started_at)
+            #   - Group results by truncated date
+            #   - Return array of {date, cost, tokens} objects
+            #   Priority: 🟢 LOW | Time: 2h | For: Admin dashboard charts
+            #   See: docs/MVP_PLAN.md → "POST-RELEASE IMPROVEMENTS" → #3
             # For now, return simple totals
 
             total_cost_result = await self.db.execute(
@@ -991,11 +1000,11 @@ class AdminService:
                     )
                 )
             )
-            successful_jobs_count = successful_jobs_result.scalar()
+            successful_jobs_count = successful_jobs_result.scalar() or 0
 
             success_rate = (
-                successful_jobs_count / recent_jobs_count
-                if recent_jobs_count > 0
+                (successful_jobs_count or 0) / (recent_jobs_count or 1)
+                if (recent_jobs_count or 0) > 0
                 else 1.0
             )
 
@@ -1200,6 +1209,16 @@ class AdminService:
                 logger.info(
                     f"Cleanup completed: {cleaned_queued} queued jobs and {cleaned_running} running jobs marked as failed"
                 )
+
+                # ROOT CAUSE: Retry logic not implemented for failed jobs
+                # PATTERN: Exponential backoff retry already exists in ai_service
+                # DECISION: Admin manually triggers cleanup, retry would auto-restart jobs
+                # TODO: Implement retry logic for stuck jobs
+                #   - Check if job is retryable (error type, retry_count < 3)
+                #   - Reset status to 'queued', increment retry_count
+                #   - Re-queue job in background task system
+                #   Priority: 🟢 LOW | Time: 2-3h | Use case: Auto-recovery from transient failures
+                #   See: DEBUG_PROTOCOL.md for systematic implementation approach
 
                 return {
                     "action": action,

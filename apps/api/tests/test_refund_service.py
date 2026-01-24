@@ -4,13 +4,15 @@ Tests refund service methods
 """
 import os
 from decimal import Decimal
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 import pytest
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -51,7 +53,8 @@ async def test_create_refund_request(refund_service, mock_db):
     # Use side_effect for multiple execute calls
     mock_db.execute.side_effect = [mock_payment_result, mock_existing_result]
 
-    # Mock commit
+    # Mock sync and async db methods
+    mock_db.add = Mock()
     mock_db.commit = AsyncMock()
     mock_db.refresh = AsyncMock()
 

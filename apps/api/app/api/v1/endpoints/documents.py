@@ -2,6 +2,7 @@
 Document management endpoints
 """
 import logging
+from typing import Any
 
 from fastapi import (
     APIRouter,
@@ -13,7 +14,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -45,12 +46,12 @@ async def create_document(
     document: DocumentCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> DocumentResponse:
     """Create a new document"""
     try:
         document_service = DocumentService(db)
         result = await document_service.create_document(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             title=document.title,
             topic=document.topic,
             language=document.language,
@@ -81,12 +82,12 @@ async def list_documents(
     offset: int = Query(0, ge=0),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> DocumentListResponse:
     """List user's documents with pagination"""
     try:
         document_service = DocumentService(db)
         result = await document_service.get_user_documents(
-            user_id=current_user.id, limit=limit, offset=offset
+            user_id=int(current_user.id), limit=limit, offset=offset
         )
         return result
     except ValidationError as e:
@@ -107,12 +108,12 @@ async def get_recent_activity(
     limit: int = Query(10, ge=1, le=50),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, list[dict[str, Any]]]:
     """Get recent activity for user dashboard"""
     try:
         document_service = DocumentService(db)
         activities = await document_service.get_recent_activity(
-            current_user.id, limit=limit
+            int(current_user.id), limit=limit
         )
         return {"activities": activities}
     except ValidationError as e:
@@ -133,13 +134,15 @@ async def get_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> DocumentResponse:
     """Get a specific document by ID"""
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(document_id, current_user.id)
-        result = await document_service.get_document(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
+        result = await document_service.get_document(document_id, int(current_user.id))
         if not result:
             raise NotFoundError("Document not found")
         return result
@@ -160,19 +163,21 @@ async def update_document(
     document: DocumentUpdate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> DocumentResponse:
     """Update a document"""
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
         # Convert Pydantic model to dict and unpack
         update_dict = document.model_dump(exclude_unset=True)
         await document_service.update_document(
-            document_id, current_user.id, **update_dict
+            document_id, int(current_user.id), **update_dict
         )
         # Fetch updated document to return
-        result = await document_service.get_document(document_id, current_user.id)
+        result = await document_service.get_document(document_id, int(current_user.id))
         return result
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
@@ -189,11 +194,11 @@ async def get_user_stats(
     request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get user statistics for dashboard"""
     try:
         document_service = DocumentService(db)
-        stats = await document_service.get_user_stats(current_user.id)
+        stats = await document_service.get_user_stats(int(current_user.id))
         return stats
     except ValidationError as e:
         raise HTTPException(
@@ -213,13 +218,17 @@ async def delete_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """Delete a document (soft delete)"""
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(document_id, current_user.id)
-        success = await document_service.delete_document(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
+        success = await document_service.delete_document(
+            document_id, int(current_user.id)
+        )
         if not success:
             raise NotFoundError("Document not found")
         return {"message": "Document deleted successfully"}
@@ -240,14 +249,16 @@ async def export_document(
     export_request: ExportRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> ExportResponse:
     """Export document to DOCX or PDF"""
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
         result = await document_service.export_document(
-            document_id, export_request.format, current_user.id
+            document_id, export_request.format, int(current_user.id)
         )
         return result
     except NotFoundError as e:
@@ -267,14 +278,16 @@ async def export_document_get(
     format: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> ExportResponse:
     """Export document via GET route to match frontend: /documents/{id}/export/{format}"""
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
         result = await document_service.export_document(
-            document_id, format, current_user.id
+            document_id, format, int(current_user.id)
         )
         return result
     except NotFoundError as e:
@@ -294,7 +307,7 @@ async def upload_custom_requirements(
     file: UploadFile = File(...),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Upload custom requirements file (PDF, DOCX, TXT)
     Extracts text from the file and stores it
@@ -302,7 +315,9 @@ async def upload_custom_requirements(
     try:
         # Get document and verify ownership
         document_service = DocumentService(db)
-        await document_service.check_document_ownership(document_id, current_user.id)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
 
         # Extract text from uploaded file
         requirements_service = CustomRequirementsService()
@@ -340,7 +355,7 @@ async def upload_custom_requirements(
 async def download_document_secure(
     token: str = Query(..., description="Signed download token"),
     db: AsyncSession = Depends(get_db),
-):
+) -> FileResponse:
     """
     Secure document download endpoint with JWT token validation.
 
@@ -355,7 +370,7 @@ async def download_document_secure(
 
         # Get document from database
         document_service = DocumentService(db)
-        document = await document_service.get_document_by_id(document_id)
+        document = await document_service.get_document(document_id, user_id)
 
         if not document:
             raise HTTPException(

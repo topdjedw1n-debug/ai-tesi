@@ -62,5 +62,5 @@ class RefundRequest(Base):
     payment = relationship("Payment")
     reviewer = relationship("User", foreign_keys=[reviewed_by])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<RefundRequest(id={self.id}, user_id={self.user_id}, status={self.status})>"

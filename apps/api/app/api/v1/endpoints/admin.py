@@ -4,6 +4,7 @@ Admin endpoints for monitoring and management
 
 import logging
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -35,7 +36,7 @@ async def get_platform_stats(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get platform statistics (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -45,7 +46,7 @@ async def get_platform_stats(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="platform",
@@ -60,7 +61,7 @@ async def get_platform_stats(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="platform",
@@ -81,7 +82,7 @@ async def get_dashboard_charts(
     period: str = Query("week", regex="^(day|week|month|year)$"),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get chart data for dashboard graphs (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -91,7 +92,7 @@ async def get_dashboard_charts(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -106,7 +107,7 @@ async def get_dashboard_charts(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -128,7 +129,7 @@ async def get_dashboard_activity(
     limit: int = Query(10, ge=1, le=100),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get recent activity for dashboard (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -138,7 +139,7 @@ async def get_dashboard_activity(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -155,7 +156,7 @@ async def get_dashboard_activity(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -175,7 +176,7 @@ async def get_dashboard_metrics(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get business metrics for dashboard (MRR, ARPU, etc.) (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -185,7 +186,7 @@ async def get_dashboard_metrics(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -200,7 +201,7 @@ async def get_dashboard_metrics(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="dashboard",
@@ -223,7 +224,7 @@ async def list_users(
     search: str | None = None,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """List all users (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -236,7 +237,7 @@ async def list_users(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="users",
@@ -254,7 +255,7 @@ async def list_users(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="users",
@@ -275,7 +276,7 @@ async def get_user_details(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get detailed user information (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -287,7 +288,7 @@ async def get_user_details(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}",
             resource="user",
@@ -297,7 +298,7 @@ async def get_user_details(
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_user_details",
             target_type="user",
             target_id=user_id,
@@ -329,7 +330,7 @@ async def block_user(
     block_data: BlockUserRequest,
     current_user: User = Depends(require_permission(AdminPermissions.BLOCK_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Block a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -344,12 +345,12 @@ async def block_user(
         result = await admin_service.block_user(
             user_id=user_id,
             reason=block_data.reason,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="block_user",
             target_type="user",
             target_id=user_id,
@@ -363,7 +364,7 @@ async def block_user(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/block",
             resource="user",
@@ -393,7 +394,7 @@ async def unblock_user(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.BLOCK_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Unblock a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -407,12 +408,12 @@ async def unblock_user(
         # Unblock user
         result = await admin_service.unblock_user(
             user_id=user_id,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="unblock_user",
             target_type="user",
             target_id=user_id,
@@ -426,7 +427,7 @@ async def unblock_user(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/unblock",
             resource="user",
@@ -456,7 +457,7 @@ async def delete_user(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.DELETE_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Soft delete a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -470,12 +471,12 @@ async def delete_user(
         # Delete user
         result = await admin_service.delete_user(
             user_id=user_id,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action (critical)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="delete_user",
             target_type="user",
             target_id=user_id,
@@ -492,7 +493,7 @@ async def delete_user(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}",
             resource="user",
@@ -523,7 +524,7 @@ async def make_admin(
     admin_data: MakeAdminRequest,
     current_user: User = Depends(require_permission(AdminPermissions.MAKE_ADMIN)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Make user admin or revoke admin rights (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -539,12 +540,12 @@ async def make_admin(
             user_id=user_id,
             is_admin=admin_data.is_admin,
             is_super_admin=admin_data.is_super_admin,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action (critical if granting super admin)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="grant_super_admin" if admin_data.is_super_admin else "make_admin",
             target_type="user",
             target_id=user_id,
@@ -564,7 +565,7 @@ async def make_admin(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/make-admin",
             resource="user",
@@ -596,7 +597,7 @@ async def get_user_documents(
     per_page: int = Query(10, ge=1, le=100),
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get documents for a specific user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -607,7 +608,7 @@ async def get_user_documents(
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_user_documents",
             target_type="user",
             target_id=user_id,
@@ -619,7 +620,7 @@ async def get_user_documents(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/documents",
             resource="user_documents",
@@ -651,7 +652,7 @@ async def get_user_payments(
     per_page: int = Query(10, ge=1, le=100),
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get payments for a specific user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -662,7 +663,7 @@ async def get_user_payments(
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_user_payments",
             target_type="user",
             target_id=user_id,
@@ -674,7 +675,7 @@ async def get_user_payments(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/payments",
             resource="user_payments",
@@ -704,7 +705,7 @@ async def revoke_admin(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.MAKE_ADMIN)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Revoke admin rights from a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -718,12 +719,12 @@ async def revoke_admin(
         # Revoke admin rights
         result = await admin_service.revoke_admin(
             user_id=user_id,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action (critical)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="revoke_admin",
             target_type="user",
             target_id=user_id,
@@ -740,7 +741,7 @@ async def revoke_admin(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/revoke-admin",
             resource="user",
@@ -771,7 +772,7 @@ async def send_email_to_user(
     email_data: SendEmailRequest,
     current_user: User = Depends(require_permission(AdminPermissions.EDIT_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Send email to a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -784,12 +785,12 @@ async def send_email_to_user(
             user_id=user_id,
             subject=email_data.subject,
             message=email_data.message,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
         )
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="send_email_to_user",
             target_type="user",
             target_id=user_id,
@@ -805,7 +806,7 @@ async def send_email_to_user(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/users/{user_id}/send-email",
             resource="user",
@@ -836,7 +837,7 @@ async def bulk_user_action(
     bulk_data: BulkUserActionRequest,
     current_user: User = Depends(require_permission(AdminPermissions.BLOCK_USERS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Perform bulk action on users (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -848,13 +849,13 @@ async def bulk_user_action(
         result = await admin_service.bulk_user_action(
             user_ids=bulk_data.user_ids,
             action=bulk_data.action,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             reason=None,  # TODO: Add reason to schema if needed
         )
 
         # Log admin action
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action=f"bulk_{bulk_data.action}_users",
             target_type="user",
             ip_address=ip,
@@ -871,7 +872,7 @@ async def bulk_user_action(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint="/api/v1/admin/users/bulk",
             resource="user",
@@ -905,7 +906,7 @@ async def list_ai_jobs(
     end_date: datetime | None = None,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """List AI generation jobs (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -920,7 +921,7 @@ async def list_ai_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="ai_jobs",
@@ -934,7 +935,7 @@ async def list_ai_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="ai_jobs",
@@ -957,7 +958,7 @@ async def get_cost_analysis(
     group_by: str = Query("day", regex="^(day|week|month)$"),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get cost analysis (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -970,7 +971,7 @@ async def get_cost_analysis(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="costs",
@@ -984,7 +985,7 @@ async def get_cost_analysis(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="costs",
@@ -1004,7 +1005,7 @@ async def health_check(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Detailed health check for admin"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1017,7 +1018,7 @@ async def health_check(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="system",
@@ -1030,7 +1031,7 @@ async def health_check(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="system",
@@ -1050,7 +1051,7 @@ async def reload_config(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Reload application configuration from environment variables (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1063,7 +1064,7 @@ async def reload_config(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="config",
@@ -1082,7 +1083,7 @@ async def reload_config(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="config",
@@ -1102,7 +1103,7 @@ async def verify_backup(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Verify database backup integrity (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1116,7 +1117,7 @@ async def verify_backup(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="database",
@@ -1135,7 +1136,7 @@ async def verify_backup(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="database",
@@ -1155,7 +1156,7 @@ async def verify_storage(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Verify file storage integrity (MinIO/S3) (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1177,7 +1178,7 @@ async def verify_storage(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="storage",
@@ -1195,7 +1196,7 @@ async def verify_storage(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="storage",
@@ -1218,7 +1219,7 @@ async def monitor_stuck_jobs(
     ),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Monitor for stuck AI generation jobs (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1228,7 +1229,7 @@ async def monitor_stuck_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="jobs",
@@ -1245,7 +1246,7 @@ async def monitor_stuck_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="jobs",
@@ -1271,7 +1272,7 @@ async def cleanup_stuck_jobs(
     ),
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Cleanup stuck AI generation jobs (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -1293,7 +1294,7 @@ async def cleanup_stuck_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="jobs",
@@ -1311,7 +1312,7 @@ async def cleanup_stuck_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="jobs",
@@ -1328,7 +1329,7 @@ async def cleanup_stuck_jobs(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="jobs",

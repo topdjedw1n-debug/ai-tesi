@@ -78,10 +78,13 @@ class CircuitBreaker:
                     logger.info("Attempting to close circuit breaker (HALF_OPEN state)")
                     self.state = CircuitState.HALF_OPEN
                 else:
+                    # last_failure_time is guaranteed not None when state is OPEN
                     wait_seconds = (
                         self.recovery_timeout
-                        - (datetime.now() - self.last_failure_time).total_seconds()
-                    )  # type: ignore
+                        - (
+                            datetime.now() - (self.last_failure_time or datetime.now())
+                        ).total_seconds()
+                    )
                     logger.warning(
                         f"Circuit breaker is OPEN. Waiting {wait_seconds:.1f}s before retry"
                     )

@@ -12,12 +12,9 @@ from pydantic import BaseModel, Field, field_validator
 class RefundRequestCreate(BaseModel):
     """Schema for creating a refund request (user endpoint)"""
 
-    payment_id: int = Field(..., description="ID of payment to refund")
-    reason: str = Field(
-        ..., min_length=10, max_length=5000, description="Reason for refund"
-    )
+    payment_id: int = Field(description="ID of payment to refund")
+    reason: str = Field(min_length=10, max_length=5000, description="Reason for refund")
     reason_category: str = Field(
-        ...,
         pattern="^(quality|not_satisfied|technical_issue|other)$",
         description="Category of refund reason",
     )

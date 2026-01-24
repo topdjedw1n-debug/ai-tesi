@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
@@ -44,19 +44,7 @@ export default function DocumentDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
 
-  useEffect(() => {
-    // Check if user is authenticated
-    const token = getAccessToken()
-    if (!token) {
-      toast.error('Please sign in to view documents')
-      router.push('/')
-      return
-    }
-    
-    fetchDocument()
-  }, [documentId, router])
-
-  const fetchDocument = async () => {
+  const fetchDocument = useCallback(async () => {
     try {
       setIsLoading(true)
       const data = await apiClient.get(API_ENDPOINTS.DOCUMENTS.GET(documentId))
@@ -75,7 +63,19 @@ export default function DocumentDetailPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [documentId, router])
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const token = getAccessToken()
+    if (!token) {
+      toast.error('Please sign in to view documents')
+      router.push('/')
+      return
+    }
+
+    fetchDocument()
+  }, [documentId, router, fetchDocument])
 
   const handleGenerationComplete = () => {
     setIsGenerating(false)
@@ -105,7 +105,7 @@ export default function DocumentDetailPage() {
         <div className="text-center py-12">
           <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">Document not found</h3>
-          <p className="mt-1 text-sm text-gray-500">The document you're looking for doesn't exist.</p>
+          <p className="mt-1 text-sm text-gray-500">The document you&apos;re looking for doesn&apos;t exist.</p>
           <div className="mt-6">
             <Button onClick={() => router.push('/dashboard')}>
               <ArrowLeftIcon className="h-4 w-4 mr-2" />

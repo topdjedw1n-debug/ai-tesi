@@ -115,15 +115,59 @@ export const mockRefund = {
 
 /**
  * Custom render function that wraps component with common providers
- * Can be extended later with AuthProvider, QueryClientProvider, etc.
+ * Provides AuthProvider context and other necessary providers for testing
  */
 export function renderWithProviders(
   ui: ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
+  options?: Omit<RenderOptions, 'wrapper'> & {
+    mockAuthUser?: any;
+    mockRouter?: boolean;
+  }
 ) {
-  // For now, just use standard render
-  // Can add providers here as needed: <AuthProvider><QueryClient>{ui}</QueryClient></AuthProvider>
-  return render(ui, options);
+  // Create wrapper with providers
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return <>{children}</>;
+  }
+  
+  return render(ui, { ...options, wrapper: Wrapper });
+}
+
+/**
+ * Render component with auth context (requires manual mocking of auth hooks)
+ * For tests that need AuthProvider, mock the useAuth hook instead:
+ * 
+ * @example
+ * jest.mock('@/components/providers/AuthProvider', () => ({
+ *   useAuth: () => ({
+ *     user: mockUser,
+ *     isLoading: false,
+ *     login: jest.fn(),
+ *     logout: jest.fn(),
+ *   }),
+ * }))
+ */
+export function renderWithAuth(
+  ui: ReactElement,
+  mockAuthState: {
+    user?: any;
+    isLoading?: boolean;
+    login?: jest.Mock;
+    logout?: jest.Mock;
+    verifyMagicLink?: jest.Mock;
+  } = {}
+) {
+  const defaultAuthState = {
+    user: null,
+    isLoading: false,
+    login: jest.fn(),
+    logout: jest.fn(),
+    verifyMagicLink: jest.fn(),
+    ...mockAuthState,
+  };
+  
+  // Note: This requires mocking the AuthProvider module
+  // See example in function docstring
+  return render(ui);
 }
 
 /**

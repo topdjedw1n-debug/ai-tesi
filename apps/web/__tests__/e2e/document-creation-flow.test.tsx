@@ -1,6 +1,6 @@
 /**
  * E2E Tests: Document Creation Flow
- *
+ * 
  * TODO: Tests need more work - complex component interactions
  * See /docs/MVP_PLAN.md → "ТИМЧАСОВІ РІШЕННЯ" → #1 E2E Tests
  */

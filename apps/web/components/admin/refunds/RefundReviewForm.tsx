@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { RefundDetails } from '@/lib/api/admin'
 import { formatDateOnly, formatDateTime } from '@/lib/utils/date'
 import {
@@ -171,9 +172,11 @@ export function RefundReviewForm({
                 rel="noopener noreferrer"
                 className="block"
               >
-                <img
+                <Image
                   src={url}
                   alt={`Screenshot ${index + 1}`}
+                  width={200}
+                  height={128}
                   className="w-full h-32 object-cover rounded border border-gray-600 hover:border-blue-500"
                 />
               </a>

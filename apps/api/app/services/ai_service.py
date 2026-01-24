@@ -92,8 +92,8 @@ class AIService:
             # Generate outline using AI
             start_time = time.time()
             outline_data = await self._call_ai_provider(
-                provider=document.ai_provider,
-                model=document.ai_model,
+                provider=str(document.ai_provider),
+                model=str(document.ai_model),
                 prompt=self._build_outline_prompt(document, additional_requirements),
             )
 
@@ -190,9 +190,9 @@ class AIService:
 
             # Estimate cost
             cost_estimate = CostEstimator.estimate_document_cost(
-                provider=document.ai_provider,
-                model=document.ai_model,
-                target_pages=document.target_pages,
+                provider=str(document.ai_provider),
+                model=str(document.ai_model),
+                target_pages=int(document.target_pages),
                 include_rag=True,  # Always enabled now
                 include_humanization=include_humanization,
             )
@@ -252,8 +252,8 @@ class AIService:
                 document=document,
                 section_title=section_title,
                 section_index=section_index,
-                provider=document.ai_provider,
-                model=document.ai_model,
+                provider=str(document.ai_provider),
+                model=str(document.ai_model),
                 citation_style=CitationStyle.APA,  # Default to APA
                 humanize=False,  # Can be made configurable later
                 context_sections=context_sections if context_sections else None,
@@ -279,7 +279,7 @@ class AIService:
             content = section_result.get("content", "")
             if section:
                 section.content = content
-                section.status = "completed"
+                section.status = "completed"  # type: ignore[assignment]
                 section.tokens_used = estimated_tokens
                 section.generation_time_seconds = generation_time
                 section.completed_at = datetime.utcnow()
@@ -373,7 +373,7 @@ class AIService:
     async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
         """Call OpenAI API with circuit breaker and retry"""
 
-        async def _make_request():
+        async def _make_request() -> dict[str, Any]:
             import openai
 
             if not settings.OPENAI_API_KEY:
@@ -411,7 +411,7 @@ class AIService:
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
 
-        async def _make_request():
+        async def _make_request() -> dict[str, Any]:
             import anthropic
 
             if not settings.ANTHROPIC_API_KEY:
@@ -419,7 +419,7 @@ class AIService:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-            response = await client.messages.create(
+            response = await client.messages.create(  # type: ignore[attr-defined]
                 model=model,
                 max_tokens=4000,
                 temperature=0.7,

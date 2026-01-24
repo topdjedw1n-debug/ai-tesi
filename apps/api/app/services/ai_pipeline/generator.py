@@ -29,7 +29,7 @@ T = TypeVar("T")
 async def retry_with_backoff(
     func: Callable[..., Any],
     max_retries: int = 3,
-    delays: list[int] = [2, 4, 8],
+    delays: list[int] | None = None,
     exceptions: tuple[type[Exception], ...] = (Exception,),
     operation_name: str = "AI call",
 ) -> Any:
@@ -59,6 +59,9 @@ async def retry_with_backoff(
         >>>     exceptions=(Timeout, RateLimitError)
         >>> )
     """
+    if delays is None:
+        delays = [2, 4, 8]
+
     last_exception = None
 
     for attempt in range(max_retries):
@@ -191,7 +194,7 @@ class SectionGenerator:
             # This ensures maximum reliability with automatic fallback
             section_content = await self._call_ai_with_fallback(
                 prompt=prompt,
-                language=document.language,
+                language=str(document.language),
                 purpose=f"Section: {section_title}",
             )
 
@@ -260,7 +263,7 @@ class SectionGenerator:
             # Collect training data (async, non-blocking)
             asyncio.create_task(
                 self.training_collector.collect_generation_sample(
-                    document_id=document.id,
+                    document_id=int(document.id),
                     section_title=section_title,
                     prompt=prompt_for_training,
                     generated_content=section_content,
@@ -614,7 +617,7 @@ class SectionGenerator:
 
             # Inner function for retry wrapper
             async def _make_anthropic_call() -> str:
-                response = await client.messages.create(
+                response = await client.messages.create(  # type: ignore[attr-defined]
                     model=model,
                     max_tokens=4000,
                     temperature=0.7,

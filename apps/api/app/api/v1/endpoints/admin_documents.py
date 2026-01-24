@@ -4,6 +4,7 @@ Admin endpoints for document management
 
 import logging
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request
 from sqlalchemy import func, select
@@ -35,7 +36,7 @@ async def list_documents(
     end_date: datetime | None = None,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """List all documents with filters (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -130,7 +131,7 @@ async def list_documents(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_documents",
             target_type="document",
             ip_address=ip,
@@ -143,7 +144,7 @@ async def list_documents(
             "total": total,
             "page": page,
             "per_page": per_page,
-            "pages": (total + per_page - 1) // per_page,
+            "pages": ((total or 0) + per_page - 1) // per_page,
         }
     except Exception as e:
         logger.error(f"Error listing documents: {e}")
@@ -171,7 +172,7 @@ async def get_document_details(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get detailed document information (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -203,7 +204,7 @@ async def get_document_details(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_document_details",
             target_type="document",
             target_id=document_id,
@@ -215,7 +216,7 @@ async def get_document_details(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/documents/{document_id}",
             resource="document",
@@ -279,7 +280,7 @@ async def get_document_logs(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get generation logs for a document (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -307,7 +308,7 @@ async def get_document_logs(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_document_logs",
             target_type="document",
             target_id=document_id,
@@ -328,7 +329,7 @@ async def get_document_logs(
                     "completed_at": job.completed_at.isoformat()
                     if job.completed_at
                     else None,
-                    "tokens_used": job.tokens_used,
+                    "tokens_used": job.total_tokens,  # was: tokens_used
                     "cost_cents": job.cost_cents,
                     "error_message": job.error_message,
                 }
@@ -352,7 +353,7 @@ async def delete_document(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.DELETE_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Delete a document (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -378,7 +379,7 @@ async def delete_document(
         # Log admin action (critical)
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="delete_document",
             target_type="document",
             target_id=document_id,
@@ -421,7 +422,7 @@ async def retry_document_generation(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.RETRY_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Retry document generation (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -451,7 +452,7 @@ async def retry_document_generation(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="retry_document_generation",
             target_type="document",
             target_id=document_id,
@@ -465,7 +466,7 @@ async def retry_document_generation(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/documents/{document_id}/retry",
             resource="document",
@@ -495,7 +496,7 @@ async def download_document(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get download link or content for a document (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -515,7 +516,7 @@ async def download_document(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="download_document",
             target_type="document",
             target_id=document_id,
@@ -526,7 +527,9 @@ async def download_document(
 
         # Generate signed download URL
         download_token = create_download_token(
-            document_id=document.id, user_id=current_user.id, expiration_minutes=60
+            document_id=int(document.id),
+            user_id=int(current_user.id),
+            expiration_minutes=60,
         )
 
         # Return document content (in production, this would be a signed URL or file download)

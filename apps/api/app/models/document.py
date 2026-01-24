@@ -74,7 +74,7 @@ class Document(Base):
     )
     payment = relationship("Payment", back_populates="document", uselist=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<Document(id={self.id}, title={self.title}, status={self.status})>"
 
 
@@ -127,7 +127,7 @@ class DocumentSection(Base):
     # Relationships
     document = relationship("Document", back_populates="sections")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<DocumentSection(id={self.id}, title={self.title}, status={self.status})>"
         )
@@ -154,7 +154,7 @@ class DocumentOutline(Base):
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<DocumentOutline(id={self.id}, document_id={self.document_id})>"
 
 
@@ -193,5 +193,30 @@ class AIGenerationJob(Base):
     started_at = Column(DateTime(timezone=True), server_default=func.now())
     completed_at = Column(DateTime(timezone=True), nullable=True)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<AIGenerationJob(id={self.id}, user_id={self.user_id}, job_type={self.job_type})>"
+
+
+class DocumentDraft(Base):
+    """Auto-save drafts for documents"""
+
+    __tablename__ = "document_drafts"
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(
+        Integer, ForeignKey("documents.id"), nullable=False, index=True
+    )
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+
+    # Draft content
+    content = Column(Text, nullable=True)
+    version = Column(Integer, default=1)
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    def __repr__(self) -> str:
+        return f"<DocumentDraft(id={self.id}, document_id={self.document_id}, version={self.version})>"

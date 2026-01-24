@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient, AdminDocument } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -44,14 +44,7 @@ export default function AdminDocumentDetailsPage() {
   const [activeTab, setActiveTab] = useState<'details' | 'logs' | 'content'>('details')
   const [isLoading, setIsLoading] = useState(true)
 
-  useEffect(() => {
-    if (documentId) {
-      fetchDocumentDetails()
-      fetchDocumentLogs()
-    }
-  }, [documentId])
-
-  const fetchDocumentDetails = async () => {
+  const fetchDocumentDetails = useCallback(async () => {
     try {
       setIsLoading(true)
       const documentData = await adminApiClient.getDocument(documentId)
@@ -63,16 +56,23 @@ export default function AdminDocumentDetailsPage() {
     } finally {
       setIsLoading(false)
     }
-  }
+  }, [documentId, router])
 
-  const fetchDocumentLogs = async () => {
+  const fetchDocumentLogs = useCallback(async () => {
     try {
       const logsData = await adminApiClient.getDocumentLogs(documentId)
       setLogs(logsData)
     } catch (error: any) {
       console.error('Failed to fetch document logs:', error)
     }
-  }
+  }, [documentId])
+
+  useEffect(() => {
+    if (documentId) {
+      fetchDocumentDetails()
+      fetchDocumentLogs()
+    }
+  }, [documentId, fetchDocumentDetails, fetchDocumentLogs])
 
   const handleRetry = async () => {
     if (!document) return

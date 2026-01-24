@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class AIDetectionChecker:
     """Check text for AI-generated content probability"""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize AI detection checker with GPTZero primary, Originality fallback"""
         # GPTZero API (primary)
         self.gptzero_api_url = "https://api.gptzero.me/v2/predict/text"

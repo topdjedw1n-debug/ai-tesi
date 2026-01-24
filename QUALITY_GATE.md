@@ -18,6 +18,28 @@
 
 ### Gate Status: **PASS** ✅
 
+## Debugging Checklist
+
+Before claiming any bug is "fixed":
+
+- [ ] Root cause identified (not just symptom fixed)
+- [ ] Failing test created first (Phase 4.1)
+- [ ] Single fix applied (one variable at a time)
+- [ ] All tests pass (pytest tests/ -v)
+- [ ] No new TODOs without root cause analysis
+- [ ] Defense-in-depth validation added (if data flow issue)
+- [ ] No errors in logs (tail -f logs/api.log)
+- [ ] Code reviewed by another developer
+
+**See:** `.github/DEBUG_PROTOCOL.md` for systematic debugging process.
+
+**Red flags:**
+- "Quick fix for now"
+- "Just try changing X"
+- Multiple fixes at once
+- Each fix reveals new problem elsewhere
+- **If 3+ fixes failed → Question architecture**
+
 ## Implementation Details
 
 ### Python 3.11 Enforcement

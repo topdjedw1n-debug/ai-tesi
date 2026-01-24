@@ -82,7 +82,7 @@ class PricingService:
             pricing_settings = await self.settings_service.get_pricing_settings()
 
             # Extract values with fallback to defaults
-            def get_value(key_with_prefix: str, key_simple: str, default: Any):
+            def get_value(key_with_prefix: str, key_simple: str, default: Any) -> Any:
                 if key_with_prefix in pricing_settings:
                     return pricing_settings[key_with_prefix]
                 elif key_simple in pricing_settings:

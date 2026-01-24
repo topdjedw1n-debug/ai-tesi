@@ -9,7 +9,9 @@ from httpx import AsyncClient
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test_integration.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -27,10 +29,12 @@ async def client():
     # Add CSRF token header for state-changing requests
     async with AsyncClient(app=app, base_url="http://test") as ac:
         # Set default headers with CSRF token
-        ac.headers.update({
-            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
-            "X-Requested-With": "XMLHttpRequest",
-        })
+        ac.headers.update(
+            {
+                "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        )
         yield ac
 
 
@@ -54,11 +58,7 @@ async def db_session():
 @pytest.fixture
 async def test_user(db_session):
     """Create a test user"""
-    user = User(
-        email="test@example.com",
-        full_name="Test User",
-        is_active=True
-    )
+    user = User(email="test@example.com", full_name="Test User", is_active=True)
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
@@ -101,8 +101,7 @@ async def test_auth_flow(client, db_session, test_user):
     """Integration test: Complete auth flow (magic link → verify → me)"""
     # Step 1: Request magic link
     response = await client.post(
-        "/api/v1/auth/magic-link",
-        json={"email": test_user.email}
+        "/api/v1/auth/magic-link", json={"email": test_user.email}
     )
     # Magic link might return 403 if rate limited, or 200 if successful
     assert response.status_code in [200, 403]
@@ -113,6 +112,7 @@ async def test_auth_flow(client, db_session, test_user):
 
         # Step 2: Get token from database
         from sqlalchemy import select
+
         token_result = await db_session.execute(
             select(MagicLinkToken)
             .where(MagicLinkToken.email == test_user.email)
@@ -123,8 +123,7 @@ async def test_auth_flow(client, db_session, test_user):
         if magic_token:
             # Step 3: Verify magic link
             verify_response = await client.post(
-                "/api/v1/auth/verify-magic-link",
-                json={"token": magic_token.token}
+                "/api/v1/auth/verify-magic-link", json={"token": magic_token.token}
             )
             assert verify_response.status_code == 200
             verify_data = verify_response.json()
@@ -133,8 +132,7 @@ async def test_auth_flow(client, db_session, test_user):
 
             # Step 4: Use token to get user info
             me_response = await client.get(
-                "/api/v1/auth/me",
-                headers={"Authorization": f"Bearer {access_token}"}
+                "/api/v1/auth/me", headers={"Authorization": f"Bearer {access_token}"}
             )
             assert me_response.status_code == 200
             me_data = me_response.json()
@@ -149,27 +147,34 @@ async def test_create_document_flow(client, db_session, auth_token, test_user):
         "title": "Test Thesis",
         "topic": "AI in Education",
         "language": "en",
-        "target_pages": 10
+        "target_pages": 10,
     }
     create_response = await client.post(
         "/api/v1/documents/",
         json=document_data,
         headers={
             "Authorization": f"Bearer {auth_token}",
-            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890"
-        }
+            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
+        },
     )
     # Check response status
-    assert create_response.status_code in [200, 201], f"Expected 200/201, got {create_response.status_code}: {create_response.text}"
+    assert create_response.status_code in [
+        200,
+        201,
+    ], f"Expected 200/201, got {create_response.status_code}: {create_response.text}"
 
     if create_response.status_code in [200, 201]:
         create_data = create_response.json()
         # Response might be different format, check for either "id" or nested structure
         if "id" in create_data:
             document_id = create_data["id"]
-        elif isinstance(create_data, dict) and any("id" in str(v) for v in create_data.values()):
+        elif isinstance(create_data, dict) and any(
+            "id" in str(v) for v in create_data.values()
+        ):
             # Try to find ID in response
-            document_id = next((v for k, v in create_data.items() if "id" in k.lower()), None)
+            document_id = next(
+                (v for k, v in create_data.items() if "id" in k.lower()), None
+            )
         else:
             pytest.skip("Could not extract document ID from response")
 
@@ -178,7 +183,7 @@ async def test_create_document_flow(client, db_session, auth_token, test_user):
         # Step 2: Get document
         get_response = await client.get(
             f"/api/v1/documents/{document_id}",
-            headers={"Authorization": f"Bearer {auth_token}"}
+            headers={"Authorization": f"Bearer {auth_token}"},
         )
         assert get_response.status_code == 200
         get_data = get_response.json()
@@ -195,21 +200,20 @@ async def test_document_list_flow(client, db_session, auth_token, test_user):
             "title": f"Test Document {i+1}",
             "topic": f"Research Topic Number {i+1}",  # Must be >= 10 chars
             "language": "en",
-            "target_pages": 10
+            "target_pages": 10,
         }
         await client.post(
             "/api/v1/documents/",
             json=doc_data,
             headers={
                 "Authorization": f"Bearer {auth_token}",
-                "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890"
-            }
+                "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
+            },
         )
 
     # Get list - use trailing slash to avoid redirect
     list_response = await client.get(
-        "/api/v1/documents/",
-        headers={"Authorization": f"Bearer {auth_token}"}
+        "/api/v1/documents/", headers={"Authorization": f"Bearer {auth_token}"}
     )
     assert list_response.status_code == 200
     list_data = list_response.json()
@@ -227,12 +231,12 @@ async def test_document_update_flow(client, db_session, auth_token, test_user):
             "title": "Original Title",
             "topic": "Original Research Topic",
             "language": "en",
-            "target_pages": 10
+            "target_pages": 10,
         },
         headers={
             "Authorization": f"Bearer {auth_token}",
-            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890"
-        }
+            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
+        },
     )
     doc_id = doc_response.json()["id"]
 
@@ -240,7 +244,7 @@ async def test_document_update_flow(client, db_session, auth_token, test_user):
     update_response = await client.put(
         f"/api/v1/documents/{doc_id}",
         json={"title": "Updated Title"},
-        headers={"Authorization": f"Bearer {auth_token}"}
+        headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert update_response.status_code == 200
     updated_data = update_response.json()
@@ -257,23 +261,21 @@ async def test_document_delete_flow(client, db_session, auth_token, test_user):
             "title": "To Delete",
             "topic": "Test Topic Long Enough",
             "language": "en",
-            "target_pages": 10
+            "target_pages": 10,
         },
-        headers={"Authorization": f"Bearer {auth_token}"}
+        headers={"Authorization": f"Bearer {auth_token}"},
     )
     doc_id = doc_response.json()["id"]
 
     # Delete document
     delete_response = await client.delete(
-        f"/api/v1/documents/{doc_id}",
-        headers={"Authorization": f"Bearer {auth_token}"}
+        f"/api/v1/documents/{doc_id}", headers={"Authorization": f"Bearer {auth_token}"}
     )
     assert delete_response.status_code == 200
 
     # Verify deleted
     get_response = await client.get(
-        f"/api/v1/documents/{doc_id}",
-        headers={"Authorization": f"Bearer {auth_token}"}
+        f"/api/v1/documents/{doc_id}", headers={"Authorization": f"Bearer {auth_token}"}
     )
     assert get_response.status_code == 404
 
@@ -283,11 +285,10 @@ async def test_usage_stats_flow(client, db_session, auth_token, test_user):
     """Integration test: Usage stats flow"""
     response = await client.get(
         f"/api/v1/generate/usage/{test_user.id}",
-        headers={"Authorization": f"Bearer {auth_token}"}
+        headers={"Authorization": f"Bearer {auth_token}"},
     )
     assert response.status_code == 200
     data = response.json()
     assert "user_id" in data
     assert "total_documents" in data
     assert "total_tokens_used" in data
-

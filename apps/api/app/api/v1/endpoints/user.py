@@ -3,6 +3,7 @@ User management endpoints for GDPR compliance
 """
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
@@ -26,11 +27,11 @@ async def export_user_data(
     request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Export all user data for GDPR compliance"""
     try:
         gdpr_service = GDPRService(db)
-        data = await gdpr_service.export_user_data(user_id=current_user.id)
+        data = await gdpr_service.export_user_data(user_id=int(current_user.id))
 
         # Return JSON response with download headers
         return JSONResponse(
@@ -60,11 +61,11 @@ async def delete_account(
     request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, str]:
     """Delete user account (anonymize for GDPR compliance)"""
     try:
         gdpr_service = GDPRService(db)
-        result = await gdpr_service.delete_user_account(user_id=current_user.id)
+        result = await gdpr_service.delete_user_account(user_id=int(current_user.id))
 
         logger.info(f"Account deleted for user {current_user.id}")
 

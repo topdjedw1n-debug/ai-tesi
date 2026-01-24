@@ -9,7 +9,9 @@ from httpx import AsyncClient
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -69,7 +71,7 @@ async def test_create_document_requires_auth(client):
         "title": "Test Thesis",
         "topic": "AI in Education",
         "language": "en",
-        "target_pages": 10
+        "target_pages": 10,
     }
     response = await client.post("/api/v1/documents/", json=document_data)
     # Can be 401 or 403, both indicate auth is required
@@ -87,10 +89,7 @@ async def test_export_document_requires_auth(client):
 @pytest.mark.asyncio
 async def test_generate_outline_requires_auth(client):
     """Integration test: Generate outline endpoint requires authentication"""
-    request_data = {
-        "document_id": 1,
-        "additional_requirements": None
-    }
+    request_data = {"document_id": 1, "additional_requirements": None}
     response = await client.post("/api/v1/generate/outline", json=request_data)
     # Can be 401 or 403, both indicate auth is required
     assert response.status_code in [401, 403]
@@ -103,7 +102,7 @@ async def test_generate_section_requires_auth(client):
         "document_id": 1,
         "section_title": "Introduction",
         "section_index": 0,
-        "additional_requirements": None
+        "additional_requirements": None,
     }
     response = await client.post("/api/v1/generate/section", json=request_data)
     # Can be 401 or 403, both indicate auth is required
@@ -113,10 +112,7 @@ async def test_generate_section_requires_auth(client):
 @pytest.mark.asyncio
 async def test_full_document_generation_requires_auth(client):
     """Integration test: Outline generation endpoint requires authentication"""
-    request_data = {
-        "document_id": 1,
-        "additional_requirements": None
-    }
+    request_data = {"document_id": 1, "additional_requirements": None}
     # Test outline endpoint instead of non-existent full-document endpoint
     response = await client.post("/api/v1/generate/outline", json=request_data)
     # Can be 401 or 403, both indicate auth is required
@@ -128,4 +124,3 @@ async def test_usage_stats_requires_auth(client):
     """Integration test: Usage stats endpoint requires authentication"""
     response = await client.get("/api/v1/generate/usage/1")
     assert response.status_code == 401
-

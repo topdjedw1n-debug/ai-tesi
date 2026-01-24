@@ -24,7 +24,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 # Set test environment
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault(
     "DATABASE_URL", "sqlite+aiosqlite:///./test.db"
 )  # Use same DB as other tests
@@ -410,7 +412,7 @@ async def test_payment_intent_preserves_metadata(
     """
     service = PaymentService(db_session)
 
-    result = await service.create_payment_intent(
+    await service.create_payment_intent(
         user_id=test_user.id,
         amount=Decimal("25.00"),
         currency="EUR",

@@ -245,7 +245,7 @@ describe('RecentActivity Component', () => {
 
       expect(screen.getByText('My Outline Document')).toBeInTheDocument();
       expect(screen.getByText('My Completed Document')).toBeInTheDocument();
-
+      
       // Check activity labels are shown
       expect(screen.getByText('Document Created')).toBeInTheDocument();
       expect(screen.getByText('Outline Generated')).toBeInTheDocument();

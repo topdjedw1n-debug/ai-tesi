@@ -3,6 +3,7 @@ Refund endpoints - for users and admins
 """
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -39,7 +40,7 @@ async def create_refund_request(
     refund_data: RefundRequestCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundResponse:
     """
     Create a refund request (user endpoint).
 
@@ -51,7 +52,7 @@ async def create_refund_request(
     try:
         refund_service = RefundService(db)
         refund_request = await refund_service.create_refund_request(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             payment_id=refund_data.payment_id,
             reason=refund_data.reason,
             reason_category=refund_data.reason_category,
@@ -61,7 +62,7 @@ async def create_refund_request(
         log_security_audit_event(
             event_type="refund_request",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint="/api/v1/refunds",
             resource="refund",
@@ -74,25 +75,39 @@ async def create_refund_request(
         )
 
         return RefundResponse(
-            id=refund_request.id,
-            user_id=refund_request.user_id,
-            payment_id=refund_request.payment_id,
-            status=refund_request.status,
-            reason=refund_request.reason,
-            reason_category=refund_request.reason_category,
+            id=int(refund_request.id),
+            user_id=int(refund_request.user_id),
+            payment_id=int(refund_request.payment_id),
+            status=str(refund_request.status),
+            reason=str(refund_request.reason),
+            reason_category=str(refund_request.reason_category)
+            if refund_request.reason_category
+            else None,
             submitted_at=refund_request.submitted_at,
-            reviewed_at=refund_request.reviewed_at,
-            reviewed_by=refund_request.reviewed_by,
-            admin_comment=refund_request.admin_comment,
-            refund_amount=refund_request.refund_amount,
-            ai_recommendation=refund_request.ai_recommendation,
-            risk_score=refund_request.risk_score,
+            reviewed_at=refund_request.reviewed_at
+            if refund_request.reviewed_at
+            else None,
+            reviewed_by=int(refund_request.reviewed_by)
+            if refund_request.reviewed_by
+            else None,
+            admin_comment=str(refund_request.admin_comment)
+            if refund_request.admin_comment
+            else None,
+            refund_amount=refund_request.refund_amount
+            if refund_request.refund_amount
+            else None,
+            ai_recommendation=str(refund_request.ai_recommendation)
+            if refund_request.ai_recommendation
+            else None,
+            risk_score=float(refund_request.risk_score)
+            if refund_request.risk_score
+            else None,
         )
     except ValueError as e:
         log_security_audit_event(
             event_type="refund_request",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint="/api/v1/refunds",
             resource="refund",
@@ -124,7 +139,7 @@ async def list_refunds(
     per_page: int = Query(20, ge=1, le=100),
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundListResponse:
     """
     Get list of refund requests with filters (admin only).
 
@@ -142,7 +157,7 @@ async def list_refunds(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_refunds",
             target_type="refund",
             ip_address=request.client.host if request.client else None,
@@ -152,19 +167,21 @@ async def list_refunds(
 
         refunds_response = [
             RefundResponse(
-                id=r.id,
-                user_id=r.user_id,
-                payment_id=r.payment_id,
-                status=r.status,
-                reason=r.reason,
-                reason_category=r.reason_category,
+                id=int(r.id),
+                user_id=int(r.user_id),
+                payment_id=int(r.payment_id),
+                status=str(r.status),
+                reason=str(r.reason),
+                reason_category=str(r.reason_category) if r.reason_category else None,
                 submitted_at=r.submitted_at,
                 reviewed_at=r.reviewed_at,
-                reviewed_by=r.reviewed_by,
-                admin_comment=r.admin_comment,
+                reviewed_by=int(r.reviewed_by) if r.reviewed_by else None,
+                admin_comment=str(r.admin_comment) if r.admin_comment else None,
                 refund_amount=r.refund_amount,
-                ai_recommendation=r.ai_recommendation,
-                risk_score=r.risk_score,
+                ai_recommendation=str(r.ai_recommendation)
+                if r.ai_recommendation
+                else None,
+                risk_score=float(r.risk_score) if r.risk_score else None,
             )
             for r in result["refunds"]
         ]
@@ -189,7 +206,7 @@ async def get_pending_refunds(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Get count of pending refunds (for badge display).
 
@@ -216,7 +233,7 @@ async def get_refund_details(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundDetailsResponse:
     """
     Get detailed refund request information (admin only).
 
@@ -248,7 +265,7 @@ async def get_refund_details(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_refund_details",
             target_type="refund",
             target_id=refund_id,
@@ -258,22 +275,36 @@ async def get_refund_details(
         )
 
         return RefundDetailsResponse(
-            id=refund_request.id,
-            user_id=refund_request.user_id,
-            payment_id=refund_request.payment_id,
-            status=refund_request.status,
-            reason=refund_request.reason,
-            reason_category=refund_request.reason_category,
+            id=int(refund_request.id),
+            user_id=int(refund_request.user_id),
+            payment_id=int(refund_request.payment_id),
+            status=str(refund_request.status),
+            reason=str(refund_request.reason),
+            reason_category=str(refund_request.reason_category)
+            if refund_request.reason_category
+            else None,
             submitted_at=refund_request.submitted_at,
-            reviewed_at=refund_request.reviewed_at,
-            reviewed_by=refund_request.reviewed_by,
-            admin_comment=refund_request.admin_comment,
-            refund_amount=refund_request.refund_amount,
-            ai_recommendation=refund_request.ai_recommendation,
-            risk_score=refund_request.risk_score,
+            reviewed_at=refund_request.reviewed_at
+            if refund_request.reviewed_at
+            else None,
+            reviewed_by=int(refund_request.reviewed_by)
+            if refund_request.reviewed_by
+            else None,
+            admin_comment=str(refund_request.admin_comment)
+            if refund_request.admin_comment
+            else None,
+            refund_amount=refund_request.refund_amount
+            if refund_request.refund_amount
+            else None,
+            ai_recommendation=str(refund_request.ai_recommendation)
+            if refund_request.ai_recommendation
+            else None,
+            risk_score=float(refund_request.risk_score)
+            if refund_request.risk_score
+            else None,
             user=user_info,
             payment=payment_info,
-            screenshots=refund_request.screenshots
+            screenshots=list(refund_request.screenshots)
             if refund_request.screenshots
             else [],
         )
@@ -297,7 +328,7 @@ async def approve_refund(
     review_data: RefundReviewRequest,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundResponse:
     """
     Approve a refund request and process Stripe refund (admin only).
 
@@ -315,7 +346,7 @@ async def approve_refund(
         # Approve refund
         refund_request = await refund_service.approve_refund(
             refund_id=refund_id,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             admin_comment=review_data.admin_comment,
             refund_amount=review_data.refund_amount,
         )
@@ -323,7 +354,7 @@ async def approve_refund(
         # Log admin action with old/new values
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="approve_refund",
             target_type="refund",
             target_id=refund_id,
@@ -346,25 +377,39 @@ async def approve_refund(
         )
 
         return RefundResponse(
-            id=refund_request.id,
-            user_id=refund_request.user_id,
-            payment_id=refund_request.payment_id,
-            status=refund_request.status,
-            reason=refund_request.reason,
-            reason_category=refund_request.reason_category,
+            id=int(refund_request.id),
+            user_id=int(refund_request.user_id),
+            payment_id=int(refund_request.payment_id),
+            status=str(refund_request.status),
+            reason=str(refund_request.reason),
+            reason_category=str(refund_request.reason_category)
+            if refund_request.reason_category
+            else None,
             submitted_at=refund_request.submitted_at,
-            reviewed_at=refund_request.reviewed_at,
-            reviewed_by=refund_request.reviewed_by,
-            admin_comment=refund_request.admin_comment,
-            refund_amount=refund_request.refund_amount,
-            ai_recommendation=refund_request.ai_recommendation,
-            risk_score=refund_request.risk_score,
+            reviewed_at=refund_request.reviewed_at
+            if refund_request.reviewed_at
+            else None,
+            reviewed_by=int(refund_request.reviewed_by)
+            if refund_request.reviewed_by
+            else None,
+            admin_comment=str(refund_request.admin_comment)
+            if refund_request.admin_comment
+            else None,
+            refund_amount=refund_request.refund_amount
+            if refund_request.refund_amount
+            else None,
+            ai_recommendation=str(refund_request.ai_recommendation)
+            if refund_request.ai_recommendation
+            else None,
+            risk_score=float(refund_request.risk_score)
+            if refund_request.risk_score
+            else None,
         )
     except ValueError as e:
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/refunds/{refund_id}/approve",
             resource="refund",
@@ -391,7 +436,7 @@ async def reject_refund(
     review_data: RefundReviewRequest,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundResponse:
     """
     Reject a refund request (admin only).
 
@@ -409,14 +454,14 @@ async def reject_refund(
         # Reject refund
         refund_request = await refund_service.reject_refund(
             refund_id=refund_id,
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             admin_comment=review_data.admin_comment,
         )
 
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="reject_refund",
             target_type="refund",
             target_id=refund_id,
@@ -428,25 +473,39 @@ async def reject_refund(
         )
 
         return RefundResponse(
-            id=refund_request.id,
-            user_id=refund_request.user_id,
-            payment_id=refund_request.payment_id,
-            status=refund_request.status,
-            reason=refund_request.reason,
-            reason_category=refund_request.reason_category,
+            id=int(refund_request.id),
+            user_id=int(refund_request.user_id),
+            payment_id=int(refund_request.payment_id),
+            status=str(refund_request.status),
+            reason=str(refund_request.reason),
+            reason_category=str(refund_request.reason_category)
+            if refund_request.reason_category
+            else None,
             submitted_at=refund_request.submitted_at,
-            reviewed_at=refund_request.reviewed_at,
-            reviewed_by=refund_request.reviewed_by,
-            admin_comment=refund_request.admin_comment,
-            refund_amount=refund_request.refund_amount,
-            ai_recommendation=refund_request.ai_recommendation,
-            risk_score=refund_request.risk_score,
+            reviewed_at=refund_request.reviewed_at
+            if refund_request.reviewed_at
+            else None,
+            reviewed_by=int(refund_request.reviewed_by)
+            if refund_request.reviewed_by
+            else None,
+            admin_comment=str(refund_request.admin_comment)
+            if refund_request.admin_comment
+            else None,
+            refund_amount=refund_request.refund_amount
+            if refund_request.refund_amount
+            else None,
+            ai_recommendation=str(refund_request.ai_recommendation)
+            if refund_request.ai_recommendation
+            else None,
+            risk_score=float(refund_request.risk_score)
+            if refund_request.risk_score
+            else None,
         )
     except ValueError as e:
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/refunds/{refund_id}/reject",
             resource="refund",
@@ -472,7 +531,7 @@ async def analyze_refund_risk(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Analyze refund request for risk using AI (admin only, optional).
 
@@ -485,7 +544,7 @@ async def analyze_refund_risk(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="analyze_refund_risk",
             target_type="refund",
             target_id=refund_id,
@@ -513,7 +572,7 @@ async def get_refund_stats(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> RefundStatsResponse:
     """
     Get refund statistics (admin only).
 

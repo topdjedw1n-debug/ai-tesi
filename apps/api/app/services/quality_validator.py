@@ -32,7 +32,7 @@ class QualityValidator:
     - Word count accuracy: 20%
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         # Citation requirements
         self.min_citations_per_500_words = 3
 

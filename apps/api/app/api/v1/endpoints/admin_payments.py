@@ -6,6 +6,7 @@ import csv
 import io
 import logging
 from datetime import datetime
+from typing import Any
 
 from fastapi import APIRouter, Depends, Query, Request
 from fastapi.responses import StreamingResponse
@@ -38,7 +39,7 @@ async def list_payments(
     max_amount: float | None = None,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_PAYMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """List all payments with filters (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -113,7 +114,7 @@ async def list_payments(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="payments",
@@ -132,7 +133,7 @@ async def list_payments(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_payments",
             target_type="payment",
             ip_address=ip,
@@ -145,14 +146,14 @@ async def list_payments(
             "total": total,
             "page": page,
             "per_page": per_page,
-            "pages": (total + per_page - 1) // per_page,
+            "pages": ((total or 0) + per_page - 1) // per_page,
         }
     except Exception as e:
         logger.error(f"Error listing payments: {e}")
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=endpoint,
             resource="payments",
@@ -173,7 +174,7 @@ async def get_payment_details(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_PAYMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get detailed payment information (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -201,7 +202,7 @@ async def get_payment_details(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_payment_details",
             target_type="payment",
             target_id=payment_id,
@@ -213,7 +214,7 @@ async def get_payment_details(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/payments/{payment_id}",
             resource="payment",
@@ -262,7 +263,7 @@ async def get_stripe_dashboard_link(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_PAYMENTS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get Stripe dashboard link for a payment (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -282,7 +283,7 @@ async def get_stripe_dashboard_link(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_stripe_link",
             target_type="payment",
             target_id=payment_id,
@@ -324,7 +325,7 @@ async def initiate_refund(
     amount: float | None = None,
     current_user: User = Depends(require_permission(AdminPermissions.PROCESS_REFUNDS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Initiate a refund through Stripe (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -404,7 +405,7 @@ async def initiate_refund(
                 f"stripe_refund_id={stripe_refund.id}"
             )
 
-        except stripe.error.StripeError as e:
+        except stripe.error.StripeError as e:  # type: ignore[attr-defined]
             await db.rollback()
             logger.error(f"Stripe refund error: {e}")
             raise APIException(
@@ -424,7 +425,7 @@ async def initiate_refund(
         # Log admin action (critical)
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="initiate_refund",
             target_type="payment",
             target_id=payment_id,
@@ -438,7 +439,7 @@ async def initiate_refund(
         log_security_audit_event(
             event_type="admin_action",
             correlation_id=correlation_id,
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             ip=ip,
             endpoint=f"/api/v1/admin/payments/{payment_id}/refund",
             resource="payment",
@@ -472,7 +473,7 @@ async def export_payments(
     end_date: datetime | None = None,
     current_user: User = Depends(require_permission(AdminPermissions.EXPORT_DATA)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Export payments to CSV/Excel (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -496,7 +497,7 @@ async def export_payments(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="export_payments",
             target_type="payment",
             ip_address=ip,
@@ -576,7 +577,7 @@ async def get_payment_stats(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get payment statistics (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -607,7 +608,7 @@ async def get_payment_stats(
         # Log admin action
         admin_service = AdminService(db)
         await admin_service.log_admin_action(
-            admin_id=current_user.id,
+            admin_id=int(current_user.id),
             action="view_payment_stats",
             target_type="payment",
             ip_address=ip,

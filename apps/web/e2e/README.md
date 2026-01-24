@@ -125,7 +125,7 @@ Update frontend components to include `data-testid` attributes:
 <button onClick={handleCreate}>Create Document</button>
 
 // After
-<button
+<button 
   data-testid="create-document-btn"
   onClick={handleCreate}
 >

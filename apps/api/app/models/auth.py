@@ -49,7 +49,7 @@ class User(Base):
     # Relationships
     payments = relationship("Payment", back_populates="user")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, active={self.is_active})>"
 
 
@@ -75,7 +75,7 @@ class MagicLinkToken(Base):
     expires_at = Column(DateTime(timezone=True), nullable=False)
     used_at = Column(DateTime(timezone=True))
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<MagicLinkToken(id={self.id}, email={self.email}, used={self.is_used})>"
         )
@@ -106,5 +106,29 @@ class UserSession(Base):
     last_activity = Column(DateTime(timezone=True), server_default=func.now())
     expires_at = Column(DateTime(timezone=True), nullable=False)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<UserSession(id={self.id}, user_id={self.user_id}, active={self.is_active})>"
+
+
+class UserConsent(Base):
+    """GDPR consent tracking"""
+
+    __tablename__ = "user_consents"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    consent_type = Column(
+        String(100), nullable=False
+    )  # e.g., "data_processing", "marketing"
+    consented = Column(Boolean, default=False)
+    ip_address = Column(String(45))
+    user_agent = Column(String(500))
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    def __repr__(self) -> str:
+        return f"<UserConsent(id={self.id}, user_id={self.user_id}, type={self.consent_type})>"

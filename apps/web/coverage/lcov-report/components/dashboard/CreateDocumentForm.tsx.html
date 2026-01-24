@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-
+    
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../index.html">All files</a> / <a href="index.html">components/dashboard</a> CreateDocumentForm.tsx</h1>
         <div class='clearfix'>
-
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/73</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/42</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/8</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/72</span>
             </div>
-
-
+        
+            
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -449,7 +449,12 @@
 <a name='L384'></a><a href='#L384'>384</a>
 <a name='L385'></a><a href='#L385'>385</a>
 <a name='L386'></a><a href='#L386'>386</a>
-<a name='L387'></a><a href='#L387'>387</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L387'></a><a href='#L387'>387</a>
+<a name='L388'></a><a href='#L388'>388</a>
+<a name='L389'></a><a href='#L389'>389</a>
+<a name='L390'></a><a href='#L390'>390</a>
+<a name='L391'></a><a href='#L391'>391</a>
+<a name='L392'></a><a href='#L392'>392</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -745,7 +750,12 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -991,10 +1001,10 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
 &nbsp;
   const handleSkipPayment = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    if (!createdDocumentId) <span class="cstat-no" title="statement not covered" >return</span></span>
-
+    
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      toast.success('Starting generation...')</span>
-
+      
       // Start generation using correct endpoint with /jobs prefix
       const token = <span class="cstat-no" title="statement not covered" >getAccessToken()</span>
       const response = <span class="cstat-no" title="statement not covered" >await apiClient.post(</span>
@@ -1010,18 +1020,18 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
           },
         }
       )
-
+      
 <span class="cstat-no" title="statement not covered" >      toast.success(`Generation started! Job ID: ${response.job_id}`)</span>
-
+      
       // Reset form
 <span class="cstat-no" title="statement not covered" >      setCurrentStep('form')</span>
       const docId = <span class="cstat-no" title="statement not covered" >createdDocumentId</span>
 <span class="cstat-no" title="statement not covered" >      setCreatedDocumentId(null)</span>
-
+      
 <span class="cstat-no" title="statement not covered" >      if (onSuccess) {</span>
 <span class="cstat-no" title="statement not covered" >        onSuccess(docId)</span>
       }
-
+      
       // Redirect to document page
 <span class="cstat-no" title="statement not covered" >      router.push(`/dashboard/documents/${docId}`)</span>
     } catch (error: any) {
@@ -1041,7 +1051,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             Please complete payment to start document generation
           &lt;/p&gt;
         &lt;/div&gt;
-
+        
         {/* TEST: Skip payment button */}
         &lt;div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg"&gt;
           &lt;p className="text-sm text-yellow-800 mb-2"&gt;
@@ -1054,7 +1064,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             Skip Payment &amp; Start Generation (Test)
           &lt;/button&gt;
         &lt;/div&gt;
-
+        
         &lt;PaymentForm
           documentId={createdDocumentId}
           pages={documentPages}
@@ -1075,7 +1085,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
         &lt;/p&gt;
       &lt;/div&gt;
 &nbsp;
-      &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-6"&gt;
+      &lt;form onSubmit={handleSubmit(onSubmit)} className="space-y-6" data-testid="create-document-form"&gt;
         {/* Title */}
         &lt;div&gt;
           &lt;label
@@ -1088,6 +1098,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             type="text"
             id="title"
             {...register('title')}
+            data-testid="document-title-input"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="Document title (optional)"
           /&gt;
@@ -1108,6 +1119,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             id="topic"
             {...register('topic')}
             rows={3}
+            data-testid="document-topic-input"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="e.g., The Impact of Artificial Intelligence on Modern Education Systems and Learning Methodologies"
           /&gt;
@@ -1128,6 +1140,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             &lt;select
               id="language"
               {...register('language')}
+              data-testid="document-language-select"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             &gt;
               {languages.map(<span class="fstat-no" title="function not covered" >(l</span>ang) =&gt; (
@@ -1156,6 +1169,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
               {...register('pages', { valueAsNumber: true })}
               min="3"
               max="100"
+              data-testid="document-pages-input"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             /&gt;
             {<span class="branch-0 cbranch-no" title="branch not covered" >errors.pages </span>&amp;&amp; (
@@ -1205,6 +1219,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
           &lt;Button
             type="submit"
             disabled={isCreating}
+            data-testid="create-document-submit"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           &gt;
             {isCreating ? (
@@ -1228,7 +1243,7 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-03T11:22:48.185Z
+                at 2026-01-24T13:28:10.930Z
             </div>
         <script src="../../prettify.js"></script>
         <script>
@@ -1240,3 +1255,4 @@ export function <span class="cstat-no" title="statement not covered" ><span clas
         <script src="../../block-navigation.js"></script>
     </body>
 </html>
+    

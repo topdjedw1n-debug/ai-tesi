@@ -111,7 +111,7 @@ def with_retry(
     max_retries: int = 5,
     delays: list[int] | None = None,
     circuit_breaker: CircuitBreaker | None = None,
-):
+) -> Callable[[F], F]:
     """
     Decorator for retry logic with exponential backoff.
 

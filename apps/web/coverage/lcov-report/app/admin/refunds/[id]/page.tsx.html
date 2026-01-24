@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-
+    
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../../index.html">All files</a> / <a href="index.html">app/admin/refunds/[id]</a> page.tsx</h1>
         <div class='clearfix'>
-
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/53</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/12</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/7</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/50</span>
             </div>
-
-
+        
+            
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -201,12 +201,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -214,6 +208,12 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -303,7 +303,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use client'
 &nbsp;
-import { useEffect, useState } from <span class="cstat-no" title="statement not covered" >'react'</span>
+import { useEffect, useState, useCallback } from <span class="cstat-no" title="statement not covered" >'react'</span>
 import { useRouter, useParams } from <span class="cstat-no" title="statement not covered" >'next/navigation'</span>
 import { adminApiClient, RefundDetails } from <span class="cstat-no" title="statement not covered" >'@/lib/api/admin'</span>
 import { RefundReviewForm } from <span class="cstat-no" title="statement not covered" >'@/components/admin/refunds/RefundReviewForm'</span>
@@ -317,13 +317,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   const [refund, setRefund] = <span class="cstat-no" title="statement not covered" >useState&lt;RefundDetails | null&gt;(null)</span>
   const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(true)</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    if (refundId) {</span>
-<span class="cstat-no" title="statement not covered" >      fetchRefundDetails()</span>
-    }
-  }, [refundId])
-&nbsp;
-  const fetchRefundDetails = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
+  const fetchRefundDetails = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      setIsLoading(true)</span>
       const refundData = <span class="cstat-no" title="statement not covered" >await adminApiClient.getRefund(refundId)</span>
@@ -335,7 +329,13 @@ export default function <span class="cstat-no" title="statement not covered" ><s
     } finally {
 <span class="cstat-no" title="statement not covered" >      setIsLoading(false)</span>
     }
-  }
+  }, [refundId, router])
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (refundId) {</span>
+<span class="cstat-no" title="statement not covered" >      fetchRefundDetails()</span>
+    }
+  }, [refundId, fetchRefundDetails])
 &nbsp;
   const handleApprove = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (r</span>efundAmount: number | null, adminComment: string) =&gt; {</span>
 <span class="cstat-no" title="statement not covered" >    if (!refund) <span class="cstat-no" title="statement not covered" >return</span></span>
@@ -427,7 +427,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-03T11:22:48.185Z
+                at 2026-01-24T13:28:10.930Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
@@ -439,3 +439,4 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
+    

@@ -54,7 +54,7 @@ async def get_redis() -> aioredis.Redis:
 F = TypeVar("F", bound=Callable[..., Any])
 
 
-def background_task_error_handler(task_name: str):
+def background_task_error_handler(task_name: str) -> Callable[[F], F]:
     """
     Decorator for background tasks to provide consistent error handling
 
@@ -857,7 +857,7 @@ class BackgroundJobService:
                         await db.commit()
 
                         # Send WebSocket error notification
-                        await manager.send_error(
+                        await manager.send_progress(  # was: send_error (method does not exist)
                             user_id,
                             {
                                 "error": "quality_threshold_not_met",

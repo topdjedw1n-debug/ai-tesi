@@ -48,7 +48,7 @@ class TesiGoUser(FastHttpUser):
         # Try to get auth token (if auth endpoints are available)
         try:
             # Request magic link
-            response = self.client.post(
+            self.client.post(
                 "/api/v1/auth/magic-link",
                 json={"email": f"locust_user_{random.randint(1000, 9999)}@locust.test"},
                 catch_response=True,

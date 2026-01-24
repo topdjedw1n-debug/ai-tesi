@@ -15,41 +15,41 @@
         }
     </style>
 </head>
-
+    
 <body>
 <div class='wrapper'>
     <div class='pad1'>
         <h1><a href="../../../../index.html">All files</a> / <a href="index.html">app/dashboard/documents/[id]</a> page.tsx</h1>
         <div class='clearfix'>
-
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
                 <span class='fraction'>0/48</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
                 <span class='fraction'>0/43</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Functions</span>
                 <span class='fraction'>0/9</span>
             </div>
-
-
+        
+            
             <div class='fl pad1y space-right2'>
                 <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
                 <span class='fraction'>0/48</span>
             </div>
-
-
+        
+            
         </div>
         <p class="quiet">
             Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
@@ -356,18 +356,6 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -386,6 +374,18 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -557,7 +557,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">'use client'
 &nbsp;
-import { useEffect, useState } from <span class="cstat-no" title="statement not covered" >'react'</span>
+import { useEffect, useState, useCallback } from <span class="cstat-no" title="statement not covered" >'react'</span>
 import { useParams, useRouter } from <span class="cstat-no" title="statement not covered" >'next/navigation'</span>
 import { DashboardLayout } from <span class="cstat-no" title="statement not covered" >'@/components/layout/DashboardLayout'</span>
 import { GenerationProgress } from <span class="cstat-no" title="statement not covered" >'@/components/GenerationProgress'</span>
@@ -601,19 +601,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
   const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(true)</span>
   const [isGenerating, setIsGenerating] = <span class="cstat-no" title="statement not covered" >useState(false)</span>
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
-    // Check if user is authenticated
-    const token = <span class="cstat-no" title="statement not covered" >getAccessToken()</span>
-<span class="cstat-no" title="statement not covered" >    if (!token) {</span>
-<span class="cstat-no" title="statement not covered" >      toast.error('Please sign in to view documents')</span>
-<span class="cstat-no" title="statement not covered" >      router.push('/')</span>
-<span class="cstat-no" title="statement not covered" >      return</span>
-    }
-
-<span class="cstat-no" title="statement not covered" >    fetchDocument()</span>
-  }, [documentId, router])
-&nbsp;
-  const fetchDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
+  const fetchDocument = <span class="cstat-no" title="statement not covered" >useCallback(<span class="fstat-no" title="function not covered" >async () =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    try {</span>
 <span class="cstat-no" title="statement not covered" >      setIsLoading(true)</span>
       const data = <span class="cstat-no" title="statement not covered" >await apiClient.get(API_ENDPOINTS.DOCUMENTS.GET(documentId))</span>
@@ -632,7 +620,19 @@ export default function <span class="cstat-no" title="statement not covered" ><s
     } finally {
 <span class="cstat-no" title="statement not covered" >      setIsLoading(false)</span>
     }
-  }
+  }, [documentId, router])
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  useEffect(<span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
+    // Check if user is authenticated
+    const token = <span class="cstat-no" title="statement not covered" >getAccessToken()</span>
+<span class="cstat-no" title="statement not covered" >    if (!token) {</span>
+<span class="cstat-no" title="statement not covered" >      toast.error('Please sign in to view documents')</span>
+<span class="cstat-no" title="statement not covered" >      router.push('/')</span>
+<span class="cstat-no" title="statement not covered" >      return</span>
+    }
+&nbsp;
+<span class="cstat-no" title="statement not covered" >    fetchDocument()</span>
+  }, [documentId, router, fetchDocument])
 &nbsp;
   const handleGenerationComplete = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >() =&gt; {</span></span>
 <span class="cstat-no" title="statement not covered" >    setIsGenerating(false)</span>
@@ -662,7 +662,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         &lt;div className="text-center py-12"&gt;
           &lt;DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" /&gt;
           &lt;h3 className="mt-2 text-sm font-medium text-gray-900"&gt;Document not found&lt;/h3&gt;
-          &lt;p className="mt-1 text-sm text-gray-500"&gt;The document you're looking for doesn't exist.&lt;/p&gt;
+          &lt;p className="mt-1 text-sm text-gray-500"&gt;The document you&amp;apos;re looking for doesn&amp;apos;t exist.&lt;/p&gt;
           &lt;div className="mt-6"&gt;
             &lt;Button onClick={<span class="fstat-no" title="function not covered" >() =&gt; <span class="cstat-no" title="statement not covered" >r</span>outer.push('/dashboard')}&gt;</span>
               &lt;ArrowLeftIcon className="h-4 w-4 mr-2" /&gt;
@@ -808,7 +808,7 @@ export default function <span class="cstat-no" title="statement not covered" ><s
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-03T11:22:48.185Z
+                at 2026-01-24T13:28:10.930Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
@@ -820,3 +820,4 @@ export default function <span class="cstat-no" title="statement not covered" ><s
         <script src="../../../../block-navigation.js"></script>
     </body>
 </html>
+    

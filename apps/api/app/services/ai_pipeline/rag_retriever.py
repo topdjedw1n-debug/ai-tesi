@@ -491,7 +491,7 @@ class RAGRetriever:
                     year = self._extract_year_from_content(snippet)
 
                     # Try to extract author from snippet or title
-                    authors = []
+                    authors: list[str] = []
                     if snippet:
                         # Simple heuristic: first part of snippet might contain author info
                         # This is a basic implementation - could be improved
@@ -633,4 +633,4 @@ class RAGRetriever:
         """Convert query to cache key (filename-safe)"""
         import hashlib
 
-        return hashlib.md5(query.encode()).hexdigest()
+        return hashlib.sha256(query.encode()).hexdigest()

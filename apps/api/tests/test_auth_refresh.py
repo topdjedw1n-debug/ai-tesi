@@ -23,7 +23,7 @@ async def test_refresh_token_success(db_session: AsyncSession):
     auth_service = AuthService(db_session)
 
     # Create initial tokens
-    access_token = auth_service._create_access_token(user.id)
+    auth_service._create_access_token(user.id)
     refresh_token = auth_service._create_refresh_token(user.id)
 
     # Create session

@@ -53,7 +53,7 @@ class AdminAuditLog(Base):
     # Relationships
     admin = relationship("User")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<AdminAuditLog(id={self.id}, admin_id={self.admin_id}, action={self.action})>"
 
 
@@ -79,7 +79,7 @@ class SystemSetting(Base):
     # Relationships
     updater = relationship("User")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<SystemSetting(key={self.key}, category={self.category})>"
 
 
@@ -113,7 +113,7 @@ class AdminSession(Base):
     # Relationships
     admin = relationship("User")
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<AdminSession(id={self.id}, admin_id={self.admin_id}, active={self.is_active})>"
 
 
@@ -141,7 +141,7 @@ class AdminPermission(Base):
     granter = relationship("User", foreign_keys=[granted_by])
     revoker = relationship("User", foreign_keys=[revoked_by])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<AdminPermission(id={self.id}, user_id={self.user_id}, permission={self.permission})>"
 
 
@@ -179,7 +179,7 @@ class EmailTemplate(Base):
     creator = relationship("User", foreign_keys=[created_by])
     updater = relationship("User", foreign_keys=[updated_by])
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return (
             f"<EmailTemplate(id={self.id}, name={self.name}, language={self.language})>"
         )
