@@ -7,11 +7,15 @@ import { AuthProvider } from '@/components/providers/AuthProvider'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'AI Thesis Platform',
-  description: 'Generate thesis sections with AI assistance',
-  keywords: ['thesis', 'AI', 'academic writing', 'research', 'education'],
-  authors: [{ name: 'AI Thesis Platform Team' }],
-  viewport: 'width=device-width, initial-scale=1',
+  title: 'TesiGo - AI Thesis Platform',
+  description: 'Generate high-quality academic papers with AI',
+  keywords: ['thesis', 'AI', 'academic writing', 'research', 'education', 'tesigo'],
+  authors: [{ name: 'TesiGo Team' }],
+}
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
 }
 
 export default function RootLayout({

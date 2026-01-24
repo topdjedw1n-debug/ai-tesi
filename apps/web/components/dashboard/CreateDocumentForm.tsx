@@ -238,7 +238,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
         </p>
       </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" data-testid="create-document-form">
         {/* Title */}
         <div>
           <label
@@ -251,6 +251,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             type="text"
             id="title"
             {...register('title')}
+            data-testid="document-title-input"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="Document title (optional)"
           />
@@ -271,6 +272,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             id="topic"
             {...register('topic')}
             rows={3}
+            data-testid="document-topic-input"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             placeholder="e.g., The Impact of Artificial Intelligence on Modern Education Systems and Learning Methodologies"
           />
@@ -291,6 +293,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             <select
               id="language"
               {...register('language')}
+              data-testid="document-language-select"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             >
               {languages.map((lang) => (
@@ -319,6 +322,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
               {...register('pages', { valueAsNumber: true })}
               min="3"
               max="100"
+              data-testid="document-pages-input"
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
             />
             {errors.pages && (
@@ -368,6 +372,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           <Button
             type="submit"
             disabled={isCreating}
+            data-testid="create-document-submit"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCreating ? (

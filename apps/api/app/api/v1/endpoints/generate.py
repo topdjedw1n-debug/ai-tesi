@@ -3,6 +3,7 @@ AI generation endpoints
 """
 
 import logging
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
@@ -37,18 +38,18 @@ router = APIRouter()
 @router.post("/outline", response_model=OutlineResponse)
 @rate_limit("10/hour")
 async def generate_outline(
-    http_request: Request,
-    request: OutlineRequest,
+    request: Request,
+    outline_request: OutlineRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> OutlineResponse:
     """Generate document outline using AI"""
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_outline(
-            document_id=request.document_id,
-            user_id=current_user.id,
-            additional_requirements=request.additional_requirements,
+            document_id=outline_request.document_id,
+            user_id=int(current_user.id),
+            additional_requirements=outline_request.additional_requirements,
         )
         return result
     except NotFoundError as e:
@@ -67,20 +68,20 @@ async def generate_outline(
 @router.post("/section", response_model=SectionResponse)
 @rate_limit("10/hour")
 async def generate_section(
-    http_request: Request,
-    request: SectionRequest,
+    request: Request,
+    section_request: SectionRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> SectionResponse:
     """Generate a specific section using AI"""
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_section(
-            document_id=request.document_id,
-            section_title=request.section_title,
-            section_index=request.section_index,
-            user_id=current_user.id,
-            additional_requirements=request.additional_requirements,
+            document_id=section_request.document_id,
+            section_title=section_request.section_title,
+            section_index=section_request.section_index,
+            user_id=int(current_user.id),
+            additional_requirements=section_request.additional_requirements,
         )
         return result
     except NotFoundError as e:
@@ -97,7 +98,7 @@ async def generate_section(
 
 
 @router.get("/models")
-async def list_available_models():
+async def list_available_models() -> dict[str, list[dict[str, Any]]]:
     """List available AI models"""
     return {
         "openai": [
@@ -125,7 +126,7 @@ async def get_user_usage(
     user_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """Get AI usage statistics for a user"""
     try:
         # Enforce authorization: users can only view their own usage
@@ -155,7 +156,7 @@ async def estimate_cost(
     include_rag: bool = True,
     include_humanization: bool = False,
     current_user: User = Depends(get_current_user),
-):
+) -> dict[str, Any]:
     """
     Estimate cost for document generation before starting
 
@@ -192,7 +193,7 @@ class PlagiarismCheckRequest(BaseModel):
 async def check_plagiarism(
     request: PlagiarismCheckRequest,
     current_user: User = Depends(get_current_user),
-):
+) -> dict[str, Any]:
     """
     Check text for plagiarism using Copyscape API
 
@@ -225,7 +226,7 @@ class GrammarCheckRequest(BaseModel):
 async def check_grammar(
     request: GrammarCheckRequest,
     current_user: User = Depends(get_current_user),
-):
+) -> dict[str, Any]:
     """
     Check text for grammar and spelling errors using LanguageTool API
 
@@ -251,7 +252,7 @@ async def generate_full_document(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> AsyncGenerationResponse:
     """
     Generate complete document with RAG (Retrieval-Augmented Generation)
 
@@ -280,7 +281,7 @@ async def generate_full_document(
         # 1. Check document exists and user owns it
         doc_service = DocumentService(db)
         await doc_service.check_document_ownership(
-            req_data.document_id, current_user.id
+            req_data.document_id, int(current_user.id)
         )
 
         # 2. Get document with lock (prevent race conditions)
@@ -328,14 +329,14 @@ async def generate_full_document(
                 f"Returning existing job {existing_job.id} for document {req_data.document_id}"
             )
             return AsyncGenerationResponse(
-                job_id=existing_job.id,
+                job_id=int(existing_job.id),
                 status=existing_job.status,
                 check_url=f"/api/v1/jobs/{existing_job.id}/status",
             )
 
         # 6. Create new generation job
         job = AIGenerationJob(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             document_id=req_data.document_id,
             job_type="full_document",
             ai_provider=document.ai_provider,
@@ -360,13 +361,15 @@ async def generate_full_document(
         background_tasks.add_task(
             BackgroundJobService.generate_full_document_async,
             document_id=req_data.document_id,
-            user_id=current_user.id,
-            job_id=job.id,
+            user_id=int(current_user.id),
+            job_id=int(job.id),
             additional_requirements=req_data.requirements,
         )
 
         return AsyncGenerationResponse(
-            job_id=job.id, status="queued", check_url=f"/api/v1/jobs/{job.id}/status"
+            job_id=int(job.id),
+            status="queued",
+            check_url=f"/api/v1/jobs/{job.id}/status",
         )
 
     except HTTPException:

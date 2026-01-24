@@ -35,9 +35,9 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Check your email</h2>
-          <p className="text-gray-600 mb-6">
-            We've sent a magic link to <span className="font-semibold">{email}</span>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2" data-testid="email-sent-title">Check your email</h2>
+          <p className="text-gray-600 mb-6" data-testid="email-sent-message">
+            We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>
           </p>
           <p className="text-sm text-gray-500 mb-4">
             Click the link in the email to sign in. The link will expire in 15 minutes.
@@ -57,8 +57,8 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome back</h1>
-          <p className="text-gray-600">Sign in to your account with magic link</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="login-title">Welcome back</h1>
+          <p className="text-gray-600" data-testid="login-subtitle">Sign in to your account with magic link</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -72,6 +72,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              data-testid="email-input"
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               placeholder="you@example.com"
               disabled={isLoading}
@@ -81,6 +82,7 @@ export default function LoginPage() {
           <button
             type="submit"
             disabled={isLoading}
+            data-testid="send-magic-link-button"
             className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             {isLoading ? 'Sending...' : 'Send magic link →'}
@@ -89,7 +91,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center">
           <p className="text-sm text-gray-600">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <button
               onClick={() => router.push('/auth/register')}
               className="text-blue-600 hover:text-blue-700 font-medium"
