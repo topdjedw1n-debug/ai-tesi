@@ -11,6 +11,7 @@ export default function VerifyMagicLinkPage() {
   
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
   const [error, setError] = useState('')
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     if (!token) {
@@ -28,11 +29,18 @@ export default function VerifyMagicLinkPage() {
           setTokens(data.access_token, data.refresh_token)
         }
         
+        // Save user data to localStorage for admin check
+        if (data.user) {
+          localStorage.setItem('user_data', JSON.stringify(data.user))
+          setIsAdmin(data.user.is_admin || false)
+        }
+        
         setStatus('success')
         
-        // Redirect to dashboard after 2 seconds
+        // Redirect to appropriate dashboard based on user role
         setTimeout(() => {
-          router.push('/dashboard')
+          const redirectTo = data.user?.is_admin ? '/admin/dashboard' : '/dashboard'
+          router.push(redirectTo)
         }, 2000)
       } catch (err: any) {
         setStatus('error')
@@ -70,7 +78,7 @@ export default function VerifyMagicLinkPage() {
               Verification Successful!
             </h2>
             <p className="text-gray-600 mb-4">
-              Redirecting to dashboard...
+              {isAdmin ? 'Redirecting to admin panel...' : 'Redirecting to dashboard...'}
             </p>
           </div>
         )}
