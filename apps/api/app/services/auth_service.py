@@ -149,6 +149,7 @@ class AuthService:
                     "email": user.email,
                     "full_name": user.full_name,
                     "is_verified": user.is_verified,
+                    "is_admin": user.is_admin,
                 },
             }
 
