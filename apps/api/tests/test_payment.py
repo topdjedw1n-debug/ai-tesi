@@ -8,7 +8,9 @@ from httpx import AsyncClient
 
 # Set environment variables for tests
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
-os.environ.setdefault("JWT_SECRET", os.environ["SECRET_KEY"])
+os.environ.setdefault(
+    "JWT_SECRET", "test-jwt-secret-UWX2ud0E0fcvV8xNIqhn7wUuLUPEsliTstJMFwg4AsI"
+)
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///./test_payment.db")
 os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
 os.environ.setdefault("ENVIRONMENT", "test")
@@ -27,10 +29,12 @@ from main import app  # noqa: E402
 async def client():
     """Create async test client"""
     async with AsyncClient(app=app, base_url="http://test") as ac:
-        ac.headers.update({
-            "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
-            "X-Requested-With": "XMLHttpRequest",
-        })
+        ac.headers.update(
+            {
+                "X-CSRF-Token": "test-csrf-token-for-integration-tests-1234567890",
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        )
         yield ac
 
 
@@ -55,7 +59,7 @@ async def test_user(db_session):
         email="test@payment.com",
         full_name="Test Payment User",
         is_active=True,
-        is_verified=True
+        is_verified=True,
     )
     db_session.add(user)
     await db_session.commit()
@@ -74,7 +78,7 @@ async def auth_token(client, test_user):
     token = MagicLinkToken(
         token="test_magic_link_token_payment",
         email=test_user.email,
-        expires_at=datetime.utcnow() + timedelta(minutes=30)
+        expires_at=datetime.utcnow() + timedelta(minutes=30),
     )
     async with AsyncSessionLocal() as session:
         session.add(token)
@@ -83,7 +87,7 @@ async def auth_token(client, test_user):
     # Verify magic link (POST request)
     response = await client.post(
         "/api/v1/auth/verify-magic-link",
-        json={"token": "test_magic_link_token_payment"}
+        json={"token": "test_magic_link_token_payment"},
     )
     assert response.status_code == 200
     data = response.json()
@@ -101,7 +105,7 @@ class TestPaymentModel:
             stripe_payment_intent_id="pi_test_12345",
             amount=25.50,
             currency="EUR",
-            status="pending"
+            status="pending",
         )
         db_session.add(payment)
         await db_session.commit()
@@ -124,24 +128,24 @@ class TestPaymentService:
         import os
 
         from app.services.payment_service import PaymentService
+
         old_key = os.environ.get("STRIPE_SECRET_KEY")
         os.environ.pop("STRIPE_SECRET_KEY", None)
 
         # Reload settings
         from app.core.config import settings
+
         object.__setattr__(settings, "STRIPE_SECRET_KEY", None)
 
         service = PaymentService(db_session)
 
         with pytest.raises(ValueError, match="Stripe not configured"):
-            await service.create_payment_intent(
-                user_id=1,
-                amount=25.00
-            )
+            await service.create_payment_intent(user_id=1, amount=25.00)
 
         # Restore key for other tests
         if old_key:
             os.environ["STRIPE_SECRET_KEY"] = old_key
+            object.__setattr__(settings, "STRIPE_SECRET_KEY", old_key)
 
 
 class TestPaymentAPI:
@@ -169,8 +173,7 @@ class TestPaymentAPI:
     async def test_create_payment_intent_unauthenticated(self, client):
         """Test that unauthenticated requests fail"""
         response = await client.post(
-            "/api/v1/payment/create-intent",
-            json={"amount": 25.00, "currency": "EUR"}
+            "/api/v1/payment/create-intent", json={"amount": 25.00, "currency": "EUR"}
         )
         assert response.status_code == 401
 
@@ -186,7 +189,7 @@ class TestPaymentAPI:
         """Test webhook without signature fails"""
         response = await client.post(
             "/api/v1/payment/webhook",
-            json={"type": "payment_intent.succeeded", "data": {}}
+            json={"type": "payment_intent.succeeded", "data": {}},
         )
         assert response.status_code == 400
 
@@ -197,7 +200,6 @@ class TestPaymentAPI:
         response = await client.post(
             "/api/v1/payment/webhook",
             headers=headers,
-            json={"type": "payment_intent.succeeded", "data": {}}
+            json={"type": "payment_intent.succeeded", "data": {}},
         )
         assert response.status_code in [400, 500]  # Signature validation fails
-

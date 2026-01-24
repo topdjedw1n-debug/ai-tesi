@@ -1,5 +1,6 @@
 """Payment API endpoints"""
 import logging
+from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -22,7 +23,7 @@ async def create_checkout(
     pages: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Create Stripe checkout session for document generation
 
@@ -32,7 +33,7 @@ async def create_checkout(
     try:
         service = PaymentService(db)
         result = await service.create_checkout_session(
-            user_id=current_user.id, document_id=document_id, pages=pages
+            user_id=int(current_user.id), document_id=document_id, pages=pages
         )
         return {
             "checkout_url": result["checkout_url"],
@@ -52,12 +53,12 @@ async def create_payment_intent(
     payment_data: PaymentCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> PaymentIntentResponse:
     """Create Stripe payment intent"""
     try:
         service = PaymentService(db)
         result = await service.create_payment_intent(
-            user_id=current_user.id,
+            user_id=int(current_user.id),
             amount=payment_data.amount,
             currency=payment_data.currency,
             document_id=payment_data.document_id,
@@ -77,7 +78,7 @@ async def stripe_webhook(
     background_tasks: BackgroundTasks,
     stripe_signature: str | None = Header(None, alias="Stripe-Signature"),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Stripe webhook endpoint
     - No auth (Stripe signs requests)
@@ -137,9 +138,9 @@ async def stripe_webhook(
                     # Start background generation task AFTER commit to ensure job exists in DB
                     background_tasks.add_task(
                         BackgroundJobService.generate_full_document_async,
-                        document_id=payment.document_id,
-                        user_id=payment.user_id,
-                        job_id=job.id,
+                        document_id=int(payment.document_id),
+                        user_id=int(payment.user_id),
+                        job_id=int(job.id),
                         additional_requirements=None,
                     )
 
@@ -188,7 +189,7 @@ async def verify_payment(
     session_id: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> dict[str, Any]:
     """
     Verify payment status after Stripe checkout redirect
 
@@ -237,7 +238,7 @@ async def get_payment_history(
     limit: int = 50,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> list[PaymentResponse]:
     """Get user payment history"""
     try:
         service = PaymentService(db)
@@ -255,7 +256,7 @@ async def get_payment(
     payment_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-):
+) -> PaymentResponse:
     """Get single payment"""
     try:
         service = PaymentService(db)

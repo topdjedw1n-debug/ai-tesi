@@ -257,9 +257,9 @@ async def test_semantic_scholar_http_error_handling(retriever: RAGRetriever):
     """Test handling of HTTP errors from Semantic Scholar API"""
     # Arrange
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
-            "404 Not Found", request=MagicMock(), response=MagicMock()
+            "503 Service Unavailable", request=MagicMock(), response=MagicMock()
         )
         mock_get.return_value = mock_response
 
@@ -291,7 +291,7 @@ async def test_semantic_scholar_api_key_header(retriever: RAGRetriever):
     mock_response_data = {"data": []}
 
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.json.return_value = mock_response_data
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
@@ -361,7 +361,7 @@ async def test_cache_miss_on_new_query(retriever: RAGRetriever):
     mock_response_data = {"data": []}
 
     with patch("httpx.AsyncClient.get") as mock_get:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.json.return_value = mock_response_data
         mock_response.raise_for_status = MagicMock()
         mock_get.return_value = mock_response
@@ -422,7 +422,7 @@ def test_query_to_cache_key():
     # Assert - same query = same key, different query = different key
     assert key1 == key2
     assert key1 != key3
-    assert len(key1) == 32  # MD5 hash length
+    assert len(key1) == 64  # SHA256 hash length
 
 
 def test_extract_year_from_content():
@@ -570,7 +570,7 @@ async def test_perplexity_http_error_handling(retriever: RAGRetriever):
     """Test Perplexity API HTTP error handling"""
     # Arrange
     with patch("httpx.AsyncClient.post") as mock_post:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "401 Unauthorized", request=MagicMock(), response=MagicMock()
         )
@@ -687,7 +687,7 @@ async def test_serper_http_error_handling(retriever: RAGRetriever):
     """Test Serper API HTTP error handling"""
     # Arrange
     with patch("httpx.AsyncClient.post") as mock_post:
-        mock_response = AsyncMock()
+        mock_response = MagicMock()
         mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
             "429 Rate Limit", request=MagicMock(), response=MagicMock()
         )

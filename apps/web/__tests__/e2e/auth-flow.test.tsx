@@ -1,6 +1,6 @@
 /**
  * E2E Tests: Authentication Flow
- *
+ * 
  * Tests the complete magic link authentication flow:
  * 1. User requests magic link
  * 2. Magic link email sent
@@ -9,7 +9,7 @@
  * 5. User logged in with valid session
  */
 
-import { render, screen, waitFor } from '@testing-library/react'
+import { render, screen, waitFor, act } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { useRouter } from 'next/navigation'
 import { AuthProvider, useAuth } from '@/components/providers/AuthProvider'
@@ -51,7 +51,7 @@ function AuthFlowTestComponent() {
     <div>
       <div data-testid="loading-state">{isLoading ? 'loading' : 'ready'}</div>
       <div data-testid="user-state">{user ? user.email : 'no-user'}</div>
-
+      
       {/* Step 1: Request magic link */}
       <div data-testid="step-1-request-magic-link">
         <input
@@ -98,17 +98,67 @@ describe('E2E: Magic Link → Dashboard Flow', () => {
     ;(useRouter as jest.Mock).mockReturnValue(mockRouter)
   })
 
-  // TODO: E2E tests need more work - complex mocking required
-  // See /docs/MVP_PLAN.md → "ТИМЧАСОВІ РІШЕННЯ" → #1 E2E Tests
-  // Issues: AuthProvider context, API_ENDPOINTS import, Router navigation
-  it.skip('completes full magic link authentication flow - NEEDS WORK', async () => {
-    // This test requires complex mocking of:
-    // - API_ENDPOINTS from @/lib/api
-    // - AuthProvider context
-    // - Router navigation
-    // - Toast notifications
-    // Will be completed after MVP launch
-    expect(true).toBe(true)
+  it('completes full magic link authentication flow', async () => {
+    // Mock API responses for auth flow
+    (apiClient.post as jest.Mock)
+      .mockResolvedValueOnce({ 
+        message: 'Magic link sent to your email' 
+      })
+      .mockResolvedValueOnce({
+        access_token: 'mock-access-token',
+        refresh_token: 'mock-refresh-token',
+        user: { 
+          id: 1, 
+          email: 'test@example.com',
+          full_name: 'Test User',
+          is_active: true
+        }
+      })
+
+    render(
+      <AuthProvider>
+        <AuthFlowTestComponent />
+      </AuthProvider>
+    )
+
+    // Wait for component to be ready
+    await waitFor(() => {
+      expect(screen.getByTestId('loading-state')).toHaveTextContent('ready')
+    })
+
+    // Step 1: Request magic link
+    const emailInput = screen.getByTestId('email-input')
+    await userEvent.type(emailInput, 'test@example.com')
+    
+    const requestBtn = screen.getByTestId('request-magic-link-btn')
+    await act(async () => {
+      requestBtn.click()
+    })
+
+    // Verify magic link request was sent
+    await waitFor(() => {
+      expect(apiClient.post).toHaveBeenCalledWith(
+        '/api/v1/auth/magic-link',
+        { email: 'test@example.com' }
+      )
+      expect(toast.success).toHaveBeenCalled()
+    })
+
+    // Step 2: Verify magic link
+    const tokenInput = screen.getByTestId('token-input')
+    await userEvent.type(tokenInput, 'mock-token-123')
+    
+    const verifyBtn = screen.getByTestId('verify-magic-link-btn')
+    await act(async () => {
+      verifyBtn.click()
+    })
+
+    // Verify user is authenticated and redirected
+    await waitFor(() => {
+      expect(setTokens).toHaveBeenCalledWith('mock-access-token', 'mock-refresh-token')
+      expect(screen.getByTestId('user-state')).toHaveTextContent('test@example.com')
+      expect(mockRouter.push).toHaveBeenCalledWith('/dashboard')
+    })
   })
 
   it('verifies auth mocks are configured correctly', () => {
