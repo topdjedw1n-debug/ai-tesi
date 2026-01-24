@@ -33,6 +33,12 @@ export default function VerifyMagicLinkPage() {
         if (data.user) {
           localStorage.setItem('user_data', JSON.stringify(data.user))
           setIsAdmin(data.user.is_admin || false)
+          
+          // Also save admin-specific flags for AdminLayout
+          if (data.user.is_admin) {
+            localStorage.setItem('is_admin', 'true')
+            localStorage.setItem('admin_user', JSON.stringify(data.user))
+          }
         }
         
         setStatus('success')
