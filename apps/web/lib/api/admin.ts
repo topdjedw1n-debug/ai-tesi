@@ -227,19 +227,19 @@ export const adminApiClient = {
   },
 
   async getCharts(period: string): Promise<DashboardCharts> {
-    const url = buildUrlWithParams('/api/v1/admin/charts', { period });
+    const url = buildUrlWithParams('/api/v1/admin/dashboard/charts', { period });
     const response = await apiClient.get(url)
     return response.data
   },
 
   async getActivity(type: string, limit: number): Promise<DashboardActivity[]> {
-    const url = buildUrlWithParams('/api/v1/admin/activity', { type, limit });
+    const url = buildUrlWithParams('/api/v1/admin/dashboard/activity', { type, limit });
     const response = await apiClient.get(url)
     return response.data
   },
 
   async getMetrics(): Promise<DashboardMetrics> {
-    const response = await apiClient.get('/api/v1/admin/metrics')
+    const response = await apiClient.get('/api/v1/admin/dashboard/metrics')
     return response.data
   },
 
