@@ -129,33 +129,44 @@ class AdminService:
             )
             stuck_running = stuck_running_result.scalar()
 
-            # Return nested structure for better organization
+            # Calculate revenue from payments
+            from app.models.payment import Payment
+            from decimal import Decimal
+            
+            total_revenue_result = await self.db.execute(
+                select(func.sum(Payment.amount)).where(Payment.status == "completed")
+            )
+            total_revenue = float(total_revenue_result.scalar() or Decimal("0"))
+            
+            revenue_today_result = await self.db.execute(
+                select(func.sum(Payment.amount)).where(
+                    and_(
+                        Payment.status == "completed",
+                        Payment.completed_at >= datetime.utcnow().date(),
+                    )
+                )
+            )
+            revenue_today = float(revenue_today_result.scalar() or Decimal("0"))
+            
+            # Count pending refunds
+            from app.models.refund import RefundRequest
+            pending_refunds_result = await self.db.execute(
+                select(func.count(RefundRequest.id)).where(
+                    RefundRequest.status == "pending"
+                )
+            )
+            pending_refunds = pending_refunds_result.scalar() or 0
+            
+            # Return flat structure matching PlatformStats interface
             return {
-                "users": {
-                    "total": total_users,
-                    "active_last_30_days": active_users,
-                },
-                "documents": {
-                    "total": total_documents,
-                    "completed": completed_documents,
-                },
-                "payments": {
-                    "total_revenue": 0.0,
-                    "revenue_today": 0.0,
-                    "pending_refunds": 0,
-                },
-                "ai_usage": {
-                    "total_jobs": total_ai_jobs,
-                    "total_tokens": total_tokens,
-                    "avg_tokens_per_doc": float(avg_tokens_per_doc),
-                    "total_cost_cents": total_cost_cents,
-                },
-                "system_health": {
-                    "active_jobs": recent_jobs,
-                    "stuck_queued": stuck_queued,
-                    "stuck_running": stuck_running,
-                },
-                "generated_at": datetime.utcnow().isoformat(),
+                "total_users": total_users,
+                "active_users_today": active_users,
+                "total_revenue": total_revenue,
+                "revenue_today": revenue_today,
+                "total_documents": total_documents,
+                "completed_documents": completed_documents,
+                "pending_refunds": pending_refunds,
+                "active_jobs": recent_jobs,
             }
 
         except Exception as e:
