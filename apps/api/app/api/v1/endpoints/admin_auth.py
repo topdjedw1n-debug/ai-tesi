@@ -196,7 +196,7 @@ async def admin_logout(
     request: Request,
     current_user: User = Depends(get_admin_user),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, str]:
+) -> dict[str, Any]:
     """Logout all admin sessions for current admin"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"

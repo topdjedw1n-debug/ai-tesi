@@ -161,6 +161,11 @@ const getValidAccessToken = async (): Promise<string | null> => {
   const token = getAccessToken();
 
   if (!token) {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      const newToken = await refreshAccessToken();
+      return newToken;
+    }
     return null;
   }
 
@@ -312,9 +317,9 @@ export const API_ENDPOINTS = {
   GENERATE: {
     OUTLINE: '/api/v1/generate/outline',
     SECTION: '/api/v1/generate/section',
-    FULL: '/api/v1/generate/full',
+    FULL: '/api/v1/generate/full-document',
     MODELS: '/api/v1/generate/models',
-    USAGE: '/api/v1/generate/usage',
+    USAGE: (userId: number) => `/api/v1/generate/usage/${userId}`,
   },
 
   /**
@@ -333,7 +338,6 @@ export const API_ENDPOINTS = {
    * Pricing endpoints
    */
   PRICING: {
-    CONFIG: '/api/v1/pricing/config',
     CURRENT: '/api/v1/pricing/current',
     CALCULATE: '/api/v1/pricing/calculate',
   },

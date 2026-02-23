@@ -6,6 +6,36 @@
 
 ---
 
+## 🚨 Release Decisions
+
+### DR-013: Strict Go-Live with Temporary User Payment/Refund Disable
+**Date:** 23.02.2026
+**Status:** ✅ Accepted (Temporary)
+
+**Проблема:**
+- User payment/refund flows мали runtime нестабільність у pre-prod перевірках.
+- Випускати ці флоу напівпрацюючими = ризик P0 інцидентів у проді.
+
+**Рішення:**
+- Ввести feature flags на web:
+  - `NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW=false`
+  - `NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=false`
+- Вимкнені маршрути повертають контрольований fallback + redirect замість runtime crash.
+- Backend API не розширювати новими user refunds read endpoints у цьому циклі.
+
+**Чому саме так:**
+- Дає безпечний Strict Go-Live без блокування всього релізу.
+- Зменшує ризик 404/500 у чутливому платіжному периметрі.
+- Дозволяє завершити hardening/contract sync і повернути флоу після staging smoke.
+
+**Наслідки:**
+- ✅ Менший prod-ризик на релізі.
+- ✅ Контрольований UX на вимкнених маршрутах.
+- ⚠️ Тимчасово відсутній user self-service payment/refund flow.
+- ⚠️ Потрібен окремий етап re-enable після підтвердженого runtime smoke.
+
+---
+
 ## 🏗️ Architecture Decisions
 
 ### FastAPI vs Django
@@ -366,6 +396,16 @@ checkpoint = {
 **Consequences:** What happens as result
 **Alternatives:** What else we considered
 ```
+
+---
+
+### DR-W1: Wave 1 Stabilization Complete
+**Date:** 2026-02-23
+**Status:** Accepted
+**Context:** Pre-prod hardening revealed FE/BE contract mismatches, logger key conflicts, missing health endpoint, disabled quality gates, and an admin logout typing bug. All blocked safe deployment.
+**Decision:** Fixed all issues in Wave 1 (see CHANGELOG_WAVE1_RC.md). Issued conditional Go pending manual UI smoke sign-off. Payment/refund user flows remain disabled via feature flags until verified.
+**Consequences:** All automated gates green (391 backend tests, full frontend pipeline, runtime smoke with auth). Release candidate tagged.
+**Alternatives:** Could have deferred to Wave 2, but all fixes were low-risk and necessary for any deployment.
 
 ---
 

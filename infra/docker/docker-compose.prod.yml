@@ -37,8 +37,8 @@ services:
     container_name: ai-thesis-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
     volumes:
       - minio_data:/data
     healthcheck:
@@ -54,15 +54,18 @@ services:
     image: ${API_IMAGE:-ai-thesis-api}
     container_name: ai-thesis-api
     environment:
-      - ENVIRONMENT=production
+      - ENVIRONMENT=${ENVIRONMENT:-production}
       - DEBUG=false
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
+      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
+      - JWT_SECRET=${JWT_SECRET}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER}
-      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD}
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
       - MINIO_BUCKET=${MINIO_BUCKET}
-      - MINIO_SECURE=${MINIO_SECURE}
+      - MINIO_SECURE=${MINIO_SECURE:-false}
       - SECRET_KEY=${SECRET_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
@@ -89,12 +92,20 @@ services:
     container_name: ai-thesis-web
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}
+      - NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW=${NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW:-false}
+      - NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=${NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW:-false}
       - NODE_ENV=production
     ports:
       - "3000:3000"
     depends_on:
       api:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
     networks:
       - ai-thesis-network
 

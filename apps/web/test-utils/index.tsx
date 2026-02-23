@@ -128,14 +128,14 @@ export function renderWithProviders(
   function Wrapper({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
-  
+
   return render(ui, { ...options, wrapper: Wrapper });
 }
 
 /**
  * Render component with auth context (requires manual mocking of auth hooks)
  * For tests that need AuthProvider, mock the useAuth hook instead:
- * 
+ *
  * @example
  * jest.mock('@/components/providers/AuthProvider', () => ({
  *   useAuth: () => ({
@@ -164,7 +164,7 @@ export function renderWithAuth(
     verifyMagicLink: jest.fn(),
     ...mockAuthState,
   };
-  
+
   // Note: This requires mocking the AuthProvider module
   // See example in function docstring
   return render(ui);

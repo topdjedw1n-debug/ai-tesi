@@ -204,6 +204,13 @@ const buildUrlWithParams = (baseUrl: string, params?: Record<string, any>): stri
   return queryString ? `${baseUrl}?${queryString}` : baseUrl;
 };
 
+const unwrapResponse = <T>(response: T | { data: T }): T => {
+  if (response && typeof response === 'object' && 'data' in (response as object)) {
+    return (response as { data: T }).data;
+  }
+  return response as T;
+};
+
 export const adminApiClient = {
   /**
    * Admin login with email and password
@@ -213,34 +220,61 @@ export const adminApiClient = {
    */
   async simpleLogin(email: string, password: string) {
     const response = await apiClient.post('/api/v1/auth/admin-login', { email, password })
-    return response.data
+    return unwrapResponse(response)
   },
 
   async logout() {
-    return apiClient.post('/api/v1/auth/admin-logout')
+    return apiClient.post('/api/v1/admin/auth/logout')
   },
 
   // Dashboard
   async getStats(): Promise<PlatformStats> {
     const response = await apiClient.get('/api/v1/admin/stats')
-    return response.data
+    return unwrapResponse(response)
   },
 
   async getCharts(period: string): Promise<DashboardCharts> {
     const url = buildUrlWithParams('/api/v1/admin/dashboard/charts', { period });
     const response = await apiClient.get(url)
-    return response.data
+    const data = unwrapResponse<any>(response)
+    return {
+      revenue: (data.revenue || []).map((item: any) => ({
+        date: item.date,
+        amount: item.amount ?? item.revenue ?? 0,
+      })),
+      users: (data.users || []).map((item: any) => ({
+        date: item.date,
+        count: item.count ?? item.new_users ?? 0,
+      })),
+      documents: (data.documents || []).map((item: any) => ({
+        date: item.date,
+        count: item.count ?? item.documents ?? 0,
+      })),
+    }
   },
 
   async getActivity(type: string, limit: number): Promise<DashboardActivity[]> {
     const url = buildUrlWithParams('/api/v1/admin/dashboard/activity', { type, limit });
     const response = await apiClient.get(url)
-    return response.data
+    const data = unwrapResponse<any>(response)
+    const activities = Array.isArray(data) ? data : (data.activities || [])
+    return activities.map((activity: any) => ({
+      id: activity.id,
+      type: activity.type ?? activity.action ?? 'activity',
+      description: activity.description ?? activity.action ?? 'Activity',
+      created_at: activity.created_at,
+      timestamp: activity.timestamp ?? activity.created_at,
+      amount: activity.amount,
+      user_id: activity.user_id ?? activity.target_id,
+      email: activity.email,
+      error_message: activity.error_message,
+      details: activity.details ?? activity.new_value ?? activity.old_value,
+    }))
   },
 
   async getMetrics(): Promise<DashboardMetrics> {
     const response = await apiClient.get('/api/v1/admin/dashboard/metrics')
-    return response.data
+    return unwrapResponse(response)
   },
 
   // Users
@@ -251,15 +285,15 @@ export const adminApiClient = {
 
   async getUser(id: number): Promise<UserDetails> {
     const response = await apiClient.get(`/api/v1/admin/users/${id}`)
-    return response.data
+    return unwrapResponse(response)
   },
 
-  async blockUser(id: number) {
-    return apiClient.post(`/api/v1/admin/users/${id}/block`)
+  async blockUser(id: number, reason = 'Blocked by admin') {
+    return apiClient.put(`/api/v1/admin/users/${id}/block`, { reason })
   },
 
   async unblockUser(id: number) {
-    return apiClient.post(`/api/v1/admin/users/${id}/unblock`)
+    return apiClient.put(`/api/v1/admin/users/${id}/unblock`)
   },
 
   async deleteUser(id: number) {
@@ -267,11 +301,14 @@ export const adminApiClient = {
   },
 
   async makeAdmin(id: number, isAdmin: boolean, isSuperAdmin: boolean) {
-    return apiClient.post(`/api/v1/admin/users/${id}/admin`, { is_admin: isAdmin, is_super_admin: isSuperAdmin })
+    return apiClient.post(`/api/v1/admin/users/${id}/make-admin`, {
+      is_admin: isAdmin,
+      is_super_admin: isSuperAdmin,
+    })
   },
 
   async bulkUserAction(ids: number[], action: string) {
-    return apiClient.post('/api/v1/admin/users/bulk', { ids, action })
+    return apiClient.post('/api/v1/admin/users/bulk', { user_ids: ids, action })
   },
 
   // Documents
@@ -282,12 +319,12 @@ export const adminApiClient = {
 
   async getDocument(id: number): Promise<AdminDocument> {
     const response = await apiClient.get(`/api/v1/admin/documents/${id}`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   async getDocumentLogs(id: number) {
     const response = await apiClient.get(`/api/v1/admin/documents/${id}/logs`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   async deleteDocument(id: number) {
@@ -316,12 +353,12 @@ export const adminApiClient = {
 
   async getPayment(id: number) {
     const response = await apiClient.get(`/api/v1/admin/payments/${id}`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   async getPaymentStripeLink(id: number) {
     const response = await apiClient.get(`/api/v1/admin/payments/${id}/stripe-link`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   async initiatePaymentRefund(id: number) {
@@ -331,7 +368,7 @@ export const adminApiClient = {
   async exportPayments(format: string, params: any): Promise<Blob> {
     const url = buildUrlWithParams('/api/v1/admin/payments/export', { ...params, format });
     const response = await apiClient.get(url)
-    return response.data
+    return unwrapResponse(response)
   },
 
   // Refunds
@@ -342,17 +379,17 @@ export const adminApiClient = {
 
   async getRefund(id: number): Promise<RefundRequest> {
     const response = await apiClient.get(`/api/v1/admin/refunds/${id}`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   async getRefundStats() {
     const response = await apiClient.get('/api/v1/admin/refunds/stats')
-    return response.data
+    return unwrapResponse(response)
   },
 
   async getPendingRefunds() {
     const response = await apiClient.get('/api/v1/admin/refunds/pending')
-    return response.data
+    return unwrapResponse(response)
   },
 
   async approveRefund(id: number, adminComment: string, processImmediately: boolean) {
@@ -368,13 +405,13 @@ export const adminApiClient = {
 
   async analyzeRefund(id: number) {
     const response = await apiClient.get(`/api/v1/admin/refunds/${id}/analyze`)
-    return response.data
+    return unwrapResponse(response)
   },
 
   // Settings
   async getAllSettings() {
     const response = await apiClient.get('/api/v1/admin/settings')
-    return response.data
+    return unwrapResponse(response)
   },
 
   async updatePricingSettings(settings: any) {
