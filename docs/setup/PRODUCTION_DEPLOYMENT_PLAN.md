@@ -1,16 +1,22 @@
 # План тестування та деплою на зовнішньому сервері
 
-**Дата створення:** 31 жовтня 2025
-**Статус:** 🟡 Готово до підготовки до production
+**Дата створення:** 31 жовтня 2025  
+**Оновлено:** 23 лютого 2026  
+**Статус:** 🟢 Active (Strict Go-Live)
+
+> **Важливо:** Для актуального release-рішення використовуйте:
+> - `docs/RELEASE_GO_NO_GO_2026-02-23.md`
+> - `docs/MASTER_COMPLIANCE_MATRIX.md`
+> - `docs/MVP_PLAN.md`
 
 ---
 
 ## 📅 Коли можемо тестувати на зовнішньому сервері?
 
-### ✅ Можна вже зараз (після завершення підготовки):
-- Вся функціональність реалізована та протестована локально
-- Production конфігурація готова (`docker-compose.prod.yml`)
-- Всі критичні компоненти на місці
+### ✅ Поточний підхід (Strict Go-Live):
+- Спочатку green mandatory gates (backend + web).
+- Потім runtime smoke в prod-like Docker.
+- Потім manual UI smoke sign-off.
 
 ### ⏱️ Орієнтовний час:
 - **Підготовка до staging:** 2-4 години
@@ -58,21 +64,24 @@
 
 ## 🔧 Що потрібно зробити перед деплоєм
 
-### 1. Критичні виправлення (високий пріоритет)
+### 1. Актуальні pre-deploy дії (високий пріоритет)
 
-#### ⚠️ Bug Fixes
-- [ ] **Виправити rate_limit.py** — обробити `None` storage_options (line 226)
-- [ ] **Виправити exceptions.py** — `error_code: Optional[str]` замість `str` з default None
-- [ ] **Тестове середовище** — налаштувати для runtime тестів
+#### ⚠️ Release gates
+- [ ] `pytest tests/ -q` (backend)
+- [ ] `npm run lint` (web)
+- [ ] `npm run type-check` (web)
+- [ ] `npm run test -- --runInBand` (web)
+- [ ] `npm run build` (web)
+- [ ] Runtime smoke (`scripts/runtime_smoke.sh`) у prod-like Docker
 
-**Час:** ~1 година
+**Час:** ~30-60 хв після готового середовища
 
-#### 🔧 Code Quality
-- [ ] Запустити `black .` та `isort .` для форматування (24 файли)
-- [ ] Оновити критичні вразливості Python залежностей (8 знайдено)
-- [ ] Створити `package-lock.json` для NPM audit
-
-**Час:** ~30 хвилин
+#### 🔧 Safety checks
+- [ ] Переконатися, що kill-switch env flags явно задані для релізу:
+  - `NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW`
+  - `NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW`
+- [ ] Перевірити відсутність backup/artefact/secret файлів у diff.
+- [ ] Оновити release report і Go/No-Go статус.
 
 ### 2. Налаштування для production
 

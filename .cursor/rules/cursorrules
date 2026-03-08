@@ -1,0 +1,88 @@
+# TesiGo - Cursor Rules
+
+## 5 RULES (non-negotiable)
+
+1. **TEST BEFORE "DONE"** - Run code. Show proof (terminal output, curl, browser).
+2. **DON'T GUESS** - Read actual file. If unsure → ASK ME.
+3. **MINIMAL CHANGES** - Only what's needed. No refactoring. No "improvements".
+4. **DON'T BREAK WORKING CODE** - Works? Don't touch unless asked.
+5. **EXPLAIN SIMPLY** - I'm not a developer.
+
+---
+
+## Before ANY Task
+
+```
+1. Read /.github/copilot-instructions.md (code patterns, anti-patterns)
+2. Read /docs/MASTER_DOCUMENT.md (architecture, business rules)
+3. Check /docs/MVP_PLAN.md (current TODOs, status)
+```
+
+If your change contradicts these docs → STOP and ASK.
+
+---
+
+## Quick Reference
+
+**Stack:** FastAPI + Python 3.11 (NOT 3.12!) + Next.js 14 + PostgreSQL + Redis
+
+**Database:**
+```python
+async def endpoint(db: AsyncSession = Depends(get_db)):  # ✅ Always
+```
+
+**Security:**
+```python
+if doc.user_id != current_user.id:
+    raise HTTPException(403)  # ✅ Always check ownership
+```
+
+**Money:**
+```python
+price = Decimal("10.50")  # ✅ Never use float
+```
+
+---
+
+## NEVER
+
+- ❌ Delete files without asking
+- ❌ Change DB without migration
+- ❌ Update package versions
+- ❌ Skip ownership checks
+- ❌ Say "done" without testing
+- ❌ Use Python 3.12+
+- ❌ Add features not requested
+
+---
+
+## Report Format
+
+```
+✅ DONE
+Changed: [files]
+What: [simple words]
+Tested: [how verified]
+```
+
+```
+❓ STUCK
+Problem: [what]
+Options: [A, B, C]
+```
+
+```
+🐛 BUG FOUND
+Where: [file:line]
+Fix now?
+```
+
+---
+
+## Philosophy
+
+- You're smart. Be concise.
+- Working code > perfect code.
+- I give tasks → you handle details.
+- Unclear? Ask, don't guess.
+- Follow existing patterns in codebase.

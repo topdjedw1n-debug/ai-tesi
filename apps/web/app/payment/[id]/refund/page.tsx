@@ -5,8 +5,9 @@ import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
-import { refundsApiClient, RefundRequestCreate } from '@/lib/api/refunds'
 import { apiClient, API_ENDPOINTS } from '@/lib/api'
+import { refundsApiClient, RefundRequestCreate } from '@/lib/api/refunds'
+import { isUserRefundFlowEnabled } from '@/lib/feature-flags'
 import { PhotoIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import toast from 'react-hot-toast'
 
@@ -26,6 +27,7 @@ export default function RequestRefundPage() {
   const [payment, setPayment] = useState<Payment | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const refundFlowDisabled = !isUserRefundFlowEnabled
   const [formData, setFormData] = useState({
     reason: '',
     reason_category: 'other' as 'quality' | 'not_satisfied' | 'technical_issue' | 'other',
@@ -34,38 +36,38 @@ export default function RequestRefundPage() {
   })
 
   const fetchPayment = useCallback(async () => {
+    if (!Number.isFinite(paymentId)) {
+      toast.error('Invalid payment ID')
+      router.push('/payment/history')
+      return
+    }
+
     try {
       setIsLoading(true)
-      // Use apiClient which handles auth automatically
-      const token = localStorage.getItem('auth_token')
-      if (!token) {
-        router.push('/')
-        return
-      }
-
-      // TODO: Replace with actual payment endpoint when available
-      // For now, we'll create a minimal payment object
-      setPayment({
-        id: paymentId,
-        amount: 0, // Will be fetched from actual endpoint
-        currency: 'EUR',
-        status: 'completed',
-        created_at: new Date().toISOString(),
-      })
+      const paymentData = await apiClient.get<Payment>(API_ENDPOINTS.PAYMENT.GET(paymentId))
+      setPayment(paymentData)
     } catch (error: any) {
       console.error('Failed to fetch payment:', error)
       toast.error('Failed to load payment details')
-      router.push('/dashboard')
+      router.push('/payment/history')
     } finally {
       setIsLoading(false)
     }
   }, [paymentId, router])
 
   useEffect(() => {
+    if (refundFlowDisabled) {
+      toast.error('Refund requests are currently unavailable. Redirecting to payment history.')
+      const timer = setTimeout(() => {
+        router.replace('/payment/history')
+      }, 1200)
+      return () => clearTimeout(timer)
+    }
+
     if (paymentId) {
       fetchPayment()
     }
-  }, [paymentId, fetchPayment])
+  }, [paymentId, fetchPayment, refundFlowDisabled, router])
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || [])
@@ -145,6 +147,18 @@ export default function RequestRefundPage() {
     }
   }
 
+  if (refundFlowDisabled) {
+    return (
+      <DashboardLayout>
+        <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200">
+          <p className="text-sm text-yellow-800">
+            Refund requests are currently disabled by runtime configuration.
+          </p>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
   if (isLoading) {
     return (
       <DashboardLayout>
@@ -160,6 +174,24 @@ export default function RequestRefundPage() {
       <DashboardLayout>
         <div className="rounded-md bg-red-50 p-4">
           <p className="text-sm text-red-800">Payment not found</p>
+        </div>
+      </DashboardLayout>
+    )
+  }
+
+  if (payment.status !== 'completed') {
+    return (
+      <DashboardLayout>
+        <div className="rounded-md bg-yellow-50 p-4 border border-yellow-200 space-y-3">
+          <p className="text-sm text-yellow-800">
+            Refund requests are available only for completed payments.
+          </p>
+          <button
+            onClick={() => router.push('/payment/history')}
+            className="px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-700"
+          >
+            Back to payment history
+          </button>
         </div>
       </DashboardLayout>
     )

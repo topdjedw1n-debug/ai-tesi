@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { PaymentForm } from '@/components/payment/PaymentForm'
 import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
+import { isUserPaymentFlowEnabled } from '@/lib/feature-flags'
 import toast from 'react-hot-toast'
 
 const createDocumentSchema = z.object({
@@ -135,6 +136,15 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
 
       setCreatedDocumentId(document.id)
       setDocumentPages(data.pages)
+      if (!isUserPaymentFlowEnabled) {
+        toast.success('Document created in draft mode. Payments are currently unavailable.')
+        if (onSuccess) {
+          onSuccess(document.id)
+        }
+        router.push(`/dashboard/documents/${document.id}`)
+        return
+      }
+
       setCurrentStep('payment')
       toast.success('Document created. Please proceed with payment.')
     } catch (error: any) {
@@ -152,47 +162,6 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
     setCreatedDocumentId(null)
   }
 
-  const handleSkipPayment = async () => {
-    if (!createdDocumentId) return
-    
-    try {
-      toast.success('Starting generation...')
-      
-      // Start generation using correct endpoint with /jobs prefix
-      const token = getAccessToken()
-      const response = await apiClient.post(
-        '/api/v1/jobs/generate/document-async',
-        {
-          document_id: createdDocumentId,
-          model: 'gpt-4',
-          requirements: null,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      
-      toast.success(`Generation started! Job ID: ${response.job_id}`)
-      
-      // Reset form
-      setCurrentStep('form')
-      const docId = createdDocumentId
-      setCreatedDocumentId(null)
-      
-      if (onSuccess) {
-        onSuccess(docId)
-      }
-      
-      // Redirect to document page
-      router.push(`/dashboard/documents/${docId}`)
-    } catch (error: any) {
-      console.error('Generation failed:', error)
-      toast.error(error.message || 'Failed to start generation')
-    }
-  }
-
   if (currentStep === 'payment' && createdDocumentId) {
     return (
       <div className="bg-white shadow rounded-lg p-6">
@@ -203,19 +172,6 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           <p className="mt-1 text-sm text-gray-500">
             Please complete payment to start document generation
           </p>
-        </div>
-        
-        {/* TEST: Skip payment button */}
-        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <p className="text-sm text-yellow-800 mb-2">
-            ⚠️ <strong>Testing Mode:</strong> Payment system not configured yet
-          </p>
-          <button
-            onClick={handleSkipPayment}
-            className="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 transition-colors text-sm font-medium"
-          >
-            Skip Payment & Start Generation (Test)
-          </button>
         </div>
         
         <PaymentForm

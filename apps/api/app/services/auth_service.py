@@ -270,15 +270,15 @@ class AuthService:
                 "full_name": user.full_name,
                 "is_verified": user.is_verified,
                 "is_admin": user.is_admin,
-                "preferred_language": user.preferred_language,
-                "timezone": user.timezone,
-                "total_tokens_used": user.total_tokens_used,
+                "preferred_language": user.preferred_language or "en",
+                "timezone": user.timezone or "UTC",
+                "total_tokens_used": user.total_tokens_used or 0,
                 "total_documents_created": user.total_documents_created,
                 "created_at": user.created_at.isoformat(),
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None,
                 "last_login": user.last_login.isoformat() if user.last_login else None,
                 "is_active": user.is_active,
-                "total_cost": user.total_cost,
+                "total_cost": user.total_cost or 0,
             }
 
         except JWTError as e:

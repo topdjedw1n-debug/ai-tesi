@@ -38,6 +38,7 @@ describe('UsersTable Component', () => {
       id: 1,
       email: 'user1@test.com',
       name: 'John Doe',
+      is_active: true,
       is_admin: false,
       status: 'active',
       registered_at: '2025-01-01T10:00:00Z',
@@ -51,6 +52,7 @@ describe('UsersTable Component', () => {
       id: 2,
       email: 'admin@test.com',
       name: 'Admin User',
+      is_active: true,
       is_admin: true,
       status: 'active',
       registered_at: '2024-12-01T10:00:00Z',
@@ -64,6 +66,7 @@ describe('UsersTable Component', () => {
       id: 3,
       email: 'blocked@test.com',
       name: 'Blocked User',
+      is_active: false,
       is_admin: false,
       status: 'blocked',
       registered_at: '2025-11-01T10:00:00Z',
@@ -163,6 +166,28 @@ describe('UsersTable Component', () => {
       expect(container).toBeTruthy();
     });
 
+    it('shows Block action when status is undefined but is_active is true', async () => {
+      const users: UserDetails[] = [
+        {
+          ...mockUsers[0],
+          status: undefined,
+          is_active: true,
+        },
+      ]
+
+      render(<UsersTable users={users} onBlock={jest.fn()} />)
+
+      const actionCell = screen.getByTestId('actions-1')
+      const actionToggle = actionCell.querySelector('button')
+      expect(actionToggle).toBeTruthy()
+
+      fireEvent.click(actionToggle as HTMLButtonElement)
+
+      await waitFor(() => {
+        expect(screen.getByText('Block')).toBeInTheDocument()
+      })
+    })
+
     it('calls onUnblock for blocked users', () => {
       const onUnblock = jest.fn();
       const { container } = render(
@@ -172,6 +197,28 @@ describe('UsersTable Component', () => {
       // Verify onUnblock prop is passed
       expect(container).toBeTruthy();
     });
+
+    it('shows Unblock action when status is undefined but is_active is false', async () => {
+      const users: UserDetails[] = [
+        {
+          ...mockUsers[0],
+          status: undefined,
+          is_active: false,
+        },
+      ]
+
+      render(<UsersTable users={users} onUnblock={jest.fn()} />)
+
+      const actionCell = screen.getByTestId('actions-1')
+      const actionToggle = actionCell.querySelector('button')
+      expect(actionToggle).toBeTruthy()
+
+      fireEvent.click(actionToggle as HTMLButtonElement)
+
+      await waitFor(() => {
+        expect(screen.getByText('Unblock')).toBeInTheDocument()
+      })
+    })
 
     it('calls onMakeAdmin when make admin action is triggered', () => {
       const onMakeAdmin = jest.fn();

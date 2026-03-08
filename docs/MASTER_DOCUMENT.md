@@ -2,9 +2,16 @@
 
 > **Single Source of Truth** - Вся технічна документація проекту в одному місці
 
-**Останнє оновлення:** 2025-11-02
+**Останнє оновлення:** 2026-02-23 (Wave 3B)
 **Версія проекту:** 2.3
-**Статус:** 🟡 Ready for Production Preparation
+**Статус:** 🟢 Release Candidate (Strict Go-Live)
+
+> **Release note (23.02.2026):**
+> User payment/refund flows are enabled by default after Wave 3B restore.
+> Feature flags remain available as runtime kill-switches
+> (`NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW`, `NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW`).
+>
+> **Compliance matrix:** `docs/MASTER_COMPLIANCE_MATRIX.md`
 
 ---
 
@@ -225,26 +232,48 @@ POST   /api/v1/documents/{id}/export    # Export to DOCX/PDF
 ```python
 POST   /api/v1/generate/outline         # Generate outline
 POST   /api/v1/generate/section         # Generate section
+POST   /api/v1/generate/full-document   # Generate full document
 GET    /api/v1/generate/models          # Available models
-GET    /api/v1/generate/usage           # Usage statistics
+GET    /api/v1/generate/usage/{user_id} # Usage statistics
 ```
 
 ### 4.4 Payment Endpoints
 
 ```python
 POST   /api/v1/payment/create-intent    # Create payment
+POST   /api/v1/payment/create-checkout  # Create Stripe checkout session
+GET    /api/v1/payment/verify           # Verify checkout session
 POST   /api/v1/payment/webhook          # Stripe webhook
 GET    /api/v1/payment/history          # Payment history
 GET    /api/v1/payment/{id}            # Payment details
 ```
 
-### 4.5 Admin Endpoints
+### 4.5 Refund Endpoints
 
 ```python
+POST   /api/v1/refunds                  # Create refund request (user)
+GET    /api/v1/refunds                  # List own refunds (user)
+GET    /api/v1/refunds/{id}             # Refund details (user)
+GET    /api/v1/admin/refunds            # List refunds (admin)
+GET    /api/v1/admin/refunds/{id}       # Refund details (admin)
+POST   /api/v1/admin/refunds/{id}/approve # Approve refund (admin)
+POST   /api/v1/admin/refunds/{id}/reject  # Reject refund (admin)
+```
+
+### 4.6 Admin Endpoints
+
+```python
+POST   /api/v1/admin/auth/login         # Admin login
+POST   /api/v1/admin/auth/logout        # Admin logout
 GET    /api/v1/admin/stats              # System statistics
 GET    /api/v1/admin/users              # User management
-GET    /api/v1/admin/jobs               # Job monitoring
-POST   /api/v1/admin/pricing            # Update pricing
+PUT    /api/v1/admin/users/{id}/block   # Block user
+PUT    /api/v1/admin/users/{id}/unblock # Unblock user
+POST   /api/v1/admin/users/{id}/make-admin # Elevate user role
+GET    /api/v1/admin/documents          # Document moderation
+GET    /api/v1/admin/payments           # Payment management
+GET    /api/v1/admin/refunds/stats      # Refund analytics
+GET    /api/v1/admin/settings           # Platform settings
 ```
 
 ---

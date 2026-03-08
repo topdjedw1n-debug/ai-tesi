@@ -38,15 +38,26 @@ export function UserDetails({
 }: UserDetailsProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'documents' | 'payments'>('profile')
 
+  const resolveUserStatus = (): 'active' | 'blocked' | 'deleted' => {
+    if (user.status === 'deleted') {
+      return 'deleted'
+    }
+    if (user.status === 'blocked' || user.is_active === false) {
+      return 'blocked'
+    }
+    return 'active'
+  }
+
   const getStatusBadge = () => {
-    if (user.status === 'blocked') {
+    const status = resolveUserStatus()
+    if (status === 'blocked') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
           Blocked
         </span>
       )
     }
-    if (user.status === 'deleted') {
+    if (status === 'deleted') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-gray-200">
           Deleted
@@ -76,7 +87,7 @@ export function UserDetails({
             {getStatusBadge()}
           </div>
           <div className="flex space-x-2">
-            {user.status === 'active' && onBlock && (
+            {resolveUserStatus() === 'active' && onBlock && (
               <button
                 onClick={onBlock}
                 className="inline-flex items-center px-3 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600"
@@ -85,7 +96,7 @@ export function UserDetails({
                 Block
               </button>
             )}
-            {user.status === 'blocked' && onUnblock && (
+            {resolveUserStatus() === 'blocked' && onUnblock && (
               <button
                 onClick={onUnblock}
                 className="inline-flex items-center px-3 py-2 border border-gray-600 rounded-md text-sm font-medium text-gray-300 bg-gray-700 hover:bg-gray-600"

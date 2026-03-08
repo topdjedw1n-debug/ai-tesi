@@ -34,19 +34,40 @@ export default function AdminDashboardPage() {
     const fetchDashboardData = async () => {
       try {
         setIsLoading(true)
-        const [statsData, chartsData, activityData, metricsData] = await Promise.all([
+        const results = await Promise.allSettled([
           adminApiClient.getStats(),
           adminApiClient.getCharts(period),
           adminApiClient.getActivity('recent', 10),
           adminApiClient.getMetrics(),
         ])
-        setStats(statsData)
-        setCharts(chartsData)
-        setActivity(activityData)
-        setMetrics(metricsData)
-      } catch (error: any) {
-        console.error('Failed to fetch dashboard data:', error)
-        toast.error('Failed to load dashboard data')
+
+        const [statsResult, chartsResult, activityResult, metricsResult] = results
+
+        if (statsResult.status === 'fulfilled' && statsResult.value) {
+          setStats(statsResult.value)
+        } else {
+          setStats(null)
+          console.error('Failed to fetch stats:', statsResult)
+          toast.error('Failed to load statistics')
+        }
+
+        if (chartsResult.status === 'fulfilled') {
+          setCharts(chartsResult.value)
+        } else {
+          console.error('Failed to fetch charts:', chartsResult)
+        }
+
+        if (activityResult.status === 'fulfilled') {
+          setActivity(activityResult.value)
+        } else {
+          console.error('Failed to fetch activity:', activityResult)
+        }
+
+        if (metricsResult.status === 'fulfilled') {
+          setMetrics(metricsResult.value)
+        } else {
+          console.error('Failed to fetch metrics:', metricsResult)
+        }
       } finally {
         setIsLoading(false)
       }

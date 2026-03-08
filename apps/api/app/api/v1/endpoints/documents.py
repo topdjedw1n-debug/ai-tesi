@@ -127,6 +127,29 @@ async def get_recent_activity(
         ) from None
 
 
+@router.get("/stats")
+@rate_limit("100/hour")
+async def get_user_stats(
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Get user statistics for dashboard"""
+    try:
+        document_service = DocumentService(db)
+        stats = await document_service.get_user_stats(int(current_user.id))
+        return stats
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get user stats",
+        ) from None
+
+
 @router.get("/{document_id}", response_model=DocumentResponse)
 @rate_limit("100/hour")
 async def get_document(
@@ -185,29 +208,6 @@ async def update_document(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update document",
-        ) from None
-
-
-@router.get("/stats")
-@rate_limit("100/hour")
-async def get_user_stats(
-    request: Request,
-    current_user: User = Depends(get_current_user),
-    db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
-    """Get user statistics for dashboard"""
-    try:
-        document_service = DocumentService(db)
-        stats = await document_service.get_user_stats(int(current_user.id))
-        return stats
-    except ValidationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
-        ) from e
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get user stats",
         ) from None
 
 

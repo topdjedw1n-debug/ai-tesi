@@ -20,6 +20,7 @@ os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
 
 from app.core.database import AsyncSessionLocal, Base, get_engine
 from app.models.payment import Payment
+from app.models.refund import RefundRequest
 from app.models.user import User
 from main import app  # noqa: E402
 
@@ -89,11 +90,33 @@ async def admin_user(db_session):
 
 
 @pytest.fixture
+async def second_user(db_session):
+    """Create second test user for ownership checks"""
+    user = User(
+        email="other-user@test.com",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    return user
+
+
+@pytest.fixture
 async def user_token(client, test_user):
     """Get user access token"""
     from app.core.security import create_access_token
 
     token = create_access_token(test_user.id)
+    return token
+
+
+@pytest.fixture
+async def second_user_token(client, second_user):
+    """Get second user access token"""
+    from app.core.security import create_access_token
+
+    token = create_access_token(second_user.id)
     return token
 
 
@@ -104,6 +127,56 @@ async def admin_token(client, admin_user):
 
     token = create_access_token(admin_user.id)
     return token
+
+
+@pytest.fixture
+async def second_user_payment(db_session, second_user):
+    """Create payment owned by second user"""
+    payment = Payment(
+        user_id=second_user.id,
+        amount=Decimal("60.00"),
+        currency="EUR",
+        status="completed",
+        stripe_payment_intent_id="pi_other_user_test123",
+    )
+    db_session.add(payment)
+    await db_session.commit()
+    await db_session.refresh(payment)
+    return payment
+
+
+@pytest.fixture
+async def test_refund_request(db_session, test_user, test_payment):
+    """Create refund request owned by primary test user"""
+    refund = RefundRequest(
+        user_id=test_user.id,
+        payment_id=test_payment.id,
+        reason="Quality issues in generated content",
+        reason_category="quality",
+        status="pending",
+        screenshots=[],
+    )
+    db_session.add(refund)
+    await db_session.commit()
+    await db_session.refresh(refund)
+    return refund
+
+
+@pytest.fixture
+async def second_user_refund_request(db_session, second_user, second_user_payment):
+    """Create refund request owned by second user"""
+    refund = RefundRequest(
+        user_id=second_user.id,
+        payment_id=second_user_payment.id,
+        reason="Technical issue while downloading document",
+        reason_category="technical_issue",
+        status="pending",
+        screenshots=[],
+    )
+    db_session.add(refund)
+    await db_session.commit()
+    await db_session.refresh(refund)
+    return refund
 
 
 @pytest.mark.asyncio
@@ -131,6 +204,54 @@ async def test_create_refund_request(client, user_token, test_payment):
     response = await client.post("/api/v1/refunds", json=refund_data, headers=headers)
     # Should return 200/201 or 400/404 depending on payment status
     assert response.status_code in [200, 201, 400, 404]
+
+
+@pytest.mark.asyncio
+async def test_list_user_refunds_requires_auth(client):
+    """GET /api/v1/refunds requires authentication"""
+    response = await client.get("/api/v1/refunds")
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_list_user_refunds_returns_only_current_user(
+    client,
+    user_token,
+    test_refund_request,
+    second_user_refund_request,
+):
+    """GET /api/v1/refunds returns only current user's refunds"""
+    headers = {"Authorization": f"Bearer {user_token}"}
+    response = await client.get("/api/v1/refunds", headers=headers)
+    assert response.status_code == 200
+    data = response.json()
+    refund_ids = [item["id"] for item in data["refunds"]]
+    assert test_refund_request.id in refund_ids
+    assert second_user_refund_request.id not in refund_ids
+
+
+@pytest.mark.asyncio
+async def test_get_user_refund_details_enforces_ownership(
+    client,
+    user_token,
+    second_user_token,
+    test_refund_request,
+):
+    """GET /api/v1/refunds/{id} should block access to foreign refund IDs"""
+    own_headers = {"Authorization": f"Bearer {user_token}"}
+    foreign_headers = {"Authorization": f"Bearer {second_user_token}"}
+
+    own_response = await client.get(
+        f"/api/v1/refunds/{test_refund_request.id}",
+        headers=own_headers,
+    )
+    assert own_response.status_code == 200
+
+    foreign_response = await client.get(
+        f"/api/v1/refunds/{test_refund_request.id}",
+        headers=foreign_headers,
+    )
+    assert foreign_response.status_code == 404
 
 
 @pytest.mark.asyncio

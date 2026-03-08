@@ -14,16 +14,16 @@ from app.core.exceptions import QualityThresholdNotMetError
 from app.services.background_jobs import BackgroundJobService
 
 # ============================================================================
-# Test 1: Section Generation Error - Continue with Next
+# Test 1: Section Generation Error - Stop Generation
 # ============================================================================
 
 
 @pytest.mark.asyncio
 async def test_section_generation_error_continues(mock_db, mock_redis, mock_settings):
     """
-    Test: Section 2 raises exception → mark failed, continue with section 3.
+    Test: Section generation exception stops the job and bubbles up.
 
-    Coverage: Lines 873-887 (exception handler in section loop)
+    Current product behavior: fail fast to avoid partially generated documents.
     """
     # Document with 3 sections
     document = MagicMock()
@@ -172,15 +172,12 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(document_id=100, user_id=1)
+        with pytest.raises(ValueError, match="AI API timeout"):
+            await BackgroundJobService.generate_full_document(document_id=100, user_id=1)
 
-        # Verify: Section 2 failed but job completed with 2/3 sections
-        assert (
-            mock_generator.generate_section.call_count == 3
-        ), "All 3 sections attempted"
-
-        # Verify: Export called (document completed)
-        assert mock_doc_service.export_document.called, "Export should be called"
+        # Verify: Generation stopped on first failed section
+        assert mock_generator.generate_section.call_count == 1
+        assert not mock_doc_service.export_document.called
 
 
 # ============================================================================
@@ -193,7 +190,7 @@ async def test_quality_threshold_error_sends_websocket(
     mock_db, mock_redis, mock_settings
 ):
     """
-    Test: QualityThresholdNotMetError → send WebSocket error, continue.
+    Test: QualityThresholdNotMetError sends WebSocket error and stops generation.
 
     Coverage: Lines 845-872 (QualityThresholdNotMetError handler)
     """
@@ -318,7 +315,8 @@ async def test_quality_threshold_error_sends_websocket(
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(document_id=200, user_id=2)
+        with pytest.raises(QualityThresholdNotMetError):
+            await BackgroundJobService.generate_full_document(document_id=200, user_id=2)
 
         # Verify: WebSocket error sent via send_progress (no separate send_error method)
         assert mock_manager.send_progress.called, "WebSocket progress should be sent"
@@ -349,7 +347,7 @@ async def test_all_sections_fail_document_marked_failed(
     mock_db, mock_redis, mock_settings
 ):
     """
-    Test: All sections fail → document marked failed, export skipped.
+    Test: Section generation failure bubbles up and export is skipped.
 
     Coverage: Lines 897-905 (zero sections check)
     """
@@ -452,7 +450,8 @@ async def test_all_sections_fail_document_marked_failed(
         mock_doc_service_class.return_value = mock_doc_service
 
         # Execute
-        await BackgroundJobService.generate_full_document(document_id=300, user_id=3)
+        with pytest.raises(Exception, match="Generation failed"):
+            await BackgroundJobService.generate_full_document(document_id=300, user_id=3)
 
         # Verify: Export NOT called (0 sections)
         assert not mock_doc_service.export_document.called, "Export should be skipped"

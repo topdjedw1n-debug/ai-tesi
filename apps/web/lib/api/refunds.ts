@@ -45,53 +45,78 @@ export interface RefundRequest {
   reason: string
   reason_category: string
   status: 'pending' | 'approved' | 'rejected'
-  created_at: string
-  updated_at: string
-  reviewed_by: number | null
+  submitted_at: string
   reviewed_at: string | null
-  admin_notes: string | null
+  reviewed_by: number | null
+  admin_comment: string | null
+  refund_amount?: number | string | null
+  ai_recommendation?: 'approve' | 'reject' | 'review' | null
+  risk_score?: number | null
+  screenshots?: string[]
+  /** Backward compatibility for legacy UI fields */
+  admin_notes?: string | null
 }
 
-const REFUNDS_READ_FALLBACK_MESSAGE =
-  'Refund status lookup is temporarily unavailable. Please contact support if needed.'
+export interface RefundListResponse {
+  refunds: RefundRequest[]
+  total: number
+  page: number
+  per_page: number
+  pages: number
+}
+
+const REFUND_FLOW_DISABLED_MESSAGE =
+  'Refund flow is temporarily disabled. Please contact support if needed.'
+
+const ensureRefundFlowEnabled = () => {
+  if (!isUserRefundFlowEnabled) {
+    // ⚠️ Kill-switch: feature flag can disable user refund flow during incident mitigation.
+    throw new Error(REFUND_FLOW_DISABLED_MESSAGE)
+  }
+}
 
 export const refundsApiClient = {
   /**
    * Create a new refund request
    */
   async createRefundRequest(data: RefundRequestCreate): Promise<RefundRequest> {
-    if (!isUserRefundFlowEnabled) {
-      // ⚠️ TEMPORARY (pre-prod hardening): disable unstable user refund flow.
-      // See /docs/MVP_PLAN.md → "Тимчасові рішення" (refund flow feature flag).
-      // TODO: Remove this gate after backend/user flow runtime verification (Priority: 🔴 HIGH, Time: 2-4h)
-      throw new Error(REFUNDS_READ_FALLBACK_MESSAGE)
-    }
+    ensureRefundFlowEnabled()
     return apiClient.post('/api/v1/refunds', data)
   },
 
   /**
    * Get refund request by ID
    */
-  async getRefundRequest(id: number): Promise<RefundRequest | null> {
-    // ⚠️ TEMPORARY (Wave 1): User read endpoints are not available on backend.
-    // See /docs/MVP_PLAN.md → "Тимчасові рішення" (refunds read fallback).
-    // TODO: Replace with real GET /api/v1/refunds/{id} once backend endpoint is implemented (Priority: 🟡 MEDIUM, Time: 2-3h)
-    console.warn(`${REFUNDS_READ_FALLBACK_MESSAGE} Requested refund id=${id}`)
-    return null
+  async getRefundRequest(id: number): Promise<RefundRequest> {
+    ensureRefundFlowEnabled()
+    return apiClient.get(`/api/v1/refunds/${id}`)
   },
 
   /**
    * Get all refund requests for current user
    */
-  async listUserRefunds(): Promise<RefundRequest[]> {
-    // ⚠️ TEMPORARY (Wave 1): User read endpoints are not available on backend.
-    // See /docs/MVP_PLAN.md → "Тимчасові рішення" (refunds read fallback).
-    // TODO: Replace with real GET /api/v1/refunds once backend endpoint is implemented (Priority: 🟡 MEDIUM, Time: 2-3h)
-    console.warn(REFUNDS_READ_FALLBACK_MESSAGE)
-    return []
+  async listUserRefunds(params?: {
+    status?: 'pending' | 'approved' | 'rejected'
+    page?: number
+    perPage?: number
+  }): Promise<RefundListResponse> {
+    ensureRefundFlowEnabled()
+    const search = new URLSearchParams()
+    if (params?.status) {
+      search.set('status', params.status)
+    }
+    if (params?.page) {
+      search.set('page', String(params.page))
+    }
+    if (params?.perPage) {
+      search.set('per_page', String(params.perPage))
+    }
+    const query = search.toString()
+    const url = query ? `/api/v1/refunds?${query}` : '/api/v1/refunds'
+    return apiClient.get(url)
   },
 
   getFallbackMessage(): string {
-    return REFUNDS_READ_FALLBACK_MESSAGE
+    return REFUND_FLOW_DISABLED_MESSAGE
   },
 }

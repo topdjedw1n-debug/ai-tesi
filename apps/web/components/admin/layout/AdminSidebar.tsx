@@ -36,9 +36,11 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
     const fetchPendingRefunds = async () => {
       try {
         const data = await adminApiClient.getPendingRefunds()
-        setPendingRefundsCount(data.count)
+        const count = typeof data?.count === 'number' ? data.count : 0
+        setPendingRefundsCount(count)
       } catch (error) {
         console.error('Failed to fetch pending refunds count:', error)
+        setPendingRefundsCount(0)
       }
     }
 
@@ -98,6 +100,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
                     <Link
                       key={item.name}
                       href={item.href}
+                      prefetch={item.href !== '/admin/audit-logs'}
                       className={`${
                         isActive
                           ? 'bg-gray-900 text-white'

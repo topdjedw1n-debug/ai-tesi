@@ -1,151 +1,142 @@
 # 🚀 MVP ПЛАН - TesiGo Platform
 
-**Оновлено:** 02 грудня 2025
-**Статус:** 🟢 **PRODUCTION READY** ✅
+**Оновлено:** 24 лютого 2026  
+**Статус:** 🟡 **RELEASE CANDIDATE (CONDITIONAL GO)**
 
 ---
 
-## 🎯 ПОТОЧНИЙ СТАТУС
+## 🎯 ПОТОЧНИЙ СТАН (FACT-BASED)
 
-**ГОТОВНІСТЬ: 85%** (готово до розробки/тестування)
+### ✅ Quality gates (24.02.2026)
+- Backend: `pytest tests/ -q` → **396 passed, 6 skipped, 0 failed**
+- Frontend: `npm run lint` → **pass**
+- Frontend: `npm run type-check` → **pass**
+- Frontend: `npm run test -- --runInBand` → **12 suites, 125 passed, 1 skipped**
+- Frontend: `npm run build` → **pass**
 
-### ✅ Що працює:
-- **Infrastructure:** Docker (postgres, redis, minio) - healthy ✅
-- **Backend API:** FastAPI на порту 8000, /health OK ✅
-- **Frontend API Client:** lib/api.ts (відновлено з git, 370 рядків) ✅
-- **Frontend Dev Server:** Next.js 14 на порту 3000 - працює ✅
-- **API Endpoints:** 80+ endpoints (auth, documents, payments, admin) ✅
-- **Database:** PostgreSQL + 15 таблиць + 6 міграцій ✅
-- **Authentication:** Magic link auth працює (tested) ✅
-- **Document CRUD:** Create/List documents працює ✅
-- **Security:** IDOR Protection, JWT keys (64+ chars), File validation, Rate limiting ✅
-- **Test Coverage:** 44 test files, 385 tests, 46.42% coverage ✅
+### ✅ Runtime smoke (prod-like Docker)
+- API health: `GET /health` → **200**
+- Web health: `GET /api/health` → **200**
+- Auth smoke: `GET /api/v1/auth/me` → **200**
+- Admin smoke: `GET /api/v1/admin/stats` → **200**
+- Contract smoke (auth):
+  - `GET /api/v1/refunds` → **200**
+  - `GET /api/v1/payment/history` → **200**
+  - `POST /api/v1/generate/full-document` → **422** (expected validation error, route exists)
+- Примітка: запуск `scripts/runtime_smoke.sh` з sandbox-host повертає `000` на localhost; контрактні/auth перевірки валідовані зсередини контейнера API.
 
-### ⚠️ Потребує уваги:
-- Database schema: колонка `grammar_score` відсутня (minor bug при GET /documents/{id})
-- Admin password login endpoint має проблеми (magic link працює)
-- E2E тести потребують data-testid атрибутів
-- AI generation flow не тестувався (потребує AI API keys)
+### ✅ P1 Hotfixes (24.02.2026)
+1. `GET /api/v1/documents/stats` більше не повертає `422` через перехоплення dynamic route.
+   - Fix: `/stats` переставлено вище `/{document_id}` у `documents.py`.
+   - Regression: `apps/api/tests/test_documents_stats_endpoint.py`.
+2. Admin users UI показує Block/Unblock коректно.
+   - Fix: нормалізація payload у `apps/web/lib/api/admin.ts` (canonical `is_active`).
+   - Fix: fallback-логіка рендера в `UsersTable.tsx` і `UserDetails.tsx`.
+   - Regression: додаткові тести в `UsersTable.test.tsx`.
 
 ---
 
-## ⚠️ ТИМЧАСОВІ РІШЕННЯ
+## ✅ ЗРОБЛЕНО В ЦИКЛІ STABILITY + OPERATIONAL MATCH
 
-### 1. E2E Tests - потребують доопрацювання
-- **Файли:** `apps/web/__tests__/e2e/`
-- **Проблема:** Складний мокінг AuthProvider, API_ENDPOINTS
-- **Пріоритет:** 🟡 MEDIUM (після launch)
-- **Час:** 4-6h
+1. Backend reliability fixes:
+- logging reserved key conflict fixed (`task_args_snapshot`);
+- defensive DB guards + checkpoint cleanup paths stabilized.
 
-### 2. Email Notifications - не реалізовано
-- **Файли:** `refund_service.py` (lines 271, 320)
+2. FE/BE contract sync:
+- generation contract aligned (`/full-document`, `/usage/{user_id}`);
+- admin contract aligned (`logout`, `block/unblock`, `make-admin`, `bulk user_ids`);
+- invalid pricing config endpoint removed from client constants.
+
+3. Refunds Wave 3B (full restore):
+- added user read endpoints on backend:
+  - `GET /api/v1/refunds`
+  - `GET /api/v1/refunds/{id}`
+- replaced frontend fallback-only refunds client with real API calls;
+- added user refund UI pages:
+  - `/payment/refunds`
+  - `/payment/refunds/[id]`
+
+4. Frontend quality gates:
+- strict `next build` flags kept enabled (`ignoreBuildErrors=false`, `ignoreDuringBuilds=false`);
+- Jest/Playwright isolation preserved;
+- checkout flow uses centralized API client.
+
+5. Runtime/infra:
+- web health endpoint available (`/api/health`);
+- prod compose defaults updated for payment/refund flows enabled,
+  with kill-switch flags still available.
+
+6. CI hard gate:
+- mandatory jobs: `repo-hygiene`, `backend-pytest`, `web-lint`, `web-typecheck`, `web-jest`, `web-build`.
+
+---
+
+## ⚠️ ТИМЧАСОВІ / ВІДКЛАДЕНІ РІШЕННЯ
+
+### 1. Feature-Flag Kill Switches for Payment/Refund Flows
+- **Файли:**
+  - `apps/web/lib/feature-flags.ts`
+  - `infra/docker/docker-compose.prod.yml`
+- **Статус:** `Implemented` (operational safeguard)
+- **Примітка:** флоу увімкнені за замовчуванням; прапорці залишаються аварійним вимикачем.
+
+### 2. Email Notifications for Refund Decisions
+- **Файл:** `apps/api/app/services/refund_service.py`
+- **Проблема:** TODO на email approve/reject ще не реалізований.
+- **Статус:** `Deferred (Wave 2+)`
 - **Пріоритет:** 🟡 MEDIUM
-- **Час:** 3-4h
+- **Оцінка:** 3-4h
+
+### 3. External RAG APIs (Perplexity/Tavily/Serper)
+- **Статус:** `Deferred (Wave 2+)`
+- **Причина:** поза release scope “Operational MASTER compliance”.
+
+### 4. Payment/Refund Manual UI Smoke (current cycle)
+- **Статус:** `Deferred (current cycle scope)`
+- **Причина:** зафіксоване рішення циклу — пропустити payment/refund browser smoke.
+- **Наслідок:** фінальний статус лише `Conditional Go`, не `Strict Go`.
+
+### 5. Stripe Mode Risk in Pre-Prod
+- **Файли:**
+  - `apps/api/.env`
+  - `apps/web/.env.local`
+- **Статус:** `Known risk`
+- **Проблема:** live Stripe keys у pre-prod середовищі можуть спричинити реальні списання.
+- **Рекомендація:** для smoke використовувати test keys.
 
 ---
 
-## 🔴 ЗАЛИШИЛОСЬ ЗРОБИТИ
+## 🔴 GO-LIVE CHECKLIST (MUST PASS)
 
-### Phase 3: Checkpointing (Done ✅)
-- ✅ Section-Level Checkpointing в Redis
-- ✅ Recovery logic on job start
-- ✅ Clear checkpoint on success/failure
-
-### Phase 4: Security Hardening (Pending ⏸️)
-- [ ] Input Sanitization for Prompt Injection (1-1.5h)
-- [ ] API Key Exposure Protection (30 min)
-
-### Phase 5: Final Testing (Pending ⏸️)
-- [ ] Test Retry Logic (30 min)
-- [ ] Test Quality Gates (30 min)
-- [ ] Documentation Update (30 min)
+1. Staging/prod-like Docker stack healthy (`api`, `web`, `postgres`, `redis`, `minio`).
+2. Runtime smoke pass:
+- user login;
+- admin login/logout;
+- admin block/unblock/make-admin;
+- generation flow;
+- payment create/verify/history;
+- refund create/list/detail;
+- `GET /health` (API), `GET /api/health` (Web).
+3. Manual UI smoke sign-off у браузері (release checklist).
+4. Відсутність P0/P1 дефектів у логах і релізному репорті.
 
 ---
 
-## 📊 ЗАВЕРШЕНІ ЗАДАЧІ
-
-### Task 2: AI Pipeline Quality (10h 55min) ✅
-- ✅ Citation Scoring Algorithm (best match selection)
-- ✅ Citation Preservation (<80% → return original)
-- ✅ Grammar Check (LanguageTool integration)
-- ✅ Plagiarism Check (Copyscape, 15% threshold)
-- ✅ AI Detection (GPTZero/Originality, 55% threshold)
-- ✅ Multi-pass Humanization
-- ✅ Quality Validation (4 checks)
-- ✅ WebSocket Progress (real-time updates)
-- **Result:** 99% якість, human-like writing, zero plagiarism
-
-### Task 3 Phase 1: Retry & Fallback (4h) ✅
-- ✅ Exponential Backoff Retry (3 retries: 2s, 4s, 8s)
-- ✅ Provider Fallback Chain (GPT-4 → GPT-3.5 → Claude)
-- ✅ Configuration via ENV variables
-- **Result:** 99.9% uptime, zero money waste
-
-### Task 3 Phase 2: Quality Gates (3h 45min) ✅
-- ✅ REJECT/REGENERATE Logic (up to 3 attempts)
-- ✅ Quality Thresholds Configuration
-- ✅ Quality Threshold Tests
-- **Result:** Automatic regeneration on quality failures
-
----
-
-## 🟢 POST-RELEASE IMPROVEMENTS
-
-**After launch, in order of priority:**
-
-1. **Real AI Detection APIs** (5 min) - Add GPTZero + Originality.ai keys
-2. **Email Notifications** (3-4h) - Refund status, generation complete
-3. **Quality Metrics Dashboard** (4h) - Admin panel charts
-4. **E2E Tests Refactor** (4-6h) - Simpler mocking
-5. **Grammar Auto-Fix** (2h) - Auto-correct simple errors
-6. **Caching for API Calls** (2h) - Redis cache for checks
-
----
-
-## 📋 MVP SCOPE
-
-### ✅ Included:
-- Admin login (email + password)
-- Document creation (тема, мова, 3-200 сторінок)
-- AI generation (RAG + Outline + Sections + Citations)
-- Background jobs (status tracking)
-- Export (DOCX/PDF через MinIO)
-- Admin panel (documents, jobs, stats)
-
-### ❌ Excluded (post-MVP):
-- Magic link auth for users
-- Stripe payments integration
-- Email notifications
-- Real-time WebSocket progress
-- Custom requirements upload
-- Document editing
-- User self-registration
-
----
-
-## 🚀 DEPLOYMENT CHECKLIST
+## 🧾 ENV FLAGS (KILL SWITCHES)
 
 ```bash
-# 1. Production .env
-DATABASE_URL=postgresql://...
-SECRET_KEY=<64-chars>
-JWT_SECRET=<64-chars>
-OPENAI_API_KEY=sk-proj-...
-ANTHROPIC_API_KEY=sk-ant-...
-TAVILY_API_KEY=tvly-...
-ENVIRONMENT=production
-CORS_ALLOWED_ORIGINS=https://domain.com
+# user payment/refund flows (enabled by default)
+NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW=true
+NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=true
+```
 
-# 2. Deploy
-cd /var/www/tesigo
-git pull
-docker-compose -f docker-compose.prod.yml up -d --build
-docker-compose exec api alembic upgrade head
+Для аварійного вимкнення у runtime:
 
-# 3. Verify
-curl https://domain.com/health
+```bash
+NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW=false
+NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=false
 ```
 
 ---
 
-**Last Updated:** 02.12.2025
+**Last Updated:** 24.02.2026

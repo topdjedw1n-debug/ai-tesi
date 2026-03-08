@@ -1,11 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { apiClient, API_ENDPOINTS } from '@/lib/api'
-import { getAccessToken } from '@/lib/api'
+import { isUserPaymentFlowEnabled } from '@/lib/feature-flags'
 import toast from 'react-hot-toast'
 import {
   ExclamationTriangleIcon,
@@ -29,10 +28,21 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isLoadingPrice, setIsLoadingPrice] = useState(true)
   const [pricingConfig, setPricingConfig] = useState<PricingConfig | null>(null)
-  const router = useRouter()
+  const paymentFlowDisabled = !isUserPaymentFlowEnabled
 
   // Fetch pricing configuration on mount
   useEffect(() => {
+    if (paymentFlowDisabled) {
+      setPricingConfig({
+        price_per_page: 0.50,
+        min_pages: 3,
+        max_pages: 200,
+        currencies: ['EUR'],
+      })
+      setIsLoadingPrice(false)
+      return
+    }
+
     const fetchPricing = async () => {
       try {
         setIsLoadingPrice(true)
@@ -53,7 +63,7 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
       }
     }
     fetchPricing()
-  }, [])
+  }, [paymentFlowDisabled])
 
   const pricePerPage = pricingConfig?.price_per_page || 0.50
   const amount = pages * pricePerPage
@@ -61,34 +71,18 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (paymentFlowDisabled) {
+      toast.error('Payments are currently unavailable.')
+      return
+    }
     setIsProcessing(true)
 
     try {
-      const token = getAccessToken()
-      if (!token) {
-        toast.error('Please log in to continue')
-        router.push('/')
-        return
-      }
-
-      // Create Stripe checkout session
-      // Note: endpoint uses query params, so we use fetch directly
-      const response = await fetch(
-        `${API_ENDPOINTS.PAYMENT.CREATE_CHECKOUT}?document_id=${documentId}&pages=${pages}`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const result = await apiClient.post<{
+        checkout_url?: string
+      }>(
+        `${API_ENDPOINTS.PAYMENT.CREATE_CHECKOUT}?document_id=${documentId}&pages=${pages}`
       )
-
-      if (!response.ok) {
-        const error = await response.json().catch(() => ({ detail: 'Request failed' }))
-        throw new Error(error.detail || `HTTP ${response.status}`)
-      }
-
-      const result = await response.json()
 
       if (result.checkout_url) {
         // Redirect to Stripe Checkout
@@ -156,7 +150,7 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <Button
           type="submit"
-          disabled={isProcessing}
+          disabled={isProcessing || paymentFlowDisabled}
           className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isProcessing ? (
@@ -164,6 +158,8 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
               <LoadingSpinner size="sm" />
               Processing...
             </span>
+          ) : paymentFlowDisabled ? (
+            'Payments Disabled'
           ) : (
             `Pay €${formattedAmount}`
           )}

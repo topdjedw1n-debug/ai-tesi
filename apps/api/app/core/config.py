@@ -75,6 +75,9 @@ class Settings(BaseSettings):
     # Quality Thresholds Configuration (Task 3.2 - Quality Gates)
     # Grammar check threshold: max errors before regeneration
     QUALITY_MAX_GRAMMAR_ERRORS: int = 10  # LanguageTool error count threshold
+    QUALITY_MAX_GRAMMAR_ERRORS_NON_EN: int = (
+        20  # Allow more errors for non-English languages
+    )
 
     # Plagiarism check threshold: min uniqueness percentage
     QUALITY_MIN_PLAGIARISM_UNIQUENESS: float = (

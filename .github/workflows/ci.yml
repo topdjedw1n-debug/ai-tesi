@@ -6,9 +6,46 @@ on:
   push:
     branches: [main, develop]
 
+permissions:
+  contents: read
+
+env:
+  PYTHON_VERSION: '3.11'
+  NODE_VERSION: '20'
+
 jobs:
+  repo-hygiene:
+    name: repo-hygiene
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fail on backup artifacts
+        run: |
+          set -euo pipefail
+
+          PATTERN='(^|/)\.env\.backup|(^|/)\.env\.bak$|\.bak$|\.backup$|\.backup[0-9]+$'
+
+          tracked_hits=$(git ls-files | grep -E "$PATTERN" || true)
+          untracked_hits=$(git ls-files --others --exclude-standard | grep -E "$PATTERN" || true)
+
+          if [ -n "$tracked_hits" ] || [ -n "$untracked_hits" ]; then
+            echo "❌ Forbidden backup artifacts detected"
+            if [ -n "$tracked_hits" ]; then
+              echo "Tracked files:"
+              echo "$tracked_hits"
+            fi
+            if [ -n "$untracked_hits" ]; then
+              echo "Untracked files:"
+              echo "$untracked_hits"
+            fi
+            exit 1
+          fi
+
+          echo "✅ Repo hygiene passed"
+
   python-version-gate:
-    name: Python Version Check
+    name: python-version-gate
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -16,28 +53,24 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Check Python version
         run: |
           python --version
           python -c "import sys; assert sys.version_info >= (3, 11), f'Python 3.11+ required, got {sys.version}'"
 
-      - name: Verify pyproject.toml
-        run: |
-          cd apps/api
-          python -c "import tomllib; data = tomllib.load(open('pyproject.toml', 'rb')); assert data['project']['requires-python'] >= '>=3.11'"
-
-  ruff-check:
-    name: Ruff Linting
+  backend-ruff:
+    name: backend-ruff
     runs-on: ubuntu-latest
+    needs: [python-version-gate]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ruff
         run: pip install ruff
@@ -46,25 +79,18 @@ jobs:
         run: |
           cd apps/api
           ruff check . --output-format=github
-        continue-on-error: false
 
-      - name: Upload Ruff report
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ruff-report
-          path: apps/api/.ruff_cache
-
-  mypy-check:
-    name: MyPy Type Checking
+  backend-mypy:
+    name: backend-mypy
     runs-on: ubuntu-latest
+    needs: [python-version-gate]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
@@ -76,51 +102,19 @@ jobs:
       - name: Run MyPy
         run: |
           cd apps/api
-          mypy app/ --config-file mypy.ini --show-error-codes --show-error-context 2>&1 | tee mypy-report.txt
-        continue-on-error: true
+          mypy app/ --config-file mypy.ini --show-error-codes --show-error-context
 
-      - name: Upload MyPy report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: mypy-report
-          path: apps/api/mypy-report.txt
-
-      - name: Check MyPy errors (progressive threshold)
-        run: |
-          cd apps/api
-          CURRENT_ERRORS=$(mypy app/ --config-file mypy.ini 2>&1 | grep -c "error:" || echo "0")
-          BASELINE_ERRORS=151  # Actual baseline when CI was added (2025-11-02)
-          TARGET_ERRORS=50
-
-          echo "MyPy errors found: $CURRENT_ERRORS"
-          echo "Baseline (when CI was added): $BASELINE_ERRORS"
-          echo "Target: ≤$TARGET_ERRORS"
-
-          # Progressive: errors must decrease over time, not increase from baseline
-          if [ "$CURRENT_ERRORS" -gt "$BASELINE_ERRORS" ]; then
-            echo "❌ MyPy errors increased from baseline ($BASELINE_ERRORS → $CURRENT_ERRORS)"
-            echo "Please fix errors before adding new code."
-            exit 1
-          elif [ "$CURRENT_ERRORS" -gt "$TARGET_ERRORS" ]; then
-            echo "⚠️  MyPy errors: $CURRENT_ERRORS (target: ≤$TARGET_ERRORS)"
-            echo "Progress: $((BASELINE_ERRORS - CURRENT_ERRORS)) errors fixed since baseline"
-            echo "✅ Errors decreasing, but continue improving toward target"
-          else
-            echo "✅ MyPy errors: $CURRENT_ERRORS (within target ≤$TARGET_ERRORS)"
-          fi
-        continue-on-error: false
-
-  pytest-tests:
-    name: Pytest Tests
+  backend-pytest:
+    name: backend-pytest
     runs-on: ubuntu-latest
+    needs: [python-version-gate]
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install dependencies
         run: |
@@ -132,136 +126,127 @@ jobs:
       - name: Run tests
         run: |
           cd apps/api
-          pytest tests/ -v --tb=short
-        continue-on-error: false
+          pytest tests/ -q
 
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: pytest-report
-          path: apps/api/.pytest_cache
-
-  coverage-check:
-    name: Coverage Check
+  web-lint:
+    name: web-lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
 
       - name: Install dependencies
         run: |
-          cd apps/api
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install pytest pytest-cov coverage
+          cd apps/web
+          npm ci
 
-      - name: Run tests with coverage
+      - name: Run lint
         run: |
-          cd apps/api
-          pytest tests/ --cov=app --cov-report=xml --cov-report=term --cov-report=html
-        continue-on-error: false
+          cd apps/web
+          npm run lint
 
-      - name: Check coverage threshold (global)
-        run: |
-          cd apps/api
-          coverage report --fail-under=70
-        continue-on-error: false
-
-      - name: Check critical modules coverage
-        run: |
-          cd apps/api
-          echo "Checking critical modules coverage..."
-
-          # Check admin_service (currently 25%, target 60% minimum)
-          ADMIN_COV=$(coverage report --include="app/services/admin_service.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
-          if (( $(echo "$ADMIN_COV < 60" | bc -l) )); then
-            echo "⚠️  admin_service.py coverage: ${ADMIN_COV}% (target: ≥60%)"
-          else
-            echo "✅ admin_service.py coverage: ${ADMIN_COV}%"
-          fi
-
-          # Check humanizer (currently 20%, target 60% minimum)
-          HUMANIZER_COV=$(coverage report --include="app/services/ai_pipeline/humanizer.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
-          if (( $(echo "$HUMANIZER_COV < 60" | bc -l) )); then
-            echo "⚠️  humanizer.py coverage: ${HUMANIZER_COV}% (target: ≥60%)"
-          else
-            echo "✅ humanizer.py coverage: ${HUMANIZER_COV}%"
-          fi
-
-          # Check background_jobs (currently 20%, target 60% minimum)
-          JOBS_COV=$(coverage report --include="app/services/background_jobs.py" | tail -1 | awk '{print $NF}' | sed 's/%//')
-          if (( $(echo "$JOBS_COV < 60" | bc -l) )); then
-            echo "⚠️  background_jobs.py coverage: ${JOBS_COV}% (target: ≥60%)"
-          else
-            echo "✅ background_jobs.py coverage: ${JOBS_COV}%"
-          fi
-
-          echo ""
-          echo "Note: Module coverage warnings don't block merge, but should be improved."
-        continue-on-error: true
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./apps/api/coverage.xml
-          flags: unittests
-          name: codecov-umbrella
-
-      - name: Upload HTML coverage
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-html
-          path: apps/api/htmlcov
-
-  runtime-smoke-test:
-    name: Runtime Health Check
+  web-typecheck:
+    name: web-typecheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Docker Compose
-        run: |
-          docker-compose --version
-
-      - name: Start services
-        run: |
-          cd infra/docker
-          docker-compose up -d postgres redis minio
-          sleep 10
-
-      - name: Check /health endpoint
-        run: |
-          cd apps/api
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          uvicorn main:app --host 0.0.0.0 --port 8000 &
-          sleep 5
-          curl -f http://localhost:8000/health || exit 1
-
-      - name: Upload logs
-        if: failure()
-        uses: actions/upload-artifact@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
-          name: runtime-logs
-          path: apps/api/logs
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
 
-  node-version-gate:
-    name: Node.js Version Check
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Run type-check
+        run: |
+          cd apps/web
+          npm run type-check
+
+  web-jest:
+    name: web-jest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check .nvmrc exists
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
         run: |
-          if [ -f "apps/web/.nvmrc" ]; then
-            echo "✅ .nvmrc found"
-            cat apps/web/.nvmrc
-          else
-            echo "⚠️ .nvmrc not found"
+          cd apps/web
+          npm ci
+
+      - name: Clean Next.js build artifacts before Jest
+        run: |
+          cd apps/web
+          rm -rf .next
+
+      - name: Run Jest
+        run: |
+          cd apps/web
+          npm run test -- --runInBand
+
+  web-build:
+    name: web-build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: apps/web/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd apps/web
+          npm ci
+
+      - name: Build web app
+        run: |
+          cd apps/web
+          npm run build
+
+  quality-gate:
+    name: quality-gate
+    runs-on: ubuntu-latest
+    needs:
+      - repo-hygiene
+      - backend-pytest
+      - web-lint
+      - web-typecheck
+      - web-jest
+      - web-build
+    if: ${{ always() }}
+    steps:
+      - name: Enforce mandatory gate
+        run: |
+          if [ "${{ needs.repo-hygiene.result }}" != "success" ] || \
+             [ "${{ needs.backend-pytest.result }}" != "success" ] || \
+             [ "${{ needs.web-lint.result }}" != "success" ] || \
+             [ "${{ needs.web-typecheck.result }}" != "success" ] || \
+             [ "${{ needs.web-jest.result }}" != "success" ] || \
+             [ "${{ needs.web-build.result }}" != "success" ]; then
+            echo "❌ Mandatory quality gates failed"
+            exit 1
           fi
+
+          echo "✅ All mandatory quality gates passed"

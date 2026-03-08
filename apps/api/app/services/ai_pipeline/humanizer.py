@@ -4,11 +4,51 @@ Paraphrases AI-generated text to make it sound more natural while preserving cit
 """
 
 import logging
+import re
 
 from app.core.config import settings
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 
 logger = logging.getLogger(__name__)
+
+ENGLISH_STOPWORDS = {
+    "the",
+    "and",
+    "or",
+    "of",
+    "to",
+    "in",
+    "for",
+    "on",
+    "with",
+    "as",
+    "by",
+    "at",
+    "from",
+    "that",
+    "this",
+    "these",
+    "those",
+    "is",
+    "are",
+    "was",
+    "were",
+    "be",
+    "been",
+    "being",
+    "it",
+    "its",
+    "an",
+    "a",
+}
+
+
+def _english_stopword_ratio(text: str) -> float:
+    words = re.findall(r"[A-Za-z]+", text.lower())
+    if len(words) < 40:
+        return 0.0
+    count = sum(1 for word in words if word in ENGLISH_STOPWORDS)
+    return count / len(words) if words else 0.0
 
 
 class Humanizer:
@@ -24,7 +64,12 @@ class Humanizer:
         self.temperature = temperature
 
     async def humanize(
-        self, text: str, provider: str, model: str, preserve_citations: bool = True
+        self,
+        text: str,
+        provider: str,
+        model: str,
+        preserve_citations: bool = True,
+        language: str = "en",
     ) -> str:
         """
         Humanize text while preserving citations
@@ -34,6 +79,7 @@ class Humanizer:
             provider: AI provider ("openai" or "anthropic")
             model: Model name
             preserve_citations: Whether to preserve citation markers
+            language: Target language code for the output
 
         Returns:
             Humanized text
@@ -49,7 +95,9 @@ class Humanizer:
             )
 
             # Build humanization prompt
-            prompt = PromptBuilder.build_humanization_prompt(text, preserve_citations)
+            prompt = PromptBuilder.build_humanization_prompt(
+                text, preserve_citations, language
+            )
 
             # Call AI provider with higher temperature
             humanized_text = await self._call_ai_provider(
@@ -58,6 +106,16 @@ class Humanizer:
                 prompt=prompt,
                 temperature=self.temperature,
             )
+
+            # Language drift check (only for non-English targets)
+            if language != "en":
+                english_ratio = _english_stopword_ratio(humanized_text)
+                if english_ratio >= 0.12:
+                    logger.warning(
+                        "Humanization language drift detected "
+                        f"(english_ratio={english_ratio:.2f}). Returning original text."
+                    )
+                    return text
 
             # Verify citations are preserved
             if preserve_citations and citations:
@@ -168,6 +226,7 @@ class Humanizer:
         target_ai_score: float = 50.0,
         max_attempts: int = 2,
         preserve_citations: bool = True,
+        language: str = "en",
     ) -> tuple[str, float]:
         """
         Multi-pass humanization to achieve target AI detection score
@@ -182,6 +241,7 @@ class Humanizer:
             target_ai_score: Target AI detection score (default: 50.0%)
             max_attempts: Max humanization attempts (default: 2)
             preserve_citations: Whether to preserve citation markers
+            language: Target language code for the output
 
         Returns:
             Tuple of (humanized_text, final_ai_score)
@@ -229,6 +289,7 @@ class Humanizer:
                 provider=provider,
                 model=model,
                 preserve_citations=preserve_citations,
+                language=language,
             )
 
         # Max attempts reached - check final score

@@ -17,9 +17,10 @@ export interface UserDetails {
   id: number
   email: string
   name: string | null
+  is_active: boolean
   is_admin: boolean
   is_super_admin?: boolean // Optional super admin flag
-  status: 'active' | 'blocked' | 'deleted'
+  status?: 'active' | 'blocked' | 'deleted'
   registered_at: string
   last_login: string | null
   documents_count: number
@@ -29,6 +30,14 @@ export interface UserDetails {
   updated_at: string
   documents?: AdminDocument[] // Optional for user details page
   payments?: any[] // Optional for user details page
+}
+
+export interface UserListResponse {
+  users: UserDetails[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
 }
 
 /** Alias for AdminUser (backwards compatibility) */
@@ -211,6 +220,86 @@ const unwrapResponse = <T>(response: T | { data: T }): T => {
   return response as T;
 };
 
+const toNumber = (value: unknown, fallback = 0): number => {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value
+  }
+
+  if (typeof value === 'string') {
+    const parsed = Number(value)
+    if (Number.isFinite(parsed)) {
+      return parsed
+    }
+  }
+
+  return fallback
+}
+
+const resolveIsActive = (raw: Record<string, unknown>): boolean => {
+  if (typeof raw.is_active === 'boolean') {
+    return raw.is_active
+  }
+
+  if (raw.status === 'blocked' || raw.status === 'deleted') {
+    return false
+  }
+
+  return true
+}
+
+const resolveStatus = (
+  rawStatus: unknown,
+  isActive: boolean
+): UserDetails['status'] => {
+  if (rawStatus === 'active' || rawStatus === 'blocked' || rawStatus === 'deleted') {
+    return rawStatus
+  }
+
+  return isActive ? 'active' : 'blocked'
+}
+
+const normalizeAdminUser = (rawUser: unknown): UserDetails => {
+  const raw = (rawUser ?? {}) as Record<string, unknown>
+  const createdAt = typeof raw.created_at === 'string'
+    ? raw.created_at
+    : typeof raw.registered_at === 'string'
+      ? raw.registered_at
+      : new Date(0).toISOString()
+
+  const isActive = resolveIsActive(raw)
+  const status = resolveStatus(raw.status, isActive)
+  const totalSpentFromCostCents = toNumber(raw.total_cost, 0) / 100
+  const totalSpent = raw.total_spent !== undefined
+    ? toNumber(raw.total_spent, 0)
+    : raw.total_paid !== undefined
+      ? toNumber(raw.total_paid, 0)
+      : totalSpentFromCostCents
+
+  return {
+    id: toNumber(raw.id, 0),
+    email: typeof raw.email === 'string' ? raw.email : '',
+    name:
+      typeof raw.name === 'string'
+        ? raw.name
+        : typeof raw.full_name === 'string'
+          ? raw.full_name
+          : null,
+    is_active: isActive,
+    is_admin: Boolean(raw.is_admin),
+    is_super_admin:
+      typeof raw.is_super_admin === 'boolean' ? raw.is_super_admin : undefined,
+    status,
+    registered_at:
+      typeof raw.registered_at === 'string' ? raw.registered_at : createdAt,
+    last_login: typeof raw.last_login === 'string' ? raw.last_login : null,
+    documents_count: toNumber(raw.documents_count ?? raw.total_documents_created, 0),
+    total_spent: totalSpent,
+    total_refunds: toNumber(raw.total_refunds, 0),
+    created_at: createdAt,
+    updated_at: typeof raw.updated_at === 'string' ? raw.updated_at : createdAt,
+  }
+}
+
 export const adminApiClient = {
   /**
    * Admin login with email and password
@@ -278,14 +367,24 @@ export const adminApiClient = {
   },
 
   // Users
-  async getUsers(params: any) {
+  async getUsers(params: any): Promise<UserListResponse> {
     const url = buildUrlWithParams('/api/v1/admin/users', params);
-    return apiClient.get(url)
+    const response = await apiClient.get(url)
+    const data = unwrapResponse<any>(response)
+    const rawUsers = Array.isArray(data) ? data : Array.isArray(data?.users) ? data.users : []
+
+    return {
+      users: rawUsers.map(normalizeAdminUser),
+      total: toNumber(data?.total, rawUsers.length),
+      page: toNumber(data?.page, 1),
+      per_page: toNumber(data?.per_page, rawUsers.length || 10),
+      total_pages: toNumber(data?.total_pages, 1),
+    }
   },
 
   async getUser(id: number): Promise<UserDetails> {
     const response = await apiClient.get(`/api/v1/admin/users/${id}`)
-    return unwrapResponse(response)
+    return normalizeAdminUser(unwrapResponse(response))
   },
 
   async blockUser(id: number, reason = 'Blocked by admin') {

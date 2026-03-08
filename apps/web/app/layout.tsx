@@ -1,16 +1,17 @@
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import './globals.css'
 import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/AuthProvider'
-
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
   title: 'TesiGo - AI Thesis Platform',
   description: 'Generate high-quality academic papers with AI',
   keywords: ['thesis', 'AI', 'academic writing', 'research', 'education', 'tesigo'],
   authors: [{ name: 'TesiGo Team' }],
+  manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+  },
 }
 
 export const viewport = {
@@ -25,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className={`${inter.className} h-full`}>
+      <body className="h-full font-sans">
         <AuthProvider>
           {children}
           <Toaster

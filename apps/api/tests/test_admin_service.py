@@ -39,9 +39,8 @@ def admin_service(mock_db):
 @pytest.mark.asyncio
 async def test_get_platform_stats(admin_service, mock_db):
     """Test get_platform_stats returns correct statistics"""
-    # Метод робить 11 викликів execute: user_count, active_users, doc_count,
-    # completed_docs, total_jobs, tokens_from_jobs, tokens_from_docs,
-    # avg_tokens, total_cost, recent_jobs, stuck_queued, stuck_running
+    # Метод робить 15 викликів execute:
+    # users/docs/jobs/tokens/cost/recent/stuck + revenue_today + pending_refunds
 
     # Create separate mock results for each execute call
     def create_scalar_result(value):
@@ -62,23 +61,22 @@ async def test_get_platform_stats(admin_service, mock_db):
         create_scalar_result(10),  # recent_jobs
         create_scalar_result(2),  # stuck_queued
         create_scalar_result(1),  # stuck_running
+        create_scalar_result(Decimal("2500.50")),  # total_revenue
+        create_scalar_result(Decimal("120.75")),  # revenue_today
+        create_scalar_result(7),  # pending_refunds
     ]
 
     stats = await admin_service.get_platform_stats()
 
-    # Check nested structure
-    assert "users" in stats
-    assert "documents" in stats
-    assert "ai_usage" in stats
-    assert "generated_at" in stats
-
-    # Check user stats
-    assert stats["users"]["total"] == 100
-    assert stats["users"]["active_last_30_days"] == 50
-
-    # Check document stats
-    assert stats["documents"]["total"] == 200
-    assert stats["documents"]["completed"] == 150
+    # Check flat response structure (current API contract)
+    assert stats["total_users"] == 100
+    assert stats["active_users_today"] == 50
+    assert stats["total_documents"] == 200
+    assert stats["completed_documents"] == 150
+    assert stats["total_revenue"] == 2500.5
+    assert stats["revenue_today"] == 120.75
+    assert stats["pending_refunds"] == 7
+    assert stats["active_jobs"] == 10
 
 
 @pytest.mark.asyncio

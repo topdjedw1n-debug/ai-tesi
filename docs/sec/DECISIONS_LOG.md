@@ -8,6 +8,61 @@
 
 ## 🚨 Release Decisions
 
+### DR-015: Conditional Go for 24.02.2026 Cycle (P1 Hotfix + Payment UI Smoke Skip)
+**Date:** 24.02.2026
+**Status:** ✅ Accepted (Current Cycle)
+
+**Проблема:**
+- Manual smoke виявив 2 P1 дефекти (`/documents/stats` route shadowing, admin users Block/Unblock UI mismatch).
+- Репозиторій має великий dirty state, реліз потрібно робити з жорстким scope lock.
+- За рішенням циклу payment/refund manual browser smoke не входить у цей прогін.
+
+**Рішення:**
+- Випустити окремий P1 hotfix cycle у поточній гілці з allowlist-файлами.
+- Закрити P1 дефекти з regression tests:
+  - route order fix у `documents.py`;
+  - admin payload normalization (`is_active` canonical) + UI fallback logic.
+- Позначити payment/refund manual UI smoke як `SKIPPED` для цього циклу.
+- Фіксувати release verdict як `Conditional Go`.
+
+**Чому саме так:**
+- Знімає реальні P1 runtime дефекти без розширення scope.
+- Дає перевірюваний стан через green gates і regression tests.
+- Уникає випадкового включення сторонніх змін із dirty worktree.
+
+**Наслідки:**
+- ✅ P1 дефекти закриті на рівні коду і тестів.
+- ✅ Strict quality gates проходять.
+- ⚠️ Статус релізу залишається `Conditional Go` до зовнішнього manual browser sign-off.
+- ⚠️ Stripe live keys у pre-prod зафіксовано як release risk.
+
+### DR-014: Restore User Payment/Refund Flows with Runtime Kill-Switches
+**Date:** 23.02.2026
+**Status:** ✅ Accepted & Implemented
+
+**Проблема:**
+- Wave 1 мав тимчасово вимкнені user payment/refund флоу для стабілізації.
+- Для operational відповідності MASTER потрібно повернути full user flow без fallback-заглушок.
+
+**Рішення:**
+- Відновити user payment/refund флоу end-to-end.
+- Додати user refunds read endpoints:
+  - `GET /api/v1/refunds`
+  - `GET /api/v1/refunds/{id}`
+- У frontend замінити fallback-only refunds client на реальні API виклики.
+- Залишити feature flags як аварійні kill-switches, але з default `true`.
+
+**Чому саме так:**
+- Дає повну operational відповідність MASTER без втрати керованості ризиком.
+- Знімає технічний борг тимчасових fallback-рішень.
+- Дає швидкий спосіб аварійного відключення через env flags без hotfix релізу.
+
+**Наслідки:**
+- ✅ User refund create/list/detail працюють у штатному режимі.
+- ✅ Payment flow повернуто в основний сценарій.
+- ✅ CI/runtime smoke перевіряють оновлений контракт.
+- ⚠️ Потрібен manual UI smoke sign-off перед фінальним production go.
+
 ### DR-013: Strict Go-Live with Temporary User Payment/Refund Disable
 **Date:** 23.02.2026
 **Status:** ✅ Accepted (Temporary)
@@ -401,10 +456,10 @@ checkpoint = {
 
 ### DR-W1: Wave 1 Stabilization Complete
 **Date:** 2026-02-23
-**Status:** Accepted
+**Status:** Superseded by DR-014
 **Context:** Pre-prod hardening revealed FE/BE contract mismatches, logger key conflicts, missing health endpoint, disabled quality gates, and an admin logout typing bug. All blocked safe deployment.
-**Decision:** Fixed all issues in Wave 1 (see CHANGELOG_WAVE1_RC.md). Issued conditional Go pending manual UI smoke sign-off. Payment/refund user flows remain disabled via feature flags until verified.
-**Consequences:** All automated gates green (391 backend tests, full frontend pipeline, runtime smoke with auth). Release candidate tagged.
+**Decision:** Fixed all Wave 1 blockers (see `CHANGELOG_WAVE1_RC.md`). Follow-up Wave 3B restored user payment/refund flows and replaced fallback-only behavior with real API contracts.
+**Consequences:** Automated gates are green (`394 passed, 6 skipped` backend; full frontend pipeline pass). Runtime smoke is green in prod-like Docker.
 **Alternatives:** Could have deferred to Wave 2, but all fixes were low-risk and necessary for any deployment.
 
 ---

@@ -1,0 +1,15 @@
+{
+  "name": "TesiGo",
+  "short_name": "TesiGo",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#111827",
+  "theme_color": "#111827",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "32x32",
+      "type": "image/png"
+    }
+  ]
+}

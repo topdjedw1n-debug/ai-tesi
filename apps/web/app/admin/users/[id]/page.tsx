@@ -46,9 +46,18 @@ export default function AdminUserDetailsPage() {
 
   const handleBlock = async () => {
     if (!user) return
+    const reasonInput = prompt(`Block reason for ${user.email}`, 'Blocked by admin')
+    if (reasonInput === null) {
+      return
+    }
+    const reason = reasonInput.trim()
+    if (reason.length < 5) {
+      toast.error('Block reason must be at least 5 characters')
+      return
+    }
 
     try {
-      await adminApiClient.blockUser(user.id)
+      await adminApiClient.blockUser(user.id, reason)
       toast.success('User blocked successfully')
       fetchUserDetails()
     } catch (error: any) {

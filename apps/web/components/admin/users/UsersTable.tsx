@@ -43,15 +43,26 @@ export function UsersTable({
 }: UsersTableProps) {
   const [showActionsId, setShowActionsId] = useState<number | null>(null)
 
+  const resolveUserStatus = (user: UserDetails): 'active' | 'blocked' | 'deleted' => {
+    if (user.status === 'deleted') {
+      return 'deleted'
+    }
+    if (user.status === 'blocked' || user.is_active === false) {
+      return 'blocked'
+    }
+    return 'active'
+  }
+
   const getStatusBadge = (user: UserDetails) => {
-    if (user.status === 'blocked') {
+    const status = resolveUserStatus(user)
+    if (status === 'blocked') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-900 text-red-200">
           Blocked
         </span>
       )
     }
-    if (user.status === 'deleted') {
+    if (status === 'deleted') {
       return (
         <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-900 text-gray-200">
           Deleted
@@ -190,7 +201,7 @@ export function UsersTable({
                       View Details
                     </button>
                   )}
-                  {user.status === 'active' && onBlock && (
+                  {resolveUserStatus(user) === 'active' && onBlock && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation()
@@ -203,7 +214,7 @@ export function UsersTable({
                       Block
                     </button>
                   )}
-                  {user.status === 'blocked' && onUnblock && (
+                  {resolveUserStatus(user) === 'blocked' && onUnblock && (
                     <button
                       onClick={(e) => {
                         e.stopPropagation()

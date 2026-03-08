@@ -5,15 +5,19 @@
 
 import { render, screen, waitFor, fireEvent } from '@testing-library/react';
 import { PaymentForm } from '@/components/payment/PaymentForm';
-import { apiClient, getAccessToken } from '@/lib/api';
-import { useRouter } from 'next/navigation';
+import { apiClient } from '@/lib/api';
+
+// Enable payment flow in component tests (production default is disabled via feature flag)
+jest.mock('@/lib/feature-flags', () => ({
+  isUserPaymentFlowEnabled: true,
+}));
 
 // Mock API client
 jest.mock('@/lib/api', () => ({
   apiClient: {
     get: jest.fn(),
+    post: jest.fn(),
   },
-  getAccessToken: jest.fn(),
   API_ENDPOINTS: {
     PRICING: {
       CURRENT: '/api/v1/pricing/current',
@@ -22,11 +26,6 @@ jest.mock('@/lib/api', () => ({
       CREATE_CHECKOUT: '/api/v1/payment/create-checkout',
     },
   },
-}));
-
-// Mock Next.js router
-jest.mock('next/navigation', () => ({
-  useRouter: jest.fn(),
 }));
 
 // Mock toast
@@ -38,19 +37,9 @@ jest.mock('react-hot-toast', () => ({
   },
 }));
 
-// Mock fetch
-global.fetch = jest.fn();
-
 describe('PaymentForm Component', () => {
-  const mockRouter = {
-    push: jest.fn(),
-    replace: jest.fn(),
-  };
-
   beforeEach(() => {
     jest.clearAllMocks();
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
-    (getAccessToken as jest.Mock).mockReturnValue('mock-token');
 
     // Mock pricing endpoint
     (apiClient.get as jest.Mock).mockResolvedValue({
@@ -59,9 +48,9 @@ describe('PaymentForm Component', () => {
       max_pages: 200,
       currencies: ['EUR'],
     });
-
-    // Reset fetch mock
-    (global.fetch as jest.Mock).mockClear();
+    (apiClient.post as jest.Mock).mockResolvedValue({
+      checkout_url: 'https://checkout.stripe.com/test',
+    });
   });
 
   describe('Loading State', () => {
@@ -117,13 +106,6 @@ describe('PaymentForm Component', () => {
 
   describe('Form Submission', () => {
     it('handles successful payment initialization', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => ({
-          checkout_url: 'https://checkout.stripe.com/test',
-        }),
-      });
-
       render(<PaymentForm documentId={1} pages={10} />);
 
       await waitFor(() => {
@@ -133,25 +115,16 @@ describe('PaymentForm Component', () => {
       const payButton = screen.getByRole('button', { name: /pay/i });
       fireEvent.click(payButton);
 
-      // Should call fetch with correct params
+      // Should call centralized API client with correct endpoint
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalledWith(
-          expect.stringContaining('/api/v1/payment/create-checkout?document_id=1&pages=10'),
-          expect.objectContaining({
-            method: 'POST',
-            headers: expect.objectContaining({
-              Authorization: 'Bearer mock-token',
-            }),
-          })
+        expect(apiClient.post).toHaveBeenCalledWith(
+          '/api/v1/payment/create-checkout?document_id=1&pages=10'
         );
       });
-
-      // Note: Cannot test window.location.href assignment in jsdom
-      // This is a known limitation - actual redirect happens in browser
     });
 
     it('disables button during submission', async () => {
-      (global.fetch as jest.Mock).mockImplementation(
+      (apiClient.post as jest.Mock).mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
       );
 
@@ -171,13 +144,7 @@ describe('PaymentForm Component', () => {
 
   describe('Error Handling', () => {
     it('handles payment API error', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: false,
-        status: 400,
-        json: async () => ({
-          detail: 'Payment failed',
-        }),
-      });
+      (apiClient.post as jest.Mock).mockRejectedValue(new Error('Payment failed'));
 
       render(<PaymentForm documentId={1} pages={10} />);
 
@@ -189,7 +156,7 @@ describe('PaymentForm Component', () => {
       fireEvent.click(payButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalled();
+        expect(apiClient.post).toHaveBeenCalled();
       });
 
       // Button should be re-enabled after error
@@ -199,10 +166,7 @@ describe('PaymentForm Component', () => {
     });
 
     it('handles missing checkout URL', async () => {
-      (global.fetch as jest.Mock).mockResolvedValue({
-        ok: true,
-        json: async () => ({}), // No checkout_url
-      });
+      (apiClient.post as jest.Mock).mockResolvedValue({}); // No checkout_url
 
       render(<PaymentForm documentId={1} pages={10} />);
 
@@ -214,29 +178,12 @@ describe('PaymentForm Component', () => {
       fireEvent.click(payButton);
 
       await waitFor(() => {
-        expect(global.fetch).toHaveBeenCalled();
+        expect(apiClient.post).toHaveBeenCalled();
       });
 
       // Button should be re-enabled
       await waitFor(() => {
         expect(payButton).not.toBeDisabled();
-      });
-    });
-
-    it('handles missing auth token', async () => {
-      (getAccessToken as jest.Mock).mockReturnValue(null);
-
-      render(<PaymentForm documentId={1} pages={10} />);
-
-      await waitFor(() => {
-        expect(screen.getByRole('button', { name: /pay/i })).toBeInTheDocument();
-      });
-
-      const payButton = screen.getByRole('button', { name: /pay/i });
-      fireEvent.click(payButton);
-
-      await waitFor(() => {
-        expect(mockRouter.push).toHaveBeenCalledWith('/');
       });
     });
 

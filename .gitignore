@@ -11,6 +11,8 @@ downloads/
 eggs/
 .eggs/
 lib/
+!apps/web/lib/
+!apps/web/lib/**
 lib64/
 parts/
 sdist/
@@ -82,6 +84,13 @@ logs
 # Temporary files
 *.tmp
 *.temp
+*.bak
+*.backup
+*.backup*
+*.orig
+*.rej
+.env.backup*
+*.env.backup*
 
 # Python testing & coverage
 .pytest_cache/

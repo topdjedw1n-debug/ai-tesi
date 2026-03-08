@@ -5,7 +5,8 @@ Refund endpoints - for users and admins
 import logging
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query, Request, status
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from fastapi import status as http_status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -29,6 +30,27 @@ logger = logging.getLogger(__name__)
 # Separate routers for user and admin endpoints
 user_router = APIRouter()
 admin_router = APIRouter()
+
+
+def _build_refund_response(refund: Any) -> RefundResponse:
+    """Convert ORM refund model to API response schema."""
+    return RefundResponse(
+        id=int(refund.id),
+        user_id=int(refund.user_id),
+        payment_id=int(refund.payment_id),
+        status=str(refund.status),
+        reason=str(refund.reason),
+        reason_category=str(refund.reason_category) if refund.reason_category else None,
+        submitted_at=refund.submitted_at,
+        reviewed_at=refund.reviewed_at if refund.reviewed_at else None,
+        reviewed_by=int(refund.reviewed_by) if refund.reviewed_by else None,
+        admin_comment=str(refund.admin_comment) if refund.admin_comment else None,
+        refund_amount=refund.refund_amount if refund.refund_amount else None,
+        ai_recommendation=str(refund.ai_recommendation)
+        if refund.ai_recommendation
+        else None,
+        risk_score=float(refund.risk_score) if refund.risk_score else None,
+    )
 
 
 # ==================== User Endpoints ====================
@@ -74,35 +96,7 @@ async def create_refund_request(
             },
         )
 
-        return RefundResponse(
-            id=int(refund_request.id),
-            user_id=int(refund_request.user_id),
-            payment_id=int(refund_request.payment_id),
-            status=str(refund_request.status),
-            reason=str(refund_request.reason),
-            reason_category=str(refund_request.reason_category)
-            if refund_request.reason_category
-            else None,
-            submitted_at=refund_request.submitted_at,
-            reviewed_at=refund_request.reviewed_at
-            if refund_request.reviewed_at
-            else None,
-            reviewed_by=int(refund_request.reviewed_by)
-            if refund_request.reviewed_by
-            else None,
-            admin_comment=str(refund_request.admin_comment)
-            if refund_request.admin_comment
-            else None,
-            refund_amount=refund_request.refund_amount
-            if refund_request.refund_amount
-            else None,
-            ai_recommendation=str(refund_request.ai_recommendation)
-            if refund_request.ai_recommendation
-            else None,
-            risk_score=float(refund_request.risk_score)
-            if refund_request.risk_score
-            else None,
-        )
+        return _build_refund_response(refund_request)
     except ValueError as e:
         log_security_audit_event(
             event_type="refund_request",
@@ -116,14 +110,143 @@ async def create_refund_request(
             details={"error": str(e)},
         )
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
     except Exception as e:
         logger.error(f"Error creating refund request: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to create refund request",
+        ) from e
+
+
+@user_router.get("", response_model=RefundListResponse)
+async def list_user_refunds(
+    request: Request,
+    refund_status: str | None = Query(
+        None, alias="status", pattern="^(pending|approved|rejected)$"
+    ),
+    page: int = Query(1, ge=1),
+    per_page: int = Query(20, ge=1, le=100),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> RefundListResponse:
+    """
+    Get current user's refund requests.
+
+    Includes pagination and optional status filter.
+    """
+    try:
+        refund_service = RefundService(db)
+        result = await refund_service.get_refunds_list(
+            status=refund_status,
+            user_id=int(current_user.id),
+            page=page,
+            per_page=per_page,
+        )
+
+        log_security_audit_event(
+            event_type="refund_request",
+            correlation_id=request.headers.get("X-Request-ID", "unknown"),
+            user_id=int(current_user.id),
+            ip=request.client.host if request.client else "unknown",
+            endpoint="/api/v1/refunds",
+            resource="refund",
+            action="list",
+            outcome="success",
+            details={
+                "filters": {
+                    "status": refund_status,
+                    "page": page,
+                    "per_page": per_page,
+                }
+            },
+        )
+
+        return RefundListResponse(
+            refunds=[_build_refund_response(r) for r in result["refunds"]],
+            total=result["total"],
+            page=result["page"],
+            per_page=result["per_page"],
+            pages=result["pages"],
+        )
+    except Exception as e:
+        logger.error(f"Error listing user refunds: {e}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get refunds list",
+        ) from e
+
+
+@user_router.get("/{refund_id}", response_model=RefundDetailsResponse)
+async def get_user_refund_details(
+    refund_id: int,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> RefundDetailsResponse:
+    """
+    Get current user's refund request details.
+
+    Ownership is enforced to prevent IDOR.
+    """
+    try:
+        refund_service = RefundService(db)
+        refund_request = await refund_service.get_refund_request(refund_id)
+
+        if int(refund_request.user_id) != int(current_user.id):
+            raise HTTPException(
+                status_code=http_status.HTTP_404_NOT_FOUND,
+                detail="Refund request not found",
+            )
+
+        user = refund_request.user
+        payment = refund_request.payment
+
+        log_security_audit_event(
+            event_type="refund_request",
+            correlation_id=request.headers.get("X-Request-ID", "unknown"),
+            user_id=int(current_user.id),
+            ip=request.client.host if request.client else "unknown",
+            endpoint=f"/api/v1/refunds/{refund_id}",
+            resource="refund",
+            action="read",
+            outcome="success",
+            details={"refund_id": refund_id},
+        )
+
+        return RefundDetailsResponse(
+            **_build_refund_response(refund_request).model_dump(),
+            user={
+                "id": user.id if user else None,
+                "email": user.email if user else None,
+                "full_name": user.full_name if user else None,
+                "registered_at": user.created_at.isoformat() if user else None,
+            },
+            payment={
+                "id": payment.id if payment else None,
+                "amount": float(payment.amount) if payment else None,
+                "currency": payment.currency if payment else None,
+                "status": payment.status if payment else None,
+                "created_at": payment.created_at.isoformat() if payment else None,
+            },
+            screenshots=list(refund_request.screenshots)
+            if refund_request.screenshots
+            else [],
+        )
+    except HTTPException:
+        raise
+    except ValueError as e:
+        raise HTTPException(
+            status_code=http_status.HTTP_404_NOT_FOUND,
+            detail=str(e),
+        ) from e
+    except Exception as e:
+        logger.error(f"Error getting user refund details: {e}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get refund details",
         ) from e
 
 
@@ -133,7 +256,9 @@ async def create_refund_request(
 @admin_router.get("", response_model=RefundListResponse)
 async def list_refunds(
     request: Request,
-    status: str | None = Query(None, pattern="^(pending|approved|rejected)$"),
+    refund_status: str | None = Query(
+        None, alias="status", pattern="^(pending|approved|rejected)$"
+    ),
     user_id: int | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
@@ -148,7 +273,7 @@ async def list_refunds(
     try:
         refund_service = RefundService(db)
         result = await refund_service.get_refunds_list(
-            status=status,
+            status=refund_status,
             user_id=user_id,
             page=page,
             per_page=per_page,
@@ -165,26 +290,7 @@ async def list_refunds(
             correlation_id=request.headers.get("X-Request-ID", "unknown"),
         )
 
-        refunds_response = [
-            RefundResponse(
-                id=int(r.id),
-                user_id=int(r.user_id),
-                payment_id=int(r.payment_id),
-                status=str(r.status),
-                reason=str(r.reason),
-                reason_category=str(r.reason_category) if r.reason_category else None,
-                submitted_at=r.submitted_at,
-                reviewed_at=r.reviewed_at,
-                reviewed_by=int(r.reviewed_by) if r.reviewed_by else None,
-                admin_comment=str(r.admin_comment) if r.admin_comment else None,
-                refund_amount=r.refund_amount,
-                ai_recommendation=str(r.ai_recommendation)
-                if r.ai_recommendation
-                else None,
-                risk_score=float(r.risk_score) if r.risk_score else None,
-            )
-            for r in result["refunds"]
-        ]
+        refunds_response = [_build_refund_response(r) for r in result["refunds"]]
 
         return RefundListResponse(
             refunds=refunds_response,
@@ -196,7 +302,7 @@ async def list_refunds(
     except Exception as e:
         logger.error(f"Error listing refunds: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get refunds list",
         ) from e
 
@@ -222,7 +328,7 @@ async def get_pending_refunds(
     except Exception as e:
         logger.error(f"Error getting pending refunds count: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get pending refunds count",
         ) from e
 
@@ -310,13 +416,13 @@ async def get_refund_details(
         )
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
     except Exception as e:
         logger.error(f"Error getting refund details: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get refund details",
         ) from e
 
@@ -418,13 +524,13 @@ async def approve_refund(
             details={"error": str(e)},
         )
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
     except Exception as e:
         logger.error(f"Error approving refund: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to approve refund",
         ) from e
 
@@ -514,13 +620,13 @@ async def reject_refund(
             details={"error": str(e)},
         )
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=http_status.HTTP_400_BAD_REQUEST,
             detail=str(e),
         ) from e
     except Exception as e:
         logger.error(f"Error rejecting refund: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to reject refund",
         ) from e
 
@@ -556,13 +662,13 @@ async def analyze_refund_risk(
         return analysis
     except ValueError as e:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=http_status.HTTP_404_NOT_FOUND,
             detail=str(e),
         ) from e
     except Exception as e:
         logger.error(f"Error analyzing refund risk: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to analyze refund risk",
         ) from e
 
@@ -586,6 +692,6 @@ async def get_refund_stats(
     except Exception as e:
         logger.error(f"Error getting refund stats: {e}")
         raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to get refund stats",
         ) from e

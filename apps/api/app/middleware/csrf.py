@@ -25,6 +25,15 @@ class CSRFMiddleware(BaseHTTPMiddleware):
             return response
 
         if request.method.upper() in {"POST", "PUT", "PATCH", "DELETE"}:
+            path = request.url.path
+            # Auth endpoints use token-based flows, not cookie-based sessions
+            if path.startswith("/api/v1/auth/"):
+                response = await call_next(request)
+                return response
+            # Authorization header implies bearer token auth; CSRF not applicable
+            if request.headers.get("Authorization"):
+                response = await call_next(request)
+                return response
             token = request.headers.get("X-CSRF-Token")
             if token is None or len(token) < 16:
                 return Response(

@@ -248,6 +248,7 @@ class SectionGenerator:
                     provider=provider,
                     model=model,
                     preserve_citations=True,
+                    language=document.language,
                 )
 
             result = {

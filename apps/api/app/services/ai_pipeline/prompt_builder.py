@@ -167,7 +167,9 @@ Please provide only the section content without any meta-commentary."""
 
     @staticmethod
     def build_humanization_prompt(
-        original_text: str, preserve_citations: bool = True
+        original_text: str,
+        preserve_citations: bool = True,
+        language: str = "en",
     ) -> str:
         """
         Build prompt for text humanization/paraphrasing
@@ -175,17 +177,32 @@ Please provide only the section content without any meta-commentary."""
         Args:
             original_text: Original text to humanize
             preserve_citations: Whether to preserve citation markers
+            language: Target language code (en, it, es, de, cs, fr, uk)
 
         Returns:
             Formatted prompt string
         """
+        # Language names for clear instruction
+        language_names = {
+            "en": "English",
+            "it": "italiano (Italian)",
+            "es": "español (Spanish)",
+            "de": "Deutsch (German)",
+            "cs": "čeština (Czech)",
+            "fr": "français (French)",
+            "uk": "українська (Ukrainian)",
+        }
+        lang_name = language_names.get(language, language)
+
         citation_instruction = (
             "IMPORTANT: Preserve all citation markers in the format [Author, Year] exactly as they appear."
             if preserve_citations
             else "You may adjust citation formatting if needed."
         )
 
-        prompt = f"""Paraphrase and humanize the following academic text while maintaining its meaning,
+        prompt = f"""IMPORTANT: Keep the text strictly in {lang_name}. Do not translate to any other language.
+
+Paraphrase and humanize the following academic text while maintaining its meaning,
 academic quality, and structure. Make it sound more natural and less AI-generated.
 
 {citation_instruction}
