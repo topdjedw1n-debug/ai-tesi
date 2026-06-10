@@ -103,5 +103,9 @@ coverage.xml
 # Additional virtual environments
 qa_venv/
 
+# Generated build/test artifacts
+*.tsbuildinfo
+apps/web/test-results/
+
 # API Keys (не комітити!)
 docs/AI_API_KEYS.md

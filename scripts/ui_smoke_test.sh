@@ -162,17 +162,17 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 5: Admin Dashboard Stats"
     log_info "URL: GET $API_BASE/api/v1/admin/stats"
-    
+
     STATS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/admin/stats" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$STATS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$STATS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Admin stats retrieved successfully"
     elif [ "$HTTP_CODE" = "404" ]; then
@@ -191,21 +191,21 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 6: Admin Users List"
     log_info "URL: GET $API_BASE/api/v1/admin/users"
-    
+
     USERS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/admin/users" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$USERS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$USERS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         USER_COUNT=$(echo "$RESPONSE_BODY" | grep -o '"email"' | wc -l | tr -d ' ')
         log_info "Users found: $USER_COUNT"
         log_pass "Admin users list retrieved successfully"
-        
+
         # Find testuser ID for later tests
         TESTUSER_ID=$(echo "$RESPONSE_BODY" | grep -o '"id":[0-9]*,"email":"testuser@tesigo.com"' | grep -o '[0-9]*' | head -1)
         if [ -n "$TESTUSER_ID" ]; then
@@ -225,19 +225,19 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ] && [ -n "$TESTUSER_ID" ]; then
     log_test "SCENARIO 7: Admin Block User"
     log_info "URL: PUT $API_BASE/api/v1/admin/users/$TESTUSER_ID/block"
-    
+
     BLOCK_RESPONSE=$(curl -s -X PUT "$API_BASE/api/v1/admin/users/$TESTUSER_ID/block" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{"reason":"Testing block functionality"}' \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$BLOCK_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$BLOCK_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "User blocked successfully"
     else
@@ -254,17 +254,17 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ] && [ -n "$TESTUSER_ID" ]; then
     log_test "SCENARIO 8: Admin Unblock User"
     log_info "URL: PUT $API_BASE/api/v1/admin/users/$TESTUSER_ID/unblock"
-    
+
     UNBLOCK_RESPONSE=$(curl -s -X PUT "$API_BASE/api/v1/admin/users/$TESTUSER_ID/unblock" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$UNBLOCK_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$UNBLOCK_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "User unblocked successfully"
     else
@@ -281,19 +281,19 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ] && [ -n "$TESTUSER_ID" ]; then
     log_test "SCENARIO 9: Admin Make Admin (Grant Admin Role)"
     log_info "URL: POST $API_BASE/api/v1/admin/users/$TESTUSER_ID/make-admin"
-    
+
     MAKEADMIN_RESPONSE=$(curl -s -X POST "$API_BASE/api/v1/admin/users/$TESTUSER_ID/make-admin" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{"is_admin":true,"is_super_admin":false}' \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$MAKEADMIN_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$MAKEADMIN_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "User promoted to admin successfully"
     else
@@ -310,16 +310,16 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$USER_TOKEN" ]; then
     log_test "SCENARIO 10: User Payment History"
     log_info "URL: GET $API_BASE/api/v1/payment/history"
-    
+
     PAYMENT_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/payment/history" \
       -H "Authorization: Bearer $USER_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$PAYMENT_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$PAYMENT_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Payment history retrieved successfully"
         log_info "Response: $RESPONSE_BODY"
@@ -331,17 +331,17 @@ if [ -n "$USER_TOKEN" ]; then
 elif [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 10: Payment History (using admin token)"
     log_info "URL: GET $API_BASE/api/v1/payment/history"
-    
+
     PAYMENT_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/payment/history" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$PAYMENT_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$PAYMENT_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Payment history retrieved successfully"
     elif [ "$HTTP_CODE" = "404" ]; then
@@ -360,16 +360,16 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$USER_TOKEN" ]; then
     log_test "SCENARIO 11: User Refunds List"
     log_info "URL: GET $API_BASE/api/v1/refunds"
-    
+
     REFUNDS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/refunds" \
       -H "Authorization: Bearer $USER_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$REFUNDS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$REFUNDS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Refunds list retrieved successfully"
         log_info "Response: $RESPONSE_BODY"
@@ -381,17 +381,17 @@ if [ -n "$USER_TOKEN" ]; then
 elif [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 11: Refunds List (using admin token)"
     log_info "URL: GET $API_BASE/api/v1/refunds"
-    
+
     REFUNDS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/refunds" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$REFUNDS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$REFUNDS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Refunds list retrieved successfully"
     elif [ "$HTTP_CODE" = "404" ]; then
@@ -410,19 +410,19 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$USER_TOKEN" ]; then
     log_test "SCENARIO 12: Document Generation/Creation"
     log_info "URL: POST $API_BASE/api/v1/documents/"
-    
+
     DOC_RESPONSE=$(curl -s -X POST "$API_BASE/api/v1/documents/" \
       -H "Authorization: Bearer $USER_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{"title":"Test Thesis","topic":"Machine Learning in Healthcare","type":"thesis","pages":3,"language":"en"}' \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$DOC_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$DOC_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
         log_pass "Document creation endpoint works"
     elif [ "$HTTP_CODE" = "402" ]; then
@@ -436,19 +436,19 @@ if [ -n "$USER_TOKEN" ]; then
 elif [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 12: Document Generation (using admin token)"
     log_info "URL: POST $API_BASE/api/v1/documents/"
-    
+
     DOC_RESPONSE=$(curl -s -X POST "$API_BASE/api/v1/documents/" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -H "Content-Type: application/json" \
       -d '{"title":"Test Thesis","topic":"Machine Learning in Healthcare","type":"thesis","pages":3,"language":"en"}' \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$DOC_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$DOC_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "201" ] || [ "$HTTP_CODE" = "200" ]; then
         log_pass "Document creation endpoint works"
     elif [ "$HTTP_CODE" = "402" ]; then
@@ -470,16 +470,16 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$USER_TOKEN" ]; then
     log_test "SCENARIO 13: User Documents List"
     log_info "URL: GET $API_BASE/api/v1/documents/"
-    
+
     DOCS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/documents/" \
       -H "Authorization: Bearer $USER_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$DOCS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$DOCS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Documents list retrieved successfully"
         log_info "Response: $RESPONSE_BODY"
@@ -491,17 +491,17 @@ if [ -n "$USER_TOKEN" ]; then
 elif [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 13: Documents List (using admin token)"
     log_info "URL: GET $API_BASE/api/v1/documents/"
-    
+
     DOCS_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/documents/" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$DOCS_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$DOCS_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
     log_info "Response: $RESPONSE_BODY"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Documents list retrieved successfully"
     elif [ "$HTTP_CODE" = "404" ]; then
@@ -520,16 +520,16 @@ echo "" | tee -a "$REPORT_FILE"
 if [ -n "$ADMIN_TOKEN" ]; then
     log_test "SCENARIO 14: Admin Audit Logs (Activity)"
     log_info "URL: GET $API_BASE/api/v1/admin/dashboard/activity"
-    
+
     AUDIT_RESPONSE=$(curl -s -X GET "$API_BASE/api/v1/admin/dashboard/activity" \
       -H "Authorization: Bearer $ADMIN_TOKEN" \
       -w "\nHTTP_CODE:%{http_code}")
-    
+
     HTTP_CODE=$(echo "$AUDIT_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
     RESPONSE_BODY=$(echo "$AUDIT_RESPONSE" | sed '/HTTP_CODE:/d')
-    
+
     log_info "HTTP Status: $HTTP_CODE"
-    
+
     if [ "$HTTP_CODE" = "200" ]; then
         log_pass "Audit logs retrieved successfully"
         log_info "Response preview: ${RESPONSE_BODY:0:200}"

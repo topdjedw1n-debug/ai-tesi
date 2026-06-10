@@ -173,7 +173,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             Please complete payment to start document generation
           </p>
         </div>
-        
+
         <PaymentForm
           documentId={createdDocumentId}
           pages={documentPages}

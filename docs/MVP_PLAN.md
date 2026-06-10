@@ -1,6 +1,6 @@
 # 🚀 MVP ПЛАН - TesiGo Platform
 
-**Оновлено:** 24 лютого 2026  
+**Оновлено:** 24 лютого 2026
 **Статус:** 🟡 **RELEASE CANDIDATE (CONDITIONAL GO)**
 
 ---

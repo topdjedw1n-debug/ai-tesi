@@ -22,8 +22,8 @@ repos:
       - id: ruff
         args: [--fix]  # ✅ Removed --exit-non-zero-on-fix (don't fail on existing errors)
         files: ^apps/api/.*\.py$
-      - id: ruff-format
-        files: ^apps/api/.*\.py$
+      # ruff-format removed: v0.1.8 conflicts with black 23.12 on parenthesized `with`
+      # (black is the formatter here; ruff is lint-only, matching CI)
 
   # 🔴 DISABLED: MyPy and pytest slow down commits (585 errors, 281 tests)
   # Re-enable when codebase is cleaned up or run manually via scripts/typecheck.sh

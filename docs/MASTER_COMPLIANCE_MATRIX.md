@@ -1,6 +1,6 @@
 # MASTER Compliance Matrix
 
-**Updated:** 2026-02-23  
+**Updated:** 2026-02-23
 **Scope:** Operational MASTER compliance (Wave 1 + Wave 3B)
 
 Status taxonomy:

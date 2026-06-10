@@ -1,9 +1,9 @@
 /**
  * Pre-prod Manual UI Smoke Test – Strict Mode
- * 
+ *
  * Uses REAL API calls (no mocks). Tests all critical user and admin flows
  * against the running Docker stack.
- * 
+ *
  * Run: cd apps/web && unset CI && npx playwright test e2e/smoke-preprod.spec.ts --reporter=list --project=chromium
  */
 

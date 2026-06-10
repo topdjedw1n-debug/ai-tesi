@@ -61,7 +61,7 @@ exclude = [
 
 [tool.ruff.per-file-ignores]
 "__init__.py" = ["F401"]  # Allow unused imports in __init__.py
-"tests/**" = ["B", "S"]  # Less strict for tests
+"tests/**" = ["B", "S", "E402"]  # Less strict for tests; E402: env vars set before app imports
 
 [tool.ruff.isort]
 known-first-party = ["app"]

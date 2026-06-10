@@ -124,9 +124,8 @@ async def create_refund_request(
 @user_router.get("", response_model=RefundListResponse)
 async def list_user_refunds(
     request: Request,
-    refund_status: str | None = Query(
-        None, alias="status", pattern="^(pending|approved|rejected)$"
-    ),
+    refund_status: str
+    | None = Query(None, alias="status", pattern="^(pending|approved|rejected)$"),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),
     current_user: User = Depends(get_current_user),
@@ -256,9 +255,8 @@ async def get_user_refund_details(
 @admin_router.get("", response_model=RefundListResponse)
 async def list_refunds(
     request: Request,
-    refund_status: str | None = Query(
-        None, alias="status", pattern="^(pending|approved|rejected)$"
-    ),
+    refund_status: str
+    | None = Query(None, alias="status", pattern="^(pending|approved|rejected)$"),
     user_id: int | None = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(20, ge=1, le=100),

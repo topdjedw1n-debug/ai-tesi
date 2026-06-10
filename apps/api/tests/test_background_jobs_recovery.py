@@ -4,6 +4,7 @@ Tests for background jobs error handling and recovery (Task 7).
 Tests error paths: section failures, quality errors, Redis failures, export failures.
 Uses SIMPLIFIED approach: patch only AI/quality services, let DB work naturally.
 """
+
 import json
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -106,21 +107,20 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
     mock_redis.delete = AsyncMock()
 
     # Patch AI generation - section 2 fails
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         # JSON passthrough
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
@@ -173,7 +173,9 @@ async def test_section_generation_error_continues(mock_db, mock_redis, mock_sett
 
         # Execute
         with pytest.raises(ValueError, match="AI API timeout"):
-            await BackgroundJobService.generate_full_document(document_id=100, user_id=1)
+            await BackgroundJobService.generate_full_document(
+                document_id=100, user_id=1
+            )
 
         # Verify: Generation stopped on first failed section
         assert mock_generator.generate_section.call_count == 1
@@ -257,21 +259,20 @@ async def test_quality_threshold_error_sends_websocket(
     mock_redis.set = AsyncMock()
     mock_redis.delete = AsyncMock()
 
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -316,7 +317,9 @@ async def test_quality_threshold_error_sends_websocket(
 
         # Execute
         with pytest.raises(QualityThresholdNotMetError):
-            await BackgroundJobService.generate_full_document(document_id=200, user_id=2)
+            await BackgroundJobService.generate_full_document(
+                document_id=200, user_id=2
+            )
 
         # Verify: WebSocket error sent via send_progress (no separate send_error method)
         assert mock_manager.send_progress.called, "WebSocket progress should be sent"
@@ -402,21 +405,20 @@ async def test_all_sections_fail_document_marked_failed(
     mock_redis.set = AsyncMock()
     mock_redis.delete = AsyncMock()
 
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -451,7 +453,9 @@ async def test_all_sections_fail_document_marked_failed(
 
         # Execute
         with pytest.raises(Exception, match="Generation failed"):
-            await BackgroundJobService.generate_full_document(document_id=300, user_id=3)
+            await BackgroundJobService.generate_full_document(
+                document_id=300, user_id=3
+            )
 
         # Verify: Export NOT called (0 sections)
         assert not mock_doc_service.export_document.called, "Export should be skipped"
@@ -523,21 +527,20 @@ async def test_redis_save_error_non_critical(mock_db, mock_redis, mock_settings)
     mock_redis.set = AsyncMock(side_effect=ConnectionError("Redis unavailable"))
     mock_redis.delete = AsyncMock()
 
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -656,21 +659,20 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
     mock_redis.set = AsyncMock()
     mock_redis.delete = AsyncMock()
 
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
@@ -774,21 +776,20 @@ async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
     mock_redis.set = AsyncMock()
     mock_redis.delete = AsyncMock()
 
-    with patch(
-        "app.services.background_jobs.SectionGenerator"
-    ) as mock_gen_class, patch(
-        "app.services.background_jobs.Humanizer"
-    ) as mock_humanizer_class, patch(
-        "app.services.background_jobs.QualityValidator"
-    ) as mock_quality_class, patch(
-        "app.services.background_jobs.manager"
-    ) as mock_manager, patch(
-        "app.services.background_jobs.DocumentService"
-    ) as mock_doc_service_class, patch(
-        "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
-    ), patch(
-        "app.services.background_jobs.database.AsyncSessionLocal"
-    ) as mock_session_class, patch("app.services.background_jobs.json") as mock_json:
+    with (
+        patch("app.services.background_jobs.SectionGenerator") as mock_gen_class,
+        patch("app.services.background_jobs.Humanizer") as mock_humanizer_class,
+        patch("app.services.background_jobs.QualityValidator") as mock_quality_class,
+        patch("app.services.background_jobs.manager") as mock_manager,
+        patch("app.services.background_jobs.DocumentService") as mock_doc_service_class,
+        patch(
+            "app.services.background_jobs.get_redis", AsyncMock(return_value=mock_redis)
+        ),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as mock_session_class,
+        patch("app.services.background_jobs.json") as mock_json,
+    ):
         mock_json.dumps = json.dumps
         mock_json.loads = json.loads
 
