@@ -262,8 +262,9 @@ async def test_batching_multiple_claims_in_one_prompt():
 
     prompt = ai.call_with_fallback.call_args[0][0]
     assert prompt.count(ABSTRACT) == 1  # abstract deduplicated
-    assert "1. (source S1)" in prompt
-    assert "3. (source S1)" in prompt
+    # Claim lines bind each claim to its source label AND title
+    assert '1. (source S1: "Attention Is All You Need")' in prompt
+    assert '3. (source S1: "Attention Is All You Need")' in prompt
 
     assert [v.verdict for v in verdicts] == ["supported", "uncertain", "unsupported"]
     assert all(v.checked_by_llm for v in verdicts)
