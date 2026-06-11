@@ -2,7 +2,6 @@
 Custom exceptions for the application
 """
 
-
 from fastapi import status
 
 
@@ -105,4 +104,26 @@ class AllProvidersFailedError(APIException):
     def __init__(self, detail: str = "All AI providers failed"):
         super().__init__(
             detail, status.HTTP_503_SERVICE_UNAVAILABLE, "ALL_PROVIDERS_FAILED"
+        )
+
+
+class CitationIntegrityError(APIException):
+    """
+    Cited sources failed existence verification (strict policy)
+
+    Raised by the citation verification stage when one or more cited sources
+    could not be found in any bibliographic database (Crossref, OpenAlex,
+    Semantic Scholar, arXiv) and CITATION_VERIFICATION_POLICY is "strict".
+
+    Only not_found sources block the export. Sources that are unresolvable
+    (provider outage) or mismatched (low title similarity) never block.
+
+    This is a 422 Unprocessable Entity error. The document has already been
+    marked status='failed_quality' when this is raised, and the detail string
+    is shown to the end user (failure email, job error message, websocket).
+    """
+
+    def __init__(self, detail: str = "Cited sources failed existence verification"):
+        super().__init__(
+            detail, status.HTTP_422_UNPROCESSABLE_ENTITY, "CITATION_INTEGRITY_ERROR"
         )

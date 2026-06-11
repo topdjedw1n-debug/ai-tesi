@@ -2,9 +2,10 @@
 Tests for admin payment endpoints
 Covers /api/v1/admin/payments/* endpoints
 """
+
 import os
-from decimal import Decimal
 from datetime import datetime, timedelta
+from decimal import Decimal
 
 import pytest
 from httpx import AsyncClient
@@ -20,10 +21,10 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
 
 from app.core.database import AsyncSessionLocal, Base, get_engine
-from app.models.user import User
+from app.core.security import create_access_token
 from app.models.document import Document
 from app.models.payment import Payment
-from app.core.security import create_access_token
+from app.models.user import User
 from main import app
 
 
@@ -168,7 +169,9 @@ async def test_list_payments_requires_admin(client, db_session, user_token):
 
 
 @pytest.mark.asyncio
-async def test_list_payments_success(client, db_session, admin_user, admin_token, sample_payments):
+async def test_list_payments_success(
+    client, db_session, admin_user, admin_token, sample_payments
+):
     """Test successful payment listing"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/payments", headers=headers)
@@ -181,10 +184,14 @@ async def test_list_payments_success(client, db_session, admin_user, admin_token
 
 
 @pytest.mark.asyncio
-async def test_list_payments_filter_by_status(client, db_session, admin_user, admin_token, sample_payments):
+async def test_list_payments_filter_by_status(
+    client, db_session, admin_user, admin_token, sample_payments
+):
     """Test filtering payments by status"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get("/api/v1/admin/payments?status=completed", headers=headers)
+    response = await client.get(
+        "/api/v1/admin/payments?status=completed", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["payments"]) == 1
@@ -192,20 +199,28 @@ async def test_list_payments_filter_by_status(client, db_session, admin_user, ad
 
 
 @pytest.mark.asyncio
-async def test_list_payments_filter_by_user_id(client, db_session, admin_user, admin_token, sample_payments, regular_user):
+async def test_list_payments_filter_by_user_id(
+    client, db_session, admin_user, admin_token, sample_payments, regular_user
+):
     """Test filtering payments by user_id"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get(f"/api/v1/admin/payments?user_id={regular_user.id}", headers=headers)
+    response = await client.get(
+        f"/api/v1/admin/payments?user_id={regular_user.id}", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["payments"]) == 3  # All payments belong to regular_user
 
 
 @pytest.mark.asyncio
-async def test_list_payments_pagination(client, db_session, admin_user, admin_token, sample_payments):
+async def test_list_payments_pagination(
+    client, db_session, admin_user, admin_token, sample_payments
+):
     """Test payment listing pagination"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get("/api/v1/admin/payments?page=1&per_page=2", headers=headers)
+    response = await client.get(
+        "/api/v1/admin/payments?page=1&per_page=2", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["payments"]) == 2
@@ -214,10 +229,14 @@ async def test_list_payments_pagination(client, db_session, admin_user, admin_to
 
 
 @pytest.mark.asyncio
-async def test_list_payments_filter_by_amount_range(client, db_session, admin_user, admin_token, sample_payments):
+async def test_list_payments_filter_by_amount_range(
+    client, db_session, admin_user, admin_token, sample_payments
+):
     """Test filtering payments by amount range"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get("/api/v1/admin/payments?min_amount=20&max_amount=60", headers=headers)
+    response = await client.get(
+        "/api/v1/admin/payments?min_amount=20&max_amount=60", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     # Should return payment2 (25.00) and payment3 (50.00)
@@ -233,7 +252,9 @@ async def test_get_payment_details_requires_auth(client, db_session, sample_paym
 
 
 @pytest.mark.asyncio
-async def test_get_payment_details_requires_admin(client, db_session, user_token, sample_payments):
+async def test_get_payment_details_requires_admin(
+    client, db_session, user_token, sample_payments
+):
     """Test getting payment details requires admin role"""
     headers = {"Authorization": f"Bearer {user_token}"}
     payment_id = sample_payments[0].id
@@ -242,16 +263,23 @@ async def test_get_payment_details_requires_admin(client, db_session, user_token
 
 
 @pytest.mark.asyncio
-async def test_get_payment_details_success(client, db_session, admin_user, admin_token, sample_payments):
+async def test_get_payment_details_success(
+    client, db_session, admin_user, admin_token, sample_payments
+):
     """Test successful payment details retrieval"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     payment_id = sample_payments[0].id
     response = await client.get(f"/api/v1/admin/payments/{payment_id}", headers=headers)
-    assert response.status_code in [200, 404]  # May not exist depending on implementation
+    assert response.status_code in [
+        200,
+        404,
+    ]  # May not exist depending on implementation
 
 
 @pytest.mark.asyncio
-async def test_get_payment_details_not_found(client, db_session, admin_user, admin_token):
+async def test_get_payment_details_not_found(
+    client, db_session, admin_user, admin_token
+):
     """Test getting non-existent payment returns 404"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/payments/99999", headers=headers)

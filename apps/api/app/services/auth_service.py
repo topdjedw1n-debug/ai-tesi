@@ -4,7 +4,7 @@ Authentication service for user management and token handling
 
 import logging
 import secrets
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import bcrypt
@@ -291,7 +291,7 @@ class AuthService:
 
     def _create_access_token(self, user_id: int) -> str:
         """Create access token with iss, aud, and expiration claims"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         expire = now + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         to_encode = {
             "sub": str(user_id),
@@ -315,7 +315,7 @@ class AuthService:
 
     def _create_refresh_token(self, user_id: int) -> str:
         """Create refresh token with iss, aud, and expiration claims"""
-        now = datetime.utcnow()
+        now = datetime.now(UTC)
         expire = now + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS)
         to_encode = {
             "sub": str(user_id),

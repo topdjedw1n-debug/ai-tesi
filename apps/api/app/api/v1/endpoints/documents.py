@@ -1,6 +1,7 @@
 """
 Document management endpoints
 """
+
 import logging
 from typing import Any
 
@@ -15,6 +16,7 @@ from fastapi import (
     status,
 )
 from fastapi.responses import FileResponse, StreamingResponse
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
@@ -22,13 +24,16 @@ from app.core.dependencies import get_current_user, verify_download_token
 from app.core.exceptions import NotFoundError, ValidationError
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
+from app.models.document import Document, DocumentProvenance
 from app.schemas.document import (
     DocumentCreate,
     DocumentListResponse,
+    DocumentProvenanceResponse,
     DocumentResponse,
     DocumentUpdate,
     ExportRequest,
     ExportResponse,
+    ProvenanceEventResponse,
 )
 from app.services.custom_requirements_service import CustomRequirementsService
 from app.services.document_service import DocumentService
@@ -56,9 +61,9 @@ async def create_document(
             topic=document.topic,
             language=document.language,
             target_pages=document.target_pages,
-            ai_provider=document.ai_provider.value
-            if document.ai_provider
-            else "openai",
+            ai_provider=(
+                document.ai_provider.value if document.ai_provider else "openai"
+            ),
             ai_model=document.ai_model or "gpt-4",
             additional_requirements=document.additional_requirements,
         )
@@ -241,6 +246,54 @@ async def delete_document(
         ) from None
 
 
+@router.get("/{document_id}/provenance", response_model=DocumentProvenanceResponse)
+@rate_limit("100/hour")
+async def get_document_provenance(
+    request: Request,
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentProvenanceResponse:
+    """
+    Chronological provenance ledger for a document.
+
+    Returns every pipeline event (rag_retrieved, section_generated, humanized,
+    quality_gate, citation_gate, exported, ...) in the order they occurred.
+    Access: document owner or admin (403 otherwise).
+    """
+    result = await db.execute(select(Document).where(Document.id == document_id))
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+
+    if document.user_id != int(current_user.id) and not current_user.is_admin:
+        logger.warning(
+            f"PROVENANCE_ACCESS_DENIED: user_id={current_user.id}, "
+            f"document_id={document_id}, owner_id={document.user_id}"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
+
+    events_result = await db.execute(
+        select(DocumentProvenance)
+        .where(DocumentProvenance.document_id == document_id)
+        .order_by(
+            DocumentProvenance.created_at.asc(),
+            DocumentProvenance.id.asc(),
+        )
+    )
+    events = events_result.scalars().all()
+
+    return DocumentProvenanceResponse(
+        document_id=document_id,
+        total=len(events),
+        events=[ProvenanceEventResponse.model_validate(event) for event in events],
+    )
+
+
 @router.post("/{document_id}/export", response_model=ExportResponse)
 @rate_limit("100/hour")
 async def export_document(
@@ -334,9 +387,9 @@ async def upload_custom_requirements(
             "message": "Custom requirements file uploaded and processed successfully",
             "document_id": document_id,
             "file_size": len(extracted_text),
-            "preview": extracted_text[:500]
-            if len(extracted_text) > 500
-            else extracted_text,
+            "preview": (
+                extracted_text[:500] if len(extracted_text) > 500 else extracted_text
+            ),
         }
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e

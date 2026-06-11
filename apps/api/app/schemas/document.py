@@ -179,6 +179,26 @@ class DocumentListResponse(BaseModel):
     total_pages: int
 
 
+class ProvenanceEventResponse(BaseModel):
+    """Single provenance ledger event"""
+
+    id: int
+    stage: str
+    event_type: str
+    payload: dict[str, Any] | None = None
+    created_at: datetime | None = None
+
+    model_config = ConfigDict(from_attributes=True)
+
+
+class DocumentProvenanceResponse(BaseModel):
+    """Chronological provenance ledger for a document"""
+
+    document_id: int
+    total: int
+    events: list[ProvenanceEventResponse]
+
+
 class OutlineRequest(BaseModel):
     """Schema for outline generation request"""
 

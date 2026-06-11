@@ -2,7 +2,11 @@
 Pytest configuration - sets environment variables BEFORE any imports
 This ensures DATABASE_URL is set before database.py is imported
 """
+
+import asyncio
 import os
+import pathlib
+from importlib import import_module
 
 import pytest
 
@@ -19,8 +23,63 @@ os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
 os.environ.setdefault(
     "CORS_ALLOWED_ORIGINS", "http://localhost:3000"
 )  # Single origin for tests
+# Stripe test credentials must be set HERE: per-module os.environ.setdefault
+# calls in test files run after Settings is instantiated (this conftest
+# imports app.core.database below), so in CI - where there is no .env file -
+# the webhook endpoint saw STRIPE_WEBHOOK_SECRET=None and returned
+# "Webhook secret not configured". Values are arbitrary: all webhook tests
+# mock stripe.Webhook.construct_event; the endpoint only needs non-None.
+os.environ.setdefault("STRIPE_SECRET_KEY", "sk_test_ci_default")
+os.environ.setdefault("STRIPE_WEBHOOK_SECRET", "whsec_test_ci_default")
 
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.pool import NullPool
+
+from app.core import database as _database
 from app.core.database import AsyncSessionLocal, Base, get_engine
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _remove_stale_db_files():
+    """Leftover DB files from previous runs leak data into the next run
+    (UNIQUE constraint flakes on fixed fixture emails). Remove them up front."""
+    for name in ("test.db", "test_integration_simple.db"):
+        pathlib.Path(name).unlink(missing_ok=True)
+    yield
+
+
+@pytest.fixture(scope="module", autouse=True)
+def _isolated_database(tmp_path_factory):
+    """Give every test module its own SQLite file and engine.
+
+    The app caches a single engine globally and binds one sessionmaker to it,
+    so all test files used to share ./test.db — any row left behind by one file
+    (e.g. users created through the app's get_db without a drop_all teardown)
+    broke unrelated files later in the run. A per-module engine on a fresh tmp
+    file makes each file start exactly like a standalone run.
+
+    NullPool: pooled aiosqlite connections must not be reused across the
+    function-scoped event loops pytest-asyncio creates per test.
+    """
+    db_path = tmp_path_factory.mktemp("db") / "test.db"
+    engine = create_async_engine(f"sqlite+aiosqlite:///{db_path}", poolclass=NullPool)
+    _database._engine = engine
+    # Every consumer (tests and app code alike) holds the same sessionmaker
+    # object created via the module __getattr__ — rebind it to the new engine.
+    AsyncSessionLocal.configure(bind=engine)
+
+    async def _create_schema() -> None:
+        # Ensure all models are registered on Base.metadata before create_all
+        for module_name in ("admin", "auth", "document", "payment", "refund", "user"):
+            import_module(f"app.models.{module_name}")
+
+        async with engine.begin() as conn:
+            await conn.run_sync(Base.metadata.create_all)
+
+    # No event loop is running between modules, so asyncio.run is safe here
+    asyncio.run(_create_schema())
+    yield
+    asyncio.run(engine.dispose())
 
 
 @pytest.fixture

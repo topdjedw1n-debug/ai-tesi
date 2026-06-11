@@ -13,10 +13,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.config import settings
+from app.models.document import DocumentProvenance, DocumentSource
 from app.models.payment import Payment
 from app.models.refund import RefundRequest
 
 logger = logging.getLogger(__name__)
+
+# Reason categories where the document's provenance ledger is direct evidence
+# for or against the complaint ("low quality" style claims)
+QUALITY_COMPLAINT_CATEGORIES = {"quality", "not_satisfied"}
 
 # Initialize Stripe
 if settings.STRIPE_SECRET_KEY:
@@ -333,9 +338,67 @@ class RefundService:
 
         return refund_request
 
+    async def _get_document_quality_evidence(self, document_id: int) -> dict[str, Any]:
+        """
+        Summarize a document's provenance ledger for refund risk scoring.
+
+        Aggregates source verification statuses (document_sources) and the
+        quality_gate/citation_gate events (document_provenance) into a flat
+        signal dict. Returns has_provenance=False when no ledger exists, so
+        callers can skip the adjustment for legacy documents.
+        """
+        statuses_result = await self.db.execute(
+            select(DocumentSource.verification_status).where(
+                DocumentSource.document_id == document_id
+            )
+        )
+        statuses = list(statuses_result.scalars().all())
+        total_sources = len(statuses)
+        verified_sources = sum(1 for s in statuses if s == "verified")
+        not_found_sources = sum(1 for s in statuses if s == "not_found")
+
+        events_result = await self.db.execute(
+            select(DocumentProvenance)
+            .where(
+                DocumentProvenance.document_id == document_id,
+                DocumentProvenance.event_type.in_(["quality_gate", "citation_gate"]),
+            )
+            .order_by(DocumentProvenance.created_at.asc(), DocumentProvenance.id.asc())
+        )
+        events = list(events_result.scalars().all())
+
+        quality_events = [e for e in events if e.event_type == "quality_gate"]
+        citation_events = [e for e in events if e.event_type == "citation_gate"]
+        quality_gate_failures = sum(
+            1 for e in quality_events if not (e.payload or {}).get("passed")
+        )
+        quality_gates_passed = bool(quality_events) and quality_gate_failures == 0
+        # The last citation_gate event reflects the final verification outcome
+        citation_gate_passed = bool(citation_events) and bool(
+            (citation_events[-1].payload or {}).get("passed")
+        )
+
+        return {
+            "has_provenance": bool(events) or total_sources > 0,
+            "total_sources": total_sources,
+            "verified_sources": verified_sources,
+            "not_found_sources": not_found_sources,
+            "all_sources_verified": total_sources > 0
+            and verified_sources == total_sources,
+            "quality_gates_passed": quality_gates_passed,
+            "quality_gate_failures": quality_gate_failures,
+            "citation_gate_passed": citation_gate_passed,
+        }
+
     async def analyze_refund_risk(self, refund_id: int) -> dict[str, Any]:
         """
         Analyze refund request for risk (AI-powered, optional).
+
+        For quality-type complaints the document's provenance ledger is used
+        as evidence: fully verified sources + passed quality/citation gates
+        contradict a "low quality" claim (risk up -> lean reject), while
+        failed gates or not_found sources support it (risk down -> lean
+        approve).
 
         Args:
             refund_id: Refund request ID
@@ -378,6 +441,35 @@ class RefundService:
         if refund_request.reason_category == "technical_issue":
             risk_score += 0.1
 
+        # Provenance evidence (only meaningful for quality-type complaints
+        # on payments linked to a generated document)
+        provenance_signal: dict[str, Any] | None = None
+        if (
+            payment
+            and payment.document_id
+            and refund_request.reason_category in QUALITY_COMPLAINT_CATEGORIES
+        ):
+            provenance_signal = await self._get_document_quality_evidence(
+                int(payment.document_id)
+            )
+            if provenance_signal["has_provenance"]:
+                if (
+                    provenance_signal["all_sources_verified"]
+                    and provenance_signal["quality_gates_passed"]
+                    and provenance_signal["citation_gate_passed"]
+                ):
+                    # Ledger contradicts the claim: 100% verified sources and
+                    # all gates passed -> complaint less likely substantiated
+                    risk_score += 0.3
+                elif (
+                    provenance_signal["not_found_sources"] > 0
+                    or provenance_signal["quality_gate_failures"] > 0
+                ):
+                    # Ledger supports the claim -> refund likely justified
+                    risk_score -= 0.2
+
+        risk_score = min(max(risk_score, 0.0), 1.0)
+
         # Determine recommendation
         if risk_score < 0.3:
             recommendation = "approve"
@@ -398,6 +490,7 @@ class RefundService:
                 "previous_refunds": previous_refunds,
                 "payment_amount": float(payment_amount),
                 "reason_category": refund_request.reason_category,
+                "provenance": provenance_signal,
             },
         }
 

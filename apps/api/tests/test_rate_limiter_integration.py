@@ -16,6 +16,7 @@ Test configuration:
 Date: 01.12.2025
 Status: Active integration tests
 """
+
 import asyncio
 import os
 import time
@@ -364,7 +365,7 @@ class TestRedisFailure:
 
             try:
                 await init_redis()
-            except:
+            except Exception:
                 pass  # Expected to fail, that's OK
 
             # Create client and make request

@@ -7,6 +7,7 @@ import asyncio
 import gc
 import logging
 from collections.abc import Callable
+from dataclasses import asdict
 from typing import Any, TypeVar
 
 from app.core.config import settings
@@ -261,6 +262,17 @@ class SectionGenerator:
                 "humanized": humanize,
             }
 
+            # Academic Quality Engine: expose cited sources (unique SourceDocs
+            # that made it into the bibliography via citation_map) for
+            # persistence/verification. Flag-gated and ADDITIVE: when disabled
+            # the key is absent, so streaming SSE payloads stay byte-identical.
+            if settings.CITATION_VERIFICATION_ENABLED:
+                cited_docs: list[SourceDoc] = []
+                for doc in citation_map.values():  # dict preserves citation order
+                    if doc not in cited_docs:  # SourceDoc: eq=True, no __hash__
+                        cited_docs.append(doc)
+                result["cited_sources"] = [asdict(doc) for doc in cited_docs]
+
             # Collect training data (async, non-blocking)
             asyncio.create_task(
                 self.training_collector.collect_generation_sample(
@@ -277,9 +289,11 @@ class SectionGenerator:
                     metadata={
                         "provider": provider,
                         "model": model,
-                        "citation_style": citation_style.value
-                        if hasattr(citation_style, "value")
-                        else str(citation_style),
+                        "citation_style": (
+                            citation_style.value
+                            if hasattr(citation_style, "value")
+                            else str(citation_style)
+                        ),
                         "humanized": humanize,
                     },
                 )

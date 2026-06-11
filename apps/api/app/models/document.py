@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    text,
 )
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
@@ -73,6 +74,12 @@ class Document(Base):
         "DocumentSection", back_populates="document", cascade="all, delete-orphan"
     )
     payment = relationship("Payment", back_populates="document", uselist=False)
+    sources = relationship(
+        "DocumentSource", back_populates="document", cascade="all, delete-orphan"
+    )
+    provenance_events = relationship(
+        "DocumentProvenance", back_populates="document", cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Document(id={self.id}, title={self.title}, status={self.status})>"
@@ -110,6 +117,14 @@ class DocumentSection(Base):
         Float, nullable=True
     )  # 0-100, higher is better (overall quality)
 
+    # Claim faithfulness audit (advisory): per-claim verdicts from
+    # claim_verifier.py - {"total", "checked", "counts", "claims": [...]}
+    claim_verification = Column(JSON, nullable=True)
+
+    # Reviewer panel report (quality_validator.py): {"valid", "overall_score",
+    # "passed", "critical_override", "reviewers": [...], "advocate": {...}}
+    quality_panel = Column(JSON, nullable=True)
+
     # Generation state
     status = Column(
         String(50), default="pending"
@@ -126,6 +141,8 @@ class DocumentSection(Base):
 
     # Relationships
     document = relationship("Document", back_populates="sections")
+    # No delete-orphan: deleting a section keeps its sources (section_id becomes NULL)
+    sources = relationship("DocumentSource", back_populates="section")
 
     def __repr__(self) -> str:
         return (
@@ -220,3 +237,102 @@ class DocumentDraft(Base):
 
     def __repr__(self) -> str:
         return f"<DocumentDraft(id={self.id}, document_id={self.document_id}, version={self.version})>"
+
+
+class DocumentProvenance(Base):
+    """Provenance event for a document's generation pipeline (append-only audit trail)"""
+
+    __tablename__ = "document_provenance"
+    __table_args__ = (
+        Index("ix_document_provenance_document_id", "document_id"),
+        Index("ix_document_provenance_document_id_stage", "document_id", "stage"),
+        Index("ix_document_provenance_created_at", "created_at"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Event metadata
+    stage = Column(
+        String(50), nullable=False
+    )  # retrieval, outline, generation, quality, verification, export
+    event_type = Column(
+        String(100), nullable=False
+    )  # sources_retrieved, source_verified, citation_flagged, etc.
+    payload = Column(JSON, nullable=True)  # Arbitrary structured event data
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    # Relationships
+    document = relationship("Document", back_populates="provenance_events")
+
+    def __repr__(self) -> str:
+        return (
+            f"<DocumentProvenance(id={self.id}, document_id={self.document_id}, "
+            f"stage={self.stage}, event_type={self.event_type})>"
+        )
+
+
+class DocumentSource(Base):
+    """Persisted source retrieved for a document (mirrors SourceDoc in rag_retriever.py)"""
+
+    __tablename__ = "document_sources"
+    __table_args__ = (
+        Index("ix_document_sources_document_id", "document_id"),
+        Index("ix_document_sources_section_id", "section_id"),
+        Index("ix_document_sources_verification_status", "verification_status"),
+        Index(
+            "uq_document_sources_document_id_doi",
+            "document_id",
+            "doi",
+            unique=True,
+            postgresql_where=text("doi IS NOT NULL"),
+            sqlite_where=text("doi IS NOT NULL"),
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    section_id = Column(
+        Integer, ForeignKey("document_sections.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # Raw retrieval metadata (matches SourceDoc dataclass keys)
+    title = Column(String(1000), nullable=False)
+    authors = Column(JSON)  # list[str] of author names
+    year = Column(Integer, nullable=True)
+    abstract = Column(Text, nullable=True)
+    paper_id = Column(String(100), nullable=True)  # e.g. Semantic Scholar paper ID
+    venue = Column(String(500), nullable=True)
+    citation_count = Column(Integer, nullable=True)
+    url = Column(String(1000), nullable=True)
+    doi = Column(String(255), nullable=True)  # normalized lowercase
+
+    # Verification state
+    verification_status = Column(
+        String(50), default="unverified"
+    )  # unverified, verified, mismatched, not_found, failed
+    canonical_metadata = Column(
+        JSON, nullable=True
+    )  # Normalized record from Crossref/OpenAlex/S2/arXiv after verification
+
+    # Timestamps
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    # Relationships
+    document = relationship("Document", back_populates="sources")
+    section = relationship("DocumentSection", back_populates="sources")
+
+    def __repr__(self) -> str:
+        return (
+            f"<DocumentSource(id={self.id}, document_id={self.document_id}, "
+            f"verification_status={self.verification_status})>"
+        )

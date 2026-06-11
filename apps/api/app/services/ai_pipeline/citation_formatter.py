@@ -4,11 +4,11 @@ Handles both in-text citations and bibliography/reference formatting
 """
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Any
 
 
-class CitationStyle(str, Enum):
+class CitationStyle(StrEnum):
     """Supported citation styles"""
 
     APA = "apa"

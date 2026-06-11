@@ -11,7 +11,13 @@ from app.models.admin import (
     SystemSetting,
 )
 from app.models.auth import User, UserSession
-from app.models.document import Document, DocumentOutline, DocumentSection
+from app.models.document import (
+    Document,
+    DocumentOutline,
+    DocumentProvenance,
+    DocumentSection,
+    DocumentSource,
+)
 from app.models.payment import Payment
 from app.models.refund import RefundRequest
 
@@ -22,6 +28,8 @@ __all__ = [
     "Document",
     "DocumentSection",
     "DocumentOutline",
+    "DocumentProvenance",
+    "DocumentSource",
     "Payment",
     "RefundRequest",
     "AdminAuditLog",

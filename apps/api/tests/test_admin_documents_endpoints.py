@@ -2,6 +2,7 @@
 Tests for admin document endpoints
 Covers /api/v1/admin/documents/* endpoints
 """
+
 import os
 from datetime import datetime, timedelta
 
@@ -19,9 +20,9 @@ os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DISABLE_RATE_LIMIT", "true")
 
 from app.core.database import AsyncSessionLocal, Base, get_engine
-from app.models.user import User
-from app.models.document import Document
 from app.core.security import create_access_token
+from app.models.document import Document
+from app.models.user import User
 from main import app
 
 
@@ -140,7 +141,9 @@ async def test_list_documents_requires_admin(client, db_session, user_token):
 
 
 @pytest.mark.asyncio
-async def test_list_documents_success(client, db_session, admin_user, admin_token, sample_documents):
+async def test_list_documents_success(
+    client, db_session, admin_user, admin_token, sample_documents
+):
     """Test successful document listing"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/documents", headers=headers)
@@ -152,10 +155,14 @@ async def test_list_documents_success(client, db_session, admin_user, admin_toke
 
 
 @pytest.mark.asyncio
-async def test_list_documents_filter_by_status(client, db_session, admin_user, admin_token, sample_documents):
+async def test_list_documents_filter_by_status(
+    client, db_session, admin_user, admin_token, sample_documents
+):
     """Test filtering documents by status"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get("/api/v1/admin/documents?status=completed", headers=headers)
+    response = await client.get(
+        "/api/v1/admin/documents?status=completed", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["documents"]) == 1
@@ -163,20 +170,28 @@ async def test_list_documents_filter_by_status(client, db_session, admin_user, a
 
 
 @pytest.mark.asyncio
-async def test_list_documents_filter_by_user_id(client, db_session, admin_user, admin_token, sample_documents, regular_user):
+async def test_list_documents_filter_by_user_id(
+    client, db_session, admin_user, admin_token, sample_documents, regular_user
+):
     """Test filtering documents by user_id"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get(f"/api/v1/admin/documents?user_id={regular_user.id}", headers=headers)
+    response = await client.get(
+        f"/api/v1/admin/documents?user_id={regular_user.id}", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["documents"]) == 3  # All documents belong to regular_user
 
 
 @pytest.mark.asyncio
-async def test_list_documents_pagination(client, db_session, admin_user, admin_token, sample_documents):
+async def test_list_documents_pagination(
+    client, db_session, admin_user, admin_token, sample_documents
+):
     """Test document listing pagination"""
     headers = {"Authorization": f"Bearer {admin_token}"}
-    response = await client.get("/api/v1/admin/documents?page=1&per_page=2", headers=headers)
+    response = await client.get(
+        "/api/v1/admin/documents?page=1&per_page=2", headers=headers
+    )
     assert response.status_code == 200
     data = response.json()
     assert len(data["documents"]) == 2
@@ -185,7 +200,9 @@ async def test_list_documents_pagination(client, db_session, admin_user, admin_t
 
 
 @pytest.mark.asyncio
-async def test_list_documents_filter_by_language(client, db_session, admin_user, admin_token, sample_documents):
+async def test_list_documents_filter_by_language(
+    client, db_session, admin_user, admin_token, sample_documents
+):
     """Test filtering documents by language"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/documents?language=en", headers=headers)
@@ -203,7 +220,9 @@ async def test_get_document_details_requires_auth(client, db_session, sample_doc
 
 
 @pytest.mark.asyncio
-async def test_get_document_details_requires_admin(client, db_session, user_token, sample_documents):
+async def test_get_document_details_requires_admin(
+    client, db_session, user_token, sample_documents
+):
     """Test getting document details requires admin role"""
     headers = {"Authorization": f"Bearer {user_token}"}
     doc_id = sample_documents[0].id
@@ -212,16 +231,23 @@ async def test_get_document_details_requires_admin(client, db_session, user_toke
 
 
 @pytest.mark.asyncio
-async def test_get_document_details_success(client, db_session, admin_user, admin_token, sample_documents):
+async def test_get_document_details_success(
+    client, db_session, admin_user, admin_token, sample_documents
+):
     """Test successful document details retrieval"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     doc_id = sample_documents[0].id
     response = await client.get(f"/api/v1/admin/documents/{doc_id}", headers=headers)
-    assert response.status_code in [200, 404]  # May not exist depending on implementation
+    assert response.status_code in [
+        200,
+        404,
+    ]  # May not exist depending on implementation
 
 
 @pytest.mark.asyncio
-async def test_get_document_details_not_found(client, db_session, admin_user, admin_token):
+async def test_get_document_details_not_found(
+    client, db_session, admin_user, admin_token
+):
     """Test getting non-existent document returns 404"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/documents/99999", headers=headers)
@@ -229,7 +255,9 @@ async def test_get_document_details_not_found(client, db_session, admin_user, ad
 
 
 @pytest.mark.asyncio
-async def test_delete_document_requires_admin(client, db_session, user_token, sample_documents):
+async def test_delete_document_requires_admin(
+    client, db_session, user_token, sample_documents
+):
     """Test deleting document requires admin role"""
     headers = {"Authorization": f"Bearer {user_token}"}
     doc_id = sample_documents[0].id

@@ -4,7 +4,7 @@ JWT Security Tests
 Tests for JWT secret key validation, token expiration, and claims.
 """
 import os
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 import pytest
 from jose import jwt
@@ -106,8 +106,8 @@ async def test_jwt_token_expires_after_1_hour(db_session):
         access_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
     )
 
-    exp_time = datetime.utcfromtimestamp(payload["exp"])
-    now = datetime.utcnow()
+    exp_time = datetime.fromtimestamp(payload["exp"], tz=UTC)
+    now = datetime.now(UTC)
     time_until_expiry = exp_time - now
 
     # Should match configured expiry time (allow 1 minute tolerance)
@@ -138,8 +138,8 @@ async def test_refresh_token_expires_after_7_days(db_session):
         refresh_token, settings.jwt_secret_key, algorithms=[settings.JWT_ALG]
     )
 
-    exp_time = datetime.fromtimestamp(payload["exp"])
-    now = datetime.utcnow()
+    exp_time = datetime.fromtimestamp(payload["exp"], tz=UTC)
+    now = datetime.now(UTC)
     time_until_expiry = exp_time - now
 
     # Should be close to 7 days (allow 1 hour tolerance)
@@ -278,9 +278,9 @@ async def test_jwt_token_nbf_claim(db_session):
     )
 
     assert "nbf" in payload
-    # Use datetime.utcfromtimestamp instead of fromtimestamp to avoid timezone issues
-    nbf_time = datetime.utcfromtimestamp(payload["nbf"])
-    now = datetime.utcnow()
+    # Timezone-aware UTC on both sides to stay independent of the local timezone
+    nbf_time = datetime.fromtimestamp(payload["nbf"], tz=UTC)
+    now = datetime.now(UTC)
 
     # nbf should be close to now (allow 1 minute tolerance)
     assert (now - timedelta(minutes=1)) <= nbf_time <= (now + timedelta(minutes=1))

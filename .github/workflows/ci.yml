@@ -73,7 +73,10 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Install Ruff
-        run: pip install ruff
+        # Pinned to the version used locally (venv + pre-commit); an unpinned
+        # install drifted ahead and flagged rules (UP042) the local toolchain
+        # doesn't enforce yet. Bump deliberately together with local tooling.
+        run: pip install ruff==0.14.7
 
       - name: Run Ruff
         run: |
