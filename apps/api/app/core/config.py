@@ -109,6 +109,58 @@ class Settings(BaseSettings):
     TAVILY_API_KEY: str | None = None
     SERPER_API_KEY: str | None = None
 
+    # Academic Quality Engine - Provenance ledger (append-only audit trail of
+    # pipeline stages in document_provenance; powers the provenance endpoint
+    # and refund risk scoring)
+    PROVENANCE_LEDGER_ENABLED: bool = True
+
+    # Academic Quality Engine - Reviewer panel (OFF by default; 4 LLM calls
+    # per section attempt). Replaces the heuristic quality score with a panel
+    # of 3 independent LLM reviewers + a devil's advocate. The aggregate
+    # keeps feeding DocumentSection.quality_score; panel details go to
+    # DocumentSection.quality_panel + the provenance ledger. A CRITICAL
+    # finding from the devil's advocate fails the gate regardless of the
+    # weighted average.
+    QUALITY_PANEL_ENABLED: bool = False
+    QUALITY_PANEL_PASS_SCORE: float = 70.0  # gate threshold for the aggregate
+    QUALITY_PANEL_MIN_REVIEWERS: int = 2  # panel valid with this many reviewers
+
+    # Academic Quality Engine - Claim faithfulness audit (advisory; OFF by default).
+    # Checks via LLM whether cited sentences are actually supported by the
+    # cited source's abstract. Never blocks generation - results are recorded
+    # in the provenance ledger and DocumentSection.claim_verification only.
+    CLAIM_VERIFICATION_ENABLED: bool = False
+    CLAIM_VERIFICATION_MAX_CHECKS: int = 50  # max LLM-checked claims per document
+    CLAIM_VERIFICATION_BATCH_SIZE: int = 10  # claims per LLM prompt
+    CLAIM_ABSTRACT_MAX_CHARS: int = 1500  # abstract excerpt length in prompts
+
+    # Academic Quality Engine - Citation/Source Verification (foundation; OFF by default)
+    CITATION_VERIFICATION_ENABLED: bool = False
+    CITATION_VERIFICATION_POLICY: str = (
+        "mark_only"  # strict (reject) | mark_only (annotate)
+    )
+
+    # Bibliographic APIs (base URLs)
+    CROSSREF_API_URL: str = "https://api.crossref.org"
+    OPENALEX_API_URL: str = "https://api.openalex.org"
+    SEMANTIC_SCHOLAR_API_URL: str = "https://api.semanticscholar.org/graph/v1"
+    ARXIV_API_URL: str = "https://export.arxiv.org/api/query"
+
+    # Shared HTTP timeout for all verification providers (seconds)
+    CITATION_API_TIMEOUT_SECONDS: float = 10.0
+
+    # Per-provider rate limits (requests per second) - conservative vs public limits
+    CROSSREF_RATE_LIMIT_RPS: float = 5.0  # polite pool allows ~50; stay well under
+    OPENALEX_RATE_LIMIT_RPS: float = 5.0  # public cap ~10 rps
+    SEMANTIC_SCHOLAR_RATE_LIMIT_RPS: float = 1.0  # unauthenticated ~1 rps
+    ARXIV_RATE_LIMIT_RPS: float = 0.33  # arXiv asks for 1 request per 3 seconds
+
+    # Verification worker tuning
+    CITATION_VERIFICATION_MAX_CONCURRENCY: int = (
+        5  # concurrent source lookups per document
+    )
+    CITATION_VERIFICATION_MAX_RETRIES: int = 2  # retries per provider call
+
     # Plagiarism Check API
     COPYSCAPE_API_KEY: str | None = None
     COPYSCAPE_USERNAME: str | None = None
@@ -195,6 +247,37 @@ class Settings(BaseSettings):
         # Exclude ALLOWED_ORIGINS from env file parsing - it's set via model_validator
         env_prefix="",  # No prefix needed
     )  # type: ignore[typeddict-unknown-key,assignment]
+
+    @field_validator("CITATION_VERIFICATION_POLICY")
+    @classmethod
+    def validate_citation_verification_policy(cls, v: str) -> str:
+        """Validate citation verification policy - must be 'strict' or 'mark_only'"""
+        allowed = {"strict", "mark_only"}
+        normalized = v.strip().lower()
+        if normalized not in allowed:
+            raise ValueError(
+                f"CITATION_VERIFICATION_POLICY must be one of {sorted(allowed)}, got '{v}'"
+            )
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_verification_dependencies(self) -> "Settings":
+        """Claim verification depends on citation verification (fail fast).
+
+        The claim verifier reads source abstracts from
+        DocumentSource.canonical_metadata, which only the citation
+        verification stage populates — and DocumentSource rows themselves
+        are persisted only when CITATION_VERIFICATION_ENABLED is on.
+        Standalone claim mode would mark 100% of claims 'uncertain'.
+        """
+        if self.CLAIM_VERIFICATION_ENABLED and not self.CITATION_VERIFICATION_ENABLED:
+            raise ValueError(
+                "CLAIM_VERIFICATION_ENABLED=True requires "
+                "CITATION_VERIFICATION_ENABLED=True. Claim verification reads "
+                "abstracts that only citation verification persists; enable "
+                "CITATION_VERIFICATION_ENABLED or disable CLAIM_VERIFICATION_ENABLED."
+            )
+        return self
 
     @field_validator("SECRET_KEY")
     @classmethod
