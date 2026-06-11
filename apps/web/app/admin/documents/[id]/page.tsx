@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { adminApiClient, AdminDocument } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { ProvenanceTimeline } from '@/components/admin/documents/ProvenanceTimeline'
 import { formatDateTime } from '@/lib/utils/date'
 import {
   DocumentTextIcon,
@@ -41,7 +42,9 @@ export default function AdminDocumentDetailsPage() {
   const documentId = Number(params.id)
   const [document, setDocument] = useState<DocumentDetails | null>(null)
   const [logs, setLogs] = useState<any>(null)
-  const [activeTab, setActiveTab] = useState<'details' | 'logs' | 'content'>('details')
+  const [activeTab, setActiveTab] = useState<
+    'details' | 'provenance' | 'logs' | 'content'
+  >('details')
   const [isLoading, setIsLoading] = useState(true)
 
   const fetchDocumentDetails = useCallback(async () => {
@@ -196,7 +199,7 @@ export default function AdminDocumentDetailsPage() {
         {/* Tabs */}
         <div className="border-b border-gray-700 mb-6">
           <nav className="flex space-x-8" aria-label="Tabs">
-            {['details', 'logs', 'content'].map((tab) => (
+            {['details', 'provenance', 'logs', 'content'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
@@ -260,6 +263,16 @@ export default function AdminDocumentDetailsPage() {
                 </pre>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Provenance Tab */}
+        {activeTab === 'provenance' && (
+          <div>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Provenance Timeline
+            </h3>
+            <ProvenanceTimeline documentId={documentId} />
           </div>
         )}
 

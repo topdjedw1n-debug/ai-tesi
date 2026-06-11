@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
+import { DocumentSources } from '@/components/dashboard/DocumentSources'
 import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { Button } from '@/components/ui/Button'
@@ -191,6 +192,11 @@ export default function DocumentDetailPage() {
               </div>
             </div>
           </div>
+        )}
+
+        {/* Sources certificate: cited sources with verification statuses */}
+        {!isGeneratingStatus && document.status !== 'draft' && (
+          <DocumentSources documentId={documentId} />
         )}
 
         {/* Sections */}
