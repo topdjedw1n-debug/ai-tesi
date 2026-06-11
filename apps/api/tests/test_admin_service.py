@@ -2,6 +2,7 @@
 Unit tests for AdminService
 Tests admin service methods without database dependencies (using mocks)
 """
+
 import os
 from datetime import datetime
 from decimal import Decimal
@@ -39,8 +40,8 @@ def admin_service(mock_db):
 @pytest.mark.asyncio
 async def test_get_platform_stats(admin_service, mock_db):
     """Test get_platform_stats returns correct statistics"""
-    # Метод робить 15 викликів execute:
-    # users/docs/jobs/tokens/cost/recent/stuck + revenue_today + pending_refunds
+    # Метод робить 8 викликів execute:
+    # users×2 / docs×2 / recent_jobs + revenue×2 + pending_refunds
 
     # Create separate mock results for each execute call
     def create_scalar_result(value):
@@ -53,14 +54,7 @@ async def test_get_platform_stats(admin_service, mock_db):
         create_scalar_result(50),  # active_users
         create_scalar_result(200),  # total_documents
         create_scalar_result(150),  # completed_documents
-        create_scalar_result(500),  # total_ai_jobs
-        create_scalar_result(1000000),  # total_tokens_from_jobs
-        create_scalar_result(500000),  # total_tokens_from_docs
-        create_scalar_result(5000),  # avg_tokens_per_doc
-        create_scalar_result(10000),  # total_cost_cents
         create_scalar_result(10),  # recent_jobs
-        create_scalar_result(2),  # stuck_queued
-        create_scalar_result(1),  # stuck_running
         create_scalar_result(Decimal("2500.50")),  # total_revenue
         create_scalar_result(Decimal("120.75")),  # revenue_today
         create_scalar_result(7),  # pending_refunds

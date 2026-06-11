@@ -64,38 +64,6 @@ class AdminService:
             )
             completed_documents = completed_docs_result.scalar()
 
-            # Get AI usage statistics
-            total_jobs_result = await self.db.execute(
-                select(func.count(AIGenerationJob.id))
-            )
-            total_ai_jobs = total_jobs_result.scalar()
-
-            # Tokens from AIGenerationJob
-            total_tokens_from_jobs_result = await self.db.execute(
-                select(func.sum(AIGenerationJob.total_tokens))
-            )
-            total_tokens_from_jobs = total_tokens_from_jobs_result.scalar() or 0
-
-            # Tokens from Document.tokens_used
-            total_tokens_from_docs_result = await self.db.execute(
-                select(func.sum(Document.tokens_used))
-            )
-            total_tokens_from_docs = total_tokens_from_docs_result.scalar() or 0
-
-            # Total tokens (combined from both sources)
-            total_tokens = total_tokens_from_jobs + total_tokens_from_docs
-
-            # Average tokens per document
-            avg_tokens_per_doc_result = await self.db.execute(
-                select(func.avg(Document.tokens_used)).where(Document.tokens_used > 0)
-            )
-            avg_tokens_per_doc = avg_tokens_per_doc_result.scalar() or 0
-
-            total_cost_result = await self.db.execute(
-                select(func.sum(AIGenerationJob.cost_cents))
-            )
-            total_cost_cents = total_cost_result.scalar() or 0
-
             # Get recent activity (last 24 hours)
             recent_jobs_result = await self.db.execute(
                 select(func.count(AIGenerationJob.id)).where(
@@ -104,40 +72,16 @@ class AdminService:
             )
             recent_jobs = recent_jobs_result.scalar()
 
-            # Check for stuck jobs (monitoring)
-            stuck_threshold = datetime.utcnow() - timedelta(minutes=5)
-            stuck_queued_result = await self.db.execute(
-                select(func.count(AIGenerationJob.id)).where(
-                    and_(
-                        AIGenerationJob.status == "queued",
-                        AIGenerationJob.started_at < stuck_threshold,
-                        AIGenerationJob.completed_at.is_(None),
-                    )
-                )
-            )
-            stuck_queued = stuck_queued_result.scalar()
-
-            stuck_running_threshold = datetime.utcnow() - timedelta(minutes=30)
-            stuck_running_result = await self.db.execute(
-                select(func.count(AIGenerationJob.id)).where(
-                    and_(
-                        AIGenerationJob.status == "running",
-                        AIGenerationJob.started_at < stuck_running_threshold,
-                        AIGenerationJob.completed_at.is_(None),
-                    )
-                )
-            )
-            stuck_running = stuck_running_result.scalar()
-
             # Calculate revenue from payments
-            from app.models.payment import Payment
             from decimal import Decimal
-            
+
+            from app.models.payment import Payment
+
             total_revenue_result = await self.db.execute(
                 select(func.sum(Payment.amount)).where(Payment.status == "completed")
             )
             total_revenue = float(total_revenue_result.scalar() or Decimal("0"))
-            
+
             revenue_today_result = await self.db.execute(
                 select(func.sum(Payment.amount)).where(
                     and_(
@@ -147,16 +91,17 @@ class AdminService:
                 )
             )
             revenue_today = float(revenue_today_result.scalar() or Decimal("0"))
-            
+
             # Count pending refunds
             from app.models.refund import RefundRequest
+
             pending_refunds_result = await self.db.execute(
                 select(func.count(RefundRequest.id)).where(
                     RefundRequest.status == "pending"
                 )
             )
             pending_refunds = pending_refunds_result.scalar() or 0
-            
+
             # Return flat structure matching PlatformStats interface
             return {
                 "total_users": total_users,
@@ -211,9 +156,9 @@ class AdminService:
                         "is_active": user.is_active,
                         "is_verified": user.is_verified,
                         "created_at": user.created_at.isoformat(),
-                        "last_login": user.last_login.isoformat()
-                        if user.last_login
-                        else None,
+                        "last_login": (
+                            user.last_login.isoformat() if user.last_login else None
+                        ),
                         "total_tokens_used": user.total_tokens_used,
                         "total_cost": user.total_cost,
                     }
@@ -675,12 +620,12 @@ class AdminService:
                         "ai_provider": doc.ai_provider,
                         "ai_model": doc.ai_model,
                         "tokens_used": doc.tokens_used,
-                        "created_at": doc.created_at.isoformat()
-                        if doc.created_at
-                        else None,
-                        "completed_at": doc.completed_at.isoformat()
-                        if doc.completed_at
-                        else None,
+                        "created_at": (
+                            doc.created_at.isoformat() if doc.created_at else None
+                        ),
+                        "completed_at": (
+                            doc.completed_at.isoformat() if doc.completed_at else None
+                        ),
                     }
                 )
 
@@ -755,15 +700,21 @@ class AdminService:
                         "stripe_payment_intent_id": payment.stripe_payment_intent_id,
                         "stripe_session_id": payment.stripe_session_id,
                         "discount_code": payment.discount_code,
-                        "discount_amount": float(payment.discount_amount)
-                        if payment.discount_amount
-                        else 0,
-                        "created_at": payment.created_at.isoformat()
-                        if payment.created_at
-                        else None,
-                        "completed_at": payment.completed_at.isoformat()
-                        if payment.completed_at
-                        else None,
+                        "discount_amount": (
+                            float(payment.discount_amount)
+                            if payment.discount_amount
+                            else 0
+                        ),
+                        "created_at": (
+                            payment.created_at.isoformat()
+                            if payment.created_at
+                            else None
+                        ),
+                        "completed_at": (
+                            payment.completed_at.isoformat()
+                            if payment.completed_at
+                            else None
+                        ),
                     }
                 )
 
@@ -903,9 +854,9 @@ class AdminService:
                         "success": job.success,
                         "error_message": job.error_message,
                         "started_at": job.started_at.isoformat(),
-                        "completed_at": job.completed_at.isoformat()
-                        if job.completed_at
-                        else None,
+                        "completed_at": (
+                            job.completed_at.isoformat() if job.completed_at else None
+                        ),
                     }
                 )
 
@@ -976,9 +927,9 @@ class AdminService:
                 "totals": {
                     "total_cost_cents": total_cost,
                     "total_tokens": total_tokens,
-                    "average_cost_per_token": total_cost / total_tokens
-                    if total_tokens > 0
-                    else 0,
+                    "average_cost_per_token": (
+                        total_cost / total_tokens if total_tokens > 0 else 0
+                    ),
                 },
                 "generated_at": datetime.utcnow().isoformat(),
             }
@@ -1020,9 +971,9 @@ class AdminService:
             )
 
             return {
-                "status": "healthy"
-                if db_healthy and success_rate > 0.8
-                else "degraded",
+                "status": (
+                    "healthy" if db_healthy and success_rate > 0.8 else "degraded"
+                ),
                 "checks": {
                     "database": "healthy" if db_healthy else "unhealthy",
                     "ai_services": "healthy" if success_rate > 0.8 else "degraded",
@@ -1137,12 +1088,14 @@ class AdminService:
                 "running_jobs": stuck_running_list,
                 "threshold_minutes": stuck_threshold_minutes,
                 "monitored_at": datetime.utcnow().isoformat(),
-                "recommendations": {
-                    "cleanup_needed": total_stuck > 0,
-                    "message": f"Found {total_stuck} stuck job(s). Consider running cleanup.",
-                }
-                if total_stuck > 0
-                else {"cleanup_needed": False, "message": "No stuck jobs detected."},
+                "recommendations": (
+                    {
+                        "cleanup_needed": total_stuck > 0,
+                        "message": f"Found {total_stuck} stuck job(s). Consider running cleanup.",
+                    }
+                    if total_stuck > 0
+                    else {"cleanup_needed": False, "message": "No stuck jobs detected."}
+                ),
             }
 
         except Exception as e:
@@ -1493,9 +1446,11 @@ class AdminService:
                             "user_id": payment.user_id,
                             "amount": float(payment.amount),
                             "currency": payment.currency,
-                            "timestamp": payment.completed_at.isoformat()
-                            if payment.completed_at
-                            else payment.created_at.isoformat(),
+                            "timestamp": (
+                                payment.completed_at.isoformat()
+                                if payment.completed_at
+                                else payment.created_at.isoformat()
+                            ),
                         }
                     )
 
@@ -1534,9 +1489,11 @@ class AdminService:
                             "user_id": job.user_id,
                             "document_id": job.document_id,
                             "error_message": job.error_message,
-                            "timestamp": job.completed_at.isoformat()
-                            if job.completed_at
-                            else job.started_at.isoformat(),
+                            "timestamp": (
+                                job.completed_at.isoformat()
+                                if job.completed_at
+                                else job.started_at.isoformat()
+                            ),
                         }
                     )
 
