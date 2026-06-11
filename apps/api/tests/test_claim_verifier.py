@@ -270,6 +270,23 @@ async def test_batching_multiple_claims_in_one_prompt():
 
 
 @pytest.mark.asyncio
+async def test_constructor_overrides_batch_size_and_abstract_limit():
+    source = make_source(canonical_metadata={"abstract": "ABCDEFGHIJ"})
+    ai = make_ai(llm_verdicts(("supported", "ok"), ("supported", "ok")))
+    verifier = ClaimVerifier(ai, batch_size=2, abstract_max_chars=5)
+
+    claims = verifier.extract_claims(CONTENT_THREE_CLAIMS, [source])
+    verdicts, llm_used = await verifier.verify_claims(claims, budget=50)
+
+    assert llm_used == 3
+    assert ai.call_with_fallback.call_count == 2
+    first_prompt = ai.call_with_fallback.call_args_list[0].args[0]
+    assert "Abstract: ABCDE" in first_prompt
+    assert "ABCDEF" not in first_prompt
+    assert [v.verdict for v in verdicts] == ["supported", "supported", "supported"]
+
+
+@pytest.mark.asyncio
 async def test_llm_failure_fails_open_to_uncertain():
     source = make_source(canonical_metadata={"abstract": ABSTRACT})
     ai = make_ai(side_effect=RuntimeError("all providers down"))

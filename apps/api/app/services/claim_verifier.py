@@ -167,13 +167,38 @@ def _match_source(citation: dict[str, Any], sources: list[Any]) -> Any | None:
 class ClaimVerifier:
     """LLM-backed claim-faithfulness checker (see module docstring)"""
 
-    def __init__(self, ai_service: Any):
+    def __init__(
+        self,
+        ai_service: Any,
+        *,
+        batch_size: int | None = None,
+        abstract_max_chars: int | None = None,
+    ):
         """
         Args:
             ai_service: object exposing async call_with_fallback(prompt, purpose)
                 (app.services.ai_service.AIService)
+            batch_size: Claims per LLM prompt. Defaults to Settings.
+            abstract_max_chars: Max abstract chars per source in prompts.
+                Defaults to Settings.
         """
         self.ai_service = ai_service
+        self.batch_size = max(
+            1,
+            int(
+                batch_size
+                if batch_size is not None
+                else settings.CLAIM_VERIFICATION_BATCH_SIZE
+            ),
+        )
+        self.abstract_max_chars = max(
+            1,
+            int(
+                abstract_max_chars
+                if abstract_max_chars is not None
+                else settings.CLAIM_ABSTRACT_MAX_CHARS
+            ),
+        )
 
     # ------------------------------------------------------------------
     # Claim extraction (pure, no LLM)
@@ -238,9 +263,8 @@ class ClaimVerifier:
             verdicts[index] = self._uncertain(claim, REASON_BUDGET)
 
         llm_used = 0
-        batch_size = max(1, settings.CLAIM_VERIFICATION_BATCH_SIZE)
-        for start in range(0, len(within_budget), batch_size):
-            batch = within_budget[start : start + batch_size]
+        for start in range(0, len(within_budget), self.batch_size):
+            batch = within_budget[start : start + self.batch_size]
             # Budget counts claims SENT to the LLM (even on failure) so a
             # flaky provider cannot turn the cap into a retry storm.
             llm_used += len(batch)
@@ -290,7 +314,7 @@ class ClaimVerifier:
             key = claim.source_id if claim.source_id is not None else claim.source_title
             if key not in labels:
                 labels[key] = f"S{len(labels) + 1}"
-                abstract = (claim.abstract or "")[: settings.CLAIM_ABSTRACT_MAX_CHARS]
+                abstract = (claim.abstract or "")[: self.abstract_max_chars]
                 source_blocks.append(
                     f"[{labels[key]}] {claim.source_title or 'Unknown source'}\n"
                     f"Abstract: {abstract}"
