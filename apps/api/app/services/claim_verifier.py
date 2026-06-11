@@ -319,16 +319,28 @@ class ClaimVerifier:
                     f"[{labels[key]}] {claim.source_title or 'Unknown source'}\n"
                     f"Abstract: {abstract}"
                 )
-            claim_lines.append(f'{position}. (source {labels[key]}) "{claim.sentence}"')
+            claim_lines.append(
+                f"{position}. (source {labels[key]}: "
+                f'"{claim.source_title or "Unknown source"}") "{claim.sentence}"'
+            )
 
         sources_text = "\n\n".join(source_blocks)
         claims_text = "\n".join(claim_lines)
-        return f"""You are an academic fact-checking assistant. For each numbered claim below, decide whether the claim is supported by the abstract of the source it cites.
+        return f"""You are an academic fact-checking assistant. For each numbered claim below, decide whether the claim is supported by the abstract of the ONE source it cites.
 
-Verdict definitions:
-- "supported": the abstract clearly supports the claim
-- "unsupported": the abstract contradicts the claim or contains nothing related to it
-- "uncertain": the abstract is related but insufficient to confirm the claim
+Rules:
+- Judge each claim ONLY against the abstract of its named source. Each claim names exactly one source (e.g. "source S2"); abstracts of OTHER sources in this prompt and your own background knowledge are irrelevant. If your explanation refers to content from a different source than the named one, your verdict is invalid.
+- Apply these steps IN ORDER and stop at the first that fits:
+  1. The named source's abstract is about a different subject or has no meaningful connection to the claim -> "unsupported".
+  2. The abstract states the opposite of the claim -> "unsupported".
+  3. The abstract directly states or clearly entails the claim -> "supported".
+  4. The abstract is on the same topic but does not state the specific information the claim asserts (exact numbers, other populations or domains, predictions, outcomes it never measured) -> "uncertain".
+- Consistency check: if your explanation says the abstract "does not state/specify/mention/provide" the claimed detail while being on the same topic, the verdict MUST be "uncertain", not "unsupported".
+
+Calibration examples:
+- Claim: "The drug reduced mortality by 30%" / abstract only says it reduced mortality -> "uncertain" (specific number never stated).
+- Claim: "The drug reduced mortality" / abstract says it had no effect on mortality -> "unsupported" (contradiction).
+- Claim: "The drug reduced mortality" / abstract is about crop irrigation -> "unsupported" (unrelated topic, NOT uncertain).
 
 SOURCES:
 {sources_text}
@@ -336,8 +348,8 @@ SOURCES:
 CLAIMS:
 {claims_text}
 
-Respond with ONLY valid JSON (no markdown, no extra text), one entry per claim, explanation is exactly one sentence:
-{{"verdicts": [{{"id": 1, "verdict": "supported", "explanation": "<one sentence>"}}]}}"""
+Respond with ONLY valid JSON (no markdown, no extra text), one entry per claim. In each entry repeat the named source label, then give the verdict and a one-sentence explanation based on that source's abstract only:
+{{"verdicts": [{{"id": 1, "source": "S1", "verdict": "supported", "explanation": "<one sentence>"}}]}}"""
 
     @staticmethod
     def _parse_batch_response(response: Any) -> dict[int, tuple[str, str]]:
