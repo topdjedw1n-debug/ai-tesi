@@ -1,0 +1,327 @@
+# Gold set for ClaimVerifier's LLM judgment (run via: python -m evals.run_claim_eval).
+# Each case pairs a cited sentence with the abstract of the source it cites and
+# the expected verdict: supported | unsupported | uncertain.
+#
+# Abstracts are ORIGINAL SYNTHETIC texts written for this dataset (not copied
+# from real papers): full ground-truth control and no licensing concerns.
+# Cases sharing a source_key share one synthetic source_id in the runner, so a
+# batch contains repeated sources and exercises prompt abstract deduplication.
+version: 1
+cases:
+  # ------------------------------------------------------------------
+  # supported: direct paraphrases and reasonable entailments
+  # ------------------------------------------------------------------
+  - id: clm-sup-001
+    expected: supported
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Attention-only architectures can replace recurrent components entirely in sequence transduction models [Verhoeven, 2017]."
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-sup-002
+    expected: supported
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Removing recurrence reduces training time on translation benchmarks [Verhoeven, 2017]."
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-sup-003
+    expected: supported
+    source_key: soil
+    source_title: "Nitrogen Fertilization and Soil Acidification in Long-Term Field Trials"
+    citation_text: "[Lindqvist, 2019]"
+    sentence: "Long-term nitrogen fertilization lowers topsoil pH in agricultural field trials [Lindqvist, 2019]."
+    abstract: >-
+      Analyzing 40 years of data from twelve agricultural field trials, we find that
+      sustained nitrogen fertilization progressively acidifies the topsoil, with mean
+      pH declining by 0.8 units. Liming only partially offsets the effect, and
+      acidification accelerates under higher application rates.
+  - id: clm-sup-004
+    expected: supported
+    source_key: soil
+    source_title: "Nitrogen Fertilization and Soil Acidification in Long-Term Field Trials"
+    citation_text: "[Lindqvist, 2019]"
+    sentence: "Liming compensates for fertilization-driven acidification only partially [Lindqvist, 2019]."
+    abstract: >-
+      Analyzing 40 years of data from twelve agricultural field trials, we find that
+      sustained nitrogen fertilization progressively acidifies the topsoil, with mean
+      pH declining by 0.8 units. Liming only partially offsets the effect, and
+      acidification accelerates under higher application rates.
+  - id: clm-sup-005
+    expected: supported
+    source_key: sleep
+    source_title: "Sleep Restriction and Working Memory in Adolescents"
+    citation_text: "[Okafor, 2021]"
+    sentence: "Restricting adolescents' sleep to six hours impairs their working memory performance [Okafor, 2021]."
+    abstract: >-
+      In a randomized crossover study with 84 adolescents, restricting sleep to six
+      hours per night for one week reduced working memory accuracy by 12 percent and
+      slowed reaction times, relative to a nine-hour control condition. Effects
+      persisted after two recovery nights.
+  - id: clm-sup-006
+    expected: supported
+    source_key: sleep
+    source_title: "Sleep Restriction and Working Memory in Adolescents"
+    citation_text: "[Okafor, 2021]"
+    sentence: "Cognitive deficits from a week of short sleep persist even after two nights of recovery sleep [Okafor, 2021]."
+    abstract: >-
+      In a randomized crossover study with 84 adolescents, restricting sleep to six
+      hours per night for one week reduced working memory accuracy by 12 percent and
+      slowed reaction times, relative to a nine-hour control condition. Effects
+      persisted after two recovery nights.
+  - id: clm-sup-007
+    expected: supported
+    source_key: coral
+    source_title: "Thermal Stress Thresholds for Reef-Building Corals"
+    citation_text: "[Maranhão, 2020]"
+    sentence: "Coral bleaching risk rises sharply once water temperatures exceed local summer maxima by one degree Celsius [Maranhão, 2020]."
+    abstract: >-
+      Combining satellite temperature records with reef surveys across 60 sites, we
+      show that bleaching probability increases sharply when sea surface temperature
+      exceeds the local summer maximum by one degree Celsius for four or more weeks.
+      Recovery rates depend strongly on the duration of exposure.
+  - id: clm-sup-008
+    expected: supported
+    source_key: vacc
+    source_title: "Text-Message Reminders and Vaccination Uptake: A Field Experiment"
+    citation_text: "[Bergström, 2018]"
+    sentence: "Simple SMS reminders measurably increase vaccination uptake [Bergström, 2018]."
+    abstract: >-
+      In a field experiment covering 31,000 patients, automated text-message
+      reminders increased influenza vaccination uptake by 4.6 percentage points.
+      Effects were largest among patients without a recent vaccination history,
+      and message wording mattered less than timing.
+  - id: clm-sup-009
+    expected: supported
+    source_key: vacc
+    source_title: "Text-Message Reminders and Vaccination Uptake: A Field Experiment"
+    citation_text: "[Bergström, 2018]"
+    sentence: "Reminder timing influenced vaccination uptake more than the exact wording of the message [Bergström, 2018]."
+    abstract: >-
+      In a field experiment covering 31,000 patients, automated text-message
+      reminders increased influenza vaccination uptake by 4.6 percentage points.
+      Effects were largest among patients without a recent vaccination history,
+      and message wording mattered less than timing.
+  - id: clm-sup-010
+    expected: supported
+    source_key: urban
+    source_title: "Street Trees and Summer Surface Temperatures in European Cities"
+    citation_text: "[Castellani, 2022]"
+    sentence: "Dense street tree canopies lower summer surface temperatures in European cities [Castellani, 2022]."
+    abstract: >-
+      Using thermal imagery from 47 European cities, we estimate that streets with
+      canopy cover above 30 percent are on average 3.1 degrees Celsius cooler at the
+      surface during summer heat events than comparable streets without trees. The
+      cooling effect grows with canopy density and is strongest in compact urban cores.
+
+  # ------------------------------------------------------------------
+  # unsupported: contradictions (5)
+  # ------------------------------------------------------------------
+  - id: clm-uns-001
+    expected: unsupported
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Attention-only models require roughly ten times more training time than recurrent baselines [Verhoeven, 2017]."
+    note: contradicts "substantially less training time"
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-uns-002
+    expected: unsupported
+    source_key: soil
+    source_title: "Nitrogen Fertilization and Soil Acidification in Long-Term Field Trials"
+    citation_text: "[Lindqvist, 2019]"
+    sentence: "Long-term nitrogen fertilization has been shown to raise topsoil pH [Lindqvist, 2019]."
+    note: direct contradiction (acidification = lower pH)
+    abstract: >-
+      Analyzing 40 years of data from twelve agricultural field trials, we find that
+      sustained nitrogen fertilization progressively acidifies the topsoil, with mean
+      pH declining by 0.8 units. Liming only partially offsets the effect, and
+      acidification accelerates under higher application rates.
+  - id: clm-uns-003
+    expected: unsupported
+    source_key: sleep
+    source_title: "Sleep Restriction and Working Memory in Adolescents"
+    citation_text: "[Okafor, 2021]"
+    sentence: "Adolescent working memory fully recovers after a single night of normal sleep [Okafor, 2021]."
+    note: contradicts persistence after two recovery nights
+    abstract: >-
+      In a randomized crossover study with 84 adolescents, restricting sleep to six
+      hours per night for one week reduced working memory accuracy by 12 percent and
+      slowed reaction times, relative to a nine-hour control condition. Effects
+      persisted after two recovery nights.
+  - id: clm-uns-004
+    expected: unsupported
+    source_key: vacc
+    source_title: "Text-Message Reminders and Vaccination Uptake: A Field Experiment"
+    citation_text: "[Bergström, 2018]"
+    sentence: "Text-message reminders had no measurable effect on vaccination rates [Bergström, 2018]."
+    note: contradicts the +4.6pp effect
+    abstract: >-
+      In a field experiment covering 31,000 patients, automated text-message
+      reminders increased influenza vaccination uptake by 4.6 percentage points.
+      Effects were largest among patients without a recent vaccination history,
+      and message wording mattered less than timing.
+  - id: clm-uns-005
+    expected: unsupported
+    source_key: urban
+    source_title: "Street Trees and Summer Surface Temperatures in European Cities"
+    citation_text: "[Castellani, 2022]"
+    sentence: "Street tree canopies were found to slightly increase surface temperatures during heat events [Castellani, 2022]."
+    note: contradicts the cooling effect
+    abstract: >-
+      Using thermal imagery from 47 European cities, we estimate that streets with
+      canopy cover above 30 percent are on average 3.1 degrees Celsius cooler at the
+      surface during summer heat events than comparable streets without trees. The
+      cooling effect grows with canopy density and is strongest in compact urban cores.
+
+  # ------------------------------------------------------------------
+  # unsupported: unrelated pairings (5)
+  # ------------------------------------------------------------------
+  - id: clm-uns-006
+    expected: unsupported
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Soil acidification accelerates under high nitrogen application rates [Verhoeven, 2017]."
+    note: soil claim cited to the attention abstract
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-uns-007
+    expected: unsupported
+    source_key: soil
+    source_title: "Nitrogen Fertilization and Soil Acidification in Long-Term Field Trials"
+    citation_text: "[Lindqvist, 2019]"
+    sentence: "Transformer models outperform recurrent networks on translation benchmarks [Lindqvist, 2019]."
+    note: NLP claim cited to the soil abstract
+    abstract: >-
+      Analyzing 40 years of data from twelve agricultural field trials, we find that
+      sustained nitrogen fertilization progressively acidifies the topsoil, with mean
+      pH declining by 0.8 units. Liming only partially offsets the effect, and
+      acidification accelerates under higher application rates.
+  - id: clm-uns-008
+    expected: unsupported
+    source_key: coral
+    source_title: "Thermal Stress Thresholds for Reef-Building Corals"
+    citation_text: "[Maranhão, 2020]"
+    sentence: "Adolescents who sleep less than seven hours show reduced working memory accuracy [Maranhão, 2020]."
+    note: sleep claim cited to the coral abstract
+    abstract: >-
+      Combining satellite temperature records with reef surveys across 60 sites, we
+      show that bleaching probability increases sharply when sea surface temperature
+      exceeds the local summer maximum by one degree Celsius for four or more weeks.
+      Recovery rates depend strongly on the duration of exposure.
+  - id: clm-uns-009
+    expected: unsupported
+    source_key: sleep
+    source_title: "Sleep Restriction and Working Memory in Adolescents"
+    citation_text: "[Okafor, 2021]"
+    sentence: "Coral bleaching probability rises after four weeks of elevated sea surface temperatures [Okafor, 2021]."
+    note: coral claim cited to the sleep abstract
+    abstract: >-
+      In a randomized crossover study with 84 adolescents, restricting sleep to six
+      hours per night for one week reduced working memory accuracy by 12 percent and
+      slowed reaction times, relative to a nine-hour control condition. Effects
+      persisted after two recovery nights.
+  - id: clm-uns-010
+    expected: unsupported
+    source_key: urban
+    source_title: "Street Trees and Summer Surface Temperatures in European Cities"
+    citation_text: "[Castellani, 2022]"
+    sentence: "Automated reminders increase influenza vaccination uptake among patients [Castellani, 2022]."
+    note: vaccination claim cited to the urban-trees abstract
+    abstract: >-
+      Using thermal imagery from 47 European cities, we estimate that streets with
+      canopy cover above 30 percent are on average 3.1 degrees Celsius cooler at the
+      surface during summer heat events than comparable streets without trees. The
+      cooling effect grows with canopy density and is strongest in compact urban cores.
+
+  # ------------------------------------------------------------------
+  # uncertain: related but insufficient to confirm
+  # ------------------------------------------------------------------
+  - id: clm-unc-001
+    expected: uncertain
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Attention-only models improve translation quality by 4.1 BLEU points over recurrent baselines [Verhoeven, 2017]."
+    note: abstract says "improves output quality" but gives no number
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-unc-002
+    expected: uncertain
+    source_key: attn
+    source_title: "Attention-Only Sequence Transduction"
+    citation_text: "[Verhoeven, 2017]"
+    sentence: "Attention-only architectures also achieve state-of-the-art results in speech recognition [Verhoeven, 2017]."
+    note: domain never mentioned in the abstract
+    abstract: >-
+      We introduce a sequence transduction architecture that relies exclusively on
+      attention mechanisms, removing recurrent and convolutional components entirely.
+      On two machine translation benchmarks the model improves output quality while
+      requiring substantially less training time than recurrent baselines.
+  - id: clm-unc-003
+    expected: uncertain
+    source_key: soil
+    source_title: "Nitrogen Fertilization and Soil Acidification in Long-Term Field Trials"
+    citation_text: "[Lindqvist, 2019]"
+    sentence: "Fertilization-driven acidification reduces wheat yields by up to 15 percent [Lindqvist, 2019]."
+    note: yields are never discussed in the abstract
+    abstract: >-
+      Analyzing 40 years of data from twelve agricultural field trials, we find that
+      sustained nitrogen fertilization progressively acidifies the topsoil, with mean
+      pH declining by 0.8 units. Liming only partially offsets the effect, and
+      acidification accelerates under higher application rates.
+  - id: clm-unc-004
+    expected: uncertain
+    source_key: sleep
+    source_title: "Sleep Restriction and Working Memory in Adolescents"
+    citation_text: "[Okafor, 2021]"
+    sentence: "Sleep restriction impairs working memory in adults as well as adolescents [Okafor, 2021]."
+    note: study population is adolescents only; adult claim is an overreach
+    abstract: >-
+      In a randomized crossover study with 84 adolescents, restricting sleep to six
+      hours per night for one week reduced working memory accuracy by 12 percent and
+      slowed reaction times, relative to a nine-hour control condition. Effects
+      persisted after two recovery nights.
+  - id: clm-unc-005
+    expected: uncertain
+    source_key: coral
+    source_title: "Thermal Stress Thresholds for Reef-Building Corals"
+    citation_text: "[Maranhão, 2020]"
+    sentence: "Most reefs will experience annual bleaching events by 2050 [Maranhão, 2020]."
+    note: forward projection the abstract does not make
+    abstract: >-
+      Combining satellite temperature records with reef surveys across 60 sites, we
+      show that bleaching probability increases sharply when sea surface temperature
+      exceeds the local summer maximum by one degree Celsius for four or more weeks.
+      Recovery rates depend strongly on the duration of exposure.
+  - id: clm-unc-006
+    expected: uncertain
+    source_key: urban
+    source_title: "Street Trees and Summer Surface Temperatures in European Cities"
+    citation_text: "[Castellani, 2022]"
+    sentence: "Urban tree planting reduces summertime heat-related mortality [Castellani, 2022]."
+    note: mortality outcome never measured; only surface temperatures
+    abstract: >-
+      Using thermal imagery from 47 European cities, we estimate that streets with
+      canopy cover above 30 percent are on average 3.1 degrees Celsius cooler at the
+      surface during summer heat events than comparable streets without trees. The
+      cooling effect grows with canopy density and is strongest in compact urban cores.
