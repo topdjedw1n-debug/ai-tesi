@@ -88,7 +88,11 @@ async def run_claim_verification_stage(
             },
         )
 
-        verifier = ClaimVerifier(ai_service_factory(db))
+        verifier = ClaimVerifier(
+            ai_service_factory(db),
+            batch_size=config.CLAIM_VERIFICATION_BATCH_SIZE,
+            abstract_max_chars=config.CLAIM_ABSTRACT_MAX_CHARS,
+        )
         budget_remaining = max(0, config.CLAIM_VERIFICATION_MAX_CHECKS)
         total_claims = 0
         total_checked = 0

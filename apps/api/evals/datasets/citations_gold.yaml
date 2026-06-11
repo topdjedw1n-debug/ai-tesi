@@ -1,0 +1,296 @@
+# Gold set for CitationVerifier (run via: python -m evals.run_citation_eval).
+# Expected labels use the document-status vocabulary of map_verification_status:
+#   verified   - source resolves and the title matches (score >= 0.90)
+#   mismatched - identifier (DOI/arXiv) resolves but the cited title is a
+#                different paper (only reachable via identifier hits, so every
+#                mismatched case MUST carry a Crossref-registered DOI or an
+#                arXiv id, plus canonical_title for the CI similarity guard)
+#   not_found  - the source does not exist in any bibliographic database
+# All entries hand-curated from public bibliographic metadata.
+version: 1
+cases:
+  # ------------------------------------------------------------------
+  # verified: DOI hits (Crossref-registered DOIs, correct titles)
+  # ------------------------------------------------------------------
+  - id: cit-ver-001
+    expected: verified
+    group: doi_hit
+    note: ResNet paper, IEEE/CVPR DOI registered in Crossref
+    source:
+      title: "Deep Residual Learning for Image Recognition"
+      authors: ["Kaiming He", "Xiangyu Zhang", "Shaoqing Ren", "Jian Sun"]
+      year: 2016
+      doi: "10.1109/CVPR.2016.90"
+  - id: cit-ver-002
+    expected: verified
+    group: doi_hit
+    note: Breiman's Random Forests, Springer DOI
+    source:
+      title: "Random Forests"
+      authors: ["Leo Breiman"]
+      year: 2001
+      doi: "10.1023/A:1010933404324"
+  - id: cit-ver-003
+    expected: verified
+    group: doi_hit
+    note: Nature deep learning review
+    source:
+      title: "Deep learning"
+      authors: ["Yann LeCun", "Yoshua Bengio", "Geoffrey Hinton"]
+      year: 2015
+      doi: "10.1038/nature14539"
+  - id: cit-ver-004
+    expected: verified
+    group: doi_hit
+    note: AlexNet CACM republication
+    source:
+      title: "ImageNet classification with deep convolutional neural networks"
+      authors: ["Alex Krizhevsky", "Ilya Sutskever", "Geoffrey E. Hinton"]
+      year: 2017
+      doi: "10.1145/3065386"
+  - id: cit-ver-005
+    expected: verified
+    group: doi_hit
+    note: LSTM, Neural Computation
+    source:
+      title: "Long Short-Term Memory"
+      authors: ["Sepp Hochreiter", "Jürgen Schmidhuber"]
+      year: 1997
+      doi: "10.1162/neco.1997.9.8.1735"
+  - id: cit-ver-006
+    expected: verified
+    group: doi_hit
+    note: AlphaGo, Nature
+    source:
+      title: "Mastering the game of Go with deep neural networks and tree search"
+      authors: ["David Silver", "Aja Huang"]
+      year: 2016
+      doi: "10.1038/nature16961"
+
+  # ------------------------------------------------------------------
+  # verified: arXiv-id-only hits
+  # ------------------------------------------------------------------
+  - id: cit-ver-007
+    expected: verified
+    group: arxiv_hit
+    note: BERT via arXiv id only
+    source:
+      title: "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+      authors: ["Jacob Devlin", "Ming-Wei Chang", "Kenton Lee", "Kristina Toutanova"]
+      year: 2018
+      arxiv_id: "1810.04805"
+  - id: cit-ver-008
+    expected: verified
+    group: arxiv_hit
+    note: Transformer via arXiv id only
+    source:
+      title: "Attention Is All You Need"
+      authors: ["Ashish Vaswani", "Noam Shazeer"]
+      year: 2017
+      arxiv_id: "1706.03762"
+
+  # ------------------------------------------------------------------
+  # verified: title-search-only (no identifier; exercises provider cascade)
+  # ------------------------------------------------------------------
+  - id: cit-ver-009
+    expected: verified
+    group: title_search
+    note: GAN paper, well indexed everywhere
+    source:
+      title: "Generative Adversarial Nets"
+      authors: ["Ian Goodfellow"]
+      year: 2014
+  - id: cit-ver-010
+    expected: verified
+    group: title_search
+    note: Adam optimizer, indexed on arXiv/S2/OpenAlex
+    source:
+      title: "Adam: A Method for Stochastic Optimization"
+      authors: ["Diederik P. Kingma", "Jimmy Ba"]
+      year: 2015
+
+  # ------------------------------------------------------------------
+  # verified: corrupted_minor (DOI + cosmetic title noise; normalize_title
+  # erases case/punctuation, so these must NOT be flagged)
+  # ------------------------------------------------------------------
+  - id: cit-ver-011
+    expected: verified
+    group: corrupted_minor
+    note: casing/punctuation noise only
+    source:
+      title: "deep residual learning, for image recognition!"
+      authors: ["Kaiming He"]
+      year: 2016
+      doi: "10.1109/CVPR.2016.90"
+  - id: cit-ver-012
+    expected: verified
+    group: corrupted_minor
+    note: shouting-case variant
+    source:
+      title: "LONG SHORT-TERM MEMORY"
+      authors: ["Sepp Hochreiter"]
+      year: 1997
+      doi: "10.1162/neco.1997.9.8.1735"
+
+  # ------------------------------------------------------------------
+  # mismatched: real identifier + substantially different (real) title
+  # ------------------------------------------------------------------
+  - id: cit-mis-001
+    expected: mismatched
+    group: corrupted_major
+    note: ResNet DOI cited with the VGG paper title
+    canonical_title: "Deep Residual Learning for Image Recognition"
+    source:
+      title: "Very Deep Convolutional Networks for Large-Scale Image Recognition"
+      authors: ["Kaiming He"]
+      year: 2016
+      doi: "10.1109/CVPR.2016.90"
+  - id: cit-mis-002
+    expected: mismatched
+    group: corrupted_major
+    note: Random Forests DOI cited with an invented boosting title
+    canonical_title: "Random Forests"
+    source:
+      title: "Gradient Boosted Decision Trees for Scalable Ranking"
+      authors: ["Leo Breiman"]
+      year: 2001
+      doi: "10.1023/A:1010933404324"
+  - id: cit-mis-003
+    expected: mismatched
+    group: corrupted_major
+    note: Nature deep learning review DOI with an RL survey title
+    canonical_title: "Deep learning"
+    source:
+      title: "A Survey of Reinforcement Learning Algorithms"
+      authors: ["Yann LeCun"]
+      year: 2015
+      doi: "10.1038/nature14539"
+  - id: cit-mis-004
+    expected: mismatched
+    group: corrupted_major
+    note: LSTM DOI cited with the seq2seq paper title
+    canonical_title: "Long Short-Term Memory"
+    source:
+      title: "Sequence to Sequence Learning with Neural Networks"
+      authors: ["Sepp Hochreiter"]
+      year: 1997
+      doi: "10.1162/neco.1997.9.8.1735"
+  - id: cit-mis-005
+    expected: mismatched
+    group: corrupted_major
+    note: AlexNet DOI cited with the ZFNet paper title
+    canonical_title: "ImageNet classification with deep convolutional neural networks"
+    source:
+      title: "Visualizing and Understanding Convolutional Networks"
+      authors: ["Alex Krizhevsky"]
+      year: 2017
+      doi: "10.1145/3065386"
+  - id: cit-mis-006
+    expected: mismatched
+    group: corrupted_major
+    note: AlphaGo DOI cited with the DQN paper title
+    canonical_title: "Mastering the game of Go with deep neural networks and tree search"
+    source:
+      title: "Human-level control through deep reinforcement learning"
+      authors: ["David Silver"]
+      year: 2016
+      doi: "10.1038/nature16961"
+  - id: cit-mis-007
+    expected: mismatched
+    group: corrupted_major
+    note: BERT arXiv id cited with the ELMo paper title
+    canonical_title: "BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding"
+    source:
+      title: "Deep Contextualized Word Representations"
+      authors: ["Jacob Devlin"]
+      year: 2018
+      arxiv_id: "1810.04805"
+  - id: cit-mis-008
+    expected: mismatched
+    group: corrupted_major
+    note: Transformer arXiv id cited with the ConvS2S paper title
+    canonical_title: "Attention Is All You Need"
+    source:
+      title: "Convolutional Sequence to Sequence Learning"
+      authors: ["Ashish Vaswani"]
+      year: 2017
+      arxiv_id: "1706.03762"
+
+  # ------------------------------------------------------------------
+  # not_found: fabricated sources (plausible-sounding, do not exist)
+  # ------------------------------------------------------------------
+  - id: cit-nf-001
+    expected: not_found
+    group: fabricated
+    source:
+      title: "A Longitudinal Study of Recursive Self-Attention in Distributed Microservice Architectures"
+      authors: ["Marta Velyka", "Johan Kessler"]
+      year: 2021
+  - id: cit-nf-002
+    expected: not_found
+    group: fabricated
+    source:
+      title: "Quantum-Resistant Gradient Descent for Federated Edge Learning in Smart Agriculture"
+      authors: ["Priya Natarajan"]
+      year: 2022
+  - id: cit-nf-003
+    expected: not_found
+    group: fabricated
+    source:
+      title: "Neuro-Symbolic Pipelines for Predicting Coffee Harvest Yields from Satellite Imagery"
+      authors: ["Carlos Mendieta", "Ana Sofia Rüegg"]
+      year: 2020
+  - id: cit-nf-004
+    expected: not_found
+    group: fabricated
+    source:
+      title: "Adaptive Mesh Refinement Strategies for Emotion Recognition in Underwater Robotics"
+      authors: ["Tomasz Wierzbicki"]
+      year: 2019
+  - id: cit-nf-005
+    expected: not_found
+    group: fabricated
+    source:
+      title: "On the Convergence of Stochastic Gravity Models in Urban Crowd Simulation"
+      authors: ["Helena Brandt", "Yusuf Demir"]
+      year: 2023
+  - id: cit-nf-006
+    expected: not_found
+    group: fabricated
+    source:
+      title: "Bayesian Hierarchies for Real-Time Translation of Extinct Languages"
+      authors: ["Ingrid Solberg"]
+      year: 2021
+  - id: cit-nf-007
+    expected: not_found
+    group: fabricated
+    source:
+      title: "Self-Healing Microkernel Architectures for Planetary Rover Swarms"
+      authors: ["Dmitri Voloshyn"]
+      year: 2018
+  # Syntactically valid but nonexistent DOIs: exercises the DOI-404 ->
+  # title-search fallthrough, which must also come up empty.
+  - id: cit-nf-008
+    expected: not_found
+    group: fabricated_doi
+    source:
+      title: "Holographic Memory Compression for Large Language Models"
+      authors: ["Sandra Okoye"]
+      year: 2024
+      doi: "10.9999/tesigo.fake.2024.001"
+  - id: cit-nf-009
+    expected: not_found
+    group: fabricated_doi
+    source:
+      title: "Entropy-Guided Curriculum Learning for Autonomous Beekeeping"
+      authors: ["Mikkel Andersen"]
+      year: 2024
+      doi: "10.9999/tesigo.fake.2024.002"
+  - id: cit-nf-010
+    expected: not_found
+    group: fabricated_doi
+    source:
+      title: "Federated Dream Synthesis: Generative Replay Across Sleep Cycles"
+      authors: ["Lucia Ferraro"]
+      year: 2024
+      doi: "10.9999/tesigo.fake.2024.003"
