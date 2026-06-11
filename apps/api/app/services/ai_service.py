@@ -359,6 +359,45 @@ class AIService:
             logger.error(f"Error getting user usage: {e}")
             raise AIProviderError(f"Failed to get usage statistics: {str(e)}") from e
 
+    async def call_with_fallback(
+        self, prompt: str, purpose: str = "ai_call"
+    ) -> dict[str, Any]:
+        """
+        Call the configured AI fallback chain with a raw prompt.
+
+        Tries each (provider, model) from AI_FALLBACK_CHAIN_LIST in order
+        (each provider already has retry + circuit breaker). When
+        AI_ENABLE_FALLBACK is off, only the first chain entry is used.
+
+        Returns:
+            Provider response dict: parsed JSON keys when the model returned
+            valid JSON, otherwise {"content": text}; always plus "tokens_used".
+
+        Raises:
+            AllProvidersFailedError: If every provider in the chain fails.
+        """
+        from app.core.exceptions import AllProvidersFailedError
+
+        chain = settings.AI_FALLBACK_CHAIN_LIST
+        if not settings.AI_ENABLE_FALLBACK:
+            chain = chain[:1]
+
+        last_error: Exception | None = None
+        for provider, model in chain:
+            try:
+                return await self._call_ai_provider(provider, model, prompt)
+            except Exception as e:
+                last_error = e
+                logger.warning(
+                    f"❌ Failed {provider}/{model} for {purpose}: "
+                    f"{type(e).__name__}: {str(e)[:200]}"
+                )
+
+        raise AllProvidersFailedError(
+            f"All AI providers failed for {purpose}. Tried {len(chain)} provider(s). "
+            f"Last error: {type(last_error).__name__ if last_error else 'unknown'}"
+        )
+
     async def _call_ai_provider(
         self, provider: str, model: str, prompt: str
     ) -> dict[str, Any]:

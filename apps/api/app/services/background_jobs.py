@@ -15,20 +15,51 @@ from typing import Any, TypeVar
 
 import redis.asyncio as aioredis
 from sqlalchemy import select, update
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import database
 from app.core.config import settings
-from app.core.exceptions import NotFoundError, QualityThresholdNotMetError
-from app.models.document import AIGenerationJob, Document, DocumentSection
+from app.core.exceptions import (
+    CitationIntegrityError,
+    NotFoundError,
+    QualityThresholdNotMetError,
+)
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentSection,
+)
 from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_service import AIService
+from app.services.citation_verifier import (
+    CitationVerifier,
+)
+from app.services.claim_verification_stage import (
+    run_claim_verification_stage,
+)
+from app.services.db_helpers import (
+    safe_scalar_one_or_none as _safe_scalar_one_or_none,
+)
+from app.services.db_helpers import (
+    safe_scalars_all as _safe_scalars_all,
+)
 from app.services.document_service import DocumentService
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
+from app.services.provenance_service import record_event as _record_provenance
 from app.services.quality_validator import QualityValidator
+from app.services.source_verification_stage import (
+    map_verification_status as _map_verification_status,  # noqa: F401
+)
+from app.services.source_verification_stage import (
+    persist_cited_sources as _persist_cited_sources,
+)
+from app.services.source_verification_stage import (
+    run_citation_verification_stage,
+)
 from app.services.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -48,60 +79,6 @@ async def get_redis() -> aioredis.Redis:
             socket_timeout=5,
         )
     return _redis_client
-
-
-def _safe_scalar_one_or_none(result: Any, query_name: str) -> Any | None:
-    """
-    Safely read scalar_one_or_none from SQLAlchemy execute result.
-
-    Some fail-path tests intentionally return None from mocked db.execute().
-    We treat that as "not found" instead of raising AttributeError.
-    """
-    if result is None:
-        logger.warning(
-            f"DB execute returned None for {query_name}; using fallback None"
-        )
-        return None
-
-    if not hasattr(result, "scalar_one_or_none"):
-        logger.warning(
-            f"DB result for {query_name} has no scalar_one_or_none(); using fallback None"
-        )
-        return None
-
-    try:
-        return result.scalar_one_or_none()
-    except Exception as e:
-        logger.warning(
-            f"Failed to read scalar_one_or_none() for {query_name}; using fallback None: {e}"
-        )
-        return None
-
-
-def _safe_scalars_all(result: Any, query_name: str) -> list[Any]:
-    """
-    Safely read scalars().all() from SQLAlchemy execute result.
-
-    Returns an empty list on mocked/invalid results to keep recovery paths resilient.
-    """
-    if result is None:
-        logger.warning(f"DB execute returned None for {query_name}; using fallback []")
-        return []
-
-    if not hasattr(result, "scalars"):
-        logger.warning(
-            f"DB result for {query_name} has no scalars(); using fallback []"
-        )
-        return []
-
-    try:
-        values = result.scalars().all()
-        return list(values) if values else []
-    except Exception as e:
-        logger.warning(
-            f"Failed to read scalars().all() for {query_name}; using fallback []: {e}"
-        )
-        return []
 
 
 async def _clear_generation_checkpoint(document_id: int, context: str) -> None:
@@ -234,6 +211,35 @@ async def send_periodic_heartbeat(
             # Continue loop
 
 
+async def _check_panel_quality(
+    db: AsyncSession,
+    content: str,
+    section_title: str,
+    target_word_count: int,
+) -> dict[str, Any] | None:
+    """
+    Run the LLM reviewer panel for one section attempt (GATE 4).
+
+    Returns the QualityValidator result dict ({"passed", "overall_score",
+    "issues", ...} plus panel keys). ⚠️ Never raises: on unexpected failure
+    returns None and the caller behaves as if the panel had not run (the
+    post-loop heuristic then produces a real score instead of a fabricated
+    one). Only the panel's verdict can fail the gate, never its outage.
+    """
+    try:
+        validator = QualityValidator(ai_service=AIService(db))
+        return await validator.validate_section(
+            content=content,
+            outline_section={
+                "title": section_title,
+                "target_word_count": target_word_count,
+            },
+        )
+    except Exception as e:
+        logger.error(f"Reviewer panel crashed for section '{section_title}': {e}")
+        return None
+
+
 # ========== Quality Gate Helper Functions (Task 3.2) ==========
 
 
@@ -348,6 +354,7 @@ async def _check_ai_detection_quality(
     provider: str,
     model: str,
     language: str,
+    score_trace: dict[str, Any] | None = None,
 ) -> tuple[float | None, str, str, bool, str | None]:
     """
     Check AI detection score and run multi-pass if needed
@@ -359,6 +366,10 @@ async def _check_ai_detection_quality(
         provider: AI provider (openai/anthropic)
         model: AI model name
         language: Target language code for the output
+        score_trace: Optional dict the caller can pass to receive the
+            before/after AI scores (initial_ai_score, final_ai_score,
+            multi_pass) for the provenance ledger. Kwarg-only by convention
+            so existing 5-tuple mocks stay compatible.
 
     Returns:
         Tuple of (ai_score, final_content, provider_used, passed, error_message)
@@ -376,6 +387,9 @@ async def _check_ai_detection_quality(
             ai_score = ai_result.get("ai_probability", 0.0)
             provider_used = ai_result.get("provider", "unknown")
             final_content = content
+            if score_trace is not None:
+                score_trace["initial_ai_score"] = ai_score
+                score_trace["multi_pass"] = False
 
             # If score too high, try multi-pass humanization
             if ai_score > threshold:
@@ -394,7 +408,12 @@ async def _check_ai_detection_quality(
                 )
 
                 ai_score = final_ai_score
+                if score_trace is not None:
+                    score_trace["multi_pass"] = True
                 logger.info(f"After multi-pass: AI score = {final_ai_score:.1f}%")
+
+            if score_trace is not None:
+                score_trace["final_ai_score"] = ai_score
 
             passed = ai_score <= threshold
             error_msg = (
@@ -421,6 +440,70 @@ async def _check_ai_detection_quality(
 
 
 # ========== End Quality Gate Helpers ==========
+
+
+# ========== Citation Verification Helpers (Academic Quality Engine) ==========
+
+
+async def _safe_send_progress(user_id: int, message: dict[str, Any]) -> None:
+    """
+    Send a websocket progress message without ever raising.
+
+    manager.send_progress only swallows WebSocket exceptions; anything else
+    (e.g. Starlette's RuntimeError on a socket closed mid-send) propagates
+    and must not be able to derail the verification stage or the strict gate.
+    Used by NEW citation-verification code only.
+    """
+    try:
+        await manager.send_progress(user_id, message)
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to send citation progress update: {e}")
+
+
+async def _run_citation_verification_stage(
+    db: AsyncSession, document_id: int, user_id: int
+) -> None:
+    """
+    Thin wrapper around source_verification_stage.run_citation_verification_stage.
+
+    Passes this module's globals (settings, CitationVerifier,
+    _safe_send_progress) at call time so test monkeypatches on
+    app.services.background_jobs keep reaching the stage.
+    """
+    await run_citation_verification_stage(
+        db,
+        document_id,
+        user_id,
+        config=settings,
+        verifier_factory=CitationVerifier,
+        send_progress=_safe_send_progress,
+    )
+
+
+# ========== Claim Faithfulness Helpers (Academic Quality Engine) ==========
+
+
+async def _run_claim_verification_stage(
+    db: AsyncSession, document_id: int, user_id: int
+) -> None:
+    """
+    Thin wrapper around claim_verification_stage.run_claim_verification_stage.
+
+    Passes this module's globals (settings, AIService, _safe_send_progress)
+    at call time so test monkeypatches on app.services.background_jobs keep
+    reaching the stage.
+    """
+    await run_claim_verification_stage(
+        db,
+        document_id,
+        user_id,
+        config=settings,
+        ai_service_factory=AIService,
+        send_progress=_safe_send_progress,
+    )
+
+
+# ========== End Citation Verification Helpers ==========
 
 
 class BackgroundJobService:
@@ -637,6 +720,14 @@ class BackgroundJobService:
                         final_plagiarism_score = None
                         final_ai_score = None
                         final_quality_score = None
+                        ai_trace: dict[str, Any] = {}
+                        panel_result: dict[str, Any] | None = None
+                        panel_feedback: list[str] = []
+                        # Reviewer remarks from a failed attempt are appended
+                        # here so the NEXT attempt's prompt addresses them;
+                        # identical to additional_requirements when the panel
+                        # is disabled or hasn't flagged anything
+                        effective_requirements = additional_requirements
 
                         for attempt in range(
                             settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
@@ -669,7 +760,7 @@ class BackgroundJobService:
                                 citation_style=CitationStyle.APA,  # Default to APA
                                 humanize=False,  # Will humanize in next step
                                 context_sections=context_list,
-                                additional_requirements=additional_requirements,
+                                additional_requirements=effective_requirements,
                             )
 
                             # Step 3: Humanize content (mandatory)
@@ -689,6 +780,9 @@ class BackgroundJobService:
 
                             gates_passed = True
                             attempt_errors = []
+                            # Reset per attempt: stale remarks about an older
+                            # draft must not leak into later prompts
+                            panel_feedback = []
 
                             # GATE 1: Grammar Check (ALWAYS RUN)
                             (
@@ -738,6 +832,9 @@ class BackgroundJobService:
                                 )
 
                             # GATE 3: AI Detection Check (ALWAYS RUN, includes multi-pass humanization)
+                            ai_trace = (
+                                {}
+                            )  # fresh trace per attempt; final attempt's survives
                             (
                                 ai_score,
                                 humanized_content,
@@ -751,6 +848,7 @@ class BackgroundJobService:
                                 document.ai_provider,
                                 document.ai_model,
                                 document.language,
+                                score_trace=ai_trace,
                             )
                             final_ai_score = ai_score  # Save for DB
 
@@ -770,6 +868,59 @@ class BackgroundJobService:
                                     f"✅ AI detection gate: {ai_score_text} (passed={ai_passed})"
                                 )
 
+                            # GATE 4: Reviewer Panel (flag-gated: 4 LLM calls
+                            # per run, unlike gates 1-3 it does NOT always
+                            # run; also skipped when gates 1-3 already failed
+                            # this attempt - the draft will be regenerated
+                            # anyway, no point reviewing a doomed draft)
+                            if settings.QUALITY_PANEL_ENABLED and gates_passed:
+                                # Reset so a crash here doesn't leave scores/
+                                # reports describing an older attempt's draft
+                                panel_result = None
+                                final_quality_score = None
+                                panel_attempt = await _check_panel_quality(
+                                    db,
+                                    humanized_content,
+                                    section_title,
+                                    current_section.get("word_count", 500),
+                                )
+                                if panel_attempt is None:
+                                    logger.warning(
+                                        f"⚠️ Panel gate skipped for section "
+                                        f"{section_index} (panel crashed); "
+                                        f"heuristic scoring will apply"
+                                    )
+                                else:
+                                    panel_result = panel_attempt
+                                    final_quality_score = panel_result.get(
+                                        "overall_score", 75.0
+                                    )
+                                    panel_passed = panel_result.get("passed", True)
+
+                                    if (
+                                        not panel_passed
+                                        and settings.QUALITY_GATES_ENABLED
+                                    ):
+                                        gates_passed = False
+                                        panel_feedback = panel_result.get(
+                                            "feedback_for_regeneration", []
+                                        )
+                                        panel_error_msg = (
+                                            f"Reviewer panel score "
+                                            f"{final_quality_score:.1f} "
+                                            f"(critical_override="
+                                            f"{panel_result.get('critical_override', False)})"
+                                        )
+                                        attempt_errors.append(panel_error_msg)
+                                        logger.warning(
+                                            f"❌ Panel gate FAILED: {panel_error_msg}"
+                                        )
+                                    else:
+                                        logger.info(
+                                            f"✅ Panel gate: {final_quality_score:.1f} "
+                                            f"(passed={panel_passed})"
+                                        )
+
                             # ========== QUALITY GATES DECISION ==========
 
                             if not settings.QUALITY_GATES_ENABLED or gates_passed:
@@ -786,6 +937,28 @@ class BackgroundJobService:
                                     f"⚠️ Section {section_index} attempt {attempt_num} failed quality gates: "
                                     f"{', '.join(attempt_errors)}. Regenerating..."
                                 )
+
+                                # Feed reviewer remarks into the next
+                                # attempt's prompt; panel_feedback is reset
+                                # every attempt, so this is empty unless the
+                                # panel flagged THIS attempt's draft - in
+                                # that case drop any older feedback too
+                                if panel_feedback:
+                                    feedback_block = "\n".join(
+                                        f"- {item}" for item in panel_feedback
+                                    )
+                                    base_requirements = (
+                                        f"{additional_requirements}\n\n"
+                                        if additional_requirements
+                                        else ""
+                                    )
+                                    effective_requirements = (
+                                        f"{base_requirements}"
+                                        f"Address the following reviewer feedback "
+                                        f"from the previous draft:\n{feedback_block}"
+                                    )
+                                else:
+                                    effective_requirements = additional_requirements
 
                                 # WebSocket: Notify regeneration
                                 await manager.send_progress(
@@ -806,43 +979,72 @@ class BackgroundJobService:
                                 # GATES FAILED and NO ATTEMPTS LEFT → FAIL JOB
                                 error_detail = f"Section {section_index} quality validation failed after {settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} attempts: {', '.join(attempt_errors)}"
                                 logger.error(f"❌ {error_detail}")
+                                # Preserve the failing attempt's reviewer
+                                # detail - the success-path persistence below
+                                # is never reached, and without this the
+                                # remarks that killed the job are lost
+                                if (
+                                    settings.PROVENANCE_LEDGER_ENABLED
+                                    and panel_result is not None
+                                ):
+                                    await _record_provenance(
+                                        db,
+                                        document_id,
+                                        stage="quality",
+                                        event_type="panel_gate_failed",
+                                        payload={
+                                            "section_index": section_index,
+                                            "attempts": attempt_num,
+                                            "overall_score": panel_result.get(
+                                                "overall_score"
+                                            ),
+                                            "critical_override": panel_result.get(
+                                                "critical_override", False
+                                            ),
+                                            "panel": panel_result.get("panel"),
+                                        },
+                                    )
                                 raise QualityThresholdNotMetError(detail=error_detail)
 
                         # ========== REGENERATION LOOP END ==========
 
                         # If we reached here, section passed all quality gates
-                        # Run final quality validation (non-blocking, for stats only)
+                        # Run final quality validation (non-blocking, for
+                        # stats only) - unless the reviewer panel already
+                        # scored this attempt inside the gate loop
+                        if final_quality_score is None:
+                            try:
+                                logger.info(
+                                    f"📊 Running quality validation for section {section_index}..."
+                                )
 
-                        try:
-                            logger.info(
-                                f"📊 Running quality validation for section {section_index}..."
-                            )
+                                quality_validator = QualityValidator()
+                                quality_result = (
+                                    await quality_validator.validate_section(
+                                        content=final_content,
+                                        outline_section={
+                                            "title": section_title,
+                                            "target_word_count": current_section.get(
+                                                "word_count", 500
+                                            ),
+                                        },
+                                    )
+                                )
 
-                            quality_validator = QualityValidator()
-                            quality_result = await quality_validator.validate_section(
-                                content=final_content,
-                                outline_section={
-                                    "title": section_title,
-                                    "target_word_count": current_section.get(
-                                        "word_count", 500
-                                    ),
-                                },
-                            )
+                                final_quality_score = quality_result.get(
+                                    "overall_score", 75.0
+                                )
 
-                            final_quality_score = quality_result.get(
-                                "overall_score", 75.0
-                            )
+                                logger.info(
+                                    f"Quality validation: score={final_quality_score:.1f}, "
+                                    f"issues={len(quality_result.get('issues', []))}"
+                                )
 
-                            logger.info(
-                                f"Quality validation: score={final_quality_score:.1f}, "
-                                f"issues={len(quality_result.get('issues', []))}"
-                            )
-
-                        except Exception as e:
-                            logger.error(
-                                f"Quality validation failed for section {section_index}: {e}"
-                            )
-                            final_quality_score = 75.0  # Neutral score on error
+                            except Exception as e:
+                                logger.error(
+                                    f"Quality validation failed for section {section_index}: {e}"
+                                )
+                                final_quality_score = 75.0  # Neutral score on error
 
                         # ✅ BUG FIX: Defensive check - final_content must be set
                         if final_content is None:
@@ -889,7 +1091,119 @@ class BackgroundJobService:
                             )
                             db.add(section)
 
+                        if panel_result is not None:
+                            # Assign a NEW dict (JSON columns don't track
+                            # in-place mutation)
+                            section.quality_panel = panel_result.get("panel")
+
                         await db.commit()
+
+                        # Academic Quality Engine: persist this section's
+                        # cited sources (only the final accepted attempt's;
+                        # failed regeneration attempts were discarded above).
+                        # section.id is populated post-commit thanks to
+                        # expire_on_commit=False. Non-critical: never raises.
+                        if settings.CITATION_VERIFICATION_ENABLED:
+                            await _persist_cited_sources(
+                                db,
+                                document_id,
+                                section.id,
+                                section_result.get("cited_sources") or [],
+                            )
+
+                        # Provenance ledger: record this section's pipeline
+                        # events (final accepted attempt only; discarded
+                        # regeneration attempts leave no trace). Best-effort,
+                        # never breaks generation.
+                        if settings.PROVENANCE_LEDGER_ENABLED:
+                            cited_sources = section_result.get("cited_sources") or []
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="retrieval",
+                                event_type="rag_retrieved",
+                                payload={
+                                    "section_index": section_index,
+                                    "section_title": section_title,
+                                    "sources_used": section_result.get(
+                                        "sources_used", 0
+                                    ),
+                                    "sources": [
+                                        {
+                                            "title": (s.get("title") or "")[:300],
+                                            "doi": s.get("doi"),
+                                            "year": s.get("year"),
+                                            "verification_status": "unverified",
+                                        }
+                                        for s in cited_sources[:50]
+                                    ],
+                                },
+                            )
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="generation",
+                                event_type="section_generated",
+                                payload={
+                                    "section_index": section_index,
+                                    "section_title": section_title,
+                                    "provider": document.ai_provider,
+                                    "model": document.ai_model,
+                                    "word_count": word_count,
+                                    "tokens_used": section.tokens_used or 0,
+                                    "attempts": attempt_num,
+                                },
+                            )
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="generation",
+                                event_type="humanized",
+                                payload={
+                                    "section_index": section_index,
+                                    "ai_score_before": ai_trace.get("initial_ai_score"),
+                                    "ai_score_after": ai_trace.get(
+                                        "final_ai_score", final_ai_score
+                                    ),
+                                    "multi_pass": ai_trace.get("multi_pass", False),
+                                    "threshold": settings.QUALITY_MAX_AI_DETECTION_SCORE,
+                                },
+                            )
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="quality",
+                                event_type="quality_gate",
+                                payload={
+                                    "section_index": section_index,
+                                    "passed": True,
+                                    "gates_enabled": settings.QUALITY_GATES_ENABLED,
+                                    "grammar_score": final_grammar_score,
+                                    "plagiarism_score": final_plagiarism_score,
+                                    "ai_detection_score": final_ai_score,
+                                    "quality_score": final_quality_score,
+                                },
+                            )
+                            if panel_result is not None:
+                                await _record_provenance(
+                                    db,
+                                    document_id,
+                                    stage="quality",
+                                    event_type="panel_review",
+                                    payload={
+                                        "section_index": section_index,
+                                        "overall_score": panel_result.get(
+                                            "overall_score"
+                                        ),
+                                        "passed": panel_result.get("passed"),
+                                        "critical_override": panel_result.get(
+                                            "critical_override", False
+                                        ),
+                                        "attempts": attempt_num,
+                                        "panel": panel_result.get("panel"),
+                                    },
+                                )
+
                         grammar_text = (
                             f"{final_grammar_score:.1f}"
                             if final_grammar_score is not None
@@ -975,6 +1289,19 @@ class BackgroundJobService:
                         )
                         await db.commit()
 
+                        if settings.PROVENANCE_LEDGER_ENABLED:
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="quality",
+                                event_type="quality_gate",
+                                payload={
+                                    "section_index": section_index,
+                                    "passed": False,
+                                    "detail": str(e)[:500],
+                                },
+                            )
+
                         # Send WebSocket error notification
                         await manager.send_progress(  # was: send_error (method does not exist)
                             user_id,
@@ -1053,6 +1380,18 @@ class BackgroundJobService:
                 )
                 await db.commit()
 
+                # Step 4.7: Citation verification + integrity gate
+                # (Academic Quality Engine). Strict policy raises
+                # CitationIntegrityError here, before export; mark_only and
+                # internal failures never block (fail-open).
+                if settings.CITATION_VERIFICATION_ENABLED:
+                    await _run_citation_verification_stage(db, document_id, user_id)
+
+                # Step 4.8: Claim faithfulness audit (advisory; unsupported
+                # claims are recorded but never block the pipeline)
+                if settings.CLAIM_VERIFICATION_ENABLED:
+                    await _run_claim_verification_stage(db, document_id, user_id)
+
                 # Step 5: Export to DOCX
                 logger.info(f"Exporting document {document_id} to DOCX")
                 try:
@@ -1063,6 +1402,24 @@ class BackgroundJobService:
                     logger.info(
                         f"Document {document_id} exported successfully: {export_result.get('download_url')}"
                     )
+
+                    if settings.PROVENANCE_LEDGER_ENABLED:
+                        export_format = (export_result or {}).get("format", "docx")
+                        await _record_provenance(
+                            db,
+                            document_id,
+                            stage="export",
+                            event_type="exported",
+                            payload={
+                                "formats": [export_format],
+                                "paths": {
+                                    export_format: (export_result or {}).get(
+                                        "download_url"
+                                    )
+                                },
+                                "file_size": (export_result or {}).get("file_size"),
+                            },
+                        )
                 except Exception as e:
                     logger.error(f"Failed to export document {document_id}: {e}")
                     # Export failure doesn't fail the entire job, but log it
@@ -1108,12 +1465,16 @@ class BackgroundJobService:
 
                 # Mark document as failed
                 try:
-                    await db.execute(
-                        update(Document)
-                        .where(Document.id == document_id)
-                        .values(status="failed")
-                    )
-                    await db.commit()
+                    # The citation integrity gate already set 'failed_quality'
+                    # and committed; don't overwrite it with the generic
+                    # 'failed'. Flag off => this exception never exists.
+                    if not isinstance(e, CitationIntegrityError):
+                        await db.execute(
+                            update(Document)
+                            .where(Document.id == document_id)
+                            .values(status="failed")
+                        )
+                        await db.commit()
 
                     # Send failure notification email
                     try:
@@ -1131,14 +1492,12 @@ class BackgroundJobService:
                         )
 
                         if user and user.email:
-                            await (
-                                notification_service.send_document_failed_notification(
-                                    email=user.email,
-                                    document_title=document.title
-                                    if document
-                                    else "Unknown",
-                                    error_message=error_message[:200],  # Limit length
-                                )
+                            await notification_service.send_document_failed_notification(
+                                email=user.email,
+                                document_title=(
+                                    document.title if document else "Unknown"
+                                ),
+                                error_message=error_message[:200],  # Limit length
                             )
                     except Exception as email_error:
                         logger.warning(f"Failed to send failure email: {email_error}")
