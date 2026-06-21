@@ -12,7 +12,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
       <div className="bg-gray-800 rounded-lg shadow p-5">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 rounded-md bg-blue-500 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-md bg-primary-500 flex items-center justify-center">
               <span className="text-white text-sm font-bold">U</span>
             </div>
           </div>
@@ -62,7 +62,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
       <div className="bg-gray-800 rounded-lg shadow p-5">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 rounded-md bg-purple-500 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-md bg-primary-500 flex items-center justify-center">
               <span className="text-white text-sm font-bold">D</span>
             </div>
           </div>

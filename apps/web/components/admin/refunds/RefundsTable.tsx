@@ -167,7 +167,7 @@ export function RefundsTable({
             e.stopPropagation()
             onRefundClick && onRefundClick(refund)
           }}
-          className="text-blue-400 hover:text-blue-300 flex items-center"
+          className="text-primary-400 hover:text-primary-300 flex items-center"
         >
           <EyeIcon className="h-4 w-4 mr-1" />
           Review

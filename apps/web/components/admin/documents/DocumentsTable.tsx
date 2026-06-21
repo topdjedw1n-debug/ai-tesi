@@ -45,7 +45,7 @@ export function DocumentsTable({
   const getStatusBadge = (status: string) => {
     const statusConfig: Record<string, { color: string; label: string }> = {
       draft: { color: 'bg-gray-900 text-gray-200', label: 'Draft' },
-      generating: { color: 'bg-blue-900 text-blue-200', label: 'Generating' },
+      generating: { color: 'bg-primary-900 text-primary-200', label: 'Generating' },
       completed: { color: 'bg-green-900 text-green-200', label: 'Completed' },
       failed: { color: 'bg-red-900 text-red-200', label: 'Failed' },
     }

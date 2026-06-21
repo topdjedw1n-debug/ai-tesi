@@ -57,7 +57,7 @@ export function DocumentFilters({ onFilterChange, initialFilters }: DocumentFilt
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full pl-10 pr-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               placeholder="Search by title or topic..."
             />
             {search && (
@@ -76,7 +76,7 @@ export function DocumentFilters({ onFilterChange, initialFilters }: DocumentFilt
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">All Status</option>
             <option value="draft">Draft</option>
@@ -91,7 +91,7 @@ export function DocumentFilters({ onFilterChange, initialFilters }: DocumentFilt
           <select
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">All Languages</option>
             <option value="en">English</option>
@@ -108,14 +108,14 @@ export function DocumentFilters({ onFilterChange, initialFilters }: DocumentFilt
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             placeholder="User ID"
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           />
         </div>
 
         {/* Reset Button */}
         <button
           onClick={handleResetFilters}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-primary-500"
         >
           Reset
         </button>

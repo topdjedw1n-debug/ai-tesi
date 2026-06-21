@@ -147,7 +147,7 @@ export function UsersTable({
       render: (user) => (
         <span className="text-gray-300">
           {user.is_admin ? (
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-200">
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-900 text-primary-200">
               Admin
             </span>
           ) : (

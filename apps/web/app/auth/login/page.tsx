@@ -28,7 +28,7 @@ export default function LoginPage() {
 
   if (emailSent) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 px-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
           <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
             <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +44,7 @@ export default function LoginPage() {
           </p>
           <button
             onClick={() => setEmailSent(false)}
-            className="text-blue-600 hover:text-blue-700 font-medium text-sm"
+            className="text-primary-600 hover:text-primary-700 font-medium text-sm"
           >
             Use a different email
           </button>
@@ -54,7 +54,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 via-white to-blue-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="login-title">Welcome back</h1>
@@ -73,7 +73,7 @@ export default function LoginPage() {
               onChange={(e) => setEmail(e.target.value)}
               required
               data-testid="email-input"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               placeholder="you@example.com"
               disabled={isLoading}
             />
@@ -83,7 +83,7 @@ export default function LoginPage() {
             type="submit"
             disabled={isLoading}
             data-testid="send-magic-link-button"
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             {isLoading ? 'Sending...' : 'Send magic link →'}
           </button>
@@ -94,7 +94,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <button
               onClick={() => router.push('/auth/register')}
-              className="text-blue-600 hover:text-blue-700 font-medium"
+              className="text-primary-600 hover:text-primary-700 font-medium"
             >
               Sign up
             </button>

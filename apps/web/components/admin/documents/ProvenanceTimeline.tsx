@@ -11,11 +11,11 @@ interface ProvenanceTimelineProps {
 }
 
 const STAGE_COLORS: Record<string, string> = {
-  retrieval: 'bg-blue-500',
-  outline: 'bg-indigo-500',
-  generation: 'bg-purple-500',
+  retrieval: 'bg-primary-500',
+  outline: 'bg-primary-500',
+  generation: 'bg-primary-500',
   quality: 'bg-amber-500',
-  verification: 'bg-cyan-500',
+  verification: 'bg-primary-500',
   export: 'bg-green-500',
 }
 

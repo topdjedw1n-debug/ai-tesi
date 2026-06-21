@@ -23,7 +23,7 @@ export function RecentActivity({ activities }: RecentActivityProps) {
       case 'payment':
         return <CreditCardIcon className="h-5 w-5 text-green-500" />
       case 'registration':
-        return <UserPlusIcon className="h-5 w-5 text-blue-500" />
+        return <UserPlusIcon className="h-5 w-5 text-primary-500" />
       case 'error':
         return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
       default:

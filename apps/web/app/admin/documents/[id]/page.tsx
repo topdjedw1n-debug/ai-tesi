@@ -131,7 +131,7 @@ export default function AdminDocumentDetailsPage() {
         icon: <DocumentTextIcon className="h-4 w-4 mr-1" />,
       },
       generating: {
-        color: 'bg-blue-900 text-blue-200',
+        color: 'bg-primary-900 text-primary-200',
         label: 'Generating',
         icon: <ClockIcon className="h-4 w-4 mr-1" />,
       },
@@ -172,7 +172,7 @@ export default function AdminDocumentDetailsPage() {
           {document.status === 'failed' && (
             <button
               onClick={handleRetry}
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700"
             >
               <ArrowPathIcon className="h-4 w-4 mr-2" />
               Retry Generation
@@ -205,7 +205,7 @@ export default function AdminDocumentDetailsPage() {
                 onClick={() => setActiveTab(tab as any)}
                 className={`${
                   activeTab === tab
-                    ? 'border-blue-500 text-blue-400'
+                    ? 'border-primary-500 text-primary-400'
                     : 'border-transparent text-gray-400 hover:text-gray-200 hover:border-gray-300'
                 } whitespace-nowrap py-3 px-1 border-b-2 font-medium text-sm`}
               >

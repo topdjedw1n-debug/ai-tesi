@@ -49,8 +49,8 @@ export function StatsOverview() {
       name: 'Total Documents',
       value: stats.totalDocuments,
       icon: DocumentTextIcon,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-primary-600',
+      bgColor: 'bg-primary-100',
     },
     {
       name: 'Words Generated',
@@ -70,8 +70,8 @@ export function StatsOverview() {
       name: 'AI Tokens Used',
       value: stats.totalTokens.toLocaleString(),
       icon: SparklesIcon,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      color: 'text-primary-600',
+      bgColor: 'bg-primary-100',
     },
   ]
 

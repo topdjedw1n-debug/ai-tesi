@@ -88,7 +88,7 @@ export function PricingSettingsForm({
               min="0.01"
               value={pricePerPage}
               onChange={(e) => setPricePerPage(parseFloat(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             />
@@ -109,7 +109,7 @@ export function PricingSettingsForm({
                 min="1"
                 value={minPages}
                 onChange={(e) => setMinPages(parseInt(e.target.value))}
-                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 required
                 disabled={isLoading}
               />
@@ -126,7 +126,7 @@ export function PricingSettingsForm({
                 max="200"
                 value={maxPages}
                 onChange={(e) => setMaxPages(parseInt(e.target.value))}
-                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 required
                 disabled={isLoading}
               />
@@ -142,7 +142,7 @@ export function PricingSettingsForm({
               {currencies.map((currency) => (
                 <span
                   key={currency}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-600 text-white"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-600 text-white"
                 >
                   {currency}
                   {currencies.length > 1 && (
@@ -165,7 +165,7 @@ export function PricingSettingsForm({
                 onChange={(e) => setNewCurrency(e.target.value.toUpperCase())}
                 placeholder="Add currency (e.g., USD)"
                 maxLength={3}
-                className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 disabled={isLoading}
               />
               <button
@@ -183,7 +183,7 @@ export function PricingSettingsForm({
         <div className="mt-6 flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : 'Save Pricing Settings'}

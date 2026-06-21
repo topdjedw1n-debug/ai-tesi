@@ -2,15 +2,21 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* Scholarly Press type stack — all Cyrillic-complete (UI is Ukrainian). */
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext');
 
 @layer base {
   html {
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Source Sans 3', system-ui, sans-serif;
   }
 
   body {
     @apply bg-gray-50 text-gray-900;
+  }
+
+  /* Display headings carry the printed-press legitimacy. */
+  h1, h2, h3 {
+    font-family: 'Literata', Georgia, serif;
   }
 }
 

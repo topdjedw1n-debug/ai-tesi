@@ -102,7 +102,7 @@ export default function AdminRefundsPage() {
               }}
               className={`${
                 activeTab === tab.id
-                  ? 'border-blue-500 text-blue-400'
+                  ? 'border-primary-500 text-primary-400'
                   : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
               } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
             >

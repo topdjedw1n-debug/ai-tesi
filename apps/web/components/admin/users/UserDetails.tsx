@@ -77,7 +77,7 @@ export function UserDetails({
       <div className="px-6 py-4 border-b border-gray-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="h-12 w-12 rounded-full bg-blue-500 flex items-center justify-center">
+            <div className="h-12 w-12 rounded-full bg-primary-500 flex items-center justify-center">
               <UserIcon className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -151,7 +151,7 @@ export function UserDetails({
                 onClick={() => setActiveTab(tab.id as any)}
                 className={`${
                   activeTab === tab.id
-                    ? 'border-blue-500 text-blue-400'
+                    ? 'border-primary-500 text-primary-400'
                     : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300'
                 } whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm flex items-center`}
               >
@@ -191,7 +191,7 @@ export function UserDetails({
               <h3 className="text-sm font-medium text-gray-400 mb-2">Role</h3>
               <p className="text-white">
                 {user.is_admin ? (
-                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-900 text-blue-200">
+                  <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-900 text-primary-200">
                     Admin
                   </span>
                 ) : (
@@ -221,7 +221,7 @@ export function UserDetails({
               {onViewDocuments && (
                 <button
                   onClick={onViewDocuments}
-                  className="text-sm text-blue-400 hover:text-blue-300"
+                  className="text-sm text-primary-400 hover:text-primary-300"
                 >
                   View All →
                 </button>
@@ -256,7 +256,7 @@ export function UserDetails({
               {onViewPayments && (
                 <button
                   onClick={onViewPayments}
-                  className="text-sm text-blue-400 hover:text-blue-300"
+                  className="text-sm text-primary-400 hover:text-primary-300"
                 >
                   View All →
                 </button>

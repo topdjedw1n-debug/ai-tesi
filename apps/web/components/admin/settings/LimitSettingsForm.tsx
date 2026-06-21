@@ -73,7 +73,7 @@ export function LimitSettingsForm({
               min="1"
               value={maxConcurrentGenerations}
               onChange={(e) => setMaxConcurrentGenerations(parseInt(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             />
@@ -96,7 +96,7 @@ export function LimitSettingsForm({
               min="1"
               value={maxDocumentsPerUser}
               onChange={(e) => setMaxDocumentsPerUser(parseInt(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             />
@@ -120,7 +120,7 @@ export function LimitSettingsForm({
               max="200"
               value={maxPagesPerDocument}
               onChange={(e) => setMaxPagesPerDocument(parseInt(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             />
@@ -145,7 +145,7 @@ export function LimitSettingsForm({
                     setDailyTokenLimit(null)
                   }
                 }}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700"
+                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded bg-gray-700"
                 disabled={isLoading}
               />
               <label htmlFor="unlimited_tokens" className="ml-2 text-sm text-gray-300">
@@ -159,7 +159,7 @@ export function LimitSettingsForm({
                 min="1"
                 value={dailyTokenLimit || ''}
                 onChange={(e) => setDailyTokenLimit(parseInt(e.target.value) || null)}
-                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Enter daily token limit"
                 disabled={isLoading}
               />
@@ -173,7 +173,7 @@ export function LimitSettingsForm({
         <div className="mt-6 flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : 'Save Limit Settings'}

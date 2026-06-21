@@ -80,7 +80,7 @@ function SourceRow({ source }: { source: SourceRecord }) {
             href={doiUrl(source.doi)}
             target="_blank"
             rel="noopener noreferrer"
-            className="mt-0.5 inline-block text-sm text-blue-600 hover:text-blue-800 hover:underline break-all"
+            className="mt-0.5 inline-block text-sm text-primary-600 hover:text-primary-800 hover:underline break-all"
           >
             {source.doi}
           </a>

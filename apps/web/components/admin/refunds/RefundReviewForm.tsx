@@ -177,7 +177,7 @@ export function RefundReviewForm({
                   alt={`Screenshot ${index + 1}`}
                   width={200}
                   height={128}
-                  className="w-full h-32 object-cover rounded border border-gray-600 hover:border-blue-500"
+                  className="w-full h-32 object-cover rounded border border-gray-600 hover:border-primary-500"
                 />
               </a>
             ))}
@@ -199,7 +199,7 @@ export function RefundReviewForm({
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing}
-                className="text-xs text-blue-400 hover:text-blue-300 disabled:opacity-50"
+                className="text-xs text-primary-400 hover:text-primary-300 disabled:opacity-50"
               >
                 {isAnalyzing ? 'Analyzing...' : 'Re-analyze'}
               </button>
@@ -251,7 +251,7 @@ export function RefundReviewForm({
                 value="approve"
                 checked={decision === 'approve'}
                 onChange={() => setDecision('approve')}
-                className="mr-2 text-blue-600"
+                className="mr-2 text-primary-600"
               />
               <span className="text-white">Approve</span>
             </label>
@@ -262,7 +262,7 @@ export function RefundReviewForm({
                 value="reject"
                 checked={decision === 'reject'}
                 onChange={() => setDecision('reject')}
-                className="mr-2 text-blue-600"
+                className="mr-2 text-primary-600"
               />
               <span className="text-white">Reject</span>
             </label>
@@ -280,7 +280,7 @@ export function RefundReviewForm({
                 max={refund.payment?.amount || refund.amount}
                 value={refundAmount}
                 onChange={(e) => setRefundAmount(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-primary-500"
                 placeholder="Enter refund amount"
               />
               <p className="mt-1 text-xs text-gray-400">
@@ -297,7 +297,7 @@ export function RefundReviewForm({
               value={adminComment}
               onChange={(e) => setAdminComment(e.target.value)}
               rows={4}
-              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-800 text-white focus:outline-none focus:ring-1 focus:ring-primary-500"
               placeholder="Enter your comment..."
               required
             />

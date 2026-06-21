@@ -90,7 +90,7 @@ export default function PaymentSuccessPage() {
           </p>
           <button
             onClick={() => router.push('/dashboard')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             Go to Dashboard
           </button>
@@ -149,7 +149,7 @@ export default function PaymentSuccessPage() {
 
             <button
               onClick={() => router.push('/dashboard')}
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+              className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
             >
               Go to Dashboard
             </button>
@@ -169,7 +169,7 @@ export default function PaymentSuccessPage() {
             <div className="space-y-3">
               <button
                 onClick={() => router.push('/dashboard')}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
               >
                 Go to Dashboard
               </button>

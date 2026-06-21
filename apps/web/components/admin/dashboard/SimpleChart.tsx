@@ -31,9 +31,9 @@ export function SimpleChart({ title, data, color = 'blue', height = 200 }: Simpl
   const range = maxValue - minValue || 1
 
   const colorClasses: Record<string, string> = {
-    blue: 'bg-blue-500',
+    blue: 'bg-primary-500',
     green: 'bg-green-500',
-    purple: 'bg-purple-500',
+    purple: 'bg-primary-500',
     yellow: 'bg-yellow-500',
   }
 

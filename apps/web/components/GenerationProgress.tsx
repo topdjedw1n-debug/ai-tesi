@@ -77,7 +77,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
       case 'failed':
         return 'bg-red-500'
       case 'running':
-        return 'bg-blue-500'
+        return 'bg-primary-500'
       default:
         return 'bg-gray-400'
     }
@@ -90,7 +90,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
       case 'failed':
         return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
       case 'running':
-        return <ClockIcon className="h-5 w-5 text-blue-500 animate-spin" />
+        return <ClockIcon className="h-5 w-5 text-primary-500 animate-spin" />
       default:
         return <ClockIcon className="h-5 w-5 text-gray-400" />
     }

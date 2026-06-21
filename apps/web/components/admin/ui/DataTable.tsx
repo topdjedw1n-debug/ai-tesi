@@ -124,7 +124,7 @@ export function DataTable<T extends Record<string, any>>({
                 <th scope="col" className="relative w-12 px-6 sm:w-16 sm:px-8">
                   <input
                     type="checkbox"
-                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                    className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500"
                     checked={allSelected}
                     ref={(input) => {
                       if (input && someSelected && !allSelected) {
@@ -179,7 +179,7 @@ export function DataTable<T extends Record<string, any>>({
                     <td className="relative w-12 px-6 sm:w-16 sm:px-8">
                       <input
                         type="checkbox"
-                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-600 bg-gray-700 text-blue-600 focus:ring-blue-500"
+                        className="absolute left-4 top-1/2 -mt-2 h-4 w-4 rounded border-gray-600 bg-gray-700 text-primary-600 focus:ring-primary-500"
                         checked={isSelected}
                         onChange={(e) => {
                           e.stopPropagation()

@@ -25,7 +25,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className="h-full">
+    <html lang="uk" className="h-full">
       <body className="h-full font-sans">
         <AuthProvider>
           {children}
@@ -34,20 +34,20 @@ export default function RootLayout({
             toastOptions={{
               duration: 4000,
               style: {
-                background: '#363636',
-                color: '#fff',
+                background: '#1c1b19',
+                color: '#fffdf9',
               },
               success: {
                 duration: 3000,
                 iconTheme: {
-                  primary: '#10B981',
+                  primary: '#0f6e56',
                   secondary: '#fff',
                 },
               },
               error: {
                 duration: 5000,
                 iconTheme: {
-                  primary: '#EF4444',
+                  primary: '#9a2b22',
                   secondary: '#fff',
                 },
               },

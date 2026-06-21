@@ -119,7 +119,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
             type="text"
             id="topic"
             {...register('topic')}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             placeholder="e.g., The Impact of Artificial Intelligence on Education"
           />
           {errors.topic && (
@@ -136,7 +136,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
             <select
               id="language"
               {...register('language')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -159,7 +159,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
               {...register('pages', { valueAsNumber: true })}
               min="1"
               max="100"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             />
             {errors.pages && (
               <p className="mt-1 text-sm text-red-600">{errors.pages.message}</p>
@@ -181,7 +181,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
                 setSelectedProvider(provider)
                 setValue('aiModel', aiModels[provider][0].id)
               }}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             >
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
@@ -198,7 +198,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
             <select
               id="aiModel"
               {...register('aiModel')}
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             >
               {aiModels[watchedProvider].map((model) => (
                 <option key={model.id} value={model.id}>
@@ -221,7 +221,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
             id="additionalRequirements"
             {...register('additionalRequirements')}
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             placeholder="e.g., Include specific methodologies, focus on recent research, use APA citation style..."
           />
         </div>
@@ -231,7 +231,7 @@ export function GenerateSectionForm({ onSuccess }: GenerateSectionFormProps) {
           <Button
             type="submit"
             disabled={isGenerating}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isGenerating ? (
               <>

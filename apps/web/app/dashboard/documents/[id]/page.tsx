@@ -156,7 +156,7 @@ export default function DocumentDetailPage() {
         <div className="flex items-center gap-2">
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
             document.status === 'completed' ? 'bg-green-100 text-green-800' :
-            document.status === 'generating' ? 'bg-blue-100 text-blue-800' :
+            document.status === 'generating' ? 'bg-primary-100 text-primary-800' :
             document.status === 'failed' ? 'bg-red-100 text-red-800' :
             'bg-gray-100 text-gray-800'
           }`}>
@@ -214,7 +214,7 @@ export default function DocumentDetailPage() {
                       </h3>
                       <span className={`text-xs px-2 py-1 rounded ${
                         section.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        section.status === 'generating' ? 'bg-blue-100 text-blue-800' :
+                        section.status === 'generating' ? 'bg-primary-100 text-primary-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {section.status}

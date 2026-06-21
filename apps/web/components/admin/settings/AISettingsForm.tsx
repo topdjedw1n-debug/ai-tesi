@@ -84,7 +84,7 @@ export function AISettingsForm({
               id="default_provider"
               value={defaultProvider}
               onChange={(e) => setDefaultProvider(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             >
@@ -103,7 +103,7 @@ export function AISettingsForm({
               id="default_model"
               value={defaultModel}
               onChange={(e) => setDefaultModel(e.target.value)}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
               placeholder="e.g., gpt-4, claude-3-opus"
@@ -119,7 +119,7 @@ export function AISettingsForm({
               {fallbackModels.map((model) => (
                 <span
                   key={model}
-                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-purple-600 text-white"
+                  className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-600 text-white"
                 >
                   {model}
                   <button
@@ -139,7 +139,7 @@ export function AISettingsForm({
                 value={newFallbackModel}
                 onChange={(e) => setNewFallbackModel(e.target.value)}
                 placeholder="Add fallback model"
-                className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 disabled={isLoading}
               />
               <button
@@ -166,7 +166,7 @@ export function AISettingsForm({
                 max="10"
                 value={maxRetries}
                 onChange={(e) => setMaxRetries(parseInt(e.target.value))}
-                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 required
                 disabled={isLoading}
               />
@@ -186,7 +186,7 @@ export function AISettingsForm({
                 max="600"
                 value={timeoutSeconds}
                 onChange={(e) => setTimeoutSeconds(parseInt(e.target.value))}
-                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                 required
                 disabled={isLoading}
               />
@@ -209,7 +209,7 @@ export function AISettingsForm({
               max="2"
               value={temperatureDefault}
               onChange={(e) => setTemperatureDefault(parseFloat(e.target.value))}
-              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
               required
               disabled={isLoading}
             />
@@ -222,7 +222,7 @@ export function AISettingsForm({
         <div className="mt-6 flex justify-end">
           <button
             type="submit"
-            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+            className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
             disabled={isLoading}
           >
             {isLoading ? 'Saving...' : 'Save AI Settings'}

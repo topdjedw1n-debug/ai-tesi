@@ -27,7 +27,7 @@ export function ConfirmDialog({
 }: ConfirmDialogProps) {
   const colorClasses = {
     red: 'bg-red-600 hover:bg-red-700 focus:ring-red-500',
-    blue: 'bg-blue-600 hover:bg-blue-700 focus:ring-blue-500',
+    blue: 'bg-primary-600 hover:bg-primary-700 focus:ring-primary-500',
     green: 'bg-green-600 hover:bg-green-700 focus:ring-green-500',
     yellow: 'bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500',
   }

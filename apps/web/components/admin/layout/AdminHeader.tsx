@@ -53,7 +53,7 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
         <div className="flex items-center justify-between h-16 px-4">
           <button
             type="button"
-            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500"
+            className="-ml-0.5 -mt-0.5 h-12 w-12 inline-flex items-center justify-center rounded-md text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-primary-500"
             onClick={() => setSidebarOpen(true)}
           >
             <span className="sr-only">Open sidebar</span>
@@ -64,7 +64,7 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
             {/* Notifications */}
             <button
               type="button"
-              className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+              className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
             >
               <span className="sr-only">View notifications</span>
               <BellIcon className="h-6 w-6" />
@@ -76,10 +76,10 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
             <div className="relative">
               <button
                 type="button"
-                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                   <span className="text-white text-xs font-bold">
                     {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
                   </span>
@@ -123,7 +123,7 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
             {/* Notifications */}
             <button
               type="button"
-              className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-md"
+              className="relative inline-flex items-center p-2 text-gray-400 hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded-md"
             >
               <span className="sr-only">View notifications</span>
               <BellIcon className="h-6 w-6" />
@@ -135,10 +135,10 @@ export function AdminHeader({ setSidebarOpen }: AdminHeaderProps) {
             <div className="relative">
               <button
                 type="button"
-                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="flex items-center text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500"
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
-                <div className="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-full bg-primary-600 flex items-center justify-center">
                   <span className="text-white text-xs font-bold">
                     {adminUser?.email?.charAt(0).toUpperCase() || 'A'}
                   </span>

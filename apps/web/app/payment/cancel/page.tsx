@@ -24,7 +24,7 @@ export default function PaymentCancelPage() {
         <div className="space-y-3">
           <Button
             onClick={() => router.push('/dashboard')}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
           >
             <ArrowLeftIcon className="w-5 h-5 inline mr-2" />
             Back to Dashboard

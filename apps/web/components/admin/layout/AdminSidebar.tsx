@@ -88,7 +88,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
             </div>
             <div className="flex-1 h-0 pt-5 pb-4 overflow-y-auto">
               <div className="flex-shrink-0 flex items-center px-4">
-                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
                   <span className="text-white font-bold text-sm">A</span>
                 </div>
                 <span className="ml-2 text-xl font-bold text-white">Admin Panel</span>
@@ -109,7 +109,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
                     >
                       <item.icon
                         className={`${
-                          isActive ? 'text-blue-400' : 'text-gray-400 group-hover:text-gray-300'
+                          isActive ? 'text-primary-400' : 'text-gray-400 group-hover:text-gray-300'
                         } mr-4 flex-shrink-0 h-6 w-6`}
                       />
                       {item.name}
@@ -133,7 +133,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
           <div className="flex flex-col h-0 flex-1 border-r border-gray-700 bg-gray-800">
             <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
               <div className="flex items-center flex-shrink-0 px-4">
-                <div className="h-8 w-8 rounded-lg bg-blue-600 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
                   <span className="text-white font-bold text-sm">A</span>
                 </div>
                 <span className="ml-2 text-xl font-bold text-white">Admin Panel</span>
@@ -153,7 +153,7 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
                     >
                       <item.icon
                         className={`${
-                          isActive ? 'text-blue-400' : 'text-gray-400 group-hover:text-gray-300'
+                          isActive ? 'text-primary-400' : 'text-gray-400 group-hover:text-gray-300'
                         } mr-3 flex-shrink-0 h-6 w-6`}
                       />
                       {item.name}

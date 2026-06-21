@@ -52,7 +52,7 @@ export function PaymentFilters({ onFilterChange, initialFilters }: PaymentFilter
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -69,7 +69,7 @@ export function PaymentFilters({ onFilterChange, initialFilters }: PaymentFilter
             value={userId}
             onChange={(e) => setUserId(e.target.value)}
             placeholder="User ID"
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           />
         </div>
 
@@ -81,7 +81,7 @@ export function PaymentFilters({ onFilterChange, initialFilters }: PaymentFilter
             value={minAmount}
             onChange={(e) => setMinAmount(e.target.value)}
             placeholder="Min Amount (€)"
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           />
         </div>
 
@@ -93,14 +93,14 @@ export function PaymentFilters({ onFilterChange, initialFilters }: PaymentFilter
             value={maxAmount}
             onChange={(e) => setMaxAmount(e.target.value)}
             placeholder="Max Amount (€)"
-            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
           />
         </div>
 
         {/* Reset Button */}
         <button
           onClick={handleResetFilters}
-          className="w-full sm:w-auto px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          className="w-full sm:w-auto px-4 py-2 border border-gray-600 rounded-md bg-gray-700 text-gray-300 hover:bg-gray-600 focus:outline-none focus:ring-1 focus:ring-primary-500"
         >
           Reset
         </button>

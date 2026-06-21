@@ -208,7 +208,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             id="title"
             {...register('title')}
             data-testid="document-title-input"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             placeholder="Document title (optional)"
           />
           {errors.title && (
@@ -229,7 +229,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             {...register('topic')}
             rows={3}
             data-testid="document-topic-input"
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             placeholder="e.g., The Impact of Artificial Intelligence on Modern Education Systems and Learning Methodologies"
           />
           {errors.topic && (
@@ -250,7 +250,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
               id="language"
               {...register('language')}
               data-testid="document-language-select"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             >
               {languages.map((lang) => (
                 <option key={lang.value} value={lang.value}>
@@ -279,7 +279,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
               min="3"
               max="100"
               data-testid="document-pages-input"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             />
             {errors.pages && (
               <p className="mt-1 text-sm text-red-600">{errors.pages.message}</p>
@@ -303,18 +303,18 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             id="additionalRequirements"
             {...register('additionalRequirements')}
             rows={3}
-            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
             placeholder="e.g., Include specific methodologies, focus on recent research, use APA citation style..."
           />
         </div>
 
         {/* Price Preview */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+        <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium text-gray-700">
               Estimated cost:
             </span>
-            <span className="text-lg font-bold text-blue-600">
+            <span className="text-lg font-bold text-primary-600">
               {isLoadingPrice ? '...' : `€${((currentPages || 10) * pricePerPage).toFixed(2)}`}
             </span>
           </div>
@@ -329,7 +329,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             type="submit"
             disabled={isCreating}
             data-testid="create-document-submit"
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isCreating ? (
               <>

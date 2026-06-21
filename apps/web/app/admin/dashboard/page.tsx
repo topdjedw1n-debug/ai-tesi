@@ -117,7 +117,7 @@ export default function AdminDashboardPage() {
               onClick={() => setPeriod(p)}
               className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
                 period === p
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
               }`}
             >

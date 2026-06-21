@@ -13,7 +13,7 @@ export function RefundStats({ stats }: RefundStatsProps) {
       <div className="bg-gray-800 rounded-lg shadow p-5">
         <div className="flex items-center">
           <div className="flex-shrink-0">
-            <div className="h-8 w-8 rounded-md bg-blue-500 flex items-center justify-center">
+            <div className="h-8 w-8 rounded-md bg-primary-500 flex items-center justify-center">
               <CurrencyEuroIcon className="h-5 w-5 text-white" />
             </div>
           </div>

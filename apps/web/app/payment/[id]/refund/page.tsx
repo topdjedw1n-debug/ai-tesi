@@ -248,7 +248,7 @@ export default function RequestRefundPage() {
                   reason_category: e.target.value as any,
                 }))
               }
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               required
             >
               <option value="quality">Quality Issue</option>
@@ -268,7 +268,7 @@ export default function RequestRefundPage() {
                 setFormData((prev) => ({ ...prev, reason: e.target.value }))
               }
               rows={6}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
               placeholder="Please provide a detailed explanation of why you need a refund..."
               required
               minLength={10}
@@ -286,7 +286,7 @@ export default function RequestRefundPage() {
               <div className="space-y-1 text-center">
                 <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
                 <div className="flex text-sm text-gray-600">
-                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none">
+                  <label className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none">
                     <span>Upload files</span>
                     <input
                       type="file"
@@ -337,7 +337,7 @@ export default function RequestRefundPage() {
             <button
               type="submit"
               disabled={isSubmitting || !formData.reason.trim() || formData.reason.length < 10}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Refund Request'}
             </button>

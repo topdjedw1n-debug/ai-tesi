@@ -8,7 +8,7 @@ export default function VerifyMagicLinkPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
-  
+
   const [status, setStatus] = useState<'verifying' | 'success' | 'error'>('verifying')
   const [error, setError] = useState('')
   const [isAdmin, setIsAdmin] = useState(false)
@@ -23,26 +23,26 @@ export default function VerifyMagicLinkPage() {
     const verifyToken = async () => {
       try {
         const data = await apiClient.post(API_ENDPOINTS.AUTH.VERIFY_MAGIC_LINK, { token })
-        
+
         // Save tokens
         if (data.access_token && data.refresh_token) {
           setTokens(data.access_token, data.refresh_token)
         }
-        
+
         // Save user data to localStorage for admin check
         if (data.user) {
           localStorage.setItem('user_data', JSON.stringify(data.user))
           setIsAdmin(data.user.is_admin || false)
-          
+
           // Also save admin-specific flags for AdminLayout
           if (data.user.is_admin) {
             localStorage.setItem('is_admin', 'true')
             localStorage.setItem('admin_user', JSON.stringify(data.user))
           }
         }
-        
+
         setStatus('success')
-        
+
         // Redirect to appropriate dashboard based on user role
         setTimeout(() => {
           const redirectTo = data.user?.is_admin ? '/admin/dashboard' : '/dashboard'
@@ -63,7 +63,7 @@ export default function VerifyMagicLinkPage() {
       <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-8">
         {status === 'verifying' && (
           <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mb-4"></div>
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mb-4"></div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">
               Verifying...
             </h2>
@@ -104,7 +104,7 @@ export default function VerifyMagicLinkPage() {
             </p>
             <button
               onClick={() => router.push('/auth/register')}
-              className="w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Try Again
             </button>

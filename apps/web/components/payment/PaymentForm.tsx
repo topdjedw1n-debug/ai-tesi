@@ -125,7 +125,7 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
               <span className="text-lg font-semibold text-gray-900">
                 Total amount:
               </span>
-              <span className="text-2xl font-bold text-blue-600">
+              <span className="text-2xl font-bold text-primary-600">
                 €{formattedAmount}
               </span>
             </div>
@@ -151,7 +151,7 @@ export function PaymentForm({ documentId, pages, onCancel }: PaymentFormProps) {
         <Button
           type="submit"
           disabled={isProcessing || paymentFlowDisabled}
-          className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isProcessing ? (
             <span className="flex items-center justify-center gap-2">

@@ -1,4 +1,6 @@
 /** @type {import('tailwindcss').Config} */
+// Design system: Scholarly Press (see /DESIGN.md and /tesigo-brandbook.html).
+// primary = academic green (NOT blue), gray = warm neutral, serif = Literata.
 module.exports = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -8,35 +10,63 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        // Brand accent — academic green #0f6e56 at the 600 step.
         primary: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          800: '#1e40af',
-          900: '#1e3a8a',
+          50: '#e8f3ee',
+          100: '#c9e3d9',
+          200: '#a3d0c0',
+          300: '#6fb7a0',
+          400: '#3f9b80',
+          500: '#1a8064',
+          600: '#0f6e56',
+          700: '#0a4d3c',
+          800: '#083d30',
+          900: '#062b22',
+        },
+        // Warm neutral — remaps Tailwind's cool gray so every existing gray-*
+        // utility becomes warm paper/ink without touching component files.
+        gray: {
+          50: '#f7f5f0',
+          100: '#efeadf',
+          200: '#e6e1d6',
+          300: '#d6d0c2',
+          400: '#b3ad9f',
+          500: '#8a877f',
+          600: '#6b6860',
+          700: '#4a4843',
+          800: '#302e29',
+          900: '#1c1b19',
         },
         secondary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+          50: '#f7f5f0',
+          100: '#efeadf',
+          200: '#e6e1d6',
+          300: '#d6d0c2',
+          400: '#b3ad9f',
+          500: '#8a877f',
+          600: '#6b6860',
+          700: '#4a4843',
+          800: '#302e29',
+          900: '#1c1b19',
+        },
+        // Semantic brand tokens (DESIGN.md).
+        paper: '#fffdf9',
+        ink: '#1c1b19',
+        accent: {
+          DEFAULT: '#0f6e56',
+          deep: '#0a4d3c',
+          soft: '#e4f1ea',
         },
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        serif: ['Georgia', 'serif'],
+        sans: ['Source Sans 3', 'system-ui', 'sans-serif'],
+        display: ['Literata', 'Georgia', 'serif'],
+        serif: ['Literata', 'Georgia', 'serif'],
         mono: ['JetBrains Mono', 'monospace'],
+      },
+      boxShadow: {
+        paper: '0 1px 2px rgba(28,27,25,.04), 0 8px 24px rgba(28,27,25,.07)',
+        'paper-lg': '0 1px 2px rgba(28,27,25,.04), 0 18px 44px rgba(28,27,25,.12)',
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-in-out',

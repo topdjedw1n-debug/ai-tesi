@@ -81,7 +81,7 @@ export function MaintenanceSettingsForm({
               id="maintenance_enabled"
               checked={enabled}
               onChange={(e) => setEnabled(e.target.checked)}
-              className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-600 rounded bg-gray-700"
+              className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded bg-gray-700"
               disabled={isLoading}
             />
             <label htmlFor="maintenance_enabled" className="ml-2 text-sm font-medium text-white">
@@ -101,7 +101,7 @@ export function MaintenanceSettingsForm({
                   rows={3}
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                   required={enabled}
                   disabled={isLoading}
                   placeholder="System maintenance in progress"
@@ -140,7 +140,7 @@ export function MaintenanceSettingsForm({
                     value={newIP}
                     onChange={(e) => setNewIP(e.target.value)}
                     placeholder="Add IP address (e.g., 192.168.1.1)"
-                    className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                    className="flex-1 px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                     disabled={isLoading}
                   />
                   <button
@@ -170,7 +170,7 @@ export function MaintenanceSettingsForm({
                   id="estimated_end_time"
                   value={estimatedEndTime}
                   onChange={(e) => setEstimatedEndTime(e.target.value)}
-                  className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="block w-full px-3 py-2 border border-gray-600 rounded-md bg-gray-700 text-white focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
                   disabled={isLoading}
                 />
                 <p className="mt-1 text-sm text-gray-400">
@@ -184,10 +184,10 @@ export function MaintenanceSettingsForm({
         <div className="mt-6 flex justify-end">
           <button
             type="submit"
-            className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 ${
+            className={`px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 ${
               enabled
                 ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-blue-600 hover:bg-blue-700'
+                : 'bg-primary-600 hover:bg-primary-700'
             }`}
             disabled={isLoading}
           >
