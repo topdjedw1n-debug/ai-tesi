@@ -1,11 +1,20 @@
-# Design System — TesiGo
+# Design System — Thesica
 
 > Single source of truth for visual decisions. Read this before any UI work.
 > Created by `/design-consultation` on 2026-06-21. Direction: **Scholarly Press**.
-> **Living component + infographic library:** [`tesigo-brandbook.html`](tesigo-brandbook.html) — open in a browser to see every token, element, and data-viz pattern rendered (light + dark). DESIGN.md is the spec; the brandbook is the proof.
+> **Living component + infographic library:** [`thesica-brandbook.html`](thesica-brandbook.html) — open in a browser to see every token, element, and data-viz pattern rendered (light + dark). DESIGN.md is the spec; the brandbook is the proof.
+
+## Brand Name & Logo
+- **Name:** **Thesica** (was working name "TesiGo"). Latin/academic feel; `-ica` suffix reads as a discipline (*logica, musica, etica*) across IT/ES/CZ/EN; root "thes-" carries *thesis*. Chosen for universality + clean domain/trademark runway (the literal "Thes-" tools like Thesify/ThesisAI are all taken; abstract picks like Laude/Accredo had conflicts).
+- **Domain:** primary **thesica.ai** (free, registered); defensive **getthesica.com** (free). `thesica.com` is taken.
+- **Wordmark:** "Thesica" set in **Literata 600** (the brand display serif). Optional `θ`-initial variant (theta = θέσις) kept as a backup motif.
+- **Mark:** **bookmark ribbon** — a notched ribbon = a marked / finished / distinguished document. Distinctive silhouette, holds down to 16px.
+- **Assets:** SVG files in `~/.gstack/projects/topdjedw1n-debug-ai-tesi/designs/design-system-20260621/brand/` — `thesica-mark.svg` (app icon), `thesica-mark-on-dark.svg`, `thesica-mark-mono.svg` (currentColor), `favicon.svg`, `thesica-lockup.svg` (mark + wordmark).
+- **Mark geometry (green tile + cream ribbon):** `<rect rx=20 fill=#0f6e56/>` + `<path d="M36 24 Q36 19 41 19 L51 19 Q56 19 56 24 L56 71 L46 61 L36 71 Z" fill=#fffdf9/>`.
+- **Propagated (2026-06-21):** renamed TesiGo → Thesica and swapped the placeholder logo for the ribbon mark across `apps/web` (Header/Footer/Dashboard, metadata, manifest, favicon), README/QUICK_START, and the brandbook. Test fixtures, `.env*`, eval data, and historical logs left untouched on purpose.
 
 ## Product Context
-- **What this is:** TesiGo — AI-генерація академічних робіт (дипломні/магістерські), де ядро цінності не «дешевше», а «дешево **і реально приймається** університетом» (плагіат + AI-детектор + наукрук).
+- **What this is:** Thesica — AI-генерація академічних робіт (дипломні/магістерські), де ядро цінності не «дешевше», а «дешево **і реально приймається** університетом» (плагіат + AI-детектор + наукрук).
 - **Who it's for:** (1) **редактор/менеджер агенції** у внутрішній консолі — пріоритетна поверхня; (2) студент, який інакше заплатив би агенції ~€100 за готову роботу, якій критично пройти універ-гейт.
 - **Space/industry:** AI-academic-writing / scholarly tools. Peers: Jenni AI, Paperpal, Scribbr, Consensus.
 - **Project type:** internal tool (консоль редактора) + web product (лендінг + кабінет). Stack: FastAPI + Next.js 14 + Tailwind.

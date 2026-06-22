@@ -1,4 +1,4 @@
-# 🎓 TesiGo - AI-Powered Academic Paper Generation
+# 🎓 Thesica - AI-Powered Academic Paper Generation
 
 > Generate high-quality academic papers with AI, guaranteed plagiarism-free
 

@@ -18,7 +18,7 @@ class Settings(BaseSettings):
 
     # API
     API_V1_STR: str = "/api/v1"
-    PROJECT_NAME: str = "AI Thesis Platform"
+    PROJECT_NAME: str = "Thesica"
 
     # Database
     # CRITICAL: No default value - must be provided via ENV in production
@@ -237,7 +237,16 @@ class Settings(BaseSettings):
     )
 
     # Token usage limits (optional - set to None to disable)
-    DAILY_TOKEN_LIMIT: int | None = None  # 1M tokens per day default (None = disabled)
+    DAILY_TOKEN_LIMIT: int | None = 2_000_000
+
+    # MVP free-generation mode (Stage 0: "fix MVP scope & disable sales").
+    # When ON, draft generation runs without a Stripe payment but is bounded by
+    # a page cap, a per-user daily generation quota, and DAILY_TOKEN_LIMIT.
+    # When OFF, the generation endpoint requires a completed payment. Sales
+    # stay opt-in: flip this off via env when re-enabling client checkout.
+    MVP_FREE_GENERATION_ENABLED: bool = True
+    MVP_FREE_GENERATION_MAX_PAGES: int = 20
+    MVP_FREE_GENERATION_DAILY_USER_LIMIT: int = 2
 
     model_config = ConfigDict(
         env_file=".env",

@@ -1,9 +1,10 @@
 import Link from 'next/link'
+import { isUserPaymentFlowEnabled } from '@/lib/feature-flags'
 
 const navigation = {
   product: [
     { name: 'Features', href: '#features' },
-    { name: 'Pricing', href: '#pricing' },
+    ...(isUserPaymentFlowEnabled ? [{ name: 'Pricing', href: '#pricing' }] : []),
     { name: 'API', href: '/docs' },
   ],
   support: [
@@ -34,10 +35,10 @@ export function Footer() {
           <div className="space-y-8">
             <div className="flex items-center">
               <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
+                <svg viewBox="34 16 24 58" className="h-5" aria-hidden="true"><path d="M36 24Q36 19 41 19L51 19Q56 19 56 24L56 71 46 61 36 71Z" fill="#fffdf9"/></svg>
               </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">
-                Thesis Platform
+              <span className="ml-2 text-xl font-bold text-gray-900 font-serif">
+                Thesica
               </span>
             </div>
             <p className="text-sm leading-6 text-gray-600">
@@ -116,7 +117,7 @@ export function Footer() {
         </div>
         <div className="mt-16 border-t border-gray-900/10 pt-8 sm:mt-20 lg:mt-24">
           <p className="text-xs leading-5 text-gray-500">
-            &copy; 2024 AI Thesis Platform. All rights reserved.
+            &copy; 2026 Thesica. All rights reserved.
           </p>
         </div>
       </div>

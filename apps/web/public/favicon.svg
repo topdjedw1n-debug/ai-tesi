@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 92 92" width="32" height="32" role="img" aria-label="Thesica">
+  <!-- Favicon: slightly heavier ribbon so it holds at 16-32px -->
+  <rect width="92" height="92" rx="18" fill="#0f6e56"/>
+  <path d="M35 24 Q35 19 41 19 L51 19 Q57 19 57 24 L57 72 L46 61 L35 72 Z" fill="#fffdf9"/>
+</svg>

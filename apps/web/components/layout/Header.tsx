@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { Button } from '@/components/ui/Button'
 import { UserMenu } from '@/components/ui/UserMenu'
+import { isUserPaymentFlowEnabled } from '@/lib/feature-flags'
 import { Bars3Icon, XMarkIcon } from '@heroicons/react/24/outline'
 
 export function Header() {
@@ -14,7 +15,7 @@ export function Header() {
   const navigation = [
     { name: 'Features', href: '#features' },
     { name: 'How it works', href: '#how-it-works' },
-    { name: 'Pricing', href: '#pricing' },
+    ...(isUserPaymentFlowEnabled ? [{ name: 'Pricing', href: '#pricing' }] : []),
   ]
 
   return (
@@ -24,10 +25,10 @@ export function Header() {
           <div className="flex items-center">
             <Link href="/" className="flex items-center">
               <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
+                <svg viewBox="34 16 24 58" className="h-5" aria-hidden="true"><path d="M36 24Q36 19 41 19L51 19Q56 19 56 24L56 71 46 61 36 71Z" fill="#fffdf9"/></svg>
               </div>
-              <span className="ml-2 text-xl font-bold text-gray-900">
-                Thesis Platform
+              <span className="ml-2 text-xl font-bold text-gray-900 font-serif">
+                Thesica
               </span>
             </Link>
           </div>
@@ -83,9 +84,9 @@ export function Header() {
             <div className="fixed inset-y-0 right-0 z-50 w-full overflow-y-auto bg-white px-6 py-6 sm:max-w-sm sm:ring-1 sm:ring-gray-900/10">
               <div className="flex items-center justify-between">
                 <Link href="/" className="-m-1.5 p-1.5">
-                  <span className="sr-only">AI Thesis Platform</span>
+                  <span className="sr-only">Thesica</span>
                   <div className="h-8 w-8 rounded-lg bg-primary-600 flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">AI</span>
+                    <svg viewBox="34 16 24 58" className="h-5" aria-hidden="true"><path d="M36 24Q36 19 41 19L51 19Q56 19 56 24L56 71 46 61 36 71Z" fill="#fffdf9"/></svg>
                   </div>
                 </Link>
                 <button

@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="uk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thesica Admin & Frontend Execution Board</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f7f5f0;
+      --paper:#fffdf9;
+      --stage:#efeadf;
+      --bar:#faf7f1;
+      --ink:#1c1b19;
+      --ink-soft:#4a4843;
+      --ink-faint:#8a877f;
+      --line:#e6e1d6;
+      --line-strong:#d6d0c2;
+      --accent:#0f6e56;
+      --accent-deep:#0a4d3c;
+      --accent-soft:#e4f1ea;
+      --success:#0f6e56;
+      --success-soft:#e4f1ea;
+      --warning:#a05a00;
+      --warning-soft:#fbeed9;
+      --error:#9a2b22;
+      --error-soft:#fae6e2;
+      --info:#1c5a93;
+      --info-soft:#e6eff8;
+      --shadow:0 1px 2px rgba(28,27,25,.04), 0 14px 34px rgba(28,27,25,.10);
+      --shadow-soft:0 1px 2px rgba(28,27,25,.05);
+      --display:"Literata", Georgia, serif;
+      --sans:"Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --mono:"JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+
+    @media (prefers-color-scheme:dark){
+      :root{
+        --bg:#16150f;
+        --paper:#1e1c17;
+        --stage:#25231d;
+        --bar:#211f19;
+        --ink:#e8e4db;
+        --ink-soft:#c8c1b4;
+        --ink-faint:#8f887d;
+        --line:#2c2a23;
+        --line-strong:#403c32;
+        --accent:#2f9e7e;
+        --accent-deep:#73d0b4;
+        --accent-soft:rgba(47,158,126,.12);
+        --success:#2f9e7e;
+        --success-soft:rgba(47,158,126,.12);
+        --warning:#e1aa55;
+        --warning-soft:rgba(160,90,0,.16);
+        --error:#dc756c;
+        --error-soft:rgba(154,43,34,.16);
+        --info:#75a8d9;
+        --info-soft:rgba(28,90,147,.18);
+        --shadow:0 1px 2px rgba(0,0,0,.18), 0 18px 44px rgba(0,0,0,.28);
+        --shadow-soft:0 1px 2px rgba(0,0,0,.16);
+      }
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--ink);
+      font-family:var(--sans);
+      line-height:1.55;
+      -webkit-font-smoothing:antialiased;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:var(--accent-deep)}
+    button,input{font:inherit}
+    .wrap{max-width:1220px;margin:0 auto;padding:34px 24px 80px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:30px}
+    .brand{display:flex;align-items:center;gap:13px;min-width:0}
+    .mark{
+      width:42px;height:42px;border-radius:11px;background:var(--accent);position:relative;flex:none;
+      box-shadow:var(--shadow-soft);
+    }
+    .mark::after{
+      content:"";position:absolute;left:15px;top:9px;width:13px;height:26px;background:var(--paper);
+      border-radius:5px 5px 0 0;clip-path:polygon(0 0,100% 0,100% 100%,50% 73%,0 100%);
+    }
+    .brand-title{font-family:var(--display);font-weight:650;font-size:22px;line-height:1}
+    .brand-sub{font-family:var(--mono);font-size:12px;color:var(--ink-faint);margin-top:5px}
+    .controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+    .seg{display:flex;border:1px solid var(--line-strong);border-radius:999px;background:var(--paper);padding:3px}
+    .seg button,.ghost{
+      border:0;background:transparent;color:var(--ink-soft);border-radius:999px;padding:7px 12px;
+      font-family:var(--mono);font-size:12px;cursor:pointer;min-height:34px;
+    }
+    .seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+    .ghost{border:1px solid var(--line-strong);background:var(--paper)}
+    .ghost:hover{border-color:var(--accent);color:var(--accent-deep)}
+
+    .hero{
+      display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:32px;align-items:end;
+      padding:26px 0 34px;border-bottom:1px solid var(--line);
+    }
+    .kicker{
+      font-family:var(--mono);font-size:12px;color:var(--accent-deep);letter-spacing:.08em;
+      text-transform:uppercase;display:flex;gap:10px;align-items:center;margin-bottom:10px;
+    }
+    .kicker::before{content:"";width:28px;height:2px;background:var(--accent);display:block}
+    h1{font-family:var(--display);font-size:clamp(34px,5vw,58px);line-height:1.05;margin:0 0 16px;font-weight:680;letter-spacing:0;max-width:870px}
+    .lead{font-size:20px;color:var(--ink-soft);max-width:780px;margin:0}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+    .chip{font-family:var(--mono);font-size:11px;border:1px solid var(--line);background:var(--paper);color:var(--ink-soft);border-radius:999px;padding:5px 10px}
+    .status-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow)}
+    .status-card h2{font-family:var(--mono);font-size:12px;text-transform:uppercase;color:var(--ink-faint);letter-spacing:.08em;margin:0 0 13px}
+    .progress{height:9px;background:var(--stage);border:1px solid var(--line);border-radius:999px;overflow:hidden}
+    .progress span{display:block;height:100%;width:0;background:var(--accent);transition:width .18s ease}
+    .progress-meta{display:flex;justify-content:space-between;gap:12px;margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--ink-soft)}
+    .status-note{font-size:13px;color:var(--ink-faint);margin:12px 0 0}
+
+    .layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:32px;margin-top:34px}
+    .rail{position:sticky;top:24px;align-self:start;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;box-shadow:var(--shadow-soft)}
+    .rail-title{font-family:var(--mono);font-size:11px;text-transform:uppercase;color:var(--ink-faint);letter-spacing:.08em;margin:0 0 10px}
+    .rail a{display:flex;gap:9px;text-decoration:none;color:var(--ink-soft);font-size:14px;padding:7px 9px;border-radius:8px}
+    .rail a:hover{background:var(--accent-soft);color:var(--accent-deep)}
+    .rail .n{font-family:var(--mono);font-size:11px;color:var(--ink-faint);min-width:21px}
+
+    .lang-panel[hidden]{display:none}
+    section{scroll-margin-top:24px;margin-bottom:34px}
+    .section-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin:0 0 14px}
+    h2.section-title{font-family:var(--display);font-size:30px;line-height:1.15;margin:0;font-weight:640}
+    .section-copy{color:var(--ink-soft);font-size:16px;max-width:760px;margin:0 0 18px}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+    .grid.three{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow-soft)}
+    .card h3{font-family:var(--display);font-size:20px;line-height:1.2;margin:0 0 8px;font-weight:620}
+    .card p{margin:0;color:var(--ink-soft)}
+    .badge{font-family:var(--mono);font-size:11px;border-radius:999px;padding:3px 8px;background:var(--accent-soft);color:var(--accent-deep);display:inline-flex;margin-bottom:10px}
+    .badge.warn{background:var(--warning-soft);color:var(--warning)}
+    .badge.info{background:var(--info-soft);color:var(--info)}
+    .badge.err{background:var(--error-soft);color:var(--error)}
+
+    .task-list{display:grid;gap:10px}
+    .task{
+      display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:start;
+      background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:13px 14px;
+    }
+    .task input{width:18px;height:18px;margin-top:3px;accent-color:var(--accent)}
+    .task-title{font-weight:650;color:var(--ink);line-height:1.3}
+    .task-body{font-size:14px;color:var(--ink-soft);margin-top:3px}
+    .task-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+    .tag{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);background:var(--bar);color:var(--ink-soft);border-radius:6px;padding:2px 6px}
+    .task.done .task-title{text-decoration:line-through;color:var(--ink-faint)}
+    .task.done{border-color:rgba(15,110,86,.32);background:var(--accent-soft)}
+
+    .phase{position:relative;padding-left:54px;margin:0 0 16px}
+    .phase::before{content:"";position:absolute;left:19px;top:42px;bottom:-16px;width:2px;background:var(--line-strong)}
+    .phase:last-child::before{display:none}
+    .phase-num{
+      position:absolute;left:0;top:0;width:40px;height:40px;border-radius:999px;background:var(--paper);
+      border:2px solid var(--accent);color:var(--accent-deep);display:grid;place-items:center;
+      font-family:var(--mono);font-size:14px;font-weight:600;
+    }
+    .phase-card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:18px;box-shadow:var(--shadow-soft)}
+    .phase-card h3{font-family:var(--display);font-size:22px;line-height:1.2;margin:0 0 6px}
+    .phase-card p{margin:0 0 12px;color:var(--ink-soft)}
+    .exit{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:0 10px 10px 0;padding:10px 12px;font-size:14px;color:var(--accent-deep)}
+
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:var(--paper);box-shadow:var(--shadow-soft)}
+    table{width:100%;border-collapse:collapse;min-width:720px}
+    th,td{text-align:left;vertical-align:top;padding:12px 13px;border-bottom:1px solid var(--line);font-size:14px}
+    th{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);background:var(--bar)}
+    tr:last-child td{border-bottom:0}
+    td:first-child{font-weight:650}
+
+    details.prompt{background:var(--paper);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow-soft);overflow:hidden}
+    details.prompt+details.prompt{margin-top:10px}
+    details.prompt summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:15px 16px}
+    details.prompt summary::-webkit-details-marker{display:none}
+    .prompt-title{display:flex;gap:12px;align-items:center;min-width:0}
+    .prompt-no{font-family:var(--mono);font-size:11px;color:#fff;background:var(--accent);border-radius:999px;padding:4px 8px;white-space:nowrap}
+    .prompt-name{font-weight:650}
+    .prompt-body{border-top:1px solid var(--line);padding:14px 16px 16px}
+    pre{
+      margin:10px 0 0;background:var(--stage);border:1px solid var(--line);border-radius:10px;
+      padding:13px;overflow:auto;white-space:pre-wrap;font-family:var(--mono);font-size:12px;line-height:1.5;color:var(--ink);
+    }
+    .copy{border:1px solid var(--line-strong);background:var(--bar);color:var(--ink-soft);border-radius:999px;padding:6px 10px;font-family:var(--mono);font-size:11px;cursor:pointer;white-space:nowrap}
+    .copy:hover{border-color:var(--accent);color:var(--accent-deep)}
+
+    .callout{border-left:3px solid var(--line-strong);background:var(--paper);border-radius:0 12px 12px 0;padding:14px 16px;margin:18px 0;color:var(--ink-soft)}
+    .callout strong{color:var(--ink)}
+    .callout.warn{border-color:var(--warning);background:var(--warning-soft);color:var(--warning)}
+
+    @media (max-width:960px){
+      .hero{grid-template-columns:1fr}
+      .layout{grid-template-columns:1fr}
+      .rail{position:static}
+      .grid,.grid.three{grid-template-columns:1fr}
+    }
+    @media (max-width:620px){
+      .wrap{padding:24px 16px 56px}
+      .topbar{align-items:flex-start;flex-direction:column}
+      .controls{justify-content:flex-start}
+      h1{font-size:33px}
+      h2.section-title{font-size:25px}
+      .phase{padding-left:0}
+      .phase-num{position:static;margin-bottom:8px}
+      .phase::before{display:none}
+      .status-card{padding:15px}
+    }
+    @media print{
+      .controls,.rail,.copy{display:none!important}
+      body{background:#fff;color:#111}
+      .wrap{max-width:none;padding:0}
+      .hero,.layout{display:block}
+      .status-card,.card,.phase-card,.task,details.prompt,.table-wrap{box-shadow:none;break-inside:avoid}
+      details.prompt{break-inside:avoid}
+      details.prompt:not([open]) .prompt-body{display:block}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar" aria-label="Document controls">
+      <div class="brand">
+        <div class="mark" aria-hidden="true"></div>
+        <div>
+          <div class="brand-title">Thesica</div>
+          <div class="brand-sub">Admin & Frontend Execution Board</div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="seg" aria-label="Language">
+          <button type="button" data-lang-button="uk" aria-pressed="true">UA</button>
+          <button type="button" data-lang-button="en" aria-pressed="false">EN</button>
+        </div>
+        <button class="ghost" type="button" data-reset>Reset checks</button>
+        <button class="ghost" type="button" onclick="window.print()">Print</button>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div>
+        <div class="kicker" data-t-uk>Execution plan</div>
+        <div class="kicker" data-t-en hidden>Execution plan</div>
+        <div data-locale="uk">
+          <h1>Адмінка, ролі та фронтенд без хаосу</h1>
+          <p class="lead">Практичний план реалізації QA-first платформи: від внутрішнього production case до release gate, editor workspace, client-safe portal і публічного сайту.</p>
+          <div class="chips">
+            <span class="chip">Source: ADMIN_FRONTEND_EXECUTION_PLAN.md</span>
+            <span class="chip">Strategy: internal first</span>
+            <span class="chip">UI: Scholarly Press</span>
+            <span class="chip">Output: checklist + prompts</span>
+          </div>
+        </div>
+        <div data-locale="en" hidden>
+          <h1>Admin, roles and frontend without drift</h1>
+          <p class="lead">A practical QA-first implementation plan: from internal production cases to release gates, editor workspace, client-safe portal, and the public website.</p>
+          <div class="chips">
+            <span class="chip">Source: ADMIN_FRONTEND_EXECUTION_PLAN.md</span>
+            <span class="chip">Strategy: internal first</span>
+            <span class="chip">UI: Scholarly Press</span>
+            <span class="chip">Output: checklist + prompts</span>
+          </div>
+        </div>
+      </div>
+      <aside class="status-card" aria-label="Checklist progress">
+        <h2 data-locale="uk">Прогрес чекліста</h2>
+        <h2 data-locale="en" hidden>Checklist progress</h2>
+        <div class="progress"><span data-progress-bar></span></div>
+        <div class="progress-meta">
+          <span data-progress-count>0 / 0</span>
+          <span data-progress-pct>0%</span>
+        </div>
+        <p class="status-note" data-locale="uk">Чекбокси зберігаються в цьому браузері та синхронізуються між мовами.</p>
+        <p class="status-note" data-locale="en" hidden>Checkboxes are saved in this browser and synced across languages.</p>
+      </aside>
+    </section>
+
+    <div class="layout">
+      <nav class="rail" aria-label="Page sections">
+        <p class="rail-title">Sections</p>
+        <a href="#decision" data-anchor="decision"><span class="n">01</span><span>Decision</span></a>
+        <a href="#roles" data-anchor="roles"><span class="n">02</span><span>Roles</span></a>
+        <a href="#model" data-anchor="model"><span class="n">03</span><span>Data model</span></a>
+        <a href="#surfaces" data-anchor="surfaces"><span class="n">04</span><span>Surfaces</span></a>
+        <a href="#phases" data-anchor="phases"><span class="n">05</span><span>Phases</span></a>
+        <a href="#checklist" data-anchor="checklist"><span class="n">06</span><span>Checklist</span></a>
+        <a href="#prompts" data-anchor="prompts"><span class="n">07</span><span>Prompts</span></a>
+        <a href="#risks" data-anchor="risks"><span class="n">08</span><span>Risks</span></a>
+      </nav>
+
+      <main>
+        <article data-locale="uk">
+          <section id="decision">
+            <div class="section-head">
+              <div>
+                <h2 class="section-title">1. Головне рішення</h2>
+                <p class="section-copy">Фронтенд не має бути одним великим кабінетом. Його треба розділити на чотири поверхні, кожна з окремою відповідальністю.</p>
+              </div>
+            </div>
+            <div class="grid">
+              <div class="card"><span class="badge">Public</span><h3>Публічний сайт</h3><p>Маркетинг, lead capture, FAQ, terms, privacy. Без обіцянок обходу AI/plagiarism detection.</p></div>
+              <div class="card"><span class="badge">Client</span><h3>Клієнтський портал</h3><p>Заявка, quote/payment, безпечний статус, delivery files, revision request.</p></div>
+              <div class="card"><span class="badge">Manager</span><h3>Manager/Admin console</h3><p>Production control, QA evidence, release gate, payments, refunds, users, audit.</p></div>
+              <div class="card"><span class="badge">Editor</span><h3>Editor workspace</h3><p>Вузька черга задач із конкретними findings, а не повна ручна перечитка кожної роботи.</p></div>
+            </div>
+            <div class="callout"><strong>Done:</strong> менеджер проводить реальне замовлення від intake до release decision без бази, логів і допомоги розробника. Клієнт бачить тільки безпечний статус і релізнуті файли.</div>
+          </section>
+
+          <section id="roles">
+            <h2 class="section-title">2. Ролі та права</h2>
+            <p class="section-copy">Ролі потрібні не для косметики, а щоб client, editor і manager не бачили зайвого і не могли обійти QA-first процес.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Роль</th><th>Бачить</th><th>Не може</th></tr></thead>
+                <tbody>
+                  <tr><td>admin</td><td>Користувачі, ролі, settings, payments, refunds, всі cases, audit, overrides.</td><td>Не має бачити raw secrets або приватні provider values.</td></tr>
+                  <tr><td>manager</td><td>Intake, jobs, QA evidence, editor tasks, delivery, minutes, release decision.</td><td>Не змінює system settings без окремого права.</td></tr>
+                  <tr><td>editor</td><td>Assigned tasks, секції, findings, comments, QA rerun result.</td><td>Не бачить payments, refunds, global settings, release override.</td></tr>
+                  <tr><td>client</td><td>Свої заявки, safe status, uploaded files, released deliverables, messages.</td><td>Не бачить raw AI output до release approval і internal QA details.</td></tr>
+                  <tr><td>support</td><td>Orders, clients, status, refund request intake.</td><td>Не робить release override і не змінює global settings.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="model">
+            <h2 class="section-title">3. Data model direction</h2>
+            <p class="section-copy">Поточний `Document` не треба ламати. Додаємо production layer навколо нього, щоб бізнес-замовлення не змішувалось із raw document state.</p>
+            <div class="grid">
+              <div class="card"><span class="badge">Core</span><h3>ProductionCase</h3><p>Business order: client, document, manager, editor, deadline, citation style, requirements, human minutes, release status.</p></div>
+              <div class="card"><span class="badge warn">Gate</span><h3>ReleaseGateResult</h3><p>Один gate result: key, severity, status, evidence, provider, override policy, override reason.</p></div>
+              <div class="card"><span class="badge info">Editor</span><h3>EditorTask</h3><p>Finding-specific задача з section, assigned editor, status, resolution notes і minutes spent.</p></div>
+              <div class="card"><span class="badge">Audit</span><h3>AuditEvent</h3><p>Actor, action, target, reason, timestamp, correlation id для release, override, retry, assignment.</p></div>
+            </div>
+          </section>
+
+          <section id="surfaces">
+            <h2 class="section-title">4. Product surfaces</h2>
+            <p class="section-copy">Кожна поверхня має один job-to-be-done. Це зменшує ризик, що client portal випадково стане внутрішньою адмінкою.</p>
+            <div class="grid three">
+              <div class="card"><h3>Admin dashboard</h3><p>Open cases, due in 48h, stuck jobs, failed QA gates, waiting editor, ready release, token cost, refund alerts.</p></div>
+              <div class="card"><h3>Production case detail</h3><p>Tabs: Overview, Intake, Generation, QA Evidence, Editor Tasks, Payments, Delivery, Audit.</p></div>
+              <div class="card"><h3>Editor workspace</h3><p>My tasks, task detail, section editor, QA finding context, submit resolution.</p></div>
+              <div class="card"><h3>Client portal</h3><p>Request received, Requirements review, Drafting, Quality review, Editorial review, Delivered.</p></div>
+              <div class="card"><h3>Release gate</h3><p>Release disabled when blocking gates fail or have no data without valid override.</p></div>
+              <div class="card"><h3>Public website</h3><p>Allowed: AI-assisted academic drafting with human quality controls. Disallowed: bypass promises.</p></div>
+            </div>
+          </section>
+
+          <section id="phases">
+            <h2 class="section-title">5. Фази реалізації</h2>
+            <p class="section-copy">Порядок важливий. Не починаємо з публічного сайту, поки production case і release gate нечіткі.</p>
+            <div class="phase"><div class="phase-num">A</div><div class="phase-card"><h3>Align current admin around QA-first</h3><p>Перефокусувати поточну адмінку з vanity metrics на production risk.</p><div class="exit">Exit: document detail показує QA evidence, provenance і чесні no-data стани.</div></div></div>
+            <div class="phase"><div class="phase-num">B</div><div class="phase-card"><h3>Production case layer</h3><p>Додати business-order шар навколо Document, окремі статуси і admin list/detail.</p><div class="exit">Exit: manager створює case без Stripe і без ручної роботи в базі.</div></div></div>
+            <div class="phase"><div class="phase-num">C</div><div class="phase-card"><h3>Release gate contract</h3><p>Gate config, gate results, override policy, audit, release endpoint.</p><div class="exit">Exit: failed/no-data blocking gate блокує release без валідного override.</div></div></div>
+            <div class="phase"><div class="phase-num">D</div><div class="phase-card"><h3>Editor workspace</h3><p>QA findings стають конкретними editor tasks із minutes tracking.</p><div class="exit">Exit: editor закриває finding, manager бачить task status.</div></div></div>
+            <div class="phase"><div class="phase-num">E</div><div class="phase-card"><h3>Client-safe portal</h3><p>Клієнт бачить safe status і delivery тільки після release approval.</p><div class="exit">Exit: client не може завантажити unreleased files або запустити uncontrolled generation.</div></div></div>
+            <div class="phase"><div class="phase-num">F</div><div class="phase-card"><h3>Public website and sales</h3><p>Публічна упаковка, pricing/request quote, payment wiring, FAQ, terms.</p><div class="exit">Exit: new request входить у production flow і не обходить QA.</div></div></div>
+          </section>
+
+          <section id="checklist">
+            <h2 class="section-title">6. Покроковий чекліст</h2>
+            <p class="section-copy">Це робочий порядок. Кожен пункт має давати перевірний сигнал, а не просто новий екран.</p>
+            <div class="task-list">
+              <label class="task"><input type="checkbox" data-task="audit"><span><span class="task-title">1. Аудит поточного admin/frontend/API</span><span class="task-body">Знайти наявні admin routes, endpoints, provenance, payments/refunds/settings і прогалини.</span><span class="task-tags"><span class="tag">read-only</span><span class="tag">Prompt 1</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="dashboard-risk"><span><span class="task-title">2. Dashboard через production risk</span><span class="task-body">Open cases, stuck jobs, failed QA/no data, deadline risk, ready release, token cost.</span><span class="task-tags"><span class="tag">Phase A</span><span class="tag">Prompt 2</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="production-backend"><span><span class="task-title">3. ProductionCase backend skeleton</span><span class="task-body">Model/schema/service/endpoints, status dimensions, links to Document/client/manager/editor.</span><span class="task-tags"><span class="tag">Phase B</span><span class="tag">TDD</span><span class="tag">Prompt 3</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="production-ui"><span><span class="task-title">4. ProductionCase admin UI</span><span class="task-body">List/detail, tabs, honest no-data states, API client methods.</span><span class="task-tags"><span class="tag">Phase B</span><span class="tag">Prompt 4</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="release-backend"><span><span class="task-title">5. Release Gate Contract backend</span><span class="task-body">Gate config, results, override, release endpoint, audit event.</span><span class="task-tags"><span class="tag">Phase C</span><span class="tag">Prompt 5</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="release-ui"><span><span class="task-title">6. Release Gate UI</span><span class="task-body">Gate cards, disabled release button, override modal with reason, blocker explanation.</span><span class="task-tags"><span class="tag">Phase C</span><span class="tag">Prompt 6</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="editor-backend"><span><span class="task-title">7. EditorTask backend</span><span class="task-body">Task model, assignment, permissions, status transitions, minutes spent.</span><span class="task-tags"><span class="tag">Phase D</span><span class="tag">Prompt 7</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="editor-ui"><span><span class="task-title">8. Editor workspace UI</span><span class="task-body">Task queue, task detail, section editor, resolve/reject with notes.</span><span class="task-tags"><span class="tag">Phase D</span><span class="tag">Prompt 8</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="portal"><span><span class="task-title">9. Client-safe portal</span><span class="task-body">Safe status mapping, own orders only, no raw output, no unreleased downloads.</span><span class="task-tags"><span class="tag">Phase E</span><span class="tag">Prompt 9</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="payments"><span><span class="task-title">10. Payment and quote wiring</span><span class="task-body">Paid не означає released; refunds linked to case; payment cannot bypass QA.</span><span class="task-tags"><span class="tag">Phase E/F</span><span class="tag">Prompt 10</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="public-site"><span><span class="task-title">11. Public website rewrite</span><span class="task-body">Thesica positioning, request intake, FAQ, no bypass claims.</span><span class="task-tags"><span class="tag">Phase F</span><span class="tag">Prompt 11</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="e2e-smoke"><span><span class="task-title">12. End-to-end operational smoke</span><span class="task-body">Manager creates case, QA evidence, editor resolves, manager releases, client sees safe status.</span><span class="task-tags"><span class="tag">validation</span><span class="tag">Prompt 12</span></span></span></label>
+            </div>
+          </section>
+
+          <section id="prompts">
+            <h2 class="section-title">7. Prompt pack</h2>
+            <p class="section-copy">Використовуй по одному prompt за раз. Не проси агента робити всі фази одним заходом.</p>
+            <div class="prompt-list">
+              <details class="prompt" open><summary><span class="prompt-title"><span class="prompt-no">P1</span><span class="prompt-name">Audit current admin and frontend state</span></span><button class="copy" type="button" data-copy="prompt-uk-1">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-1">Ми реалізуємо QA-first admin/frontend план з docs/ADMIN_FRONTEND_EXECUTION_PLAN.md.
+
+Задача: зроби read-only аудит поточного стану admin/frontend/backend API без змін у коді.
+
+Видати:
+1. Які admin екрани вже є.
+2. Які backend endpoints вже є.
+3. Що вже покриває QA evidence/provenance.
+4. Що відсутнє для production case, release gate, editor workspace, client-safe portal.
+5. Рекомендований перший маленький implementation slice.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P2</span><span class="prompt-name">Reframe admin dashboard around production risk</span></span><button class="copy" type="button" data-copy="prompt-uk-2">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-2">Реалізуй Phase A: admin dashboard має показувати production risk, а не SaaS vanity metrics.
+
+Вимоги:
+- Прочитай TESIGO-PLAN.md, DESIGN.md і поточні admin dashboard файли.
+- Першими мають бути: open cases/documents, stuck jobs, failed QA/no data QA, deadline risk, ready for release, token cost today.
+- Missing data не показувати як passed.
+
+Acceptance:
+- /admin/dashboard відповідає, що горить у production process.
+- MRR/ARPU/churn не домінують Phase 1-2 dashboard.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P3</span><span class="prompt-name">Add ProductionCase backend skeleton</span></span><button class="copy" type="button" data-copy="prompt-uk-3">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-3">Реалізуй Phase B backend skeleton.
+
+Задача:
+- Додай ProductionCase layer навколо існуючого Document, не переписуючи Document.
+- Статуси окремі: intake_status, generation_status, qa_status, editorial_status, payment_status, delivery_status, release_status.
+- Link до document_id, client_user_id, manager_id, editor_id.
+
+Endpoints:
+- GET /api/v1/admin/production-cases
+- POST /api/v1/admin/production-cases
+- GET /api/v1/admin/production-cases/{id}
+- PATCH /api/v1/admin/production-cases/{id}
+
+Почни з focused backend tests.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P4</span><span class="prompt-name">Build ProductionCase admin UI</span></span><button class="copy" type="button" data-copy="prompt-uk-4">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-4">Реалізуй admin UI для Production Cases.
+
+Routes:
+- /admin/production-cases
+- /admin/production-cases/[id]
+- optional /admin/production-cases/new
+
+Detail tabs:
+Overview, Intake, Generation, QA Evidence, Editor Tasks, Payments, Delivery, Audit.
+
+Не fake success. Для відсутнього backend data показуй чесні No data yet / Not implemented yet states.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P5</span><span class="prompt-name">Implement Release Gate Contract</span></span><button class="copy" type="button" data-copy="prompt-uk-5">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-5">Реалізуй Release Gate Contract TDD-first.
+
+Gates:
+citation_verification, claim_support, section_quality, plagiarism_proxy, ai_detection_proxy, editorial_review, delivery_package.
+
+Endpoints:
+- GET /api/v1/admin/production-cases/{id}/release-gates
+- POST /api/v1/admin/production-cases/{id}/release-gates/{gate}/override
+- POST /api/v1/admin/production-cases/{id}/release
+
+Release блокується, якщо blocking gate failed/no_data і немає валідного override.
+Override вимагає reason і пише audit event.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P6</span><span class="prompt-name">Add Release Gate UI</span></span><button class="copy" type="button" data-copy="prompt-uk-6">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-6">Додай Release Gate UI у production case detail.
+
+Вимоги:
+- QA Evidence tab показує gate cards: status, severity, source, last checked, summary, evidence, action needed.
+- Delivery tab показує release checklist.
+- Release button disabled, якщо є blocking failed/no_data gate.
+- Override modal доступний тільки за policy і вимагає reason.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P7</span><span class="prompt-name">Add EditorTask backend</span></span><button class="copy" type="button" data-copy="prompt-uk-7">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-7">Реалізуй EditorTask backend.
+
+Task має link до production case, document, optional section, assigned editor, source gate/finding.
+Статуси: open, in_progress, resolved, rejected.
+
+Endpoints:
+- GET /api/v1/editor/tasks
+- GET /api/v1/editor/tasks/{id}
+- PATCH /api/v1/editor/tasks/{id}
+- POST /api/v1/editor/tasks/{id}/resolve
+
+Permission tests обов'язкові: editor бачить тільки assigned tasks.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P8</span><span class="prompt-name">Build Editor Workspace</span></span><button class="copy" type="button" data-copy="prompt-uk-8">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-8">Побудуй Editor Workspace.
+
+Routes:
+- /editor
+- /editor/tasks
+- /editor/tasks/[id]
+
+UI:
+- My tasks queue з deadline, severity, case title, section, status.
+- Task detail з finding context, section content, evidence, notes, minutes input.
+- Actions: start, save notes, mark resolved, reject with reason.
+
+Editor workspace не показує payments, refunds, global settings або unrelated clients.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P9</span><span class="prompt-name">Add Client-Safe Portal Status</span></span><button class="copy" type="button" data-copy="prompt-uk-9">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-9">Реалізуй client-safe portal status.
+
+Mapping:
+Request received, Requirements review, Drafting, Quality review, Editorial review, Preparing delivery, Delivered, Revision requested.
+
+Вимоги:
+- Client бачить тільки свої orders/cases.
+- Raw AI output не показується до release approval.
+- Download unreleased files заборонений.
+- Client не trigger generation напряму у Phase 1-2.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P10</span><span class="prompt-name">Payment and Quote Wiring</span></span><button class="copy" type="button" data-copy="prompt-uk-10">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-10">Підключи payment/quote flow до production case.
+
+Вимоги:
+- payment_status окремий від generation_status і release_status.
+- Paid не означає Released.
+- Payment може створити або активувати production case, але не видає raw AI result.
+- Refund/request refund linked to case/order.
+- Admin бачить payment/refund у production case detail.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P11</span><span class="prompt-name">Public Website Rewrite</span></span><button class="copy" type="button" data-copy="prompt-uk-11">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-11">Перепиши public website під Thesica QA-first positioning.
+
+Вимоги:
+- Homepage продає "AI-assisted academic drafting with human quality controls".
+- Не використовуй claims про guaranteed bypass AI/plagiarism detectors.
+- CTA веде до request/order intake.
+- Візуальний стиль: Scholarly Press, не generic AI SaaS.
+- Додай/онови FAQ з чесними обмеженнями.</pre></div></details>
+
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P12</span><span class="prompt-name">End-to-End Operational Smoke</span></span><button class="copy" type="button" data-copy="prompt-uk-12">Copy</button></summary><div class="prompt-body"><pre id="prompt-uk-12">Проведи end-to-end operational smoke.
+
+Flow:
+1. Manager створює production case.
+2. Прив'язує або створює document.
+3. Запускає generation або використовує completed document fixture.
+4. Переглядає QA evidence.
+5. Створює/призначає editor task.
+6. Editor resolves task.
+7. Manager reruns/checks gate.
+8. Manager approves release або бачить blocked release.
+9. Client бачить safe status і released files тільки після release.
+
+Не приховуй failed validation.</pre></div></details>
+            </div>
+          </section>
+
+          <section id="risks">
+            <h2 class="section-title">8. Ризики та guardrails</h2>
+            <div class="grid">
+              <div class="card"><span class="badge err">Risk</span><h3>Self-serve занадто рано</h3><p>Guardrail: client portal стартує тільки з safe status; raw output не показується до release.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>`document.status` перевантажений</h3><p>Guardrail: окремі production status dimensions.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>No data виглядає як success</h3><p>Guardrail: `no_data` є first-class state і блокує release для blocking gates.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>Editor переписує все вручну</h3><p>Guardrail: задачі мають бути finding-specific, а minutes spent трекаються.</p></div>
+            </div>
+            <div class="callout warn"><strong>Stop condition:</strong> якщо два implementation attempts не покращують primary signal, зупинитися й переформулювати owning problem.</div>
+          </section>
+        </article>
+
+        <article data-locale="en" hidden>
+          <section id="decision-en">
+            <h2 class="section-title">1. Core decision</h2>
+            <p class="section-copy">The frontend must not become one overloaded cabinet. Split it into four surfaces with separate responsibilities.</p>
+            <div class="grid">
+              <div class="card"><span class="badge">Public</span><h3>Public website</h3><p>Marketing, lead capture, FAQ, terms, privacy. No AI/plagiarism bypass promises.</p></div>
+              <div class="card"><span class="badge">Client</span><h3>Client portal</h3><p>Request, quote/payment, safe status, delivery files, revision request.</p></div>
+              <div class="card"><span class="badge">Manager</span><h3>Manager/Admin console</h3><p>Production control, QA evidence, release gate, payments, refunds, users, audit.</p></div>
+              <div class="card"><span class="badge">Editor</span><h3>Editor workspace</h3><p>A focused task queue from QA findings, not a full manual reread of every paper.</p></div>
+            </div>
+            <div class="callout"><strong>Done:</strong> a manager can run a real order from intake to release decision without database tools, logs, or developer help. The client sees only safe status and released files.</div>
+          </section>
+
+          <section id="roles-en">
+            <h2 class="section-title">2. Roles and permissions</h2>
+            <p class="section-copy">Roles keep the client, editor, and manager from seeing too much or bypassing the QA-first process.</p>
+            <div class="table-wrap">
+              <table>
+                <thead><tr><th>Role</th><th>Must see</th><th>Must not do</th></tr></thead>
+                <tbody>
+                  <tr><td>admin</td><td>Users, roles, settings, payments, refunds, all cases, audit, overrides.</td><td>No raw secrets or private provider values.</td></tr>
+                  <tr><td>manager</td><td>Intake, jobs, QA evidence, editor tasks, delivery, minutes, release decision.</td><td>No system settings unless explicitly allowed.</td></tr>
+                  <tr><td>editor</td><td>Assigned tasks, sections, findings, comments, QA rerun result.</td><td>No payments, refunds, global settings, release override.</td></tr>
+                  <tr><td>client</td><td>Own requests, safe status, uploaded files, released deliverables, messages.</td><td>No raw AI output before release approval, no internal QA details.</td></tr>
+                  <tr><td>support</td><td>Orders, clients, status, refund request intake.</td><td>No release override, no global settings.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section id="model-en">
+            <h2 class="section-title">3. Data model direction</h2>
+            <p class="section-copy">Do not break the current `Document` model. Add a production layer around it so the business order is not mixed with raw document state.</p>
+            <div class="grid">
+              <div class="card"><span class="badge">Core</span><h3>ProductionCase</h3><p>Business order: client, document, manager, editor, deadline, citation style, requirements, human minutes, release status.</p></div>
+              <div class="card"><span class="badge warn">Gate</span><h3>ReleaseGateResult</h3><p>One gate result: key, severity, status, evidence, provider, override policy, override reason.</p></div>
+              <div class="card"><span class="badge info">Editor</span><h3>EditorTask</h3><p>A finding-specific task with section, assigned editor, status, resolution notes, and minutes spent.</p></div>
+              <div class="card"><span class="badge">Audit</span><h3>AuditEvent</h3><p>Actor, action, target, reason, timestamp, correlation id for release, override, retry, assignment.</p></div>
+            </div>
+          </section>
+
+          <section id="surfaces-en">
+            <h2 class="section-title">4. Product surfaces</h2>
+            <p class="section-copy">Each surface has one job to be done. This prevents the client portal from becoming an internal admin console by accident.</p>
+            <div class="grid three">
+              <div class="card"><h3>Admin dashboard</h3><p>Open cases, due in 48h, stuck jobs, failed QA gates, waiting editor, ready release, token cost, refund alerts.</p></div>
+              <div class="card"><h3>Production case detail</h3><p>Tabs: Overview, Intake, Generation, QA Evidence, Editor Tasks, Payments, Delivery, Audit.</p></div>
+              <div class="card"><h3>Editor workspace</h3><p>My tasks, task detail, section editor, QA finding context, submit resolution.</p></div>
+              <div class="card"><h3>Client portal</h3><p>Request received, Requirements review, Drafting, Quality review, Editorial review, Delivered.</p></div>
+              <div class="card"><h3>Release gate</h3><p>Release disabled when blocking gates fail or have no data without valid override.</p></div>
+              <div class="card"><h3>Public website</h3><p>Allowed: AI-assisted academic drafting with human quality controls. Disallowed: bypass promises.</p></div>
+            </div>
+          </section>
+
+          <section id="phases-en">
+            <h2 class="section-title">5. Implementation phases</h2>
+            <p class="section-copy">Order matters. Do not start with the public website while production case and release gate are unclear.</p>
+            <div class="phase"><div class="phase-num">A</div><div class="phase-card"><h3>Align current admin around QA-first</h3><p>Move current admin from vanity metrics to production risk.</p><div class="exit">Exit: document detail shows QA evidence, provenance, and honest no-data states.</div></div></div>
+            <div class="phase"><div class="phase-num">B</div><div class="phase-card"><h3>Production case layer</h3><p>Add a business-order layer around Document, separate statuses, and admin list/detail.</p><div class="exit">Exit: manager creates a case without Stripe or manual database work.</div></div></div>
+            <div class="phase"><div class="phase-num">C</div><div class="phase-card"><h3>Release gate contract</h3><p>Gate config, gate results, override policy, audit, release endpoint.</p><div class="exit">Exit: failed/no-data blocking gate blocks release without valid override.</div></div></div>
+            <div class="phase"><div class="phase-num">D</div><div class="phase-card"><h3>Editor workspace</h3><p>QA findings become concrete editor tasks with minutes tracking.</p><div class="exit">Exit: editor closes a finding, manager sees task status.</div></div></div>
+            <div class="phase"><div class="phase-num">E</div><div class="phase-card"><h3>Client-safe portal</h3><p>Client sees safe status and delivery only after release approval.</p><div class="exit">Exit: client cannot download unreleased files or trigger uncontrolled generation.</div></div></div>
+            <div class="phase"><div class="phase-num">F</div><div class="phase-card"><h3>Public website and sales</h3><p>Public packaging, pricing/request quote, payment wiring, FAQ, terms.</p><div class="exit">Exit: new request enters production flow and cannot bypass QA.</div></div></div>
+          </section>
+
+          <section id="checklist-en">
+            <h2 class="section-title">6. Step-by-step checklist</h2>
+            <p class="section-copy">This is the working order. Every item must improve a verifiable signal, not just add another screen.</p>
+            <div class="task-list">
+              <label class="task"><input type="checkbox" data-task="audit"><span><span class="task-title">1. Audit current admin/frontend/API</span><span class="task-body">Find existing admin routes, endpoints, provenance, payments/refunds/settings, and gaps.</span><span class="task-tags"><span class="tag">read-only</span><span class="tag">Prompt 1</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="dashboard-risk"><span><span class="task-title">2. Dashboard through production risk</span><span class="task-body">Open cases, stuck jobs, failed QA/no data, deadline risk, ready release, token cost.</span><span class="task-tags"><span class="tag">Phase A</span><span class="tag">Prompt 2</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="production-backend"><span><span class="task-title">3. ProductionCase backend skeleton</span><span class="task-body">Model/schema/service/endpoints, status dimensions, links to Document/client/manager/editor.</span><span class="task-tags"><span class="tag">Phase B</span><span class="tag">TDD</span><span class="tag">Prompt 3</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="production-ui"><span><span class="task-title">4. ProductionCase admin UI</span><span class="task-body">List/detail, tabs, honest no-data states, API client methods.</span><span class="task-tags"><span class="tag">Phase B</span><span class="tag">Prompt 4</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="release-backend"><span><span class="task-title">5. Release Gate Contract backend</span><span class="task-body">Gate config, results, override, release endpoint, audit event.</span><span class="task-tags"><span class="tag">Phase C</span><span class="tag">Prompt 5</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="release-ui"><span><span class="task-title">6. Release Gate UI</span><span class="task-body">Gate cards, disabled release button, override modal with reason, blocker explanation.</span><span class="task-tags"><span class="tag">Phase C</span><span class="tag">Prompt 6</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="editor-backend"><span><span class="task-title">7. EditorTask backend</span><span class="task-body">Task model, assignment, permissions, status transitions, minutes spent.</span><span class="task-tags"><span class="tag">Phase D</span><span class="tag">Prompt 7</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="editor-ui"><span><span class="task-title">8. Editor workspace UI</span><span class="task-body">Task queue, task detail, section editor, resolve/reject with notes.</span><span class="task-tags"><span class="tag">Phase D</span><span class="tag">Prompt 8</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="portal"><span><span class="task-title">9. Client-safe portal</span><span class="task-body">Safe status mapping, own orders only, no raw output, no unreleased downloads.</span><span class="task-tags"><span class="tag">Phase E</span><span class="tag">Prompt 9</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="payments"><span><span class="task-title">10. Payment and quote wiring</span><span class="task-body">Paid does not mean released; refunds linked to case; payment cannot bypass QA.</span><span class="task-tags"><span class="tag">Phase E/F</span><span class="tag">Prompt 10</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="public-site"><span><span class="task-title">11. Public website rewrite</span><span class="task-body">Thesica positioning, request intake, FAQ, no bypass claims.</span><span class="task-tags"><span class="tag">Phase F</span><span class="tag">Prompt 11</span></span></span></label>
+              <label class="task"><input type="checkbox" data-task="e2e-smoke"><span><span class="task-title">12. End-to-end operational smoke</span><span class="task-body">Manager creates case, QA evidence, editor resolves, manager releases, client sees safe status.</span><span class="task-tags"><span class="tag">validation</span><span class="tag">Prompt 12</span></span></span></label>
+            </div>
+          </section>
+
+          <section id="prompts-en">
+            <h2 class="section-title">7. Prompt pack</h2>
+            <p class="section-copy">Use one prompt at a time. Do not ask the agent to implement all phases in one pass.</p>
+            <div class="prompt-list">
+              <details class="prompt" open><summary><span class="prompt-title"><span class="prompt-no">P1</span><span class="prompt-name">Audit current admin and frontend state</span></span><button class="copy" type="button" data-copy="prompt-en-1">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-1">We are implementing the QA-first admin/frontend plan from docs/ADMIN_FRONTEND_EXECUTION_PLAN.md.
+
+Task: perform a read-only audit of the current admin/frontend/backend API state. Do not edit code.
+
+Return:
+1. Existing admin screens.
+2. Existing backend endpoints.
+3. What already covers QA evidence/provenance.
+4. What is missing for production case, release gate, editor workspace, client-safe portal.
+5. Recommended first small implementation slice.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P2</span><span class="prompt-name">Reframe admin dashboard around production risk</span></span><button class="copy" type="button" data-copy="prompt-en-2">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-2">Implement Phase A: the admin dashboard should show production risk, not SaaS vanity metrics.
+
+Requirements:
+- Read TESIGO-PLAN.md, DESIGN.md, and current admin dashboard files.
+- Prioritize: open cases/documents, stuck jobs, failed QA/no data QA, deadline risk, ready for release, token cost today.
+- Never show missing data as passed.
+
+Acceptance:
+- /admin/dashboard answers what is burning in the production process.
+- MRR/ARPU/churn do not dominate Phase 1-2 dashboard.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P3</span><span class="prompt-name">Add ProductionCase backend skeleton</span></span><button class="copy" type="button" data-copy="prompt-en-3">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-3">Implement the Phase B backend skeleton.
+
+Task:
+- Add a ProductionCase layer around the existing Document model. Do not rewrite Document.
+- Keep statuses separate: intake_status, generation_status, qa_status, editorial_status, payment_status, delivery_status, release_status.
+- Link to document_id, client_user_id, manager_id, editor_id.
+
+Endpoints:
+- GET /api/v1/admin/production-cases
+- POST /api/v1/admin/production-cases
+- GET /api/v1/admin/production-cases/{id}
+- PATCH /api/v1/admin/production-cases/{id}
+
+Start with focused backend tests.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P4</span><span class="prompt-name">Build ProductionCase admin UI</span></span><button class="copy" type="button" data-copy="prompt-en-4">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-4">Implement the admin UI for Production Cases.
+
+Routes:
+- /admin/production-cases
+- /admin/production-cases/[id]
+- optional /admin/production-cases/new
+
+Detail tabs:
+Overview, Intake, Generation, QA Evidence, Editor Tasks, Payments, Delivery, Audit.
+
+No fake success. For missing backend data, show honest No data yet / Not implemented yet states.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P5</span><span class="prompt-name">Implement Release Gate Contract</span></span><button class="copy" type="button" data-copy="prompt-en-5">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-5">Implement Release Gate Contract TDD-first.
+
+Gates:
+citation_verification, claim_support, section_quality, plagiarism_proxy, ai_detection_proxy, editorial_review, delivery_package.
+
+Endpoints:
+- GET /api/v1/admin/production-cases/{id}/release-gates
+- POST /api/v1/admin/production-cases/{id}/release-gates/{gate}/override
+- POST /api/v1/admin/production-cases/{id}/release
+
+Release is blocked if a blocking gate is failed/no_data and there is no valid override.
+Override requires a reason and writes an audit event.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P6</span><span class="prompt-name">Add Release Gate UI</span></span><button class="copy" type="button" data-copy="prompt-en-6">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-6">Add Release Gate UI to production case detail.
+
+Requirements:
+- QA Evidence tab shows gate cards: status, severity, source, last checked, summary, evidence, action needed.
+- Delivery tab shows release checklist.
+- Release button is disabled if any blocking failed/no_data gate exists.
+- Override modal is policy-gated and requires a reason.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P7</span><span class="prompt-name">Add EditorTask backend</span></span><button class="copy" type="button" data-copy="prompt-en-7">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-7">Implement EditorTask backend.
+
+Task links to production case, document, optional section, assigned editor, source gate/finding.
+Statuses: open, in_progress, resolved, rejected.
+
+Endpoints:
+- GET /api/v1/editor/tasks
+- GET /api/v1/editor/tasks/{id}
+- PATCH /api/v1/editor/tasks/{id}
+- POST /api/v1/editor/tasks/{id}/resolve
+
+Permission tests are required: editor sees only assigned tasks.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P8</span><span class="prompt-name">Build Editor Workspace</span></span><button class="copy" type="button" data-copy="prompt-en-8">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-8">Build the Editor Workspace.
+
+Routes:
+- /editor
+- /editor/tasks
+- /editor/tasks/[id]
+
+UI:
+- My tasks queue with deadline, severity, case title, section, status.
+- Task detail with finding context, section content, evidence, notes, minutes input.
+- Actions: start, save notes, mark resolved, reject with reason.
+
+Editor workspace must not show payments, refunds, global settings, or unrelated clients.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P9</span><span class="prompt-name">Add Client-Safe Portal Status</span></span><button class="copy" type="button" data-copy="prompt-en-9">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-9">Implement client-safe portal status.
+
+Mapping:
+Request received, Requirements review, Drafting, Quality review, Editorial review, Preparing delivery, Delivered, Revision requested.
+
+Requirements:
+- Client sees only their own orders/cases.
+- Raw AI output is hidden before release approval.
+- Downloading unreleased files is forbidden.
+- Client cannot trigger generation directly in Phase 1-2.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P10</span><span class="prompt-name">Payment and Quote Wiring</span></span><button class="copy" type="button" data-copy="prompt-en-10">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-10">Connect payment/quote flow to production case.
+
+Requirements:
+- payment_status is separate from generation_status and release_status.
+- Paid does not mean Released.
+- Payment can create or activate a production case, but it cannot deliver raw AI result.
+- Refund/request refund is linked to case/order.
+- Admin sees payment/refund in production case detail.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P11</span><span class="prompt-name">Public Website Rewrite</span></span><button class="copy" type="button" data-copy="prompt-en-11">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-11">Rewrite the public website around Thesica QA-first positioning.
+
+Requirements:
+- Homepage sells "AI-assisted academic drafting with human quality controls".
+- Do not use claims about guaranteed AI/plagiarism detector bypass.
+- CTA leads to request/order intake.
+- Visual style: Scholarly Press, not generic AI SaaS.
+- Add/update FAQ with honest limitations.</pre></div></details>
+              <details class="prompt"><summary><span class="prompt-title"><span class="prompt-no">P12</span><span class="prompt-name">End-to-End Operational Smoke</span></span><button class="copy" type="button" data-copy="prompt-en-12">Copy</button></summary><div class="prompt-body"><pre id="prompt-en-12">Run an end-to-end operational smoke.
+
+Flow:
+1. Manager creates production case.
+2. Links or creates a document.
+3. Starts generation or uses a completed document fixture.
+4. Reviews QA evidence.
+5. Creates/assigns editor task.
+6. Editor resolves task.
+7. Manager reruns/checks gate.
+8. Manager approves release or sees blocked release.
+9. Client sees safe status and released files only after release.
+
+Do not hide failed validation.</pre></div></details>
+            </div>
+          </section>
+
+          <section id="risks-en">
+            <h2 class="section-title">8. Risks and guardrails</h2>
+            <div class="grid">
+              <div class="card"><span class="badge err">Risk</span><h3>Self-serve too early</h3><p>Guardrail: client portal starts with safe status only; raw output is hidden before release.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>`document.status` overloaded</h3><p>Guardrail: use separate production status dimensions.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>No data looks like success</h3><p>Guardrail: `no_data` is a first-class state and blocks release for blocking gates.</p></div>
+              <div class="card"><span class="badge err">Risk</span><h3>Editor rewrites everything manually</h3><p>Guardrail: tasks are finding-specific and minutes spent are tracked.</p></div>
+            </div>
+            <div class="callout warn"><strong>Stop condition:</strong> if two implementation attempts do not improve the primary signal, stop and reframe the owning problem.</div>
+          </section>
+        </article>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    (function(){
+      var checkKey = "thesica-admin-frontend-board-checks";
+      var langKey = "thesica-admin-frontend-board-lang";
+      var state = {};
+      try { state = JSON.parse(localStorage.getItem(checkKey) || "{}"); } catch (_) { state = {}; }
+
+      var boxes = Array.prototype.slice.call(document.querySelectorAll("[data-task]"));
+      var uniqueTasks = Array.from(new Set(boxes.map(function(box){ return box.dataset.task; })));
+      var bar = document.querySelector("[data-progress-bar]");
+      var count = document.querySelector("[data-progress-count]");
+      var pct = document.querySelector("[data-progress-pct]");
+
+      function save(){
+        try { localStorage.setItem(checkKey, JSON.stringify(state)); } catch (_) {}
+      }
+
+      function paint(){
+        boxes.forEach(function(box){
+          var checked = !!state[box.dataset.task];
+          box.checked = checked;
+          var task = box.closest(".task");
+          if (task) task.classList.toggle("done", checked);
+        });
+        var done = uniqueTasks.filter(function(task){ return !!state[task]; }).length;
+        var percent = uniqueTasks.length ? Math.round(done / uniqueTasks.length * 100) : 0;
+        if (bar) bar.style.width = percent + "%";
+        if (count) count.textContent = done + " / " + uniqueTasks.length;
+        if (pct) pct.textContent = percent + "%";
+      }
+
+      boxes.forEach(function(box){
+        box.addEventListener("change", function(){
+          state[box.dataset.task] = box.checked;
+          save();
+          paint();
+        });
+      });
+
+      var reset = document.querySelector("[data-reset]");
+      if (reset) {
+        reset.addEventListener("click", function(){
+          state = {};
+          save();
+          paint();
+        });
+      }
+
+      function setLang(lang){
+        document.documentElement.lang = lang;
+        try { localStorage.setItem(langKey, lang); } catch (_) {}
+        document.querySelectorAll("[data-locale]").forEach(function(el){
+          el.hidden = el.getAttribute("data-locale") !== lang;
+        });
+        document.querySelectorAll("[data-lang-button]").forEach(function(btn){
+          btn.setAttribute("aria-pressed", btn.dataset.langButton === lang ? "true" : "false");
+        });
+        document.querySelectorAll("[data-anchor]").forEach(function(link){
+          var base = link.dataset.anchor;
+          link.setAttribute("href", "#" + base + (lang === "en" ? "-en" : ""));
+        });
+        document.querySelectorAll("[data-t-uk]").forEach(function(el){ el.hidden = lang !== "uk"; });
+        document.querySelectorAll("[data-t-en]").forEach(function(el){ el.hidden = lang !== "en"; });
+      }
+
+      document.querySelectorAll("[data-lang-button]").forEach(function(btn){
+        btn.addEventListener("click", function(){ setLang(btn.dataset.langButton); });
+      });
+
+      document.querySelectorAll("[data-copy]").forEach(function(btn){
+        btn.addEventListener("click", function(event){
+          event.preventDefault();
+          event.stopPropagation();
+          var target = document.getElementById(btn.dataset.copy);
+          if (!target) return;
+          var text = target.textContent || "";
+          function done(){
+            var old = btn.textContent;
+            btn.textContent = "Copied";
+            setTimeout(function(){ btn.textContent = old; }, 1200);
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(done).catch(function(){});
+          } else {
+            var area = document.createElement("textarea");
+            area.value = text;
+            document.body.appendChild(area);
+            area.select();
+            try { document.execCommand("copy"); done(); } catch (_) {}
+            document.body.removeChild(area);
+          }
+        });
+      });
+
+      paint();
+      var savedLang = "uk";
+      try { savedLang = localStorage.getItem(langKey) || "uk"; } catch (_) {}
+      setLang(savedLang === "en" ? "en" : "uk");
+    })();
+  </script>
+</body>
+</html>

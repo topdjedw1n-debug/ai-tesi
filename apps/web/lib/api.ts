@@ -1,5 +1,5 @@
 /**
- * API Client для TesiGo Frontend
+ * API Client для Thesica Frontend
  *
  * Функціональність:
  * - Централізована конфігурація API endpoints

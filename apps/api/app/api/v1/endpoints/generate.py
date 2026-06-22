@@ -3,19 +3,22 @@ AI generation endpoints
 """
 
 import logging
+from datetime import date, datetime
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.core.exceptions import AIProviderError, NotFoundError
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
 from app.models.document import AIGenerationJob, Document
+from app.models.payment import Payment
 from app.schemas.document import (
     AsyncGenerationRequest,
     AsyncGenerationResponse,
@@ -26,7 +29,7 @@ from app.schemas.document import (
 )
 from app.services.ai_service import AIService
 from app.services.background_jobs import BackgroundJobService
-from app.services.cost_estimator import CostEstimator
+from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
 from app.services.document_service import DocumentService
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
@@ -244,6 +247,94 @@ async def check_grammar(
         ) from e
 
 
+async def _enforce_generation_gate(
+    db: AsyncSession, document: Document, user_id: int
+) -> None:
+    """Gate full-document generation (Stage 0: fix MVP scope & disable sales).
+
+    Sales mode (``MVP_FREE_GENERATION_ENABLED=False``): a completed payment for
+    the document is required, otherwise ``402``. Free MVP mode (``=True``):
+    generation runs without Stripe but is bounded by a page cap (``400``), a
+    per-user daily generation quota (``429``), and the daily token budget
+    (``429``). Raises ``HTTPException`` when a guardrail is hit; returns ``None``
+    when generation is allowed.
+    """
+    if not settings.MVP_FREE_GENERATION_ENABLED:
+        payment_result = await db.execute(
+            select(Payment.id).where(
+                Payment.document_id == document.id,
+                Payment.status == "completed",
+            )
+        )
+        if payment_result.first() is None:
+            raise HTTPException(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail="Payment required before generation can start.",
+            )
+        return
+
+    target_pages = document.target_pages or 0
+    if target_pages > settings.MVP_FREE_GENERATION_MAX_PAGES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Free generation is limited to "
+                f"{settings.MVP_FREE_GENERATION_MAX_PAGES} pages "
+                f"(document requests {target_pages})."
+            ),
+        )
+
+    today_start = datetime.combine(date.today(), datetime.min.time())
+
+    jobs_today_result = await db.execute(
+        select(func.count(AIGenerationJob.id)).where(
+            AIGenerationJob.user_id == user_id,
+            AIGenerationJob.started_at >= today_start,
+        )
+    )
+    jobs_today = jobs_today_result.scalar() or 0
+    if jobs_today >= settings.MVP_FREE_GENERATION_DAILY_USER_LIMIT:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail=(
+                "Daily free-generation limit reached "
+                f"({settings.MVP_FREE_GENERATION_DAILY_USER_LIMIT} per day)."
+            ),
+        )
+
+    if settings.DAILY_TOKEN_LIMIT is not None:
+        tokens_today_result = await db.execute(
+            select(func.coalesce(func.sum(AIGenerationJob.total_tokens), 0)).where(
+                AIGenerationJob.user_id == user_id,
+                AIGenerationJob.started_at >= today_start,
+            )
+        )
+        tokens_today = tokens_today_result.scalar() or 0
+
+        active_projected_tokens_result = await db.execute(
+            select(func.coalesce(func.sum(Document.target_pages * TOKENS_PER_PAGE), 0))
+            .select_from(AIGenerationJob)
+            .join(Document, AIGenerationJob.document_id == Document.id)
+            .where(
+                AIGenerationJob.user_id == user_id,
+                AIGenerationJob.started_at >= today_start,
+                AIGenerationJob.status.in_(["queued", "running"]),
+                func.coalesce(AIGenerationJob.total_tokens, 0) == 0,
+            )
+        )
+        active_projected_tokens = active_projected_tokens_result.scalar() or 0
+
+        projected_tokens = target_pages * TOKENS_PER_PAGE
+        if (
+            tokens_today + active_projected_tokens + projected_tokens
+            > settings.DAILY_TOKEN_LIMIT
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="Daily token budget exhausted; try again tomorrow.",
+            )
+
+
 @router.post("/full-document", response_model=AsyncGenerationResponse)
 @rate_limit("5/hour")  # Stricter limit for full document generation
 async def generate_full_document(
@@ -310,11 +401,7 @@ async def generate_full_document(
                 detail="Document already completed. Create new document for regeneration.",
             )
 
-        # 4. Check payment status (assuming payment is tracked via Payment table)
-        # For MVP: We skip payment check if document is in draft status
-        # In production: Add payment verification here
-
-        # 5. Check for existing active jobs (prevent duplicates)
+        # 4. Check for existing active jobs (prevent duplicates)
         existing_job_result = await db.execute(
             select(AIGenerationJob).where(
                 AIGenerationJob.document_id == req_data.document_id,
@@ -333,6 +420,9 @@ async def generate_full_document(
                 status=existing_job.status,
                 check_url=f"/api/v1/jobs/{existing_job.id}/status",
             )
+
+        # 5. Enforce the MVP free-generation / payment gate before any job exists
+        await _enforce_generation_gate(db, document, int(current_user.id))
 
         # 6. Create new generation job
         job = AIGenerationJob(

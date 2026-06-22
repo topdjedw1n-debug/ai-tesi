@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thesica - презентація з master docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f5f0;
+    --paper:#fffdf9;
+    --stage:#efeadf;
+    --bar:#faf7f1;
+    --ink:#1c1b19;
+    --ink-soft:#4a4843;
+    --ink-faint:#8a877f;
+    --line:#e6e1d6;
+    --line-strong:#d6d0c2;
+    --accent:#0f6e56;
+    --accent-deep:#0a4d3c;
+    --accent-soft:#e4f1ea;
+    --warn:#a05a00;
+    --warn-soft:#fbeed9;
+    --err:#9a2b22;
+    --err-soft:#fae6e2;
+    --info:#1c5a93;
+    --info-soft:#e6eff8;
+    --shadow-sm:0 1px 2px rgba(28,27,25,.05);
+    --shadow:0 1px 2px rgba(28,27,25,.04),0 14px 34px rgba(28,27,25,.10);
+    --shadow-lg:0 1px 2px rgba(28,27,25,.04),0 22px 54px rgba(28,27,25,.13);
+    --radius-sm:6px;
+    --radius-md:10px;
+    --radius-lg:14px;
+    --radius-xl:18px;
+    --radius-full:999px;
+    --display:'Literata',Georgia,serif;
+    --ui:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--ui);
+    font-size:16px;
+    line-height:1.62;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  a{color:var(--accent-deep)}
+  .page{
+    display:grid;
+    grid-template-columns:256px minmax(0,1fr);
+    gap:48px;
+    max-width:1320px;
+    margin:0 auto;
+    padding:32px 32px 112px;
+  }
+  .toc{
+    position:sticky;
+    top:24px;
+    align-self:start;
+    max-height:calc(100vh - 48px);
+    overflow:auto;
+    padding-right:8px;
+  }
+  .toc-brand{
+    display:flex;
+    gap:11px;
+    align-items:center;
+    margin-bottom:14px;
+  }
+  .mark{
+    position:relative;
+    flex:none;
+    display:block;
+    width:36px;
+    height:36px;
+    border-radius:10px;
+    background:var(--accent);
+    box-shadow:var(--shadow-sm);
+  }
+  .mark::after{
+    content:"";
+    position:absolute;
+    left:38%;
+    top:21%;
+    width:24%;
+    height:58%;
+    border-radius:7px 7px 0 0;
+    background:var(--paper);
+    clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);
+  }
+  .toc-brand strong{
+    display:block;
+    font-family:var(--display);
+    font-size:21px;
+    line-height:1;
+    font-weight:600;
+  }
+  .toc-brand span{
+    display:block;
+    margin-top:4px;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .toc ol{
+    list-style:none;
+    counter-reset:toc;
+    padding:14px 0 0;
+    margin:0;
+    border-top:1px solid var(--line);
+  }
+  .toc li{counter-increment:toc}
+  .toc a{
+    display:flex;
+    gap:10px;
+    align-items:baseline;
+    text-decoration:none;
+    color:var(--ink-soft);
+    font-size:13px;
+    line-height:1.34;
+    padding:7px 10px;
+    border-left:2px solid transparent;
+    border-radius:var(--radius-sm);
+  }
+  .toc a::before{
+    content:counter(toc,decimal-leading-zero);
+    flex:none;
+    font-family:var(--mono);
+    font-size:10px;
+    color:var(--ink-faint);
+  }
+  .toc a:hover{background:var(--paper);color:var(--ink)}
+  .toc a.active{
+    background:var(--accent-soft);
+    border-left-color:var(--accent);
+    color:var(--accent-deep);
+    font-weight:600;
+  }
+  .toc a.active::before{color:var(--accent)}
+  .toc-note{
+    margin-top:18px;
+    padding:12px 14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    background:var(--paper);
+    color:var(--ink-faint);
+    font-size:12.5px;
+  }
+  .content{max-width:980px;min-width:0}
+  .crumb{
+    margin:4px 0 20px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.16em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .hero{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius-xl);
+    box-shadow:var(--shadow-lg);
+    padding:42px 44px 38px;
+    margin-bottom:56px;
+    overflow:hidden;
+    position:relative;
+  }
+  .hero::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:5px;
+    background:var(--accent);
+  }
+  .hero-brand{
+    display:flex;
+    align-items:center;
+    gap:13px;
+    margin-bottom:26px;
+  }
+  .hero-brand .mark{width:50px;height:50px;border-radius:12px}
+  .hero-brand .word{
+    font-family:var(--display);
+    font-size:30px;
+    line-height:1;
+    font-weight:600;
+  }
+  .hero-brand .sub{
+    margin-top:5px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--accent-deep);
+  }
+  h1{
+    margin:0 0 16px;
+    max-width:800px;
+    font-family:var(--display);
+    font-size:clamp(34px,5.1vw,58px);
+    font-weight:650;
+    line-height:1.05;
+    letter-spacing:0;
+  }
+  .hero .lead{
+    max-width:770px;
+    margin:0;
+    color:var(--ink-soft);
+    font-size:19px;
+    line-height:1.58;
+  }
+  .hero-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:30px;
+  }
+  .hero-chip{
+    min-height:96px;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    background:var(--bar);
+  }
+  .hero-chip span{
+    display:block;
+    margin-bottom:7px;
+    font-family:var(--mono);
+    font-size:10px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .hero-chip strong{
+    display:block;
+    font-size:15px;
+    line-height:1.25;
+  }
+  section{
+    scroll-margin-top:24px;
+    margin-bottom:70px;
+  }
+  .section-head{
+    display:grid;
+    grid-template-columns:auto minmax(0,1fr);
+    column-gap:16px;
+    align-items:start;
+    margin-bottom:22px;
+  }
+  .num{
+    padding-top:6px;
+    font-family:var(--mono);
+    color:var(--accent);
+    font-size:13px;
+    font-weight:600;
+  }
+  h2{
+    margin:0;
+    font-family:var(--display);
+    font-size:32px;
+    font-weight:620;
+    line-height:1.14;
+    letter-spacing:0;
+  }
+  .section-lead{
+    grid-column:2;
+    max-width:740px;
+    margin:8px 0 0;
+    color:var(--ink-soft);
+    font-size:16.5px;
+  }
+  h3{
+    margin:0 0 10px;
+    font-size:15px;
+    font-weight:700;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  p{margin:0 0 14px}
+  strong{font-weight:700}
+  code{
+    font-family:var(--mono);
+    font-size:.92em;
+    color:var(--accent-deep);
+    background:var(--stage);
+    border-radius:var(--radius-sm);
+    padding:1px 5px;
+  }
+  .muted{color:var(--ink-soft)}
+  .mono{font-family:var(--mono)}
+  .panel{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow);
+  }
+  .pad{padding:24px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  .card{
+    background:var(--paper);
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    overflow:hidden;
+  }
+  .card-h{
+    min-height:54px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 16px;
+    border-bottom:1px solid var(--line);
+    background:var(--bar);
+  }
+  .card-h strong{font-size:15px}
+  .card-b{padding:18px}
+  .pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border-radius:var(--radius-full);
+    padding:4px 10px;
+    font-size:11px;
+    font-weight:700;
+    line-height:1;
+    white-space:nowrap;
+  }
+  .pill.ok{background:var(--accent-soft);color:var(--accent-deep)}
+  .pill.warn{background:var(--warn-soft);color:var(--warn)}
+  .pill.err{background:var(--err-soft);color:var(--err)}
+  .pill.info{background:var(--info-soft);color:var(--info)}
+  .pill.neutral{background:var(--stage);color:var(--ink-soft)}
+  .plain-list{
+    list-style:none;
+    margin:0;
+    padding:0;
+  }
+  .plain-list li{
+    position:relative;
+    padding-left:20px;
+    margin-bottom:9px;
+    color:var(--ink-soft);
+  }
+  .plain-list li::before{
+    content:"";
+    position:absolute;
+    left:2px;
+    top:.72em;
+    width:5px;
+    height:5px;
+    border-radius:50%;
+    background:var(--accent);
+  }
+  .metric{
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    background:var(--paper);
+    box-shadow:var(--shadow-sm);
+  }
+  .metric .k{
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.09em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .metric .v{
+    margin-top:8px;
+    font-family:var(--display);
+    font-size:30px;
+    line-height:1;
+    color:var(--accent-deep);
+  }
+  .metric p{
+    margin:10px 0 0;
+    color:var(--ink-soft);
+    font-size:14px;
+  }
+  .callout{
+    margin:18px 0;
+    padding:17px 19px;
+    border-radius:var(--radius-lg);
+    border:1px solid var(--line);
+    background:var(--paper);
+    box-shadow:var(--shadow-sm);
+  }
+  .callout .label{
+    display:block;
+    margin-bottom:8px;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .callout p:last-child{margin-bottom:0}
+  .callout.ok{background:var(--accent-soft);border-color:rgba(15,110,86,.22);color:var(--accent-deep)}
+  .callout.warn{background:var(--warn-soft);border-color:rgba(160,90,0,.24)}
+  .callout.info{background:var(--info-soft);border-color:rgba(28,90,147,.22)}
+  .table-wrap{
+    overflow-x:auto;
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);
+    background:var(--paper);
+  }
+  table{
+    width:100%;
+    min-width:760px;
+    border-collapse:collapse;
+    font-size:14px;
+  }
+  th{
+    padding:12px 14px;
+    background:var(--bar);
+    border-bottom:1px solid var(--line-strong);
+    text-align:left;
+    white-space:nowrap;
+    font-family:var(--mono);
+    font-size:10.5px;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  td{
+    padding:13px 14px;
+    border-bottom:1px solid var(--line);
+    vertical-align:top;
+    color:var(--ink-soft);
+  }
+  tr:last-child td{border-bottom:none}
+  td:first-child{color:var(--ink);font-weight:700}
+  .flow{
+    display:grid;
+    gap:12px;
+    counter-reset:flow;
+  }
+  .step{
+    display:grid;
+    grid-template-columns:42px minmax(0,1fr);
+    gap:14px;
+    padding:16px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-lg);
+    background:var(--paper);
+    box-shadow:var(--shadow-sm);
+  }
+  .step::before{
+    counter-increment:flow;
+    content:counter(flow);
+    display:grid;
+    place-items:center;
+    width:38px;
+    height:38px;
+    border-radius:var(--radius-full);
+    background:var(--accent-soft);
+    color:var(--accent-deep);
+    font-family:var(--mono);
+    font-size:13px;
+    font-weight:600;
+  }
+  .step strong{display:block;margin-bottom:3px;font-size:16px}
+  .step p{margin:0;color:var(--ink-soft);font-size:14.5px}
+  .architecture{
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+  }
+  .arch-row{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    align-items:stretch;
+  }
+  .arch-box{
+    min-height:84px;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:16px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    background:var(--paper);
+    box-shadow:var(--shadow-sm);
+  }
+  .arch-box b{display:block;margin-bottom:4px}
+  .arch-box span{color:var(--ink-soft);font-size:13px}
+  .arch-connector{
+    text-align:center;
+    font-family:var(--mono);
+    font-size:12px;
+    color:var(--ink-faint);
+  }
+  .source-strip{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:22px;
+  }
+  .source{
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-md);
+    background:var(--bar);
+  }
+  .source b{display:block;margin-bottom:4px}
+  .source span{display:block;color:var(--ink-faint);font-family:var(--mono);font-size:11px}
+  .quote{
+    padding:26px;
+    border:1px solid var(--line);
+    border-radius:var(--radius-xl);
+    background:var(--paper);
+    box-shadow:var(--shadow);
+  }
+  .quote p{
+    margin:0;
+    font-family:var(--display);
+    font-size:24px;
+    line-height:1.34;
+    color:var(--ink);
+  }
+  .quote .by{
+    margin-top:14px;
+    font-family:var(--mono);
+    font-size:11px;
+    letter-spacing:.1em;
+    text-transform:uppercase;
+    color:var(--ink-faint);
+  }
+  .footer{
+    margin-top:78px;
+    padding-top:28px;
+    border-top:1px solid var(--line);
+    color:var(--ink-faint);
+    font-size:13px;
+  }
+  .footer strong{color:var(--ink-soft)}
+  @media(max-width:980px){
+    .page{grid-template-columns:1fr;gap:18px;padding:22px 20px 80px}
+    .toc{position:static;max-height:none}
+    .toc ol{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+    .toc-note{display:none}
+    .grid2,.grid3,.grid4,.hero-grid,.source-strip{grid-template-columns:1fr}
+    .section-head{grid-template-columns:1fr}
+    .section-lead{grid-column:1}
+    .arch-row{grid-template-columns:1fr}
+  }
+  @media(max-width:640px){
+    .page{padding:16px 14px 72px}
+    .hero{padding:28px 20px}
+    h2{font-size:27px}
+    .toc ol{grid-template-columns:1fr}
+    .quote p{font-size:21px}
+  }
+  @media print{
+    body{background:#fff}
+    .page{display:block;max-width:none;padding:0}
+    .toc{display:none}
+    .content{max-width:none}
+    .hero,.panel,.card,.metric,.step,.arch-box,.quote{box-shadow:none}
+    section{break-inside:avoid;margin-bottom:36px}
+    a{color:inherit;text-decoration:none}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="toc" aria-label="Зміст презентації">
+    <div class="toc-brand">
+      <span class="mark" aria-hidden="true"></span>
+      <div>
+        <strong>Thesica</strong>
+        <span>Master docs deck</span>
+      </div>
+    </div>
+    <ol>
+      <li><a href="#overview">Що описували старі docs</a></li>
+      <li><a href="#product">Продукт і модель</a></li>
+      <li><a href="#journey">Користувацький шлях</a></li>
+      <li><a href="#experience">Ключові екрани</a></li>
+      <li><a href="#architecture">Архітектура</a></li>
+      <li><a href="#pipeline">AI pipeline</a></li>
+      <li><a href="#api">API surface</a></li>
+      <li><a href="#payments">Оплата і refunds</a></li>
+      <li><a href="#admin">Адмінка</a></li>
+      <li><a href="#security">Безпека</a></li>
+      <li><a href="#setup">Dev setup</a></li>
+      <li><a href="#ops">Monitoring</a></li>
+      <li><a href="#roadmap">Roadmap і debt</a></li>
+      <li><a href="#takeaway">Висновок</a></li>
+    </ol>
+    <div class="toc-note">Зведено з `MASTER_DOCUMENT.md`, `QUICK_START.md`, `USER_EXPERIENCE_STRUCTURE.md`.</div>
+  </aside>
+
+  <main class="content">
+    <div class="crumb">Historical docs synthesis · TesiGo → Thesica · HTML presentation</div>
+
+    <header class="hero">
+      <div class="hero-brand">
+        <span class="mark" aria-hidden="true"></span>
+        <div>
+          <div class="word">Thesica</div>
+          <div class="sub">Project documentation presentation</div>
+        </div>
+      </div>
+      <h1>Старий master-док як продуктова презентація платформи</h1>
+      <p class="lead">Це якісно зібрана презентація з трьох старих документів: технічного master document, quick start і UX-структури. Вона показує, яким був задум TesiGo: self-serve AI-платформа для генерації повних академічних робіт з оплатою за сторінку, real-time генерацією, експортом, адмінкою, безпекою і production-процесами.</p>
+      <div class="hero-grid">
+        <div class="hero-chip"><span>Product shape</span><strong>AI academic document platform</strong></div>
+        <div class="hero-chip"><span>Business model</span><strong>€0.50/page · Stripe · EUR</strong></div>
+        <div class="hero-chip"><span>Core flow</span><strong>topic → payment → generation → export</strong></div>
+        <div class="hero-chip"><span>Status note</span><strong>old TesiGo context, now reframed for Thesica</strong></div>
+      </div>
+      <div class="source-strip">
+        <div class="source"><b>MASTER_DOCUMENT.md</b><span>technical SSOT · v3.0 · Wave 3B</span></div>
+        <div class="source"><b>QUICK_START.md</b><span>5-minute local setup</span></div>
+        <div class="source"><b>USER_EXPERIENCE_STRUCTURE.md</b><span>full UX flow · 2025-01-14</span></div>
+      </div>
+    </header>
+
+    <section id="overview">
+      <div class="section-head">
+        <div class="num">01</div>
+        <div>
+          <h2>Що описували старі docs</h2>
+          <p class="section-lead">Документи описують повний B2C self-serve продукт: студент заходить на сайт, створює документ, платить за сторінки, чекає генерацію, експортує результат, а адміністратор керує користувачами, платежами, refund-запитами і системними налаштуваннями.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="metric">
+          <div class="k">Product</div>
+          <div class="v">Full doc</div>
+          <p>Фокус не на окремих секціях, а на генерації повного академічного документа.</p>
+        </div>
+        <div class="metric">
+          <div class="k">Pricing</div>
+          <div class="v">€0.50</div>
+          <p>Pay-per-page модель, мінімум 3 сторінки, максимум 200 сторінок, валюта тільки EUR.</p>
+        </div>
+        <div class="metric">
+          <div class="k">Stack</div>
+          <div class="v">Next/FastAPI</div>
+          <p>Next.js 14 frontend, FastAPI backend, PostgreSQL, Redis, MinIO, OpenAI/Anthropic.</p>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="label">Важливий контекст</span>
+        <p>Це старий опис TesiGo. Він корисний як карта вже продуманих модулів, але не весь текст треба переносити буквально в поточний Thesica-напрям. Зараз бренд і стратегія зміщені до Scholarly Press і QA-first legitimacy.</p>
+      </div>
+    </section>
+
+    <section id="product">
+      <div class="section-head">
+        <div class="num">02</div>
+        <div>
+          <h2>Продукт і бізнес-модель</h2>
+          <p class="section-lead">Старі docs формулюють продукт як AI-powered платформу для дипломних, курсових і дисертацій з гарантією унікальності, багатомовністю, експортом і автоматизованим вибором AI pipeline.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Що продаємо</strong><span class="pill ok">core</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Генерація повного академічного документа, не лише outline.</li>
+              <li>Підтримка типів робіт: дипломні, курсові, дисертації.</li>
+              <li>Експорт у DOCX/PDF без пост-редагування після генерації.</li>
+              <li>Real-time progress і background generation.</li>
+              <li>Автоматичний вибір AI provider/model системою.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Як монетизуємо</strong><span class="pill info">payment</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Pay-per-page: базово €0.50 за сторінку.</li>
+              <li>Мінімальний чек: 3 сторінки = €1.50.</li>
+              <li>Максимальний документ: 200 сторінок.</li>
+              <li>Stripe для checkout, history і refund flow.</li>
+              <li>Ціну можна змінювати через admin pricing settings.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:18px">
+        <table>
+          <thead>
+            <tr><th>Constraint</th><th>Значення з docs</th><th>Що це означає для продукту</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Мови контенту</td><td>EN, DE, FR, ES, IT, CS, UK</td><td>Продукт задумувався як multi-market, не тільки український або англомовний.</td></tr>
+            <tr><td>AI providers</td><td>OpenAI, Anthropic</td><td>Користувач не вибирає модель; система маршрутизує автоматично.</td></tr>
+            <tr><td>Search/RAG</td><td>Perplexity, Tavily, Serper, Semantic Scholar</td><td>Якість мала спиратися на retrieval і академічні джерела, не лише LLM memory.</td></tr>
+            <tr><td>Storage</td><td>MinIO</td><td>Файли, експорти і завантажені вимоги винесені в object storage.</td></tr>
+            <tr><td>Refund policy</td><td>Auto only for system error; user request after admin approval</td><td>Refund не має бути автоматичним бізнес-дірявим процесом.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="journey">
+      <div class="section-head">
+        <div class="num">03</div>
+        <div>
+          <h2>Користувацький шлях</h2>
+          <p class="section-lead">UX-док описує класичний conversion funnel: discovery → landing → signup → dashboard → document creation → payment → generation → export → repeat usage.</p>
+        </div>
+      </div>
+      <div class="flow">
+        <div class="step"><div><strong>Discovery і landing</strong><p>Користувач приходить з Google/social, бачить hero, фічі, how it works, pricing і чіткий CTA.</p></div></div>
+        <div class="step"><div><strong>Magic link auth</strong><p>Email-only login, одноразовий токен на 15 хвилин, rate limit 3 magic links на день.</p></div></div>
+        <div class="step"><div><strong>Dashboard</strong><p>Центральний хаб: stats overview, create document form, documents list, recent activity.</p></div></div>
+        <div class="step"><div><strong>Create document</strong><p>Title, topic, language, target pages, additional requirements і optional file upload.</p></div></div>
+        <div class="step"><div><strong>Price preview і payment</strong><p>Користувач бачить формулу вартості: сторінки × €0.50, платить через Stripe.</p></div></div>
+        <div class="step"><div><strong>Background generation</strong><p>Після payment success запускається background job з WebSocket progress updates.</p></div></div>
+        <div class="step"><div><strong>Completed document</strong><p>Користувач бачить повний текст, stats, export DOCX/PDF, regenerate/delete/refund actions.</p></div></div>
+        <div class="step"><div><strong>Repeat usage</strong><p>Payment history, profile stats і document list мають вести до повторного створення робіт.</p></div></div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="section-head">
+        <div class="num">04</div>
+        <div>
+          <h2>Ключові екрани і стани</h2>
+          <p class="section-lead">UX-структура дуже детально описує не тільки happy path, а й стани документа, payment cancel, failed generation, retry, refund request і export errors.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <div class="card-h"><strong>Landing</strong><span class="pill neutral">public</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Hero з головною цінністю.</li>
+              <li>Features: outline, section writing, multi-language, privacy.</li>
+              <li>How it works: project, outline, sections, export.</li>
+              <li>Pricing: €0.50/page, Stripe, EUR.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Dashboard</strong><span class="pill ok">core</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Total documents, completed, in progress, total spent.</li>
+              <li>Quick create document form.</li>
+              <li>Documents list with filters and sorting.</li>
+              <li>Recent activity and navigation.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Document detail</strong><span class="pill info">stateful</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Draft: generate outline/start generation.</li>
+              <li>Payment required: pay and generate.</li>
+              <li>Generating: progress, stage, ETA.</li>
+              <li>Completed: preview, stats, export.</li>
+              <li>Failed: retry or refund request.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:18px">
+        <table>
+          <thead>
+            <tr><th>State</th><th>User sees</th><th>System action</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Draft</td><td>Document inputs and free outline option.</td><td>Document row exists, no paid generation yet.</td></tr>
+            <tr><td>Outline generated</td><td>Tree of sections and cost preview.</td><td>Structure can be used for full generation.</td></tr>
+            <tr><td>Payment required</td><td>Pay & Generate CTA with exact amount.</td><td>Stripe checkout/payment intent.</td></tr>
+            <tr><td>Generating</td><td>Progress bar, current stage, ETA.</td><td>Background job continues if browser closes.</td></tr>
+            <tr><td>Completed</td><td>Full content, tokens, time, export buttons.</td><td>DOCX/PDF generated and stored in MinIO.</td></tr>
+            <tr><td>Failed</td><td>Error, Retry Generation, Request Refund.</td><td>Failure logged, refund path can be opened.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="architecture">
+      <div class="section-head">
+        <div class="num">05</div>
+        <div>
+          <h2>Архітектура системи</h2>
+          <p class="section-lead">Master-док описує стандартну production web architecture: Next.js frontend, FastAPI backend, PostgreSQL persistence, Redis для sessions/cache, MinIO для storage, AI APIs для generation.</p>
+        </div>
+      </div>
+      <div class="architecture">
+        <div class="arch-row">
+          <div class="arch-box"><b>Next.js 14</b><span>User interface, dashboard, payments, document views · port 3000</span></div>
+          <div class="arch-box"><b>FastAPI</b><span>API server, auth, documents, generation, payments, admin · port 8000</span></div>
+          <div class="arch-box"><b>PostgreSQL 15</b><span>Users, documents, payments, jobs, audit logs, pricing config</span></div>
+        </div>
+        <div class="arch-connector">Frontend → API → database / async services</div>
+        <div class="arch-row">
+          <div class="arch-box"><b>Redis 7</b><span>Session/cache/rate-limit support · port 6379</span></div>
+          <div class="arch-box"><b>MinIO</b><span>Uploaded files, generated exports, object storage · port 9000</span></div>
+          <div class="arch-box"><b>OpenAI / Anthropic</b><span>LLM generation with fallback and token tracking</span></div>
+        </div>
+      </div>
+      <div class="grid2" style="margin-top:18px">
+        <div class="card">
+          <div class="card-h"><strong>Design decisions</strong><span class="pill ok">architecture</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Async everywhere for I/O operations.</li>
+              <li>Strict typing through Pydantic.</li>
+              <li>Stateless app sessions stored outside memory.</li>
+              <li>Streaming for large files and long generation.</li>
+              <li>Background jobs for document generation.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Core tables</strong><span class="pill neutral">data</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>users</code>: identity, email, active state.</li>
+              <li><code>documents</code>: owner, title, content, status, pages.</li>
+              <li><code>payments</code>: amount, status, Stripe intent.</li>
+              <li><code>jobs</code>: status, progress, errors.</li>
+              <li><code>audit_logs</code> and <code>pricing_config</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pipeline">
+      <div class="section-head">
+        <div class="num">06</div>
+        <div>
+          <h2>AI pipeline</h2>
+          <p class="section-lead">Старий pipeline уже містив правильну ідею: не просто виклик LLM, а research, outline, section generation, quality assurance, export, token tracking і fallback/retry strategy.</p>
+        </div>
+      </div>
+      <div class="flow">
+        <div class="step"><div><strong>Input processing</strong><p>Validate requirements, estimate costs, check user balance or payment state.</p></div></div>
+        <div class="step"><div><strong>Source research / RAG</strong><p>Search via Perplexity/Tavily/Serper, retrieve academic papers, format citations, build context.</p></div></div>
+        <div class="step"><div><strong>Outline generation</strong><p>Create structure, define sections, allocate pages across the document.</p></div></div>
+        <div class="step"><div><strong>Content generation</strong><p>Generate by sections, include RAG sources, save checkpoints, stream to storage, clear memory.</p></div></div>
+        <div class="step"><div><strong>Quality assurance</strong><p>Grammar check, plagiarism check, formatting validation, eventual AI-risk checks.</p></div></div>
+        <div class="step"><div><strong>Delivery</strong><p>Export to DOCX/PDF, store in MinIO, notify user and update document status.</p></div></div>
+      </div>
+      <div class="grid3" style="margin-top:18px">
+        <div class="metric"><div class="k">Retry</div><div class="v">2→32s</div><p>Exponential backoff: 2, 4, 8, 16, 32 seconds.</p></div>
+        <div class="metric"><div class="k">Fallback</div><div class="v">4 models</div><p>gpt-4 → gpt-4-turbo → gpt-3.5-turbo → claude-3.5-sonnet.</p></div>
+        <div class="metric"><div class="k">Checkpoint</div><div class="v">5 min</div><p>Checkpoint interval planned around long-running document generation.</p></div>
+      </div>
+      <div class="callout info">
+        <span class="label">Self-learning concept</span>
+        <p>Docs also planned a self-learning loop: collect high-quality documents, filter by quality/plagiarism/AI-detection/user satisfaction, export JSONL for fine-tuning, retrain monthly, A/B test on 10% traffic, deploy only after quality lift. Status was planned after 100+ successful documents.</p>
+      </div>
+    </section>
+
+    <section id="api">
+      <div class="section-head">
+        <div class="num">07</div>
+        <div>
+          <h2>API surface</h2>
+          <p class="section-lead">Master-док дає повну карту backend contract: auth, documents, generation, payments, refunds, admin. Це добре показує продукт як систему, а не один endpoint генерації.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <div class="card-h"><strong>Auth</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>POST /auth/magic-link</code></li>
+              <li><code>POST /auth/verify-magic-link</code></li>
+              <li><code>POST /auth/refresh</code></li>
+              <li><code>GET /auth/me</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Documents</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>POST /documents</code></li>
+              <li><code>GET /documents</code></li>
+              <li><code>GET /documents/{id}</code></li>
+              <li><code>POST /documents/{id}/export</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Generation</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>POST /generate/outline</code></li>
+              <li><code>POST /generate/section</code></li>
+              <li><code>POST /generate/full-document</code></li>
+              <li><code>GET /generate/usage/{user_id}</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="grid3" style="margin-top:16px">
+        <div class="card">
+          <div class="card-h"><strong>Payment</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>POST /payment/create-intent</code></li>
+              <li><code>POST /payment/create-checkout</code></li>
+              <li><code>GET /payment/verify</code></li>
+              <li><code>POST /payment/webhook</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Refunds</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>POST /refunds</code></li>
+              <li><code>GET /refunds</code></li>
+              <li><code>GET /admin/refunds</code></li>
+              <li><code>POST /admin/refunds/{id}/approve</code></li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Admin</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li><code>GET /admin/stats</code></li>
+              <li><code>GET /admin/users</code></li>
+              <li><code>GET /admin/documents</code></li>
+              <li><code>GET /admin/settings</code></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="payments">
+      <div class="section-head">
+        <div class="num">08</div>
+        <div>
+          <h2>Оплата, checkout і refunds</h2>
+          <p class="section-lead">Старий UX робив оплату обов'язковим переходом перед full generation: document → price breakdown → Stripe → payment success → background generation.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Payment flow</strong><span class="pill info">Stripe</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Payment page shows title, pages, language.</li>
+              <li>Breakdown: pages × €0.50 = total.</li>
+              <li>Stripe Elements validates card in real time.</li>
+              <li>Success verifies <code>session_id</code> and starts generation.</li>
+              <li>Cancel page offers retry or return to dashboard.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Refund flow</strong><span class="pill warn">controlled</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>User can request refund from failed/completed document.</li>
+              <li>Admin approves or rejects request.</li>
+              <li>Technical system error can trigger automatic refund.</li>
+              <li>No automatic cancellation after successful payment.</li>
+              <li>Payment history shows completed, failed, refunded statuses.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="admin">
+      <div class="section-head">
+        <div class="num">09</div>
+        <div>
+          <h2>Адмін-панель</h2>
+          <p class="section-lead">Admin surface у старих docs покриває не тільки статистику, а повну операційну контрольну панель: користувачі, документи, платежі, refunds, pricing і системні налаштування.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="feature card">
+          <div class="card-h"><strong>System stats</strong></div>
+          <div class="card-b"><p class="muted">Total users, active users, documents, revenue, AI tokens used, recent activity and failed generations.</p></div>
+        </div>
+        <div class="feature card">
+          <div class="card-h"><strong>User management</strong></div>
+          <div class="card-b"><p class="muted">View users, documents count, total spent, status, block/unblock and role management.</p></div>
+        </div>
+        <div class="feature card">
+          <div class="card-h"><strong>Document moderation</strong></div>
+          <div class="card-b"><p class="muted">Document table by ID, title, owner, status, pages, created date and actions.</p></div>
+        </div>
+        <div class="feature card">
+          <div class="card-h"><strong>Payment management</strong></div>
+          <div class="card-b"><p class="muted">Payments table with amount, status, created date, refund and export actions.</p></div>
+        </div>
+        <div class="feature card">
+          <div class="card-h"><strong>Refund management</strong></div>
+          <div class="card-b"><p class="muted">Pending/approved/rejected requests with reason, amount and admin decision.</p></div>
+        </div>
+        <div class="feature card">
+          <div class="card-h"><strong>Settings</strong></div>
+          <div class="card-b"><p class="muted">Pricing config, AI provider settings, rate limits and email settings.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <div class="section-head">
+        <div class="num">10</div>
+        <div>
+          <h2>Безпека і compliance</h2>
+          <p class="section-lead">Документи вже виділяли критичні security gaps: IDOR, weak JWT keys, file validation, backups, webhook signatures. Для академічного/платіжного продукту це не косметика, а launch blocker.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Implemented / designed</strong><span class="pill ok">base</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Magic link auth with JWT.</li>
+              <li>Refresh tokens and Redis session support.</li>
+              <li>Rate limits: IP, user, email magic links.</li>
+              <li>Security headers: CSP, X-Frame-Options, nosniff, HSTS.</li>
+              <li>GDPR concepts: right to be forgotten, data export, retention.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Launch blockers</strong><span class="pill err">must fix</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>IDOR ownership checks for documents and user resources.</li>
+              <li>Strong 32+ char secrets for JWT/session keys.</li>
+              <li>Magic bytes validation for uploaded files.</li>
+              <li>Encrypted 3-2-1 backups for PostgreSQL.</li>
+              <li>Stripe webhook signature verification.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="label">Security interpretation</span>
+        <p>Старий master-док чесно називав ці проблеми критичними. У презентації це треба залишити як mature сигнал: продукт не оголошується production-ready, поки user data, payments і document ownership не захищені.</p>
+      </div>
+    </section>
+
+    <section id="setup">
+      <div class="section-head">
+        <div class="num">11</div>
+        <div>
+          <h2>Developer experience і quick start</h2>
+          <p class="section-lead">Quick Start описує очікуваний шлях до першого локального запуску за 5 хвилин: infrastructure, backend env, frontend env, backend server, frontend dev server, health checks.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Prerequisites</strong><span class="pill neutral">local</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Docker & Docker Compose.</li>
+              <li>Python 3.11+.</li>
+              <li>Node.js 18+.</li>
+              <li>8GB RAM minimum.</li>
+              <li>10GB free disk space.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Default local services</strong><span class="pill info">dev</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>MinIO console: <code>localhost:9001</code>, minioadmin/minioadmin.</li>
+              <li>PostgreSQL: <code>localhost:5432</code>, <code>tesigo_db</code>.</li>
+              <li>Redis: <code>redis://localhost:6379</code>.</li>
+              <li>Backend health: <code>localhost:8000/health</code>.</li>
+              <li>Frontend health: <code>localhost:3000/api/health</code>.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="flow" style="margin-top:18px">
+        <div class="step"><div><strong>Clone and navigate</strong><p><code>git clone</code>, then enter the project directory.</p></div></div>
+        <div class="step"><div><strong>Start infra</strong><p><code>docker-compose up -d</code> in <code>infra/docker</code>, then check healthy status.</p></div></div>
+        <div class="step"><div><strong>Configure env</strong><p>Copy backend and frontend env examples, add OpenAI/Anthropic keys and app URLs.</p></div></div>
+        <div class="step"><div><strong>Start backend</strong><p>Install requirements and run <code>uvicorn main:app --reload --port 8000</code>.</p></div></div>
+        <div class="step"><div><strong>Start frontend</strong><p>Install npm packages and run <code>npm run dev</code>, then open <code>localhost:3000</code>.</p></div></div>
+      </div>
+    </section>
+
+    <section id="ops">
+      <div class="section-head">
+        <div class="num">12</div>
+        <div>
+          <h2>Monitoring, debugging і operational controls</h2>
+          <p class="section-lead">Master-док уже передбачав production observability: structured JSON logs, correlation IDs, Prometheus metrics, Sentry, critical alerts і health endpoints.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="card">
+          <div class="card-h"><strong>Logs</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Structured JSON logging.</li>
+              <li>Correlation ID.</li>
+              <li>User/action/details fields.</li>
+              <li><code>logs/app.log</code> and audit logs.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Metrics</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>HTTP request count/duration.</li>
+              <li>Generation duration.</li>
+              <li>AI API calls and costs.</li>
+              <li>Prometheus port 9090.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Alerts</strong></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>API error rate > 5%.</li>
+              <li>p95 response > 2s.</li>
+              <li>Memory > 85%.</li>
+              <li>Disk < 10GB.</li>
+              <li>AI failures > 3 in row.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="callout info">
+        <span class="label">Debugging model</span>
+        <p>Docs include debug endpoints for dev-only config/cache/jobs checks and common failure explanations: memory leak after large documents, slow generation due to AI API limits, payment failures through Stripe webhooks.</p>
+      </div>
+    </section>
+
+    <section id="roadmap">
+      <div class="section-head">
+        <div class="num">13</div>
+        <div>
+          <h2>Roadmap, technical debt і що з цього брати далі</h2>
+          <p class="section-lead">Старий roadmap має корисну структуру, але його треба перевести з generic self-serve SaaS у поточний Thesica/QA-first контекст.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Immediate before launch</strong><span class="pill err">blockers</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Fix IDOR and authorization boundaries.</li>
+              <li>Harden JWT and secrets.</li>
+              <li>Add file validation and backups.</li>
+              <li>Integrate background job service.</li>
+              <li>Add webhook signature verification.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Technical debt</strong><span class="pill warn">known</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>MyPy issues around ORM, annotations, decorators.</li>
+              <li>Low coverage in admin/humanizer/background jobs modules.</li>
+              <li>Overall coverage noted around 44%, target 80%.</li>
+              <li>No MyPy CI gate and no coverage threshold enforcement.</li>
+              <li>Specific bugs in rate limit and exception typing.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap" style="margin-top:18px">
+        <table>
+          <thead>
+            <tr><th>Old roadmap item</th><th>Original intent</th><th>Modern Thesica interpretation</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Auto-save</td><td>Protect user draft input.</td><td>Still relevant for manager/editor workspace and intake completeness.</td></tr>
+            <tr><td>Progress tracking</td><td>Show user generation state.</td><td>Still relevant, but should include QA/release states, not only generation percent.</td></tr>
+            <tr><td>Advanced analytics</td><td>Product/admin metrics.</td><td>Translate into fail reasons, human minutes, cost per document, gate pass rate.</td></tr>
+            <tr><td>A/B testing</td><td>Improve model/output quality.</td><td>Useful after a stable eval set, not before quality proof.</td></tr>
+            <tr><td>Mobile apps</td><td>Long-term user convenience.</td><td>Not priority until internal production flow is proven.</td></tr>
+            <tr><td>Collaboration</td><td>Shared document work.</td><td>Potentially editor-manager handoff, not generic Google Docs clone.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="takeaway">
+      <div class="section-head">
+        <div class="num">14</div>
+        <div>
+          <h2>Висновок</h2>
+          <p class="section-lead">Ці старі docs не треба викидати: вони містять велику карту системи. Але їх треба читати як історичний self-serve blueprint, який зараз треба підпорядкувати Thesica-стратегії.</p>
+        </div>
+      </div>
+      <div class="quote">
+        <p>Старий TesiGo описував повну SaaS-машину: користувач, оплата, генерація, export, admin, monitoring. Поточна Thesica має взяти цю інженерну карту, але поставити в центр не checkout, а доказ якості і release-рішення.</p>
+        <div class="by">Synthesis from MASTER_DOCUMENT + QUICK_START + UX Structure</div>
+      </div>
+      <div class="grid3" style="margin-top:18px">
+        <div class="card">
+          <div class="card-h"><strong>Що лишити</strong></div>
+          <div class="card-b"><p class="muted">Архітектуру, auth, document states, background jobs, export, admin controls, monitoring, security discipline.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Що переосмислити</strong></div>
+          <div class="card-b"><p class="muted">Self-serve checkout як перший крок, generic landing claims, користувацький direct-to-delivery flow.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Що додати</strong></div>
+          <div class="card-b"><p class="muted">QA-first release gate, citation/claim evidence, editor routing, human minutes, outcome learning loop.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Sources:</strong> docs/MASTER_DOCUMENT.md, docs/QUICK_START.md, docs/USER_EXPERIENCE_STRUCTURE.md.</p>
+      <p>Це самодостатній HTML-файл без локальних image-залежностей. Він зроблений для нормального відкриття як HTML-презентація, включно з телефоном.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+    var sections = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          links.forEach(function(link){ link.classList.remove('active'); });
+          if(map[entry.target.id]) map[entry.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin:'-10% 0px -75% 0px', threshold:0 });
+    sections.forEach(function(section){ observer.observe(section); });
+  })();
+</script>
+</body>
+</html>

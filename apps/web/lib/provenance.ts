@@ -50,6 +50,44 @@ export interface SourcesSummary {
   providers: string[]
 }
 
+export type GateStatus = 'passed' | 'failed' | 'missing'
+
+export interface QualityEvidenceSummary {
+  citationGate: {
+    status: GateStatus
+    policy: string | null
+    total: number | null
+    failedCount: number
+  }
+  qualityGates: {
+    status: GateStatus
+    passed: number
+    failed: number
+    total: number
+  }
+  claimVerification: {
+    status: GateStatus
+    checked: number
+    unsupported: number
+    uncertain: number
+    total: number
+  }
+  reviewerPanel: {
+    status: GateStatus
+    passed: number
+    failed: number
+    total: number
+    criticalOverrides: number
+  }
+  generation: {
+    sectionsGenerated: number
+    tokensUsed: number
+    wordsGenerated: number
+    providers: string[]
+    models: string[]
+  }
+}
+
 // ============================================================================
 // HELPERS
 // ============================================================================
@@ -146,6 +184,119 @@ export function summarizeSources(
     total: sources.length,
     verified: sources.filter((s) => s.status === 'verified').length,
     providers,
+  }
+}
+
+const gateStatus = (passed: boolean | null): GateStatus => {
+  if (passed === null) return 'missing'
+  return passed ? 'passed' : 'failed'
+}
+
+const numberOrZero = (value: unknown): number =>
+  typeof value === 'number' && Number.isFinite(value) ? value : 0
+
+const uniqueStrings = (values: unknown[]): string[] =>
+  Array.from(
+    new Set(values.filter((value): value is string => typeof value === 'string' && value.length > 0))
+  )
+
+/**
+ * Summarize the provenance ledger into the minimum manager-facing evidence
+ * needed for the Phase 1 QA proof run.
+ */
+export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvidenceSummary {
+  const citationGate = latestEventOfType(events, 'citation_gate')
+  const citationPayload = citationGate?.payload ?? null
+  const citationCounts = citationPayload?.counts
+  const citationFailedCount =
+    numberOrZero(citationPayload?.not_found_count) +
+    (citationCounts && typeof citationCounts === 'object'
+      ? numberOrZero((citationCounts as Record<string, unknown>).mismatched) +
+        numberOrZero((citationCounts as Record<string, unknown>).failed)
+      : 0)
+
+  const qualityGateEvents = events.filter((event) => event.event_type === 'quality_gate')
+  const qualityPassed = qualityGateEvents.filter((event) => event.payload?.passed === true).length
+  const qualityFailed = qualityGateEvents.filter((event) => event.payload?.passed === false).length
+
+  const claimSummary = latestEventOfType(events, 'claim_check_summary')
+  const claimCounts = claimSummary?.payload?.counts
+  const unsupportedClaims =
+    claimCounts && typeof claimCounts === 'object'
+      ? numberOrZero((claimCounts as Record<string, unknown>).unsupported)
+      : 0
+  const uncertainClaims =
+    claimCounts && typeof claimCounts === 'object'
+      ? numberOrZero((claimCounts as Record<string, unknown>).uncertain)
+      : 0
+
+  const panelEvents = events.filter(
+    (event) => event.event_type === 'panel_review' || event.event_type === 'panel_gate_failed'
+  )
+  const panelPassed = panelEvents.filter((event) => event.payload?.passed === true).length
+  const panelFailed = panelEvents.filter(
+    (event) => event.event_type === 'panel_gate_failed' || event.payload?.passed === false
+  ).length
+  const criticalOverrides = panelEvents.filter((event) => event.payload?.critical_override === true).length
+
+  const sectionEvents = events.filter((event) => event.event_type === 'section_generated')
+  const tokensUsed = sectionEvents.reduce(
+    (total, event) => total + numberOrZero(event.payload?.tokens_used),
+    0
+  )
+  const wordsGenerated = sectionEvents.reduce(
+    (total, event) => total + numberOrZero(event.payload?.word_count),
+    0
+  )
+
+  return {
+    citationGate: {
+      status: gateStatus(typeof citationPayload?.passed === 'boolean' ? citationPayload.passed : null),
+      policy: typeof citationPayload?.policy === 'string' ? citationPayload.policy : null,
+      total: typeof citationPayload?.total === 'number' ? citationPayload.total : null,
+      failedCount: citationFailedCount,
+    },
+    qualityGates: {
+      status:
+        qualityGateEvents.length === 0
+          ? 'missing'
+          : qualityFailed > 0
+            ? 'failed'
+            : 'passed',
+      passed: qualityPassed,
+      failed: qualityFailed,
+      total: qualityGateEvents.length,
+    },
+    claimVerification: {
+      status: !claimSummary
+        ? 'missing'
+        : unsupportedClaims > 0
+          ? 'failed'
+          : 'passed',
+      checked: numberOrZero(claimSummary?.payload?.checked),
+      unsupported: unsupportedClaims,
+      uncertain: uncertainClaims,
+      total: numberOrZero(claimSummary?.payload?.total_claims),
+    },
+    reviewerPanel: {
+      status:
+        panelEvents.length === 0
+          ? 'missing'
+          : panelFailed > 0 || criticalOverrides > 0
+            ? 'failed'
+            : 'passed',
+      passed: panelPassed,
+      failed: panelFailed,
+      total: panelEvents.length,
+      criticalOverrides,
+    },
+    generation: {
+      sectionsGenerated: sectionEvents.length,
+      tokensUsed,
+      wordsGenerated,
+      providers: uniqueStrings(sectionEvents.map((event) => event.payload?.provider)),
+      models: uniqueStrings(sectionEvents.map((event) => event.payload?.model)),
+    },
   }
 }
 

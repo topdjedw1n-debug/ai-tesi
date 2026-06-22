@@ -1,0 +1,1291 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Thesica - продуктова презентація</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;0,7..72,600;0,7..72,700;1,7..72,400&amp;family=Source+Sans+3:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap&amp;subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5f0;
+  --paper:#fffdf9;
+  --stage:#efeadf;
+  --bar:#faf7f1;
+  --ink:#1c1b19;
+  --ink-soft:#4a4843;
+  --ink-faint:#8a877f;
+  --line:#e6e1d6;
+  --line-strong:#d6d0c2;
+  --accent:#0f6e56;
+  --accent-deep:#0a4d3c;
+  --accent-soft:#e4f1ea;
+  --warn:#a05a00;
+  --warn-soft:#fbeed9;
+  --err:#9a2b22;
+  --err-soft:#fae6e2;
+  --info:#1c5a93;
+  --info-soft:#e6eff8;
+  --shadow-sm:0 1px 2px rgba(28,27,25,.05);
+  --shadow:0 1px 2px rgba(28,27,25,.04),0 14px 34px rgba(28,27,25,.10);
+  --shadow-lg:0 1px 2px rgba(28,27,25,.04),0 22px 54px rgba(28,27,25,.13);
+  --r-sm:6px;
+  --r-md:10px;
+  --r-lg:14px;
+  --r-xl:18px;
+  --r-full:999px;
+  --display:'Literata',Georgia,serif;
+  --ui:'Source Sans 3',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--ui);
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+a{color:var(--accent-deep)}
+button{font:inherit}
+.page{
+  display:grid;
+  grid-template-columns:260px minmax(0,1fr);
+  gap:48px;
+  max-width:1320px;
+  margin:0 auto;
+  padding:32px 32px 112px;
+}
+.toc{
+  position:sticky;
+  top:24px;
+  align-self:start;
+  max-height:calc(100vh - 48px);
+  overflow:auto;
+  padding-right:8px;
+}
+.toc-brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  margin-bottom:8px;
+}
+.mark{
+  position:relative;
+  flex:none;
+  display:block;
+  background:var(--accent);
+  box-shadow:var(--shadow-sm);
+}
+.mark::after{
+  content:"";
+  position:absolute;
+  left:38%;
+  top:21%;
+  width:24%;
+  height:58%;
+  background:var(--paper);
+  clip-path:polygon(0 0,100% 0,100% 100%,50% 82%,0 100%);
+  border-radius:7px 7px 0 0;
+}
+.toc-brand .mark{
+  width:34px;
+  height:34px;
+  border-radius:9px;
+}
+.toc-brand strong{
+  display:block;
+  font-family:var(--display);
+  font-size:21px;
+  line-height:1;
+  font-weight:600;
+}
+.toc-brand span{
+  display:block;
+  margin-top:3px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.toc ol{
+  list-style:none;
+  counter-reset:toc;
+  padding:14px 0 0;
+  margin:0;
+  border-top:1px solid var(--line);
+}
+.toc li{counter-increment:toc}
+.toc a{
+  display:flex;
+  gap:10px;
+  align-items:baseline;
+  text-decoration:none;
+  color:var(--ink-soft);
+  font-size:13px;
+  line-height:1.35;
+  padding:7px 10px;
+  border-left:2px solid transparent;
+  border-radius:var(--r-sm);
+}
+.toc a::before{
+  content:counter(toc,decimal-leading-zero);
+  flex:none;
+  font-family:var(--mono);
+  font-size:10px;
+  color:var(--ink-faint);
+}
+.toc a:hover{background:var(--paper);color:var(--ink)}
+.toc a.active{
+  background:var(--accent-soft);
+  border-left-color:var(--accent);
+  color:var(--accent-deep);
+  font-weight:600;
+}
+.toc a.active::before{color:var(--accent)}
+.toc-note{
+  margin-top:18px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:var(--paper);
+  color:var(--ink-faint);
+  font-size:12.5px;
+}
+.content{max-width:960px;min-width:0}
+.topbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+  margin-bottom:20px;
+}
+.crumb{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:8px 13px;
+  border:1px solid var(--line-strong);
+  border-radius:var(--r-md);
+  background:var(--paper);
+  color:var(--ink-soft);
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  box-shadow:var(--shadow-sm);
+}
+.btn:hover{color:var(--ink);border-color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.hero{
+  position:relative;
+  overflow:hidden;
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  padding:42px 44px 38px;
+  box-shadow:var(--shadow-lg);
+  margin-bottom:54px;
+}
+.hero-mark{
+  display:flex;
+  align-items:center;
+  gap:13px;
+  margin-bottom:28px;
+}
+.hero-mark .mark{
+  width:50px;
+  height:50px;
+  border-radius:12px;
+}
+.hero-mark .word{
+  font-family:var(--display);
+  font-size:30px;
+  line-height:1;
+  font-weight:600;
+}
+.hero-mark .sub{
+  margin-top:5px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.12em;
+  color:var(--accent-deep);
+  text-transform:uppercase;
+}
+.hero h1{
+  max-width:780px;
+  margin:0 0 18px;
+  font-family:var(--display);
+  font-weight:650;
+  font-size:clamp(34px,5.2vw,58px);
+  line-height:1.05;
+  letter-spacing:0;
+}
+.hero .lead{
+  max-width:760px;
+  margin:0;
+  color:var(--ink-soft);
+  font-size:19px;
+  line-height:1.58;
+}
+.hero .thesis{
+  max-width:760px;
+  margin-top:24px;
+  padding:17px 20px;
+  border-left:3px solid var(--accent);
+  border-radius:0 var(--r-md) var(--r-md) 0;
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+  font-size:15px;
+}
+.hero-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-top:30px;
+}
+.hero-chip{
+  min-height:92px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:var(--r-md);
+  background:var(--bar);
+}
+.hero-chip .label{
+  display:block;
+  font-family:var(--mono);
+  font-size:10px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+  margin-bottom:7px;
+}
+.hero-chip strong{
+  display:block;
+  font-size:15px;
+  line-height:1.25;
+}
+section{
+  scroll-margin-top:24px;
+  margin-bottom:68px;
+}
+.section-head{
+  display:grid;
+  grid-template-columns:auto minmax(0,1fr);
+  column-gap:16px;
+  align-items:start;
+  margin-bottom:22px;
+}
+.num{
+  font-family:var(--mono);
+  color:var(--accent);
+  font-size:13px;
+  font-weight:600;
+  padding-top:6px;
+}
+h2{
+  margin:0;
+  font-family:var(--display);
+  font-size:32px;
+  font-weight:620;
+  line-height:1.14;
+  letter-spacing:0;
+}
+.section-lead{
+  grid-column:2;
+  max-width:720px;
+  margin:8px 0 0;
+  color:var(--ink-soft);
+  font-size:16.5px;
+}
+h3{
+  margin:28px 0 12px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+p{margin:0 0 14px}
+strong{font-weight:700}
+.panel{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow);
+}
+.pad{padding:24px}
+.muted{color:var(--ink-soft)}
+.mono{font-family:var(--mono)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.card{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  overflow:hidden;
+}
+.card .card-h{
+  min-height:54px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid var(--line);
+  background:var(--bar);
+}
+.card .card-h strong{font-size:15px}
+.card .card-b{padding:18px}
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:var(--r-full);
+  padding:4px 10px;
+  font-size:11px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+}
+.pill.ok{background:var(--accent-soft);color:var(--accent-deep)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.err{background:var(--err-soft);color:var(--err)}
+.pill.info{background:var(--info-soft);color:var(--info)}
+.pill.neutral{background:var(--stage);color:var(--ink-soft)}
+.feature{
+  display:flex;
+  gap:14px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:var(--paper);
+  box-shadow:var(--shadow-sm);
+}
+.feature .idx{
+  flex:none;
+  display:grid;
+  place-items:center;
+  width:34px;
+  height:34px;
+  border-radius:9px;
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+  font-family:var(--mono);
+  font-size:12px;
+  font-weight:600;
+}
+.feature strong{
+  display:block;
+  margin-bottom:4px;
+  font-size:16px;
+}
+.feature p{
+  margin:0;
+  color:var(--ink-soft);
+  font-size:14.5px;
+}
+.mock{
+  display:grid;
+  grid-template-columns:1.12fr .88fr;
+  gap:18px;
+  align-items:stretch;
+}
+.case-head{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:14px;
+  padding:18px;
+  border-bottom:1px solid var(--line);
+  background:var(--bar);
+}
+.case-title{
+  font-family:var(--display);
+  font-size:21px;
+  font-weight:600;
+  line-height:1.22;
+}
+.case-meta{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-top:9px;
+}
+.progress-list{padding:8px 18px 18px}
+.progress-row{
+  display:grid;
+  grid-template-columns:24px minmax(0,1fr) auto;
+  gap:10px;
+  align-items:center;
+  padding:11px 0;
+  border-bottom:1px solid var(--line);
+}
+.progress-row:last-child{border-bottom:none}
+.dot{
+  width:16px;
+  height:16px;
+  border-radius:50%;
+  background:var(--line-strong);
+}
+.dot.ok{background:var(--accent)}
+.dot.warn{background:var(--warn)}
+.dot.info{background:var(--info)}
+.progress-row .name{font-weight:600;font-size:14px}
+.progress-row .desc{font-size:12.5px;color:var(--ink-faint)}
+.progress-row .val{
+  font-family:var(--mono);
+  font-size:12px;
+  color:var(--ink-soft);
+}
+.gate-panel{
+  background:var(--paper);
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow);
+  overflow:hidden;
+}
+.gate-top{
+  padding:15px 16px;
+  background:var(--bar);
+  border-bottom:1px solid var(--line);
+}
+.gate-top .small{
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.gate-score{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-top:7px;
+}
+.gate-score b{
+  font-family:var(--mono);
+  font-size:32px;
+  line-height:1;
+  color:var(--accent-deep);
+}
+.gate-score span{color:var(--ink-soft);font-size:13px}
+.gate-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:13px 16px;
+  border-bottom:1px solid var(--line);
+}
+.gate-row:last-child{border-bottom:none}
+.gate-row .label{font-size:14px;color:var(--ink-soft)}
+.gate-row .label b{display:block;color:var(--ink);font-size:14px}
+.meter{
+  height:8px;
+  overflow:hidden;
+  border-radius:var(--r-full);
+  background:var(--line);
+}
+.meter span{
+  display:block;
+  height:100%;
+  border-radius:var(--r-full);
+  background:var(--accent);
+}
+.callout{
+  padding:17px 19px;
+  border-radius:var(--r-lg);
+  border:1px solid var(--line);
+  background:var(--paper);
+  box-shadow:var(--shadow-sm);
+  margin:18px 0;
+}
+.callout .label{
+  display:block;
+  margin-bottom:8px;
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.callout p:last-child{margin-bottom:0}
+.callout.ok{background:var(--accent-soft);border-color:rgba(15,110,86,.22);color:var(--accent-deep)}
+.callout.warn{background:var(--warn-soft);border-color:rgba(160,90,0,.24)}
+.callout.info{background:var(--info-soft);border-color:rgba(28,90,147,.22)}
+.flow{
+  display:grid;
+  gap:12px;
+  counter-reset:flow;
+}
+.step{
+  display:grid;
+  grid-template-columns:42px minmax(0,1fr);
+  gap:14px;
+  padding:16px;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:var(--paper);
+  box-shadow:var(--shadow-sm);
+}
+.step::before{
+  counter-increment:flow;
+  content:counter(flow);
+  display:grid;
+  place-items:center;
+  width:38px;
+  height:38px;
+  border-radius:var(--r-full);
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+  font-family:var(--mono);
+  font-size:13px;
+  font-weight:600;
+}
+.step strong{
+  display:block;
+  margin-bottom:3px;
+  font-size:16px;
+}
+.step p{margin:0;color:var(--ink-soft);font-size:14.5px}
+.timeline{
+  position:relative;
+  display:grid;
+  gap:16px;
+}
+.phase{
+  display:grid;
+  grid-template-columns:58px minmax(0,1fr);
+  gap:16px;
+}
+.phase-num{
+  display:grid;
+  place-items:center;
+  width:46px;
+  height:46px;
+  border-radius:var(--r-full);
+  border:2px solid var(--line-strong);
+  color:var(--ink-soft);
+  background:var(--paper);
+  font-family:var(--mono);
+  font-weight:600;
+}
+.phase.main .phase-num{
+  background:var(--accent);
+  color:#fff;
+  border-color:var(--accent);
+}
+.phase h3{
+  margin:0 0 4px;
+  font-family:var(--display);
+  font-size:21px;
+  letter-spacing:0;
+  text-transform:none;
+  color:var(--ink);
+}
+.phase .time{
+  font-family:var(--mono);
+  font-size:11.5px;
+  color:var(--ink-faint);
+  margin-bottom:10px;
+}
+.phase ul,.plain-list{
+  list-style:none;
+  padding:0;
+  margin:0;
+}
+.phase li,.plain-list li{
+  position:relative;
+  padding-left:20px;
+  margin-bottom:8px;
+  color:var(--ink-soft);
+}
+.phase li::before,.plain-list li::before{
+  content:"";
+  position:absolute;
+  left:2px;
+  top:.72em;
+  width:5px;
+  height:5px;
+  border-radius:50%;
+  background:var(--accent);
+}
+.table-wrap{
+  overflow-x:auto;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  box-shadow:var(--shadow-sm);
+  background:var(--paper);
+}
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:760px;
+  font-size:14px;
+}
+th{
+  padding:12px 14px;
+  background:var(--bar);
+  border-bottom:1px solid var(--line-strong);
+  color:var(--ink-faint);
+  font-family:var(--mono);
+  font-size:10.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  text-align:left;
+  white-space:nowrap;
+}
+td{
+  padding:13px 14px;
+  border-bottom:1px solid var(--line);
+  vertical-align:top;
+  color:var(--ink-soft);
+}
+tr:last-child td{border-bottom:none}
+td:first-child{
+  color:var(--ink);
+  font-weight:700;
+}
+.winner td{
+  background:var(--accent-soft);
+  color:var(--accent-deep);
+}
+.metric{
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:var(--paper);
+  box-shadow:var(--shadow-sm);
+}
+.metric .k{
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.metric .v{
+  margin-top:8px;
+  font-family:var(--display);
+  font-size:30px;
+  line-height:1;
+  color:var(--accent-deep);
+}
+.metric p{
+  margin:10px 0 0;
+  color:var(--ink-soft);
+  font-size:14px;
+}
+.stack{
+  display:grid;
+  gap:14px;
+}
+.why-card{
+  display:grid;
+  grid-template-columns:38px minmax(0,1fr);
+  gap:14px;
+  padding:18px;
+  border:1px solid var(--line);
+  border-radius:var(--r-lg);
+  background:var(--paper);
+  box-shadow:var(--shadow-sm);
+}
+.why-card .n{
+  display:grid;
+  place-items:center;
+  width:36px;
+  height:36px;
+  border-radius:9px;
+  background:var(--stage);
+  color:var(--accent-deep);
+  font-family:var(--mono);
+  font-weight:600;
+}
+.why-card strong{display:block;margin-bottom:4px}
+.why-card p{margin:0;color:var(--ink-soft);font-size:14.5px}
+.quote{
+  padding:26px;
+  border:1px solid var(--line);
+  border-radius:var(--r-xl);
+  background:var(--paper);
+  box-shadow:var(--shadow);
+}
+.quote p{
+  margin:0;
+  font-family:var(--display);
+  font-size:24px;
+  line-height:1.34;
+  color:var(--ink);
+}
+.quote .by{
+  margin-top:14px;
+  font-family:var(--mono);
+  font-size:11px;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:var(--ink-faint);
+}
+.footer{
+  margin-top:78px;
+  padding-top:28px;
+  border-top:1px solid var(--line);
+  color:var(--ink-faint);
+  font-size:13px;
+}
+.footer strong{color:var(--ink-soft)}
+@media(max-width:980px){
+  .page{grid-template-columns:1fr;gap:18px;padding:22px 20px 80px}
+  .toc{position:static;max-height:none}
+  .toc ol{display:grid;grid-template-columns:repeat(2,1fr);gap:2px}
+  .toc-note{display:none}
+  .topbar{margin-top:14px}
+  .mock,.grid2,.grid3,.grid4{grid-template-columns:1fr}
+  .hero-grid{grid-template-columns:repeat(2,1fr)}
+  .section-head{grid-template-columns:1fr}
+  .section-lead{grid-column:1}
+}
+@media(max-width:640px){
+  .page{padding:16px 14px 72px}
+  .hero{padding:28px 20px}
+  .hero-grid,.toc ol{grid-template-columns:1fr}
+  .topbar{align-items:flex-start;flex-direction:column}
+  .phase{grid-template-columns:1fr}
+  .phase-num{width:38px;height:38px}
+  h2{font-size:27px}
+  .quote p{font-size:21px}
+}
+@media print{
+  body{background:#fff}
+  .page{display:block;max-width:none;padding:0}
+  .toc,.topbar{display:none}
+  .content{max-width:none}
+  .hero,.panel,.card,.feature,.gate-panel,.step,.metric,.why-card,.quote{box-shadow:none}
+  section{break-inside:avoid;margin-bottom:36px}
+  a{color:inherit;text-decoration:none}
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <aside class="toc" aria-label="Зміст презентації">
+    <div class="toc-brand">
+      <span class="mark" aria-hidden="true"></span>
+      <div>
+        <strong>Thesica</strong>
+        <span>Product deck</span>
+      </div>
+    </div>
+    <ol>
+      <li><a href="#summary">Суть продукту</a></li>
+      <li><a href="#what">Що буде</a></li>
+      <li><a href="#experience">Як це виглядає</a></li>
+      <li><a href="#flow">Як відбувається</a></li>
+      <li><a href="#why">Чому саме так</a></li>
+      <li><a href="#best">Чому найкращий</a></li>
+      <li><a href="#metrics">Як доводимо</a></li>
+      <li><a href="#risks">Ризики</a></li>
+      <li><a href="#close">Фінальна теза</a></li>
+    </ol>
+    <div class="toc-note">Статична HTML-презентація. Можна відкрити локально або надрукувати в PDF.</div>
+  </aside>
+
+  <main class="content">
+    <div class="topbar">
+      <div class="crumb">Thesica · 2026-06-22 · Scholarly Press</div>
+      <div class="actions">
+        <span class="pill neutral">HTML presentation</span>
+      </div>
+    </div>
+
+    <header class="hero">
+      <div class="hero-mark">
+        <span class="mark" aria-hidden="true"></span>
+        <div>
+          <div class="word">Thesica</div>
+          <div class="sub">QA-first academic production</div>
+        </div>
+      </div>
+      <h1>Платформа для академічних робіт, які видаються тільки після доказу якості</h1>
+      <p class="lead">Thesica не продає кнопку «згенерувати диплом». Продукт будує контрольовану виробничу лінію: запит клієнта, план, джерела, секції, перевірки, редакторський прохід, release-рішення і delivery package.</p>
+      <div class="thesis">
+        <strong>Моат:</strong> дешевше за повну агенцію, надійніше за сирий ChatGPT, керованіше за міні-команду. Виграш не в магії моделі, а в системі доказів перед видачею.
+      </div>
+      <div class="hero-grid">
+        <div class="hero-chip"><span class="label">Перший користувач</span><strong>внутрішній менеджер агенції</strong></div>
+        <div class="hero-chip"><span class="label">Головний актив</span><strong>release gate з доказами</strong></div>
+        <div class="hero-chip"><span class="label">Фокус MVP</span><strong>2-3 реальні роботи</strong></div>
+        <div class="hero-chip"><span class="label">Публічний запуск</span><strong>після доказу якості</strong></div>
+      </div>
+    </header>
+
+    <section id="summary">
+      <div class="section-head">
+        <div class="num">01</div>
+        <div>
+          <h2>Суть продукту</h2>
+          <p class="section-lead">Thesica - це не ще один AI-writing SaaS. Це операційна платформа для агенції, яка має зробити повну академічну роботу дешевше, швидше і з контрольованим ризиком.</p>
+        </div>
+      </div>
+      <div class="grid3">
+        <div class="metric">
+          <div class="k">Проблема</div>
+          <div class="v">€100-200</div>
+          <p>Price-sensitive клієнти хочуть повну роботу, але не можуть або не хочуть платити повну агентську ціну.</p>
+        </div>
+        <div class="metric">
+          <div class="k">Ризик</div>
+          <div class="v">Gate</div>
+          <p>Сирий AI-output може провалити цитати, claims, плагіат, AI-risk або очікування наукрука.</p>
+        </div>
+        <div class="metric">
+          <div class="k">Рішення</div>
+          <div class="v">QA-first</div>
+          <p>Менеджер бачить не лише текст, а evidence: що пройшло, що впало, що треба редактору.</p>
+        </div>
+      </div>
+      <div class="callout ok">
+        <span class="label">Product promise</span>
+        <p>Наша сильна обіцянка: <strong>не «AI напише все сам»</strong>, а «ми виробляємо роботу через процес, який показує ризики до видачі клієнту». Це чесніше, безпечніше і важче скопіювати.</p>
+      </div>
+    </section>
+
+    <section id="what">
+      <div class="section-head">
+        <div class="num">02</div>
+        <div>
+          <h2>Що буде в продукті</h2>
+          <p class="section-lead">Перший продукт - внутрішній production workspace. Клієнтський кабінет і checkout з'являються пізніше, коли якість уже підтверджена реальними роботами.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="feature">
+          <div class="idx">01</div>
+          <div><strong>Manager workspace</strong><p>Один екран для замовлення: intake, дедлайн, прогрес генерації, гейти, редакторські задачі, human minutes і release-рішення.</p></div>
+        </div>
+        <div class="feature">
+          <div class="idx">02</div>
+          <div><strong>Full-document generation</strong><p>Не тільки outline або секція. Ціль - повна робота: структура, джерела, розділи, висновки, export DOCX/PDF.</p></div>
+        </div>
+        <div class="feature">
+          <div class="idx">03</div>
+          <div><strong>QA evidence panel</strong><p>Citation verification, claim support, plagiarism/AI-risk, reviewer findings і статус кожного блокера.</p></div>
+        </div>
+        <div class="feature">
+          <div class="idx">04</div>
+          <div><strong>Editor queue</strong><p>Редактор отримує не «перепиши все», а конкретні проблемні секції, findings і очікувану дію.</p></div>
+        </div>
+        <div class="feature">
+          <div class="idx">05</div>
+          <div><strong>Release Gate Contract</strong><p>Чітко визначено, що блокує delivery, що можна override, і що обов'язково потрапляє в audit log.</p></div>
+        </div>
+        <div class="feature">
+          <div class="idx">06</div>
+          <div><strong>Outcome learning loop</strong><p>Після delivery система зберігає outcome: правки, refund/rewrite, прийняття роботи, причини провалу.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="experience">
+      <div class="section-head">
+        <div class="num">03</div>
+        <div>
+          <h2>Як це виглядає для менеджера</h2>
+          <p class="section-lead">Менеджеру не потрібна красива іграшка. Йому потрібне швидке рішення: можна видавати, треба правити, треба перегенерувати або треба ескалувати.</p>
+        </div>
+      </div>
+      <div class="mock">
+        <div class="panel">
+          <div class="case-head">
+            <div>
+              <div class="case-title">Bachelor thesis · IT · Italian market</div>
+              <div class="case-meta">
+                <span class="pill neutral">70 pages</span>
+                <span class="pill neutral">deadline 7 days</span>
+                <span class="pill info">manager review</span>
+              </div>
+            </div>
+            <span class="pill warn">Needs editor</span>
+          </div>
+          <div class="progress-list">
+            <div class="progress-row">
+              <span class="dot ok"></span>
+              <div><div class="name">Intake complete</div><div class="desc">topic, language, style, deadline, constraints</div></div>
+              <div class="val">100%</div>
+            </div>
+            <div class="progress-row">
+              <span class="dot ok"></span>
+              <div><div class="name">Plan gate</div><div class="desc">outline accepted, missing inputs closed</div></div>
+              <div class="val">pass</div>
+            </div>
+            <div class="progress-row">
+              <span class="dot warn"></span>
+              <div><div class="name">Source gate</div><div class="desc">18 verified, 2 mismatched citations</div></div>
+              <div class="val">review</div>
+            </div>
+            <div class="progress-row">
+              <span class="dot ok"></span>
+              <div><div class="name">Generation</div><div class="desc">sections drafted, provenance recorded</div></div>
+              <div class="val">done</div>
+            </div>
+            <div class="progress-row">
+              <span class="dot info"></span>
+              <div><div class="name">Editor pass</div><div class="desc">3 sections routed to editor with findings</div></div>
+              <div class="val">31 min</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="gate-panel">
+          <div class="gate-top">
+            <div class="small">Release readiness</div>
+            <div class="gate-score"><b>82</b><span>/ 100 · not ready until citations fixed</span></div>
+            <div class="meter" style="margin-top:14px"><span style="width:82%"></span></div>
+          </div>
+          <div class="gate-row">
+            <div class="label"><b>Plagiarism risk</b>below target threshold</div>
+            <span class="pill ok">pass</span>
+          </div>
+          <div class="gate-row">
+            <div class="label"><b>AI-risk proxy</b>acceptable, still needs final check</div>
+            <span class="pill ok">pass</span>
+          </div>
+          <div class="gate-row">
+            <div class="label"><b>Citations</b>2 sources mismatched</div>
+            <span class="pill warn">blocker</span>
+          </div>
+          <div class="gate-row">
+            <div class="label"><b>Claim support</b>4 uncertain claims</div>
+            <span class="pill warn">editor</span>
+          </div>
+          <div class="gate-row">
+            <div class="label"><b>Human minutes</b>31 / 45 budget</div>
+            <span class="pill info">on track</span>
+          </div>
+        </div>
+      </div>
+      <div class="callout info">
+        <span class="label">Ключова різниця</span>
+        <p>Звичайний генератор показує текст. Thesica показує <strong>текст плюс причини, чому йому можна або не можна довіряти</strong>. Саме це перетворює AI-output на керований delivery process.</p>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="section-head">
+        <div class="num">04</div>
+        <div>
+          <h2>Як це буде відбуватися</h2>
+          <p class="section-lead">Продуктовий шлях побудований так, щоб кожен наступний крок зменшував невизначеність, а не просто додавав ще один екран.</p>
+        </div>
+      </div>
+      <div class="flow">
+        <div class="step"><div><strong>Manager intake</strong><p>Менеджер фіксує тему, країну, мову, обсяг, дедлайн, стиль цитування, методичні вимоги, файли клієнта і відомі університетські пороги.</p></div></div>
+        <div class="step"><div><strong>Plan gate</strong><p>AI створює outline. Система показує missing inputs. Без достатнього intake повна генерація не стартує.</p></div></div>
+        <div class="step"><div><strong>Source gate</strong><p>Retrieval джерел, перевірка цитат, статуси verified / not_found / mismatched. Менеджер бачить, що треба замінити ще до фінального тексту.</p></div></div>
+        <div class="step"><div><strong>Generation</strong><p>Секції генеруються по плану з word target, source usage, model/provider, attempts і автоматичним provenance ledger.</p></div></div>
+        <div class="step"><div><strong>Quality gate</strong><p>Reviewer panel, claim verifier, grammar, plagiarism-risk і AI-risk. Critical findings блокують release або йдуть редактору.</p></div></div>
+        <div class="step"><div><strong>Editor pass</strong><p>Редактор працює по findings, а не перечитує все з нуля. Після правок потрібні гейти запускаються повторно.</p></div></div>
+        <div class="step"><div><strong>Release decision</strong><p>Менеджер бачить фінальний evidence summary: approve delivery, send back, regenerate або escalate. Override можливий тільки з audit log.</p></div></div>
+        <div class="step"><div><strong>Post-delivery learning</strong><p>Outcome через 30/60/90 днів стає даними для evals: що прийняли, що правили, що провалилось, де система помилялась.</p></div></div>
+      </div>
+    </section>
+
+    <section id="why">
+      <div class="section-head">
+        <div class="num">05</div>
+        <div>
+          <h2>Чому саме так</h2>
+          <p class="section-lead">Порядок важливіший за кількість фіч. Якщо відкрити продажі до доказу якості, продукт може виглядати готовим, але не мати головної здатності: стабільно доводити роботу до прийнятного delivery.</p>
+        </div>
+      </div>
+      <div class="timeline">
+        <div class="phase">
+          <div class="phase-num">0</div>
+          <div class="card">
+            <div class="card-b">
+              <h3>Readiness без коду</h3>
+              <div class="time">1-2 дні · визначити, що саме міряємо</div>
+              <ul>
+                <li>Обрати першу країну/мову/тип роботи, щоб не змішувати різні стандарти.</li>
+                <li>Підтвердити доступні plagiarism і AI-risk детектори або чесно позначити проксі.</li>
+                <li>Вивести human-minutes budget з економіки €100-200.</li>
+                <li>Перевірити citation gate, бо без нього обіцянка «перевірені джерела» слабка.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="phase main">
+          <div class="phase-num">1</div>
+          <div class="card">
+            <div class="card-b">
+              <h3>Тонке внутрішнє MVP</h3>
+              <div class="time">головна фаза · довести якість на реальних роботах</div>
+              <ul>
+                <li>Запустити full-document path для менеджера без клієнтського self-serve.</li>
+                <li>Прогнати 2-3 реальні замовлення через AI + редактор.</li>
+                <li>Міряти pass/fail через AND: plagiarism і AI-risk нижче порогу, citations/claims не блокують release.</li>
+                <li>Рахувати людські хвилини: якщо редактор витрачає забагато, це не доказ якості AI-системи.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">2</div>
+          <div class="card">
+            <div class="card-b">
+              <h3>Операційна платформа</h3>
+              <div class="time">після сигналу якості · зробити процес повторюваним</div>
+              <ul>
+                <li>Manager workspace, editor workspace, ролі, audit log, retry/recovery, failed_quality states.</li>
+                <li>Release Gate Contract у коді: блокери, overrides, редакторські задачі, evidence summary.</li>
+                <li>5-10 робіт без участі розробника, щоб перевірити стабільність процесу.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-num">3</div>
+          <div class="card">
+            <div class="card-b">
+              <h3>Клієнтська частина і продажі</h3>
+              <div class="time">після внутрішнього доказу · не раніше</div>
+              <ul>
+                <li>Client status page, checkout, особистий кабінет, delivery package.</li>
+                <li>Маркетинг без токсичних claims про bypass детекторів.</li>
+                <li>Внутрішній QA-gate лишається обов'язковим навіть після self-serve.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="label">Чому не одразу клієнтський продукт</span>
+        <p>Бо найризикованіша премиса не «чи люди куплять», а <strong>чи AI-система стабільно виробляє повну роботу, яку можна видати в межах часу і бюджету</strong>. Попит уже є через агенцію; тепер треба довести виробничу якість.</p>
+      </div>
+    </section>
+
+    <section id="best">
+      <div class="section-head">
+        <div class="num">06</div>
+        <div>
+          <h2>Чому це буде найкращий схожий продукт</h2>
+          <p class="section-lead">Найкращий продукт у цій ніші не той, що має найбільше AI-фіч. Найкращий той, який стабільно переводить реальний клієнтський запит у прийнятний delivery з доказами якості.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Альтернатива</th>
+              <th>Що дає</th>
+              <th>Де ламається</th>
+              <th>Як виграє Thesica</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>DIY + ChatGPT</td>
+              <td>Дешево, швидко, доступно всім.</td>
+              <td>Немає контролю джерел, claims, стилю, detection-risk і final delivery.</td>
+              <td>Thesica додає виробничий процес, QA gates, редактора і release-рішення.</td>
+            </tr>
+            <tr>
+              <td>AI-writing SaaS</td>
+              <td>Зручний текстовий інструмент для частин роботи.</td>
+              <td>Зазвичай продає writing workflow, а не відповідальність за повну роботу під ключ.</td>
+              <td>Thesica орієнтована на повний delivery package і внутрішній evidence перед видачею.</td>
+            </tr>
+            <tr>
+              <td>Дешева міні-агенція</td>
+              <td>Людина може підправити під вимоги.</td>
+              <td>Слабка повторюваність, мало audit, якість залежить від конкретного редактора.</td>
+              <td>Thesica стандартизує гейти, фіксує причини, рахує хвилини і накопичує outcome data.</td>
+            </tr>
+            <tr>
+              <td>Повна агенція</td>
+              <td>Довіра і людський контроль.</td>
+              <td>Дорого для price-sensitive сегмента, важко масштабувати маржу.</td>
+              <td>Thesica лишає людський контроль там, де він потрібен, але прибирає ручну роботу там, де її може вести система.</td>
+            </tr>
+            <tr class="winner">
+              <td>Thesica</td>
+              <td>Повна робота + evidence + editor routing + release gate.</td>
+              <td>Потребує дисципліни: не запускати self-serve до доказу якості.</td>
+              <td>Будує моат на реальній операційній правді: що проходить, що падає, скільки коштує, як це покращувати.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="stack" style="margin-top:20px">
+        <div class="why-card">
+          <div class="n">1</div>
+          <div><strong>Реальний demand, не вигадана персона</strong><p>У фаундера вже є агенція, ліди, price-sensitive сегмент і конкретні кейси. Це зменшує ризик будувати продукт без покупця.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="n">2</div>
+          <div><strong>QA-first як ядро, не декоративна панель</strong><p>Гейти блокують release, створюють задачі редактору і пишуть provenance. Це важче скопіювати, ніж ще один промпт або редактор тексту.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="n">3</div>
+          <div><strong>Human-in-the-loop без ручного хаосу</strong><p>Редактор не замінює систему і не переписує все з нуля. Він підсилює слабкі місця, які система вже знайшла.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="n">4</div>
+          <div><strong>Економіка вбудована в продукт</strong><p>Human minutes, token cost, fail reasons і rewrites стають частиною рішення. Якщо робота проходить тільки через 3 години редактора, це видно одразу.</p></div>
+        </div>
+        <div class="why-card">
+          <div class="n">5</div>
+          <div><strong>Learning loop після delivery</strong><p>Продукт не зупиняється на генерації. Він вчиться з того, що реально прийняв клієнт/наукрук і що повернулось на правки.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="metrics">
+      <div class="section-head">
+        <div class="num">07</div>
+        <div>
+          <h2>Як доводимо, що продукт працює</h2>
+          <p class="section-lead">Успіх не рахується кількістю згенерованих сторінок. Успіх - це робота, яка доходить до delivery в межах бюджету і не повертається як провал якості.</p>
+        </div>
+      </div>
+      <div class="grid4">
+        <div class="metric"><div class="k">Primary signal</div><div class="v">2-3/3</div><p>Перші реальні роботи проходять gate у межах human-minutes budget.</p></div>
+        <div class="metric"><div class="k">Quality</div><div class="v">AND</div><p>Plagiarism-risk і AI-risk проходять разом, не один замість іншого.</p></div>
+        <div class="metric"><div class="k">Efficiency</div><div class="v">≤ budget</div><p>Редакторські хвилини не з'їдають маржу при €100-200.</p></div>
+        <div class="metric"><div class="k">Truth</div><div class="v">90d</div><p>Через 30/60/90 днів фіксуємо acceptance, rewrites, refunds і претензії.</p></div>
+      </div>
+      <div class="grid2" style="margin-top:18px">
+        <div class="card">
+          <div class="card-h"><strong>Go criteria</strong><span class="pill ok">move to phase 2</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>2-3 реальні роботи проходять gate.</li>
+              <li>Human minutes вкладаються в бюджет.</li>
+              <li>Основні fail reasons зрозумілі і керовані.</li>
+              <li>Менеджер може прийняти release-рішення за evidence.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>No-go / repeat criteria</strong><span class="pill warn">diagnose</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Роботи проходять тільки після великого ручного переписування.</li>
+              <li>Citation або claim gate системно сліпий.</li>
+              <li>AI-risk або plagiarism-risk валить більшість кейсів.</li>
+              <li>Менеджеру все одно треба перечитувати роботу з нуля.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="risks">
+      <div class="section-head">
+        <div class="num">08</div>
+        <div>
+          <h2>Ризики і чесні межі</h2>
+          <p class="section-lead">Сильний продукт не ховає ризики. Він робить їх видимими до того, як робота потрапить клієнту.</p>
+        </div>
+      </div>
+      <div class="grid2">
+        <div class="card">
+          <div class="card-h"><strong>Product risks</strong><span class="pill err">watch</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Центральна премиса ще не доведена: full-document AI може бути слабшим, ніж очікуємо.</li>
+              <li>Мала вибірка 2-3 роботи дає сигнал, не математичний доказ.</li>
+              <li>Прийняття університетом запізнюється на тижні або місяці.</li>
+              <li>Детектори і правила університетів змінюються.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Product guardrails</strong><span class="pill ok">control</span></div>
+          <div class="card-b">
+            <ul class="plain-list">
+              <li>Не віддавати сирий AI-output напряму клієнту.</li>
+              <li>Не обіцяти публічно bypass AI/plagiarism detection.</li>
+              <li>Будувати self-serve тільки після внутрішнього доказу якості.</li>
+              <li>Override release gate тільки з audit log і причиною.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="callout warn">
+        <span class="label">Найважливіша межа</span>
+        <p>Thesica має продавати не «обхід перевірок», а <strong>керований academic drafting process з quality controls</strong>. Це стійкіше для бренду, платежів, репутації і довгострокового продукту.</p>
+      </div>
+    </section>
+
+    <section id="close">
+      <div class="section-head">
+        <div class="num">09</div>
+        <div>
+          <h2>Фінальна теза</h2>
+          <p class="section-lead">Thesica стане найсильнішим схожим продуктом тоді, коли перестане виглядати як AI-редактор і почне працювати як академічна production system.</p>
+        </div>
+      </div>
+      <div class="quote">
+        <p>Ми виграємо не тому, що модель напише текст. Ми виграємо тому, що продукт покаже, чи цей текст можна відповідально видати, скільки людського часу він потребує і як зробити наступну роботу кращою.</p>
+        <div class="by">Thesica product principle</div>
+      </div>
+      <div class="grid3" style="margin-top:18px">
+        <div class="card">
+          <div class="card-h"><strong>Для менеджера</strong></div>
+          <div class="card-b"><p class="muted">Менше ручного хаосу, більше evidence, швидше release-рішення.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Для бізнесу</strong></div>
+          <div class="card-b"><p class="muted">Нижча собівартість, контроль маржі, менше blind delivery ризику.</p></div>
+        </div>
+        <div class="card">
+          <div class="card-h"><strong>Для клієнта</strong></div>
+          <div class="card-b"><p class="muted">Доступніша робота з кращим контролем якості, ніж DIY AI або випадкова міні-агенція.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p><strong>Основа:</strong> DESIGN.md, TESIGO-PLAN.md, thesica-brandbook.html і поточний Thesica frontend style.</p>
+      <p>Це презентаційний HTML-файл для внутрішнього пояснення продукту. Він не змінює production app і не додає нових залежностей.</p>
+    </footer>
+  </main>
+</div>
+
+<script>
+const links = Array.from(document.querySelectorAll('.toc a'));
+const sections = links
+  .map(link => document.querySelector(link.getAttribute('href')))
+  .filter(Boolean);
+
+const observer = new IntersectionObserver((entries) => {
+  const visible = entries
+    .filter(entry => entry.isIntersecting)
+    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+  if (!visible) return;
+  links.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + visible.target.id);
+  });
+}, { rootMargin: '-18% 0px -70% 0px', threshold: [0, .2, .5, .8] });
+
+sections.forEach(section => observer.observe(section));
+</script>
+</body>
+</html>

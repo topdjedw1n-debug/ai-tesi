@@ -17,6 +17,8 @@ const createDocumentSchema = z.object({
   topic: z.string().min(10, 'Topic must be at least 10 characters').max(500, 'Topic must be less than 500 characters'),
   language: z.string().min(2, 'Language is required'),
   pages: z.number().min(3, 'Must be at least 3 pages').max(100, 'Must be less than 100 pages'), // CRITICAL: Minimum 3 pages
+  deadline: z.string().optional(),
+  citationStyle: z.string().min(1, 'Citation style is required'),
   additionalRequirements: z.string().optional(),
 })
 
@@ -34,6 +36,29 @@ const languages = [
   { value: 'ja', label: 'Japanese' },
   { value: 'ko', label: 'Korean' },
 ]
+
+const citationStyles = [
+  { value: 'APA', label: 'APA' },
+  { value: 'MLA', label: 'MLA' },
+  { value: 'Chicago', label: 'Chicago' },
+  { value: 'Harvard', label: 'Harvard' },
+  { value: 'Other / provided in requirements', label: 'Other / provided in requirements' },
+]
+
+const buildManagerRequirements = (data: CreateDocumentFormData): string => {
+  const lines = [
+    '[Manager intake]',
+    `Deadline: ${data.deadline || 'not specified'}`,
+    `Citation style: ${data.citationStyle}`,
+  ]
+
+  const freeform = data.additionalRequirements?.trim()
+  if (freeform) {
+    lines.push('', '[Additional requirements]', freeform)
+  }
+
+  return lines.join('\n')
+}
 
 interface CreateDocumentFormProps {
   onSuccess?: (documentId: number) => void
@@ -67,13 +92,19 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
     defaultValues: {
       language: 'en',
       pages: 10,
+      citationStyle: 'APA',
     },
   })
 
   const watchedPages = watch('pages', documentPages)
 
-  // Fetch pricing configuration on mount
+  // Fetch pricing configuration on mount (only when the sales flow is active;
+  // in MVP free mode there is no payment, so we never show or fetch a price).
   useEffect(() => {
+    if (!isUserPaymentFlowEnabled) {
+      setIsLoadingPrice(false)
+      return
+    }
     const fetchPricing = async () => {
       try {
         setIsLoadingPrice(true)
@@ -123,7 +154,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           topic: data.topic,
           language: data.language,
           target_pages: data.pages,
-          additional_requirements: data.additionalRequirements,
+          additional_requirements: buildManagerRequirements(data),
           ai_provider: 'openai', // Default provider, no UI selection
           ai_model: 'gpt-4', // Default model, no UI selection
         },
@@ -190,7 +221,9 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           Create New Document
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Create a new academic document. Payment is required before generation starts.
+          {isUserPaymentFlowEnabled
+            ? 'Create a new academic document. Payment is required before generation starts.'
+            : 'Create a new academic document, then start generation from the document page.'}
         </p>
       </div>
 
@@ -286,8 +319,54 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             )}
             <p className="mt-1 text-xs text-gray-500">
               Minimum {pricingConfig?.min_pages || 3} pages required.
-              {isLoadingPrice ? ' Loading price...' : ` Price: €${pricePerPage.toFixed(2)} per page`}
+              {isUserPaymentFlowEnabled &&
+                (isLoadingPrice ? ' Loading price...' : ` Price: €${pricePerPage.toFixed(2)} per page`)}
             </p>
+          </div>
+        </div>
+
+        {/* Manager Intake */}
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <label
+              htmlFor="deadline"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Deadline (optional)
+            </label>
+            <input
+              type="date"
+              id="deadline"
+              {...register('deadline')}
+              data-testid="document-deadline-input"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            />
+          </div>
+
+          <div>
+            <label
+              htmlFor="citationStyle"
+              className="block text-sm font-medium text-gray-700"
+            >
+              Citation Style *
+            </label>
+            <select
+              id="citationStyle"
+              {...register('citationStyle')}
+              data-testid="document-citation-style-select"
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
+            >
+              {citationStyles.map((style) => (
+                <option key={style.value} value={style.value}>
+                  {style.label}
+                </option>
+              ))}
+            </select>
+            {errors.citationStyle && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.citationStyle.message}
+              </p>
+            )}
           </div>
         </div>
 
@@ -303,25 +382,28 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             id="additionalRequirements"
             {...register('additionalRequirements')}
             rows={3}
+            data-testid="document-additional-requirements-input"
             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm"
-            placeholder="e.g., Include specific methodologies, focus on recent research, use APA citation style..."
+            placeholder="e.g., Include specific methodologies, university instructions, required sources, or uploaded-file notes..."
           />
         </div>
 
-        {/* Price Preview */}
-        <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
-          <div className="flex justify-between items-center">
-            <span className="text-sm font-medium text-gray-700">
-              Estimated cost:
-            </span>
-            <span className="text-lg font-bold text-primary-600">
-              {isLoadingPrice ? '...' : `€${((currentPages || 10) * pricePerPage).toFixed(2)}`}
-            </span>
+        {/* Price Preview — only when the sales flow is active */}
+        {isUserPaymentFlowEnabled && (
+          <div className="bg-primary-50 border border-primary-200 rounded-lg p-4">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium text-gray-700">
+                Estimated cost:
+              </span>
+              <span className="text-lg font-bold text-primary-600">
+                {isLoadingPrice ? '...' : `€${((currentPages || 10) * pricePerPage).toFixed(2)}`}
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              {isLoadingPrice ? 'Loading...' : `€${pricePerPage.toFixed(2)} per page × ${currentPages || 10} pages`}
+            </p>
           </div>
-          <p className="text-xs text-gray-600 mt-1">
-            {isLoadingPrice ? 'Loading...' : `€${pricePerPage.toFixed(2)} per page × ${currentPages || 10} pages`}
-          </p>
-        </div>
+        )}
 
         {/* Submit Button */}
         <div className="flex justify-end">
@@ -337,7 +419,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
                 Creating...
               </>
             ) : (
-              'Create Document & Continue to Payment'
+              isUserPaymentFlowEnabled ? 'Create Document & Continue to Payment' : 'Create Document'
             )}
           </Button>
         </div>

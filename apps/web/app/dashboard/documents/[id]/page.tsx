@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
+import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
 import { DocumentSources } from '@/components/dashboard/DocumentSources'
 import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
@@ -44,6 +45,7 @@ export default function DocumentDetailPage() {
   const [document, setDocument] = useState<Document | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isStarting, setIsStarting] = useState(false)
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -88,6 +90,23 @@ export default function DocumentDetailPage() {
     setIsGenerating(false)
     toast.error(`Generation failed: ${error}`)
     fetchDocument() // Refresh to get updated status
+  }
+
+  const handleStartGeneration = async () => {
+    setIsStarting(true)
+    try {
+      await apiClient.post(API_ENDPOINTS.GENERATE.FULL, { document_id: documentId })
+      toast.success('Generation started')
+      setIsGenerating(true)
+      // Optimistically flip status so the progress panel replaces the empty state.
+      setDocument((prev) => (prev ? { ...prev, status: 'generating' } : prev))
+    } catch (error: any) {
+      // The backend returns a human-readable detail for 400/402/429
+      // (page cap, payment required, daily limits) — surface it directly.
+      toast.error(error?.message || 'Failed to start generation')
+    } finally {
+      setIsStarting(false)
+    }
   }
 
   if (isLoading) {
@@ -196,7 +215,10 @@ export default function DocumentDetailPage() {
 
         {/* Sources certificate: cited sources with verification statuses */}
         {!isGeneratingStatus && document.status !== 'draft' && (
-          <DocumentSources documentId={documentId} />
+          <>
+            <DocumentQualityEvidence documentId={documentId} />
+            <DocumentSources documentId={documentId} />
+          </>
         )}
 
         {/* Sections */}
@@ -244,6 +266,22 @@ export default function DocumentDetailPage() {
             <p className="mt-1 text-sm text-gray-500">
               This document is still in draft mode. Start generation to create content.
             </p>
+            <div className="mt-6">
+              <Button
+                onClick={handleStartGeneration}
+                disabled={isStarting}
+                data-testid="start-generation-button"
+              >
+                {isStarting ? (
+                  <>
+                    <LoadingSpinner className="h-4 w-4 mr-2" />
+                    Starting...
+                  </>
+                ) : (
+                  'Start generation'
+                )}
+              </Button>
+            </div>
           </div>
         )}
       </div>

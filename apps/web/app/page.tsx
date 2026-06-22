@@ -6,6 +6,7 @@ import { Pricing } from '@/components/sections/Pricing'
 import { Footer } from '@/components/layout/Footer'
 import { Header } from '@/components/layout/Header'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+import { isUserPaymentFlowEnabled } from '@/lib/feature-flags'
 
 export default function HomePage() {
   return (
@@ -16,7 +17,7 @@ export default function HomePage() {
           <Hero />
           <Features />
           <HowItWorks />
-          <Pricing />
+          {isUserPaymentFlowEnabled && <Pricing />}
         </Suspense>
       </main>
       <Footer />

@@ -1,5 +1,5 @@
 /**
- * Utility functions for TesiGo Frontend
+ * Utility functions for Thesica Frontend
  * @module utils
  */
 

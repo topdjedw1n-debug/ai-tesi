@@ -9,11 +9,11 @@ const isEnabled = (value: string | undefined, defaultValue = false): boolean => 
 
 /**
  * Feature flags for controlled runtime rollouts.
- * Defaults are enabled after Wave 1 stabilization; can be disabled as kill-switches.
+ * Stage 0 defaults keep sales disabled; payment/refund flows are opt-in.
  */
 export const FEATURE_FLAGS = {
-  userPaymentFlow: isEnabled(process.env.NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW, true),
-  userRefundFlow: isEnabled(process.env.NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW, true),
+  userPaymentFlow: isEnabled(process.env.NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW, false),
+  userRefundFlow: isEnabled(process.env.NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW, false),
 }
 
 export const isUserPaymentFlowEnabled = FEATURE_FLAGS.userPaymentFlow

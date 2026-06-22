@@ -45,6 +45,18 @@ def test_defaults_accepted():
     assert settings.CITATION_VERIFICATION_ENABLED is False
 
 
+def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
+    monkeypatch.delenv("MVP_FREE_GENERATION_ENABLED", raising=False)
+    monkeypatch.delenv("DAILY_TOKEN_LIMIT", raising=False)
+
+    settings = Settings(_env_file=None)
+
+    assert settings.MVP_FREE_GENERATION_ENABLED is True
+    assert settings.MVP_FREE_GENERATION_MAX_PAGES == 20
+    assert settings.MVP_FREE_GENERATION_DAILY_USER_LIMIT == 2
+    assert settings.DAILY_TOKEN_LIMIT == 2_000_000
+
+
 def test_citation_without_claim_accepted():
     settings = Settings(
         CITATION_VERIFICATION_ENABLED=True,

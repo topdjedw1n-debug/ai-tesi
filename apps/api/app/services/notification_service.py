@@ -28,7 +28,7 @@ class NotificationService:
                     MAIL_FROM=settings.EMAILS_FROM_EMAIL
                     or settings.SMTP_USER
                     or "noreply@tesigo.com",
-                    MAIL_FROM_NAME=settings.EMAILS_FROM_NAME or "TesiGo Platform",
+                    MAIL_FROM_NAME=settings.EMAILS_FROM_NAME or "Thesica",
                     MAIL_PORT=settings.SMTP_PORT or 587,
                     MAIL_SERVER=settings.SMTP_HOST or "localhost",
                     MAIL_STARTTLS=settings.SMTP_TLS,
@@ -118,7 +118,7 @@ class NotificationService:
         Returns:
             True if sent successfully
         """
-        subject = "🔐 Your TesiGo Login Link"
+        subject = "🔐 Your Thesica Login Link"
 
         html_body = f"""
         <!DOCTYPE html>
@@ -136,15 +136,15 @@ class NotificationService:
         </head>
         <body>
             <div class="container">
-                <h2>Welcome to TesiGo! 👋</h2>
+                <h2>Welcome to Thesica! 👋</h2>
                 <p>Click the button below to log in to your account:</p>
-                <a href="{magic_link}" class="button">Login to TesiGo</a>
+                <a href="{magic_link}" class="button">Login to Thesica</a>
                 <p>Or copy and paste this link into your browser:</p>
                 <p style="word-break: break-all; color: #2563eb;">{magic_link}</p>
                 <p><strong>This link expires in 15 minutes.</strong></p>
                 <p>If you didn't request this link, you can safely ignore this email.</p>
                 <div class="footer">
-                    <p>© TesiGo Platform | AI-Powered Thesis Generation</p>
+                    <p>© Thesica | AI-Powered Thesis Generation</p>
                 </div>
             </div>
         </body>
@@ -152,7 +152,7 @@ class NotificationService:
         """
 
         text_body = f"""
-        Welcome to TesiGo!
+        Welcome to Thesica!
 
         Click this link to log in to your account:
         {magic_link}
@@ -161,7 +161,7 @@ class NotificationService:
 
         If you didn't request this link, you can safely ignore this email.
 
-        © TesiGo Platform
+        © Thesica
         """
 
         return await self.send_email(
@@ -212,7 +212,7 @@ class NotificationService:
                 <p style="word-break: break-all; color: #2563eb;">{document_url}</p>
                 <p>You can now download, edit, or share your document from your dashboard.</p>
                 <div class="footer">
-                    <p>© TesiGo Platform | AI-Powered Thesis Generation</p>
+                    <p>© Thesica | AI-Powered Thesis Generation</p>
                 </div>
             </div>
         </body>
@@ -229,7 +229,7 @@ class NotificationService:
 
         You can now download, edit, or share your document from your dashboard.
 
-        © TesiGo Platform
+        © Thesica
         """
 
         return await self.send_email(
@@ -279,7 +279,7 @@ class NotificationService:
                 <p>Please try creating a new document or contact our support if the issue persists.</p>
                 <p>We apologize for any inconvenience.</p>
                 <div class="footer">
-                    <p>© TesiGo Platform | AI-Powered Thesis Generation</p>
+                    <p>© Thesica | AI-Powered Thesis Generation</p>
                 </div>
             </div>
         </body>
@@ -295,7 +295,7 @@ class NotificationService:
 
         Please try creating a new document or contact our support if the issue persists.
 
-        © TesiGo Platform
+        © Thesica
         """
 
         return await self.send_email(

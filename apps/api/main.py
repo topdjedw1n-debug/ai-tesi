@@ -1,5 +1,5 @@
 """
-AI Thesis Platform - FastAPI Application
+Thesica - FastAPI Application
 """
 
 import logging
@@ -48,20 +48,20 @@ async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
     with logger.contextualize(correlation_id="startup"):
-        logger.info("Starting AI Thesis Platform API...")
+        logger.info("Starting Thesica API...")
         await init_db()
         logger.info("Database initialized")
         await init_redis()
     yield
     # Shutdown
     with logger.contextualize(correlation_id="shutdown"):
-        logger.info("Shutting down AI Thesis Platform API...")
+        logger.info("Shutting down Thesica API...")
         await close_redis()
 
 
 # Create FastAPI application
 app = FastAPI(
-    title="AI Thesis Platform API",
+    title="Thesica API",
     description="AI-powered academic paper generation platform",
     version="1.0.0",
     docs_url="/docs" if settings.DEBUG else None,
@@ -149,7 +149,7 @@ async def unhandled_exception_handler(request: Request, exc: Exception):
 async def root():
     """Root endpoint"""
     return {
-        "message": "AI Thesis Platform API",
+        "message": "Thesica API",
         "version": "1.0.0",
         "docs_url": "/docs",
         "health_url": "/health",

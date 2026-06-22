@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TesiGo — єдиний план: QA-first платформа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Literata:opsz,wght@7..72,400;7..72,500;7..72,600;7..72,700&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap&subset=cyrillic,cyrillic-ext,latin,latin-ext" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f7f5f0; --paper:#fffdf9; --stage:#efeadf; --bar:#faf7f1;
+    --ink:#1c1b19; --ink-soft:#4a4843; --ink-faint:#8a877f;
+    --line:#e6e1d6; --line-strong:#d6d0c2;
+    --accent:#0f6e56; --accent-deep:#0a4d3c; --accent-soft:#e4f1ea;
+    --warn:#a05a00; --warn-soft:#fbeed9;
+    --err:#9a2b22; --err-soft:#fae6e2;
+    --info:#1c5a93; --info-soft:#e6eff8;
+    --r-sm:6px; --r-md:10px; --r-lg:14px; --r-xl:18px; --r-full:999px;
+    --shadow:0 1px 2px rgba(28,27,25,.04), 0 14px 34px rgba(28,27,25,.10);
+    --shadow-sm:0 1px 2px rgba(28,27,25,.05);
+    --serif:'Literata',Georgia,'Times New Roman',serif;
+    --sans:'Source Sans 3',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:var(--sans); font-size:16px; line-height:1.6;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:0 28px}
+
+  /* ── Masthead ───────────────────────────── */
+  .masthead{border-bottom:1px solid var(--line); padding:64px 0 40px}
+  .kicker{
+    font-family:var(--mono); font-size:12px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--accent-deep);
+    display:flex; align-items:center; gap:10px;
+  }
+  .kicker::before{content:""; width:26px; height:2px; background:var(--accent); display:inline-block}
+  h1.title{
+    font-family:var(--serif); font-weight:700; font-size:clamp(30px,4.6vw,48px);
+    line-height:1.12; letter-spacing:-.01em; margin:18px 0 8px; max-width:18ch;
+  }
+  .subtitle{font-size:18px; color:var(--ink-soft); max-width:60ch; margin:0 0 26px}
+  .meta-row{display:flex; flex-wrap:wrap; gap:10px 14px; align-items:center}
+  .meta-item{
+    font-family:var(--mono); font-size:12px; color:var(--ink-faint);
+    display:flex; gap:7px; align-items:center;
+  }
+  .meta-item b{color:var(--ink-soft); font-weight:500}
+  .badge{
+    font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+    font-weight:500; padding:5px 11px; border-radius:var(--r-full);
+    background:var(--accent-soft); color:var(--accent-deep); border:1px solid rgba(15,110,86,.22);
+  }
+  .supersede{
+    margin-top:22px; font-size:13.5px; color:var(--ink-faint);
+    padding:12px 16px; background:var(--stage); border-radius:var(--r-md); border:1px solid var(--line);
+  }
+  .supersede s{color:var(--ink-faint); text-decoration-color:var(--ink-faint)}
+  .supersede code{font-family:var(--mono); font-size:12px; color:var(--ink-soft)}
+
+  /* ── Document layout ────────────────────── */
+  .doc{display:grid; grid-template-columns:230px minmax(0,1fr); gap:72px; padding:48px 0 80px}
+  @media(max-width:980px){ .doc{grid-template-columns:1fr; gap:0; padding-top:32px} }
+
+  /* ── TOC ────────────────────────────────── */
+  .toc{position:sticky; top:28px; align-self:start; font-size:13.5px}
+  .toc .toc-h{
+    font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase;
+    color:var(--ink-faint); margin:0 0 14px; padding-bottom:10px; border-bottom:1px solid var(--line);
+  }
+  .toc a{
+    display:flex; gap:10px; text-decoration:none; color:var(--ink-soft);
+    padding:6px 0; line-height:1.35; border-left:2px solid transparent; padding-left:12px; margin-left:-14px;
+    transition:color .18s ease, border-color .18s ease;
+  }
+  .toc a .n{font-family:var(--mono); font-size:11px; color:var(--ink-faint); min-width:16px}
+  .toc a:hover{color:var(--accent-deep)}
+  .toc a.active{color:var(--accent-deep); border-left-color:var(--accent); font-weight:600}
+  .toc a.active .n{color:var(--accent)}
+  @media(max-width:980px){ .toc{display:none} }
+
+  /* ── Content ────────────────────────────── */
+  .content{max-width:780px; min-width:0}
+  section{padding-top:8px; margin-bottom:52px; scroll-margin-top:24px}
+  .sec-h{display:flex; align-items:baseline; gap:14px; margin:0 0 6px}
+  .sec-n{font-family:var(--mono); font-size:14px; color:var(--accent); font-weight:500; padding-top:4px}
+  h2{font-family:var(--serif); font-weight:600; font-size:30px; line-height:1.18; letter-spacing:-.01em; margin:0}
+  h3{font-family:var(--serif); font-weight:600; font-size:20px; line-height:1.25; margin:30px 0 10px}
+  p{margin:0 0 14px; color:var(--ink)}
+  .lede{font-size:18px; color:var(--ink-soft)}
+  a.inline{color:var(--accent-deep); text-decoration:underline; text-decoration-color:rgba(10,77,60,.3); text-underline-offset:2px}
+  strong{font-weight:600}
+  .mono{font-family:var(--mono); font-size:.92em}
+  code{font-family:var(--mono); font-size:13px; background:var(--stage); padding:1px 6px; border-radius:var(--r-sm); color:var(--accent-deep)}
+
+  ul,ol{margin:0 0 16px; padding-left:0; list-style:none}
+  li{position:relative; padding-left:24px; margin-bottom:9px; color:var(--ink)}
+  ul li::before{content:""; position:absolute; left:6px; top:11px; width:5px; height:5px; border-radius:var(--r-full); background:var(--accent)}
+  ol{counter-reset:li}
+  ol li{counter-increment:li}
+  ol li::before{
+    content:counter(li); position:absolute; left:0; top:1px;
+    font-family:var(--mono); font-size:11px; color:var(--accent-deep); font-weight:500;
+    width:18px; height:18px; border-radius:var(--r-full); background:var(--accent-soft);
+    display:flex; align-items:center; justify-content:center;
+  }
+  li ul{margin-top:9px; margin-bottom:0}
+
+  /* ── Abstract box ───────────────────────── */
+  .abstract{
+    background:var(--paper); border:1px solid var(--line); border-left:3px solid var(--accent);
+    border-radius:var(--r-lg); padding:24px 28px; box-shadow:var(--shadow-sm); margin-top:6px;
+  }
+  .abstract p:last-child{margin-bottom:0}
+  .abstract .lbl{font-family:var(--mono); font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:var(--accent-deep); display:block; margin-bottom:12px}
+
+  /* ── Callouts ───────────────────────────── */
+  .callout{border-radius:var(--r-lg); padding:16px 20px; margin:18px 0; border:1px solid; font-size:15px}
+  .callout .ct{font-family:var(--mono); font-size:11px; letter-spacing:.1em; text-transform:uppercase; font-weight:500; display:block; margin-bottom:7px}
+  .callout p:last-child{margin-bottom:0}
+  .callout--warn{background:var(--warn-soft); border-color:rgba(160,90,0,.25)}
+  .callout--warn .ct{color:var(--warn)}
+  .callout--accent{background:var(--accent-soft); border-color:rgba(15,110,86,.22)}
+  .callout--accent .ct{color:var(--accent-deep)}
+  .callout--info{background:var(--info-soft); border-color:rgba(28,90,147,.22)}
+  .callout--info .ct{color:var(--info)}
+
+  /* ── Pills ──────────────────────────────── */
+  .pill{font-family:var(--mono); font-size:11.5px; font-weight:500; padding:3px 9px; border-radius:var(--r-full); white-space:nowrap; display:inline-block}
+  .pill--ok{background:var(--accent-soft); color:var(--accent-deep)}
+  .pill--warn{background:var(--warn-soft); color:var(--warn)}
+  .pill--err{background:var(--err-soft); color:var(--err)}
+  .pill--info{background:var(--info-soft); color:var(--info)}
+  .pill--neutral{background:var(--stage); color:var(--ink-soft)}
+
+  /* ── Tables ─────────────────────────────── */
+  .tbl-wrap{overflow-x:auto; margin:18px 0; border:1px solid var(--line); border-radius:var(--r-lg); box-shadow:var(--shadow-sm)}
+  table{width:100%; border-collapse:collapse; background:var(--paper); font-size:14.5px}
+  thead th{
+    background:var(--bar); text-align:left; font-family:var(--mono); font-size:11px;
+    letter-spacing:.06em; text-transform:uppercase; color:var(--ink-faint); font-weight:500;
+    padding:12px 16px; border-bottom:1px solid var(--line-strong);
+  }
+  tbody td{padding:13px 16px; border-bottom:1px solid var(--line); vertical-align:top; color:var(--ink)}
+  tbody tr:last-child td{border-bottom:none}
+  tbody td:first-child{font-weight:600}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+
+  /* ── Phase timeline ─────────────────────── */
+  .timeline{margin:24px 0 0; position:relative}
+  .phase{position:relative; padding:0 0 8px 56px; margin-bottom:18px}
+  .phase::before{content:""; position:absolute; left:18px; top:38px; bottom:-18px; width:2px; background:var(--line-strong)}
+  .phase:last-child::before{display:none}
+  .phase-node{
+    position:absolute; left:0; top:0; width:38px; height:38px; border-radius:var(--r-full);
+    background:var(--paper); border:2px solid var(--line-strong); color:var(--ink-soft);
+    font-family:var(--mono); font-weight:500; font-size:15px;
+    display:flex; align-items:center; justify-content:center; z-index:1;
+  }
+  .phase--main .phase-node{background:var(--accent); border-color:var(--accent); color:#fff}
+  .phase-card{
+    background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg);
+    padding:20px 24px; box-shadow:var(--shadow-sm);
+  }
+  .phase--main .phase-card{border-color:rgba(15,110,86,.3); box-shadow:var(--shadow)}
+  .phase-head{display:flex; flex-wrap:wrap; align-items:baseline; gap:10px; margin-bottom:4px}
+  .phase-title{font-family:var(--serif); font-weight:600; font-size:21px; line-height:1.2}
+  .phase-tag{font-family:var(--mono); font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; padding:3px 8px; border-radius:var(--r-full); background:var(--accent); color:#fff}
+  .phase-sub{font-size:13px; color:var(--ink-faint); font-family:var(--mono); margin-bottom:12px}
+  .phase-card p:last-child{margin-bottom:0}
+  .micro-h{font-family:var(--mono); font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-faint); margin:16px 0 8px; font-weight:500}
+  .exit{margin-top:16px; background:var(--accent-soft); border-radius:var(--r-md); padding:12px 16px; font-size:14.5px}
+  .exit .ct{font-family:var(--mono); font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--accent-deep); font-weight:500; display:block; margin-bottom:6px}
+  .gonogo{display:flex; flex-direction:column; gap:8px; margin-top:10px}
+  .gonogo .row{display:flex; gap:12px; align-items:flex-start; font-size:14px}
+  .gonogo .row .pill{margin-top:1px; flex-shrink:0}
+
+  /* ── Flow steps ─────────────────────────── */
+  .flow{counter-reset:flow; margin:20px 0}
+  .flow .step{position:relative; padding:0 0 18px 46px; }
+  .flow .step::before{counter-increment:flow; content:counter(flow); position:absolute; left:0; top:-2px; width:30px; height:30px; border-radius:var(--r-full); background:var(--paper); border:1.5px solid var(--accent); color:var(--accent-deep); font-family:var(--mono); font-weight:500; font-size:13px; display:flex; align-items:center; justify-content:center}
+  .flow .step::after{content:""; position:absolute; left:15px; top:30px; bottom:0; width:1.5px; background:var(--line); }
+  .flow .step:last-child::after{display:none}
+  .flow .step .st{font-weight:600; font-family:var(--serif); font-size:17px}
+  .flow .step .sd{font-size:14.5px; color:var(--ink-soft); margin-top:2px}
+
+  /* ── Contract card ──────────────────────── */
+  .contract{background:var(--paper); border:1px solid var(--line); border-radius:var(--r-lg); padding:8px 28px 24px; box-shadow:var(--shadow-sm); margin:18px 0}
+  .contract ol li{margin-bottom:12px; padding-top:14px; border-top:1px solid var(--line)}
+  .contract ol li:first-child{border-top:none}
+
+  /* ── Footer ─────────────────────────────── */
+  footer{border-top:1px solid var(--line); padding:36px 0 64px; color:var(--ink-faint); font-size:13.5px}
+  footer .src{margin-top:6px; line-height:1.7}
+  footer .gen{font-family:var(--mono); font-size:11.5px; margin-top:20px; color:var(--ink-faint)}
+
+  @media(max-width:560px){
+    .wrap{padding:0 18px}
+    .masthead{padding:40px 0 30px}
+    h2{font-size:25px}
+    .phase{padding-left:46px}
+  }
+  @media print{
+    .toc{display:none}
+    body{background:#fff}
+    .doc{grid-template-columns:1fr; gap:0}
+    .phase-card,.abstract,.tbl-wrap,.contract{box-shadow:none}
+    section{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ════ MASTHEAD ════ -->
+  <header class="masthead">
+    <div class="kicker">TesiGo · Дизайн-план</div>
+    <h1 class="title">Єдиний план: QA-first платформа з поетапним виходом</h1>
+    <p class="subtitle">Консолідований дизайн-док. Об'єднує дві сесії office-hours та уточнення фаундера про фазування — внутрішнє MVP для менеджерів спершу, клієнтський продукт потім.</p>
+    <div class="meta-row">
+      <span class="badge">Status · Active</span>
+      <span class="meta-item"><b>Дата</b> 2026-06-21</span>
+      <span class="meta-item"><b>Режим</b> Startup</span>
+      <span class="meta-item"><b>Джерело правди</b> єдиний</span>
+    </div>
+    <div class="supersede">
+      <strong style="color:var(--ink-soft)">Замінює:</strong>
+      <s>maxmaxvel-main-design-20260621-163916.md</s> (концієрж-клин, Approach A) ·
+      <s>maxmaxvel-main-design-20260621-190601.md</s> (QA-first, Approach C)
+    </div>
+  </header>
+
+  <div class="doc">
+
+    <!-- ════ TOC ════ -->
+    <nav class="toc" id="toc">
+      <div class="toc-h">Зміст</div>
+      <a href="#s0"><span class="n">00</span>Суть в одному абзаці</a>
+      <a href="#s1"><span class="n">01</span>Проблема та ринок</a>
+      <a href="#s2"><span class="n">02</span>Конкурент і цінність</a>
+      <a href="#s3"><span class="n">03</span>Премиси</a>
+      <a href="#s4"><span class="n">04</span>Ключове рішення</a>
+      <a href="#s5"><span class="n">05</span>План по кроках</a>
+      <a href="#s6"><span class="n">06</span>Продуктовий флоу</a>
+      <a href="#s7"><span class="n">07</span>Release Gate Contract</a>
+      <a href="#s8"><span class="n">08</span>Критерії успіху</a>
+      <a href="#s9"><span class="n">09</span>Constraints</a>
+      <a href="#s10"><span class="n">10</span>Dependencies</a>
+      <a href="#s11"><span class="n">11</span>Відкриті питання</a>
+      <a href="#s12"><span class="n">12</span>Ризики</a>
+    </nav>
+
+    <!-- ════ CONTENT ════ -->
+    <main class="content">
+
+      <!-- 0 -->
+      <section id="s0">
+        <div class="sec-h"><span class="sec-n">00</span><h2>Суть в одному абзаці</h2></div>
+        <div class="abstract">
+          <span class="lbl">Abstract</span>
+          <p class="lede">TesiGo — повна AI-платформа, що генерує готову академічну роботу. Але виходимо <strong>поетапно</strong>: спершу будуємо <strong>внутрішнє MVP для своїх менеджерів і редакторів</strong>, доводимо на реальних роботах, що <strong>AI пише достатньо якісно, щоб робота проходила універ-гейт</strong>, і лише потім добудовуємо клієнтський фронт, платіжку й продажі.</p>
+          <p>Центр платформи — не «натиснув кнопку, отримав 70 сторінок», а <strong>доказ якості перед видачею</strong> (QA-first release gate). Дисципліна першої сесії зберігається: дорогу клієнтську частину не чіпаємо, поки якість не підтверджена дешево.</p>
+        </div>
+      </section>
+
+      <!-- 1 -->
+      <section id="s1">
+        <div class="sec-h"><span class="sec-n">01</span><h2>Проблема та ринок</h2></div>
+        <p>Фаундер має <strong>реальну агенцію</strong> з написання дипломних робіт — доведений щоденний попит. AI стиснув готовність платити: типовий ціновий діапазон <strong>€100–200</strong> за повну роботу.</p>
+        <h3>Demand evidence — з реального бізнесу, не гіпотеза</h3>
+        <ul>
+          <li>~<strong class="num">300</strong> лідів/міс, з них ~<strong class="num">70%</strong> шукають дешевше → ~<span class="num">210</span> price-sensitive лідів/міс.</li>
+          <li>Конкретний кейс: студент в Італії, <strong>70 сторінок, дедлайн ~тиждень, бюджет до €200</strong>; ціна провалу — ще рік навчання й незданий диплом.</li>
+          <li>Клієнти хочуть <strong>повну роботу під ключ</strong>, а не structure / research pack чи часткову допомогу.</li>
+          <li>Конкуренти зі схожими тулзами вже існують і працюють — продукт монетизується ринком.</li>
+        </ul>
+        <div class="callout callout--accent">
+          <span class="ct">Сильний сигнал / слабке місце</span>
+          <p><strong>Попит на результат доведений.</strong> Ще НЕ доведено: що AI-система стабільно виробляє готову повну роботу з прийнятним рівнем редакторського втручання. ← це головне питання Фази 1.</p>
+        </div>
+      </section>
+
+      <!-- 2 -->
+      <section id="s2">
+        <div class="sec-h"><span class="sec-n">02</span><h2>Конкурент і цінність</h2></div>
+        <p>Справжній конкурент — не інший SaaS, а:</p>
+        <ol>
+          <li><strong>DIY + ChatGPT</strong> — дешево, але клієнт не довіряє якості/джерелам/плагіату; сирий ChatGPT провалює універ-гейт.</li>
+          <li><strong>Дешева міні-агенція (2–3 редактори)</strong> — нижча ціна, але немає гарантії дедлайну/якості.</li>
+          <li><strong>Поточна повна агенція</strong> — довіра є, але дорого для price-sensitive сегмента.</li>
+        </ol>
+        <div class="callout callout--accent">
+          <span class="ct">Цінність</span>
+          <p>Не «дешево», а <strong>«дешево І реально приймається»</strong>. Виграємо контрольованим виробництвом: готова робота <strong>+ докази якості</strong>, які менеджер перевіряє до видачі.</p>
+        </div>
+      </section>
+
+      <!-- 3 -->
+      <section id="s3">
+        <div class="sec-h"><span class="sec-n">03</span><h2>Премиси</h2></div>
+        <p class="lede">Підтверджені фаундером.</p>
+        <ol>
+          <li>TesiGo v1 генерує <strong>повну</strong> готову роботу (не лише outline/чернетку).</li>
+          <li>Перший користувач v1 — <strong>внутрішній менеджер</strong> агенції, не студент напряму.</li>
+          <li>Менеджерський <strong>QA-гейт обов'язковий</strong> перед видачею клієнту.</li>
+          <li>Центральна цінність v1 — <strong>доказ якості перед delivery</strong>, а не сама генерація тексту.</li>
+          <li>Продажі, self-serve кабінет, клієнтський дашборд — <strong>тільки після</strong> того, як внутрішня система стабільно дає прийнятний результат.</li>
+          <li>Публічний маркетинг <strong>не обіцяє bypass AI/plagiarism detection</strong> — токсична й нестабільна обіцянка.</li>
+          <li><strong>Дешеву клієнтську частину будуємо після доказу якості, а не до</strong> — уточнення фаундера; знімає головний ризик «побудувати багато навколо недоведеного».</li>
+        </ol>
+      </section>
+
+      <!-- 4 -->
+      <section id="s4">
+        <div class="sec-h"><span class="sec-n">04</span><h2>Ключове рішення</h2></div>
+        <p>Будуємо <strong>QA-first production platform</strong> (Approach C з другої сесії), але вшиваємо в неї порядок <strong>«спершу доведи, потім допилюй»</strong> з першої сесії.</p>
+        <h3>Чому не голий «генератор»</h3>
+        <p>Якщо QA лишається side-panel, увесь ризик якості падає на менеджера, який читає все вручну → не масштабується, створює ілюзію прогресу.</p>
+        <h3>Чому не чистий концієрж без коду</h3>
+        <p>Фаундер свідомо хоче продуктову платформу, а не лише разовий Wizard-of-Oz. Але <strong>тест якості з концієржу зберігаємо</strong> як зміст Фази 1.</p>
+      </section>
+
+      <!-- 5 -->
+      <section id="s5">
+        <div class="sec-h"><span class="sec-n">05</span><h2>План по кроках</h2></div>
+        <div class="callout callout--info">
+          <span class="ct">Правило проходу</span>
+          <p>Наступну фазу не починаємо, поки не виконано <strong>Exit-критерій</strong> попередньої.</p>
+        </div>
+
+        <div class="timeline">
+
+          <!-- Phase 0 -->
+          <div class="phase">
+            <div class="phase-node">0</div>
+            <div class="phase-card">
+              <div class="phase-head"><span class="phase-title">Прерквізити</span></div>
+              <div class="phase-sub">1–2 дні · без коду</div>
+              <p>Без цього Фазу 1 не можна чесно зміряти.</p>
+              <ol>
+                <li><strong>Обрати перший університет/країну.</strong> Орієнтир — Італія/італійська/бакалаврська. Визначає, які детектори ганяти й які пороги.</li>
+                <li><strong>Підтвердити доступ до детекторів</strong> (плагіат + AI). Turnitin AI інституційний — може бути недоступний; тоді найкраща заміна (напр. GPTZero) <strong>як проксі, не точний детектор</strong>.</li>
+                <li><strong>Вивести бюджет хвилин редактора</strong> з маржі при €100–200 (год/роботу × ставка + AI-токени). Поріг атрибуції, не вгадане число. Плейсхолдер ~45&nbsp;хв — тимчасовий.</li>
+                <li><strong>Перевірити цитат-гейт:</strong> статус S2-ключа і <code>CITATION_VERIFICATION_ENABLED</code>. Станом на ~2026-06-11 ключ був невалідний (403) → гейт сліпий до вигаданих джерел.</li>
+              </ol>
+              <div class="exit">
+                <span class="ct">Exit-критерій</span>
+                Є університет, доступ до детекторів (або відомий проксі з обмеженнями), число бюджету хвилин, відомий стан цитат-гейту.
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 1 -->
+          <div class="phase phase--main">
+            <div class="phase-node">1</div>
+            <div class="phase-card">
+              <div class="phase-head"><span class="phase-title">Тонке внутрішнє MVP: довести якість</span><span class="phase-tag">головна фаза</span></div>
+              <div class="phase-sub">мета — відповісти на одне питання, не полірувати UX</div>
+              <p>Найтоншою версією платформи відповісти: <strong>«чи пише AI достатньо якісно, щоб робота проходила гейт у межах бюджету хвилин редактора?»</strong></p>
+
+              <div class="micro-h">Що будуємо (мінімум для чесної відповіді)</div>
+              <ul>
+                <li>Менеджер може <strong>запустити генерацію повної роботи</strong> (intake → outline → джерела → секції → export DOCX/PDF).</li>
+                <li>Менеджер бачить <strong>QA-докази</strong>: цитати (verified / not_found / mismatched), claim support (supported / unsupported / uncertain / unchecked), плагіат-ризик, AI-детект-ризик (хоч проксі), reviewer panel findings.</li>
+                <li><strong>Provenance</strong> пишеться автоматично (хто/коли/на основі яких гейтів).</li>
+                <li>Лічильник <strong>хвилин людини</strong> на роботу.</li>
+              </ul>
+
+              <div class="micro-h">Що робимо операційно</div>
+              <ul>
+                <li>Прогнати <strong>2–3 реальні замовлення</strong> через TesiGo + редактор, у межах бюджету хвилин.</li>
+                <li><strong>ДО видачі клієнту</strong> прогнати кожну роботу через детектори універу.</li>
+                <li>Записати по кожній: пройшло/ні <span class="pill pill--ok">AND: плагіат + AI-детектор</span>, що валилось, фактичні хвилини людини (налаштування + редагування + читання).</li>
+              </ul>
+
+              <div class="callout callout--warn" style="margin-top:14px">
+                <span class="ct">Запобіжник для клієнта</span>
+                <p>Це живі замовлення — зафіксувати статус розкриття клієнту й план ремедіації (переробка/повернення), якщо робота завалить гейт на захисті. Не ставити репутацію агенції без плану Б.</p>
+              </div>
+
+              <div class="exit">
+                <span class="ct">Exit-критерій · go / no-go</span>
+                <div class="gonogo">
+                  <div class="row"><span class="pill pill--ok">2–3 / 3</span><span>пройшли гейт у межах бюджету → переходимо у Фазу 2.</span></div>
+                  <div class="row"><span class="pill pill--warn">1 / 3</span><span>ще цикл, шукати причину провалу (цитати? claims? плагіат? AI-детект?).</span></div>
+                  <div class="row"><span class="pill pill--err">стійкий 0</span><span>не kill на малій вибірці, але сигнал: більше людської роботи (б'є по економіці) або модель/пайплайн під питанням. Діагностувати й перезапустити.</span></div>
+                </div>
+              </div>
+
+              <div class="callout callout--warn" style="margin-top:14px">
+                <span class="ct">⚠ Контроль атрибуції</span>
+                <p>«Пройшло» рахується <strong>лише в межах бюджету хвилин</strong>. Якщо редактор витратив більше — це заслуга редактора (бізнес агенції), а не доказ якості TesiGo. Опційно: контрольна робота без TesiGo для бейзлайну.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 2 -->
+          <div class="phase">
+            <div class="phase-node">2</div>
+            <div class="phase-card">
+              <div class="phase-head"><span class="phase-title">Допилити внутрішню платформу</span></div>
+              <div class="phase-sub">старт лише після Exit-критерію Фази 1</div>
+              <p>Тепер відомо, що ядро тримає якість — можна вкладатись у повноту й операційність.</p>
+              <ul>
+                <li><strong>Менеджерський workspace:</strong> intake completeness → production timeline → source verification → claim support → quality reviewer panel → plagiarism risk → AI-detection risk → editor tasks → human minutes → release decision → delivery package.</li>
+                <li><strong>Editor workspace:</strong> редактор бачить тільки проблемні секції й findings (не переписує все з нуля); правки фіксуються; гейти перезапускаються.</li>
+                <li><strong>Reviewer panel:</strong> methodology/structure, citations/source use, coherence/academic style, devil's advocate. Critical findings блокують release.</li>
+                <li><strong>Ролі:</strong> manager / editor / admin. <strong>Audit log</strong> для release-апрувів.</li>
+                <li><strong>Release Gate Contract</strong> (див. §07) втілений у коді.</li>
+              </ul>
+              <div class="exit">
+                <span class="ct">Exit-критерій</span>
+                Менеджер приймає release-рішення <strong>за evidence, а не повним перечитуванням з нуля</strong>; робота стабільно проходить гейт у межах бюджету хвилин на ширшому циклі (5–10 робіт, бажано кілька універів).
+              </div>
+            </div>
+          </div>
+
+          <!-- Phase 3 -->
+          <div class="phase">
+            <div class="phase-node">3</div>
+            <div class="phase-card">
+              <div class="phase-head"><span class="phase-title">Клієнтська частина та продажі</span></div>
+              <div class="phase-sub">старт лише після Фази 2 · вмикаємо зовнішній світ</div>
+              <p>Порядок шарів дистрибуції:</p>
+              <ol>
+                <li>Менеджерський intake з CRM/лідів.</li>
+                <li>Клієнтський preview / status page.</li>
+                <li><strong>Self-serve checkout + платіжка</strong> (payment/refund primitives вже є в коді).</li>
+                <li>Особистий кабінет клієнта.</li>
+                <li>Публічний маркетинг — <strong>без обіцянок bypass detection</strong>; формулювання радше «AI-assisted academic drafting with quality controls».</li>
+              </ol>
+              <div class="exit">
+                <span class="ct">Exit-критерій</span>
+                Клієнт може замовити й оплатити; внутрішній QA-гейт лишається обов'язковим у конвеєрі.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 6 -->
+      <section id="s6">
+        <div class="sec-h"><span class="sec-n">06</span><h2>Продуктовий флоу</h2></div>
+        <p class="lede">Цільовий, повна платформа.</p>
+        <div class="flow">
+          <div class="step"><div class="st">Manager intake</div><div class="sd">Тема, тип роботи, країна/мова, сторінки, дедлайн, методичні вимоги, стиль цитування, пороги універу, файли клієнта.</div></div>
+          <div class="step"><div class="st">Plan gate</div><div class="sd">AI створює структуру; менеджер бачить outline completeness; система позначає missing inputs; без достатнього intake робота не йде в повну генерацію.</div></div>
+          <div class="step"><div class="st">Source gate</div><div class="sd">Retrieval джерел; верифікація цитат (verified / not_found / mismatched); менеджер бачить, що замінити.</div></div>
+          <div class="step"><div class="st">Generation</div><div class="sd">Секції по outline; кожна має word target, source usage, model/provider, attempts; provenance автоматично.</div></div>
+          <div class="step"><div class="st">Quality gate</div><div class="sd">Reviewer panel + claim verifier + grammar/plagiarism/AI risk; critical findings блокують release.</div></div>
+          <div class="step"><div class="st">Editor pass</div><div class="sd">Редактор бачить лише проблемні секції/findings; правки фіксуються; хвилини рахуються; гейти перезапускаються.</div></div>
+          <div class="step"><div class="st">Release gate</div><div class="sd">Менеджер бачить фінальний evidence; approve delivery або send back; export delivery package.</div></div>
+          <div class="step"><div class="st">Post-delivery learning</div><div class="sd">Статус клієнта, чи були правки, чи прийняли роботу; outcome через 30/60/90 днів → дані стають eval/training-сетом.</div></div>
+        </div>
+      </section>
+
+      <!-- 7 -->
+      <section id="s7">
+        <div class="sec-h"><span class="sec-n">07</span><h2>Release Gate Contract</h2></div>
+        <p>Один operational spec на 1 сторінку — зробити <strong>ДО</strong> implementation plan Фази 2. Має відповісти:</p>
+        <div class="contract">
+          <ol>
+            <li>Які <strong>5–7 гейтів</strong> менеджер бачить перед delivery?</li>
+            <li>Які gate failures <strong>блокують delivery автоматично</strong>?</li>
+            <li>Які gate failures можна <strong>override</strong> менеджером (і хто фіксує override)?</li>
+            <li>Що саме йде <strong>редактору</strong>, якщо гейт падає?</li>
+            <li>Який <strong>human-minutes budget</strong> на роботу при ціні €100–200?</li>
+            <li>Які <strong>перші 3 реальні роботи</strong> прогнати через систему? (= роботи Фази 1)</li>
+            <li>Що вважається <strong>успішним тестом через 7 днів</strong>?</li>
+          </ol>
+        </div>
+        <div class="callout callout--accent">
+          <span class="ct">Принцип</span>
+          <p>Без визначеного release gate «готова робота» означає все і нічого. Починати не з кабінету й не з лендингу — <strong>з гейту</strong>.</p>
+        </div>
+      </section>
+
+      <!-- 8 -->
+      <section id="s8">
+        <div class="sec-h"><span class="sec-n">08</span><h2>Критерії успіху та метрики</h2></div>
+
+        <div class="callout callout--accent">
+          <span class="ct">Визначення «пройшло гейт»</span>
+          <p>Проходить <strong>обидва</strong> — плагіат-чек <strong>І</strong> AI-детектор — кожен нижче порогу цільового універу. <span class="pill pill--ok">Pass = AND, не OR</span> Дефолт за невідомого порогу — консервативний (напр. AI-score &lt; 20%).</p>
+        </div>
+
+        <p><strong>«Хвилини редактора» (операційно):</strong> увесь людський дотик — налаштування + генерація менеджером + редагування + читання. Не рахуються лише машинні очікування. Один лічильник на роботу.</p>
+
+        <h3>Leading — Фаза 1–2</h3>
+        <ul>
+          <li>% робіт, що доходять до release gate без critical findings.</li>
+          <li>Скільки з N пройшли гейт у межах бюджету хвилин.</li>
+          <li>Середні human minutes/робота; скільки секцій повертаються редактору.</li>
+          <li>Найчастіші fail reasons: citations / claims / methodology / plagiarism / AI risk / coherence.</li>
+          <li>Вартість AI-токенів/робота.</li>
+        </ul>
+
+        <h3>Lagging — метрика правди, запізніла ~90 днів</h3>
+        <ul>
+          <li>% клієнтів, які прийняли роботу без значних претензій; % refund/rewrite.</li>
+          <li><strong>% робіт, які реально прийняв наукрук/універ.</strong> Зняти на <strong>дату видачі + 90 днів</strong> (поставити нагадування) — захист іде тижнями.</li>
+        </ul>
+
+        <div class="callout callout--warn">
+          <span class="ct">Застереження по вибірці</span>
+          <p>2–3 (і навіть 5–10) робіт — <strong>сигнал, а не доказ</strong>, особливо за різних універів/детекторів. Не оголошувати «моат доведено» на малій вибірці.</p>
+        </div>
+      </section>
+
+      <!-- 9 -->
+      <section id="s9">
+        <div class="sec-h"><span class="sec-n">09</span><h2>Constraints</h2></div>
+        <ul>
+          <li>Генерувати <strong>повну</strong> роботу, не outline.</li>
+          <li>Перший користувач — менеджер → UX операційний, щільний (це для Фази 2; у Фазі 1 UX мінімальний).</li>
+          <li>Клієнтський кабінет / продажі / онбординг / маркетинг — відкладені до Фази 3.</li>
+          <li>Репутація чинного бізнесу під ризиком → сирий AI-output не віддавати напряму.</li>
+          <li>Економіка має вкладатись у €100–200 для типового кейсу.</li>
+          <li>AI/plagiarism-detection рухається швидко; публічне «обійдемо детектори» = ризик.</li>
+          <li><strong>Наявний код як основа:</strong> admin documents, provenance timeline, quality validator, citation verifier, claim verifier, payment/refund primitives, export/progress/background jobs.</li>
+        </ul>
+      </section>
+
+      <!-- 10 -->
+      <section id="s10">
+        <div class="sec-h"><span class="sec-n">10</span><h2>Dependencies</h2></div>
+        <ul>
+          <li>Надійний full-document generation pipeline.</li>
+          <li>Стабільний background job state machine.</li>
+          <li>Provenance ledger як <strong>обов'язковий</strong> для release-critical подій (не best-effort).</li>
+          <li>Citation verifier з <strong>робочими провайдерами</strong> (підтвердити S2-ключ — Фаза 0).</li>
+          <li>Claim verifier budget policy.</li>
+          <li>Reviewer panel quality validator.</li>
+          <li>Plagiarism/AI-risk провайдер або проксі (підтвердити доступ — Фаза 0).</li>
+          <li>Admin document detail page під QA-first release decision.</li>
+          <li>Role model: manager/editor/admin; audit log для release-апрувів.</li>
+          <li>Export package з QA-сертифікатом/внутрішнім звітом.</li>
+          <li>Операційно: реальні редактори агенції залучені, з фіксованим бюджетом хвилин.</li>
+        </ul>
+      </section>
+
+      <!-- 11 -->
+      <section id="s11">
+        <div class="sec-h"><span class="sec-n">11</span><h2>Відкриті питання</h2></div>
+        <ol>
+          <li>Які thresholds блокують release? (not_found count, unsupported claims, AI risk, plagiarism risk, reviewer critical override.)</li>
+          <li>Editor pass — обов'язковий для кожної роботи чи лише коли гейт падає?</li>
+          <li>Точний human-minutes budget при €100–200 (вивести у Фазі 0).</li>
+          <li>Перша target geography/language (орієнтир — Італія/італійська).</li>
+          <li>Чи зберігаємо клієнту дві версії (AI + editor) чи завжди один final delivery?</li>
+          <li>Які дані безпечно зберігати для eval/training без приватних даних клієнта?</li>
+          <li>Межа public messaging (Фаза 3): не «bypass detection».</li>
+          <li>Довговічність моделі: AI-детектори сильнішають; справжній ризик — зміна <strong>способу оцінки</strong> (усний захист, історія чернеток, водяні знаки). Тест «чи проходить» = щомісячний дашборд (цей детектор vs ця модель), не разовий гейт.</li>
+        </ol>
+      </section>
+
+      <!-- 12 -->
+      <section id="s12">
+        <div class="sec-h"><span class="sec-n">12</span><h2>Ризики</h2></div>
+        <p class="lede">Адверсарне рев'ю обох сесій.</p>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th style="width:34%">Ризик</th><th>Суть і реакція</th></tr></thead>
+            <tbody>
+              <tr><td>Центральна премиса ще не доведена</td><td>«AI стабільно виробляє прийнятну повну роботу». Саме тому Фаза 1 тонка й передує великому білду — не будувати L/XL навколо непідтвердженого output.</td></tr>
+              <tr><td>Бюджет хвилин — поки плейсхолдер</td><td>Точне число вивести з реальних чисел агенції (Фаза 0).</td></tr>
+              <tr><td>Реальне прийняття — запізніле</td><td>Detector pre-check (leading) ≠ прийняття універом; правда через ~90 днів. Не плутати.</td></tr>
+              <tr><td>Мала вибірка</td><td>N=2–3 (і 5–10) — сигнал, не доказ.</td></tr>
+              <tr><td>Доступ до детекторів не гарантований</td><td>Turnitin AI інституційний; проксі (GPTZero) міряє наближено — висновки слабші.</td></tr>
+              <tr><td>Цитат-гейт сліпий, поки S2 не полагоджено</td><td>Нога моату №2 недоступна до фіксу.</td></tr>
+              <tr><td>Academic integrity — не вирішується формулюванням</td><td>Бізнес продає роботу, яку здають як свою (факт ринку). Тримати manager QA, не продавати bypass-обіцянок.</td></tr>
+              <tr><td>QA-first показує слабкість, не ховає її</td><td>Якщо генерація слабка — гейти дадуть багато failures. Добре для правди, але може деморалізувати команду з очікуванням «AI робить ідеально».</td></tr>
+              <tr><td>Якість гейтів = якість провайдерів</td><td>Гейти корисні рівно настільки, наскільки надійні провайдери й пороги.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ════ FOOTER ════ -->
+  <footer>
+    <strong style="color:var(--ink-soft)">Sources (з QA-first сесії)</strong>
+    <div class="src">Turnitin (AI detection + false-positive guidance) · Cambridge HPS · University of Toronto SGS · University of Freiburg · European Students' Union (contract cheating EHEA) · QAA (contract cheating guidance).</div>
+    <div class="gen">Дизайн-система: Scholarly Press · академічний зелений #0f6e56 · Literata + Source Sans 3 + JetBrains Mono · 2026-06-21</div>
+  </footer>
+
+</div>
+
+<script>
+  // Minimal-functional scroll-spy (document, not console — subtle active highlight)
+  (function(){
+    var links = Array.prototype.slice.call(document.querySelectorAll('.toc a'));
+    var map = {};
+    links.forEach(function(a){ map[a.getAttribute('href').slice(1)] = a; });
+    var sections = links.map(function(a){ return document.getElementById(a.getAttribute('href').slice(1)); }).filter(Boolean);
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          links.forEach(function(l){ l.classList.remove('active'); });
+          if(map[e.target.id]) map[e.target.id].classList.add('active');
+        }
+      });
+    }, { rootMargin:'-10% 0px -75% 0px', threshold:0 });
+    sections.forEach(function(s){ obs.observe(s); });
+  })();
+</script>
+
+</body>
+</html>

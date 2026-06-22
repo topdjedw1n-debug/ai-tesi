@@ -4,13 +4,16 @@ import { Toaster } from 'react-hot-toast'
 import { AuthProvider } from '@/components/providers/AuthProvider'
 
 export const metadata: Metadata = {
-  title: 'TesiGo - AI Thesis Platform',
-  description: 'Generate high-quality academic papers with AI',
-  keywords: ['thesis', 'AI', 'academic writing', 'research', 'education', 'tesigo'],
-  authors: [{ name: 'TesiGo Team' }],
+  title: 'Thesica — академічні роботи, що проходять',
+  description: 'Thesica — академічні роботи, які реально проходять університетський гейт (плагіат + AI-детектор + наукрук).',
+  keywords: ['thesis', 'academic writing', 'research', 'education', 'thesica'],
+  authors: [{ name: 'Thesica' }],
   manifest: '/manifest.json',
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
   },
 }
 
