@@ -343,12 +343,18 @@ class CitationVerifier:
             return cached
 
         any_error = False
+        # An authoritative title search (Crossref/OpenAlex) that completes
+        # without a transport error is a trustworthy "does not exist" signal:
+        # a clean no-match from either is enough to return NOT_FOUND even if a
+        # lower-priority provider (Semantic Scholar/arXiv) throttled or errored.
+        authoritative_clean = False
         result: VerificationResult | None = None
 
         # Phase 1: identifier lookups (authoritative when they hit).
         # A 404 on the DOI does not prove the work doesn't exist (typo or
         # hallucinated DOI) - fall through to title search, which returns
-        # the canonical DOI.
+        # the canonical DOI. A clean DOI 404 is deliberately NOT treated as
+        # an authoritative no-match for the same reason.
         if norm_doi:
             outcome = await self._query_crossref_by_doi(norm_doi, norm_title)
             if outcome.matched:
@@ -363,6 +369,7 @@ class CitationVerifier:
 
         # Phase 2: title search cascade; first verified hit stops
         if result is None and norm_title:
+            authoritative_searches = {self._search_crossref, self._search_openalex}
             for search in (
                 self._search_crossref,
                 self._search_openalex,
@@ -373,19 +380,33 @@ class CitationVerifier:
                 if outcome.matched:
                     result = outcome.matched
                     break
+                if search in authoritative_searches and not outcome.errored:
+                    authoritative_clean = True
                 any_error = any_error or outcome.errored
 
         if result is not None:
             await self._cache_set(cache_key, result)
             return result
-        if any_error:
-            # Never cached: a transient outage must not poison the cache
+        if not any_error:
+            # Fully clean cascade: a trustworthy NOT_FOUND, safe to cache.
+            result = VerificationResult(status=VerificationStatus.NOT_FOUND)
+            await self._cache_set(cache_key, result)
+            return result
+        if authoritative_clean:
+            # Crossref/OpenAlex ran cleanly and found nothing; a lower-priority
+            # provider's error does not make this unresolvable. Return NOT_FOUND
+            # but do NOT cache: a later run may reach the errored provider and
+            # verify a work that only it indexes.
             return VerificationResult(
-                status=VerificationStatus.UNRESOLVABLE, reason="provider_errors"
+                status=VerificationStatus.NOT_FOUND,
+                reason="not_found_partial_provider_errors",
             )
-        result = VerificationResult(status=VerificationStatus.NOT_FOUND)
-        await self._cache_set(cache_key, result)
-        return result
+        # The authoritative providers themselves errored (or never ran): we
+        # cannot distinguish a fabricated citation from a transient outage.
+        # Never cached: a transient outage must not poison the cache.
+        return VerificationResult(
+            status=VerificationStatus.UNRESOLVABLE, reason="provider_errors"
+        )
 
     async def _bounded_verify(self, source: SourceInput) -> VerificationResult:
         async with self._semaphore:

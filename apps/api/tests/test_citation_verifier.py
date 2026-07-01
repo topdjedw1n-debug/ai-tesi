@@ -355,6 +355,61 @@ async def test_all_timeout_unresolvable(mock_redis):
 
 
 @pytest.mark.asyncio
+async def test_authoritative_clean_no_match_beats_lower_provider_error(mock_redis):
+    """An authoritative clean no-match (Crossref) yields NOT_FOUND even when a
+    lower-priority provider throttles. Under the strict policy NOT_FOUND blocks,
+    so a fabricated citation must not be masked as UNRESOLVABLE just because
+    Semantic Scholar returned 403/429."""
+    verifier = make_verifier(mock_redis)
+    source = SourceInput(title="Nonexistent Paper About Nothing", year=2020)
+
+    def dispatch(url, params=None, headers=None):
+        if "openalex" in url:
+            raise httpx.ConnectError("connection refused")
+        if "semanticscholar" in url:
+            return make_response(403)  # throttled: 403 is not retried
+        if "arxiv" in url:
+            raise httpx.ConnectError("connection refused")
+        return make_response(200, CROSSREF_EMPTY)  # authoritative clean no-match
+
+    client = make_client(dispatch)
+    with patch("httpx.AsyncClient", return_value=client):
+        result = await verifier.verify_source(source)
+
+    assert result.status == VerificationStatus.NOT_FOUND
+    assert result.reason == "not_found_partial_provider_errors"
+    # A NOT_FOUND reached despite provider errors is never cached: a later run
+    # may reach the errored providers and verify a work only they index.
+    mock_redis.set.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_lower_provider_clean_does_not_rescue_authoritative_errors(mock_redis):
+    """Contrast case: only the lower-priority providers (S2/arXiv) ran cleanly;
+    both authoritative providers errored. Without a trustworthy authoritative
+    read we must stay UNRESOLVABLE rather than assert NOT_FOUND."""
+    verifier = make_verifier(mock_redis)
+    source = SourceInput(title="Some Real Paper Title", year=2021)
+
+    def dispatch(url, params=None, headers=None):
+        if "openalex" in url:
+            raise httpx.ConnectError("connection refused")
+        if "semanticscholar" in url:
+            return make_response(200, S2_EMPTY)  # clean, but not authoritative
+        if "arxiv" in url:
+            return make_response(200, text_data=ARXIV_EMPTY_FEED)
+        raise httpx.ConnectError("connection refused")  # crossref down
+
+    client = make_client(dispatch)
+    with patch("httpx.AsyncClient", return_value=client):
+        result = await verifier.verify_source(source)
+
+    assert result.status == VerificationStatus.UNRESOLVABLE
+    assert result.reason == "provider_errors"
+    mock_redis.set.assert_not_called()
+
+
+@pytest.mark.asyncio
 async def test_retry_on_500_then_success(mock_redis):
     verifier = make_verifier(mock_redis)
     source = SourceInput(title="Attention Is All You Need", year=2017)
