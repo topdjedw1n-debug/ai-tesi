@@ -7,10 +7,13 @@ import json
 import logging
 import time
 from datetime import date, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+
+if TYPE_CHECKING:
+    from app.services.ai_pipeline.source_pack import SourcePack
 
 from app.core.config import settings
 from app.core.exceptions import AIProviderError, NotFoundError
@@ -71,7 +74,12 @@ class AIService:
             # Don't fail the request if limit check fails
 
     async def generate_outline(
-        self, document_id: int, user_id: int, additional_requirements: str | None = None
+        self,
+        document_id: int,
+        user_id: int,
+        additional_requirements: str | None = None,
+        *,
+        source_pack: "SourcePack | None" = None,
     ) -> dict[str, Any]:
         """Generate document outline using AI"""
         try:
@@ -94,7 +102,9 @@ class AIService:
             outline_data = await self._call_ai_provider(
                 provider=str(document.ai_provider),
                 model=str(document.ai_model),
-                prompt=self._build_outline_prompt(document, additional_requirements),
+                prompt=self._build_outline_prompt(
+                    document, additional_requirements, source_pack=source_pack
+                ),
             )
 
             generation_time = int(time.time() - start_time)
@@ -481,9 +491,23 @@ class AIService:
         return await self._anthropic_retry.execute_with_retry(_make_request)
 
     def _build_outline_prompt(
-        self, document: Document, additional_requirements: str | None = None
+        self,
+        document: Document,
+        additional_requirements: str | None = None,
+        *,
+        source_pack: "SourcePack | None" = None,
     ) -> str:
-        """Build prompt for outline generation"""
+        """Build prompt for outline generation.
+
+        When a source pack is provided, the outline is planned around the
+        available on-topic sources and given a per-section word budget so the
+        section count is realistic for the target length and fully deliverable.
+        With no pack, the prompt is byte-identical to the legacy behavior.
+        """
+        if source_pack is not None and source_pack.sources:
+            return self._build_grounded_outline_prompt(
+                document, additional_requirements, source_pack
+            )
         prompt = f"""
 Generate a detailed academic thesis outline for the following topic:
 
@@ -542,6 +566,63 @@ CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
 }}
 
 Generate {max(3, min(10, document.target_pages // 10))} main sections appropriate for this topic.
+Respond with ONLY the JSON object, no additional text or markdown formatting.
+"""
+        return prompt.strip()
+
+    def _build_grounded_outline_prompt(
+        self,
+        document: Document,
+        additional_requirements: str | None,
+        source_pack: "SourcePack",
+    ) -> str:
+        """Outline prompt grounded in the upfront topic-locked source pack."""
+        # ~250 words per page (matches cost_estimator.TOKENS_PER_PAGE ≈ 250 wpp).
+        words_per_page = 250
+        target_words = max(1, document.target_pages) * words_per_page
+        n_sections = max(3, min(10, document.target_pages // 10))
+        sources_block = source_pack.prompt_block()
+
+        prompt = f"""
+Generate a detailed academic thesis outline for the following topic:
+
+Topic: {document.topic}
+Language: {document.language}
+Target Pages: {document.target_pages}
+
+Additional Requirements: {additional_requirements or 'None specified'}
+
+AVAILABLE SOURCES (plan the outline so every section can be supported by these):
+{sources_block}
+
+CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
+{{
+  "sections": [
+    {{
+      "title": "Introduction",
+      "main_points": ["Overview of the topic", "Research objectives"],
+      "subsections": ["Background", "Problem Statement"],
+      "estimated_words": 400,
+      "key_concepts": ["Topic Introduction", "Research Context"]
+    }},
+    {{
+      "title": "...",
+      "main_points": ["..."],
+      "subsections": ["..."],
+      "estimated_words": 600,
+      "key_concepts": ["..."]
+    }}
+  ]
+}}
+
+Requirements:
+- Generate exactly {n_sections} main sections appropriate for this topic and
+  grounded in the AVAILABLE SOURCES above (do not plan sections the sources
+  cannot support).
+- Set "estimated_words" per section so the totals sum to approximately
+  {target_words} words (Target Pages × ~250 words/page).
+- Each section must be distinct — do not repeat the same idea across sections.
+
 Respond with ONLY the JSON object, no additional text or markdown formatting.
 """
         return prompt.strip()

@@ -36,62 +36,6 @@ class PromptBuilder:
         return SYSTEM_PROMPTS.get(language, SYSTEM_PROMPTS["en"])
 
     @staticmethod
-    def build_outline_prompt(
-        document: Document, additional_requirements: str | None = None
-    ) -> str:
-        """
-        Build prompt for outline generation
-
-        Args:
-            document: Document model instance
-            additional_requirements: Optional additional user requirements
-
-        Returns:
-            Formatted prompt string
-        """
-        # Language map for explicit instructions
-        language_instructions = {
-            "en": "Write ONLY in English",
-            "it": "Scrivi SOLO in italiano",
-            "de": "Schreiben Sie NUR auf Deutsch",
-            "fr": "Écrivez UNIQUEMENT en français",
-            "es": "Escribe SOLO en español",
-            "cs": "Pište POUZE v češtině",
-            "uk": "Пишіть ТІЛЬКИ українською",
-        }
-        lang_instruction = language_instructions.get(
-            document.language, f"Write ONLY in {document.language}"
-        )
-
-        prompt = f"""IMPORTANT: {lang_instruction}. Do not use any other language.
-
-Generate a detailed academic thesis outline for the following topic:
-
-Topic: {document.topic}
-Language: {document.language}
-Target Pages: {document.target_pages}
-
-Please provide a structured outline with:
-1. Introduction
-2. Literature Review
-3. Methodology
-4. Results/Analysis
-5. Discussion
-6. Conclusion
-7. References
-
-For each section, include:
-- Main points to cover
-- Sub-sections
-- Estimated word count
-- Key concepts to address
-
-Additional Requirements: {additional_requirements or 'None specified'}
-
-Please respond with a JSON structure containing the outline data."""
-        return prompt.strip()
-
-    @staticmethod
     def build_section_prompt(
         document: Document,
         section_title: str,
@@ -99,6 +43,7 @@ Please respond with a JSON structure containing the outline data."""
         context_sections: list[dict[str, Any]] | None = None,
         retrieved_sources: list[str] | None = None,
         additional_requirements: str | None = None,
+        source_pack_block: str | None = None,
     ) -> str:
         """
         Build prompt for section generation with RAG context
@@ -108,8 +53,11 @@ Please respond with a JSON structure containing the outline data."""
             section_title: Title of the section to generate
             section_index: Index of the section
             context_sections: Previously generated sections for context
-            retrieved_sources: Retrieved source documents from RAG
+            retrieved_sources: Retrieved source documents from RAG (legacy path)
             additional_requirements: Optional additional user requirements
+            source_pack_block: Keyed, curated source list. When provided, the
+                section is written CLOSED-BOOK against it (cite only these keys)
+                and stricter anti-generic constraints apply.
 
         Returns:
             Formatted prompt string
@@ -120,11 +68,44 @@ Please respond with a JSON structure containing the outline data."""
             for section in context_sections:
                 context_text += f"- {section.get('title', 'Unknown')}: {section.get('content', '')[:200]}...\n"
 
-        sources_text = ""
-        if retrieved_sources:
-            sources_text = "\n\nRelevant academic sources:\n"
-            for i, source in enumerate(retrieved_sources[:5], 1):  # Limit to top 5
-                sources_text += f"{i}. {source}\n"
+        # Sources block + citation rules: closed-book (pack) vs legacy (top-5).
+        if source_pack_block:
+            sources_text = (
+                "\n\nAVAILABLE SOURCES (cite ONLY these, by their [Key]):\n"
+                f"{source_pack_block}\n"
+            )
+            citation_rules = (
+                "- Cite ONLY sources from the AVAILABLE SOURCES list above, using "
+                "their exact key in [Key, Year] form (e.g. [Rossi2021, 2021]).\n"
+                "- NEVER invent, alter, or cite any source that is not in that "
+                "list. If a statement cannot be supported by a listed source, "
+                "write it WITHOUT a citation — do not fabricate one.\n"
+                "- Ground at least one concrete example, statistic, study "
+                "finding, or named real system/policy (drawn from a listed "
+                "source) in this section.\n"
+            )
+            style_rules = (
+                "- Vary sentence length: mix short, direct sentences with longer "
+                "ones; avoid a uniform rhythm.\n"
+                "- Do NOT use the 'balanced approach' / 'double-edged sword' "
+                "refrain, and do NOT stack connectives (moreover, furthermore, "
+                "in conclusion) in every paragraph.\n"
+                "- Do NOT restate the introduction or pad with generic filler; "
+                "every paragraph must add specific content.\n"
+            )
+        else:
+            sources_text = ""
+            if retrieved_sources:
+                sources_text = "\n\nRelevant academic sources:\n"
+                for i, source in enumerate(retrieved_sources[:5], 1):  # top 5
+                    sources_text += f"{i}. {source}\n"
+            citation_rules = (
+                "- Appropriate citations (use [Author, Year] format for in-text "
+                "citations)\n"
+                "- Integration of relevant sources from the provided academic "
+                "literature\n"
+            )
+            style_rules = "- Clear transitions between paragraphs\n"
 
         # Language names for clear instruction
         language_names = {
@@ -155,10 +136,7 @@ Please write this section with:
 - Academic tone and style
 - Proper structure and flow
 - Evidence-based arguments
-- Appropriate citations (use [Author, Year] format for in-text citations)
-- Clear transitions between paragraphs
-- Professional language suitable for academic publication
-- Integration of relevant sources from the provided academic literature
+{citation_rules}{style_rules}- Professional language suitable for academic publication
 
 Additional Requirements: {additional_requirements or 'None specified'}
 

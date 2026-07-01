@@ -6,9 +6,10 @@ Integrates RAG, citations, and humanization for section generation
 import asyncio
 import gc
 import logging
+import re
 from collections.abc import Callable
 from dataclasses import asdict
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from app.core.config import settings
 from app.models.document import Document
@@ -17,6 +18,9 @@ from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.training_data_collector import TrainingDataCollector
+
+if TYPE_CHECKING:
+    from app.services.ai_pipeline.source_pack import SourcePack
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +147,8 @@ class SectionGenerator:
         humanize: bool = False,
         context_sections: list[dict[str, Any]] | None = None,
         additional_requirements: str | None = None,
+        *,
+        source_pack: "SourcePack | None" = None,
     ) -> dict[str, Any]:
         """
         Generate a section with RAG context, citations, and optional humanization
@@ -157,27 +163,40 @@ class SectionGenerator:
             humanize: Whether to humanize the output
             context_sections: Previously generated sections for context
             additional_requirements: Optional additional requirements
+            source_pack: Prebuilt topic-locked source pack. When provided, the
+                section is written closed-book against the pack's keyed sources
+                and NO independent per-section RAG retrieval happens.
 
         Returns:
             Dictionary with section content, citations, and bibliography
         """
         try:
-            # Step 1: Retrieve relevant sources using RAG from multiple APIs
-            logger.info(f"Retrieving sources for section: {section_title}")
-            query = f"{document.topic} {section_title}"
-            source_docs = await self.rag_retriever.retrieve_sources(
-                query=query, limit=20
-            )
+            # Step 1: Assemble the source set — the prebuilt pack (closed-book)
+            # or, when no pack is provided, the legacy per-section RAG retrieval.
+            source_pack_block: str | None = None
+            if source_pack is not None:
+                logger.info(
+                    f"Using prebuilt source pack ({len(source_pack.sources)} "
+                    f"sources) for section: {section_title}"
+                )
+                source_docs = [ps.source for ps in source_pack.sources]
+                source_pack_block = source_pack.prompt_block()
+                source_texts = []
+            else:
+                logger.info(f"Retrieving sources for section: {section_title}")
+                query = f"{document.topic} {section_title}"
+                source_docs = await self.rag_retriever.retrieve_sources(
+                    query=query, limit=20
+                )
+                # Step 2: Format sources for prompt (legacy path)
+                source_texts = []
+                for doc in source_docs:
+                    authors_str = ", ".join(doc.authors[:2])
+                    if len(doc.authors) > 2:
+                        authors_str += " et al."
+                    source_texts.append(f"{doc.title} ({authors_str}, {doc.year})")
 
-            # Step 2: Format sources for prompt
-            source_texts = []
-            for doc in source_docs:
-                authors_str = ", ".join(doc.authors[:2])
-                if len(doc.authors) > 2:
-                    authors_str += " et al."
-                source_texts.append(f"{doc.title} ({authors_str}, {doc.year})")
-
-            # Step 3: Build prompt with RAG context
+            # Step 3: Build prompt with RAG context (closed-book when a pack is set)
             prompt = self.prompt_builder.build_section_prompt(
                 document=document,
                 section_title=section_title,
@@ -185,6 +204,7 @@ class SectionGenerator:
                 context_sections=context_sections,
                 retrieved_sources=source_texts,
                 additional_requirements=additional_requirements,
+                source_pack_block=source_pack_block,
             )
 
             # Step 4: Generate section content using AI with automatic fallback
@@ -207,31 +227,41 @@ class SectionGenerator:
                 section_content
             )
 
-            # Step 6: Build bibliography from retrieved sources
+            # Step 6: Build bibliography from the source set.
             bibliography = []
             citation_map: dict[str, SourceDoc] = {}
+            pack_keys_used: list[str] = []
 
-            # Map citations to source documents using scoring algorithm
-            for citation in citations:
-                best_match: SourceDoc | None = None
-                best_score = 0.0
+            if source_pack is not None:
+                # Closed-book: resolve in-text [Key, Year] citations against the
+                # pack's stable keys (exact key match, not fuzzy scoring).
+                for packed in source_pack.sources:
+                    key = packed.citation_key
+                    if re.search(re.escape(key) + r"(?![0-9A-Za-z])", section_content):
+                        pack_keys_used.append(key)
+                        citation_map[key] = packed.source
+            else:
+                # Legacy path: map citations to sources using scoring algorithm.
+                for citation in citations:
+                    best_match: SourceDoc | None = None
+                    best_score = 0.0
 
-                # Score each source document for this citation
-                for doc in source_docs:
-                    score = self._score_citation_match(citation, doc)
-                    if score > best_score:
-                        best_score = score
-                        best_match = doc
+                    # Score each source document for this citation
+                    for doc in source_docs:
+                        score = self._score_citation_match(citation, doc)
+                        if score > best_score:
+                            best_score = score
+                            best_match = doc
 
-                # Add to map if found good match (score > 0)
-                if best_match and best_score > 0:
-                    citation_key = citation["original"]
-                    if citation_key not in citation_map:
-                        citation_map[citation_key] = best_match
-                        logger.debug(
-                            f"Matched citation '{citation_key}' to '{best_match.title}' "
-                            f"(score: {best_score:.1f})"
-                        )
+                    # Add to map if found good match (score > 0)
+                    if best_match and best_score > 0:
+                        citation_key = citation["original"]
+                        if citation_key not in citation_map:
+                            citation_map[citation_key] = best_match
+                            logger.debug(
+                                f"Matched citation '{citation_key}' to "
+                                f"'{best_match.title}' (score: {best_score:.1f})"
+                            )
 
             # Generate bibliography entries
             for doc in source_docs:
@@ -261,6 +291,12 @@ class SectionGenerator:
                 "sources_used": len(source_docs),
                 "humanized": humanize,
             }
+
+            # Grounding gate input (ADDITIVE): the pack keys actually cited in
+            # this section, so the in-loop grounding gate can score without
+            # re-parsing. Present only on the closed-book (pack) path.
+            if source_pack is not None:
+                result["pack_keys_used"] = pack_keys_used
 
             # Academic Quality Engine: expose cited sources (unique SourceDocs
             # that made it into the bibliography via citation_map) for

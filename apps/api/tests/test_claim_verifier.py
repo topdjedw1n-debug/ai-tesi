@@ -586,3 +586,53 @@ async def test_pipeline_claim_flag_off_writes_nothing(
     }
     assert "claims_verified" not in event_types
     assert "claim_check_summary" not in event_types
+
+
+@pytest.mark.asyncio
+async def test_pipeline_blocking_unsupported_claims_block_export(
+    db_session, mock_redis, monkeypatch
+):
+    """Blocking mode: an unsupported cited claim blocks export (failed_quality)."""
+    from app.core.exceptions import CitationIntegrityError
+
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(CLAIM_VERIFICATION_BLOCKING=True),
+    )
+    user, document = await seed_document(db_session)
+    document_id = document.id
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(
+                ("unsupported", "The abstract does not mention NLP dominance.")
+            ),
+        )
+        with pytest.raises(CitationIntegrityError):
+            await BackgroundJobService.generate_full_document(
+                document_id=document_id, user_id=user.id
+            )
+        # Export must NOT run when the claim gate blocks.
+        assert mocks["export_document"].call_count == 0
+
+    refreshed = (
+        await db_session.execute(select(Document).where(Document.id == document_id))
+    ).scalar_one()
+    assert refreshed.status == "failed_quality"
+
+    event_types = {
+        e.event_type
+        for e in (
+            await db_session.execute(
+                select(DocumentProvenance).where(
+                    DocumentProvenance.document_id == document_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    }
+    assert "claim_integrity_gate_failed" in event_types

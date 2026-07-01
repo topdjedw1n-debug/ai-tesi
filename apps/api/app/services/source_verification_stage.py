@@ -36,6 +36,7 @@ from app.services.provenance_service import record_event
 
 if TYPE_CHECKING:
     from app.core.config import Settings
+    from app.services.ai_pipeline.source_pack import SourcePack
     from app.services.citation_verifier import CitationVerifier
 
 logger = logging.getLogger(__name__)
@@ -148,6 +149,172 @@ async def persist_cited_sources(
             logger.warning(
                 f"⚠️ Rollback after cited-source persistence failed: {rollback_error}"
             )
+
+
+async def persist_source_pack(
+    db: AsyncSession,
+    document_id: int,
+    pack: SourcePack,
+) -> None:
+    """
+    Persist the upfront topic-locked source pack as DocumentSource rows.
+
+    Idempotent upsert: existing rows (matched by normalized DOI, or by
+    (normalized title, year) for DOI-less sources) are updated in place with
+    citation_key / on_topic_score / is_in_upfront_pack; new sources are
+    inserted. Previous pack membership for the document is reset first so
+    citation keys stay unique per document and stale members drop out of the
+    pack on rebuild.
+
+    ⚠️ Non-critical: never raises. Failures are logged and rolled back so the
+    shared session stays usable for the rest of the pipeline.
+    """
+    if pack is None or not getattr(pack, "sources", None):
+        return
+
+    try:
+        # Reset prior pack membership so re-runs never collide on citation_key.
+        await db.execute(
+            update(DocumentSource)
+            .where(DocumentSource.document_id == document_id)
+            .values(is_in_upfront_pack=False, citation_key=None)
+        )
+
+        existing_result = await db.execute(
+            select(DocumentSource).where(DocumentSource.document_id == document_id)
+        )
+        existing_rows = safe_scalars_all(
+            existing_result, f"pack_sources_doc_{document_id}"
+        )
+        by_doi = {row.doi: row for row in existing_rows if row.doi}
+        by_title_year = {
+            (normalize_title(row.title), row.year): row
+            for row in existing_rows
+            if not row.doi
+        }
+
+        inserted = updated = 0
+        for packed in pack.sources:
+            src = packed.source
+            title = (src.title or "").strip()
+            if not title:
+                continue
+
+            norm_doi = normalize_doi(src.doi)
+            if norm_doi:
+                existing = by_doi.get(norm_doi)
+            else:
+                existing = by_title_year.get((normalize_title(title), src.year))
+
+            if existing is not None:
+                existing.citation_key = packed.citation_key
+                existing.on_topic_score = packed.on_topic_score
+                existing.is_in_upfront_pack = True
+                # Backfill metadata that a cited-only row may have been missing.
+                if not existing.abstract and src.abstract:
+                    existing.abstract = src.abstract
+                if not existing.venue and src.venue:
+                    existing.venue = (src.venue or "")[:500] or None
+                updated += 1
+            else:
+                row = DocumentSource(
+                    document_id=document_id,
+                    section_id=None,
+                    title=title[:1000],
+                    authors=list(src.authors or []),
+                    year=src.year,
+                    abstract=src.abstract,
+                    paper_id=src.paper_id,
+                    venue=(src.venue or "")[:500] or None,
+                    citation_count=src.citation_count,
+                    url=(src.url or "")[:1000] or None,
+                    doi=norm_doi,
+                    verification_status="unverified",
+                    citation_key=packed.citation_key,
+                    on_topic_score=packed.on_topic_score,
+                    is_in_upfront_pack=True,
+                )
+                db.add(row)
+                # Keep local maps in sync to avoid duplicate inserts within the pack.
+                if norm_doi:
+                    by_doi[norm_doi] = row
+                else:
+                    by_title_year[(normalize_title(title), src.year)] = row
+                inserted += 1
+
+        await db.commit()
+        logger.info(
+            f"✅ Persisted source pack for document {document_id}: "
+            f"{inserted} inserted, {updated} updated"
+        )
+    except Exception as e:
+        # ⚠️ Non-critical: pack persistence must never break generation.
+        logger.warning(
+            f"⚠️ Failed to persist source pack for document {document_id}: {e}"
+        )
+        try:
+            await db.rollback()
+        except Exception as rollback_error:
+            logger.warning(
+                f"⚠️ Rollback after source-pack persistence failed: {rollback_error}"
+            )
+
+
+async def load_source_pack(
+    db: AsyncSession,
+    document_id: int,
+) -> SourcePack | None:
+    """
+    Reconstruct the persisted upfront source pack (is_in_upfront_pack=True rows).
+
+    Returns None when the document has no persisted pack, so callers can rebuild
+    on resume rather than proceeding without grounding.
+
+    ⚠️ Non-critical: never raises; returns None on error.
+    """
+    # Local imports avoid an import cycle and keep this module import-light.
+    from app.services.ai_pipeline.rag_retriever import SourceDoc
+    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
+
+    try:
+        doc = await db.get(Document, document_id)
+        topic = doc.topic if doc is not None else ""
+
+        result = await db.execute(
+            select(DocumentSource).where(
+                DocumentSource.document_id == document_id,
+                DocumentSource.is_in_upfront_pack.is_(True),
+            )
+        )
+        rows = safe_scalars_all(result, f"load_pack_doc_{document_id}")
+        if not rows:
+            return None
+
+        packed = [
+            PackedSource(
+                source=SourceDoc(
+                    title=row.title,
+                    authors=list(row.authors or []),
+                    year=row.year,
+                    abstract=row.abstract,
+                    paper_id=row.paper_id,
+                    venue=row.venue,
+                    citation_count=row.citation_count,
+                    url=row.url,
+                    doi=row.doi,
+                ),
+                citation_key=row.citation_key or "",
+                on_topic_score=(
+                    row.on_topic_score if row.on_topic_score is not None else 0.0
+                ),
+            )
+            for row in rows
+        ]
+        packed.sort(key=lambda p: p.on_topic_score, reverse=True)
+        return SourcePack(document_id=document_id, topic=topic, sources=packed)
+    except Exception as e:
+        logger.warning(f"⚠️ Failed to load source pack for document {document_id}: {e}")
+        return None
 
 
 async def run_citation_verification_stage(

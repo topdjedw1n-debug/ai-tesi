@@ -2,7 +2,8 @@
 Claim verification stage (Academic Quality Engine).
 
 Advisory claim-faithfulness audit: checks that cited sources actually
-support the sentences citing them. Never blocks the pipeline.
+support the sentences citing them. Advisory by default; when
+CLAIM_VERIFICATION_BLOCKING is set, unsupported cited claims block export.
 
 Patch-sensitive collaborators (settings, AIService, websocket progress)
 are injected by the caller — see the thin wrapper in
@@ -17,10 +18,11 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.document import DocumentSection, DocumentSource
+from app.core.exceptions import CitationIntegrityError
+from app.models.document import Document, DocumentSection, DocumentSource
 from app.services.claim_verifier import ClaimVerifier, summarize_verdicts
 from app.services.db_helpers import safe_scalars_all
 from app.services.provenance_service import record_event
@@ -52,10 +54,16 @@ async def run_claim_verification_stage(
     sentence. Verdicts go to DocumentSection.claim_verification and the
     provenance ledger.
 
-    ⚠️ Advisory only: NEVER raises and never blocks the pipeline -
-    unsupported claims are recorded as flags. LLM spend is capped at
-    CLAIM_VERIFICATION_MAX_CHECKS claims per document.
+    Advisory by default: the audit itself NEVER raises. When
+    CLAIM_VERIFICATION_BLOCKING is set, a separate enforcement step (outside the
+    audit's try/except) blocks export if any cited claim is unsupported — an
+    internal audit error leaves the stage incomplete and never blocks
+    (fail-open). LLM spend is capped at CLAIM_VERIFICATION_MAX_CHECKS per document.
     """
+    total_claims = 0
+    total_counts: dict[str, int] = {}
+    stage_completed = False
+
     try:
         sections_result = await db.execute(
             select(DocumentSection)
@@ -157,6 +165,7 @@ async def run_claim_verification_stage(
                 },
             )
 
+        stage_completed = True
         logger.info(
             f"✅ Claim faithfulness audit for document {document_id}: "
             f"{total_claims} claim(s), {total_checked} LLM-checked, "
@@ -182,3 +191,31 @@ async def run_claim_verification_stage(
                 event_type="claim_verification_error",
                 payload={"error": str(e)[:500]},
             )
+
+    # Blocking enforcement (opt-in), OUTSIDE the advisory try/except so a
+    # genuine over-threshold failure propagates before export. An internal
+    # audit error leaves stage_completed False and never blocks (fail-open).
+    if config.CLAIM_VERIFICATION_BLOCKING and stage_completed:
+        unsupported = total_counts.get("unsupported", 0)
+        if unsupported > 0:
+            detail = (
+                f"{unsupported} cited claim(s) are not supported by their "
+                f"sources (claim faithfulness gate)."
+            )
+            # Mark failed_quality before raising so the outer handler in
+            # background_jobs does not overwrite it with a generic 'failed'.
+            await db.execute(
+                update(Document)
+                .where(Document.id == document_id)
+                .values(status="failed_quality")
+            )
+            await db.commit()
+            if config.PROVENANCE_LEDGER_ENABLED:
+                await record_event(
+                    db,
+                    document_id,
+                    stage="verification",
+                    event_type="claim_integrity_gate_failed",
+                    payload={"unsupported": unsupported, "counts": total_counts},
+                )
+            raise CitationIntegrityError(detail=detail)

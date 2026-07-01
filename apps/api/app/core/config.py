@@ -167,6 +167,31 @@ class Settings(BaseSettings):
     )
     CITATION_VERIFICATION_MAX_RETRIES: int = 2  # retries per provider call
 
+    # Academic Quality Engine - Source grounding (upfront topic-locked pack;
+    # OFF by default so the default pipeline stays byte-identical). When on,
+    # generate_full_document builds one document-level, topic-locked source
+    # pack before the outline and reuses it for the outline + every section,
+    # so citations are drawn from a curated, on-topic set instead of ad-hoc
+    # per-section retrieval or the model's parametric memory.
+    SOURCE_GROUNDING_ENABLED: bool = False
+    SOURCE_PACK_TARGET_SIZE: int = 24  # sources kept in the pack
+    SOURCE_PACK_MIN_ON_TOPIC_SCORE: float = 0.35  # topic-relevance cutoff [0,1]
+
+    # Academic Quality Engine - In-loop grounding gate (OFF by default; needs
+    # SOURCE_GROUNDING_ENABLED). After a section is generated and before it is
+    # humanized, checks that its citations resolve to on-topic pack sources; on
+    # failure it regenerates within the existing QUALITY_MAX_REGENERATE_ATTEMPTS
+    # budget. mark_only never hard-fails; strict fails the document.
+    GROUNDING_GATE_ENABLED: bool = False
+    GROUNDING_GATE_POLICY: str = "mark_only"  # strict (fail) | mark_only (annotate)
+    GROUNDING_MIN_RATE: float = 0.8  # min citation-grounding rate to pass the gate
+
+    # Academic Quality Engine - Blocking claim verification (OFF by default;
+    # needs CLAIM_VERIFICATION_ENABLED). When on, an over-threshold count of
+    # unsupported cited claims blocks export; otherwise claim verification stays
+    # purely advisory (records verdicts, never blocks).
+    CLAIM_VERIFICATION_BLOCKING: bool = False
+
     # Plagiarism Check API
     COPYSCAPE_API_KEY: str | None = None
     COPYSCAPE_USERNAME: str | None = None
@@ -291,6 +316,44 @@ class Settings(BaseSettings):
                 "CITATION_VERIFICATION_ENABLED=True. Claim verification reads "
                 "abstracts that only citation verification persists; enable "
                 "CITATION_VERIFICATION_ENABLED or disable CLAIM_VERIFICATION_ENABLED."
+            )
+        return self
+
+    @field_validator("GROUNDING_GATE_POLICY")
+    @classmethod
+    def validate_grounding_gate_policy(cls, v: str) -> str:
+        """Validate grounding gate policy - must be 'strict' or 'mark_only'"""
+        allowed = {"strict", "mark_only"}
+        normalized = v.strip().lower()
+        if normalized not in allowed:
+            raise ValueError(
+                f"GROUNDING_GATE_POLICY must be one of {sorted(allowed)}, got '{v}'"
+            )
+        return normalized
+
+    @model_validator(mode="after")
+    def validate_grounding_dependencies(self) -> "Settings":
+        """The in-loop grounding gate needs an upfront source pack to score
+        citations against, so it requires SOURCE_GROUNDING_ENABLED (fail fast)."""
+        if self.GROUNDING_GATE_ENABLED and not self.SOURCE_GROUNDING_ENABLED:
+            raise ValueError(
+                "GROUNDING_GATE_ENABLED=True requires SOURCE_GROUNDING_ENABLED=True. "
+                "The grounding gate scores citations against the upfront source "
+                "pack; enable SOURCE_GROUNDING_ENABLED or disable GROUNDING_GATE_ENABLED."
+            )
+        return self
+
+    @model_validator(mode="after")
+    def validate_claim_blocking_dependencies(self) -> "Settings":
+        """Blocking claim mode requires claim verification to run at all; that in
+        turn (via validate_verification_dependencies) requires citation
+        verification, so blocking transitively needs the persisted abstracts."""
+        if self.CLAIM_VERIFICATION_BLOCKING and not self.CLAIM_VERIFICATION_ENABLED:
+            raise ValueError(
+                "CLAIM_VERIFICATION_BLOCKING=True requires "
+                "CLAIM_VERIFICATION_ENABLED=True. Blocking mode enforces the "
+                "advisory claim verdicts; enable CLAIM_VERIFICATION_ENABLED or "
+                "disable CLAIM_VERIFICATION_BLOCKING."
             )
         return self
 

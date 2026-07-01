@@ -296,6 +296,19 @@ class DocumentSource(Base):
             postgresql_where=text("doi IS NOT NULL"),
             sqlite_where=text("doi IS NOT NULL"),
         ),
+        Index(
+            "uq_document_sources_document_id_citation_key",
+            "document_id",
+            "citation_key",
+            unique=True,
+            postgresql_where=text("citation_key IS NOT NULL"),
+            sqlite_where=text("citation_key IS NOT NULL"),
+        ),
+        Index(
+            "ix_document_sources_is_in_upfront_pack",
+            "document_id",
+            "is_in_upfront_pack",
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
@@ -324,6 +337,17 @@ class DocumentSource(Base):
     canonical_metadata = Column(
         JSON, nullable=True
     )  # Normalized record from Crossref/OpenAlex/S2/arXiv after verification
+
+    # Upfront topic-locked source pack (source_pack.py). Pack rows carry a
+    # stable, pack-scoped citation_key and an on_topic_score; per-section cited
+    # rows leave these NULL / False.
+    citation_key = Column(
+        String(64), nullable=True
+    )  # stable pack-scoped key, e.g. Rossi2021 / Rossi2021b
+    on_topic_score = Column(
+        Float, nullable=True
+    )  # topic-relevance [0,1] vs document.topic at pack-build time
+    is_in_upfront_pack = Column(Boolean, default=False, nullable=False)
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())

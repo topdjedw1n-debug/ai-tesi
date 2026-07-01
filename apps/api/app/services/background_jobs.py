@@ -33,6 +33,7 @@ from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
+from app.services.ai_pipeline.source_pack import SourcePackBuilder
 from app.services.ai_service import AIService
 from app.services.citation_verifier import (
     CitationVerifier,
@@ -48,14 +49,21 @@ from app.services.db_helpers import (
 )
 from app.services.document_service import DocumentService
 from app.services.grammar_checker import GrammarChecker
+from app.services.grounding_gate import GroundingResult, evaluate_grounding
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.provenance_service import record_event as _record_provenance
 from app.services.quality_validator import QualityValidator
+from app.services.source_verification_stage import (
+    load_source_pack as _load_source_pack,
+)
 from app.services.source_verification_stage import (
     map_verification_status as _map_verification_status,  # noqa: F401
 )
 from app.services.source_verification_stage import (
     persist_cited_sources as _persist_cited_sources,
+)
+from app.services.source_verification_stage import (
+    persist_source_pack as _persist_source_pack,
 )
 from app.services.source_verification_stage import (
     run_citation_verification_stage,
@@ -506,6 +514,38 @@ async def _run_claim_verification_stage(
 # ========== End Citation Verification Helpers ==========
 
 
+async def _build_source_pack(db: AsyncSession, document: Document) -> Any:
+    """
+    Thin wrapper around SourcePackBuilder.build for the upfront source pack.
+
+    Reads this module's `settings` global at call time so test monkeypatches on
+    app.services.background_jobs keep working, mirroring the other stage
+    wrappers. Returns a SourcePack (never raises — builder degrades gracefully).
+    """
+    builder = SourcePackBuilder()
+    return await builder.build(
+        topic=str(document.topic),
+        language=str(document.language),
+        document_id=int(document.id),
+        target_size=settings.SOURCE_PACK_TARGET_SIZE,
+        min_on_topic_score=settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE,
+    )
+
+
+def _augment_with_grounding_feedback(
+    base_requirements: str | None, grounding: GroundingResult
+) -> str:
+    """Append grounding-failure feedback so the next attempt cites correctly."""
+    keys = ", ".join(grounding.offending_keys[:10]) or "(unresolved)"
+    prefix = f"{base_requirements}\n\n" if base_requirements else ""
+    return (
+        f"{prefix}Grounding check failed: {grounding.reason}. Cite ONLY sources "
+        f"from the provided AVAILABLE SOURCES list, using their exact [Key]. Do "
+        f"NOT use these ungrounded or invented citations: {keys}. If a claim has "
+        f"no supporting listed source, state it without a citation."
+    )
+
+
 class BackgroundJobService:
     """Service for background document generation tasks"""
 
@@ -555,6 +595,38 @@ class BackgroundJobService:
                 )
                 await db.commit()
 
+                # Step 0: Build the upfront topic-locked source pack (grounding).
+                # Built once and reused for the outline + every section so
+                # citations come from a curated, on-topic set. Gated: when
+                # SOURCE_GROUNDING_ENABLED is off, source_pack stays None and the
+                # pipeline follows the legacy per-section retrieval path.
+                source_pack = None
+                if settings.SOURCE_GROUNDING_ENABLED:
+                    source_pack = await _load_source_pack(db, document_id)
+                    if source_pack is None or not source_pack.sources:
+                        source_pack = await _build_source_pack(db, document)
+                        if source_pack is not None:
+                            await _persist_source_pack(db, document_id, source_pack)
+                            if settings.PROVENANCE_LEDGER_ENABLED:
+                                scores = [
+                                    ps.on_topic_score for ps in source_pack.sources
+                                ]
+                                await _record_provenance(
+                                    db,
+                                    document_id,
+                                    stage="retrieval",
+                                    event_type="source_pack_built",
+                                    payload={
+                                        "pack_size": len(source_pack.sources),
+                                        "mean_on_topic_score": (
+                                            round(sum(scores) / len(scores), 3)
+                                            if scores
+                                            else 0.0
+                                        ),
+                                        "underfilled": source_pack.underfilled,
+                                    },
+                                )
+
                 # Step 1: Generate outline if not exists
                 if not document.outline:
                     logger.info(f"Generating outline for document {document_id}")
@@ -564,6 +636,7 @@ class BackgroundJobService:
                             document_id=document_id,
                             user_id=user_id,
                             additional_requirements=additional_requirements,
+                            source_pack=source_pack,
                         )
                         logger.info(
                             f"Outline generated successfully for document {document_id}"
@@ -750,7 +823,8 @@ class BackgroundJobService:
                                 },
                             )
 
-                            # Generate section with RAG
+                            # Generate section with RAG (closed-book against the
+                            # source pack when grounding is enabled).
                             section_result = await section_generator.generate_section(
                                 document=document,
                                 section_title=section_title,
@@ -761,7 +835,86 @@ class BackgroundJobService:
                                 humanize=False,  # Will humanize in next step
                                 context_sections=context_list,
                                 additional_requirements=effective_requirements,
+                                source_pack=source_pack,
                             )
+
+                            # Grounding gate (Academic Quality Engine): score the
+                            # raw draft's citations against the source pack BEFORE
+                            # humanization. Ungrounded/off-topic citations trigger
+                            # bounded regeneration within this loop's budget.
+                            if (
+                                settings.GROUNDING_GATE_ENABLED
+                                and source_pack is not None
+                            ):
+                                grounding = evaluate_grounding(
+                                    section_result,
+                                    source_pack,
+                                    min_grounding_rate=settings.GROUNDING_MIN_RATE,
+                                    require_evidence=True,
+                                    min_on_topic_score=(
+                                        settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
+                                    ),
+                                )
+                                if not grounding.passed:
+                                    if settings.PROVENANCE_LEDGER_ENABLED:
+                                        await _record_provenance(
+                                            db,
+                                            document_id,
+                                            stage="generation",
+                                            event_type="grounding_gate_failed",
+                                            payload={
+                                                "section_index": section_index,
+                                                "attempt": attempt_num,
+                                                "grounding_rate": round(
+                                                    grounding.grounding_rate, 3
+                                                ),
+                                                "offending_keys": (
+                                                    grounding.offending_keys[:20]
+                                                ),
+                                                "reason": grounding.reason,
+                                            },
+                                        )
+                                    if (
+                                        attempt
+                                        < settings.QUALITY_MAX_REGENERATE_ATTEMPTS
+                                    ):
+                                        # Feed the failure back and regenerate
+                                        # (shares this loop's attempt budget).
+                                        effective_requirements = (
+                                            _augment_with_grounding_feedback(
+                                                effective_requirements, grounding
+                                            )
+                                        )
+                                        logger.warning(
+                                            f"Grounding gate failed for section "
+                                            f"{section_index} (attempt {attempt_num}): "
+                                            f"{grounding.reason} — regenerating"
+                                        )
+                                        continue
+                                    # Final attempt: strict fails, mark_only ships.
+                                    if settings.GROUNDING_GATE_POLICY == "strict":
+                                        raise QualityThresholdNotMetError(
+                                            detail=(
+                                                f"Section {section_index} failed the "
+                                                f"grounding gate after "
+                                                f"{settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} "
+                                                f"attempts: {grounding.reason}"
+                                            )
+                                        )
+                                    if settings.PROVENANCE_LEDGER_ENABLED:
+                                        await _record_provenance(
+                                            db,
+                                            document_id,
+                                            stage="generation",
+                                            event_type="grounding_gate_exhausted",
+                                            payload={
+                                                "section_index": section_index,
+                                                "grounding_rate": round(
+                                                    grounding.grounding_rate, 3
+                                                ),
+                                                "policy": "mark_only",
+                                            },
+                                        )
 
                             # Step 3: Humanize content (mandatory)
                             logger.info(
@@ -1387,8 +1540,9 @@ class BackgroundJobService:
                 if settings.CITATION_VERIFICATION_ENABLED:
                     await _run_citation_verification_stage(db, document_id, user_id)
 
-                # Step 4.8: Claim faithfulness audit (advisory; unsupported
-                # claims are recorded but never block the pipeline)
+                # Step 4.8: Claim faithfulness audit (advisory by default;
+                # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
+                # claims raise CitationIntegrityError here, before export)
                 if settings.CLAIM_VERIFICATION_ENABLED:
                     await _run_claim_verification_stage(db, document_id, user_id)
 
