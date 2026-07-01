@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate secure secret keys for TesiGo application.
+Generate secure secret keys for Thesica application.
 
 This script generates cryptographically secure random strings suitable for:
 - SECRET_KEY: Application secret key
@@ -17,10 +17,10 @@ import string
 def generate_secret_key(length: int = 64) -> str:
     """
     Generate a cryptographically secure random string.
-    
+
     Args:
         length: Desired length of the secret key (default: 64)
-    
+
     Returns:
         A secure random string
     """
@@ -32,26 +32,26 @@ def generate_secret_key(length: int = 64) -> str:
 def main():
     """Generate and display secret keys with instructions."""
     print("=" * 80)
-    print("TesiGo Secret Key Generator")
+    print("Thesica Secret Key Generator")
     print("=" * 80)
     print()
-    
+
     # Generate SECRET_KEY (32+ characters)
     secret_key = generate_secret_key(length=64)
     print("SECRET_KEY (64 chars):")
     print(secret_key)
     print()
-    
+
     # Generate JWT_SECRET (32+ characters, different from SECRET_KEY)
     jwt_secret = generate_secret_key(length=64)
     # Ensure JWT_SECRET is different from SECRET_KEY
     while jwt_secret == secret_key:
         jwt_secret = generate_secret_key(length=64)
-    
+
     print("JWT_SECRET (64 chars):")
     print(jwt_secret)
     print()
-    
+
     print("=" * 80)
     print("Instructions:")
     print("=" * 80)
@@ -62,8 +62,8 @@ def main():
     print("   JWT_SECRET=" + jwt_secret)
     print()
     print("2. For production, also set:")
-    print("   JWT_ISS=tesigo.com")
-    print("   JWT_AUD=tesigo-api")
+    print("   JWT_ISS=thesica.ai")
+    print("   JWT_AUD=thesica-api")
     print()
     print("3. IMPORTANT:")
     print("   - Never commit these values to version control")
@@ -75,4 +75,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

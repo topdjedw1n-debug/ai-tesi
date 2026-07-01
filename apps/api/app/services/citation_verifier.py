@@ -311,6 +311,7 @@ class CitationVerifier:
 
         self.crossref_url = settings.CROSSREF_API_URL.rstrip("/")
         self.openalex_url = settings.OPENALEX_API_URL.rstrip("/")
+        self.openalex_api_key = settings.OPENALEX_API_KEY
         self.s2_url = settings.SEMANTIC_SCHOLAR_API_URL.rstrip("/")
         self.arxiv_url = settings.ARXIV_API_URL
         self.s2_api_key = settings.SEMANTIC_SCHOLAR_API_KEY
@@ -571,10 +572,13 @@ class CitationVerifier:
     async def _search_openalex(
         self, source: SourceInput, norm_title: str
     ) -> _ProviderOutcome:
+        params = {"filter": f"title.search:{norm_title}", "per-page": 5}
+        if self.openalex_api_key:
+            params["api_key"] = self.openalex_api_key
         status, response = await self._fetch(
             PROVIDER_OPENALEX,
             f"{self.openalex_url}/works",
-            params={"filter": f"title.search:{norm_title}", "per-page": 5},
+            params=params,
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))

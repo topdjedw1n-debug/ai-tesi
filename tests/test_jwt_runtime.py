@@ -8,7 +8,6 @@ import os
 import sys
 import requests
 import json
-from datetime import datetime, timedelta
 from typing import Optional, Dict, Any
 
 # Додаємо шлях до API для імпорту
@@ -64,7 +63,7 @@ def test_health() -> bool:
             return False
     except requests.exceptions.ConnectionError:
         print_error(f"Не вдалося підключитися до сервера {API_BASE_URL}")
-        print(f"   Переконайтеся, що сервер запущено")
+        print("   Переконайтеся, що сервер запущено")
         return False
     except Exception as e:
         print_error(f"Помилка підключення до сервера: {e}")
@@ -90,7 +89,7 @@ def get_jwt_token_via_magic_link() -> Optional[Dict[str, Any]]:
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Magic link запит успішний")
+            print_success("Magic link запит успішний")
             print(f"   Message: {data.get('message', 'N/A')}")
 
             # У dev режимі може повертатися magic_link
@@ -113,7 +112,7 @@ def get_jwt_token_via_magic_link() -> Optional[Dict[str, Any]]:
 
 def verify_magic_link_token(token: str) -> Optional[Dict[str, Any]]:
     """Верифікує magic link token і отримує JWT tokens"""
-    print(f"\n📤 Крок 2: Верифікація magic link token")
+    print("\n📤 Крок 2: Верифікація magic link token")
     try:
         response = requests.post(
             f"{API_BASE_URL}/api/v1/auth/verify-magic-link",
@@ -127,7 +126,7 @@ def verify_magic_link_token(token: str) -> Optional[Dict[str, Any]]:
 
         if response.status_code == 200:
             data = response.json()
-            print_success(f"Magic link верифіковано успішно")
+            print_success("Magic link верифіковано успішно")
 
             access_token = data.get('access_token')
             refresh_token = data.get('refresh_token')
@@ -155,7 +154,7 @@ def verify_magic_link_token(token: str) -> Optional[Dict[str, Any]]:
         return None
 
 
-def test_auth_me_endpoint(access_token: str) -> bool:
+def check_auth_me_endpoint(access_token: str) -> bool:
     """Тестує endpoint /api/v1/auth/me з JWT token"""
     print_header("ТЕСТ 3: Тестування /api/v1/auth/me з JWT token")
 
@@ -182,7 +181,7 @@ def test_auth_me_endpoint(access_token: str) -> bool:
             try:
                 data = response.json()
                 print_success("✅ Endpoint працює! Помилка типів НЕ виникає!")
-                print(f"\n   User data:")
+                print("\n   User data:")
                 print(f"   - ID: {data.get('id', 'N/A')}")
                 print(f"   - Email: {data.get('email', 'N/A')}")
                 print(f"   - Full Name: {data.get('full_name', 'N/A')}")
@@ -197,7 +196,7 @@ def test_auth_me_endpoint(access_token: str) -> bool:
             # Перевірка на помилку типів даних
             if "integer = character varying" in response_text or "VARCHAR" in response_text:
                 print_error("КРИТИЧНО: Помилка типів даних все ще існує!")
-                print(f"   Помилка: integer = character varying")
+                print("   Помилка: integer = character varying")
                 print(f"   Response: {response_text[:500]}")
                 return False
             elif "Invalid or expired token" in response_text or "401" in str(response.status_code):
@@ -221,7 +220,7 @@ def test_with_existing_token() -> Optional[str]:
     """Спробує використати існуючий токен з environment variable"""
     token = os.getenv("ACCESS_TOKEN")
     if token:
-        print_warning(f"Використовується токен з ACCESS_TOKEN environment variable")
+        print_warning("Використовується токен з ACCESS_TOKEN environment variable")
         return token
     return None
 
@@ -252,7 +251,7 @@ def main():
         access_token = token_data['access_token']
 
     # Тест 3: Використання JWT token
-    result = test_auth_me_endpoint(access_token)
+    result = check_auth_me_endpoint(access_token)
 
     # Підсумок
     print_header("ПІДСУМОК ТЕСТУВАННЯ")

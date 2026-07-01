@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# TesiGo Manual UI Smoke Test - API Backend Verification
+# Thesica Manual UI Smoke Test - API Backend Verification
 # This script tests all backend endpoints that power the UI scenarios
 
 # Don't exit on errors - we want to test everything
@@ -21,7 +21,7 @@ FAIL_COUNT=0
 BLOCKED_COUNT=0
 
 # Test results storage
-REPORT_FILE="/tmp/tesigo_smoke_test_$(date +%Y%m%d_%H%M%S).txt"
+REPORT_FILE="/tmp/thesica_smoke_test_$(date +%Y%m%d_%H%M%S).txt"
 
 log_test() {
     echo -e "${BLUE}[TEST]${NC} $1" | tee -a "$REPORT_FILE"
@@ -47,13 +47,13 @@ log_info() {
 }
 
 echo "========================================" | tee "$REPORT_FILE"
-echo "TesiGo Pre-Production Smoke Test Report" | tee -a "$REPORT_FILE"
+echo "Thesica Pre-Production Smoke Test Report" | tee -a "$REPORT_FILE"
 echo "Date: $(date)" | tee -a "$REPORT_FILE"
 echo "========================================" | tee -a "$REPORT_FILE"
 echo "" | tee -a "$REPORT_FILE"
 
 # Store cookies and tokens
-COOKIE_JAR="/tmp/tesigo_cookies.txt"
+COOKIE_JAR="/tmp/thesica_cookies.txt"
 rm -f "$COOKIE_JAR"
 
 # ============================================
@@ -95,11 +95,11 @@ echo "" | tee -a "$REPORT_FILE"
 # ============================================
 log_test "SCENARIO 3: Admin Login (Simple Auth)"
 log_info "URL: POST $API_BASE/api/v1/auth/admin-login"
-log_info "Credentials: admin@tesigo.com / admin123"
+log_info "Credentials: admin@thesica.ai / admin123"
 
 LOGIN_RESPONSE=$(curl -s -c "$COOKIE_JAR" -X POST "$API_BASE/api/v1/auth/admin-login" \
   -H "Content-Type: application/json" \
-  -d '{"email":"admin@tesigo.com","password":"admin123"}' \
+  -d '{"email":"admin@thesica.ai","password":"admin123"}' \
   -w "\nHTTP_CODE:%{http_code}")
 
 HTTP_CODE=$(echo "$LOGIN_RESPONSE" | grep "HTTP_CODE:" | cut -d':' -f2)
@@ -207,9 +207,9 @@ if [ -n "$ADMIN_TOKEN" ]; then
         log_pass "Admin users list retrieved successfully"
 
         # Find testuser ID for later tests
-        TESTUSER_ID=$(echo "$RESPONSE_BODY" | grep -o '"id":[0-9]*,"email":"testuser@tesigo.com"' | grep -o '[0-9]*' | head -1)
+        TESTUSER_ID=$(echo "$RESPONSE_BODY" | grep -o '"id":[0-9]*,"email":"testuser@thesica.ai"' | grep -o '[0-9]*' | head -1)
         if [ -n "$TESTUSER_ID" ]; then
-            log_info "Found testuser@tesigo.com with ID: $TESTUSER_ID"
+            log_info "Found testuser@thesica.ai with ID: $TESTUSER_ID"
         fi
     else
         log_fail "Admin users list failed with HTTP $HTTP_CODE"

@@ -5,7 +5,7 @@ set -e
 # Usage: ./scripts/test-generation-flow.sh
 
 API_URL="${API_URL:-http://localhost:8000}"
-ADMIN_EMAIL="${ADMIN_EMAIL:-admin@tesigo.com}"
+ADMIN_EMAIL="${ADMIN_EMAIL:-admin@thesica.ai}"
 ADMIN_PASSWORD="${ADMIN_PASSWORD:-admin123}"
 
 echo "🧪 Testing Full Generation Flow..."

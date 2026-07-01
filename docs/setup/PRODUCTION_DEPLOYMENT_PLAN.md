@@ -5,9 +5,10 @@
 **Статус:** 🟢 Active (Strict Go-Live)
 
 > **Важливо:** Для актуального release-рішення використовуйте:
-> - `docs/RELEASE_GO_NO_GO_2026-02-23.md`
-> - `docs/MASTER_COMPLIANCE_MATRIX.md`
-> - `docs/MVP_PLAN.md`
+> - `THESICA-PLAN.md`
+> - `docs/PHASE0_READINESS_RECORD.md`
+> - `docs/PHASE1_GO_NO_GO_DECISION.md`
+> - `docs/ADMIN_FRONTEND_EXECUTION_PLAN.md`
 
 ---
 

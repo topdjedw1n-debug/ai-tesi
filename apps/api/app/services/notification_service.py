@@ -27,7 +27,7 @@ class NotificationService:
                     MAIL_PASSWORD=settings.SMTP_PASSWORD or "",
                     MAIL_FROM=settings.EMAILS_FROM_EMAIL
                     or settings.SMTP_USER
-                    or "noreply@tesigo.com",
+                    or "noreply@thesica.ai",
                     MAIL_FROM_NAME=settings.EMAILS_FROM_NAME or "Thesica",
                     MAIL_PORT=settings.SMTP_PORT or 587,
                     MAIL_SERVER=settings.SMTP_HOST or "localhost",

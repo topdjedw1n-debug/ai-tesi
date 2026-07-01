@@ -29,6 +29,7 @@ interface HttpMethod {
   get: <T = any>(url: string, config?: RequestInit) => Promise<T>;
   post: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
   put: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
+  patch: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
   delete: <T = any>(url: string, config?: RequestInit) => Promise<T>;
 }
 
@@ -268,6 +269,17 @@ export const apiClient: HttpMethod = {
     return handleResponse<T>(response);
   },
 
+  patch: async <T = any>(url: string, data?: any, config?: RequestInit): Promise<T> => {
+    const headers = await createHeaders(config?.headers);
+    const response = await fetch(`${BASE_URL}${url}`, {
+      method: 'PATCH',
+      ...config,
+      headers,
+      body: JSON.stringify(data),
+    });
+    return handleResponse<T>(response);
+  },
+
   delete: async <T = any>(url: string, config?: RequestInit): Promise<T> => {
     const headers = await createHeaders(config?.headers);
     const response = await fetch(`${BASE_URL}${url}`, {
@@ -290,6 +302,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     MAGIC_LINK: '/api/v1/auth/magic-link',
     VERIFY_MAGIC_LINK: '/api/v1/auth/verify-magic-link',
+    LOGIN: '/api/v1/auth/login',
     REFRESH: '/api/v1/auth/refresh',
     LOGOUT: '/api/v1/auth/logout',
     ME: '/api/v1/auth/me',

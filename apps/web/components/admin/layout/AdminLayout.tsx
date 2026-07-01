@@ -19,6 +19,8 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     // Check if user is admin
     const isAdmin = localStorage.getItem('is_admin')
     const adminUser = localStorage.getItem('admin_user')
+    const allowLocalPhase0Editor =
+      process.env.NODE_ENV === 'development' && pathname === '/admin/phase0-readiness'
 
     // Allow access to login page
     if (pathname === '/admin/login') {
@@ -26,7 +28,7 @@ export function AdminLayout({ children }: AdminLayoutProps) {
     }
 
     // Redirect to login if not admin
-    if (!isAdmin || !adminUser) {
+    if (!allowLocalPhase0Editor && (!isAdmin || !adminUser)) {
       router.push('/admin/login')
     }
   }, [pathname, router])

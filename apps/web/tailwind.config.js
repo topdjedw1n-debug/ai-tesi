@@ -1,5 +1,5 @@
 /** @type {import('tailwindcss').Config} */
-// Design system: Scholarly Press (see /DESIGN.md and /tesigo-brandbook.html).
+// Design system: Scholarly Press (see /DESIGN.md and /thesica-brandbook.html).
 // primary = academic green (NOT blue), gray = warm neutral, serif = Literata.
 module.exports = {
   content: [

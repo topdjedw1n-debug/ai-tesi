@@ -1,5 +1,5 @@
 #!/bin/bash
-# Backup script for TesiGo application
+# Backup script for Thesica application
 # Creates backups of PostgreSQL database and MinIO storage
 # Usage: ./scripts/backup.sh
 
@@ -34,7 +34,7 @@ if [ "$EUID" -eq 0 ]; then
     log_warn "Running as root - be careful with file permissions"
 fi
 
-log_info "Starting TesiGo backup process..."
+log_info "Starting Thesica backup process..."
 log_info "Backup directory: ${BACKUP_DIR}"
 
 # Create backup directories
@@ -44,16 +44,16 @@ mkdir -p "${BACKUP_DIR}/minio"
 # PostgreSQL backup
 if command -v pg_dump &> /dev/null; then
     log_info "Creating PostgreSQL backup..."
-    
+
     # Get database connection details from environment or config
     DB_HOST="${POSTGRES_HOST:-localhost}"
     DB_PORT="${POSTGRES_PORT:-5432}"
     DB_NAME="${POSTGRES_DB:-ai_thesis_platform}"
     DB_USER="${POSTGRES_USER:-postgres}"
-    
+
     # Build pg_dump command
     PGDMP_CMD="pg_dump -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME}"
-    
+
     # Try to run pg_dump
     if PGPASSWORD="${POSTGRES_PASSWORD}" ${PGDMP_CMD} \
         --format=custom \
@@ -73,7 +73,7 @@ fi
 # MinIO/S3 backup
 if [ -d "/minio/data/documents" ]; then
     log_info "Creating MinIO backup..."
-    
+
     if tar -czf "${BACKUP_DIR}/minio/documents_${TIMESTAMP}.tar.gz" \
         -C /minio/data documents 2>/dev/null; then
         log_info "MinIO backup created successfully"
@@ -82,7 +82,7 @@ if [ -d "/minio/data/documents" ]; then
     fi
 elif [ -d "infra/docker/uploads" ]; then
     log_info "Creating local MinIO backup from infra/docker/uploads..."
-    
+
     if tar -czf "${BACKUP_DIR}/minio/documents_${TIMESTAMP}.tar.gz" \
         -C infra/docker uploads 2>/dev/null; then
         log_info "Local MinIO backup created successfully"
@@ -101,7 +101,7 @@ log_info "Backup size: ${BACKUP_SIZE}"
 log_info "Cleaning up old backups..."
 if [ -d "${BACKUP_BASE_DIR}" ]; then
     OLD_BACKUPS=$(find "${BACKUP_BASE_DIR}" -type f -mtime +7 2>/dev/null | wc -l)
-    
+
     if [ "${OLD_BACKUPS}" -gt 0 ]; then
         find "${BACKUP_BASE_DIR}" -type f -mtime +7 -delete 2>/dev/null || true
         log_info "Removed ${OLD_BACKUPS} old backup file(s)"
@@ -122,4 +122,3 @@ echo "Timestamp: ${TIMESTAMP}"
 echo ""
 echo "To restore, run: ./scripts/restore.sh ${BACKUP_DIR}/db/postgres_${TIMESTAMP}.dump"
 echo ""
-

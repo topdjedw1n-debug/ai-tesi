@@ -125,7 +125,7 @@ Update frontend components to include `data-testid` attributes:
 <button onClick={handleCreate}>Create Document</button>
 
 // After
-<button 
+<button
   data-testid="create-document-btn"
   onClick={handleCreate}
 >
@@ -200,7 +200,7 @@ Tests will pass when:
 **Fix:** Add `data-testid` to component or update selector
 
 ### Issue 2: "toHaveTitle" fails
-**Expected:** "TesiGo"
+**Expected:** "Thesica"
 **Actual:** "AI Thesis Platform"
 **Fix:** Update expectation or page title
 

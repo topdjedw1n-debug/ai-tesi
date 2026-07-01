@@ -1,4 +1,4 @@
-# 📋 DECISIONS LOG - TesiGo v2.3
+# 📋 DECISIONS LOG - Thesica v2.3
 
 > Всі архітектурні та технічні рішення з обґрунтуванням
 
@@ -458,7 +458,7 @@ checkpoint = {
 **Date:** 2026-02-23
 **Status:** Superseded by DR-014
 **Context:** Pre-prod hardening revealed FE/BE contract mismatches, logger key conflicts, missing health endpoint, disabled quality gates, and an admin logout typing bug. All blocked safe deployment.
-**Decision:** Fixed all Wave 1 blockers (see `CHANGELOG_WAVE1_RC.md`). Follow-up Wave 3B restored user payment/refund flows and replaced fallback-only behavior with real API contracts.
+**Decision:** Fixed all Wave 1 blockers. Follow-up Wave 3B restored user payment/refund flows and replaced fallback-only behavior with real API contracts.
 **Consequences:** Automated gates are green (`394 passed, 6 skipped` backend; full frontend pipeline pass). Runtime smoke is green in prod-like Docker.
 **Alternatives:** Could have deferred to Wave 2, but all fixes were low-risk and necessary for any deployment.
 

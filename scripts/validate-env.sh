@@ -1,5 +1,5 @@
 #!/bin/bash
-# Environment variables validation script for TesiGo
+# Environment variables validation script for Thesica
 # Validates that all required production environment variables are set
 # and meet security requirements
 
@@ -18,7 +18,7 @@ WARNINGS=0
 CHECKS=0
 
 echo -e "${BLUE}================================================${NC}"
-echo -e "${BLUE}TesiGo Environment Variables Validation${NC}"
+echo -e "${BLUE}Thesica Environment Variables Validation${NC}"
 echo -e "${BLUE}================================================${NC}"
 echo ""
 
@@ -44,9 +44,9 @@ check_var() {
     local var_name=$1
     local min_length=${2:-1}
     local var_value="${!var_name}"
-    
+
     ((CHECKS++))
-    
+
     if [ -z "$var_value" ]; then
         error "$var_name is not set"
         return 1
@@ -63,7 +63,7 @@ check_var() {
 check_not_example() {
     local var_name=$1
     local var_value="${!var_name}"
-    
+
     if [[ "$var_value" =~ CHANGE_THIS|your-|example|test|minioadmin|sk-proj-your|sk-ant-your|tvly-your ]]; then
         error "$var_name contains placeholder value. Must be changed for production!"
         return 1
@@ -91,7 +91,7 @@ echo ""
 
 echo -e "${BLUE}=== Database Configuration ===${NC}"
 check_var "DATABASE_URL" 20
-if [[ "$DATABASE_URL" =~ tesigo_password|CHANGE_THIS ]]; then
+if [[ "$DATABASE_URL" =~ thesica_password|CHANGE_THIS ]]; then
     error "DATABASE_URL contains default password. Must be changed!"
 fi
 echo ""

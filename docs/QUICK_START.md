@@ -1,4 +1,4 @@
-# 🚀 QUICK START - TesiGo
+# 🚀 QUICK START - Thesica
 
 > Запустити проект за 5 хвилин
 
@@ -18,8 +18,8 @@
 
 ### Step 1: Clone & Navigate
 ```bash
-git clone https://github.com/tesigo/tesigo-app.git
-cd tesigo-app
+git clone https://github.com/thesica/thesica-app.git
+cd thesica-app
 ```
 
 ### Step 2: Start Infrastructure (2 min)
@@ -72,9 +72,9 @@ Open http://localhost:3000
 
 ### PostgreSQL
 - Host: `localhost:5432`
-- Database: `tesigo_db`
-- Username: `tesigo_user`
-- Password: `tesigo_password`
+- Database: `thesica_db`
+- Username: `thesica_user`
+- Password: `thesica_password`
 
 ### Redis
 - URL: `redis://localhost:6379`
@@ -149,7 +149,7 @@ pip install -r requirements.txt
 ### Minimal .env for Backend
 ```env
 # Required
-DATABASE_URL=postgresql://tesigo_user:tesigo_password@localhost/tesigo_db
+DATABASE_URL=postgresql://thesica_user:thesica_password@localhost/thesica_db
 SECRET_KEY=your-secret-key-min-32-chars-long-change-this
 JWT_SECRET=another-secret-key-min-32-chars-change-this
 
@@ -172,11 +172,11 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ## 🚦 Next Steps
 
-1. **Read full documentation:** [MASTER_DOCUMENT.md](./MASTER_DOCUMENT.md)
-2. **Understand decisions:** [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md)
-3. **Setup production:** [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md)
-4. **Run tests:** `pytest tests/`
-5. **Check security:** Fix critical issues from Section 6.2 in MASTER_DOCUMENT
+1. **Read product direction:** [../THESICA-PLAN.md](../THESICA-PLAN.md)
+2. **Read design rules:** [../DESIGN.md](../DESIGN.md)
+3. **Understand decisions:** [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md)
+4. **Setup production:** [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md)
+5. **Run tests:** `pytest tests/`
 
 ---
 
@@ -210,12 +210,12 @@ mypy app/
 
 ## 🆘 Getting Help
 
-1. Check [MASTER_DOCUMENT.md](./MASTER_DOCUMENT.md) - Section 9: Known Issues
-2. Search in [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md) for reasoning
-3. Check Docker logs: `docker-compose logs <service>`
-4. Check app logs: `tail -f apps/api/logs/app.log`
+1. Check [../THESICA-PLAN.md](../THESICA-PLAN.md) for product scope and phase gates.
+2. Search in [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md) for reasoning.
+3. Check Docker logs: `docker-compose logs <service>`.
+4. Check app logs: `tail -f apps/api/logs/app.log`.
 
 ---
 
 **Time to first request: ~5 minutes**
-**Time to production-ready: See MASTER_DOCUMENT.md Section 7.3**
+**Production readiness:** see [PHASE0_READINESS_RECORD.md](./PHASE0_READINESS_RECORD.md), [PHASE1_GO_NO_GO_DECISION.md](./PHASE1_GO_NO_GO_DECISION.md), and [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md).

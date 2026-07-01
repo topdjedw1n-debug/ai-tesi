@@ -1,10 +1,10 @@
 # Admin, Roles and Frontend UX Execution Plan
 
-**Project:** Thesica / TesiGo
+**Project:** Thesica / Thesica
 **Date:** 2026-06-22
 **Status:** Draft for execution
 **Owner:** product + engineering
-**Source strategy:** `TESIGO-PLAN.md`, `DESIGN.md`, current `apps/web/app/admin/*`, current FastAPI admin/payment/document endpoints.
+**Source strategy:** `THESICA-PLAN.md`, `DESIGN.md`, current `apps/web/app/admin/*`, current FastAPI admin/payment/document endpoints.
 
 This document fills the current gap in the QA-first roadmap: the plan already explains why the platform must prove quality internally before client self-serve, but it does not define enough detail for the admin console, editor workspace, client portal, and implementation prompts.
 
@@ -689,7 +689,7 @@ Use these prompts one at a time. Each prompt assumes the agent will inspect the 
 Задача: зроби read-only аудит поточного стану admin/frontend/backend API без змін у коді.
 
 Контекст:
-- Основний roadmap: TESIGO-PLAN.md
+- Основний roadmap: THESICA-PLAN.md
 - Дизайн: DESIGN.md
 - Новий execution plan: docs/ADMIN_FRONTEND_EXECUTION_PLAN.md
 - Поточні web routes: apps/web/app/admin, apps/web/app/dashboard, apps/web/app/payment
@@ -711,7 +711,7 @@ Use these prompts one at a time. Each prompt assumes the agent will inspect the 
 Реалізуй перший маленький slice з docs/ADMIN_FRONTEND_EXECUTION_PLAN.md: Phase A, admin dashboard має показувати production risk, а не SaaS vanity metrics.
 
 Вимоги:
-- Прочитай TESIGO-PLAN.md, DESIGN.md і поточні admin dashboard файли.
+- Прочитай THESICA-PLAN.md, DESIGN.md і поточні admin dashboard файли.
 - Заміни або доповни dashboard cards так, щоб першим були: open cases/documents, stuck jobs, failed QA/no data QA, deadline risk placeholder, ready for release placeholder, token cost today.
 - Якщо backend ще не має production case, використовуй існуючі documents/jobs/admin stats і явно показуй placeholder states тільки там, де даних реально нема.
 - Не показуй missing data як passed.
@@ -946,7 +946,7 @@ Acceptance:
 
 Контекст:
 - DESIGN.md - Scholarly Press
-- TESIGO-PLAN.md - не обіцяємо bypass detection
+- THESICA-PLAN.md - не обіцяємо bypass detection
 - docs/ADMIN_FRONTEND_EXECUTION_PLAN.md - Phase F
 
 Вимоги:
@@ -1035,9 +1035,8 @@ Flow:
 
 When implementation begins, update these docs only when durable behavior changes:
 
-- `TESIGO-PLAN.md` - add a short reference to this execution plan.
-- `docs/USER_EXPERIENCE_STRUCTURE.md` - mark old self-serve-first sections as superseded or rewrite around internal-first.
-- `docs/MASTER_DOCUMENT.md` - update architecture/contracts once production case and release gates exist.
+- `THESICA-PLAN.md` - add a short reference to this execution plan.
 - `docs/PHASE1_RUN_REPORT_TEMPLATE.md` - add production case ID, release gate summary, editor task minutes.
+- `docs/README.md` - keep active doc navigation aligned if new durable docs are added.
 
 Do not update docs for every temporary UI placeholder.

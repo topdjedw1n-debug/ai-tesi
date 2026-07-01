@@ -294,6 +294,28 @@ async def test_partial_degradation_openalex_matches(mock_redis):
 
 
 @pytest.mark.asyncio
+async def test_openalex_api_key_is_sent(mock_redis):
+    with patch("app.services.citation_verifier.settings.OPENALEX_API_KEY", "test-key"):
+        verifier = make_verifier(mock_redis)
+    source = SourceInput(title="Attention Is All You Need", year=2017)
+
+    def dispatch(url, params=None, headers=None):
+        if "openalex" in url:
+            return make_response(200, {"results": [OPENALEX_WORK]})
+        return empty_dispatch(url, params, headers)
+
+    client = make_client(dispatch)
+    with patch("httpx.AsyncClient", return_value=client):
+        result = await verifier.verify_source(source)
+
+    assert result.status == VerificationStatus.VERIFIED
+    openalex_call = next(
+        c for c in client.get.call_args_list if "openalex" in c.args[0]
+    )
+    assert openalex_call.kwargs["params"]["api_key"] == "test-key"
+
+
+@pytest.mark.asyncio
 async def test_s2_match_includes_abstract(mock_redis):
     """Crossref and OpenAlex come up empty; Semantic Scholar matches and
     its search request asks for the abstract field"""

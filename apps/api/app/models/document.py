@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     String,
     Text,
+    UniqueConstraint,
     text,
 )
 from sqlalchemy.orm import relationship
@@ -79,6 +80,9 @@ class Document(Base):
     )
     provenance_events = relationship(
         "DocumentProvenance", back_populates="document", cascade="all, delete-orphan"
+    )
+    production_case = relationship(
+        "ProductionCase", back_populates="document", uselist=False
     )
 
     def __repr__(self) -> str:
@@ -335,4 +339,164 @@ class DocumentSource(Base):
         return (
             f"<DocumentSource(id={self.id}, document_id={self.document_id}, "
             f"verification_status={self.verification_status})>"
+        )
+
+
+class ProductionCase(Base):
+    """Internal production case wrapping a document for Phase 2 operations."""
+
+    __tablename__ = "production_cases"
+    __table_args__ = (
+        Index("ix_production_cases_document_id", "document_id"),
+        Index("ix_production_cases_client_user_id", "client_user_id"),
+        Index("ix_production_cases_manager_id", "manager_id"),
+        Index("ix_production_cases_editor_id", "editor_id"),
+        Index("ix_production_cases_release_status", "release_status"),
+        UniqueConstraint("document_id", name="uq_production_cases_document_id"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    client_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    manager_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    editor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    deadline_at = Column(DateTime(timezone=True), nullable=True)
+    citation_style = Column(String(50), nullable=True)
+    requirements_text = Column(Text, nullable=True)
+
+    intake_status = Column(String(50), default="draft", nullable=False)
+    generation_status = Column(String(50), default="not_started", nullable=False)
+    qa_status = Column(String(50), default="no_data", nullable=False)
+    editorial_status = Column(String(50), default="not_started", nullable=False)
+    payment_status = Column(String(50), default="not_required", nullable=False)
+    delivery_status = Column(String(50), default="not_ready", nullable=False)
+    release_status = Column(String(50), default="not_ready", nullable=False)
+
+    human_minutes_budget = Column(Integer, default=0, nullable=False)
+    human_minutes_used = Column(Integer, default=0, nullable=False)
+    cost_cents = Column(Integer, default=0, nullable=False)
+    release_notes = Column(Text, nullable=True)
+    released_at = Column(DateTime(timezone=True), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    document = relationship("Document", back_populates="production_case")
+    client = relationship("User", foreign_keys=[client_user_id])
+    manager = relationship("User", foreign_keys=[manager_id])
+    editor = relationship("User", foreign_keys=[editor_id])
+    release_gates = relationship(
+        "ReleaseGateResult",
+        back_populates="production_case",
+        cascade="all, delete-orphan",
+    )
+    editor_tasks = relationship(
+        "EditorTask",
+        back_populates="production_case",
+        cascade="all, delete-orphan",
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<ProductionCase(id={self.id}, document_id={self.document_id}, "
+            f"release_status={self.release_status})>"
+        )
+
+
+class ReleaseGateResult(Base):
+    """Release gate state for a production case."""
+
+    __tablename__ = "release_gate_results"
+    __table_args__ = (
+        Index("ix_release_gate_results_case_id", "production_case_id"),
+        Index("ix_release_gate_results_gate_key", "gate_key"),
+        UniqueConstraint(
+            "production_case_id", "gate_key", name="uq_release_gate_case_gate"
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    production_case_id = Column(
+        Integer, ForeignKey("production_cases.id", ondelete="CASCADE"), nullable=False
+    )
+    gate_key = Column(String(100), nullable=False)
+    status = Column(String(50), default="no_data", nullable=False)
+    severity = Column(String(50), default="blocking", nullable=False)
+    blocking = Column(Boolean, default=True, nullable=False)
+    source = Column(String(100), nullable=True)
+    summary = Column(Text, nullable=True)
+    evidence = Column(JSON, nullable=True)
+    override_allowed = Column(Boolean, default=False, nullable=False)
+    override_reason = Column(Text, nullable=True)
+    overridden_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    overridden_at = Column(DateTime(timezone=True), nullable=True)
+    last_checked_at = Column(DateTime(timezone=True), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    production_case = relationship("ProductionCase", back_populates="release_gates")
+    overridden_by = relationship("User", foreign_keys=[overridden_by_id])
+
+    def __repr__(self) -> str:
+        return (
+            f"<ReleaseGateResult(id={self.id}, case_id={self.production_case_id}, "
+            f"gate_key={self.gate_key}, status={self.status})>"
+        )
+
+
+class EditorTask(Base):
+    """Finding-specific task assigned to an editor."""
+
+    __tablename__ = "editor_tasks"
+    __table_args__ = (
+        Index("ix_editor_tasks_case_id", "production_case_id"),
+        Index("ix_editor_tasks_assigned_editor_id", "assigned_editor_id"),
+        Index("ix_editor_tasks_status", "status"),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    production_case_id = Column(
+        Integer, ForeignKey("production_cases.id", ondelete="CASCADE"), nullable=False
+    )
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
+    section_id = Column(
+        Integer, ForeignKey("document_sections.id", ondelete="SET NULL"), nullable=True
+    )
+    assigned_editor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    source_gate = Column(String(100), nullable=True)
+    finding_key = Column(String(100), nullable=True)
+    title = Column(String(500), nullable=False)
+    description = Column(Text, nullable=True)
+    status = Column(String(50), default="open", nullable=False)
+    resolution_notes = Column(Text, nullable=True)
+    minutes_spent = Column(Integer, default=0, nullable=False)
+    resolved_at = Column(DateTime(timezone=True), nullable=True)
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(
+        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    )
+
+    production_case = relationship("ProductionCase", back_populates="editor_tasks")
+    document = relationship("Document")
+    section = relationship("DocumentSection")
+    assigned_editor = relationship("User", foreign_keys=[assigned_editor_id])
+    created_by = relationship("User", foreign_keys=[created_by_id])
+
+    def __repr__(self) -> str:
+        return (
+            f"<EditorTask(id={self.id}, case_id={self.production_case_id}, "
+            f"status={self.status})>"
         )

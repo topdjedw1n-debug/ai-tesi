@@ -1,10 +1,10 @@
 #!/bin/bash
-# AWS EC2 Server Setup Script for TesiGo Platform
+# AWS EC2 Server Setup Script for Thesica Platform
 # Скопіюйте цей скрипт на сервер та запустіть: bash aws-server-setup.sh
 
 set -e  # Зупинитися при помилці
 
-echo "🚀 Початок встановлення TesiGo Platform на AWS EC2..."
+echo "🚀 Початок встановлення Thesica Platform на AWS EC2..."
 echo ""
 
 # Оновлення системи
@@ -67,8 +67,8 @@ echo "✅ Firewall налаштовано"
 
 # Створення робочої директорії
 echo "📁 Створення робочої директорії..."
-mkdir -p ~/tesigo-platform
-cd ~/tesigo-platform
+mkdir -p ~/thesica-platform
+cd ~/thesica-platform
 
 # Перевірка встановлення
 echo ""
@@ -106,7 +106,7 @@ echo "✨ Встановлення завершено!"
 echo ""
 echo "📋 Наступні кроки:"
 echo "1. Встановіть права для docker (вийдіть і зайдіть знову через SSH)"
-echo "2. Клонуйте репозиторій: git clone <your-repo-url> ~/tesigo-platform"
+echo "2. Клонуйте репозиторій: git clone <your-repo-url> ~/thesica-platform"
 echo "3. Налаштуйте .env файл"
 echo "4. Запустіть: docker compose -f docker-compose.prod.yml up -d"
 echo ""

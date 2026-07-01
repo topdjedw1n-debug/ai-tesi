@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 External Services Integration Test
-Tests all critical external APIs for TesiGo platform
+Tests all critical external APIs for Thesica platform
 """
 
 import os
@@ -77,7 +77,7 @@ def test_stripe():
 
         # Create test customer
         customer = stripe.Customer.create(
-            email="test-external-check@tesigo.com",
+            email="test-external-check@thesica.ai",
             description="External Services Health Check",
         )
         print(f"✅ Test customer created: {customer.id}")
@@ -135,9 +135,11 @@ def test_email():
 
 
 def test_semantic_scholar():
-    """Test Semantic Scholar API"""
+    """Test Semantic Scholar API (authenticated via SEMANTIC_SCHOLAR_API_KEY)"""
     print("\n📚 Testing Semantic Scholar API...")
     try:
+        import os
+
         import requests
 
         url = "https://api.semanticscholar.org/graph/v1/paper/search"
@@ -146,8 +148,11 @@ def test_semantic_scholar():
             "limit": 3,
             "fields": "title,authors,year",
         }
+        # We use an authenticated S2 key; unkeyed access is throttled to HTTP 429.
+        api_key = os.getenv("SEMANTIC_SCHOLAR_API_KEY")
+        headers = {"x-api-key": api_key} if api_key else None
 
-        response = requests.get(url, params=params, timeout=10)
+        response = requests.get(url, params=params, headers=headers, timeout=10)
         response.raise_for_status()
 
         data = response.json()

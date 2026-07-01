@@ -1,6 +1,6 @@
 /**
  * AuthProvider Tests
- * 
+ *
  * Tests for authentication context provider including:
  * - Login flow (magic link request)
  * - Logout flow (clear tokens + redirect)
@@ -51,7 +51,7 @@ jest.mock('@/lib/api', () => ({
 // Test component to access auth context
 function TestComponent() {
   const { user, isLoading, login, logout, verifyMagicLink } = useAuth()
-  
+
   return (
     <div>
       <div data-testid="loading">{isLoading ? 'loading' : 'ready'}</div>
@@ -65,18 +65,18 @@ function TestComponent() {
 
 describe('AuthProvider', () => {
   let mockPush: jest.Mock
-  
+
   beforeEach(() => {
     // Clear all mocks
     jest.clearAllMocks()
     localStorage.clear()
-    
+
     // Setup router mock
     mockPush = jest.fn()
     ;(useRouter as jest.Mock).mockReturnValue({
       push: mockPush,
     })
-    
+
     // Default mock returns
     ;(getAccessToken as jest.Mock).mockReturnValue(null)
     ;(apiClient.get as jest.Mock).mockResolvedValue({ email: 'test@example.com' })
@@ -121,7 +121,7 @@ describe('AuthProvider', () => {
       await waitFor(() => {
         expect(screen.getByTestId('loading')).toHaveTextContent('ready')
       })
-      
+
       // Verify final state
       expect(screen.getByTestId('user')).toHaveTextContent('no-user')
     })
@@ -193,7 +193,7 @@ describe('AuthProvider', () => {
     it('should support admin user from localStorage', async () => {
       const adminUser = {
         id: 999,
-        email: 'admin@tesigo.com',
+        email: 'admin@thesica.ai',
         is_verified: true,
         created_at: '2025-01-01',
         total_tokens_used: 0,
@@ -213,7 +213,7 @@ describe('AuthProvider', () => {
         expect(screen.getByTestId('loading')).toHaveTextContent('ready')
       })
 
-      expect(screen.getByTestId('user')).toHaveTextContent('admin@tesigo.com')
+      expect(screen.getByTestId('user')).toHaveTextContent('admin@thesica.ai')
     })
 
     it('should handle invalid admin_user JSON gracefully', async () => {
@@ -249,7 +249,7 @@ describe('AuthProvider', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       await act(async () => {
         loginButton.click()
       })
@@ -283,7 +283,7 @@ describe('AuthProvider', () => {
         expect(screen.getByTestId('loading')).toHaveTextContent('ready')
       })
 
-      ;(apiClient.post as jest.Mock).mockImplementationOnce(() => 
+      ;(apiClient.post as jest.Mock).mockImplementationOnce(() =>
         Promise.reject(new Error('Network error'))
       )
 
@@ -315,7 +315,7 @@ describe('AuthProvider', () => {
       })
 
       const loginButton = screen.getByText('Login')
-      
+
       act(() => {
         loginButton.click()
       })
@@ -367,7 +367,7 @@ describe('AuthProvider', () => {
       })
 
       const verifyButton = screen.getByText('Verify')
-      
+
       await act(async () => {
         verifyButton.click()
       })
@@ -400,7 +400,7 @@ describe('AuthProvider', () => {
       })
 
       const verifyButton = screen.getByText('Verify')
-      
+
       await act(async () => {
         verifyButton.click()
       })
@@ -435,7 +435,7 @@ describe('AuthProvider', () => {
       })
 
       const verifyButton = screen.getByText('Verify')
-      
+
       await act(async () => {
         verifyButton.click()
       })
@@ -476,7 +476,7 @@ describe('AuthProvider', () => {
       })
 
       const logoutButton = screen.getByText('Logout')
-      
+
       await act(async () => {
         logoutButton.click()
       })
@@ -517,7 +517,7 @@ describe('AuthProvider', () => {
       })
 
       const logoutButton = screen.getByText('Logout')
-      
+
       await act(async () => {
         logoutButton.click()
       })
@@ -563,7 +563,7 @@ describe('AuthProvider', () => {
     it('should preserve admin user even if token verification fails', async () => {
       const adminUser = {
         id: 999,
-        email: 'admin@tesigo.com',
+        email: 'admin@thesica.ai',
         is_verified: true,
         created_at: '2025-01-01',
         total_tokens_used: 0,
@@ -585,7 +585,7 @@ describe('AuthProvider', () => {
       })
 
       // Should fall back to admin user
-      expect(screen.getByTestId('user')).toHaveTextContent('admin@tesigo.com')
+      expect(screen.getByTestId('user')).toHaveTextContent('admin@thesica.ai')
       expect(clearTokens).not.toHaveBeenCalled()
     })
   })

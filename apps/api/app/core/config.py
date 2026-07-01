@@ -102,7 +102,12 @@ class Settings(BaseSettings):
     PARTIAL_COMPLETION_ENABLED: bool = True
     PARTIAL_COMPLETION_THRESHOLD: float = 0.85  # 85% - deliver if 43/50 sections OK
 
-    # Search APIs for RAG
+    # Search APIs for RAG.
+    # Semantic Scholar: we run with an authenticated key, supplied via the
+    # SEMANTIC_SCHOLAR_API_KEY env var (verified working, HTTP 200). It is used
+    # by ai_pipeline/rag_retriever.py for paper search and by
+    # citation_verifier.py as a bibliographic provider. Unkeyed access is
+    # throttled to HTTP 429, so keep the key set in every environment.
     SEMANTIC_SCHOLAR_API_KEY: str | None = None
     SEMANTIC_SCHOLAR_ENABLED: bool = True
     PERPLEXITY_API_KEY: str | None = None
@@ -143,6 +148,7 @@ class Settings(BaseSettings):
     # Bibliographic APIs (base URLs)
     CROSSREF_API_URL: str = "https://api.crossref.org"
     OPENALEX_API_URL: str = "https://api.openalex.org"
+    OPENALEX_API_KEY: str | None = None
     SEMANTIC_SCHOLAR_API_URL: str = "https://api.semanticscholar.org/graph/v1"
     ARXIV_API_URL: str = "https://export.arxiv.org/api/query"
 
@@ -152,7 +158,7 @@ class Settings(BaseSettings):
     # Per-provider rate limits (requests per second) - conservative vs public limits
     CROSSREF_RATE_LIMIT_RPS: float = 5.0  # polite pool allows ~50; stay well under
     OPENALEX_RATE_LIMIT_RPS: float = 5.0  # public cap ~10 rps
-    SEMANTIC_SCHOLAR_RATE_LIMIT_RPS: float = 1.0  # unauthenticated ~1 rps
+    SEMANTIC_SCHOLAR_RATE_LIMIT_RPS: float = 1.0  # authenticated key -> guaranteed ~1 rps (unkeyed pool is throttled to HTTP 429)
     ARXIV_RATE_LIMIT_RPS: float = 0.33  # arXiv asks for 1 request per 3 seconds
 
     # Verification worker tuning

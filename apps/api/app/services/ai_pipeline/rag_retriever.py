@@ -519,6 +519,166 @@ class RAGRetriever:
             logger.warning(f"Error retrieving from Serper: {e}")
             return []
 
+    # ------------------------------------------------------------------
+    # Free academic providers (no API key required): Crossref & OpenAlex.
+    # These give real, verifiable scholarly sources (title/authors/year/DOI/
+    # abstract) so generated sections are grounded instead of hallucinated.
+    # ------------------------------------------------------------------
+
+    _POLITE_MAILTO = "research@thesica.ai"
+
+    @staticmethod
+    def _clean_abstract(text: str | None) -> str | None:
+        """Strip JATS/HTML tags Crossref embeds in abstracts."""
+        if not text:
+            return None
+        import re
+
+        cleaned = re.sub(r"<[^>]+>", " ", text)
+        cleaned = re.sub(r"\s+", " ", cleaned).strip()
+        return cleaned or None
+
+    @staticmethod
+    def _reconstruct_openalex_abstract(inverted_index: dict | None) -> str | None:
+        """Rebuild an abstract from OpenAlex's inverted-index representation."""
+        if not inverted_index:
+            return None
+        positions: list[tuple[int, str]] = []
+        for word, idxs in inverted_index.items():
+            for i in idxs:
+                positions.append((i, word))
+        positions.sort(key=lambda p: p[0])
+        return " ".join(w for _, w in positions).strip() or None
+
+    async def search_crossref(self, query: str, limit: int = 10) -> list[SourceDoc]:
+        """Search Crossref for academic works (free, no API key)."""
+        base = getattr(settings, "CROSSREF_API_URL", "https://api.crossref.org").rstrip(
+            "/"
+        )
+        params = {
+            "query": query,
+            "rows": limit,
+            "select": "title,author,issued,DOI,abstract,container-title,URL,"
+            "is-referenced-by-count",
+            "mailto": self._POLITE_MAILTO,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(f"{base}/works", params=params)
+                response.raise_for_status()
+                items = response.json().get("message", {}).get("items", [])
+
+            source_docs: list[SourceDoc] = []
+            for item in items:
+                title_list = item.get("title") or []
+                title = title_list[0] if title_list else ""
+                if not title:
+                    continue
+
+                authors = []
+                for a in item.get("author", []) or []:
+                    name = f"{a.get('given', '')} {a.get('family', '')}".strip()
+                    if name:
+                        authors.append(name)
+
+                year = 0
+                date_parts = (item.get("issued") or {}).get("date-parts") or []
+                if date_parts and date_parts[0]:
+                    year = date_parts[0][0] or 0
+
+                venue_list = item.get("container-title") or []
+                doi = item.get("DOI")
+                source_docs.append(
+                    SourceDoc(
+                        title=title,
+                        authors=authors,
+                        year=year,
+                        abstract=self._clean_abstract(item.get("abstract")),
+                        paper_id=doi,
+                        venue=venue_list[0] if venue_list else None,
+                        citation_count=item.get("is-referenced-by-count"),
+                        url=item.get("URL")
+                        or (f"https://doi.org/{doi}" if doi else None),
+                        doi=doi,
+                    )
+                )
+
+            logger.info(
+                f"Retrieved {len(source_docs)} sources from Crossref for query: {query}"
+            )
+            return source_docs
+
+        except httpx.HTTPError as e:
+            logger.warning(f"HTTP error retrieving from Crossref: {e}")
+            return []
+        except Exception as e:
+            logger.warning(f"Error retrieving from Crossref: {e}")
+            return []
+
+    async def search_openalex(self, query: str, limit: int = 10) -> list[SourceDoc]:
+        """Search OpenAlex for academic works (free, no API key)."""
+        base = getattr(settings, "OPENALEX_API_URL", "https://api.openalex.org").rstrip(
+            "/"
+        )
+        params = {
+            "search": query,
+            "per_page": limit,
+            "mailto": self._POLITE_MAILTO,
+        }
+        try:
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.get(f"{base}/works", params=params)
+                response.raise_for_status()
+                works = response.json().get("results", [])
+
+            source_docs: list[SourceDoc] = []
+            for w in works:
+                title = w.get("title") or w.get("display_name") or ""
+                if not title:
+                    continue
+
+                authors = []
+                for a in w.get("authorships", []) or []:
+                    name = (a.get("author") or {}).get("display_name")
+                    if name:
+                        authors.append(name)
+
+                doi = w.get("doi")
+                if doi and doi.startswith("https://doi.org/"):
+                    doi = doi[len("https://doi.org/") :]
+
+                venue = ((w.get("primary_location") or {}).get("source") or {}).get(
+                    "display_name"
+                )
+
+                source_docs.append(
+                    SourceDoc(
+                        title=title,
+                        authors=authors,
+                        year=w.get("publication_year") or 0,
+                        abstract=self._reconstruct_openalex_abstract(
+                            w.get("abstract_inverted_index")
+                        ),
+                        paper_id=w.get("id"),
+                        venue=venue,
+                        citation_count=w.get("cited_by_count"),
+                        url=w.get("doi") or w.get("id"),
+                        doi=doi,
+                    )
+                )
+
+            logger.info(
+                f"Retrieved {len(source_docs)} sources from OpenAlex for query: {query}"
+            )
+            return source_docs
+
+        except httpx.HTTPError as e:
+            logger.warning(f"HTTP error retrieving from OpenAlex: {e}")
+            return []
+        except Exception as e:
+            logger.warning(f"Error retrieving from OpenAlex: {e}")
+            return []
+
     async def retrieve_sources(self, query: str, limit: int = 20) -> list[SourceDoc]:
         """
         Retrieve sources from all enabled search APIs and combine results
@@ -531,6 +691,19 @@ class RAGRetriever:
             List of SourceDoc instances (deduplicated, top results)
         """
         results: list[SourceDoc] = []
+
+        # Free academic providers first (no API key, reliable scholarly sources).
+        # These ground generation in real, verifiable works instead of leaving
+        # the model to hallucinate citations.
+        if getattr(settings, "ACADEMIC_FREE_RAG_ENABLED", True):
+            for provider_name, search_fn in (
+                ("Crossref", self.search_crossref),
+                ("OpenAlex", self.search_openalex),
+            ):
+                try:
+                    results.extend(await search_fn(query))
+                except Exception as e:
+                    logger.warning(f"Failed to retrieve from {provider_name}: {e}")
 
         # Search Semantic Scholar
         if settings.SEMANTIC_SCHOLAR_ENABLED:

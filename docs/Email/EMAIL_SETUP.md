@@ -1,6 +1,6 @@
 # 📧 Email Setup Guide
 
-> **Налаштування email для TesiGo Platform**
+> **Налаштування email для Thesica Platform**
 
 **Updated:** 2026-01-22
 
@@ -11,7 +11,7 @@
 ### Option 1: Gmail (5 min)
 
 1. Go to: https://myaccount.google.com/apppasswords
-2. Create App Password: "Mail" → "Other" → "TesiGo"
+2. Create App Password: "Mail" → "Other" → "Thesica"
 3. Copy 16-character password
 
 Add to `apps/api/.env`:
@@ -22,7 +22,7 @@ SMTP_USER=your-email@gmail.com
 SMTP_PASSWORD=abcd efgh ijkl mnop
 SMTP_TLS=true
 EMAILS_FROM_EMAIL=your-email@gmail.com
-EMAILS_FROM_NAME=TesiGo Platform
+EMAILS_FROM_NAME=Thesica Platform
 ```
 
 ### Option 2: Mailtrap (Testing)
@@ -36,8 +36,8 @@ SMTP_PORT=2525
 SMTP_TLS=false
 SMTP_USER=your-mailtrap-user
 SMTP_PASSWORD=your-mailtrap-password
-EMAILS_FROM_EMAIL=noreply@tesigo.local
-EMAILS_FROM_NAME=TesiGo
+EMAILS_FROM_EMAIL=noreply@thesica.local
+EMAILS_FROM_NAME=Thesica
 ```
 
 ---
@@ -58,7 +58,7 @@ SMTP_USER=apikey
 SMTP_PASSWORD=SG.your_api_key
 SMTP_TLS=true
 EMAILS_FROM_EMAIL=noreply@your-domain.com
-EMAILS_FROM_NAME=TesiGo Platform
+EMAILS_FROM_NAME=Thesica Platform
 ```
 
 **Pricing:** $19.95/month for 50K emails
@@ -73,7 +73,7 @@ EMAILS_FROM_NAME=TesiGo Platform
 
 1. AWS Console → SES → Verified identities
 2. Click "Create identity" → Select "Domain"
-3. Enter: `tesigo.com`
+3. Enter: `thesica.ai`
 4. Add DNS records (SPF, DKIM, CNAME) to your DNS provider
 5. Wait for verification (1-24 hours)
 
@@ -81,7 +81,7 @@ EMAILS_FROM_NAME=TesiGo Platform
 
 1. AWS Console → SES → SMTP settings
 2. Click "Create SMTP credentials"
-3. Name: `tesigo-smtp-user`
+3. Name: `thesica-smtp-user`
 4. **Save credentials immediately!**
 
 ```bash
@@ -90,8 +90,8 @@ SMTP_PORT=587
 SMTP_USER=AKIAIOSFODNN7EXAMPLE
 SMTP_PASSWORD=your-generated-password
 SMTP_TLS=true
-EMAILS_FROM_EMAIL=noreply@tesigo.com
-EMAILS_FROM_NAME=TesiGo Platform
+EMAILS_FROM_EMAIL=noreply@thesica.ai
+EMAILS_FROM_NAME=Thesica Platform
 ```
 
 #### Step 3: Exit Sandbox Mode
@@ -102,7 +102,7 @@ EMAILS_FROM_NAME=TesiGo Platform
 2. Click "Request production access"
 3. Fill form:
    - Use case: "Transactional" → "Account management emails"
-   - Website: `https://tesigo.com`
+   - Website: `https://thesica.ai`
    - Description: "Magic link authentication, document notifications"
 4. Wait for approval (24-48 hours)
 

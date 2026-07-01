@@ -212,6 +212,67 @@ class AuthService:
             logger.error(f"Error refreshing token: {e}")
             raise AuthenticationError(f"Failed to refresh token: {str(e)}") from e
 
+    async def login_with_password(self, username: str, password: str) -> dict[str, Any]:
+        """Authenticate a user with login/email + password and issue tokens.
+
+        Used by managers (and any user that has a password set). ``username``
+        is matched against ``User.email`` verbatim, so plain logins such as
+        ``manager1`` work without requiring a real email address.
+        """
+        try:
+            result = await self.db.execute(select(User).where(User.email == username))
+            user: User | None = result.scalar_one_or_none()
+
+            # Uniform error message to avoid leaking whether the account
+            # exists, is inactive, or simply has no password set.
+            if (
+                not user
+                or not user.is_active
+                or not user.password_hash
+                or not self.verify_password(password, user.password_hash)
+            ):
+                raise AuthenticationError("Invalid credentials")
+
+            # Update login timestamp
+            user.last_login = datetime.utcnow()  # type: ignore[assignment]
+
+            # Generate access and refresh tokens (same flow as magic link)
+            access_token = self._create_access_token(int(user.id))
+            refresh_token = self._create_refresh_token(int(user.id))
+
+            # Create user session so refresh works
+            session = UserSession(
+                user_id=user.id,
+                session_token=refresh_token,
+                expires_at=datetime.utcnow()
+                + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+            )
+            self.db.add(session)
+
+            await self.db.commit()
+
+            return {
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "token_type": "bearer",
+                "expires_in": settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+                "user": {
+                    "id": user.id,
+                    "email": user.email,
+                    "full_name": user.full_name,
+                    "is_verified": user.is_verified,
+                    "is_admin": user.is_admin,
+                },
+            }
+
+        except AuthenticationError:
+            await self.db.rollback()
+            raise
+        except Exception as e:
+            await self.db.rollback()
+            logger.error(f"Error during password login: {e}")
+            raise AuthenticationError("Failed to login") from e
+
     async def logout(self, access_token: str) -> dict[str, Any]:
         """Logout user and invalidate session"""
         try:

@@ -61,8 +61,8 @@ def create_download_token(
         "type": "download",
         "exp": expire,
         "iat": now,
-        "iss": "tesigo-api",
-        "aud": "tesigo-download",
+        "iss": "thesica-api",
+        "aud": "thesica-download",
     }
     return str(
         jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)

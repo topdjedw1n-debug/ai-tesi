@@ -277,7 +277,7 @@ cases:
       title: "Holographic Memory Compression for Large Language Models"
       authors: ["Sandra Okoye"]
       year: 2024
-      doi: "10.9999/tesigo.fake.2024.001"
+      doi: "10.9999/thesica.fake.2024.001"
   - id: cit-nf-009
     expected: not_found
     group: fabricated_doi
@@ -285,7 +285,7 @@ cases:
       title: "Entropy-Guided Curriculum Learning for Autonomous Beekeeping"
       authors: ["Mikkel Andersen"]
       year: 2024
-      doi: "10.9999/tesigo.fake.2024.002"
+      doi: "10.9999/thesica.fake.2024.002"
   - id: cit-nf-010
     expected: not_found
     group: fabricated_doi
@@ -293,4 +293,4 @@ cases:
       title: "Federated Dream Synthesis: Generative Replay Across Sleep Cycles"
       authors: ["Lucia Ferraro"]
       year: 2024
-      doi: "10.9999/tesigo.fake.2024.003"
+      doi: "10.9999/thesica.fake.2024.003"

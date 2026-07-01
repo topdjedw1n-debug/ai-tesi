@@ -1,5 +1,5 @@
 #!/bin/bash
-# Restore script for TesiGo application
+# Restore script for Thesica application
 # Restores PostgreSQL database from backup
 # Usage: ./scripts/restore.sh <backup_file>
 
@@ -99,4 +99,3 @@ echo ""
 echo "To verify the restore, check your database:"
 echo "  psql -h ${DB_HOST} -p ${DB_PORT} -U ${DB_USER} -d ${DB_NAME} -c 'SELECT COUNT(*) FROM users;'"
 echo ""
-

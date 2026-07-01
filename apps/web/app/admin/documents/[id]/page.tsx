@@ -17,13 +17,6 @@ import {
 import toast from 'react-hot-toast'
 
 interface DocumentDetails extends AdminDocument {
-  topic?: string
-  language?: string
-  target_pages?: number
-  ai_provider?: string
-  ai_model?: string
-  tokens_used?: number
-  generation_time_seconds?: number
   content?: string | null
   outline?: any
   jobs?: Array<{

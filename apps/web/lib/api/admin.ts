@@ -13,6 +13,156 @@ export interface PlatformStats {
   active_jobs: number
 }
 
+export interface AdminDocumentListResponse {
+  documents: AdminDocument[]
+  total: number
+  page: number
+  per_page: number
+  pages?: number
+  total_pages?: number
+}
+
+export interface StuckJob {
+  id: number
+  user_id: number
+  document_id: number
+  job_type: string
+  status: string
+  started_at: string
+  stuck_for_minutes: number
+}
+
+export interface StuckJobsResponse {
+  stuck_jobs: {
+    total: number
+    queued_stuck: number
+    running_stuck: number
+  }
+  queued_jobs: StuckJob[]
+  running_jobs: StuckJob[]
+  threshold_minutes: number
+  monitored_at: string
+  recommendations: {
+    cleanup_needed: boolean
+    message: string
+  }
+}
+
+export interface CostAnalysisResponse {
+  period: {
+    start_date: string
+    end_date: string
+    group_by: string
+  }
+  totals: {
+    total_cost_cents: number
+    total_tokens: number
+    average_cost_per_token: number
+  }
+  generated_at: string
+}
+
+export interface ProductionCase {
+  id: number
+  document_id: number
+  client_user_id: number
+  manager_id: number | null
+  editor_id: number | null
+  deadline_at: string | null
+  citation_style: string | null
+  requirements_text: string | null
+  intake_status: string
+  generation_status: string
+  qa_status: string
+  editorial_status: string
+  payment_status: string
+  delivery_status: string
+  release_status: string
+  human_minutes_budget: number
+  human_minutes_used: number
+  cost_cents: number
+  release_notes: string | null
+  released_at: string | null
+  created_at: string | null
+  updated_at: string | null
+  document: {
+    id: number
+    title: string
+    topic: string
+    status: string
+    language: string
+    target_pages: number
+    docx_path?: string | null
+    pdf_path?: string | null
+  } | null
+  client_email: string | null
+  manager_email: string | null
+  editor_email: string | null
+}
+
+export interface ProductionCaseListResponse {
+  cases: ProductionCase[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
+}
+
+export interface ReleaseGate {
+  id: number | null
+  production_case_id: number
+  gate_key: string
+  status: 'passed' | 'failed' | 'warning' | 'no_data' | 'overridden' | string
+  severity: string
+  blocking: boolean
+  source: string | null
+  summary: string | null
+  evidence: Record<string, any> | null
+  override_allowed: boolean
+  override_reason: string | null
+  overridden_by_id: number | null
+  overridden_at: string | null
+  last_checked_at: string | null
+}
+
+export interface ManualDetectorResultPayload {
+  detector_name: string
+  result_percent: number
+  threshold_percent: number
+  checked_at: string
+  report_ref: string
+  reason: string
+}
+
+export interface EditorTask {
+  id: number
+  production_case_id: number
+  document_id: number
+  section_id: number | null
+  assigned_editor_id: number
+  created_by_id: number | null
+  source_gate: string | null
+  finding_key: string | null
+  title: string
+  description: string | null
+  status: string
+  resolution_notes: string | null
+  minutes_spent: number
+  resolved_at: string | null
+  created_at: string | null
+  updated_at: string | null
+  document_title: string | null
+  section_title: string | null
+}
+
+export interface EditorTaskListResponse {
+  tasks: EditorTask[]
+  total: number
+  page: number
+  per_page: number
+  total_pages: number
+}
+
 export interface UserDetails {
   id: number
   email: string
@@ -139,9 +289,25 @@ export interface AdminDocument {
   user_id: number
   user_email: string
   title: string
-  status: 'draft' | 'outline_generated' | 'sections_generated' | 'completed' | 'failed'
+  topic: string
+  language: string
+  target_pages: number
+  status:
+    | 'draft'
+    | 'generating'
+    | 'outline_generated'
+    | 'sections_generated'
+    | 'completed'
+    | 'failed'
+    | 'failed_quality'
+    | 'payment_pending'
+    | string
   pages: number
   word_count: number
+  ai_provider: string
+  ai_model: string
+  tokens_used: number
+  generation_time_seconds: number
   created_at: string
   completed_at: string | null
   error_message: string | null
@@ -411,9 +577,10 @@ export const adminApiClient = {
   },
 
   // Documents
-  async getDocuments(params: any) {
+  async getDocuments(params: any): Promise<AdminDocumentListResponse> {
     const url = buildUrlWithParams('/api/v1/admin/documents', params);
-    return apiClient.get(url)
+    const response = await apiClient.get(url)
+    return unwrapResponse(response)
   },
 
   async getDocument(id: number): Promise<AdminDocument> {
@@ -437,6 +604,148 @@ export const adminApiClient = {
   async getUserDocuments(userId: number, page = 1, limit = 10) {
     const url = buildUrlWithParams(`/api/v1/admin/users/${userId}/documents`, { page, limit });
     return apiClient.get(url)
+  },
+
+  async getStuckJobs(thresholdMinutes = 5): Promise<StuckJobsResponse> {
+    const url = buildUrlWithParams('/api/v1/admin/jobs/stuck', {
+      threshold_minutes: thresholdMinutes,
+    })
+    const response = await apiClient.get(url)
+    return unwrapResponse(response)
+  },
+
+  async getCosts(params?: {
+    start_date?: string
+    end_date?: string
+    group_by?: 'day' | 'week' | 'month'
+  }): Promise<CostAnalysisResponse> {
+    const url = buildUrlWithParams('/api/v1/admin/costs', params)
+    const response = await apiClient.get(url)
+    return unwrapResponse(response)
+  },
+
+  async getProductionCases(params?: {
+    page?: number
+    per_page?: number
+    release_status?: string
+    manager_id?: number
+    editor_id?: number
+  }): Promise<ProductionCaseListResponse> {
+    const url = buildUrlWithParams('/api/v1/admin/production-cases', params)
+    const response = await apiClient.get(url)
+    return unwrapResponse(response)
+  },
+
+  async createProductionCase(payload: {
+    document_id: number
+    manager_id?: number
+    editor_id?: number
+    deadline_at?: string
+    citation_style?: string
+    requirements_text?: string
+  }): Promise<ProductionCase> {
+    const response = await apiClient.post('/api/v1/admin/production-cases', payload)
+    return unwrapResponse(response)
+  },
+
+  async getProductionCase(id: number): Promise<ProductionCase> {
+    const response = await apiClient.get(`/api/v1/admin/production-cases/${id}`)
+    return unwrapResponse(response)
+  },
+
+  async updateProductionCase(
+    id: number,
+    payload: Partial<ProductionCase>
+  ): Promise<ProductionCase> {
+    const response = await apiClient.patch(
+      `/api/v1/admin/production-cases/${id}`,
+      payload
+    )
+    return unwrapResponse(response)
+  },
+
+  async getReleaseGates(caseId: number): Promise<ReleaseGate[]> {
+    const response = await apiClient.get(
+      `/api/v1/admin/production-cases/${caseId}/release-gates`
+    )
+    return unwrapResponse(response)
+  },
+
+  async overrideReleaseGate(
+    caseId: number,
+    gateKey: string,
+    reason: string
+  ): Promise<ReleaseGate> {
+    const response = await apiClient.post(
+      `/api/v1/admin/production-cases/${caseId}/release-gates/${gateKey}/override`,
+      { reason }
+    )
+    return unwrapResponse(response)
+  },
+
+  async recordDetectorResult(
+    caseId: number,
+    gateKey: string,
+    payload: ManualDetectorResultPayload
+  ): Promise<ReleaseGate> {
+    const response = await apiClient.post(
+      `/api/v1/admin/production-cases/${caseId}/release-gates/${gateKey}/detector-result`,
+      payload
+    )
+    return unwrapResponse(response)
+  },
+
+  async releaseProductionCase(caseId: number, notes?: string): Promise<ProductionCase> {
+    const response = await apiClient.post(
+      `/api/v1/admin/production-cases/${caseId}/release`,
+      { notes }
+    )
+    return unwrapResponse(response)
+  },
+
+  async createEditorTask(
+    caseId: number,
+    payload: {
+      production_case_id?: number
+      assigned_editor_id: number
+      section_id?: number
+      source_gate?: string
+      finding_key?: string
+      title: string
+      description?: string
+    }
+  ): Promise<EditorTask> {
+    const response = await apiClient.post(
+      `/api/v1/admin/production-cases/${caseId}/editor-tasks`,
+      { ...payload, production_case_id: caseId }
+    )
+    return unwrapResponse(response)
+  },
+
+  async getEditorTasks(params?: {
+    page?: number
+    per_page?: number
+    status?: string
+  }): Promise<EditorTaskListResponse> {
+    const url = buildUrlWithParams('/api/v1/editor/tasks', params)
+    const response = await apiClient.get(url)
+    return unwrapResponse(response)
+  },
+
+  async getEditorTask(id: number): Promise<EditorTask> {
+    const response = await apiClient.get(`/api/v1/editor/tasks/${id}`)
+    return unwrapResponse(response)
+  },
+
+  async resolveEditorTask(
+    id: number,
+    payload: { resolution_notes: string; minutes_spent: number; status?: string }
+  ): Promise<EditorTask> {
+    const response = await apiClient.post(
+      `/api/v1/editor/tasks/${id}/resolve`,
+      payload
+    )
+    return unwrapResponse(response)
   },
 
   // Payments

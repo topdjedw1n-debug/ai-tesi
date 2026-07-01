@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# TesiGo Quick Smoke Test Runner
+# Thesica Quick Smoke Test Runner
 # Run this script to quickly verify the platform is working
 
-echo "🚀 TesiGo Quick Smoke Test"
+echo "🚀 Thesica Quick Smoke Test"
 echo "======================================"
 echo ""
 

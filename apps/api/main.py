@@ -21,10 +21,12 @@ from app.api.v1.endpoints import (
     admin_payments,
     auth,
     documents,
+    editor_tasks,
     generate,
     jobs,
     payment,
     pricing,
+    production_cases,
     refunds,
 )
 from app.api.v1.endpoints import (
@@ -84,7 +86,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE"],
     allow_headers=["Authorization", "Content-Type", "Accept", "X-Requested-With"],
 )
 
@@ -194,6 +196,12 @@ app.include_router(
 app.include_router(
     admin_payments.router, prefix="/api/v1/admin/payments", tags=["admin-payments"]
 )
+app.include_router(
+    production_cases.router,
+    prefix="/api/v1/admin/production-cases",
+    tags=["production-cases"],
+)
+app.include_router(editor_tasks.router, prefix="/api/v1/editor", tags=["editor"])
 app.include_router(pricing.router, prefix="/api/v1/pricing", tags=["pricing"])
 
 

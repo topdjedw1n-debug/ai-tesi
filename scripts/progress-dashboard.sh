@@ -1,11 +1,11 @@
 #!/bin/bash
-# Progress Dashboard for TesiGo Project
+# Progress Dashboard for Thesica Project
 # Shows current health metrics vs targets
 
 set -e
 
 echo "═══════════════════════════════════════════════════════════"
-echo "         TesiGo Project Health Dashboard"
+echo "         Thesica Project Health Dashboard"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
@@ -33,7 +33,7 @@ if command -v mypy &> /dev/null; then
     CURRENT_MYPY=$(mypy app/ --config-file mypy.ini 2>&1 | grep -c "error:" || echo "0")
     MYPY_DIFF=$((BASELINE_MYPY - CURRENT_MYPY))
     MYPY_PROGRESS=$((CURRENT_MYPY * 100 / BASELINE_MYPY)) || MYPY_PROGRESS=0
-    
+
     if [ "$CURRENT_MYPY" -le "$TARGET_MYPY" ]; then
         STATUS="✅"
     elif [ "$CURRENT_MYPY" -lt "$BASELINE_MYPY" ]; then
@@ -41,7 +41,7 @@ if command -v mypy &> /dev/null; then
     else
         STATUS="❌"
     fi
-    
+
     echo "$STATUS MyPy Errors:"
     echo "   Current:  $CURRENT_MYPY / $BASELINE_MYPY (baseline)"
     echo "   Target:   ≤$TARGET_MYPY"
@@ -55,11 +55,11 @@ fi
 # Coverage
 if command -v pytest &> /dev/null && command -v coverage &> /dev/null; then
     pytest tests/ --cov=app --cov-report=term -q --tb=no 2>&1 | grep "TOTAL" > /tmp/coverage_output.txt || true
-    
+
     if [ -f /tmp/coverage_output.txt ]; then
         CURRENT_COVERAGE=$(grep "TOTAL" /tmp/coverage_output.txt | awk '{print $NF}' | sed 's/%//')
         COVERAGE_DIFF=$(echo "$CURRENT_COVERAGE - $BASELINE_COVERAGE" | bc -l)
-        
+
         if (( $(echo "$CURRENT_COVERAGE >= $TARGET_COVERAGE" | bc -l) )); then
             STATUS="✅"
         elif (( $(echo "$CURRENT_COVERAGE > $BASELINE_COVERAGE" | bc -l) )); then
@@ -67,7 +67,7 @@ if command -v pytest &> /dev/null && command -v coverage &> /dev/null; then
         else
             STATUS="❌"
         fi
-        
+
         echo "$STATUS Test Coverage:"
         echo "   Current:  ${CURRENT_COVERAGE}% (baseline: ${BASELINE_COVERAGE}%)"
         echo "   Target:   ≥${TARGET_COVERAGE}%"
@@ -83,7 +83,7 @@ fi
 if command -v pytest &> /dev/null; then
     TOTAL_TESTS=$(pytest --co -q 2>/dev/null | wc -l | tr -d ' ')
     PASSING_TESTS=$(pytest tests/ -q --tb=no 2>&1 | grep -c "PASSED" || echo "0")
-    
+
     echo "✅ Tests:"
     echo "   Total:    $TOTAL_TESTS tests"
     echo "   Status:   All passing (69/69 baseline)"
@@ -103,7 +103,7 @@ if command -v coverage &> /dev/null; then
         STATUS="🟡"
     fi
     echo "$STATUS admin_service.py:        ${ADMIN_COV}% (target: ≥60%)"
-    
+
     # Humanizer
     HUMANIZER_COV=$(coverage report --include="app/services/ai_pipeline/humanizer.py" 2>/dev/null | tail -1 | awk '{print $NF}' | sed 's/%//' || echo "0")
     if (( $(echo "$HUMANIZER_COV >= 60" | bc -l) )); then
@@ -112,7 +112,7 @@ if command -v coverage &> /dev/null; then
         STATUS="🟡"
     fi
     echo "$STATUS humanizer.py:             ${HUMANIZER_COV}% (target: ≥60%)"
-    
+
     # Background jobs
     JOBS_COV=$(coverage report --include="app/services/background_jobs.py" 2>/dev/null | tail -1 | awk '{print $NF}' | sed 's/%//' || echo "0")
     if (( $(echo "$JOBS_COV >= 60" | bc -l) )); then
@@ -147,4 +147,3 @@ else
     echo "⚠️  Issues detected. Please review and fix."
     exit 1
 fi
-

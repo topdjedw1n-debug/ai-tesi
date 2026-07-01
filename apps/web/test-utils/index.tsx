@@ -57,7 +57,7 @@ export const mockUser = {
 export const mockAdminUser = {
   ...mockUser,
   id: 2,
-  email: 'admin@tesigo.com',
+  email: 'admin@thesica.ai',
   full_name: 'Admin User',
   is_admin: true,
 };

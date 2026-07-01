@@ -1,11 +1,11 @@
 #!/bin/bash
-# Health Check Script for TesiGo Project
+# Health Check Script for Thesica Project
 # Checks: Python version, tests, MyPy, coverage
 
 set -e
 
 echo "═══════════════════════════════════════════════════════════"
-echo "           TesiGo Project Health Check"
+echo "           Thesica Project Health Check"
 echo "═══════════════════════════════════════════════════════════"
 echo ""
 
@@ -104,4 +104,3 @@ else
     echo "❌ Project has ISSUES"
     exit 1
 fi
-

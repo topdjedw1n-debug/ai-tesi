@@ -212,7 +212,7 @@ async def test_jwt_token_invalid_iss(db_session):
 
     try:
         # Set JWT_ISS
-        os.environ["JWT_ISS"] = "tesigo.com"
+        os.environ["JWT_ISS"] = "thesica.ai"
 
         # Recreate settings
         settings = Settings()

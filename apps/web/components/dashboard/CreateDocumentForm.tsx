@@ -90,7 +90,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
   } = useForm<CreateDocumentFormData>({
     resolver: zodResolver(createDocumentSchema),
     defaultValues: {
-      language: 'en',
+      language: 'it',
       pages: 10,
       citationStyle: 'APA',
     },
@@ -168,7 +168,25 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
       setCreatedDocumentId(document.id)
       setDocumentPages(data.pages)
       if (!isUserPaymentFlowEnabled) {
-        toast.success('Document created in draft mode. Payments are currently unavailable.')
+        // MVP free mode: one action for the manager — create the draft and
+        // immediately kick off generation, then land on the document page
+        // where live progress is shown.
+        try {
+          await apiClient.post(
+            API_ENDPOINTS.GENERATE.FULL,
+            { document_id: document.id },
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+          toast.success('Document created — generation started')
+        } catch (genError: any) {
+          // The draft was created but generation didn't start (e.g. daily
+          // limit or page cap). Surface the reason; the document page has a
+          // "Generate" button to retry.
+          toast.error(
+            genError?.message ||
+              'Created, but generation could not start automatically. Open the document to retry.'
+          )
+        }
         if (onSuccess) {
           onSuccess(document.id)
         }

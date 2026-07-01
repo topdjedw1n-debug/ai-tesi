@@ -72,7 +72,7 @@ def run_single_test(test_file: str, verbose: bool = False) -> tuple[bool, str]:
         )
         return result.returncode == 0, result.stdout + result.stderr
     except subprocess.TimeoutExpired:
-        return False, f"Test timed out after 120 seconds"
+        return False, "Test timed out after 120 seconds"
     except Exception as e:
         return False, f"Error running test: {str(e)}"
 
@@ -112,7 +112,7 @@ def find_polluter(
 
     # Initial cleanup
     if check_artifact_exists(artifact):
-        print(f"⚠️  Artifact exists before tests. Cleaning up...")
+        print("⚠️  Artifact exists before tests. Cleaning up...")
         cleanup_artifact(artifact)
         print()
 

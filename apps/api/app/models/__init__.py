@@ -17,6 +17,9 @@ from app.models.document import (
     DocumentProvenance,
     DocumentSection,
     DocumentSource,
+    EditorTask,
+    ProductionCase,
+    ReleaseGateResult,
 )
 from app.models.payment import Payment
 from app.models.refund import RefundRequest
@@ -30,6 +33,9 @@ __all__ = [
     "DocumentOutline",
     "DocumentProvenance",
     "DocumentSource",
+    "ProductionCase",
+    "ReleaseGateResult",
+    "EditorTask",
     "Payment",
     "RefundRequest",
     "AdminAuditLog",

@@ -404,6 +404,110 @@ async def get_current_user(
 
 
 # ============================================================================
+# PASSWORD LOGIN FOR MANAGERS / PASSWORD USERS (NO MAGIC LINK, NO EMAIL)
+# ============================================================================
+
+
+class PasswordLoginRequest(BaseModel):
+    """Login with a plain username (or email) + password.
+
+    ``username`` is matched verbatim against ``User.email`` so managers can
+    sign in with simple logins like ``manager1`` — no real mailbox required.
+    """
+
+    username: str
+    password: str
+
+
+@router.post("/login", response_model=TokenResponse)
+@rate_limit("10/hour")  # Per-user/IP rate limit: 10/hr
+async def password_login(
+    request: Request,
+    login_data: PasswordLoginRequest,
+    db: AsyncSession = Depends(get_db),
+) -> TokenResponse:
+    """Authenticate a user with username/email + password.
+
+    Returns the same access/refresh token pair as magic-link verification,
+    so the regular user session (and auto-refresh) works unchanged.
+    """
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    ip = request.client.host if request.client else "unknown"
+    identifier = get_user_id_or_ip(request)
+
+    # Check for auth lockout
+    lockout = await check_auth_lockout(identifier)
+    if lockout:
+        log_security_audit_event(
+            event_type="auth_attempt",
+            correlation_id=correlation_id,
+            ip=ip,
+            endpoint="/api/v1/auth/login",
+            resource="auth",
+            action="password_login",
+            outcome="denied",
+            details={
+                "reason": "account_locked",
+                "lockout_minutes": int(lockout.total_seconds() / 60),
+            },
+        )
+        raise RateLimitError(
+            f"Account temporarily locked due to multiple failed authentication "
+            f"attempts. Please try again in "
+            f"{int(lockout.total_seconds() / 60)} minutes."
+        )
+
+    try:
+        auth_service = AuthService(db)
+        result = await auth_service.login_with_password(
+            login_data.username, login_data.password
+        )
+        # Clear auth failures on successful login
+        await clear_auth_failures(identifier)
+
+        user_id = result.get("user", {}).get("id")
+        log_security_audit_event(
+            event_type="auth_success",
+            correlation_id=correlation_id,
+            user_id=user_id,
+            ip=ip,
+            endpoint="/api/v1/auth/login",
+            resource="auth",
+            action="password_login",
+            outcome="success",
+        )
+
+        return result
+    except AuthenticationError:
+        # Record failed auth attempt (drives lockout)
+        await record_auth_failure(identifier)
+
+        log_security_audit_event(
+            event_type="auth_failure",
+            correlation_id=correlation_id,
+            ip=ip,
+            endpoint="/api/v1/auth/login",
+            resource="auth",
+            action="password_login",
+            outcome="failure",
+            details={"reason": "invalid_credentials"},
+        )
+        raise
+    except Exception as e:
+        log_security_audit_event(
+            event_type="auth_failure",
+            correlation_id=correlation_id,
+            ip=ip,
+            endpoint="/api/v1/auth/login",
+            resource="auth",
+            action="password_login",
+            outcome="failure",
+            details={"reason": "internal_error", "error": str(e)},
+        )
+        raise AuthenticationError("Failed to login") from e
+
+
+# ============================================================================
 # SIMPLE ADMIN LOGIN FOR TESTING (NO MAGIC LINK)
 # ============================================================================
 
@@ -424,7 +528,7 @@ async def admin_simple_login(
     TESTING ONLY: Simple admin login without magic link
 
     Use: POST /api/v1/auth/admin-login
-    Body: {"email": "admin@tesigo.com", "password": "admin123"}
+    Body: {"email": "admin@thesica.ai", "password": "admin123"}
     """
     # Get admin user
     result = await db.execute(

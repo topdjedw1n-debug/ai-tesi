@@ -1,6 +1,6 @@
 # Integration Tests Suite
 
-Comprehensive integration tests for TesiGo API covering full user journeys, security, error handling, and performance.
+Comprehensive integration tests for Thesica API covering full user journeys, security, error handling, and performance.
 
 ## Structure
 

@@ -16,7 +16,7 @@ interface Document {
   topic: string
   language: string
   target_pages: number
-  status: 'draft' | 'generating' | 'completed' | 'failed'
+  status: string
   ai_provider: string
   ai_model: string
   tokens_used: number

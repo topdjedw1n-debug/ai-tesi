@@ -1,6 +1,6 @@
 # Load Testing with Locust
 
-Load testing configuration for TesiGo API using Locust.
+Load testing configuration for Thesica API using Locust.
 
 ## Installation
 
@@ -55,7 +55,7 @@ Options:
 ```bash
 # 100 users, spawn 10/sec, run for 10 minutes
 locust -f locustfile.py \
-  --host=https://api.tesigo.com \
+  --host=https://api.thesica.ai \
   --users=100 \
   --spawn-rate=10 \
   --headless \
@@ -72,7 +72,7 @@ According to Phase 3 requirements:
 
 ## Test Scenarios
 
-The `TesiGoUser` class simulates:
+The `ThesicaUser` class simulates:
 - Document listing (weight: 3) - most common
 - Health checks (weight: 2)
 - Document creation (weight: 1)
@@ -85,7 +85,7 @@ The `TesiGoUser` class simulates:
 For authenticated endpoints, you can:
 1. Pre-create test users with valid tokens
 2. Modify `on_start()` to use test tokens
-3. Use `AuthenticatedTesiGoUser` class for auth-only tests
+3. Use `AuthenticatedThesicaUser` class for auth-only tests
 
 ## Monitoring
 

@@ -5,7 +5,6 @@ Tests: None limiter, valid limiter, DISABLE_RATE_LIMIT flag
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from fastapi import FastAPI, Request
-from fastapi.testclient import TestClient
 from app.middleware.rate_limit import (
     get_limiter,
     setup_rate_limiter,

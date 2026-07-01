@@ -2,6 +2,10 @@ import { API_ENDPOINTS, apiClient } from '../api'
 import { adminApiClient } from '../api/admin'
 import { refundsApiClient } from '../api/refunds'
 
+jest.mock('../feature-flags', () => ({
+  isUserRefundFlowEnabled: true,
+}))
+
 describe('API contract smoke checks', () => {
   afterEach(() => {
     jest.restoreAllMocks()
@@ -67,5 +71,24 @@ describe('API contract smoke checks', () => {
 
     expect(getSpy).toHaveBeenNthCalledWith(1, '/api/v1/refunds?status=pending&page=2&per_page=15')
     expect(getSpy).toHaveBeenNthCalledWith(2, '/api/v1/refunds/55')
+  })
+
+  it('records production case detector evidence via structured admin route', async () => {
+    const postSpy = jest.spyOn(apiClient, 'post').mockResolvedValue({} as never)
+    const payload = {
+      detector_name: 'GPTZero',
+      result_percent: 24,
+      threshold_percent: 35,
+      checked_at: '2026-06-22T10:00:00Z',
+      report_ref: 'docs/phase1-runs/RUN-001.md',
+      reason: 'Phase 1 proof run detector evidence.',
+    }
+
+    await adminApiClient.recordDetectorResult(12, 'ai_detection_proxy', payload)
+
+    expect(postSpy).toHaveBeenCalledWith(
+      '/api/v1/admin/production-cases/12/release-gates/ai_detection_proxy/detector-result',
+      payload
+    )
   })
 })

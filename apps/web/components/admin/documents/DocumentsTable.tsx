@@ -18,7 +18,7 @@ interface Document {
   topic: string
   language: string
   target_pages: number
-  status: 'draft' | 'generating' | 'completed' | 'failed'
+  status: string
   ai_provider: string
   ai_model: string
   tokens_used: number
@@ -48,6 +48,8 @@ export function DocumentsTable({
       generating: { color: 'bg-primary-900 text-primary-200', label: 'Generating' },
       completed: { color: 'bg-green-900 text-green-200', label: 'Completed' },
       failed: { color: 'bg-red-900 text-red-200', label: 'Failed' },
+      failed_quality: { color: 'bg-red-900 text-red-200', label: 'Failed QA' },
+      payment_pending: { color: 'bg-amber-900 text-amber-100', label: 'Payment Pending' },
     }
 
     const config = statusConfig[status] || statusConfig.draft

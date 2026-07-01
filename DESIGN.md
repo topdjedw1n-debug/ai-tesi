@@ -5,13 +5,13 @@
 > **Living component + infographic library:** [`thesica-brandbook.html`](thesica-brandbook.html) — open in a browser to see every token, element, and data-viz pattern rendered (light + dark). DESIGN.md is the spec; the brandbook is the proof.
 
 ## Brand Name & Logo
-- **Name:** **Thesica** (was working name "TesiGo"). Latin/academic feel; `-ica` suffix reads as a discipline (*logica, musica, etica*) across IT/ES/CZ/EN; root "thes-" carries *thesis*. Chosen for universality + clean domain/trademark runway (the literal "Thes-" tools like Thesify/ThesisAI are all taken; abstract picks like Laude/Accredo had conflicts).
+- **Name:** **Thesica** (was working name "Thesica"). Latin/academic feel; `-ica` suffix reads as a discipline (*logica, musica, etica*) across IT/ES/CZ/EN; root "thes-" carries *thesis*. Chosen for universality + clean domain/trademark runway (the literal "Thes-" tools like Thesify/ThesisAI are all taken; abstract picks like Laude/Accredo had conflicts).
 - **Domain:** primary **thesica.ai** (free, registered); defensive **getthesica.com** (free). `thesica.com` is taken.
 - **Wordmark:** "Thesica" set in **Literata 600** (the brand display serif). Optional `θ`-initial variant (theta = θέσις) kept as a backup motif.
 - **Mark:** **bookmark ribbon** — a notched ribbon = a marked / finished / distinguished document. Distinctive silhouette, holds down to 16px.
 - **Assets:** SVG files in `~/.gstack/projects/topdjedw1n-debug-ai-tesi/designs/design-system-20260621/brand/` — `thesica-mark.svg` (app icon), `thesica-mark-on-dark.svg`, `thesica-mark-mono.svg` (currentColor), `favicon.svg`, `thesica-lockup.svg` (mark + wordmark).
 - **Mark geometry (green tile + cream ribbon):** `<rect rx=20 fill=#0f6e56/>` + `<path d="M36 24 Q36 19 41 19 L51 19 Q56 19 56 24 L56 71 L46 61 L36 71 Z" fill=#fffdf9/>`.
-- **Propagated (2026-06-21):** renamed TesiGo → Thesica and swapped the placeholder logo for the ribbon mark across `apps/web` (Header/Footer/Dashboard, metadata, manifest, favicon), README/QUICK_START, and the brandbook. Test fixtures, `.env*`, eval data, and historical logs left untouched on purpose.
+- **Propagated (2026-06-21):** applied the Thesica name and swapped the placeholder logo for the ribbon mark across `apps/web` (Header/Footer/Dashboard, metadata, manifest, favicon), README/Quick Start, and the brandbook. Test fixtures, `.env*`, eval data, and historical logs were left untouched at the time.
 
 ## Product Context
 - **What this is:** Thesica — AI-генерація академічних робіт (дипломні/магістерські), де ядро цінності не «дешевше», а «дешево **і реально приймається** університетом» (плагіат + AI-детектор + наукрук).
@@ -104,7 +104,7 @@
 - `fontFamily.sans` → `['Source Sans 3', ...]`; додати `display: ['Literata', 'serif']`, `read: ['Literata','serif']`; `mono: ['JetBrains Mono', ...]` (вже є).
 - `globals.css`: замінити `@import Inter` на Literata+Source Sans 3+JetBrains Mono (URL вище); `body` → `bg-[#f7f5f0] text-[#1c1b19]`.
 - Кнопки `.btn-primary` → `bg-[#0f6e56] hover:bg-[#0a4d3c]`.
-- Reference: `tesigo-concierge-design.html` (попередник цього напряму) і дошка `~/.gstack/projects/topdjedw1n-debug-ai-tesi/designs/design-system-20260621/directions-board.html`.
+- Reference: `thesica-brandbook.html` for rendered components and `~/.gstack/projects/topdjedw1n-debug-ai-tesi/designs/design-system-20260621/directions-board.html` for the original direction board.
 
 ## Decisions Log
 | Date | Decision | Rationale |

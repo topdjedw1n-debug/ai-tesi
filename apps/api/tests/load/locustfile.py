@@ -1,5 +1,5 @@
 """
-Locust load testing configuration for TesiGo API
+Locust load testing configuration for Thesica API
 
 Usage:
     # Install locust first:
@@ -20,9 +20,9 @@ from locust import between, events, task
 from locust.contrib.fasthttp import FastHttpUser
 
 
-class TesiGoUser(FastHttpUser):
+class ThesicaUser(FastHttpUser):
     """
-    Simulates a TesiGo user making API requests
+    Simulates a Thesica user making API requests
 
     Wait time between requests: 1-3 seconds
     """
@@ -216,7 +216,7 @@ def on_test_stop(environment, **kwargs):
 
 
 # Alternative user class for authenticated requests only
-class AuthenticatedTesiGoUser(TesiGoUser):
+class AuthenticatedThesicaUser(ThesicaUser):
     """
     User class that requires authentication
     For use when you have pre-authenticated users

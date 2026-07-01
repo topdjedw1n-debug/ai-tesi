@@ -9,7 +9,9 @@ import {
   CreditCardIcon,
   ArrowPathIcon,
   Cog6ToothIcon,
+  ClipboardDocumentCheckIcon,
   ClipboardDocumentListIcon,
+  Squares2X2Icon,
   XMarkIcon,
 } from '@heroicons/react/24/outline'
 import { adminApiClient } from '@/lib/api/admin'
@@ -55,6 +57,8 @@ export function AdminSidebar({ sidebarOpen, setSidebarOpen }: AdminSidebarProps)
     { name: 'Dashboard', href: '/admin/dashboard', icon: HomeIcon },
     { name: 'Users', href: '/admin/users', icon: UsersIcon },
     { name: 'Documents', href: '/admin/documents', icon: DocumentTextIcon },
+    { name: 'Production Cases', href: '/admin/production-cases', icon: Squares2X2Icon },
+    { name: 'Phase 0 Readiness', href: '/admin/phase0-readiness', icon: ClipboardDocumentCheckIcon },
     { name: 'Payments', href: '/admin/payments', icon: CreditCardIcon },
     {
       name: 'Refunds',

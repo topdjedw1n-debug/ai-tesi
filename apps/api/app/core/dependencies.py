@@ -191,8 +191,8 @@ def verify_download_token(token: str) -> dict:
             token,
             settings.jwt_secret_key,
             algorithms=[settings.JWT_ALG],
-            audience="tesigo-download",
-            issuer="tesigo-api",
+            audience="thesica-download",
+            issuer="thesica-api",
         )
 
         # Validate token type

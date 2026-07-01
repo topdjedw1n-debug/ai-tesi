@@ -12,9 +12,9 @@ import { test, expect, Page } from '@playwright/test'
 const BASE_URL = 'http://localhost:3000'
 const API_URL = 'http://localhost:8000'
 
-const ADMIN_EMAIL = 'admin@tesigo.com'
+const ADMIN_EMAIL = 'admin@thesica.ai'
 const ADMIN_PASSWORD = 'admin123'
-const TEST_USER_EMAIL = 'testuser@tesigo.com'
+const TEST_USER_EMAIL = 'testuser@thesica.ai'
 
 // ────────────────────────────────────────────────
 // Shared state (fetched once per test run)
@@ -169,7 +169,7 @@ test('S1 – Landing page loads', async ({ page }) => {
   console.log(`  Failed HTTP: ${failedRequests.map(r => `${r.status} ${r.url}`).join(', ') || 'none'}`)
 
   const hasContent = bodyText.trim().length > 100
-  const noHard404 = !bodyText.includes('404') || bodyText.includes('TesiGo')
+  const noHard404 = !bodyText.includes('404') || bodyText.includes('Thesica')
 
   const result = hasContent && noHard404 ? 'PASS' : 'FAIL'
   console.log(`  → RESULT: ${result}`)
@@ -415,7 +415,7 @@ test('S5 – Payment history page', async ({ page }) => {
     const body = await page.textContent('body') || ''
     const isLoginPage = url.includes('/login') || url.includes('/auth')
     const isBlank = body.trim().length < 100
-    const is404 = body.toLowerCase().includes('404') && !body.includes('TesiGo')
+    const is404 = body.toLowerCase().includes('404') && !body.includes('Thesica')
 
     console.log(`  Tried ${u} → ${url} (blank: ${isBlank}, login: ${isLoginPage}, 404: ${is404})`)
 
@@ -755,7 +755,7 @@ test('S11 – Admin users list', async ({ page }) => {
   const body = await page.textContent('body') || ''
   const isLogin = url.includes('/login')
   const isBlank = body.trim().length < 100
-  const showsUsers = body.includes('admin@tesigo.com') || body.includes('testuser@tesigo.com')
+  const showsUsers = body.includes('admin@thesica.ai') || body.includes('testuser@thesica.ai')
 
   const uiErrors = failedRequests.filter(r => r.url.includes('user') && r.status >= 400)
   console.log(`  UI URL: ${url}`)
@@ -795,7 +795,7 @@ test('S12 – Admin block/unblock user (API + UI)', async ({ page }) => {
   const testUser = usersList.find((u: any) => u.email === TEST_USER_EMAIL)
 
   if (!testUser) {
-    console.log(`  → BLOCKED: testuser@tesigo.com not found in users list`)
+    console.log(`  → BLOCKED: testuser@thesica.ai not found in users list`)
     console.log(`  Users data: ${JSON.stringify(usersData).slice(0, 200)}`)
     return
   }
@@ -932,8 +932,8 @@ test('S14 – Admin logout', async ({ page }) => {
       break
     }
   }
-  // After dropdown open, try clicking the admin@tesigo.com area to open dropdown
-  const adminEmailBtn = page.locator('button').filter({ hasText: 'admin@tesigo.com' }).first()
+  // After dropdown open, try clicking the admin@thesica.ai area to open dropdown
+  const adminEmailBtn = page.locator('button').filter({ hasText: 'admin@thesica.ai' }).first()
   if (await adminEmailBtn.isVisible().catch(() => false)) {
     await adminEmailBtn.click()
     await page.waitForTimeout(600)

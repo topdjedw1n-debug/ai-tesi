@@ -2,16 +2,57 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { apiClient, API_ENDPOINTS } from '@/lib/api'
+import { apiClient, API_ENDPOINTS, setTokens } from '@/lib/api'
 import toast from 'react-hot-toast'
 
-export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const [emailSent, setEmailSent] = useState(false)
-  const router = useRouter()
+type Mode = 'password' | 'magic'
 
-  const handleSubmit = async (e: React.FormEvent) => {
+export default function LoginPage() {
+  const router = useRouter()
+  const [mode, setMode] = useState<Mode>('password')
+
+  // Password login (managers & password users)
+  const [login, setLogin] = useState('')
+  const [password, setPassword] = useState('')
+
+  // Magic-link login (fallback for email users)
+  const [email, setEmail] = useState('')
+  const [emailSent, setEmailSent] = useState(false)
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handlePasswordLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsLoading(true)
+
+    try {
+      const data = await apiClient.post(API_ENDPOINTS.AUTH.LOGIN, {
+        username: login.trim(),
+        password,
+      })
+
+      if (data.access_token && data.refresh_token) {
+        setTokens(data.access_token, data.refresh_token)
+      }
+
+      if (data.user) {
+        localStorage.setItem('user_data', JSON.stringify(data.user))
+        if (data.user.is_admin) {
+          localStorage.setItem('is_admin', 'true')
+          localStorage.setItem('admin_user', JSON.stringify(data.user))
+        }
+      }
+
+      toast.success('Signed in')
+      router.push(data.user?.is_admin ? '/admin/dashboard' : '/dashboard')
+    } catch (error: any) {
+      toast.error(error.message || 'Invalid login or password')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleMagicLink = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
@@ -26,7 +67,7 @@ export default function LoginPage() {
     }
   }
 
-  if (emailSent) {
+  if (mode === 'magic' && emailSent) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 px-4">
         <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 text-center">
@@ -58,47 +99,100 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="login-title">Welcome back</h1>
-          <p className="text-gray-600" data-testid="login-subtitle">Sign in to your account with magic link</p>
+          <p className="text-gray-600" data-testid="login-subtitle">
+            {mode === 'password'
+              ? 'Sign in with your login and password'
+              : 'Sign in to your account with a magic link'}
+          </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              data-testid="email-input"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              placeholder="you@example.com"
-              disabled={isLoading}
-            />
-          </div>
+        {mode === 'password' ? (
+          <form onSubmit={handlePasswordLogin} className="space-y-6">
+            <div>
+              <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-2">
+                Login
+              </label>
+              <input
+                id="login"
+                type="text"
+                autoComplete="username"
+                value={login}
+                onChange={(e) => setLogin(e.target.value)}
+                required
+                data-testid="login-input"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="manager1"
+                disabled={isLoading}
+              />
+            </div>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            data-testid="send-magic-link-button"
-            className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
-          >
-            {isLoading ? 'Sending...' : 'Send magic link →'}
-          </button>
-        </form>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                id="password"
+                type="password"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                data-testid="password-input"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="••••••••••••"
+                disabled={isLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              data-testid="password-login-button"
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Signing in...' : 'Sign in →'}
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleMagicLink} className="space-y-6">
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email address
+              </label>
+              <input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                data-testid="email-input"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                placeholder="you@example.com"
+                disabled={isLoading}
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={isLoading}
+              data-testid="send-magic-link-button"
+              className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+            >
+              {isLoading ? 'Sending...' : 'Send magic link →'}
+            </button>
+          </form>
+        )}
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-600">
-            Don&apos;t have an account?{' '}
-            <button
-              onClick={() => router.push('/auth/register')}
-              className="text-primary-600 hover:text-primary-700 font-medium"
-            >
-              Sign up
-            </button>
-          </p>
+          <button
+            onClick={() => setMode(mode === 'password' ? 'magic' : 'password')}
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+            data-testid="toggle-login-mode"
+          >
+            {mode === 'password'
+              ? 'Sign in with an email magic link instead'
+              : 'Sign in with a login and password instead'}
+          </button>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
