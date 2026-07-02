@@ -95,8 +95,27 @@ function checkDetail(check: QualityEvidenceSummary['checks']['grammar']): string
   return `${check.passed}/${check.total} passed · ${check.failed} failed · ${check.unchecked} unchecked`
 }
 
+function sourcePackDetail(sourcePack: QualityEvidenceSummary['sourcePack']): string {
+  if (sourcePack.status === 'missing') {
+    return 'No source pack was recorded for this run (grounding disabled or legacy document).'
+  }
+  if (sourcePack.status === 'failed') {
+    return 'Source pack is empty — generation ran closed-book.'
+  }
+  const bilingual = sourcePack.bilingual ? ' · bilingual search' : ''
+  if (sourcePack.status === 'warning') {
+    return `${sourcePack.packSize} sources — relevance threshold was relaxed to fill the pack, review sources${bilingual}`
+  }
+  return `${sourcePack.packSize} on-topic sources in the pack${bilingual}`
+}
+
 function buildRows(summary: QualityEvidenceSummary) {
   return [
+    {
+      title: 'Source availability',
+      status: summary.sourcePack.status,
+      detail: sourcePackDetail(summary.sourcePack),
+    },
     {
       title: 'Citation gate',
       status: summary.citationGate.status,

@@ -72,6 +72,15 @@ RELEASE_GATE_CONFIG: dict[str, dict[str, Any]] = {
         "override_allowed": False,
         "source": "document_export",
     },
+    # Honest source-base gate (doc-8 fix): an empty pack means generation ran
+    # closed-book; an underfilled pack means the topic-relevance threshold was
+    # silently relaxed — both must face the manager, not hide in a log.
+    # NOTE: appended LAST — override endpoints index gates by key order.
+    "source_availability": {
+        "blocking": True,
+        "override_allowed": True,
+        "source": "document_provenance",
+    },
 }
 
 
@@ -590,6 +599,32 @@ class ProductionCaseService:
             elif case.generation_status == "completed":
                 status_value = "warning"
                 summary = "Document completed but no stored delivery path is recorded."
+        elif gate_key == "source_availability":
+            # The rebuilt pack (post-outline) is what sections actually cite;
+            # fall back to the initial build for runs that never rebuilt.
+            # No event -> default no_data (blocks until an audited override),
+            # consistent with the other gates; gates are only computed at
+            # release time, so old cases are not retroactively touched.
+            event = _latest_event(events, "source_pack_rebuilt") or _latest_event(
+                events, "source_pack_built"
+            )
+            if event:
+                payload = _event_payload(event)
+                pack_size = int(payload.get("pack_size") or 0)
+                if pack_size == 0:
+                    status_value = "failed"
+                    summary = "Source pack is empty — generation ran closed-book."
+                elif payload.get("underfilled") is True:
+                    status_value = "warning"
+                    summary = (
+                        "Source base is thin; the topic-relevance threshold "
+                        f"was relaxed to fill the pack ({pack_size} sources) — "
+                        "review the sources before release."
+                    )
+                else:
+                    status_value = "passed"
+                    summary = f"{pack_size} on-topic sources in the pack."
+                evidence = payload
 
         return {
             "id": None,

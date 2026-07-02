@@ -140,7 +140,66 @@ describe('provenance quality evidence helpers', () => {
     expect(summary.reviewerPanel.status).toBe('missing')
     expect(summary.checks.grammar.status).toBe('missing')
     expect(summary.checks.aiDetection.status).toBe('missing')
+    expect(summary.sourcePack.status).toBe('missing')
     expect(summary.generation.sectionsGenerated).toBe(0)
+  })
+
+  it('summarizes the source pack: passed, warning (underfilled), failed (empty)', () => {
+    const healthy = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_built',
+        { pack_size: 18, mean_on_topic_score: 0.52, underfilled: false, bilingual: true },
+        'retrieval'
+      ),
+    ])
+    expect(healthy.sourcePack).toEqual({
+      status: 'passed',
+      packSize: 18,
+      underfilled: false,
+      bilingual: true,
+    })
+
+    const thin = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_built',
+        { pack_size: 5, underfilled: true, bilingual: false },
+        'retrieval'
+      ),
+    ])
+    expect(thin.sourcePack.status).toBe('warning')
+    expect(thin.sourcePack.underfilled).toBe(true)
+
+    const empty = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_built',
+        { pack_size: 0, underfilled: true, bilingual: false },
+        'retrieval'
+      ),
+    ])
+    expect(empty.sourcePack.status).toBe('failed')
+    expect(empty.sourcePack.packSize).toBe(0)
+  })
+
+  it('prefers the rebuilt source pack event over the initial build', () => {
+    const summary = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_built',
+        { pack_size: 20, underfilled: false, bilingual: true },
+        'retrieval'
+      ),
+      event(
+        2,
+        'source_pack_rebuilt',
+        { pack_size: 4, underfilled: true, bilingual: true },
+        'retrieval'
+      ),
+    ])
+    expect(summary.sourcePack.status).toBe('warning')
+    expect(summary.sourcePack.packSize).toBe(4)
   })
 
   it('surfaces unchecked checks from new-format events (GPTZero off case)', () => {

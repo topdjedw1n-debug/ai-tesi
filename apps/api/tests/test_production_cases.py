@@ -68,6 +68,17 @@ async def _add_provenance(document_id: int) -> None:
             [
                 DocumentProvenance(
                     document_id=document_id,
+                    stage="retrieval",
+                    event_type="source_pack_built",
+                    payload={
+                        "pack_size": 18,
+                        "mean_on_topic_score": 0.52,
+                        "underfilled": False,
+                        "bilingual": True,
+                    },
+                ),
+                DocumentProvenance(
+                    document_id=document_id,
                     stage="verification",
                     event_type="citation_gate",
                     payload={"passed": True, "status": "passed", "policy": "strict"},
@@ -158,6 +169,7 @@ async def test_admin_case_starts_with_blocking_no_data_release_gates(client):
         "ai_detection_proxy",
         "editorial_review",
         "delivery_package",
+        "source_availability",
     }
     assert all(gate["status"] == "no_data" for gate in gates)
 
@@ -577,6 +589,13 @@ async def test_release_blocked_by_unchecked_and_warning_until_override(client):
             "counts": {"supported": 4, "unsupported": 0},
         },
     )
+    # Healthy source base so source_availability is not among the blockers.
+    await _add_event(
+        int(document.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 20, "underfilled": False, "bilingual": False},
+    )
     case = await _create_case(client, admin, document)
 
     release_response = await client.post(
@@ -677,3 +696,130 @@ async def test_claim_support_warning_when_zero_claims_extracted(client):
     gate = await _get_gate(client, admin, case["id"], "claim_support")
     assert gate["status"] == "warning"
     assert "manually" in gate["summary"]
+
+
+@pytest.mark.asyncio
+async def test_source_availability_gate_passed_and_warning_and_failed(client):
+    """The honest source-base gate (doc-8 fix): underfilled pack -> warning,
+    empty pack -> failed, healthy pack -> passed. The relaxed threshold must
+    face the manager, not hide in a log."""
+    admin = await _create_user(
+        email="prod-admin-src1@example.com", is_admin=True, is_super_admin=True
+    )
+    customer = await _create_user(email="prod-client-src1@example.com")
+
+    # Healthy pack -> passed.
+    healthy_doc = await _create_document(int(customer.id), completed=True)
+    await _add_event(
+        int(healthy_doc.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 18, "underfilled": False, "bilingual": True},
+    )
+    healthy_case = await _create_case(client, admin, healthy_doc)
+    gate = await _get_gate(client, admin, healthy_case["id"], "source_availability")
+    assert gate["status"] == "passed"
+    assert "18" in gate["summary"]
+    assert gate["blocking"] is True
+    assert gate["override_allowed"] is True
+
+    # Underfilled pack (threshold silently relaxed) -> warning.
+    thin_doc = await _create_document(int(customer.id), completed=True)
+    await _add_event(
+        int(thin_doc.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 5, "underfilled": True, "bilingual": True},
+    )
+    thin_case = await _create_case(client, admin, thin_doc)
+    gate = await _get_gate(client, admin, thin_case["id"], "source_availability")
+    assert gate["status"] == "warning"
+    assert "relaxed" in gate["summary"]
+    assert gate["evidence"]["underfilled"] is True
+
+    # Empty pack -> failed (generation ran closed-book).
+    empty_doc = await _create_document(int(customer.id), completed=True)
+    await _add_event(
+        int(empty_doc.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 0, "underfilled": True, "bilingual": False},
+    )
+    empty_case = await _create_case(client, admin, empty_doc)
+    gate = await _get_gate(client, admin, empty_case["id"], "source_availability")
+    assert gate["status"] == "failed"
+    assert "closed-book" in gate["summary"]
+
+
+@pytest.mark.asyncio
+async def test_source_availability_gate_prefers_rebuilt_event_and_blocks_release(
+    client,
+):
+    """The post-outline rebuild is what sections actually cite, so it wins over
+    the initial build; a warning-state gate blocks release until overridden."""
+    admin = await _create_user(
+        email="prod-admin-src2@example.com", is_admin=True, is_super_admin=True
+    )
+    customer = await _create_user(email="prod-client-src2@example.com")
+    document = await _create_document(int(customer.id), completed=True)
+
+    # Initial build was healthy, but the rebuild (what sections cite) was thin.
+    await _add_event(
+        int(document.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 20, "underfilled": False, "bilingual": True},
+    )
+    await _add_event(
+        int(document.id),
+        "retrieval",
+        "source_pack_rebuilt",
+        {"pack_size": 4, "underfilled": True, "bilingual": True},
+    )
+    case = await _create_case(client, admin, document)
+
+    gate = await _get_gate(client, admin, case["id"], "source_availability")
+    assert gate["status"] == "warning"
+    assert gate["evidence"]["pack_size"] == 4
+
+    release_response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/release",
+        json={"notes": "Attempt with thin source base."},
+        headers=_auth_headers(admin),
+    )
+    assert release_response.status_code == 409
+    assert "source_availability" in release_response.json()["detail"]["blockers"]
+
+    # The audited override is the resolution path.
+    override = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/release-gates/"
+        "source_availability/override",
+        json={"reason": "Manager reviewed the 4 pack sources manually."},
+        headers=_auth_headers(admin),
+    )
+    assert override.status_code == 200, override.text
+    assert override.json()["status"] == "overridden"
+    assert override.json()["gate_key"] == "source_availability"
+
+
+@pytest.mark.asyncio
+async def test_source_availability_gate_no_data_blocks_release(client):
+    """No source-pack event (grounding off / legacy document) -> no_data, which
+    blocks release until an audited override — consistent with the other gates."""
+    admin = await _create_user(
+        email="prod-admin-src3@example.com", is_admin=True, is_super_admin=True
+    )
+    customer = await _create_user(email="prod-client-src3@example.com")
+    document = await _create_document(int(customer.id), completed=True)
+    case = await _create_case(client, admin, document)
+
+    gate = await _get_gate(client, admin, case["id"], "source_availability")
+    assert gate["status"] == "no_data"
+
+    release_response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/release",
+        json={"notes": "Attempt without source-pack evidence."},
+        headers=_auth_headers(admin),
+    )
+    assert release_response.status_code == 409
+    assert "source_availability" in release_response.json()["detail"]["blockers"]

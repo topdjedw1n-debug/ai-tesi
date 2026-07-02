@@ -99,6 +99,17 @@ export interface QualityEvidenceSummary {
     total: number
     criticalOverrides: number
   }
+  /**
+   * Source base of the upfront pack (source_pack_built / source_pack_rebuilt).
+   * 'failed' = empty pack (generation ran closed-book); 'warning' = the
+   * topic-relevance threshold was relaxed to fill the pack (underfilled).
+   */
+  sourcePack: {
+    status: GateStatus
+    packSize: number
+    underfilled: boolean
+    bilingual: boolean
+  }
   generation: {
     sectionsGenerated: number
     tokensUsed: number
@@ -328,6 +339,22 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
   ).length
   const criticalOverrides = panelEvents.filter((event) => event.payload?.critical_override === true).length
 
+  // The rebuilt pack (post-outline) is what sections actually cite; fall back
+  // to the initial build for runs that never rebuilt.
+  const sourcePackEvent =
+    latestEventOfType(events, 'source_pack_rebuilt') ??
+    latestEventOfType(events, 'source_pack_built')
+  const sourcePackPayload = sourcePackEvent?.payload ?? null
+  const sourcePackSize = numberOrZero(sourcePackPayload?.pack_size)
+  const sourcePackUnderfilled = sourcePackPayload?.underfilled === true
+  const sourcePackStatus: GateStatus = !sourcePackEvent
+    ? 'missing'
+    : sourcePackSize === 0
+      ? 'failed'
+      : sourcePackUnderfilled
+        ? 'warning'
+        : 'passed'
+
   const sectionEvents = events.filter((event) => event.event_type === 'section_generated')
   const tokensUsed = sectionEvents.reduce(
     (total, event) => total + numberOrZero(event.payload?.tokens_used),
@@ -398,6 +425,12 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
       failed: panelFailed,
       total: panelEvents.length,
       criticalOverrides,
+    },
+    sourcePack: {
+      status: sourcePackStatus,
+      packSize: sourcePackSize,
+      underfilled: sourcePackUnderfilled,
+      bilingual: sourcePackPayload?.bilingual === true,
     },
     generation: {
       sectionsGenerated: sectionEvents.length,
