@@ -27,6 +27,11 @@ logger = logging.getLogger(__name__)
 # the topic threshold once rather than shipping an (almost) empty pack.
 _UNDERFILL_FLOOR = 6
 
+# Max alt (translated) section titles turned into queries in the bilingual
+# pass. Keeps the HTTP volume bounded: ≤11 primary + ≤7 alt = ≤18 queries
+# × 2 providers.
+_ALT_TITLE_QUERY_CAP = 4
+
 # Coarse domain detection → anchor terms (reward) + off-topic markers (penalize).
 # Small, curated constants (YAGNI); make configurable later only if needed. The
 # "education" entry is what rejects corporate-training sources for school/uni
@@ -46,7 +51,12 @@ _DOMAIN_ANCHORS: dict[str, dict[str, set[str]]] = {
             "teachers",
             "student",
             "students",
-            "learning",
+            # NOTE: bare "learning" is deliberately NOT a detect marker — it
+            # appears in "machine learning" / "deep learning" topics that have
+            # nothing to do with education, and a false education detection
+            # would hard-gate every source of a non-education pack to 0.0.
+            # It stays in "anchor" below: once the domain IS education, a
+            # source mentioning learning is legitimate domain signal.
             "classroom",
             "pedagog",
             "didattica",
@@ -143,6 +153,9 @@ class SourcePack:
     topic: str
     sources: list[PackedSource] = field(default_factory=list)
     underfilled: bool = False
+    # True when the pack was queried/scored against an alt-language (English)
+    # topic translation as well — recorded in provenance for the QA panel.
+    bilingual: bool = False
 
     def keys(self) -> list[str]:
         return [ps.citation_key for ps in self.sources]
@@ -192,6 +205,8 @@ class SourcePackBuilder:
         target_size: int = 24,
         min_on_topic_score: float = 0.35,
         section_titles: list[str] | None = None,
+        alt_topic: str | None = None,
+        alt_section_titles: list[str] | None = None,
     ) -> SourcePack:
         """
         Retrieve, topic-score, filter, rank and key a source pack.
@@ -199,16 +214,46 @@ class SourcePackBuilder:
         Never raises: provider errors degrade to whatever sources were gathered
         (possibly an empty, underfilled pack) so generation is never harder-
         failed than today.
+
+        alt_topic / alt_section_titles are an OPTIONAL English translation of
+        the topic and section titles (doc-8 fix: English-language scholarship
+        is the norm in non-English theses, so the pack queries and scores
+        against BOTH language versions). The builder never translates by
+        itself — it stays pure (no LLM, no db) — callers pass the translation
+        in; when alt_topic is None behavior is byte-identical to before.
         """
         topic = (topic or "").strip()
+        alt_topic = (alt_topic or "").strip()
 
         # Domain first: anchored queries need it, and scoring reuses it.
         topic_terms = content_tokens(topic)
         for t in section_titles or []:
             topic_terms |= content_tokens(t)
-        domain = self._detect_domain(topic_terms)
+
+        alt_terms: set[str] = set()
+        if alt_topic:
+            alt_terms = content_tokens(alt_topic)
+            for t in alt_section_titles or []:
+                alt_terms |= content_tokens(t)
+
+        domain = self._detect_domain(topic_terms | alt_terms)
 
         queries = self._build_queries(topic, section_titles, language, domain)
+        if alt_topic:
+            queries += self._build_queries(
+                alt_topic,
+                (alt_section_titles or [])[:_ALT_TITLE_QUERY_CAP],
+                "en",
+                domain,
+            )
+            # Merge-dedup preserving order (same pattern as _build_queries).
+            seen: set[str] = set()
+            merged: list[str] = []
+            for q in queries:
+                if q.lower() not in seen:
+                    seen.add(q.lower())
+                    merged.append(q)
+            queries = merged
         per_query = max(10, target_size)
 
         raw: list[SourceDoc] = []
@@ -221,8 +266,26 @@ class SourcePackBuilder:
 
         deduped = self.rag._deduplicate_sources(raw)
 
+        # Bilingual scoring: max() of the two passes, so a good EN source is
+        # not killed by comparison against Italian tokens (and max only ever
+        # RAISES scores, so existing monolingual packs cannot degrade). The
+        # anchor gate and off_topic penalties apply in both passes. A short
+        # alt topic would inflate coverage via a small denominator — mitigated
+        # by folding the alt section titles into alt_terms (mirrors
+        # topic_terms).
         scored: list[tuple[float, SourceDoc]] = [
-            (self._on_topic_score(src, topic_terms, domain), src) for src in deduped
+            (
+                max(
+                    self._on_topic_score(src, topic_terms, domain),
+                    (
+                        self._on_topic_score(src, alt_terms, domain)
+                        if alt_terms
+                        else 0.0
+                    ),
+                ),
+                src,
+            )
+            for src in deduped
         ]
 
         underfilled = False
@@ -255,10 +318,12 @@ class SourcePackBuilder:
             topic=topic,
             sources=packed,
             underfilled=underfilled or not packed,
+            bilingual=bool(alt_terms),
         )
         logger.info(
             f"Built source pack for document {document_id}: {len(packed)} sources "
-            f"from {len(deduped)} candidates (domain={domain or 'generic'})"
+            f"from {len(deduped)} candidates (domain={domain or 'generic'}, "
+            f"bilingual={pack.bilingual})"
         )
         return pack
 

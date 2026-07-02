@@ -580,10 +580,56 @@ async def _run_claim_verification_stage(
 # ========== End Citation Verification Helpers ==========
 
 
+async def _translate_pack_terms(
+    ai_service: AIService,
+    topic: str,
+    section_titles: list[str] | None,
+) -> tuple[str | None, list[str] | None]:
+    """
+    Translate topic + section titles to English for the bilingual source pack.
+
+    One small LLM call (purpose="pack_translation"); its tokens fall into the
+    caller's usage tracker like every other pipeline call. NEVER harder-fails
+    the build: any provider error or malformed response degrades to
+    (None, None) with a warning, and the pack is built monolingually as before.
+    """
+    titles = [t.strip() for t in (section_titles or []) if (t or "").strip()]
+    prompt = (
+        "Translate this academic thesis topic and section titles into English "
+        "for scholarly literature search.\n"
+        "Return ONLY a JSON object exactly of the form "
+        '{"topic": "...", "section_titles": ["...", "..."]} with no other text.\n'
+        f"Topic: {topic}\n"
+        f"Section titles (JSON): {json.dumps(titles, ensure_ascii=False)}"
+    )
+    try:
+        response = await ai_service.call_with_fallback(
+            prompt, purpose="pack_translation"
+        )
+        alt_topic = response.get("topic")
+        alt_titles = response.get("section_titles")
+        if not isinstance(alt_topic, str) or not alt_topic.strip():
+            raise ValueError(f"invalid translated topic: {alt_topic!r}")
+        if not isinstance(alt_titles, list) or not all(
+            isinstance(t, str) for t in alt_titles
+        ):
+            raise ValueError("invalid translated section_titles")
+        return (
+            alt_topic.strip(),
+            [t.strip() for t in alt_titles if t.strip()],
+        )
+    except Exception as e:
+        logger.warning(
+            f"⚠️ Source-pack translation failed, building monolingual pack: {e}"
+        )
+        return None, None
+
+
 async def _build_source_pack(
     db: AsyncSession,
     document: Document,
     section_titles: list[str] | None = None,
+    ai_service: AIService | None = None,
 ) -> Any:
     """
     Thin wrapper around SourcePackBuilder.build for the upfront source pack.
@@ -593,7 +639,23 @@ async def _build_source_pack(
     wrappers. Returns a SourcePack (never raises — builder degrades gracefully).
     section_titles is set on the post-outline rebuild so queries cover every
     promised section, not just the bare topic.
+
+    When ai_service is provided, the bilingual flag is on and the document is
+    not in English, topic + titles are first translated to English so the pack
+    is queried and scored in both languages (translation failure degrades to
+    the monolingual build). Translation lives HERE, not in the builder, so the
+    builder stays pure/deterministic and the LLM spend lands in job usage.
     """
+    alt_topic: str | None = None
+    alt_titles: list[str] | None = None
+    if (
+        settings.SOURCE_PACK_BILINGUAL_ENABLED
+        and ai_service is not None
+        and not str(document.language or "").lower().startswith("en")
+    ):
+        alt_topic, alt_titles = await _translate_pack_terms(
+            ai_service, str(document.topic), section_titles
+        )
     builder = SourcePackBuilder()
     return await builder.build(
         topic=str(document.topic),
@@ -602,6 +664,8 @@ async def _build_source_pack(
         target_size=settings.SOURCE_PACK_TARGET_SIZE,
         min_on_topic_score=settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE,
         section_titles=section_titles,
+        alt_topic=alt_topic,
+        alt_section_titles=alt_titles,
     )
 
 
@@ -723,7 +787,11 @@ class BackgroundJobService:
                 if settings.SOURCE_GROUNDING_ENABLED:
                     source_pack = await _load_source_pack(db, document_id)
                     if source_pack is None or not source_pack.sources:
-                        source_pack = await _build_source_pack(db, document)
+                        source_pack = await _build_source_pack(
+                            db,
+                            document,
+                            ai_service=AIService(db, usage_tracker=usage),
+                        )
                         if source_pack is not None:
                             await _persist_source_pack(db, document_id, source_pack)
                             if settings.PROVENANCE_LEDGER_ENABLED:
@@ -743,6 +811,9 @@ class BackgroundJobService:
                                             else 0.0
                                         ),
                                         "underfilled": source_pack.underfilled,
+                                        "bilingual": bool(
+                                            getattr(source_pack, "bilingual", False)
+                                        ),
                                     },
                                 )
 
@@ -849,7 +920,10 @@ class BackgroundJobService:
                     titles = [s.get("title") for s in sections if s.get("title")]
                     if titles:
                         source_pack = await _build_source_pack(
-                            db, document, section_titles=titles
+                            db,
+                            document,
+                            section_titles=titles,
+                            ai_service=AIService(db, usage_tracker=usage),
                         )
                         await _persist_source_pack(db, document_id, source_pack)
                         if settings.PROVENANCE_LEDGER_ENABLED:
@@ -867,6 +941,9 @@ class BackgroundJobService:
                                         else 0.0
                                     ),
                                     "underfilled": source_pack.underfilled,
+                                    "bilingual": bool(
+                                        getattr(source_pack, "bilingual", False)
+                                    ),
                                     "section_titles": titles[:12],
                                 },
                             )

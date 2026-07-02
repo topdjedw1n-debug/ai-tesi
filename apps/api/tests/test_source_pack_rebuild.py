@@ -186,7 +186,9 @@ def rebuild_harness(stack: ExitStack, db_session, redis_checkpoint: str | None):
 
     # Pack seams (module globals, per the thin-wrapper convention).
     build_pack = AsyncMock(
-        side_effect=lambda db, doc, section_titles=None: fake_pack(int(doc.id))
+        side_effect=lambda db, doc, section_titles=None, ai_service=None: fake_pack(
+            int(doc.id)
+        )
     )
     stack.enter_context(
         patch("app.services.background_jobs._build_source_pack", build_pack)
@@ -230,6 +232,10 @@ async def test_fresh_generation_rebuilds_pack_with_section_titles(
         assert mocks["build_pack"].call_count == 2
         rebuild_kwargs = mocks["build_pack"].call_args_list[1].kwargs
         assert rebuild_kwargs.get("section_titles") == ["Introduzione"]
+        # Both call sites hand over an AIService so the bilingual translation
+        # (and its token spend) can happen inside the wrapper.
+        for call in mocks["build_pack"].call_args_list:
+            assert call.kwargs.get("ai_service") is not None
         assert mocks["persist_pack"].call_count == 2
         # The rebuilt pack is what sections consume.
         section_kwargs = mocks["generate_section"].call_args.kwargs
@@ -268,3 +274,143 @@ async def test_resume_skips_rebuild(db_session, monkeypatch):
         )
         # Section 1 (checkpointed) skipped; only section 2 generated.
         assert mocks["generate_section"].call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# Bilingual translation in the _build_source_pack wrapper (doc-8 fix).
+# ---------------------------------------------------------------------------
+
+
+def _fake_document(language: str = "it") -> MagicMock:
+    document = MagicMock()
+    document.id = 7
+    document.topic = "L'impatto del COVID-19 sull'economia"
+    document.language = language
+    return document
+
+
+def _capture_builder(monkeypatch, captured: dict):
+    """Replace SourcePackBuilder with a stub that records build() kwargs."""
+    from app.services import background_jobs as bj
+
+    class FakeBuilder:
+        async def build(self, **kwargs):
+            captured.update(kwargs)
+            return fake_pack(int(kwargs["document_id"]))
+
+    monkeypatch.setattr(bj, "SourcePackBuilder", FakeBuilder)
+
+
+@pytest.mark.asyncio
+async def test_build_source_pack_passes_translation_to_builder(monkeypatch):
+    from app.services import background_jobs as bj
+
+    monkeypatch.setattr(bj, "settings", make_settings())
+    captured: dict = {}
+    _capture_builder(monkeypatch, captured)
+    translate = AsyncMock(return_value=("EN topic", ["EN Title"]))
+    monkeypatch.setattr(bj, "_translate_pack_terms", translate)
+
+    ai_service = MagicMock()
+    await bj._build_source_pack(
+        None, _fake_document(), section_titles=["Sezione"], ai_service=ai_service
+    )
+
+    translate.assert_awaited_once_with(
+        ai_service, "L'impatto del COVID-19 sull'economia", ["Sezione"]
+    )
+    assert captured["alt_topic"] == "EN topic"
+    assert captured["alt_section_titles"] == ["EN Title"]
+
+
+@pytest.mark.asyncio
+async def test_build_source_pack_translation_failure_degrades_to_monolingual(
+    monkeypatch,
+):
+    from app.services import background_jobs as bj
+
+    monkeypatch.setattr(bj, "settings", make_settings())
+    captured: dict = {}
+    _capture_builder(monkeypatch, captured)
+    monkeypatch.setattr(
+        bj, "_translate_pack_terms", AsyncMock(return_value=(None, None))
+    )
+
+    await bj._build_source_pack(None, _fake_document(), ai_service=MagicMock())
+
+    assert captured["alt_topic"] is None
+    assert captured["alt_section_titles"] is None
+
+
+@pytest.mark.asyncio
+async def test_build_source_pack_flag_off_skips_translation(monkeypatch):
+    from app.services import background_jobs as bj
+
+    monkeypatch.setattr(
+        bj, "settings", make_settings(SOURCE_PACK_BILINGUAL_ENABLED=False)
+    )
+    captured: dict = {}
+    _capture_builder(monkeypatch, captured)
+    translate = AsyncMock()
+    monkeypatch.setattr(bj, "_translate_pack_terms", translate)
+
+    await bj._build_source_pack(None, _fake_document(), ai_service=MagicMock())
+
+    translate.assert_not_awaited()
+    assert captured["alt_topic"] is None
+
+
+@pytest.mark.asyncio
+async def test_build_source_pack_english_document_skips_translation(monkeypatch):
+    from app.services import background_jobs as bj
+
+    monkeypatch.setattr(bj, "settings", make_settings())
+    captured: dict = {}
+    _capture_builder(monkeypatch, captured)
+    translate = AsyncMock()
+    monkeypatch.setattr(bj, "_translate_pack_terms", translate)
+
+    await bj._build_source_pack(
+        None, _fake_document(language="en"), ai_service=MagicMock()
+    )
+    # No ai_service at all (legacy caller) must also skip.
+    await bj._build_source_pack(None, _fake_document(language="it"))
+
+    translate.assert_not_awaited()
+    assert captured["alt_topic"] is None
+
+
+@pytest.mark.asyncio
+async def test_translate_pack_terms_validates_and_degrades():
+    from app.services import background_jobs as bj
+
+    ai = MagicMock()
+    # Happy path: parsed JSON keys come back from call_with_fallback.
+    ai.call_with_fallback = AsyncMock(
+        return_value={
+            "topic": " The impact of COVID-19 ",
+            "section_titles": ["Introduction", " Future "],
+            "tokens_used": 42,
+        }
+    )
+    assert await bj._translate_pack_terms(ai, "Tema", ["Introduzione"]) == (
+        "The impact of COVID-19",
+        ["Introduction", "Future"],
+    )
+    assert ai.call_with_fallback.await_args.kwargs.get("purpose") == "pack_translation"
+
+    # Provider blew up -> (None, None), never raises.
+    ai.call_with_fallback = AsyncMock(side_effect=RuntimeError("boom"))
+    assert await bj._translate_pack_terms(ai, "Tema", None) == (None, None)
+
+    # Model returned prose instead of JSON -> {"content": ...} -> (None, None).
+    ai.call_with_fallback = AsyncMock(
+        return_value={"content": "Sure! Here is the translation…", "tokens_used": 5}
+    )
+    assert await bj._translate_pack_terms(ai, "Tema", None) == (None, None)
+
+    # Garbage types -> (None, None).
+    ai.call_with_fallback = AsyncMock(
+        return_value={"topic": "", "section_titles": "not-a-list", "tokens_used": 5}
+    )
+    assert await bj._translate_pack_terms(ai, "Tema", None) == (None, None)

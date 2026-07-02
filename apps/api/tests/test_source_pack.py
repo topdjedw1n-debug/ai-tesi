@@ -233,3 +233,133 @@ def test_build_queries_includes_language_anchors_and_is_bounded():
     # No domain -> no anchored queries; legacy 2-arg-style call still works.
     qs_plain = SourcePackBuilder._build_queries(_EDU_TOPIC, None)
     assert qs_plain == [_EDU_TOPIC]
+
+
+# ---------------------------------------------------------------------------
+# Bilingual pack (doc-8 fix): EN translation queries + max() scoring.
+# ---------------------------------------------------------------------------
+
+_COVID_TOPIC_IT = "L'impatto della pandemia COVID-19 sull'economia degli Stati Uniti"
+_COVID_TOPIC_EN = "The impact of the COVID-19 pandemic on the United States economy"
+
+
+@pytest.mark.asyncio
+async def test_build_merges_alt_queries_and_caps_alt_titles():
+    builder = SourcePackBuilder()
+    seen_queries: list[str] = []
+
+    async def capture(query, limit=10):
+        seen_queries.append(query)
+        return []
+
+    builder.rag.search_crossref = AsyncMock(side_effect=capture)
+    builder.rag.search_openalex = AsyncMock(side_effect=capture)
+
+    await builder.build(
+        topic=_COVID_TOPIC_IT,
+        language="it",
+        document_id=1,
+        section_titles=[f"Sezione {i}" for i in range(1, 9)],
+        alt_topic=_COVID_TOPIC_EN,
+        alt_section_titles=[f"Chapter number {i}" for i in range(1, 9)],
+    )
+
+    unique = list(dict.fromkeys(seen_queries))
+    assert _COVID_TOPIC_EN in unique  # bare alt topic queried
+    # Only 4 of the 8 alt titles become queries (the cap), all 8 IT ones do.
+    alt_title_queries = [q for q in unique if "Chapter number" in q]
+    it_title_queries = [q for q in unique if "Sezione" in q]
+    assert len(alt_title_queries) == 4
+    assert len(it_title_queries) == 8
+    assert len(unique) <= 18
+
+
+@pytest.mark.asyncio
+async def test_en_source_passes_threshold_via_alt_terms():
+    """The doc-8 failure: a perfectly on-topic English source scored ~0 against
+    the Italian topic tokens. With alt terms it must clear the threshold."""
+    builder = SourcePackBuilder()
+    en_src = SourceDoc(
+        title="The economic impact of the COVID-19 pandemic on the United States",
+        authors=["Smith"],
+        year=2021,
+        abstract="pandemic recession unemployment economy united states impact",
+    )
+    builder.rag.search_crossref = AsyncMock(return_value=[en_src])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    mono = await builder.build(topic=_COVID_TOPIC_IT, language="it", document_id=1)
+    bi = await builder.build(
+        topic=_COVID_TOPIC_IT,
+        language="it",
+        document_id=1,
+        alt_topic=_COVID_TOPIC_EN,
+    )
+
+    mono_score = next(
+        (ps.on_topic_score for ps in mono.sources if ps.source.title == en_src.title),
+        0.0,
+    )
+    bi_score = next(
+        ps.on_topic_score for ps in bi.sources if ps.source.title == en_src.title
+    )
+    assert mono_score < 0.35  # today's behavior: killed by Italian tokens
+    assert bi_score >= 0.35  # bilingual: kept on merit
+    assert bi.bilingual is True
+    assert mono.bilingual is False
+
+
+@pytest.mark.asyncio
+async def test_alt_topic_none_is_byte_identical_to_legacy_build():
+    builder = SourcePackBuilder()
+    edu = _edu_source(
+        "AI in classroom learning for students",
+        abstract="students learning in school classroom",
+    )
+    builder.rag.search_crossref = AsyncMock(return_value=[edu])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    kwargs = {
+        "topic": "AI in education for students in schools",
+        "language": "en",
+        "document_id": 1,
+        "target_size": 10,
+        "min_on_topic_score": 0.35,
+    }
+    legacy = await builder.build(**kwargs)
+    explicit_none = await builder.build(
+        **kwargs, alt_topic=None, alt_section_titles=None
+    )
+
+    assert [
+        (ps.citation_key, ps.on_topic_score, ps.source.title) for ps in legacy.sources
+    ] == [
+        (ps.citation_key, ps.on_topic_score, ps.source.title)
+        for ps in explicit_none.sources
+    ]
+    assert legacy.underfilled == explicit_none.underfilled
+    assert explicit_none.bilingual is False
+
+
+def test_learning_in_alt_terms_does_not_flip_education_domain():
+    """Regression: an EN translation containing 'learning' (machine learning,
+    deep learning) on a NON-education topic must not detect the education
+    domain — its anchor hard-gate would zero every source in the pack."""
+    from app.services.ai_pipeline.text_utils import content_tokens
+
+    topic_terms = content_tokens(
+        "Previsioni di disoccupazione durante le recessioni economiche"
+    )
+    alt_terms = content_tokens(
+        "Machine learning forecasts of unemployment during economic recessions"
+    )
+    assert SourcePackBuilder._detect_domain(topic_terms | alt_terms) is None
+
+    # Real education vocabulary still detects (both languages).
+    assert (
+        SourcePackBuilder._detect_domain(
+            content_tokens("AI in education for students in schools")
+        )
+        == "education"
+    )
+    assert SourcePackBuilder._detect_domain(content_tokens(_EDU_TOPIC)) == "education"

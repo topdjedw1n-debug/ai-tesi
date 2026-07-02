@@ -181,6 +181,12 @@ class Settings(BaseSettings):
     SOURCE_GROUNDING_ENABLED: bool = False
     SOURCE_PACK_TARGET_SIZE: int = 24  # sources kept in the pack
     SOURCE_PACK_MIN_ON_TOPIC_SCORE: float = 0.35  # topic-relevance cutoff [0,1]
+    # Bilingual source pack (doc-8 fix): for non-English documents, translate
+    # topic + section titles to English (one small LLM call) and query/score
+    # the scholarly providers in BOTH languages — English bibliography in an
+    # Italian thesis is the norm, and Italian-only queries filled the pack
+    # with off-topic papers. Kill switch in case translations misbehave.
+    SOURCE_PACK_BILINGUAL_ENABLED: bool = True
 
     # Academic Quality Engine - In-loop grounding gate (OFF by default; needs
     # SOURCE_GROUNDING_ENABLED). After a section is generated and before it is

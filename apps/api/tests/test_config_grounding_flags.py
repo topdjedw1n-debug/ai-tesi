@@ -32,6 +32,9 @@ def test_defaults_are_off():
     assert s.GROUNDING_GATE_POLICY == "mark_only"
     assert s.CLAIM_VERIFICATION_BLOCKING is False
     assert s.SOURCE_PACK_TARGET_SIZE == 24
+    # Bilingual pack is ON by default (kill switch for bad translations);
+    # it only activates when grounding itself is enabled.
+    assert s.SOURCE_PACK_BILINGUAL_ENABLED is True
 
 
 def test_grounding_gate_requires_source_grounding():
