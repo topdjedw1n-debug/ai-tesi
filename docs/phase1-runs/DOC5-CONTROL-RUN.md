@@ -37,6 +37,17 @@ unsupported 4→≤1; grammar/plagiarism/AI не гірше порога) — **
 Compilatio-артефакт: `~/Downloads/COVID_economia_USA_doc9_bilingual.txt`
 (завантажити вручну).
 
+**Compilatio-результат doc 9 (02.07.2026, ПЕРШИЙ зовнішній замір):**
+headline «31% suspicious» = **6% similarities + 25% AI detection**
+(лапки 0%). Similarities 6% — це збіги по ~1% із САМЕ ТИМИ статтями, які
+робота цитує (DOI 10.54254/… = Wang2023/Yin2023 з пака) — нормальний
+перетин із процитованою літературою, не плагіат; Compilatio розпізнав
+бібліографію як «referenced sources». AI 25% < поріг 35% (форс-рішення
+фаундера) і узгоджується з внутрішнім GPTZero 17.1/34.6/33.8 — детектори
+бачать однаковий рівень. Звіти: `~/Downloads/{detailed,certificate}-report_en_covid_economia_usa_doc9_bilingualtxt.pdf`.
+Для C-блоку: читати Compilatio ПО СКЛАДНИКАХ (similarity й AI окремо),
+а не по headline-числу.
+
 Примітка: у прогоні №1 знайдено і виправлено латентний баг — builder
 приймав безавторні/безрічні джерела, а citation formatter їх жорстко
 відкидає посеред генерації; тепер фільтр на вході в пак (коміт 6adf03b).
