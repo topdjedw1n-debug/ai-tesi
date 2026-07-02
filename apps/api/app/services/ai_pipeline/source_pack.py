@@ -266,6 +266,19 @@ class SourcePackBuilder:
 
         deduped = self.rag._deduplicate_sources(raw)
 
+        # The pack is the citation universe for the whole document, and the
+        # citation formatter hard-requires author(s) + year (SourceDocument
+        # validates both in __post_init__): an uncitable source in the pack
+        # crashes section generation mid-run (doc-9 failure: an authorless
+        # Crossref row). Drop them here, before scoring.
+        citable = [src for src in deduped if src.authors and src.year]
+        if len(citable) < len(deduped):
+            logger.info(
+                f"Source pack dropped {len(deduped) - len(citable)} uncitable "
+                f"candidate(s) (missing author/year) for document {document_id}"
+            )
+        deduped = citable
+
         # Bilingual scoring: max() of the two passes, so a good EN source is
         # not killed by comparison against Italian tokens (and max only ever
         # RAISES scores, so existing monolingual packs cannot degrade). The

@@ -341,6 +341,41 @@ async def test_alt_topic_none_is_byte_identical_to_legacy_build():
     assert explicit_none.bilingual is False
 
 
+@pytest.mark.asyncio
+async def test_build_drops_uncitable_sources():
+    """doc-9 crash: the citation formatter hard-requires author(s) + year, so
+    an authorless or yearless source must never enter the pack."""
+    builder = SourcePackBuilder()
+    good = _edu_source(
+        "AI in classroom learning for students",
+        abstract="students learning in school classroom",
+    )
+    no_author = SourceDoc(
+        title="AI in education and classroom learning for students",
+        authors=[],
+        year=2022,
+        abstract="students learning education school",
+    )
+    no_year = SourceDoc(
+        title="Education students classroom learning with AI",
+        authors=["Verdi"],
+        year=0,
+        abstract="students learning education school",
+    )
+    builder.rag.search_crossref = AsyncMock(return_value=[good, no_author, no_year])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic="AI in education for students in schools",
+        language="en",
+        document_id=1,
+    )
+    titles = [ps.source.title for ps in pack.sources]
+    assert good.title in titles
+    assert no_author.title not in titles
+    assert no_year.title not in titles
+
+
 def test_learning_in_alt_terms_does_not_flip_education_domain():
     """Regression: an EN translation containing 'learning' (machine learning,
     deep learning) on a NON-education topic must not detect the education
