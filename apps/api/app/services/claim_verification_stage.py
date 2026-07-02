@@ -104,7 +104,7 @@ async def run_claim_verification_stage(
         budget_remaining = max(0, config.CLAIM_VERIFICATION_MAX_CHECKS)
         total_claims = 0
         total_checked = 0
-        total_counts: dict[str, int] = {}
+        total_counts = {}
 
         for section in sections:
             claims = verifier.extract_claims(section.content or "", sources)

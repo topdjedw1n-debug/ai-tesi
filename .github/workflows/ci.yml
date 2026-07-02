@@ -100,7 +100,9 @@ jobs:
           cd apps/api
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install mypy
+          # Pinned to the version used locally (venv); an unpinned install
+          # lets a new mypy release break CI without any code change.
+          pip install mypy==1.19.0
 
       - name: Run MyPy
         run: |
@@ -233,6 +235,7 @@ jobs:
     runs-on: ubuntu-latest
     needs:
       - repo-hygiene
+      - backend-mypy
       - backend-pytest
       - web-lint
       - web-typecheck
@@ -243,6 +246,7 @@ jobs:
       - name: Enforce mandatory gate
         run: |
           if [ "${{ needs.repo-hygiene.result }}" != "success" ] || \
+             [ "${{ needs.backend-mypy.result }}" != "success" ] || \
              [ "${{ needs.backend-pytest.result }}" != "success" ] || \
              [ "${{ needs.web-lint.result }}" != "success" ] || \
              [ "${{ needs.web-typecheck.result }}" != "success" ] || \

@@ -4,6 +4,7 @@ FastAPI dependencies for authentication and authorization
 
 import logging
 from collections.abc import Callable
+from typing import Any
 
 from fastapi import Depends, HTTPException, WebSocket, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -187,7 +188,7 @@ def verify_download_token(token: str) -> dict:
         HTTPException: 403 if token invalid or expired
     """
     try:
-        payload = jwt.decode(
+        payload: dict[str, Any] = jwt.decode(
             token,
             settings.jwt_secret_key,
             algorithms=[settings.JWT_ALG],
@@ -275,7 +276,7 @@ async def get_current_user_ws(
 
         async with AsyncSessionLocal() as db:
             result = await db.execute(select(User).where(User.id == user_id))
-            user = result.scalar_one_or_none()
+            user: User | None = result.scalar_one_or_none()
 
             if not user or not user.is_active:
                 await websocket.close(code=1008, reason="User not found or inactive")

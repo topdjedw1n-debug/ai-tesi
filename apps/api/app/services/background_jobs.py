@@ -986,7 +986,7 @@ class BackgroundJobService:
                             # ✅ BUG FIX: Always run ALL checks (for metrics), only block if gates enabled
 
                             gates_passed = True
-                            attempt_errors = []
+                            attempt_errors: list[str] = []
                             # Reset per attempt: stale remarks about an older
                             # draft must not leak into later prompts
                             panel_feedback = []
@@ -1006,7 +1006,10 @@ class BackgroundJobService:
 
                             if not grammar_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
-                                attempt_errors.append(grammar_error_msg)
+                                # error_msg is always set when the gate fails
+                                attempt_errors.append(
+                                    grammar_error_msg or "Grammar gate failed"
+                                )
                                 logger.warning(
                                     f"❌ Grammar gate FAILED: {grammar_error_msg}"
                                 )
@@ -1029,7 +1032,10 @@ class BackgroundJobService:
 
                             if not plagiarism_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
-                                attempt_errors.append(plagiarism_error_msg)
+                                # error_msg is always set when the gate fails
+                                attempt_errors.append(
+                                    plagiarism_error_msg or "Plagiarism gate failed"
+                                )
                                 logger.warning(
                                     f"❌ Plagiarism gate FAILED: {plagiarism_error_msg}"
                                 )
@@ -1061,7 +1067,10 @@ class BackgroundJobService:
 
                             if not ai_passed and settings.QUALITY_GATES_ENABLED:
                                 gates_passed = False
-                                attempt_errors.append(ai_error_msg)
+                                # error_msg is always set when the gate fails
+                                attempt_errors.append(
+                                    ai_error_msg or "AI detection gate failed"
+                                )
                                 logger.warning(
                                     f"❌ AI detection gate FAILED: {ai_error_msg}"
                                 )
@@ -1215,6 +1224,12 @@ class BackgroundJobService:
 
                         # ========== REGENERATION LOOP END ==========
 
+                        # ✅ BUG FIX: Defensive check - final_content must be set
+                        if final_content is None:
+                            error_msg = f"BUG: final_content is None after regeneration loop for section {section_index}"
+                            logger.error(error_msg)
+                            raise RuntimeError(error_msg)
+
                         # If we reached here, section passed all quality gates
                         # Run final quality validation (non-blocking, for
                         # stats only) - unless the reviewer panel already
@@ -1252,12 +1267,6 @@ class BackgroundJobService:
                                     f"Quality validation failed for section {section_index}: {e}"
                                 )
                                 final_quality_score = 75.0  # Neutral score on error
-
-                        # ✅ BUG FIX: Defensive check - final_content must be set
-                        if final_content is None:
-                            error_msg = f"BUG: final_content is None after regeneration loop for section {section_index}"
-                            logger.error(error_msg)
-                            raise RuntimeError(error_msg)
 
                         # Save or update section (using final scores from quality gates)
                         section_result_db = await db.execute(
@@ -1931,21 +1940,19 @@ class BackgroundJobService:
     async def _extract_pdf_text(file_path: str) -> str:
         """Extract text from PDF file"""
         try:
-            import PyPDF2
+            from pypdf import PdfReader
 
             text = ""
             with open(file_path, "rb") as file:
-                pdf_reader = PyPDF2.PdfReader(file)
+                pdf_reader = PdfReader(file)
                 for page in pdf_reader.pages:
                     text += page.extract_text() + "\n"
 
             return text.strip()
 
         except ImportError as e:
-            logger.error("PyPDF2 not installed. Install it with: pip install PyPDF2")
-            raise ValueError(
-                "PDF extraction not available: PyPDF2 not installed"
-            ) from e
+            logger.error("pypdf not installed. Install it with: pip install pypdf")
+            raise ValueError("PDF extraction not available: pypdf not installed") from e
         except Exception as e:
             logger.error(f"Error extracting PDF text: {e}")
             raise ValueError(f"Failed to extract text from PDF: {str(e)}") from e

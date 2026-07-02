@@ -5,6 +5,7 @@ Database configuration and session management
 import logging
 import os
 import time
+from collections.abc import AsyncGenerator
 from typing import Any
 
 import sqlalchemy
@@ -178,7 +179,7 @@ class Base(DeclarativeBase):
     pass
 
 
-async def get_db() -> AsyncSession:
+async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Get database session"""
     # Import here to trigger __getattr__ lazy initialization
     from app.core.database import AsyncSessionLocal

@@ -496,7 +496,9 @@ async def approve_refund(
             },
             new_value={
                 "status": refund_request.status,
-                "reviewed_at": refund_request.reviewed_at.isoformat(),
+                "reviewed_at": refund_request.reviewed_at.isoformat()
+                if refund_request.reviewed_at
+                else None,
                 "refund_amount": float(refund_request.refund_amount)
                 if refund_request.refund_amount
                 else None,

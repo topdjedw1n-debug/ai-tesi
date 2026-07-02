@@ -83,7 +83,7 @@ class DocumentCreate(DocumentBase):
 
     @field_validator("ai_provider", mode="before")
     @classmethod
-    def validate_ai_provider(cls, v: str | AIProvider | None) -> AIProvider:
+    def validate_ai_provider(cls, v: object) -> AIProvider:
         """Validate AI provider enum"""
         if v is None:
             return AIProvider.OPENAI

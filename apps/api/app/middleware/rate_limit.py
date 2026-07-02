@@ -251,18 +251,21 @@ def get_limiter() -> Limiter | None:
                     storage_uri = None
                     storage_options = {}  # Empty dict instead of None
 
-            # Build Limiter kwargs conditionally
-            limiter_kwargs = {
-                "key_func": rate_limit_key_func,
-                "default_limits": [f"{settings.RATE_LIMIT_PER_MINUTE}/minute"],
-                "storage_uri": storage_uri,
-            }
-            # Only add storage_options if we have a storage_uri
-            if storage_uri and storage_options:
-                limiter_kwargs["storage_options"] = storage_options
-
             # Initialize limiter with determined storage
-            _limiter = Limiter(**limiter_kwargs)
+            # (storage_options only passed alongside a storage_uri)
+            if storage_uri and storage_options:
+                _limiter = Limiter(
+                    key_func=rate_limit_key_func,
+                    default_limits=[f"{settings.RATE_LIMIT_PER_MINUTE}/minute"],
+                    storage_uri=storage_uri,
+                    storage_options=storage_options,
+                )
+            else:
+                _limiter = Limiter(
+                    key_func=rate_limit_key_func,
+                    default_limits=[f"{settings.RATE_LIMIT_PER_MINUTE}/minute"],
+                    storage_uri=storage_uri,
+                )
             logger.info(
                 f"Rate limiter initialized (storage={'Redis' if storage_uri else 'memory'})"
             )
@@ -317,7 +320,7 @@ def setup_rate_limiter(app: FastAPI) -> None:
         @app.exception_handler(redis.exceptions.ConnectionError)
         async def redis_connection_handler(
             request: Request, exc: redis.exceptions.ConnectionError
-        ) -> Response:
+        ) -> Response | None:
             """
             Handle Redis connection errors during rate limiting.
 
@@ -338,7 +341,7 @@ def setup_rate_limiter(app: FastAPI) -> None:
             # Don't return a response - instead, let the request continue normally
             # by calling the next handler in the chain
             # FIXME: This is a workaround - ideally SlowAPI should handle this internally
-            pass  # Let FastAPI's default behavior continue
+            return None  # Let FastAPI's default behavior continue
 
     except Exception as e:
         logger.error(
@@ -367,7 +370,8 @@ def rate_limit(limit: str) -> Callable:
             # Rate limiting disabled or unavailable, return original function
             return func
         # Apply rate limit decorator
-        return limiter_instance.limit(limit)(func)
+        limited_func: Callable = limiter_instance.limit(limit)(func)
+        return limited_func
 
     return decorator
 

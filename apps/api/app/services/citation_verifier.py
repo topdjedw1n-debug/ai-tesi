@@ -44,6 +44,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from difflib import SequenceMatcher
 from enum import Enum
+from typing import Any
 
 import httpx
 import redis.asyncio as aioredis
@@ -189,14 +190,14 @@ def normalize_arxiv_id(arxiv_id: str | None) -> str | None:
     return normalized or None
 
 
-def _coerce_year(value) -> int | None:
+def _coerce_year(value: Any) -> int | None:
     try:
         return int(value) if value is not None else None
     except (ValueError, TypeError):
         return None
 
 
-def _clean_abstract(text) -> str | None:
+def _clean_abstract(text: object) -> str | None:
     """Collapse whitespace and cap at MAX_ABSTRACT_LENGTH; None if empty."""
     if not text or not isinstance(text, str):
         return None
@@ -204,14 +205,14 @@ def _clean_abstract(text) -> str | None:
     return cleaned[:MAX_ABSTRACT_LENGTH] if cleaned else None
 
 
-def _strip_jats(value) -> str | None:
+def _strip_jats(value: object) -> str | None:
     """Crossref abstracts are JATS XML fragments: strip tags, unescape entities."""
     if not value or not isinstance(value, str):
         return None
     return html.unescape(re.sub(r"<[^>]+>", " ", value))
 
 
-def _reconstruct_inverted_index(inverted) -> str | None:
+def _reconstruct_inverted_index(inverted: object) -> str | None:
     """Rebuild abstract text from OpenAlex's abstract_inverted_index
     ({word: [positions...]}); None for missing/malformed input."""
     if not inverted or not isinstance(inverted, dict):
@@ -554,6 +555,8 @@ class CitationVerifier:
             return _ProviderOutcome(errored=True)
         if status == "not_found":
             return _ProviderOutcome()
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         try:
             item = response.json().get("message") or {}
         except ValueError:
@@ -577,6 +580,8 @@ class CitationVerifier:
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         try:
             items = response.json().get("message", {}).get("items") or []
         except ValueError:
@@ -603,6 +608,8 @@ class CitationVerifier:
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         try:
             works = response.json().get("results") or []
         except ValueError:
@@ -632,6 +639,8 @@ class CitationVerifier:
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         try:
             papers = response.json().get("data") or []
         except ValueError:
@@ -657,6 +666,8 @@ class CitationVerifier:
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         entries = self._parse_arxiv_feed(response.text)
         if entries is None:
             return _ProviderOutcome(errored=True)
@@ -681,6 +692,8 @@ class CitationVerifier:
         )
         if status != "ok":
             return _ProviderOutcome(errored=(status == "error"))
+        if response is None:  # defensive: "ok" always carries a response
+            return _ProviderOutcome(errored=True)
         entries = self._parse_arxiv_feed(response.text)
         if entries is None:
             return _ProviderOutcome(errored=True)

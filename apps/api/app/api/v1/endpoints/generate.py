@@ -45,7 +45,7 @@ async def generate_outline(
     outline_request: OutlineRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> OutlineResponse:
+) -> dict[str, Any]:
     """Generate document outline using AI"""
     try:
         ai_service = AIService(db)
@@ -75,7 +75,7 @@ async def generate_section(
     section_request: SectionRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> SectionResponse:
+) -> dict[str, Any]:
     """Generate a specific section using AI"""
     try:
         ai_service = AIService(db)

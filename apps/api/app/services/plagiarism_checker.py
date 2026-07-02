@@ -73,7 +73,7 @@ class PlagiarismChecker:
             root = ET.fromstring(response.text)
 
             # Extract results
-            results = []
+            results: list[dict[str, Any]] = []
             uniqueness = 100.0
 
             for result in root.findall(".//result"):

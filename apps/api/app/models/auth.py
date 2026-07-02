@@ -2,8 +2,10 @@
 Authentication related models
 """
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
-from sqlalchemy.orm import relationship
+from datetime import datetime
+
+from sqlalchemy import Boolean, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
@@ -14,37 +16,56 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    full_name = Column(String(255), nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    email: Mapped[str] = mapped_column(
+        String(255), unique=True, index=True, nullable=False
+    )
+    full_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Password hash for admin login (nullable for regular users who use magic links)
-    password_hash = Column(String(255), nullable=True)
+    password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
 
     # Account status
-    is_active = Column(Boolean, default=True)
-    is_verified = Column(Boolean, default=False)
-    is_admin = Column(Boolean, default=False)
-    is_super_admin = Column(Boolean, default=False)  # Super admin has all permissions
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
+    is_verified: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_super_admin: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=True
+    )  # Super admin has all permissions
 
     # Preferences
-    preferred_language = Column(String(10), default="en")
-    timezone = Column(String(50), default="UTC")
+    preferred_language: Mapped[str] = mapped_column(
+        String(10), default="en", nullable=True
+    )
+    timezone: Mapped[str] = mapped_column(String(50), default="UTC", nullable=True)
 
     # Usage tracking
-    total_tokens_used = Column(Integer, default=0)
-    total_documents_created = Column(Integer, default=0)
-    total_cost = Column(Integer, default=0)  # Cost in cents
+    total_tokens_used: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    total_documents_created: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )
+    total_cost: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )  # Cost in cents
 
     # Stripe
-    stripe_customer_id = Column(String(255), nullable=True, index=True)
+    stripe_customer_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
+    )
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    last_login = Column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
+    )
+    last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Relationships
     payments = relationship("Payment", back_populates="user")
@@ -62,18 +83,26 @@ class MagicLinkToken(Base):
         Index("ix_magic_link_tokens_expires_at", "expires_at"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    token = Column(String(255), unique=True, index=True, nullable=False)
-    email = Column(String(255), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    token: Mapped[str] = mapped_column(
+        String(255), unique=True, index=True, nullable=False
+    )
+    email: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Token state
-    is_used = Column(Boolean, default=False)
-    is_expired = Column(Boolean, default=False)
+    is_used: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_expired: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False)
-    used_at = Column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
+    used_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     def __repr__(self) -> str:
         return (
@@ -90,21 +119,31 @@ class UserSession(Base):
         Index("ix_user_sessions_expires_at", "expires_at"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    session_token = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    session_token: Mapped[str] = mapped_column(
         String(512), unique=True, index=True, nullable=False
     )  # Increased for JWT tokens
 
     # Session state
-    is_active = Column(Boolean, default=True)
-    ip_address = Column(String(45))  # IPv6 compatible
-    user_agent = Column(String(500))
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(
+        String(45), nullable=True
+    )  # IPv6 compatible
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    last_activity = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    last_activity: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False
+    )
 
     def __repr__(self) -> str:
         return f"<UserSession(id={self.id}, user_id={self.user_id}, active={self.is_active})>"
@@ -115,19 +154,26 @@ class UserConsent(Base):
 
     __tablename__ = "user_consents"
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    consent_type = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    consent_type: Mapped[str] = mapped_column(
         String(100), nullable=False
     )  # e.g., "data_processing", "marketing"
-    consented = Column(Boolean, default=False)
-    ip_address = Column(String(45))
-    user_agent = Column(String(500))
+    consented: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     def __repr__(self) -> str:

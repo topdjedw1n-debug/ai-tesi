@@ -43,7 +43,7 @@ async def request_magic_link(
     request: Request,
     magic_link_request: MagicLinkRequest,
     db: AsyncSession = Depends(get_db),
-) -> MagicLinkResponse:
+) -> dict[str, Any]:
     """Request a magic link for passwordless authentication"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -119,7 +119,7 @@ async def request_magic_link(
 @rate_limit("10/hour")  # Per-user/IP rate limit: 10/hr
 async def verify_magic_link(
     request: Request, magic_link: MagicLinkVerify, db: AsyncSession = Depends(get_db)
-) -> TokenResponse:
+) -> dict[str, Any]:
     """Verify magic link token and return access token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -206,7 +206,7 @@ async def refresh_token(
     request: Request,
     refresh_request: RefreshTokenRequest,
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
+) -> dict[str, Any]:
     """Refresh access token using refresh token"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -314,13 +314,13 @@ async def logout(
 
         token = auth_header.split(" ")[1]
         auth_service = AuthService(db)
-        user_id = await auth_service.logout(token)
+        logout_result = await auth_service.logout(token)
 
         # Audit log successful logout
         log_security_audit_event(
             event_type="logout",
             correlation_id=correlation_id,
-            user_id=user_id,
+            user_id=logout_result.get("user_id"),
             ip=ip,
             endpoint="/api/v1/auth/logout",
             resource="auth",
@@ -348,7 +348,7 @@ async def logout(
 @router.get("/me", response_model=UserResponse)
 async def get_current_user(
     request: Request, db: AsyncSession = Depends(get_db)
-) -> UserResponse:
+) -> dict[str, Any]:
     """Get current user information"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -425,7 +425,7 @@ async def password_login(
     request: Request,
     login_data: PasswordLoginRequest,
     db: AsyncSession = Depends(get_db),
-) -> TokenResponse:
+) -> dict[str, Any]:
     """Authenticate a user with username/email + password.
 
     Returns the same access/refresh token pair as magic-link verification,

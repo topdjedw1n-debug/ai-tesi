@@ -130,7 +130,7 @@ class AdminAuthService:
         # Check expiration
         now = datetime.utcnow()
         if session.expires_at < now:
-            session.is_active = False  # type: ignore[assignment]
+            session.is_active = False
             await self.db.commit()
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
@@ -139,7 +139,7 @@ class AdminAuthService:
 
         # Update last_activity if configured
         if settings.ADMIN_SESSION_UPDATE_ON_ACTIVITY:
-            session.last_activity = datetime.utcnow()  # type: ignore[assignment]
+            session.last_activity = datetime.utcnow()
             await self.db.commit()
 
         return session
@@ -153,7 +153,7 @@ class AdminAuthService:
         """
         session = await self.db.get(AdminSession, session_id)
         if session:
-            session.is_active = False  # type: ignore[assignment]
+            session.is_active = False
             await self.db.commit()
             logger.info(f"Admin session logged out: session_id={session_id}")
 
@@ -179,7 +179,7 @@ class AdminAuthService:
 
         count = 0
         for session in sessions:
-            session.is_active = False  # type: ignore[assignment]
+            session.is_active = False
             count += 1
 
         await self.db.commit()
@@ -235,8 +235,8 @@ class AdminAuthService:
                 detail="Only admins can force logout",
             )
 
-        session.is_active = False  # type: ignore[assignment]
-        session.forced_logout = True  # type: ignore[assignment]
+        session.is_active = False
+        session.forced_logout = True
         await self.db.commit()
 
         logger.warning(

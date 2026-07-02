@@ -500,12 +500,12 @@ class DocumentService:
                 raise NotFoundError("Document not found")
 
             # Get sections
-            result = await self.db.execute(
+            sections_result = await self.db.execute(
                 select(DocumentSection)
                 .where(DocumentSection.document_id == document_id)
                 .order_by(DocumentSection.section_index)
             )
-            sections: list[DocumentSection] = list(result.scalars().all())
+            sections: list[DocumentSection] = list(sections_result.scalars().all())
 
             return [
                 {

@@ -276,7 +276,7 @@ async def get_user_details(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_USERS)),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> UserWithStatsResponse:
     """Get detailed user information (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -772,7 +772,7 @@ async def send_email_to_user(
     email_data: SendEmailRequest,
     current_user: User = Depends(require_permission(AdminPermissions.EDIT_USERS)),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> SendEmailResponse:
     """Send email to a user (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
@@ -837,7 +837,7 @@ async def bulk_user_action(
     bulk_data: BulkUserActionRequest,
     current_user: User = Depends(require_permission(AdminPermissions.BLOCK_USERS)),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> BulkUserActionResult:
     """Perform bulk action on users (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"

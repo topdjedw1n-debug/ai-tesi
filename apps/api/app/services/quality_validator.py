@@ -345,13 +345,13 @@ class QualityValidator:
                 and advocate_report.get("severity") == SEVERITY_CRITICAL
             )
             result["passed"] = not critical_override
-            feedback: list[str] = []
+            fallback_feedback: list[str] = []
             if critical_override:
                 weakness = advocate_report.get("weakness", "")
                 result["issues"] = list(result.get("issues", [])) + [
                     f"[devils_advocate/{SEVERITY_CRITICAL}] {weakness}"
                 ]
-                feedback.append(f"Weakest spot (devil's advocate): {weakness}")
+                fallback_feedback.append(f"Weakest spot (devil's advocate): {weakness}")
             result["panel"] = {
                 "valid": False,
                 "reason": "insufficient_reviewers",
@@ -359,7 +359,7 @@ class QualityValidator:
                 "advocate": advocate_report,
             }
             result["critical_override"] = critical_override
-            result["feedback_for_regeneration"] = feedback
+            result["feedback_for_regeneration"] = fallback_feedback
             return result
 
         # Weighted average over the reviewers that responded, weights
@@ -428,6 +428,8 @@ class QualityValidator:
         self, spec: dict[str, Any], content: str, outline_section: dict[str, Any]
     ) -> dict[str, Any] | None:
         """One reviewer call -> {"score": float, "remarks": [...]} or None."""
+        if self.ai_service is None:
+            return None
         prompt = self._build_reviewer_prompt(spec, content, outline_section)
         response = await self.ai_service.call_with_fallback(
             prompt, purpose=f"quality_panel_{spec['key']}"
@@ -444,6 +446,8 @@ class QualityValidator:
         self, content: str, outline_section: dict[str, Any]
     ) -> dict[str, Any] | None:
         """Devil's advocate call -> {"severity": str, "weakness": str} or None."""
+        if self.ai_service is None:
+            return None
         prompt = self._build_advocate_prompt(content, outline_section)
         response = await self.ai_service.call_with_fallback(
             prompt, purpose="quality_panel_devils_advocate"

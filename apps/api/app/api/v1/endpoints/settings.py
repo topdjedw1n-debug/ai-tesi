@@ -15,6 +15,7 @@ from app.schemas.settings import (
     LimitSettingsUpdate,
     MaintenanceSettingsUpdate,
     PricingSettingsUpdate,
+    SettingHistoryEntry,
     SettingHistoryResponse,
 )
 from app.services.admin_service import AdminService
@@ -374,7 +375,7 @@ async def get_setting_history(
     key: str,
     current_user: User = Depends(require_permission(AdminPermissions.VIEW_SETTINGS)),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> SettingHistoryResponse:
     """
     Get history of changes for a specific setting.
 
@@ -386,7 +387,7 @@ async def get_setting_history(
 
         return SettingHistoryResponse(
             key=key,
-            history=history,
+            history=[SettingHistoryEntry.model_validate(entry) for entry in history],
         )
     except Exception as e:
         raise HTTPException(

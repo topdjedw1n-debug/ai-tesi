@@ -219,9 +219,14 @@ class AdminService:
                 )
             )
             payments_row = payments_result.first()
-            payments_count = payments_row[0] or 0
-            total_paid = payments_row[1] or Decimal("0")
-            last_payment_at = payments_row[2]
+            if payments_row is not None:
+                payments_count = payments_row[0] or 0
+                total_paid = payments_row[1] or Decimal("0")
+                last_payment_at = payments_row[2]
+            else:  # defensive: aggregate query always returns one row
+                payments_count = 0
+                total_paid = Decimal("0")
+                last_payment_at = None
 
             # Get last document date
             last_doc_result = await self.db.execute(
@@ -288,7 +293,7 @@ class AdminService:
                 raise ValueError("User is already blocked")
 
             # Block user
-            user.is_active = False  # type: ignore[assignment]
+            user.is_active = False
             await self.db.commit()
             await self.db.refresh(user)
 
@@ -337,7 +342,7 @@ class AdminService:
                 raise ValueError("User is already active")
 
             # Unblock user
-            user.is_active = True  # type: ignore[assignment]
+            user.is_active = True
             await self.db.commit()
             await self.db.refresh(user)
 
@@ -385,7 +390,7 @@ class AdminService:
                 raise ValueError("Cannot delete super admin")
 
             # Soft delete: mark as inactive
-            user.is_active = False  # type: ignore[assignment]
+            user.is_active = False
             # Optionally clear sensitive data (email, etc.)
             # For GDPR compliance, you might want to anonymize instead of delete
 
@@ -439,7 +444,7 @@ class AdminService:
                 raise ValueError("User not found")
 
             # Update admin status
-            user.is_admin = is_admin  # type: ignore[assignment]
+            user.is_admin = is_admin
             if is_super_admin is not None:
                 # Only super admins can grant super admin status
                 admin_user_result = await self.db.execute(
@@ -447,13 +452,13 @@ class AdminService:
                 )
                 admin_user = admin_user_result.scalar_one_or_none()
                 if admin_user and admin_user.is_super_admin:
-                    user.is_super_admin = is_super_admin  # type: ignore[assignment]
+                    user.is_super_admin = is_super_admin
                 else:
                     raise ValueError("Only super admin can grant super admin status")
 
             # Revoke super admin if removing admin status
             if not is_admin:
-                user.is_super_admin = False  # type: ignore[assignment]
+                user.is_super_admin = False
 
             await self.db.commit()
             await self.db.refresh(user)
@@ -1426,7 +1431,7 @@ class AdminService:
             Dictionary with recent activity items
         """
         try:
-            activities = []
+            activities: list[dict[str, Any]] = []
 
             if activity_type == "recent" or activity_type == "payments":
                 # Recent payments

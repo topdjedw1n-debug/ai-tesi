@@ -204,7 +204,7 @@ class Humanizer:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-            response = await client.messages.create(  # type: ignore[attr-defined]
+            response = await client.messages.create(
                 model=model,
                 max_tokens=4000,
                 temperature=temperature,
@@ -212,7 +212,13 @@ class Humanizer:
                 messages=[{"role": "user", "content": prompt}],
             )
 
-            return response.content[0].text
+            first_block = response.content[0]
+            text = getattr(first_block, "text", None)
+            if not isinstance(text, str):
+                raise TypeError(
+                    f"Unexpected Anthropic content block: {type(first_block).__name__}"
+                )
+            return text
 
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")

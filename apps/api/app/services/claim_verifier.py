@@ -380,8 +380,11 @@ Respond with ONLY valid JSON (no markdown, no extra text), one entry per claim. 
         for item in verdicts_raw or []:
             if not isinstance(item, dict):
                 continue
+            raw_id = item.get("id")
+            if raw_id is None:
+                continue
             try:
-                position = int(item.get("id"))
+                position = int(raw_id)
             except (TypeError, ValueError):
                 continue
             verdict = str(item.get("verdict", "")).strip().lower()

@@ -108,21 +108,21 @@ class AuthService:
                 raise AuthenticationError("Invalid or expired magic link")
 
             # Mark token as used
-            magic_token.is_used = True  # type: ignore[assignment]
-            magic_token.used_at = datetime.utcnow()  # type: ignore[assignment]
+            magic_token.is_used = True
+            magic_token.used_at = datetime.utcnow()
 
             # Get or create user
-            result = await self.db.execute(
+            user_result = await self.db.execute(
                 select(User).where(User.email == magic_token.email)
             )
-            user: User | None = result.scalar_one_or_none()
+            user: User | None = user_result.scalar_one_or_none()
 
             if not user:
                 raise AuthenticationError("User not found")
 
             # Update user login time
-            user.last_login = datetime.utcnow()  # type: ignore[assignment]
-            user.is_verified = True  # type: ignore[assignment]
+            user.last_login = datetime.utcnow()
+            user.is_verified = True
 
             # Generate access and refresh tokens
             access_token = self._create_access_token(int(user.id))
@@ -175,17 +175,17 @@ class AuthService:
                 raise AuthenticationError("Invalid or expired refresh token")
 
             # Get user
-            result = await self.db.execute(
+            user_result = await self.db.execute(
                 select(User).where(User.id == session.user_id)
             )
-            user: User | None = result.scalar_one_or_none()
+            user: User | None = user_result.scalar_one_or_none()
 
             if not user or not user.is_active:
                 raise AuthenticationError("User not found or inactive")
 
             # Update session activity and extend expiration
-            session.last_activity = datetime.utcnow()  # type: ignore[assignment]
-            session.expires_at = datetime.utcnow() + timedelta(  # type: ignore[assignment]
+            session.last_activity = datetime.utcnow()
+            session.expires_at = datetime.utcnow() + timedelta(
                 days=settings.REFRESH_TOKEN_EXPIRE_DAYS
             )
 
@@ -234,7 +234,7 @@ class AuthService:
                 raise AuthenticationError("Invalid credentials")
 
             # Update login timestamp
-            user.last_login = datetime.utcnow()  # type: ignore[assignment]
+            user.last_login = datetime.utcnow()
 
             # Generate access and refresh tokens (same flow as magic link)
             access_token = self._create_access_token(int(user.id))
@@ -370,9 +370,10 @@ class AuthService:
         if settings.JWT_AUD:
             to_encode["aud"] = settings.JWT_AUD
 
-        return jwt.encode(
+        encoded_token: str = jwt.encode(
             to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG
         )
+        return encoded_token
 
     def _create_refresh_token(self, user_id: int) -> str:
         """Create refresh token with iss, aud, and expiration claims"""
@@ -394,9 +395,10 @@ class AuthService:
         if settings.JWT_AUD:
             to_encode["aud"] = settings.JWT_AUD
 
-        return jwt.encode(
+        encoded_token: str = jwt.encode(
             to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG
         )
+        return encoded_token
 
     @staticmethod
     def hash_password(password: str) -> str:

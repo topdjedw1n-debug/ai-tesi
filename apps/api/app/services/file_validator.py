@@ -14,10 +14,10 @@ logger = logging.getLogger(__name__)
 # Magic bytes for valid file types
 PDF_MAGIC = b"%PDF"
 DOCX_MAGIC = b"PK\x03\x04"  # ZIP signature used by DOCX
-TXT_MAGIC = [b"\xef\xbb\xbf", b""]  # UTF-8 BOM or empty
+TXT_MAGIC: tuple[bytes, ...] = (b"\xef\xbb\xbf", b"")  # UTF-8 BOM or empty
 
 # File type to magic bytes mapping
-FILE_MAGIC_BYTES = {
+FILE_MAGIC_BYTES: dict[str, bytes | tuple[bytes, ...]] = {
     "application/pdf": PDF_MAGIC,
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document": DOCX_MAGIC,
     "text/plain": TXT_MAGIC,
@@ -78,8 +78,8 @@ class FileValidator:
             # Unknown file type
             return
 
-        # Handle list of possible magic bytes (e.g., TXT with or without BOM)
-        if isinstance(expected_magic, list):
+        # Handle tuple of possible magic bytes (e.g., TXT with or without BOM)
+        if isinstance(expected_magic, tuple):
             magic_match = any(content.startswith(magic) for magic in expected_magic)
         else:
             magic_match = content.startswith(expected_magic)

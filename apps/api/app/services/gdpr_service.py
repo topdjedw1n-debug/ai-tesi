@@ -3,6 +3,7 @@ GDPR compliance service for data export and account deletion
 """
 
 import logging
+from collections.abc import Sequence
 from datetime import datetime
 from typing import Any
 
@@ -50,14 +51,14 @@ class GDPRService:
 
             # Get document sections
             document_ids = [doc.id for doc in documents]
-            sections = []
+            sections: Sequence[Any] = []
             if document_ids:
                 sections_result = await self.db.execute(
                     select(DocumentSection).where(
                         DocumentSection.document_id.in_(document_ids)
                     )
                 )
-                sections: list[Any] = sections_result.scalars().all()
+                sections = sections_result.scalars().all()
 
             # Get payments
             payments_result = await self.db.execute(
@@ -219,10 +220,10 @@ class GDPRService:
                     logger.info(f"Deleted PDF: {doc.pdf_path}")
 
             # Anonymize user data instead of hard delete
-            user.email = f"deleted_{user.id}@deleted.com"  # type: ignore[assignment]
-            user.full_name = "DELETED USER"  # type: ignore[assignment]
-            user.is_active = False  # type: ignore[assignment]
-            user.stripe_customer_id = None  # type: ignore[assignment]
+            user.email = f"deleted_{user.id}@deleted.com"
+            user.full_name = "DELETED USER"
+            user.is_active = False
+            user.stripe_customer_id = None
 
             # Delete consents (sensitive data)
             await self.db.execute(

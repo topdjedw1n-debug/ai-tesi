@@ -92,12 +92,20 @@ class AIDetectionChecker:
         Returns:
             Detection results from GPTZero
         """
+        api_key = self.gptzero_api_key
+        if not api_key:
+            return {
+                "checked": False,
+                "error": "GPTZero API key not configured",
+                "provider": "gptzero",
+            }
+        headers: dict[str, str] = {"x-api-key": api_key}
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
                     self.gptzero_api_url,
                     json={"document": text},
-                    headers={"x-api-key": self.gptzero_api_key},
+                    headers=headers,
                 )
                 response.raise_for_status()
                 result = response.json()
@@ -151,12 +159,20 @@ class AIDetectionChecker:
         Returns:
             Detection results from Originality.ai
         """
+        api_key = self.originality_api_key
+        if not api_key:
+            return {
+                "checked": False,
+                "error": "Originality.ai API key not configured",
+                "provider": "originality",
+            }
+        headers: dict[str, str] = {"X-OAI-API-KEY": api_key}
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
                 response = await client.post(
                     self.originality_api_url,
                     json={"content": text},
-                    headers={"X-OAI-API-KEY": self.originality_api_key},
+                    headers=headers,
                 )
                 response.raise_for_status()
                 result = response.json()

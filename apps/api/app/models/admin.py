@@ -2,10 +2,12 @@
 Admin-related models
 """
 
+from datetime import datetime
+from typing import Any
+
 from sqlalchemy import (
     JSON,
     Boolean,
-    Column,
     DateTime,
     ForeignKey,
     Index,
@@ -13,7 +15,7 @@ from sqlalchemy import (
     String,
     Text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
@@ -30,25 +32,35 @@ class AdminAuditLog(Base):
         Index("idx_audit_target", "target_type", "target_id"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    admin_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    admin_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
 
     # Дія
-    action = Column(String(100), nullable=False, index=True)
-    target_type = Column(String(50))  # user, document, payment, settings, refund
-    target_id = Column(Integer, nullable=True)
+    action: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
+    target_type: Mapped[str | None] = mapped_column(
+        String(50), nullable=True
+    )  # user, document, payment, settings, refund
+    target_id: Mapped[int | None] = mapped_column(Integer, nullable=True)
 
     # Зміни
-    old_value = Column(JSON, nullable=True)
-    new_value = Column(JSON, nullable=True)
+    old_value: Mapped[Any] = mapped_column(JSON, nullable=True)
+    new_value: Mapped[Any] = mapped_column(JSON, nullable=True)
 
     # Метадані
-    ip_address = Column(String(45))  # IPv6 compatible
-    user_agent = Column(Text)
-    correlation_id = Column(String(100))  # для трейсингу
+    ip_address: Mapped[str | None] = mapped_column(
+        String(45), nullable=True
+    )  # IPv6 compatible
+    user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
+    correlation_id: Mapped[str | None] = mapped_column(
+        String(100), nullable=True
+    )  # для трейсингу
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now(), index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), index=True, nullable=True
+    )
 
     # Relationships
     admin = relationship("User")
@@ -63,17 +75,24 @@ class SystemSetting(Base):
     __tablename__ = "system_settings"
     __table_args__ = (Index("idx_settings_category", "category"),)
 
-    key = Column(String(100), primary_key=True)  # Наприклад: "pricing.price_per_page"
-    value = Column(JSON, nullable=False)
-    category = Column(
+    key: Mapped[str] = mapped_column(
+        String(100), primary_key=True
+    )  # Наприклад: "pricing.price_per_page"
+    value: Mapped[Any] = mapped_column(JSON, nullable=False)
+    category: Mapped[str] = mapped_column(
         String(50), nullable=False, index=True
     )  # pricing, ai, limits, maintenance
 
     # Версіонування та аудит
-    version = Column(Integer, default=1)
-    updated_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=True)
+    updated_by: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     # Relationships
@@ -93,22 +112,34 @@ class AdminSession(Base):
         Index("idx_admin_sessions_expires", "expires_at"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    admin_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    session_token = Column(String(512), unique=True, nullable=False, index=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    admin_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    session_token: Mapped[str] = mapped_column(
+        String(512), unique=True, nullable=False, index=True
+    )
 
     # Метадані
-    ip_address = Column(String(45))
-    user_agent = Column(Text)
+    ip_address: Mapped[str | None] = mapped_column(String(45), nullable=True)
+    user_agent: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Статус
-    is_active = Column(Boolean, default=True)
-    forced_logout = Column(Boolean, default=False)  # для примусового виходу
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
+    forced_logout: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=True
+    )  # для примусового виходу
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    last_activity = Column(DateTime(timezone=True), server_default=func.now())
-    expires_at = Column(DateTime(timezone=True), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    last_activity: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, index=True
+    )
 
     # Relationships
     admin = relationship("User")
@@ -126,15 +157,27 @@ class AdminPermission(Base):
         Index("ix_admin_permission_user_perm", "user_id", "permission"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
-    permission = Column(String(50), nullable=False)  # VIEW_USERS, EDIT_USERS, etc.
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
+    permission: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # VIEW_USERS, EDIT_USERS, etc.
 
     # Аудит
-    granted_at = Column(DateTime(timezone=True), server_default=func.now())
-    granted_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    revoked_at = Column(DateTime(timezone=True), nullable=True)
-    revoked_by = Column(Integer, ForeignKey("users.id"), nullable=True)
+    granted_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    granted_by: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    revoked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    revoked_by: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
 
     # Relationships
     user = relationship("User", foreign_keys=[user_id])
@@ -151,28 +194,39 @@ class EmailTemplate(Base):
     __tablename__ = "email_templates"
     __table_args__ = (Index("ix_email_template_name_lang", "name", "language"),)
 
-    id = Column(Integer, primary_key=True, index=True)
-    name = Column(String(100), nullable=False)  # welcome, refund_approved, etc.
-    language = Column(String(10), nullable=False, default="en")
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    name: Mapped[str] = mapped_column(
+        String(100), nullable=False
+    )  # welcome, refund_approved, etc.
+    language: Mapped[str] = mapped_column(String(10), nullable=False, default="en")
 
     # Контент
-    subject = Column(String(500), nullable=False)
-    body_html = Column(Text, nullable=False)
-    body_text = Column(Text, nullable=True)
-    variables = Column(
-        JSON
+    subject: Mapped[str] = mapped_column(String(500), nullable=False)
+    body_html: Mapped[str] = mapped_column(Text, nullable=False)
+    body_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    variables: Mapped[Any] = mapped_column(
+        JSON, nullable=True
     )  # список доступних змінних: ["user_name", "document_title"]
 
     # Статус
-    is_active = Column(Boolean, default=True)
-    version = Column(Integer, default=1)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=True)
 
     # Аудит
-    created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    updated_by = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_by: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    updated_by: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     # Relationships

@@ -252,11 +252,11 @@ class RefundService:
             )
 
             # Update refund request
-            refund_request.status = "approved"  # type: ignore[assignment]
-            refund_request.reviewed_at = datetime.utcnow()  # type: ignore[assignment]
-            refund_request.reviewed_by = admin_id  # type: ignore[assignment]
-            refund_request.admin_comment = admin_comment  # type: ignore[assignment]
-            refund_request.refund_amount = refund_amount_decimal  # type: ignore[assignment]
+            refund_request.status = "approved"
+            refund_request.reviewed_at = datetime.utcnow()
+            refund_request.reviewed_by = admin_id
+            refund_request.admin_comment = admin_comment
+            refund_request.refund_amount = refund_amount_decimal
 
             # Update payment status
             if refund_amount_decimal == payment.amount:
@@ -318,10 +318,10 @@ class RefundService:
             raise ValueError("Refund request already processed")
 
         # Update refund request
-        refund_request.status = "rejected"  # type: ignore[assignment]
-        refund_request.reviewed_at = datetime.utcnow()  # type: ignore[assignment]
-        refund_request.reviewed_by = admin_id  # type: ignore[assignment]
-        refund_request.admin_comment = admin_comment  # type: ignore[assignment]
+        refund_request.status = "rejected"
+        refund_request.reviewed_at = datetime.utcnow()
+        refund_request.reviewed_by = admin_id
+        refund_request.admin_comment = admin_comment
 
         await self.db.commit()
         await self.db.refresh(refund_request)
@@ -479,8 +479,8 @@ class RefundService:
             recommendation = "reject"
 
         # Update refund request with AI analysis
-        refund_request.risk_score = risk_score  # type: ignore[assignment]
-        refund_request.ai_recommendation = recommendation  # type: ignore[assignment]
+        refund_request.risk_score = risk_score
+        refund_request.ai_recommendation = recommendation
         await self.db.commit()
 
         return {

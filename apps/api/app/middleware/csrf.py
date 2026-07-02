@@ -19,9 +19,10 @@ class CSRFMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
+        response: Response
         # Skip CSRF check in development
         if os.getenv("ENVIRONMENT", "development") == "development":
-            response: Response = await call_next(request)
+            response = await call_next(request)
             return response
 
         if request.method.upper() in {"POST", "PUT", "PATCH", "DELETE"}:
@@ -41,5 +42,5 @@ class CSRFMiddleware(BaseHTTPMiddleware):
                     status_code=403,
                     media_type="application/json",
                 )
-        response: Response = await call_next(request)
+        response = await call_next(request)
         return response

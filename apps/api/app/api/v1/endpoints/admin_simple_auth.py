@@ -4,7 +4,6 @@ Simple admin authentication for testing (password-based)
 
 import logging
 from datetime import datetime
-from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from pydantic import BaseModel, EmailStr
@@ -41,7 +40,7 @@ async def admin_simple_login(
     request: Request,
     login_data: AdminSimpleLoginRequest,
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> AdminSimpleLoginResponse:
     """
     Simple admin login for testing (no magic link required)
 
@@ -86,7 +85,7 @@ async def admin_simple_login(
         )
 
     # Update last login
-    user.last_login = datetime.utcnow()  # type: ignore[assignment]
+    user.last_login = datetime.utcnow()
     await db.commit()
 
     # Create token (using existing function from security.py)

@@ -12,6 +12,7 @@ from typing import Any
 from fastapi.responses import StreamingResponse
 
 from app.models.document import Document
+from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 
 logger = logging.getLogger(__name__)
@@ -52,7 +53,7 @@ class StreamingGenerator:
         # Send initial metadata
         yield f"data: {json.dumps({'type': 'start', 'total_sections': total_sections})}\n\n"
 
-        context_sections = []
+        context_sections: list[dict[str, Any]] = []
 
         for idx, section_info in enumerate(outline_sections, 1):
             section_title = section_info.get("title", f"Section {idx}")
@@ -68,7 +69,7 @@ class StreamingGenerator:
                     section_index=idx,
                     provider=provider,
                     model=model,
-                    citation_style=citation_style,
+                    citation_style=CitationStyle(citation_style.lower()),
                     humanize=humanize,
                     context_sections=context_sections if context_sections else None,
                 )

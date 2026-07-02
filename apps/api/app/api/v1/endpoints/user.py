@@ -3,7 +3,6 @@ User management endpoints for GDPR compliance
 """
 
 import logging
-from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi.responses import JSONResponse
@@ -27,7 +26,7 @@ async def export_user_data(
     request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> JSONResponse:
     """Export all user data for GDPR compliance"""
     try:
         gdpr_service = GDPRService(db)

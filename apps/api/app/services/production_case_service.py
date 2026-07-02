@@ -470,9 +470,8 @@ class ProductionCaseService:
         elif gate_key == "claim_support":
             event = _latest_event(events, "claim_check_summary")
             payload = _event_payload(event)
-            counts = (
-                payload.get("counts") if isinstance(payload.get("counts"), dict) else {}
-            )
+            raw_counts = payload.get("counts")
+            counts = raw_counts if isinstance(raw_counts, dict) else {}
             if event:
                 unsupported = int(counts.get("unsupported") or 0)
                 status_value = "failed" if unsupported > 0 else "passed"

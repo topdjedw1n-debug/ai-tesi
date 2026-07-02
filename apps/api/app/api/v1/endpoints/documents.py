@@ -15,7 +15,7 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -51,7 +51,7 @@ async def create_document(
     document: DocumentCreate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> DocumentResponse:
+) -> dict[str, Any]:
     """Create a new document"""
     try:
         document_service = DocumentService(db)
@@ -87,7 +87,7 @@ async def list_documents(
     offset: int = Query(0, ge=0),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> DocumentListResponse:
+) -> dict[str, Any]:
     """List user's documents with pagination"""
     try:
         document_service = DocumentService(db)
@@ -162,7 +162,7 @@ async def get_document(
     document_id: int,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> DocumentResponse:
+) -> dict[str, Any]:
     """Get a specific document by ID"""
     try:
         document_service = DocumentService(db)
@@ -191,7 +191,7 @@ async def update_document(
     document: DocumentUpdate,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> DocumentResponse:
+) -> dict[str, Any]:
     """Update a document"""
     try:
         document_service = DocumentService(db)
@@ -302,7 +302,7 @@ async def export_document(
     export_request: ExportRequest,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> ExportResponse:
+) -> dict[str, Any]:
     """Export document to DOCX or PDF"""
     try:
         document_service = DocumentService(db)
@@ -331,7 +331,7 @@ async def export_document_get(
     format: str,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
-) -> ExportResponse:
+) -> dict[str, Any]:
     """Export document via GET route to match frontend: /documents/{id}/export/{format}"""
     try:
         document_service = DocumentService(db)
@@ -408,7 +408,7 @@ async def upload_custom_requirements(
 async def download_document_secure(
     token: str = Query(..., description="Signed download token"),
     db: AsyncSession = Depends(get_db),
-) -> FileResponse:
+) -> StreamingResponse:
     """
     Secure document download endpoint with JWT token validation.
 
@@ -421,9 +421,14 @@ async def download_document_secure(
         document_id = payload["document_id"]
         user_id = payload["user_id"]
 
-        # Get document from database
-        document_service = DocumentService(db)
-        document = await document_service.get_document(document_id, user_id)
+        # Get the ORM object: file paths (docx_path/pdf_path) are not part of
+        # the serialized dict that DocumentService.get_document returns
+        result = await db.execute(
+            select(Document).where(
+                Document.id == document_id, Document.user_id == user_id
+            )
+        )
+        document = result.scalar_one_or_none()
 
         if not document:
             raise HTTPException(

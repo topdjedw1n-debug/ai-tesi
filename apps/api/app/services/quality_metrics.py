@@ -88,7 +88,7 @@ def burstiness(text: str) -> float:
     return sentence_length_stats(text)["stdev"]
 
 
-def connector_cliche_density(text: str, language: str = "en") -> dict[str, float]:
+def connector_cliche_density(text: str, language: str = "en") -> dict[str, Any]:
     """Cliché/connector phrase hits per 1000 words (lower = better)."""
     low = (text or "").lower()
     hits = 0

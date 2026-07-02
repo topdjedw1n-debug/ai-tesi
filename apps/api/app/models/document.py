@@ -2,10 +2,12 @@
 Document related models
 """
 
+from datetime import datetime
+from typing import Any
+
 from sqlalchemy import (
     JSON,
     Boolean,
-    Column,
     DateTime,
     Float,
     ForeignKey,
@@ -16,7 +18,7 @@ from sqlalchemy import (
     UniqueConstraint,
     text,
 )
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
 from app.core.database import Base
@@ -31,44 +33,63 @@ class Document(Base):
         Index("ix_documents_created_at", "created_at"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
 
     # Document metadata
-    title = Column(String(500), nullable=False)
-    topic = Column(String(500), nullable=False)
-    language = Column(String(10), default="en")
-    target_pages = Column(Integer, default=10)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    topic: Mapped[str] = mapped_column(String(500), nullable=False)
+    language: Mapped[str] = mapped_column(String(10), default="en", nullable=True)
+    target_pages: Mapped[int] = mapped_column(Integer, default=10, nullable=True)
 
     # Document state
-    status = Column(String(50), default="draft")  # draft, generating, completed, failed
-    is_public = Column(Boolean, default=False)
-    is_archived = Column(Boolean, default=False)
+    status: Mapped[str] = mapped_column(
+        String(50), default="draft", nullable=True
+    )  # draft, generating, completed, failed
+    is_public: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
+    is_archived: Mapped[bool] = mapped_column(Boolean, default=False, nullable=True)
 
     # AI generation settings
-    ai_provider = Column(String(50), default="openai")  # openai, anthropic
-    ai_model = Column(String(100), default="gpt-4")
-    temperature = Column(Float, default=0.7)
+    ai_provider: Mapped[str] = mapped_column(
+        String(50), default="openai", nullable=True
+    )  # openai, anthropic
+    ai_model: Mapped[str] = mapped_column(String(100), default="gpt-4", nullable=True)
+    temperature: Mapped[float] = mapped_column(Float, default=0.7, nullable=True)
 
     # Content
-    outline = Column(JSON)  # Store outline structure
-    content = Column(Text)  # Full document content
+    outline: Mapped[Any] = mapped_column(JSON, nullable=True)  # Store outline structure
+    content: Mapped[str | None] = mapped_column(
+        Text, nullable=True
+    )  # Full document content
 
     # File paths
-    docx_path = Column(String(500))
-    pdf_path = Column(String(500))
-    custom_requirements_file_path = Column(String(500), nullable=True)
+    docx_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    pdf_path: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    custom_requirements_file_path: Mapped[str | None] = mapped_column(
+        String(500), nullable=True
+    )
 
     # Usage tracking
-    tokens_used = Column(Integer, default=0)
-    generation_time_seconds = Column(Integer, default=0)
+    tokens_used: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    generation_time_seconds: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    completed_at = Column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Relationships
     sections = relationship(
@@ -95,53 +116,66 @@ class DocumentSection(Base):
     __tablename__ = "document_sections"
     __table_args__ = (Index("ix_document_sections_document_id", "document_id"),)
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("documents.id"), nullable=False
+    )
 
     # Section metadata
-    title = Column(String(500), nullable=False)
-    section_index = Column(Integer, nullable=False)
-    section_type = Column(
-        String(50), default="content"
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    section_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    section_type: Mapped[str] = mapped_column(
+        String(50), default="content", nullable=True
     )  # content, introduction, conclusion, etc.
 
     # Content
-    content = Column(Text)
-    word_count = Column(Integer, default=0)
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    word_count: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
 
     # Quality metrics
-    grammar_score = Column(Float, nullable=True)  # 0-100, higher is better
-    plagiarism_score = Column(
+    grammar_score: Mapped[float | None] = mapped_column(
+        Float, nullable=True
+    )  # 0-100, higher is better
+    plagiarism_score: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # 0-100, lower is better (% plagiarism)
-    ai_detection_score = Column(
+    ai_detection_score: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # 0-100, lower is better (% AI-generated)
-    quality_score = Column(
+    quality_score: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # 0-100, higher is better (overall quality)
 
     # Claim faithfulness audit (advisory): per-claim verdicts from
     # claim_verifier.py - {"total", "checked", "counts", "claims": [...]}
-    claim_verification = Column(JSON, nullable=True)
+    claim_verification: Mapped[Any] = mapped_column(JSON, nullable=True)
 
     # Reviewer panel report (quality_validator.py): {"valid", "overall_score",
     # "passed", "critical_override", "reviewers": [...], "advocate": {...}}
-    quality_panel = Column(JSON, nullable=True)
+    quality_panel: Mapped[Any] = mapped_column(JSON, nullable=True)
 
     # Generation state
-    status = Column(
-        String(50), default="pending"
+    status: Mapped[str] = mapped_column(
+        String(50), default="pending", nullable=True
     )  # pending, generating, completed, failed
-    tokens_used = Column(Integer, default=0)
-    generation_time_seconds = Column(Integer, default=0)
+    tokens_used: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    generation_time_seconds: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
     )
-    completed_at = Column(DateTime(timezone=True))
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     # Relationships
     document = relationship("Document", back_populates="sections")
@@ -159,21 +193,29 @@ class DocumentOutline(Base):
 
     __tablename__ = "document_outlines"
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("documents.id"), nullable=False
+    )
 
     # Outline structure
-    outline_data = Column(JSON, nullable=False)  # Store the full outline structure
-    total_sections = Column(Integer, default=0)
+    outline_data: Mapped[Any] = mapped_column(
+        JSON, nullable=False
+    )  # Store the full outline structure
+    total_sections: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
 
     # Generation metadata
-    ai_provider = Column(String(50))
-    ai_model = Column(String(100))
-    tokens_used = Column(Integer, default=0)
-    generation_time_seconds = Column(Integer, default=0)
+    ai_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    ai_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    tokens_used: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    generation_time_seconds: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
 
     def __repr__(self) -> str:
         return f"<DocumentOutline(id={self.id}, document_id={self.document_id})>"
@@ -191,28 +233,44 @@ class AIGenerationJob(Base):
         # Example: UniqueConstraint('document_id', 'job_type', name='uq_active_job_per_document', postgresql_where=status.in_(['queued', 'running']))
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    document_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("documents.id"), nullable=True
+    )
 
     # Job metadata
-    job_type = Column(String(50), nullable=False)  # outline, section, etc.
-    ai_provider = Column(String(50))
-    ai_model = Column(String(100))
+    job_type: Mapped[str] = mapped_column(
+        String(50), nullable=False
+    )  # outline, section, etc.
+    ai_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    ai_model: Mapped[str | None] = mapped_column(String(100), nullable=True)
 
     # Job status and progress
-    status = Column(String(50), default="queued")  # queued, running, completed, failed
-    progress = Column(Integer, default=0)  # 0-100 percentage
+    status: Mapped[str] = mapped_column(
+        String(50), default="queued", nullable=True
+    )  # queued, running, completed, failed
+    progress: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )  # 0-100 percentage
 
     # Usage tracking
-    total_tokens = Column(Integer, default=0)
-    cost_cents = Column(Integer, default=0)  # Cost in cents
-    success = Column(Boolean, default=True)
-    error_message = Column(Text, nullable=True)
+    total_tokens: Mapped[int] = mapped_column(Integer, default=0, nullable=True)
+    cost_cents: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=True
+    )  # Cost in cents
+    success: Mapped[bool] = mapped_column(Boolean, default=True, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     # Timestamps
-    started_at = Column(DateTime(timezone=True), server_default=func.now())
-    completed_at = Column(DateTime(timezone=True), nullable=True)
+    started_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
     def __repr__(self) -> str:
         return f"<AIGenerationJob(id={self.id}, user_id={self.user_id}, job_type={self.job_type})>"
@@ -223,20 +281,27 @@ class DocumentDraft(Base):
 
     __tablename__ = "document_drafts"
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("documents.id"), nullable=False, index=True
     )
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False, index=True
+    )
 
     # Draft content
-    content = Column(Text, nullable=True)
-    version = Column(Integer, default=1)
+    content: Mapped[str | None] = mapped_column(Text, nullable=True)
+    version: Mapped[int] = mapped_column(Integer, default=1, nullable=True)
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     def __repr__(self) -> str:
@@ -253,22 +318,26 @@ class DocumentProvenance(Base):
         Index("ix_document_provenance_created_at", "created_at"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
 
     # Event metadata
-    stage = Column(
+    stage: Mapped[str] = mapped_column(
         String(50), nullable=False
     )  # retrieval, outline, generation, quality, verification, export
-    event_type = Column(
+    event_type: Mapped[str] = mapped_column(
         String(100), nullable=False
     )  # sources_retrieved, source_verified, citation_flagged, etc.
-    payload = Column(JSON, nullable=True)  # Arbitrary structured event data
+    payload: Mapped[Any] = mapped_column(
+        JSON, nullable=True
+    )  # Arbitrary structured event data
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
 
     # Relationships
     document = relationship("Document", back_populates="provenance_events")
@@ -311,48 +380,61 @@ class DocumentSource(Base):
         ),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
-    section_id = Column(
+    section_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("document_sections.id", ondelete="SET NULL"), nullable=True
     )
 
     # Raw retrieval metadata (matches SourceDoc dataclass keys)
-    title = Column(String(1000), nullable=False)
-    authors = Column(JSON)  # list[str] of author names
-    year = Column(Integer, nullable=True)
-    abstract = Column(Text, nullable=True)
-    paper_id = Column(String(100), nullable=True)  # e.g. Semantic Scholar paper ID
-    venue = Column(String(500), nullable=True)
-    citation_count = Column(Integer, nullable=True)
-    url = Column(String(1000), nullable=True)
-    doi = Column(String(255), nullable=True)  # normalized lowercase
+    title: Mapped[str] = mapped_column(String(1000), nullable=False)
+    authors: Mapped[Any] = mapped_column(
+        JSON, nullable=True
+    )  # list[str] of author names
+    year: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    abstract: Mapped[str | None] = mapped_column(Text, nullable=True)
+    paper_id: Mapped[str | None] = mapped_column(
+        String(100), nullable=True
+    )  # e.g. Semantic Scholar paper ID
+    venue: Mapped[str | None] = mapped_column(String(500), nullable=True)
+    citation_count: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    url: Mapped[str | None] = mapped_column(String(1000), nullable=True)
+    doi: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
+    )  # normalized lowercase
 
     # Verification state
-    verification_status = Column(
-        String(50), default="unverified"
+    verification_status: Mapped[str] = mapped_column(
+        String(50), default="unverified", nullable=True
     )  # unverified, verified, mismatched, not_found, failed
-    canonical_metadata = Column(
+    canonical_metadata: Mapped[Any] = mapped_column(
         JSON, nullable=True
     )  # Normalized record from Crossref/OpenAlex/S2/arXiv after verification
 
     # Upfront topic-locked source pack (source_pack.py). Pack rows carry a
     # stable, pack-scoped citation_key and an on_topic_score; per-section cited
     # rows leave these NULL / False.
-    citation_key = Column(
+    citation_key: Mapped[str | None] = mapped_column(
         String(64), nullable=True
     )  # stable pack-scoped key, e.g. Rossi2021 / Rossi2021b
-    on_topic_score = Column(
+    on_topic_score: Mapped[float | None] = mapped_column(
         Float, nullable=True
     )  # topic-relevance [0,1] vs document.topic at pack-build time
-    is_in_upfront_pack = Column(Boolean, default=False, nullable=False)
+    is_in_upfront_pack: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
 
     # Timestamps
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     # Relationships
@@ -379,35 +461,66 @@ class ProductionCase(Base):
         UniqueConstraint("document_id", name="uq_production_cases_document_id"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    document_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
-    client_user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    manager_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    editor_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    client_user_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    manager_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    editor_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
 
-    deadline_at = Column(DateTime(timezone=True), nullable=True)
-    citation_style = Column(String(50), nullable=True)
-    requirements_text = Column(Text, nullable=True)
+    deadline_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    citation_style: Mapped[str | None] = mapped_column(String(50), nullable=True)
+    requirements_text: Mapped[str | None] = mapped_column(Text, nullable=True)
 
-    intake_status = Column(String(50), default="draft", nullable=False)
-    generation_status = Column(String(50), default="not_started", nullable=False)
-    qa_status = Column(String(50), default="no_data", nullable=False)
-    editorial_status = Column(String(50), default="not_started", nullable=False)
-    payment_status = Column(String(50), default="not_required", nullable=False)
-    delivery_status = Column(String(50), default="not_ready", nullable=False)
-    release_status = Column(String(50), default="not_ready", nullable=False)
+    intake_status: Mapped[str] = mapped_column(
+        String(50), default="draft", nullable=False
+    )
+    generation_status: Mapped[str] = mapped_column(
+        String(50), default="not_started", nullable=False
+    )
+    qa_status: Mapped[str] = mapped_column(
+        String(50), default="no_data", nullable=False
+    )
+    editorial_status: Mapped[str] = mapped_column(
+        String(50), default="not_started", nullable=False
+    )
+    payment_status: Mapped[str] = mapped_column(
+        String(50), default="not_required", nullable=False
+    )
+    delivery_status: Mapped[str] = mapped_column(
+        String(50), default="not_ready", nullable=False
+    )
+    release_status: Mapped[str] = mapped_column(
+        String(50), default="not_ready", nullable=False
+    )
 
-    human_minutes_budget = Column(Integer, default=0, nullable=False)
-    human_minutes_used = Column(Integer, default=0, nullable=False)
-    cost_cents = Column(Integer, default=0, nullable=False)
-    release_notes = Column(Text, nullable=True)
-    released_at = Column(DateTime(timezone=True), nullable=True)
+    human_minutes_budget: Mapped[int] = mapped_column(
+        Integer, default=0, nullable=False
+    )
+    human_minutes_used: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    cost_cents: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    release_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    released_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     document = relationship("Document", back_populates="production_case")
@@ -444,26 +557,41 @@ class ReleaseGateResult(Base):
         ),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    production_case_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    production_case_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("production_cases.id", ondelete="CASCADE"), nullable=False
     )
-    gate_key = Column(String(100), nullable=False)
-    status = Column(String(50), default="no_data", nullable=False)
-    severity = Column(String(50), default="blocking", nullable=False)
-    blocking = Column(Boolean, default=True, nullable=False)
-    source = Column(String(100), nullable=True)
-    summary = Column(Text, nullable=True)
-    evidence = Column(JSON, nullable=True)
-    override_allowed = Column(Boolean, default=False, nullable=False)
-    override_reason = Column(Text, nullable=True)
-    overridden_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
-    overridden_at = Column(DateTime(timezone=True), nullable=True)
-    last_checked_at = Column(DateTime(timezone=True), nullable=True)
+    gate_key: Mapped[str] = mapped_column(String(100), nullable=False)
+    status: Mapped[str] = mapped_column(String(50), default="no_data", nullable=False)
+    severity: Mapped[str] = mapped_column(
+        String(50), default="blocking", nullable=False
+    )
+    blocking: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    source: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    summary: Mapped[str | None] = mapped_column(Text, nullable=True)
+    evidence: Mapped[Any] = mapped_column(JSON, nullable=True)
+    override_allowed: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    override_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+    overridden_by_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
+    overridden_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    last_checked_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     production_case = relationship("ProductionCase", back_populates="release_gates")
@@ -486,31 +614,42 @@ class EditorTask(Base):
         Index("ix_editor_tasks_status", "status"),
     )
 
-    id = Column(Integer, primary_key=True, index=True)
-    production_case_id = Column(
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    production_case_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("production_cases.id", ondelete="CASCADE"), nullable=False
     )
-    document_id = Column(
+    document_id: Mapped[int] = mapped_column(
         Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
     )
-    section_id = Column(
+    section_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("document_sections.id", ondelete="SET NULL"), nullable=True
     )
-    assigned_editor_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    created_by_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assigned_editor_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=False
+    )
+    created_by_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("users.id"), nullable=True
+    )
 
-    source_gate = Column(String(100), nullable=True)
-    finding_key = Column(String(100), nullable=True)
-    title = Column(String(500), nullable=False)
-    description = Column(Text, nullable=True)
-    status = Column(String(50), default="open", nullable=False)
-    resolution_notes = Column(Text, nullable=True)
-    minutes_spent = Column(Integer, default=0, nullable=False)
-    resolved_at = Column(DateTime(timezone=True), nullable=True)
+    source_gate: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    finding_key: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    title: Mapped[str] = mapped_column(String(500), nullable=False)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(String(50), default="open", nullable=False)
+    resolution_notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+    minutes_spent: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    resolved_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(
-        DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=True
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=True,
     )
 
     production_case = relationship("ProductionCase", back_populates="editor_tasks")

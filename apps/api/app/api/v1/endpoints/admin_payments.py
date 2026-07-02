@@ -179,7 +179,7 @@ async def export_payments(
     end_date: datetime | None = None,
     current_user: User = Depends(require_permission(AdminPermissions.EXPORT_DATA)),
     db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
+) -> StreamingResponse:
     """Export payments to CSV/Excel (admin only)"""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"

@@ -278,18 +278,18 @@ class AIService:
             estimated_tokens = max(content_length // 4, 100)  # Minimum 100 tokens
 
             # Save or update section
-            result = await self.db.execute(
+            section_query_result = await self.db.execute(
                 select(DocumentSection).where(
                     DocumentSection.document_id == document_id,
                     DocumentSection.section_index == section_index,
                 )
             )
-            section = result.scalar_one_or_none()
+            section = section_query_result.scalar_one_or_none()
 
             content = section_result.get("content", "")
             if section:
                 section.content = content
-                section.status = "completed"  # type: ignore[assignment]
+                section.status = "completed"
                 section.tokens_used = estimated_tokens
                 section.generation_time_seconds = generation_time
                 section.completed_at = datetime.utcnow()
@@ -444,6 +444,8 @@ class AIService:
             )
 
             content = response.choices[0].message.content
+            if content is None:
+                raise AIProviderError("OpenAI returned empty response content")
             tokens_used = response.usage.total_tokens if response.usage else 0
 
             # Parse JSON from content string
@@ -455,7 +457,10 @@ class AIService:
                 return {"content": content, "tokens_used": tokens_used}
 
         # Call with retry strategy and circuit breaker
-        return await self._openai_retry.execute_with_retry(_make_request)
+        openai_result: dict[str, Any] = await self._openai_retry.execute_with_retry(
+            _make_request
+        )
+        return openai_result
 
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
@@ -468,7 +473,7 @@ class AIService:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
-            response = await client.messages.create(  # type: ignore[attr-defined]
+            response = await client.messages.create(
                 model=model,
                 max_tokens=4000,
                 temperature=0.7,
@@ -476,7 +481,12 @@ class AIService:
                 messages=[{"role": "user", "content": prompt}],
             )
 
-            content = response.content[0].text
+            first_block = response.content[0]
+            content = getattr(first_block, "text", None)
+            if not isinstance(content, str):
+                raise AIProviderError(
+                    f"Unexpected Anthropic content block: {type(first_block).__name__}"
+                )
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
 
             # Parse JSON from content string
@@ -488,7 +498,10 @@ class AIService:
                 return {"content": content, "tokens_used": tokens_used}
 
         # Call with retry strategy and circuit breaker
-        return await self._anthropic_retry.execute_with_retry(_make_request)
+        anthropic_result: dict[
+            str, Any
+        ] = await self._anthropic_retry.execute_with_retry(_make_request)
+        return anthropic_result
 
     def _build_outline_prompt(
         self,
@@ -579,7 +592,7 @@ Respond with ONLY the JSON object, no additional text or markdown formatting.
         """Outline prompt grounded in the upfront topic-locked source pack."""
         # ~250 words per page (matches cost_estimator.TOKENS_PER_PAGE ≈ 250 wpp).
         words_per_page = 250
-        target_words = max(1, document.target_pages) * words_per_page
+        target_words = max(1, int(document.target_pages)) * words_per_page
         n_sections = max(3, min(10, document.target_pages // 10))
         sources_block = source_pack.prompt_block()
 

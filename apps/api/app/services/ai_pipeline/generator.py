@@ -181,7 +181,7 @@ class SectionGenerator:
                 )
                 source_docs = [ps.source for ps in source_pack.sources]
                 source_pack_block = source_pack.prompt_block()
-                source_texts = []
+                source_texts: list[str] = []
             else:
                 logger.info(f"Retrieving sources for section: {section_title}")
                 query = f"{document.topic} {section_title}"
@@ -621,13 +621,14 @@ class SectionGenerator:
                 return response.choices[0].message.content or ""
 
             # Use retry mechanism with exponential backoff
-            return await retry_with_backoff(
+            openai_content: str = await retry_with_backoff(
                 func=_make_openai_call,
                 max_retries=settings.AI_MAX_RETRIES,
                 delays=settings.AI_RETRY_DELAYS_LIST,
                 exceptions=retryable_exceptions,
                 operation_name=f"OpenAI {model}",
             )
+            return openai_content
 
         except Exception as e:
             logger.error(f"OpenAI API error (all retries exhausted): {e}")
@@ -668,23 +669,31 @@ class SectionGenerator:
 
             # Inner function for retry wrapper
             async def _make_anthropic_call() -> str:
-                response = await client.messages.create(  # type: ignore[attr-defined]
+                response = await client.messages.create(
                     model=model,
                     max_tokens=4000,
                     temperature=0.7,
                     system=system_prompt,
                     messages=[{"role": "user", "content": prompt}],
                 )
-                return response.content[0].text
+                first_block = response.content[0]
+                text = getattr(first_block, "text", None)
+                if not isinstance(text, str):
+                    raise TypeError(
+                        "Unexpected Anthropic content block: "
+                        f"{type(first_block).__name__}"
+                    )
+                return text
 
             # Use retry mechanism with exponential backoff
-            return await retry_with_backoff(
+            anthropic_content: str = await retry_with_backoff(
                 func=_make_anthropic_call,
                 max_retries=settings.AI_MAX_RETRIES,
                 delays=settings.AI_RETRY_DELAYS_LIST,
                 exceptions=retryable_exceptions,
                 operation_name=f"Anthropic {model}",
             )
+            return anthropic_content
 
         except Exception as e:
             logger.error(f"Anthropic API error (all retries exhausted): {e}")

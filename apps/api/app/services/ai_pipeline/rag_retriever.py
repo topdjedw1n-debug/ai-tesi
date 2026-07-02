@@ -555,7 +555,7 @@ class RAGRetriever:
         base = getattr(settings, "CROSSREF_API_URL", "https://api.crossref.org").rstrip(
             "/"
         )
-        params = {
+        params: dict[str, str | int] = {
             "query": query,
             "rows": limit,
             "select": "title,author,issued,DOI,abstract,container-title,URL,"
@@ -620,7 +620,7 @@ class RAGRetriever:
         base = getattr(settings, "OPENALEX_API_URL", "https://api.openalex.org").rstrip(
             "/"
         )
-        params = {
+        params: dict[str, str | int] = {
             "search": query,
             "per_page": limit,
             "mailto": self._POLITE_MAILTO,

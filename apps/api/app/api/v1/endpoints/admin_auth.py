@@ -116,14 +116,14 @@ async def admin_login(
             raise AuthenticationError("Invalid or expired magic link token")
 
         # Get user
-        result = await db.execute(
+        user_result = await db.execute(
             select(User).where(
                 User.email == login_data.email,
                 User.is_admin == True,  # noqa: E712
                 User.is_active == True,  # noqa: E712
             )
         )
-        user: User | None = result.scalar_one_or_none()
+        user: User | None = user_result.scalar_one_or_none()
 
         if not user:
             raise AuthenticationError("Admin user not found or inactive")
@@ -133,11 +133,11 @@ async def admin_login(
             raise AuthenticationError("Email mismatch")
 
         # Mark token as used
-        magic_token.is_used = True  # type: ignore[assignment]
-        magic_token.used_at = datetime.utcnow()  # type: ignore[assignment]
+        magic_token.is_used = True
+        magic_token.used_at = datetime.utcnow()
 
         # Update user last login
-        user.last_login = datetime.utcnow()  # type: ignore[assignment]
+        user.last_login = datetime.utcnow()
 
         await db.commit()
 

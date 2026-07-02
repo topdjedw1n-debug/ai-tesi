@@ -26,13 +26,13 @@ class MaintenanceModeMiddleware(BaseHTTPMiddleware):
         # Skip maintenance check for admin endpoints
         if request.url.path.startswith("/api/v1/admin"):
             # Admin endpoints are allowed during maintenance
-            response: Response = await call_next(request)
-            return response
+            admin_response: Response = await call_next(request)
+            return admin_response
 
         # Skip health check endpoint
         if request.url.path in ["/health", "/"]:
-            response: Response = await call_next(request)
-            return response
+            health_response: Response = await call_next(request)
+            return health_response
 
         # Check maintenance mode
         try:
