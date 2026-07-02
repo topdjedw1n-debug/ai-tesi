@@ -679,6 +679,14 @@ class BackgroundJobService:
                 logger.warning(
                     f"⚠️ Failed to write usage for job {job_id}: {usage_error}"
                 )
+                # Leave the session usable for the caller: a failed write
+                # here must not poison the transaction for follow-up work.
+                try:
+                    await db.rollback()
+                except Exception as rollback_error:
+                    logger.warning(
+                        f"⚠️ Rollback after usage-write failure: {rollback_error}"
+                    )
 
         async with database.AsyncSessionLocal() as db:
             try:
@@ -760,6 +768,9 @@ class BackgroundJobService:
                             .values(status="failed")
                         )
                         await db.commit()
+                        # LLM spend of the failed outline attempt stays
+                        # honest — failed runs are the expensive ones.
+                        await write_job_usage(db)
                         return
 
                 # Reload document to get outline
@@ -775,6 +786,7 @@ class BackgroundJobService:
                         .values(status="failed")
                     )
                     await db.commit()
+                    await write_job_usage(db)  # outline LLM call succeeded
                     return
 
                 # Step 2: Generate all sections
@@ -1749,6 +1761,7 @@ class BackgroundJobService:
                         .values(status="failed")
                     )
                     await db.commit()
+                    await write_job_usage(db)  # spend of the failed attempts
                     return
 
                 if len(completed_sections) < total_sections:
@@ -1802,13 +1815,16 @@ class BackgroundJobService:
                 # Step 4.8: Claim faithfulness audit (advisory by default;
                 # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
                 # claims raise CitationIntegrityError here, before export)
-                if settings.CLAIM_VERIFICATION_ENABLED:
-                    await _run_claim_verification_stage(
-                        db, document_id, user_id, usage_tracker=usage
-                    )
-
-                # Post-section LLM spend (claim verifier) included
-                await write_job_usage(db)
+                try:
+                    if settings.CLAIM_VERIFICATION_ENABLED:
+                        await _run_claim_verification_stage(
+                            db, document_id, user_id, usage_tracker=usage
+                        )
+                finally:
+                    # Post-section LLM spend (claim verifier) included —
+                    # also on the blocking path (CitationIntegrityError),
+                    # where the verifier's spend is already in the tracker.
+                    await write_job_usage(db)
 
                 # Step 5: Export to DOCX
                 logger.info(f"Exporting document {document_id} to DOCX")
@@ -1880,6 +1896,16 @@ class BackgroundJobService:
                     exc_info=True,
                 )
                 error_message = str(e)
+
+                # The transaction may be poisoned by the exception —
+                # clear it so the usage write and status update can land.
+                try:
+                    await db.rollback()
+                except Exception as rollback_error:
+                    logger.warning(f"⚠️ Rollback in failure handler: {rollback_error}")
+                # Failed runs are the expensive ones (multiple attempts,
+                # panel, humanizer) — keep their spend honest.
+                await write_job_usage(db)
 
                 # Mark document as failed
                 try:

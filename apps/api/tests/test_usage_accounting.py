@@ -285,9 +285,12 @@ async def test_job_partial_totals_survive_midrun_failure(
             select(AIGenerationJob).where(AIGenerationJob.id == job_id)
         )
     ).scalar_one()
-    # Section 1's spend was written before the crash (honest partials).
-    # The failed call itself recorded usage too — at least section 1's total.
-    assert refreshed_job.total_tokens >= 1200
+    # Section 1's spend was written before the crash AND the failed
+    # attempt's spend was flushed by the failure handler — the tracker
+    # holds 2 calls x 1200 tokens and the job row must match exactly.
+    # (A weaker >= 1200 would pass even if the failed call's spend was
+    # lost, which is precisely the bug this guards against.)
+    assert refreshed_job.total_tokens == 2400
 
 
 # ---------------------------------------------------------------------------
