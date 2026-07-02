@@ -266,6 +266,22 @@ async def _check_panel_quality(
 # _check_grammar_quality). Same shape as text_utils._CITATION_RE.
 _CITATION_ANCHOR_RE = re.compile(r"\[[^\]]*\]")
 
+# Whitespace artifacts left by anchor stripping: "word [X] word" becomes
+# "word   word" and "word [X]." becomes "word .". LanguageTool flags both
+# (WHITESPACE_RULE / COMMA_PARENTHESIS_WHITESPACE) at -5 points each, so
+# without normalisation the stripping CREATES more errors than it removes.
+_MULTI_SPACE_RE = re.compile(r"[ \t]{2,}")
+_SPACE_BEFORE_PUNCT_RE = re.compile(r"\s+([.,;:!?])")
+
+
+def strip_citation_anchors(content: str) -> str:
+    """Remove bracketed citation anchors and normalise the whitespace they
+    leave behind, so LanguageTool sees clean prose."""
+    text = _CITATION_ANCHOR_RE.sub(" ", content)
+    text = _MULTI_SPACE_RE.sub(" ", text)
+    text = _SPACE_BEFORE_PUNCT_RE.sub(r"\1", text)
+    return text
+
 
 class CheckStatus(str, Enum):
     """Outcome of a single quality check.
@@ -307,7 +323,7 @@ async def _check_grammar_quality(
         # check: LanguageTool flags them (casing/whitespace rules) and at
         # -5 points per match they tanked real grammar scores (95 -> 60-70).
         # Offsets are not mapped back — only count/score are used downstream.
-        checked_text = _CITATION_ANCHOR_RE.sub(" ", content)
+        checked_text = strip_citation_anchors(content)
         grammar_checker = GrammarChecker()
         grammar_result = await grammar_checker.check_text(
             text=checked_text, language=language

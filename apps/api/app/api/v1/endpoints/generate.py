@@ -237,8 +237,14 @@ async def check_grammar(
         request: Grammar check request with text and language
     """
     try:
+        # Same preprocessing as the pipeline quality gate: strip citation
+        # anchors so a manual check reports the score the gate recorded.
+        from app.services.background_jobs import strip_citation_anchors
+
         checker = GrammarChecker()
-        result = await checker.check_text(request.text, request.language)
+        result = await checker.check_text(
+            strip_citation_anchors(request.text), request.language
+        )
         return result
     except Exception as e:
         raise HTTPException(

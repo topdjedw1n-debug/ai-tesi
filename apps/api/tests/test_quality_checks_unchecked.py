@@ -170,3 +170,46 @@ async def test_grammar_check_strips_citation_anchors_before_languagetool():
     assert "[Rossi2021" not in sent_text
     assert "[Smith2020" not in sent_text
     assert "Gli studenti migliorano" in sent_text
+
+
+# ----------------------------------------------------------------------
+# strip_citation_anchors: stripping must not CREATE LanguageTool errors
+# (double spaces, space before punctuation) — B-fix wave, item 3.
+# ----------------------------------------------------------------------
+
+
+def test_strip_citation_anchors_no_whitespace_artifacts():
+    from app.services.background_jobs import strip_citation_anchors
+
+    text = (
+        "Gli studenti migliorano [Rossi2021, 2021] con il tempo "
+        "[Smith2020; Lee2019]. Fine [Nappo,2023]!"
+    )
+    cleaned = strip_citation_anchors(text)
+
+    assert "[" not in cleaned and "]" not in cleaned
+    assert "  " not in cleaned
+    assert " ." not in cleaned and " !" not in cleaned and " ," not in cleaned
+    assert cleaned == "Gli studenti migliorano con il tempo. Fine!"
+
+
+def test_strip_citation_anchors_keeps_plain_text_unchanged():
+    from app.services.background_jobs import strip_citation_anchors
+
+    text = "Una frase normale, senza citazioni: resta intatta."
+    assert strip_citation_anchors(text) == text
+
+
+@pytest.mark.asyncio
+async def test_grammar_check_sends_normalized_text():
+    with patch("app.services.background_jobs.GrammarChecker") as checker_class:
+        check_text = AsyncMock(return_value={"checked": True, "matches": []})
+        checker_class.return_value.check_text = check_text
+        await _check_grammar_quality(
+            "Testo con ancora [Rossi2021, 2021] dentro.", "it", 10
+        )
+
+    sent_text = check_text.await_args.kwargs.get("text") or check_text.await_args[0][0]
+    assert "  " not in sent_text
+    assert " ." not in sent_text
+    assert "Rossi2021" not in sent_text
