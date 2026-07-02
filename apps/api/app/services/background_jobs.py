@@ -958,6 +958,7 @@ class BackgroundJobService:
                         final_check_breakdown: dict[str, dict[str, Any]] | None = None
                         ai_trace: dict[str, Any] = {}
                         panel_result: dict[str, Any] | None = None
+                        panel_crashed = False
                         panel_feedback: list[str] = []
                         # Reviewer remarks from a failed attempt are appended
                         # here so the NEXT attempt's prompt addresses them;
@@ -1246,15 +1247,22 @@ class BackgroundJobService:
                                 # Reset so a crash here doesn't leave scores/
                                 # reports describing an older attempt's draft
                                 panel_result = None
+                                panel_crashed = False
                                 final_quality_score = None
                                 panel_attempt = await _check_panel_quality(
                                     db,
                                     humanized_content,
                                     section_title,
-                                    current_section.get("word_count", 500),
+                                    # Outline sections carry "estimated_words";
+                                    # "word_count" never existed there, so the
+                                    # panel judged every section against ~500.
+                                    current_section.get("estimated_words")
+                                    or current_section.get("word_count")
+                                    or 500,
                                     usage_tracker=usage,
                                 )
                                 if panel_attempt is None:
+                                    panel_crashed = True
                                     logger.warning(
                                         f"⚠️ Panel gate skipped for section "
                                         f"{section_index} (panel crashed); "
@@ -1395,8 +1403,10 @@ class BackgroundJobService:
                                         outline_section={
                                             "title": section_title,
                                             "target_word_count": current_section.get(
-                                                "word_count", 500
-                                            ),
+                                                "estimated_words"
+                                            )
+                                            or current_section.get("word_count")
+                                            or 500,
                                         },
                                     )
                                 )
@@ -1414,7 +1424,10 @@ class BackgroundJobService:
                                 logger.error(
                                     f"Quality validation failed for section {section_index}: {e}"
                                 )
-                                final_quality_score = 75.0  # Neutral score on error
+                                # No score is honest; a fabricated 75.0 made
+                                # a section with a dead panel + dead heuristic
+                                # look like a scored, reviewed one.
+                                final_quality_score = None
 
                         # ✅ BUG FIX: Defensive check - final_content must be set
                         if final_content is None:
@@ -1595,6 +1608,9 @@ class BackgroundJobService:
                                     event_type="panel_review",
                                     payload={
                                         "section_index": section_index,
+                                        "status": "passed"
+                                        if panel_result.get("passed")
+                                        else "failed",
                                         "overall_score": panel_result.get(
                                             "overall_score"
                                         ),
@@ -1604,6 +1620,23 @@ class BackgroundJobService:
                                         ),
                                         "attempts": attempt_num,
                                         "panel": panel_result.get("panel"),
+                                    },
+                                )
+                            elif panel_crashed:
+                                # The panel never reviewed this section —
+                                # leave an honest trace instead of silence.
+                                await _record_provenance(
+                                    db,
+                                    document_id,
+                                    stage="quality",
+                                    event_type="panel_review",
+                                    payload={
+                                        "section_index": section_index,
+                                        "status": "unchecked",
+                                        "overall_score": None,
+                                        "passed": None,
+                                        "attempts": attempt_num,
+                                        "reason": "reviewer panel crashed",
                                     },
                                 )
 

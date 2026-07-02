@@ -294,7 +294,7 @@ export default function AdminDocumentDetailsPage() {
                         <span className="text-gray-400">Tokens:</span> {job.tokens_used || 0}
                       </div>
                       <div>
-                        <span className="text-gray-400">Cost:</span> €
+                        <span className="text-gray-400">Cost:</span> $
                         {((job.cost_cents || 0) / 100).toFixed(4)}
                       </div>
                     </div>

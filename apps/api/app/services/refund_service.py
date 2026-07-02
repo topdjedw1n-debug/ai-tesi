@@ -374,8 +374,14 @@ class RefundService:
         # all-passed counts as "quality proven" — unchecked events (checks
         # never ran) must neither lean refund-approve nor pose as evidence
         # of quality.
+        # Judge each section by its latest event: retries append new
+        # quality_gate events and stale failures must not linger.
+        latest_quality_by_section: dict[Any, Any] = {}
+        for e in quality_events:  # ordered by created_at, id
+            latest_quality_by_section[(e.payload or {}).get("section_index")] = e
         quality_statuses = [
-            derive_quality_gate_status(e.payload) for e in quality_events
+            derive_quality_gate_status(e.payload)
+            for e in latest_quality_by_section.values()
         ]
         quality_gate_failures = quality_statuses.count("failed")
         quality_gates_passed = bool(quality_events) and all(

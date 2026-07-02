@@ -186,3 +186,63 @@ def test_evidence_sentence_start_bigram_not_counted():
         contains_named_system("Molti studiosi concordano. Questo tema resta aperto.")
         is False
     )
+
+
+# ----------------------------------------------------------------------
+# B-fix wave: named-system false positives (Roman numerals, ALL-CAPS
+# headings, ubiquitous acronyms, PhD/kWh, narrative author citations)
+# ----------------------------------------------------------------------
+
+
+class TestNamedSystemFalsePositives:
+    def test_roman_numerals_are_not_evidence(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert not contains_named_system(
+            "Nel XXI secolo la tecnologia digitale trasforma la vita."
+        )
+        assert not contains_named_system("Come descritto nel Capitolo III.")
+
+    def test_all_caps_headings_are_not_evidence(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert not contains_named_system("INTRODUZIONE")
+        assert not contains_named_system("CONSIDERAZIONI generali sul tema trattato.")
+
+    def test_generic_acronyms_are_not_evidence(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert not contains_named_system(
+            "Gli LLM e la NLP aprono nuove strade nelle ICT."
+        )
+
+    def test_phd_and_units_are_not_evidence(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert not contains_named_system(
+            "Il conseguimento del PhD richiede anni di studio."
+        )
+
+    def test_narrative_author_citation_is_not_evidence(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert not contains_named_system(
+            "L'apprendimento cambia, come sostiene Mario Rossi nella sua opera."
+        )
+        assert not contains_named_system(
+            "Il fenomeno cresce, secondo Anna Bianchi, in modo costante."
+        )
+
+    def test_real_named_systems_still_count(self):
+        from app.services.ai_pipeline.text_utils import contains_named_system
+
+        assert contains_named_system(
+            "Il sistema AILexA supporta lo studio del diritto romano."
+        )
+        assert contains_named_system("La piattaforma usa ChatGPT per il tutoring.")
+        assert contains_named_system(
+            "L'azienda ha adottato SAP per la gestione dei processi."
+        )
+        assert contains_named_system(
+            "I servizi girano su Amazon Web Services in cloud."
+        )

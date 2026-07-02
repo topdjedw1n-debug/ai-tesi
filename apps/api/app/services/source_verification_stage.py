@@ -509,6 +509,13 @@ async def run_citation_verification_stage(
     # swallowed by the stage's graceful-degradation handler.
     not_found_count = summary["counts"].get("not_found", 0)
     if not_found_count == 0:
+        # "0 not_found" is only a pass if something was actually verified.
+        # When every provider errored, all sources land in "failed"
+        # (UNRESOLVABLE) and nothing was checked — that is an unchecked
+        # gate, not a green one (same fail-open the quality gates had).
+        failed_count = summary["counts"].get("failed", 0)
+        total_sources = sum(summary["counts"].values())
+        nothing_verified = total_sources > 0 and failed_count == total_sources
         if config.PROVENANCE_LEDGER_ENABLED:
             await record_event(
                 db,
@@ -516,8 +523,8 @@ async def run_citation_verification_stage(
                 stage="verification",
                 event_type="citation_gate",
                 payload={
-                    "passed": True,
-                    "status": "passed",
+                    "passed": not nothing_verified,
+                    "status": "unchecked" if nothing_verified else "passed",
                     "policy": config.CITATION_VERIFICATION_POLICY,
                     "counts": summary["counts"],
                 },

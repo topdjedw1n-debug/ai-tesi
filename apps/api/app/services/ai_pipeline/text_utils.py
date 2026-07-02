@@ -153,12 +153,22 @@ _ENUMERATION_RE = re.compile(r"^\s*\d+[.)]\s", flags=re.MULTILINE)
 # "Named system" evidence (Stage B4): a concrete named technology / platform /
 # case counts as evidence even without numbers. Three deliberately narrow
 # patterns to avoid matching ordinary sentence-initial capitalization:
-# 1) Acronyms: 3+ uppercase letters, optionally with digits ("SAP", "ERP",
+# 1) Acronyms: 3-5 uppercase letters, optionally with digits ("SAP", "ERP",
 #    "HANA", "GPT" in "GPT-4"). Deliberately NOT 2 letters: "AI"/"IT" appear
 #    in every section of an AI thesis and would make the gate toothless.
+#    Post-filtered below: Roman numerals ("XXI", "III"), long ALL-CAPS words
+#    (headings like "INTRODUZIONE") and domain-ubiquitous acronyms don't count.
 _ACRONYM_RE = re.compile(r"\b[A-Z]{3,}\d*\b")
+# Roman-numeral-only tokens: "Nel XXI secolo", "Capitolo III" are filler, not
+# named systems.
+_ROMAN_ONLY_RE = re.compile(r"^[IVXLCDM]+$")
+# Acronyms so common in AI/education theses that they carry no case evidence.
+_GENERIC_ACRONYMS = frozenset(
+    {"LLM", "LLMS", "NLP", "ICT", "TIC", "API", "GPU", "CPU", "PDF", "URL", "WWW"}
+)
 # 2) CamelCase tokens ("ChatGPT", "DeepMind", "TensorFlow") — an uppercase
-#    letter appearing after a lowercase letter inside one word.
+#    letter appearing after a lowercase letter inside one word. Min length 5
+#    (filtered below) so unit-style tokens ("PhD", "kWh") don't count.
 _CAMELCASE_RE = re.compile(r"\b[A-Za-z]*[a-z][A-Z][A-Za-z]*\b")
 # 3) Mid-sentence capitalized bigram ("Industria 4.0" is caught by numbers;
 #    "Amazon Web Services" needs this): two adjacent capitalized words
@@ -166,27 +176,67 @@ _CAMELCASE_RE = re.compile(r"\b[A-Za-z]*[a-z][A-Z][A-Za-z]*\b")
 #    lowercase letter/digit/comma, which excludes sentence starts, headings
 #    and line starts. Same-line only ([ \t], not \s) so a heading followed by
 #    a capitalized sentence start can't bridge the newline.
+#    (à-öø-ÿ = Latin-1 letters without the ÷ sign.)
 _MIDSENTENCE_PROPER_BIGRAM_RE = re.compile(
-    r"(?<=[a-zà-ÿ0-9,;:)])[ \t][A-Z][a-zà-ÿ]+[ \t]+[A-Z][a-zà-ÿ]+\b"
+    r"(?<=[a-zà-öø-ÿ0-9,;:)])[ \t][A-Z][a-zà-öø-ÿ]+[ \t]+[A-Z][a-zà-öø-ÿ]+\b"
 )
+# Narrative-citation / attribution verbs (IT + EN): a capitalized bigram right
+# after one of these is an AUTHOR name ("come sostiene Mario Rossi"), not a
+# named system. Checked against the ~3 words before the bigram.
+_ATTRIBUTION_TAIL_RE = re.compile(
+    r"(?:\b(?:sostiene|sostengono|afferma|affermano|osserva|osservano|scrive|"
+    r"scrivono|nota|notano|suggerisce|suggeriscono|evidenzia|evidenziano|"
+    r"secondo|according\s+to|argues?|claims?|states?|notes?|suggests?)\b"
+    r"[^.;:!?]{0,20})$",
+    flags=re.IGNORECASE,
+)
+
+
+def _acronym_evidence(cleaned: str) -> bool:
+    for match in _ACRONYM_RE.finditer(cleaned):
+        token = match.group(0)
+        letters = token.rstrip("0123456789")
+        if _ROMAN_ONLY_RE.match(letters):
+            continue  # "XXI", "III" — Roman numerals, not systems
+        if len(letters) > 5:
+            continue  # "INTRODUZIONE" — an ALL-CAPS heading, not an acronym
+        if letters in _GENERIC_ACRONYMS:
+            continue
+        return True
+    return False
+
+
+def _camelcase_evidence(cleaned: str) -> bool:
+    return any(len(match.group(0)) >= 5 for match in _CAMELCASE_RE.finditer(cleaned))
+
+
+def _bigram_evidence(cleaned: str) -> bool:
+    for match in _MIDSENTENCE_PROPER_BIGRAM_RE.finditer(cleaned):
+        if _ATTRIBUTION_TAIL_RE.search(cleaned[: match.start() + 1]):
+            continue  # "come sostiene Mario Rossi" — an author, not a system
+        return True
+    return False
 
 
 def contains_named_system(text: str | None) -> bool:
     """True if the text names a concrete system/technology/case.
 
-    Heuristics: acronyms (SAP, ERP, IoT-style all-caps), CamelCase product
-    names (ChatGPT, TensorFlow), or a capitalized bigram in the middle of a
-    sentence (Amazon Web Services). Bracketed citations are stripped first so
-    author names in "[Rossi2021, 2021]" can't trigger it.
+    Heuristics: acronyms (SAP, ERP — but not Roman numerals, ALL-CAPS
+    headings or ubiquitous LLM/NLP-style abbreviations), CamelCase product
+    names (ChatGPT, TensorFlow — min length 5, so not PhD/kWh), or a
+    capitalized bigram in the middle of a sentence (Amazon Web Services —
+    unless it follows an attribution verb and is therefore an author name).
+    Bracketed citations are stripped first so author names in
+    "[Rossi2021, 2021]" can't trigger it.
     """
     if not text:
         return False
     cleaned = _CITATION_RE.sub(" ", text)
     cleaned = _ENUMERATION_RE.sub(" ", cleaned)
-    return bool(
-        _ACRONYM_RE.search(cleaned)
-        or _CAMELCASE_RE.search(cleaned)
-        or _MIDSENTENCE_PROPER_BIGRAM_RE.search(cleaned)
+    return (
+        _acronym_evidence(cleaned)
+        or _camelcase_evidence(cleaned)
+        or _bigram_evidence(cleaned)
     )
 
 

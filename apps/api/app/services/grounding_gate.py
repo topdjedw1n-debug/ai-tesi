@@ -77,8 +77,9 @@ def evaluate_grounding(
 
     passed = grounding_rate >= min_grounding_rate AND (evidence satisfied), where
     evidence (when require_evidence is set) means BOTH at least one grounded
-    citation AND a concrete numeric detail in the prose (percentages, decimals,
-    multi-digit numbers — citation years and section numbering excluded; see
+    citation AND a concrete detail in the prose: a numeric fact (percentages,
+    decimals, multi-digit numbers — citation years and section numbering
+    excluded) OR a named system/technology/case (see
     text_utils.contains_concrete_evidence). The reason string distinguishes the
     failure modes so regeneration feedback can be targeted.
     """
@@ -116,7 +117,8 @@ def evaluate_grounding(
             passed = False
             reason = (
                 "no concrete evidence in section (no statistic, numeric "
-                "finding, or specific figure outside citations/numbering)"
+                "finding, specific figure, or named system/case outside "
+                "citations/numbering)"
             )
 
     return GroundingResult(

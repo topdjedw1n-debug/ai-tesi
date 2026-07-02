@@ -138,7 +138,11 @@ export default function AdminDashboardPage() {
     sampleOpenDocuments
   )
   const stuckJobCount = stuckJobs?.stuck_jobs?.total ?? 0
-  const tokenCostTodayCents = costsToday?.totals?.total_cost_cents ?? 0
+  // Prefer the EUR figure the backend computes; total_cost_cents is USD.
+  const tokenCostTodayCents =
+    costsToday?.totals?.total_cost_eur_cents ??
+    costsToday?.totals?.total_cost_cents ??
+    0
   const tokensToday = costsToday?.totals?.total_tokens ?? 0
   const productionSnapshot = {
     openDocuments,

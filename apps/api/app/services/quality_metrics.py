@@ -144,7 +144,8 @@ def hedging_density(text: str, language: str = "en") -> dict[str, Any]:
 
 
 def evidence_presence(text: str, pack: SourcePack | None = None) -> bool:
-    """True if the section carries a concrete numeric detail.
+    """True if the section carries a concrete detail: a numeric fact or a
+    named system/technology/case.
 
     Delegates to text_utils.contains_concrete_evidence (shared with the
     grounding gate): citation years and section numbering do NOT count —

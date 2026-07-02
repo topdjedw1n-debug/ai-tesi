@@ -488,7 +488,7 @@ class ProductionCaseService:
             payload = _event_payload(event)
             if event:
                 explicit = payload.get("status")
-                if explicit in {"passed", "failed", "warning"}:
+                if explicit in {"passed", "failed", "warning", "unchecked"}:
                     status_value = explicit
                 elif (
                     payload.get("passed") is True
@@ -538,9 +538,17 @@ class ProductionCaseService:
                 event for event in events if event.event_type == "quality_gate"
             ]
             if quality_events:
+                # The ledger is append-only and admin retry regenerates the
+                # same document — judge each section by its LATEST event,
+                # or stale unchecked/failed events block release forever.
+                latest_by_section: dict[Any, DocumentProvenance] = {}
+                for event in quality_events:  # events are ordered by id
+                    payload = _event_payload(event)
+                    section_key = payload.get("section_index")
+                    latest_by_section[section_key] = event
                 statuses = [
                     derive_quality_gate_status(_event_payload(event))
-                    for event in quality_events
+                    for event in latest_by_section.values()
                 ]
                 failed = statuses.count("failed")
                 unchecked = statuses.count("unchecked")

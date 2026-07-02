@@ -45,6 +45,10 @@ os.environ.setdefault("GROUNDING_GATE_ENABLED", "false")
 # CLAIM_VERIFICATION_ENABLED-requires-CITATION_VERIFICATION_ENABLED validator.
 os.environ.setdefault("CLAIM_VERIFICATION_ENABLED", "false")
 os.environ.setdefault("QUALITY_PANEL_ENABLED", "false")
+# Same leak class: a developer's .env enables the citation verifier for real
+# runs; unguarded, pipeline tests that don't patch CitationVerifier run the
+# live Step 4.7 stage (Crossref/OpenAlex/S2 lookups) against the network.
+os.environ.setdefault("CITATION_VERIFICATION_ENABLED", "false")
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
