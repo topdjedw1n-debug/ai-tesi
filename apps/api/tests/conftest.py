@@ -38,6 +38,13 @@ os.environ.setdefault("STRIPE_WEBHOOK_SECRET", "whsec_test_ci_default")
 # 19-minute suite, 8 network-dependent failures).
 os.environ.setdefault("SOURCE_GROUNDING_ENABLED", "false")
 os.environ.setdefault("GROUNDING_GATE_ENABLED", "false")
+# Second-layer QA (Stage B5) must stay OFF in tests unless a test enables it
+# explicitly (init kwargs beat env vars). A developer's .env legitimately
+# turns claim verification + reviewer panel on for real runs — without this
+# guard, tests that build Settings() from .env hit extra LLM stages and the
+# CLAIM_VERIFICATION_ENABLED-requires-CITATION_VERIFICATION_ENABLED validator.
+os.environ.setdefault("CLAIM_VERIFICATION_ENABLED", "false")
+os.environ.setdefault("QUALITY_PANEL_ENABLED", "false")
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
