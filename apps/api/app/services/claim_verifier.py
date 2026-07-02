@@ -47,6 +47,14 @@ REASON_NO_VERDICT = "LLM did not return a verdict for this claim"
 _SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?])\s+")
 _HEADING_LINE = re.compile(r"^\s*#{1,6}\s")
 
+# Source-pack citation keys, e.g. "[Ciofalo2024]" / "[DeSimone2024a]".
+# No comma inside — disjoint from the legacy "[Author, Year]" format that
+# CitationFormatter.extract_citations_from_text handles. Multiple keys may
+# share one bracket pair: "[Ciofalo2024; Corsi2025]".
+_PACK_KEY_RE = re.compile(
+    r"\[([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:\s*;\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?)*)\]"
+)
+
 
 @dataclass
 class CitedClaim:
@@ -206,11 +214,36 @@ class ClaimVerifier:
 
     def extract_claims(self, content: str, sources: list[Any]) -> list[CitedClaim]:
         """
-        Extract sentences carrying [Author, Year] citations and match each
-        citation to a persisted source (one claim per sentence-citation pair).
+        Extract sentences carrying citations and match each citation to a
+        persisted source (one claim per sentence-citation pair).
+
+        Two citation formats are recognised:
+        - source-pack keys "[Ciofalo2024]" (the grounded production path),
+          matched exactly against DocumentSource.citation_key;
+        - legacy "[Author, Year]", matched by author/year scoring.
         """
         claims: list[CitedClaim] = []
+        key_index = {
+            str(getattr(source, "citation_key", "") or "").casefold(): source
+            for source in sources
+            if getattr(source, "citation_key", None)
+        }
         for sentence in split_sentences(content):
+            # Source-pack keys first: the production (grounded) format
+            for match in _PACK_KEY_RE.finditer(sentence):
+                for key in (k.strip() for k in match.group(1).split(";")):
+                    source = key_index.get(key.casefold())
+                    claims.append(
+                        CitedClaim(
+                            sentence=sentence,
+                            citation_text=f"[{key}]",
+                            source_id=getattr(source, "id", None) if source else None,
+                            source_title=source.title if source else None,
+                            abstract=_source_abstract(source) if source else None,
+                        )
+                    )
+            # Legacy "[Author, Year]" markers (comma required — disjoint
+            # from pack keys, so no double counting)
             citations = CitationFormatter.extract_citations_from_text(sentence)
             for citation in citations:
                 source = _match_source(citation, sources)

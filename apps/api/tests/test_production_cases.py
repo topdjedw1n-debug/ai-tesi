@@ -654,3 +654,26 @@ async def test_release_blocked_by_unchecked_and_warning_until_override(client):
     )
     assert release_response.status_code == 200, release_response.text
     assert release_response.json()["release_status"] == "released"
+
+
+@pytest.mark.asyncio
+async def test_claim_support_warning_when_zero_claims_extracted(client):
+    """A claim_check_summary with total_claims=0 must show 'warning', not
+    'passed' — the audit ran but had nothing to verify, which for a
+    finished thesis means the citations were not recognised."""
+    admin = await _create_user(
+        email="prod-admin-claims0@example.com", is_admin=True, is_super_admin=True
+    )
+    customer = await _create_user(email="prod-client-claims0@example.com")
+
+    doc = await _create_document(int(customer.id), completed=True)
+    await _add_event(
+        int(doc.id),
+        "verification",
+        "claim_check_summary",
+        {"total_claims": 0, "checked": 0, "counts": {}},
+    )
+    case = await _create_case(client, admin, doc)
+    gate = await _get_gate(client, admin, case["id"], "claim_support")
+    assert gate["status"] == "warning"
+    assert "manually" in gate["summary"]

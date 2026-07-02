@@ -642,3 +642,78 @@ async def test_pipeline_blocking_unsupported_claims_block_export(
         .all()
     }
     assert "claim_integrity_gate_failed" in event_types
+
+
+# ----------------------------------------------------------------------
+# Unit: source-pack citation keys (grounded path), e.g. "[Ciofalo2024]"
+# ----------------------------------------------------------------------
+
+
+def make_pack_source(source_id=1, citation_key="Ciofalo2024", **kwargs):
+    source = make_source(source_id=source_id, **kwargs)
+    source.citation_key = citation_key
+    return source
+
+
+def test_extract_claims_matches_pack_keys_by_citation_key():
+    source = make_pack_source(
+        source_id=7, citation_key="Ciofalo2024", abstract=ABSTRACT
+    )
+    verifier = ClaimVerifier(make_ai())
+    claims = verifier.extract_claims(
+        "L'IA trasforma la didattica [Ciofalo2024]. Frase neutra.", [source]
+    )
+
+    assert len(claims) == 1
+    assert claims[0].citation_text == "[Ciofalo2024]"
+    assert claims[0].source_id == 7
+    assert claims[0].abstract == ABSTRACT
+
+
+def test_extract_claims_pack_key_match_is_case_insensitive():
+    source = make_pack_source(source_id=3, citation_key="DeSimone2024")
+    verifier = ClaimVerifier(make_ai())
+    claims = verifier.extract_claims("Un caso noto [desimone2024].", [source])
+
+    assert len(claims) == 1
+    assert claims[0].source_id == 3
+
+
+def test_extract_claims_multiple_pack_keys_in_one_bracket():
+    sources = [
+        make_pack_source(source_id=1, citation_key="Ciofalo2024"),
+        make_pack_source(source_id=2, citation_key="Corsi2025"),
+    ]
+    verifier = ClaimVerifier(make_ai())
+    claims = verifier.extract_claims(
+        "Due studi concordano [Ciofalo2024; Corsi2025].", sources
+    )
+
+    assert [c.source_id for c in claims] == [1, 2]
+
+
+def test_extract_claims_unknown_pack_key_yields_unmatched_claim():
+    verifier = ClaimVerifier(make_ai())
+    claims = verifier.extract_claims("Fonte fantasma [Inventato2099].", [])
+
+    assert len(claims) == 1
+    assert claims[0].source_id is None
+    assert claims[0].abstract is None
+
+
+def test_extract_claims_legacy_and_pack_formats_do_not_double_count():
+    pack_source = make_pack_source(
+        source_id=1,
+        citation_key="Ciofalo2024",
+        authors=["Giovanni Ciofalo"],
+        year=2024,
+    )
+    legacy_source = make_source(source_id=2, authors=["Ashish Vaswani"], year=2017)
+    verifier = ClaimVerifier(make_ai())
+    claims = verifier.extract_claims(
+        "Prima frase [Ciofalo2024]. Seconda frase [Vaswani, 2017].",
+        [pack_source, legacy_source],
+    )
+
+    assert len(claims) == 2
+    assert {c.source_id for c in claims} == {1, 2}

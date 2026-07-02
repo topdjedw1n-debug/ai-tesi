@@ -150,7 +150,10 @@ async def run_claim_verification_stage(
 
         await db.commit()  # persist claim_verification on sections
 
-        if total_claims and config.PROVENANCE_LEDGER_ENABLED:
+        # Emit the summary even at 0 claims: silence here left the
+        # claim_support release gate at "no_data" with no way to tell
+        # "audit never ran" from "audit ran and found nothing to check".
+        if config.PROVENANCE_LEDGER_ENABLED:
             await record_event(
                 db,
                 document_id,

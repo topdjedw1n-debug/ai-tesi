@@ -517,8 +517,21 @@ class ProductionCaseService:
             )
             if event:
                 unsupported = int(counts.get("unsupported") or 0)
-                status_value = "failed" if unsupported > 0 else "passed"
-                summary = f"{payload.get('checked', 0)}/{payload.get('total_claims', 0)} claims checked."
+                total_claims = int(payload.get("total_claims") or 0)
+                if unsupported > 0:
+                    status_value = "failed"
+                elif total_claims == 0:
+                    # Audit ran but extracted nothing — a finished thesis
+                    # with zero cited claims is suspicious, not a pass.
+                    status_value = "warning"
+                else:
+                    status_value = "passed"
+                summary = f"{payload.get('checked', 0)}/{total_claims} claims checked."
+                if status_value == "warning":
+                    summary += (
+                        " No cited claims were extracted — verify citations"
+                        " manually."
+                    )
                 evidence = payload
         elif gate_key == "section_quality":
             quality_events = [
