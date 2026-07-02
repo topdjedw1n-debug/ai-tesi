@@ -168,6 +168,175 @@ async def list_payments(
         ) from e
 
 
+# NB: literal paths (/export, /stats) must be registered before /{payment_id},
+# otherwise FastAPI matches them as payment_id and returns 422.
+@router.get("/export")
+async def export_payments(
+    request: Request,
+    format: str = Query("csv", pattern="^(csv|excel)$"),
+    status: str | None = Query(None),
+    start_date: datetime | None = None,
+    end_date: datetime | None = None,
+    current_user: User = Depends(require_permission(AdminPermissions.EXPORT_DATA)),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Export payments to CSV/Excel (admin only)"""
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    ip = request.client.host if request.client else "unknown"
+
+    try:
+        # Build query
+        query = select(Payment)
+
+        if status:
+            query = query.where(Payment.status == status)
+        if start_date:
+            query = query.where(Payment.created_at >= start_date)
+        if end_date:
+            query = query.where(Payment.created_at <= end_date)
+
+        query = query.order_by(Payment.created_at.desc())
+
+        result = await db.execute(query)
+        payments = result.scalars().all()
+
+        # Log admin action
+        admin_service = AdminService(db)
+        await admin_service.log_admin_action(
+            admin_id=int(current_user.id),
+            action="export_payments",
+            target_type="payment",
+            ip_address=ip,
+            user_agent=request.headers.get("user-agent"),
+            correlation_id=correlation_id,
+        )
+
+        if format == "csv":
+            # Generate CSV
+            output = io.StringIO()
+            writer = csv.writer(output)
+
+            # Write header
+            writer.writerow(
+                [
+                    "ID",
+                    "User ID",
+                    "Document ID",
+                    "Amount",
+                    "Currency",
+                    "Status",
+                    "Stripe Payment Intent ID",
+                    "Payment Method",
+                    "Created At",
+                    "Completed At",
+                ]
+            )
+
+            # Write data
+            for payment in payments:
+                writer.writerow(
+                    [
+                        payment.id,
+                        payment.user_id,
+                        payment.document_id,
+                        float(payment.amount),
+                        payment.currency,
+                        payment.status,
+                        payment.stripe_payment_intent_id,
+                        payment.payment_method,
+                        payment.created_at.isoformat() if payment.created_at else None,
+                        payment.completed_at.isoformat()
+                        if payment.completed_at
+                        else None,
+                    ]
+                )
+
+            output.seek(0)
+
+            return StreamingResponse(
+                iter([output.getvalue()]),
+                media_type="text/csv",
+                headers={
+                    "Content-Disposition": f"attachment; filename=payments_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
+                },
+            )
+        else:
+            # TODO: Implement Excel export
+            raise APIException(
+                detail="Excel export not yet implemented",
+                status_code=501,
+                error_code="NOT_IMPLEMENTED",
+            )
+    except APIException:
+        raise
+    except Exception as e:
+        logger.error(f"Error exporting payments: {e}")
+        raise APIException(
+            detail="Failed to export payments",
+            status_code=500,
+            error_code="INTERNAL_SERVER_ERROR",
+        ) from e
+
+
+@router.get("/stats")
+async def get_payment_stats(
+    request: Request,
+    current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Get payment statistics (admin only)"""
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    ip = request.client.host if request.client else "unknown"
+
+    try:
+        # Get total payments
+        total_result = await db.execute(select(func.count(Payment.id)))
+        total_payments = total_result.scalar()
+
+        # Get payments by status
+        status_result = await db.execute(
+            select(Payment.status, func.count(Payment.id)).group_by(Payment.status)
+        )
+        status_counts = {row[0]: row[1] for row in status_result.all()}
+
+        # Get total revenue
+        revenue_result = await db.execute(
+            select(func.sum(Payment.amount)).where(Payment.status == "completed")
+        )
+        total_revenue = float(revenue_result.scalar() or 0)
+
+        # Get average payment amount
+        avg_result = await db.execute(
+            select(func.avg(Payment.amount)).where(Payment.status == "completed")
+        )
+        avg_amount = float(avg_result.scalar() or 0)
+
+        # Log admin action
+        admin_service = AdminService(db)
+        await admin_service.log_admin_action(
+            admin_id=int(current_user.id),
+            action="view_payment_stats",
+            target_type="payment",
+            ip_address=ip,
+            user_agent=request.headers.get("user-agent"),
+            correlation_id=correlation_id,
+        )
+
+        return {
+            "total_payments": total_payments,
+            "status_counts": status_counts,
+            "total_revenue": total_revenue,
+            "average_payment_amount": avg_amount,
+        }
+    except Exception as e:
+        logger.error(f"Error getting payment stats: {e}")
+        raise APIException(
+            detail="Failed to get payment stats",
+            status_code=500,
+            error_code="INTERNAL_SERVER_ERROR",
+        ) from e
+
+
 @router.get("/{payment_id}")
 async def get_payment_details(
     payment_id: int,
@@ -459,173 +628,6 @@ async def initiate_refund(
         logger.error(f"Error initiating refund: {e}")
         raise APIException(
             detail="Failed to initiate refund",
-            status_code=500,
-            error_code="INTERNAL_SERVER_ERROR",
-        ) from e
-
-
-@router.get("/export")
-async def export_payments(
-    request: Request,
-    format: str = Query("csv", pattern="^(csv|excel)$"),
-    status: str | None = Query(None),
-    start_date: datetime | None = None,
-    end_date: datetime | None = None,
-    current_user: User = Depends(require_permission(AdminPermissions.EXPORT_DATA)),
-    db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
-    """Export payments to CSV/Excel (admin only)"""
-    correlation_id = request.headers.get("X-Request-ID", "unknown")
-    ip = request.client.host if request.client else "unknown"
-
-    try:
-        # Build query
-        query = select(Payment)
-
-        if status:
-            query = query.where(Payment.status == status)
-        if start_date:
-            query = query.where(Payment.created_at >= start_date)
-        if end_date:
-            query = query.where(Payment.created_at <= end_date)
-
-        query = query.order_by(Payment.created_at.desc())
-
-        result = await db.execute(query)
-        payments = result.scalars().all()
-
-        # Log admin action
-        admin_service = AdminService(db)
-        await admin_service.log_admin_action(
-            admin_id=int(current_user.id),
-            action="export_payments",
-            target_type="payment",
-            ip_address=ip,
-            user_agent=request.headers.get("user-agent"),
-            correlation_id=correlation_id,
-        )
-
-        if format == "csv":
-            # Generate CSV
-            output = io.StringIO()
-            writer = csv.writer(output)
-
-            # Write header
-            writer.writerow(
-                [
-                    "ID",
-                    "User ID",
-                    "Document ID",
-                    "Amount",
-                    "Currency",
-                    "Status",
-                    "Stripe Payment Intent ID",
-                    "Payment Method",
-                    "Created At",
-                    "Completed At",
-                ]
-            )
-
-            # Write data
-            for payment in payments:
-                writer.writerow(
-                    [
-                        payment.id,
-                        payment.user_id,
-                        payment.document_id,
-                        float(payment.amount),
-                        payment.currency,
-                        payment.status,
-                        payment.stripe_payment_intent_id,
-                        payment.payment_method,
-                        payment.created_at.isoformat() if payment.created_at else None,
-                        payment.completed_at.isoformat()
-                        if payment.completed_at
-                        else None,
-                    ]
-                )
-
-            output.seek(0)
-
-            return StreamingResponse(
-                iter([output.getvalue()]),
-                media_type="text/csv",
-                headers={
-                    "Content-Disposition": f"attachment; filename=payments_export_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.csv"
-                },
-            )
-        else:
-            # TODO: Implement Excel export
-            raise APIException(
-                detail="Excel export not yet implemented",
-                status_code=501,
-                error_code="NOT_IMPLEMENTED",
-            )
-    except APIException:
-        raise
-    except Exception as e:
-        logger.error(f"Error exporting payments: {e}")
-        raise APIException(
-            detail="Failed to export payments",
-            status_code=500,
-            error_code="INTERNAL_SERVER_ERROR",
-        ) from e
-
-
-@router.get("/stats")
-async def get_payment_stats(
-    request: Request,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
-    db: AsyncSession = Depends(get_db),
-) -> dict[str, Any]:
-    """Get payment statistics (admin only)"""
-    correlation_id = request.headers.get("X-Request-ID", "unknown")
-    ip = request.client.host if request.client else "unknown"
-
-    try:
-        # Get total payments
-        total_result = await db.execute(select(func.count(Payment.id)))
-        total_payments = total_result.scalar()
-
-        # Get payments by status
-        status_result = await db.execute(
-            select(Payment.status, func.count(Payment.id)).group_by(Payment.status)
-        )
-        status_counts = {row[0]: row[1] for row in status_result.all()}
-
-        # Get total revenue
-        revenue_result = await db.execute(
-            select(func.sum(Payment.amount)).where(Payment.status == "completed")
-        )
-        total_revenue = float(revenue_result.scalar() or 0)
-
-        # Get average payment amount
-        avg_result = await db.execute(
-            select(func.avg(Payment.amount)).where(Payment.status == "completed")
-        )
-        avg_amount = float(avg_result.scalar() or 0)
-
-        # Log admin action
-        admin_service = AdminService(db)
-        await admin_service.log_admin_action(
-            admin_id=int(current_user.id),
-            action="view_payment_stats",
-            target_type="payment",
-            ip_address=ip,
-            user_agent=request.headers.get("user-agent"),
-            correlation_id=correlation_id,
-        )
-
-        return {
-            "total_payments": total_payments,
-            "status_counts": status_counts,
-            "total_revenue": total_revenue,
-            "average_payment_amount": avg_amount,
-        }
-    except Exception as e:
-        logger.error(f"Error getting payment stats: {e}")
-        raise APIException(
-            detail="Failed to get payment stats",
             status_code=500,
             error_code="INTERNAL_SERVER_ERROR",
         ) from e

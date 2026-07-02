@@ -331,6 +331,32 @@ async def get_pending_refunds(
         ) from e
 
 
+# NB: literal paths (/stats, /pending) must be registered before /{refund_id},
+# otherwise FastAPI matches them as refund_id and returns 422.
+@admin_router.get("/stats", response_model=RefundStatsResponse)
+async def get_refund_stats(
+    request: Request,
+    current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
+    db: AsyncSession = Depends(get_db),
+) -> RefundStatsResponse:
+    """
+    Get refund statistics (admin only).
+
+    Requires VIEW_ANALYTICS permission.
+    """
+    try:
+        refund_service = RefundService(db)
+        stats = await refund_service.get_refund_stats()
+
+        return RefundStatsResponse(**stats)
+    except Exception as e:
+        logger.error(f"Error getting refund stats: {e}")
+        raise HTTPException(
+            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to get refund stats",
+        ) from e
+
+
 @admin_router.get("/{refund_id}", response_model=RefundDetailsResponse)
 async def get_refund_details(
     refund_id: int,
@@ -668,28 +694,4 @@ async def analyze_refund_risk(
         raise HTTPException(
             status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to analyze refund risk",
-        ) from e
-
-
-@admin_router.get("/stats", response_model=RefundStatsResponse)
-async def get_refund_stats(
-    request: Request,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_ANALYTICS)),
-    db: AsyncSession = Depends(get_db),
-) -> RefundStatsResponse:
-    """
-    Get refund statistics (admin only).
-
-    Requires VIEW_ANALYTICS permission.
-    """
-    try:
-        refund_service = RefundService(db)
-        stats = await refund_service.get_refund_stats()
-
-        return RefundStatsResponse(**stats)
-    except Exception as e:
-        logger.error(f"Error getting refund stats: {e}")
-        raise HTTPException(
-            status_code=http_status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="Failed to get refund stats",
         ) from e

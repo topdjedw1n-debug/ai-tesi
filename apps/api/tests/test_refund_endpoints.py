@@ -290,4 +290,16 @@ async def test_admin_refunds_stats(client, admin_token):
     """Test admin refunds stats endpoint"""
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/refunds/stats", headers=headers)
+    # 422 means /stats was swallowed by /{refund_id} (route order regression)
+    assert response.status_code != 422
     assert response.status_code in [200, 403]
+
+
+def test_admin_refunds_stats_registered_before_refund_id():
+    """Literal /stats must be registered before /{refund_id}: FastAPI matches
+    routes in registration order, so the reverse order turns every
+    GET /admin/refunds/stats into a 422 ("stats" is not an int)."""
+    paths = [getattr(r, "path", "") for r in app.routes]
+    assert paths.index("/api/v1/admin/refunds/stats") < paths.index(
+        "/api/v1/admin/refunds/{refund_id}"
+    )

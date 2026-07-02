@@ -284,3 +284,38 @@ async def test_get_payment_details_not_found(
     headers = {"Authorization": f"Bearer {admin_token}"}
     response = await client.get("/api/v1/admin/payments/99999", headers=headers)
     assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_export_payments_not_shadowed_by_payment_id(
+    client, db_session, admin_user, admin_token, sample_payments
+):
+    """Test /export endpoint is reachable (not swallowed by /{payment_id})"""
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    response = await client.get(
+        "/api/v1/admin/payments/export?format=csv", headers=headers
+    )
+    # 422 means /export was matched as payment_id (route order regression)
+    assert response.status_code != 422
+    assert response.status_code in [200, 403]
+
+
+@pytest.mark.asyncio
+async def test_payment_stats_not_shadowed_by_payment_id(
+    client, db_session, admin_user, admin_token, sample_payments
+):
+    """Test /stats endpoint is reachable (not swallowed by /{payment_id})"""
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    response = await client.get("/api/v1/admin/payments/stats", headers=headers)
+    assert response.status_code != 422
+    assert response.status_code in [200, 403]
+
+
+def test_payments_literal_routes_registered_before_payment_id():
+    """Literal /export and /stats must be registered before /{payment_id}:
+    FastAPI matches routes in registration order, so the reverse order turns
+    these endpoints into 422s ("export"/"stats" are not ints)."""
+    paths = [getattr(r, "path", "") for r in app.routes]
+    param_idx = paths.index("/api/v1/admin/payments/{payment_id}")
+    assert paths.index("/api/v1/admin/payments/export") < param_idx
+    assert paths.index("/api/v1/admin/payments/stats") < param_idx
