@@ -517,7 +517,9 @@ class AIService:
                 **request_kwargs
             )
 
-            content = response.content[0].text
+            from app.utils.anthropic_helpers import response_text
+
+            content = response_text(response)
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
             if self.usage_tracker is not None:
                 self.usage_tracker.add(

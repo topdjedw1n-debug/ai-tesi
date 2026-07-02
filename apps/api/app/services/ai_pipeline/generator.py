@@ -709,7 +709,9 @@ class SectionGenerator:
                         response.usage.output_tokens,
                         purpose="section_generation",
                     )
-                return response.content[0].text
+                from app.utils.anthropic_helpers import response_text
+
+                return response_text(response)
 
             # Use retry mechanism with exponential backoff
             return await retry_with_backoff(

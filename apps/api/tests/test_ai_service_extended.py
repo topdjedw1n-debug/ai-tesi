@@ -242,6 +242,7 @@ async def test_call_anthropic_success_mock(db_session):
     # Create mock response
     mock_response = MagicMock()
     mock_response.content = [MagicMock()]
+    mock_response.content[0].type = "text"  # response_text() keeps text blocks
     mock_response.content[0].text = "Test response"
     mock_response.usage = MagicMock()
     mock_response.usage.input_tokens = 50

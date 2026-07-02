@@ -15,6 +15,33 @@ if TYPE_CHECKING:
 
 logger = logging.getLogger(__name__)
 
+# Per-attempt style directives for multi-pass humanization. Claude 4+/5 and
+# gpt-5 reject the temperature param, so the old "progressive temperature"
+# ladder silently sent IDENTICAL requests on those models (doc-10: repeat
+# passes could only regress to the model's default — most detectable — style).
+# Varying the instruction is the knob that still works on every model.
+STYLE_DIRECTIVES = [
+    "",
+    (
+        "- Aggressively vary sentence length: mix short declarative sentences "
+        "with longer ones; break up any uniform rhythm\n"
+        "- Replace formulaic connectors (moreover, furthermore, in conclusion, "
+        "additionally) with plainer or more varied transitions\n"
+    ),
+    (
+        "- Restructure paragraphs: change where sentences begin, merge or "
+        "split them, reorder clauses within sentences\n"
+        "- Prefer concrete, specific phrasing over smooth generalities; keep "
+        "occasional slight informality a careful human writer would allow\n"
+    ),
+    (
+        "- Rewrite each sentence from scratch expressing the same idea, as a "
+        "different author with a distinct personal style would\n"
+        "- Avoid balanced two-part sentence constructions; let some sentences "
+        "run uneven\n"
+    ),
+]
+
 ENGLISH_STOPWORDS = {
     "the",
     "and",
@@ -81,6 +108,7 @@ class Humanizer:
         model: str,
         preserve_citations: bool = True,
         language: str = "en",
+        style_variant: int = 0,
     ) -> str:
         """
         Humanize text while preserving citations
@@ -91,11 +119,29 @@ class Humanizer:
             model: Model name
             preserve_citations: Whether to preserve citation markers
             language: Target language code for the output
+            style_variant: Index into STYLE_DIRECTIVES (multi-pass sends a
+                different directive each attempt; clamped to the last one)
 
         Returns:
             Humanized text
         """
         try:
+            # Cross-model override: when configured, humanize with a fixed
+            # provider/model instead of the writer's (same-model paraphrase
+            # RAISES detector scores — doc-10). Resolved here so every caller
+            # (single-pass, multi-pass, quality gates) gets it.
+            if settings.HUMANIZER_PROVIDER and settings.HUMANIZER_MODEL:
+                if (provider, model) != (
+                    settings.HUMANIZER_PROVIDER,
+                    settings.HUMANIZER_MODEL,
+                ):
+                    logger.info(
+                        f"Humanizer override: {provider}/{model} -> "
+                        f"{settings.HUMANIZER_PROVIDER}/{settings.HUMANIZER_MODEL}"
+                    )
+                provider = settings.HUMANIZER_PROVIDER
+                model = settings.HUMANIZER_MODEL
+
             # Extract citations before humanization
             from app.services.ai_pipeline.citation_formatter import CitationFormatter
 
@@ -106,8 +152,11 @@ class Humanizer:
             )
 
             # Build humanization prompt
+            directive = STYLE_DIRECTIVES[
+                min(max(style_variant, 0), len(STYLE_DIRECTIVES) - 1)
+            ]
             prompt = PromptBuilder.build_humanization_prompt(
-                text, preserve_citations, language
+                text, preserve_citations, language, style_directive=directive
             )
 
             # Call AI provider with higher temperature
@@ -254,7 +303,9 @@ class Humanizer:
                     response.usage.output_tokens,
                     purpose="humanization",
                 )
-            return response.content[0].text
+            from app.utils.anthropic_helpers import response_text
+
+            return response_text(response)
 
         except Exception as e:
             logger.error(f"Anthropic API error: {e}")
@@ -319,11 +370,14 @@ class Humanizer:
                 )
                 return current_text, current_ai_score
 
-            # Humanize with progressive temperature
+            # Vary BOTH knobs per attempt: temperature (only honored by
+            # models that still accept it) and the style directive (works
+            # everywhere — the only real variation on Claude 4+/5 / gpt-5).
             temp = temperatures[min(attempt, len(temperatures) - 1)]
             self.temperature = temp
             logger.info(
-                f"Re-humanizing with temperature={temp} (attempt {attempt + 1}/{max_attempts})"
+                f"Re-humanizing with temperature={temp}, "
+                f"style_variant={attempt + 1} (attempt {attempt + 1}/{max_attempts})"
             )
 
             current_text = await self.humanize(
@@ -332,6 +386,7 @@ class Humanizer:
                 model=model,
                 preserve_citations=preserve_citations,
                 language=language,
+                style_variant=attempt + 1,
             )
 
         # Max attempts reached - check final score

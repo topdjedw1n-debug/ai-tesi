@@ -73,6 +73,14 @@ class Settings(BaseSettings):
         "openai:gpt-4," "openai:gpt-3.5-turbo," "anthropic:claude-sonnet-5"
     )
 
+    # Cross-model humanization (doc-10 finding: a model paraphrasing its own
+    # text drifts back to its most-detectable style, so the humanizer may
+    # need to be a DIFFERENT model family than the writer). Both must be set
+    # to take effect; unset = humanize with the writer's own provider/model
+    # (legacy behavior).
+    HUMANIZER_PROVIDER: str | None = None  # "openai" | "anthropic"
+    HUMANIZER_MODEL: str | None = None
+
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
     # USD cents (pricing tables are USD); the € shown in the manager UI is a
     # display conversion using this rate.

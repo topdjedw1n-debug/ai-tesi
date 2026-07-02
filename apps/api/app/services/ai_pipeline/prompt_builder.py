@@ -155,6 +155,7 @@ Please provide only the section content without any meta-commentary."""
         original_text: str,
         preserve_citations: bool = True,
         language: str = "en",
+        style_directive: str = "",
     ) -> str:
         """
         Build prompt for text humanization/paraphrasing
@@ -202,6 +203,6 @@ Requirements:
 - Preserve the logical structure
 - Ensure the text reads as if written by a human academic researcher
 - {citation_instruction}
-
+{style_directive}
 Provide only the paraphrased text without any meta-commentary."""
         return prompt.strip()

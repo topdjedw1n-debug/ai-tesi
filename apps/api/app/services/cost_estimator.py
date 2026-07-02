@@ -24,6 +24,7 @@ PRICING_INPUT = {
         # Sonnet 5 intro pricing through 2026-08-31 ($2/$10), then $3/$15 —
         # update both dicts after that date so job costs match the invoice.
         "claude-sonnet-5": 2.0,
+        "claude-haiku-4-5-20251001": 1.0,  # $1 per 1M input tokens
     },
 }
 
@@ -40,6 +41,7 @@ PRICING_OUTPUT = {
         "claude-3-opus-20240229": 75.0,  # $75 per 1M output tokens
         "claude-opus-4-8": 25.0,  # $25 per 1M output tokens
         "claude-sonnet-5": 10.0,  # intro through 2026-08-31, then $15
+        "claude-haiku-4-5-20251001": 5.0,  # $5 per 1M output tokens
     },
 }
 

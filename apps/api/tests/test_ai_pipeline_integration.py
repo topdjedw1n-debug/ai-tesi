@@ -112,6 +112,7 @@ def mock_anthropic_response():
     """Mock Anthropic API response"""
     mock_response = MagicMock()
     mock_content = MagicMock()
+    mock_content.type = "text"  # response_text() keeps only text blocks
     mock_content.text = "Anthropic humanized text (Johnson, 2022)."
     mock_response.content = [mock_content]
     return mock_response
@@ -331,6 +332,83 @@ async def test_humanize_error_returns_original(mock_openai_class, humanizer_inst
 
     # Should return ORIGINAL text on error
     assert result == original_text
+
+
+@pytest.mark.asyncio
+@patch("app.core.config.settings.ANTHROPIC_API_KEY", "test-anthropic-key")
+@patch("app.core.config.settings.HUMANIZER_MODEL", "claude-haiku-4-5-20251001")
+@patch("app.core.config.settings.HUMANIZER_PROVIDER", "anthropic")
+@patch("anthropic.AsyncAnthropic")
+async def test_humanize_cross_model_override(
+    mock_anthropic_class, humanizer_instance, mock_anthropic_response
+):
+    """HUMANIZER_PROVIDER/MODEL redirect humanization away from the writer's
+    model (doc-10: same-model paraphrase raises detector scores)"""
+    mock_client = MagicMock()
+    mock_client.messages = MagicMock()
+    mock_client.messages.create = AsyncMock(return_value=mock_anthropic_response)
+    mock_anthropic_class.return_value = mock_client
+
+    # Writer is openai/gpt-4, but the override must win
+    result = await humanizer_instance.humanize(
+        text="AI text to humanize.",
+        provider="openai",
+        model="gpt-4",
+        preserve_citations=False,
+    )
+
+    assert result == "Anthropic humanized text (Johnson, 2022)."
+    call_kwargs = mock_client.messages.create.call_args.kwargs
+    assert call_kwargs["model"] == "claude-haiku-4-5-20251001"
+    # Claude 4+/5: no temperature param
+    assert "temperature" not in call_kwargs
+
+
+def test_humanization_prompt_style_directive():
+    """Style directive lands in the prompt; empty directive leaves it out"""
+    from app.services.ai_pipeline.prompt_builder import PromptBuilder
+
+    directive = "- Aggressively vary sentence length\n"
+    with_directive = PromptBuilder.build_humanization_prompt(
+        "Some text", True, "it", style_directive=directive
+    )
+    without = PromptBuilder.build_humanization_prompt("Some text", True, "it")
+
+    assert "Aggressively vary sentence length" in with_directive
+    assert "Aggressively vary sentence length" not in without
+
+
+@pytest.mark.asyncio
+async def test_multi_pass_varies_style_directive(humanizer_instance):
+    """Each multi-pass attempt sends a DIFFERENT style variant (temperature
+    is rejected by Claude 4+/5 and gpt-5, so the directive is the only knob
+    that actually varies there)"""
+    detection = AsyncMock(
+        side_effect=[
+            {"checked": True, "ai_probability": 80.0, "provider": "gptzero"},
+            {"checked": True, "ai_probability": 75.0, "provider": "gptzero"},
+            {"checked": True, "ai_probability": 70.0, "provider": "gptzero"},
+        ]
+    )
+    humanizer_instance.humanize = AsyncMock(return_value="rewritten")
+
+    with patch(
+        "app.services.ai_detection_checker.AIDetectionChecker"
+    ) as mock_checker_cls:
+        mock_checker_cls.return_value.check_text = detection
+        await humanizer_instance.humanize_multi_pass(
+            text="original",
+            provider="anthropic",
+            model="claude-opus-4-8",
+            target_ai_score=35.0,
+            max_attempts=2,
+        )
+
+    variants = [
+        call.kwargs["style_variant"]
+        for call in humanizer_instance.humanize.await_args_list
+    ]
+    assert variants == [1, 2]
 
 
 # ============================================================================
@@ -991,3 +1069,22 @@ async def test_full_pipeline_with_humanization(
     assert result["humanized"] is True
     assert "Humanized" in result["content"]
     assert mock_client.chat.completions.create.call_count == 2  # gen + humanize
+
+
+def test_anthropic_response_text_skips_thinking_blocks():
+    """Claude 4+/5 may emit a thinking block first — response_text must
+    return only the text blocks (live failure: sonnet-5 humanization)"""
+    from app.utils.anthropic_helpers import response_text
+
+    thinking = MagicMock()
+    thinking.type = "thinking"
+    text1 = MagicMock()
+    text1.type = "text"
+    text1.text = "Part one. "
+    text2 = MagicMock()
+    text2.type = "text"
+    text2.text = "Part two."
+    response = MagicMock()
+    response.content = [thinking, text1, text2]
+
+    assert response_text(response) == "Part one. Part two."
