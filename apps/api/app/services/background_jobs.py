@@ -31,7 +31,11 @@ from app.models.document import (
     DocumentSection,
 )
 from app.services.ai_detection_checker import AIDetectionChecker
-from app.services.ai_pipeline.citation_formatter import CitationStyle
+from app.services.ai_pipeline.citation_formatter import (
+    CitationStyle,
+    bibliography_heading,
+    merge_bibliographies,
+)
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.source_pack import SourcePackBuilder
@@ -1371,6 +1375,15 @@ class BackgroundJobService:
                             )
                             db.add(section)
 
+                        # Persist the final accepted attempt's bibliography so
+                        # document assembly and exporters can rebuild the
+                        # Bibliografia section after checkpoint-resume. Assign
+                        # NEW lists (JSON columns don't track in-place mutation).
+                        section.bibliography = section_result.get("bibliography") or []
+                        section.pack_keys_used = (
+                            section_result.get("pack_keys_used") or []
+                        )
+
                         if panel_result is not None:
                             # Assign a NEW dict (JSON columns don't track
                             # in-place mutation)
@@ -1677,6 +1690,19 @@ class BackgroundJobService:
                         )
                     ]
                 )
+
+                # Append the merged, deduped bibliography as a final
+                # "# Bibliografia" section (language-aware heading) so the
+                # preview and the DOCX/PDF exporters all render it from
+                # document.content — the single source of truth.
+                document_bibliography = merge_bibliographies(
+                    section.bibliography for section in completed_sections
+                )
+                if document_bibliography:
+                    heading = bibliography_heading(str(document.language))
+                    final_content += f"\n\n# {heading}\n\n" + "\n\n".join(
+                        document_bibliography
+                    )
 
                 await db.execute(
                     update(Document)

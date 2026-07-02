@@ -306,6 +306,12 @@ class AIService:
                 )
                 self.db.add(section)
 
+            # Persist bibliography for later export (parity with the
+            # background path; assign NEW lists — JSON columns don't track
+            # in-place mutation)
+            section.bibliography = section_result.get("bibliography") or []
+            section.pack_keys_used = section_result.get("pack_keys_used") or []
+
             # Update document tokens and time
             await self.db.execute(
                 update(Document)

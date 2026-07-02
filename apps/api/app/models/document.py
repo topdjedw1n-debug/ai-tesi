@@ -129,6 +129,12 @@ class DocumentSection(Base):
     # "passed", "critical_override", "reviewers": [...], "advocate": {...}}
     quality_panel = Column(JSON, nullable=True)
 
+    # Formatted references (list[str], APA/MLA/Chicago) cited by the final
+    # accepted attempt; merged document-wide into the Bibliografia section
+    bibliography = Column(JSON, nullable=True)
+    # Source-pack citation keys actually cited (list[str]; [] on legacy path)
+    pack_keys_used = Column(JSON, nullable=True)
+
     # Generation state
     status = Column(
         String(50), default="pending"

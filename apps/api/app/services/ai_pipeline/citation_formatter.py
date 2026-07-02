@@ -3,6 +3,7 @@ Citation formatter for APA, MLA, and Chicago styles
 Handles both in-text citations and bibliography/reference formatting
 """
 
+from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any
@@ -298,3 +299,36 @@ class CitationFormatter:
             )
 
         return citations
+
+
+def merge_bibliographies(per_section: Iterable[list[str] | None]) -> list[str]:
+    """
+    Merge per-section bibliographies into one document-level reference list.
+
+    Dedupe by exact formatted string (the same source always formats to the
+    identical string: pack keys are stable, the legacy path reuses the same
+    SourceDoc), sorted alphabetically (APA convention).
+    """
+    seen: set[str] = set()
+    merged: list[str] = []
+    for section_bibliography in per_section:
+        for reference in section_bibliography or []:
+            cleaned = (reference or "").strip()
+            if not cleaned or cleaned in seen:
+                continue
+            seen.add(cleaned)
+            merged.append(cleaned)
+    return sorted(merged, key=str.casefold)
+
+
+_BIBLIOGRAPHY_HEADINGS = {
+    "it": "Bibliografia",
+    "en": "Bibliography",
+    "uk": "Бібліографія",
+}
+
+
+def bibliography_heading(language: str | None) -> str:
+    """Language-aware heading for the document-level reference section."""
+    prefix = (language or "").lower()[:2]
+    return _BIBLIOGRAPHY_HEADINGS.get(prefix, "Bibliography")

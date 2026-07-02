@@ -15,6 +15,10 @@ from app.core.exceptions import NotFoundError, ValidationError
 from app.models.auth import User
 from app.models.document import Document, DocumentSection
 from app.models.payment import Payment
+from app.services.ai_pipeline.citation_formatter import (
+    bibliography_heading,
+    merge_bibliographies,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -719,16 +723,38 @@ class DocumentService:
 
                 # Add content if available
                 if document.content:
-                    docx.add_paragraph(document.content)
+                    # Render "# ..." blocks (section titles and the
+                    # Bibliografia heading appended at assembly) as real
+                    # headings, everything else as body paragraphs
+                    for block in document.content.split("\n\n"):
+                        stripped = block.strip()
+                        if not stripped:
+                            continue
+                        if stripped.startswith("# "):
+                            docx.add_heading(stripped[2:].strip(), 1)
+                        else:
+                            docx.add_paragraph(stripped)
                 elif document.sections:
                     # Add sections
-                    for section in sorted(
+                    sorted_sections = sorted(
                         document.sections, key=lambda s: s.section_index
-                    ):
+                    )
+                    for section in sorted_sections:
                         docx.add_heading(section.title, 1)
                         if section.content:
                             docx.add_paragraph(section.content)
                         docx.add_paragraph("")  # Empty line between sections
+
+                    # Bibliography from persisted per-section references
+                    section_bibliography = merge_bibliographies(
+                        s.bibliography for s in sorted_sections
+                    )
+                    if section_bibliography:
+                        docx.add_heading(
+                            bibliography_heading(str(document.language)), 1
+                        )
+                        for reference in section_bibliography:
+                            docx.add_paragraph(reference)
 
                 # Save to BytesIO
                 file_stream = io.BytesIO()
@@ -808,23 +834,38 @@ class DocumentService:
                 elements.append(Paragraph(metadata, body_style))
                 elements.append(Spacer(1, 0.3 * inch))
 
+                def escape_pdf_text(text: str) -> str:
+                    return (
+                        text.replace("&", "&amp;")
+                        .replace("<", "&lt;")
+                        .replace(">", "&gt;")
+                    )
+
                 # Add content
                 if document.content:
-                    # Split content by paragraphs
+                    # Split content by paragraphs; render "# ..." blocks
+                    # (section titles, Bibliografia heading) as headings
                     for paragraph in document.content.split("\n\n"):
-                        if paragraph.strip():
-                            # Escape HTML special characters
-                            safe_text = (
-                                paragraph.replace("&", "&amp;")
-                                .replace("<", "&lt;")
-                                .replace(">", "&gt;")
+                        stripped = paragraph.strip()
+                        if not stripped:
+                            continue
+                        if stripped.startswith("# "):
+                            elements.append(
+                                Paragraph(
+                                    escape_pdf_text(stripped[2:].strip()),
+                                    heading_style,
+                                )
                             )
-                            elements.append(Paragraph(safe_text, body_style))
+                        else:
+                            elements.append(
+                                Paragraph(escape_pdf_text(stripped), body_style)
+                            )
                 elif document.sections:
                     # Add sections
-                    for section in sorted(
+                    sorted_sections = sorted(
                         document.sections, key=lambda s: s.section_index
-                    ):
+                    )
+                    for section in sorted_sections:
                         # Section heading
                         elements.append(Paragraph(section.title, heading_style))
                         elements.append(Spacer(1, 0.1 * inch))
@@ -833,14 +874,29 @@ class DocumentService:
                         if section.content:
                             for paragraph in section.content.split("\n\n"):
                                 if paragraph.strip():
-                                    safe_text = (
-                                        paragraph.replace("&", "&amp;")
-                                        .replace("<", "&lt;")
-                                        .replace(">", "&gt;")
+                                    elements.append(
+                                        Paragraph(
+                                            escape_pdf_text(paragraph), body_style
+                                        )
                                     )
-                                    elements.append(Paragraph(safe_text, body_style))
 
                         elements.append(Spacer(1, 0.2 * inch))
+
+                    # Bibliography from persisted per-section references
+                    section_bibliography = merge_bibliographies(
+                        s.bibliography for s in sorted_sections
+                    )
+                    if section_bibliography:
+                        elements.append(
+                            Paragraph(
+                                bibliography_heading(str(document.language)),
+                                heading_style,
+                            )
+                        )
+                        for reference in section_bibliography:
+                            elements.append(
+                                Paragraph(escape_pdf_text(reference), body_style)
+                            )
 
                 # Build PDF
                 logger.info(f"Generating PDF document for doc_id={document_id}")
