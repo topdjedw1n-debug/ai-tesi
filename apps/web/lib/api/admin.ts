@@ -112,7 +112,7 @@ export interface ReleaseGate {
   id: number | null
   production_case_id: number
   gate_key: string
-  status: 'passed' | 'failed' | 'warning' | 'no_data' | 'overridden' | string
+  status: 'passed' | 'failed' | 'warning' | 'unchecked' | 'no_data' | 'overridden' | string
   severity: string
   blocking: boolean
   source: string | null

@@ -46,6 +46,7 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
     },
     "citation_gate": {
         "passed": False,
+        "status": "failed",
         "policy": "strict",
         "counts": {"verified": 1, "not_found": 1},
         "not_found_count": 1,
@@ -116,6 +117,17 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
     "quality_gate": {
         "section_index": 1,
         "passed": True,
+        "status": "passed",
+        "checks": {
+            "grammar": {"status": "passed", "score": 95.0, "reason": None},
+            "plagiarism": {"status": "passed", "score": 92.0, "reason": None},
+            "ai_detection": {
+                "status": "passed",
+                "score": 42.0,
+                "reason": None,
+                "provider": "gptzero",
+            },
+        },
         "gates_enabled": True,
         "grammar_score": 95.0,
         "plagiarism_score": 92.0,
@@ -183,7 +195,16 @@ def test_verification_summary_empty_variant_has_no_not_found_titles():
             "not_found_count": 1,
             "not_found_titles": ["X"],
         },
-        # mark_only continue (full detail, passed)
+        # mark_only continue (full detail, passed + warning status)
+        {
+            "passed": True,
+            "status": "warning",
+            "policy": "mark_only",
+            "counts": {"not_found": 1},
+            "not_found_count": 1,
+            "not_found_titles": ["X"],
+        },
+        # legacy event without the status key must still validate
         {
             "passed": True,
             "policy": "mark_only",
@@ -198,9 +219,54 @@ def test_citation_gate_all_four_variants(payload):
 
 
 def test_quality_gate_fail_variant():
-    # Failure path emits only these three keys
+    # Failure path emits only these keys
     QualityGatePayload.model_validate(
-        {"section_index": 2, "passed": False, "detail": "grammar below threshold"}
+        {
+            "section_index": 2,
+            "passed": False,
+            "status": "failed",
+            "detail": "grammar below threshold",
+        }
+    )
+
+
+def test_quality_gate_legacy_payload_still_validates():
+    # Events written before Stage B carry neither status nor checks
+    QualityGatePayload.model_validate(
+        {
+            "section_index": 1,
+            "passed": True,
+            "gates_enabled": True,
+            "grammar_score": None,
+            "plagiarism_score": 92.0,
+            "ai_detection_score": 42.0,
+            "quality_score": 88.0,
+        }
+    )
+
+
+def test_quality_gate_unchecked_variant_validates():
+    QualityGatePayload.model_validate(
+        {
+            "section_index": 1,
+            "passed": False,
+            "status": "unchecked",
+            "checks": {
+                "grammar": {"status": "passed", "score": 95.0, "reason": None},
+                "plagiarism": {"status": "passed", "score": 5.0, "reason": None},
+                "ai_detection": {
+                    "status": "unchecked",
+                    "score": None,
+                    "reason": "AI detection is disabled",
+                    "provider": "none",
+                },
+            },
+            "gates_enabled": True,
+            "grammar_score": 95.0,
+            "plagiarism_score": 5.0,
+            "ai_detection_score": None,
+            "quality_score": 80.0,
+        }
     )
 
 

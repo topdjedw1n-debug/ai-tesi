@@ -11,6 +11,7 @@ import json
 import logging
 from collections.abc import Callable
 from datetime import datetime
+from enum import Enum
 from typing import Any, TypeVar
 
 import redis.asyncio as aioredis
@@ -251,9 +252,26 @@ async def _check_panel_quality(
 # ========== Quality Gate Helper Functions (Task 3.2) ==========
 
 
+class CheckStatus(str, Enum):
+    """Outcome of a single quality check.
+
+    UNCHECKED means the provider was disabled/unconfigured or threw: the
+    check never ran. It must not block generation, but it must never be
+    recorded as passed either — release gates and the UI surface it.
+    str-mixin so test mocks can return plain "passed"/"failed"/"unchecked".
+    """
+
+    PASSED = "passed"
+    FAILED = "failed"
+    UNCHECKED = "unchecked"
+
+    def __str__(self) -> str:  # str(CheckStatus.PASSED) == "passed"
+        return self.value
+
+
 async def _check_grammar_quality(
     content: str, language: str, threshold: int
-) -> tuple[float | None, int, bool, str | None]:
+) -> tuple[float | None, int, CheckStatus, str | None]:
     """
     Check grammar quality and return results
 
@@ -263,11 +281,11 @@ async def _check_grammar_quality(
         threshold: Max allowed errors (from QUALITY_MAX_GRAMMAR_ERRORS)
 
     Returns:
-        Tuple of (score, error_count, passed, error_message)
-        - score: Grammar score (0-100, None if check failed)
+        Tuple of (score, error_count, status, reason)
+        - score: Grammar score (0-100, None if check didn't run)
         - error_count: Number of grammar errors found
-        - passed: True if error_count <= threshold
-        - error_message: Error description if failed, None if passed
+        - status: PASSED / FAILED / UNCHECKED (provider unavailable or threw)
+        - reason: Failure detail or why the check didn't run; None on pass
     """
     try:
         grammar_checker = GrammarChecker()
@@ -297,22 +315,25 @@ async def _check_grammar_quality(
                 else f"Grammar: {error_count} errors (max: {effective_threshold})"
             )
 
-            return (score, error_count, passed, error_msg)
-        else:
-            # Check failed but don't block (non-critical)
-            logger.warning(
-                f"Grammar check skipped: {grammar_result.get('error', 'Unknown')}"
+            return (
+                score,
+                error_count,
+                CheckStatus.PASSED if passed else CheckStatus.FAILED,
+                error_msg,
             )
-            return (None, 0, True, None)  # Pass by default if check unavailable
+        else:
+            reason = grammar_result.get("error", "grammar check unavailable")
+            logger.warning(f"Grammar check UNCHECKED: {reason}")
+            return (None, 0, CheckStatus.UNCHECKED, reason)
 
     except Exception as e:
         logger.error(f"Grammar check exception: {e}")
-        return (None, 0, True, None)  # Pass by default on error
+        return (None, 0, CheckStatus.UNCHECKED, f"exception: {e}")
 
 
 async def _check_plagiarism_quality(
     content: str, threshold: float
-) -> tuple[float | None, float, bool, str | None]:
+) -> tuple[float | None, float, CheckStatus, str | None]:
     """
     Check plagiarism and return results
 
@@ -321,11 +342,12 @@ async def _check_plagiarism_quality(
         threshold: Min required uniqueness % (from QUALITY_MIN_PLAGIARISM_UNIQUENESS)
 
     Returns:
-        Tuple of (plagiarism_score, uniqueness, passed, error_message)
-        - plagiarism_score: Plagiarism % (0-100, None if check failed)
-        - uniqueness: Uniqueness % (100 - plagiarism_score)
-        - passed: True if uniqueness >= threshold
-        - error_message: Error description if failed, None if passed
+        Tuple of (plagiarism_score, uniqueness, status, reason)
+        - plagiarism_score: Plagiarism % (0-100, None if check didn't run)
+        - uniqueness: Uniqueness % (100 - plagiarism_score; placeholder
+          100.0 when unchecked — do not treat as a real measurement)
+        - status: PASSED / FAILED / UNCHECKED (provider unavailable or threw)
+        - reason: Failure detail or why the check didn't run; None on pass
     """
     try:
         plagiarism_checker = PlagiarismChecker()
@@ -342,17 +364,20 @@ async def _check_plagiarism_quality(
                 else f"Plagiarism: {uniqueness:.1f}% unique (min: {threshold}%)"
             )
 
-            return (plagiarism_score, uniqueness, passed, error_msg)
-        else:
-            # Check failed but don't block (non-critical)
-            logger.warning(
-                f"Plagiarism check skipped: {plagiarism_result.get('error', 'Unknown')}"
+            return (
+                plagiarism_score,
+                uniqueness,
+                CheckStatus.PASSED if passed else CheckStatus.FAILED,
+                error_msg,
             )
-            return (None, 100.0, True, None)  # Pass by default if check unavailable
+        else:
+            reason = plagiarism_result.get("error", "plagiarism check unavailable")
+            logger.warning(f"Plagiarism check UNCHECKED: {reason}")
+            return (None, 100.0, CheckStatus.UNCHECKED, reason)
 
     except Exception as e:
         logger.error(f"Plagiarism check exception: {e}")
-        return (None, 100.0, True, None)  # Pass by default on error
+        return (None, 100.0, CheckStatus.UNCHECKED, f"exception: {e}")
 
 
 async def _check_ai_detection_quality(
@@ -363,7 +388,7 @@ async def _check_ai_detection_quality(
     model: str,
     language: str,
     score_trace: dict[str, Any] | None = None,
-) -> tuple[float | None, str, str, bool, str | None]:
+) -> tuple[float | None, str, str, CheckStatus, str | None]:
     """
     Check AI detection score and run multi-pass if needed
 
@@ -380,12 +405,12 @@ async def _check_ai_detection_quality(
             so existing 5-tuple mocks stay compatible.
 
     Returns:
-        Tuple of (ai_score, final_content, provider_used, passed, error_message)
-        - ai_score: AI detection % (0-100, None if check failed)
+        Tuple of (ai_score, final_content, provider_used, status, reason)
+        - ai_score: AI detection % (0-100, None if check didn't run)
         - final_content: Content after potential multi-pass humanization
-        - provider_used: Detection provider used
-        - passed: True if ai_score <= threshold
-        - error_message: Error description if failed, None if passed
+        - provider_used: Detection provider used ("none" when unchecked)
+        - status: PASSED / FAILED / UNCHECKED (provider unavailable or threw)
+        - reason: Failure detail or why the check didn't run; None on pass
     """
     try:
         ai_checker = AIDetectionChecker()
@@ -428,23 +453,21 @@ async def _check_ai_detection_quality(
                 None if passed else f"AI detection: {ai_score:.1f}% (max: {threshold}%)"
             )
 
-            return (ai_score, final_content, provider_used, passed, error_msg)
-        else:
-            # Check failed but don't block (non-critical)
-            logger.warning(
-                f"AI detection check skipped: {ai_result.get('error', 'Unknown')}"
-            )
             return (
-                None,
-                content,
-                "unknown",
-                True,
-                None,
-            )  # Pass by default if check unavailable
+                ai_score,
+                final_content,
+                provider_used,
+                CheckStatus.PASSED if passed else CheckStatus.FAILED,
+                error_msg,
+            )
+        else:
+            reason = ai_result.get("error", "AI detection unavailable")
+            logger.warning(f"AI detection check UNCHECKED: {reason}")
+            return (None, content, "none", CheckStatus.UNCHECKED, reason)
 
     except Exception as e:
         logger.error(f"AI detection check exception: {e}")
-        return (None, content, "unknown", True, None)  # Pass by default on error
+        return (None, content, "none", CheckStatus.UNCHECKED, f"exception: {e}")
 
 
 # ========== End Quality Gate Helpers ==========
@@ -845,6 +868,10 @@ class BackgroundJobService:
                         final_plagiarism_score = None
                         final_ai_score = None
                         final_quality_score = None
+                        # Per-check status/score/reason of the final accepted
+                        # attempt — recorded in the quality_gate event so
+                        # unchecked checks are visible downstream
+                        final_check_breakdown: dict[str, dict[str, Any]] | None = None
                         ai_trace: dict[str, Any] = {}
                         panel_result: dict[str, Any] | None = None
                         panel_feedback: list[str] = []
@@ -995,8 +1022,8 @@ class BackgroundJobService:
                             (
                                 grammar_score,
                                 grammar_errors,
-                                grammar_passed,
-                                grammar_error_msg,
+                                grammar_status,
+                                grammar_reason,
                             ) = await _check_grammar_quality(
                                 humanized_content,
                                 document.language,
@@ -1004,38 +1031,53 @@ class BackgroundJobService:
                             )
                             final_grammar_score = grammar_score  # Save for DB
 
-                            if not grammar_passed and settings.QUALITY_GATES_ENABLED:
+                            if (
+                                grammar_status == CheckStatus.FAILED
+                                and settings.QUALITY_GATES_ENABLED
+                            ):
                                 gates_passed = False
-                                attempt_errors.append(grammar_error_msg)
+                                attempt_errors.append(grammar_reason)
                                 logger.warning(
-                                    f"❌ Grammar gate FAILED: {grammar_error_msg}"
+                                    f"❌ Grammar gate FAILED: {grammar_reason}"
+                                )
+                            elif grammar_status == CheckStatus.UNCHECKED:
+                                # Non-blocking, but never counts as passed
+                                logger.warning(
+                                    f"⚠️ Grammar gate UNCHECKED: {grammar_reason}"
                                 )
                             else:
                                 logger.info(
-                                    f"✅ Grammar gate: {grammar_errors} errors (passed={grammar_passed})"
+                                    f"✅ Grammar gate: {grammar_errors} errors (status={grammar_status})"
                                 )
 
                             # GATE 2: Plagiarism Check (ALWAYS RUN)
                             (
                                 plagiarism_score,
                                 uniqueness,
-                                plagiarism_passed,
-                                plagiarism_error_msg,
+                                plagiarism_status,
+                                plagiarism_reason,
                             ) = await _check_plagiarism_quality(
                                 humanized_content,
                                 settings.QUALITY_MIN_PLAGIARISM_UNIQUENESS,
                             )
                             final_plagiarism_score = plagiarism_score  # Save for DB
 
-                            if not plagiarism_passed and settings.QUALITY_GATES_ENABLED:
+                            if (
+                                plagiarism_status == CheckStatus.FAILED
+                                and settings.QUALITY_GATES_ENABLED
+                            ):
                                 gates_passed = False
-                                attempt_errors.append(plagiarism_error_msg)
+                                attempt_errors.append(plagiarism_reason)
                                 logger.warning(
-                                    f"❌ Plagiarism gate FAILED: {plagiarism_error_msg}"
+                                    f"❌ Plagiarism gate FAILED: {plagiarism_reason}"
+                                )
+                            elif plagiarism_status == CheckStatus.UNCHECKED:
+                                logger.warning(
+                                    f"⚠️ Plagiarism gate UNCHECKED: {plagiarism_reason}"
                                 )
                             else:
                                 logger.info(
-                                    f"✅ Plagiarism gate: {uniqueness:.1f}% unique (passed={plagiarism_passed})"
+                                    f"✅ Plagiarism gate: {uniqueness:.1f}% unique (status={plagiarism_status})"
                                 )
 
                             # GATE 3: AI Detection Check (ALWAYS RUN, includes multi-pass humanization)
@@ -1046,8 +1088,8 @@ class BackgroundJobService:
                                 ai_score,
                                 humanized_content,
                                 provider_used,
-                                ai_passed,
-                                ai_error_msg,
+                                ai_status,
+                                ai_reason,
                             ) = await _check_ai_detection_quality(
                                 humanized_content,
                                 settings.QUALITY_MAX_AI_DETECTION_SCORE,
@@ -1059,11 +1101,18 @@ class BackgroundJobService:
                             )
                             final_ai_score = ai_score  # Save for DB
 
-                            if not ai_passed and settings.QUALITY_GATES_ENABLED:
+                            if (
+                                ai_status == CheckStatus.FAILED
+                                and settings.QUALITY_GATES_ENABLED
+                            ):
                                 gates_passed = False
-                                attempt_errors.append(ai_error_msg)
+                                attempt_errors.append(ai_reason)
                                 logger.warning(
-                                    f"❌ AI detection gate FAILED: {ai_error_msg}"
+                                    f"❌ AI detection gate FAILED: {ai_reason}"
+                                )
+                            elif ai_status == CheckStatus.UNCHECKED:
+                                logger.warning(
+                                    f"⚠️ AI detection gate UNCHECKED: {ai_reason}"
                                 )
                             else:
                                 ai_score_text = (
@@ -1072,8 +1121,32 @@ class BackgroundJobService:
                                     else "N/A"
                                 )
                                 logger.info(
-                                    f"✅ AI detection gate: {ai_score_text} (passed={ai_passed})"
+                                    f"✅ AI detection gate: {ai_score_text} (status={ai_status})"
                                 )
+
+                            # Per-check breakdown for the provenance ledger —
+                            # rebuilt every attempt; the final accepted
+                            # attempt's survives (mirrors final_*_score).
+                            # str() → "passed"/"failed"/"unchecked" for both
+                            # CheckStatus members and plain-string mocks.
+                            final_check_breakdown = {
+                                "grammar": {
+                                    "status": str(grammar_status),
+                                    "score": final_grammar_score,
+                                    "reason": grammar_reason,
+                                },
+                                "plagiarism": {
+                                    "status": str(plagiarism_status),
+                                    "score": final_plagiarism_score,
+                                    "reason": plagiarism_reason,
+                                },
+                                "ai_detection": {
+                                    "status": str(ai_status),
+                                    "score": final_ai_score,
+                                    "reason": ai_reason,
+                                    "provider": provider_used,
+                                },
+                            }
 
                             # GATE 4: Reviewer Panel (flag-gated: 4 LLM calls
                             # per run, unlike gates 1-3 it does NOT always
@@ -1376,6 +1449,21 @@ class BackgroundJobService:
                                     "threshold": settings.QUALITY_MAX_AI_DETECTION_SCORE,
                                 },
                             )
+                            # Honest gate status: "passed" only when every
+                            # check actually ran and passed. A failed check
+                            # can reach this point only with gates disabled —
+                            # record it as failed, not passed.
+                            check_statuses = [
+                                c["status"]
+                                for c in (final_check_breakdown or {}).values()
+                            ]
+                            overall_gate_status = (
+                                "failed"
+                                if "failed" in check_statuses
+                                else "unchecked"
+                                if "unchecked" in check_statuses
+                                else "passed"
+                            )
                             await _record_provenance(
                                 db,
                                 document_id,
@@ -1383,7 +1471,9 @@ class BackgroundJobService:
                                 event_type="quality_gate",
                                 payload={
                                     "section_index": section_index,
-                                    "passed": True,
+                                    "passed": overall_gate_status == "passed",
+                                    "status": overall_gate_status,
+                                    "checks": final_check_breakdown,
                                     "gates_enabled": settings.QUALITY_GATES_ENABLED,
                                     "grammar_score": final_grammar_score,
                                     "plagiarism_score": final_plagiarism_score,
@@ -1449,7 +1539,14 @@ class BackgroundJobService:
                                 ),
                                 "message": f"Section {section_index} quality validated",
                                 "quality_score": final_quality_score,
-                                "quality_passed": True,
+                                "quality_passed": not any(
+                                    c["status"] != "passed"
+                                    for c in (final_check_breakdown or {}).values()
+                                ),
+                                "quality_status": {
+                                    key: c["status"]
+                                    for key, c in (final_check_breakdown or {}).items()
+                                },
                                 "grammar_score": final_grammar_score,
                                 "plagiarism_score": final_plagiarism_score,
                                 "ai_detection_score": final_ai_score,
@@ -1505,6 +1602,7 @@ class BackgroundJobService:
                                 payload={
                                     "section_index": section_index,
                                     "passed": False,
+                                    "status": "failed",
                                     "detail": str(e)[:500],
                                 },
                             )

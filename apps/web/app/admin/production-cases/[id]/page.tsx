@@ -14,7 +14,7 @@ import toast from 'react-hot-toast'
 function gateTone(gate: ReleaseGate) {
   if (gate.status === 'passed' || gate.status === 'overridden') return 'border-green-700 bg-green-950/30'
   if (gate.status === 'failed') return 'border-red-700 bg-red-950/30'
-  if (gate.status === 'warning') return 'border-yellow-700 bg-yellow-950/30'
+  if (gate.status === 'warning' || gate.status === 'unchecked') return 'border-yellow-700 bg-yellow-950/30'
   return 'border-gray-700 bg-gray-800'
 }
 
@@ -47,7 +47,7 @@ export default function ProductionCaseDetailPage() {
       gates.filter(
         (gate) =>
           gate.blocking &&
-          ['failed', 'no_data'].includes(gate.status) &&
+          ['failed', 'no_data', 'unchecked', 'warning'].includes(gate.status) &&
           !gate.override_reason
       ),
     [gates]

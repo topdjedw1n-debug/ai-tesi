@@ -1,4 +1,4 @@
-import { ProvenanceEvent, summarizeQualityEvidence } from '../provenance'
+import { ProvenanceEvent, deriveQualityGateStatus, summarizeQualityEvidence } from '../provenance'
 
 const event = (
   id: number,
@@ -112,6 +112,7 @@ describe('provenance quality evidence helpers', () => {
       status: 'failed',
       passed: 1,
       failed: 1,
+      unchecked: 0,
       total: 2,
     })
     expect(summary.claimVerification).toEqual({
@@ -137,6 +138,128 @@ describe('provenance quality evidence helpers', () => {
     expect(summary.qualityGates.status).toBe('missing')
     expect(summary.claimVerification.status).toBe('missing')
     expect(summary.reviewerPanel.status).toBe('missing')
+    expect(summary.checks.grammar.status).toBe('missing')
+    expect(summary.checks.aiDetection.status).toBe('missing')
     expect(summary.generation.sectionsGenerated).toBe(0)
+  })
+
+  it('surfaces unchecked checks from new-format events (GPTZero off case)', () => {
+    const summary = summarizeQualityEvidence([
+      event(1, 'quality_gate', {
+        section_index: 1,
+        passed: false,
+        status: 'unchecked',
+        checks: {
+          grammar: { status: 'passed', score: 95 },
+          plagiarism: { status: 'passed', score: 5 },
+          ai_detection: {
+            status: 'unchecked',
+            score: null,
+            reason: 'AI detection is disabled',
+            provider: 'none',
+          },
+        },
+        grammar_score: 95,
+        plagiarism_score: 5,
+        ai_detection_score: null,
+        quality_score: 80,
+      }),
+    ])
+
+    expect(summary.qualityGates.status).toBe('unchecked')
+    expect(summary.qualityGates.unchecked).toBe(1)
+    expect(summary.checks.grammar.status).toBe('passed')
+    expect(summary.checks.plagiarism.status).toBe('passed')
+    expect(summary.checks.aiDetection.status).toBe('unchecked')
+    expect(summary.checks.aiDetection.unchecked).toBe(1)
+  })
+
+  it('reinterprets legacy fail-open events as unchecked, never passed', () => {
+    // Legacy shape: passed=true but a null score (provider silently failed)
+    const summary = summarizeQualityEvidence([
+      event(1, 'quality_gate', {
+        section_index: 1,
+        passed: true,
+        gates_enabled: true,
+        grammar_score: null,
+        plagiarism_score: 5,
+        ai_detection_score: 20,
+        quality_score: 80,
+      }),
+      // Legacy shape: gates disabled entirely
+      event(2, 'quality_gate', {
+        section_index: 2,
+        passed: true,
+        gates_enabled: false,
+        grammar_score: 95,
+        plagiarism_score: 5,
+        ai_detection_score: 20,
+        quality_score: 80,
+      }),
+    ])
+
+    expect(summary.qualityGates.status).toBe('unchecked')
+    expect(summary.qualityGates.unchecked).toBe(2)
+    expect(summary.qualityGates.passed).toBe(0)
+    expect(summary.checks.grammar.status).toBe('unchecked')
+  })
+
+  it('derives warning for mark_only citation gate with not_found sources', () => {
+    // Legacy event: passed=true, no status key
+    const legacy = summarizeQualityEvidence([
+      event(
+        1,
+        'citation_gate',
+        {
+          passed: true,
+          policy: 'mark_only',
+          counts: { verified: 3, not_found: 2 },
+          not_found_count: 2,
+          not_found_titles: ['Phantom A', 'Phantom B'],
+        },
+        'verification'
+      ),
+    ])
+    expect(legacy.citationGate.status).toBe('warning')
+
+    // New event: explicit status wins
+    const explicit = summarizeQualityEvidence([
+      event(
+        1,
+        'citation_gate',
+        {
+          passed: true,
+          status: 'warning',
+          policy: 'mark_only',
+          counts: { verified: 3, not_found: 1 },
+          not_found_count: 1,
+        },
+        'verification'
+      ),
+    ])
+    expect(explicit.citationGate.status).toBe('warning')
+  })
+
+  it('deriveQualityGateStatus mirrors the backend rule', () => {
+    expect(deriveQualityGateStatus({ status: 'unchecked', passed: false })).toBe('unchecked')
+    expect(deriveQualityGateStatus({ passed: false })).toBe('failed')
+    expect(deriveQualityGateStatus({ passed: true, gates_enabled: false })).toBe('unchecked')
+    expect(
+      deriveQualityGateStatus({
+        passed: true,
+        grammar_score: null,
+        plagiarism_score: 5,
+        ai_detection_score: 20,
+      })
+    ).toBe('unchecked')
+    expect(
+      deriveQualityGateStatus({
+        passed: true,
+        gates_enabled: true,
+        grammar_score: 95,
+        plagiarism_score: 5,
+        ai_detection_score: 20,
+      })
+    ).toBe('passed')
   })
 })

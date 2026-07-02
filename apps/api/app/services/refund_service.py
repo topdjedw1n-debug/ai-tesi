@@ -16,6 +16,7 @@ from app.core.config import settings
 from app.models.document import DocumentProvenance, DocumentSource
 from app.models.payment import Payment
 from app.models.refund import RefundRequest
+from app.services.provenance_service import derive_quality_gate_status
 
 logger = logging.getLogger(__name__)
 
@@ -369,10 +370,17 @@ class RefundService:
 
         quality_events = [e for e in events if e.event_type == "quality_gate"]
         citation_events = [e for e in events if e.event_type == "citation_gate"]
-        quality_gate_failures = sum(
-            1 for e in quality_events if not (e.payload or {}).get("passed")
+        # Honest tri-state: only true failures count as failures, and only
+        # all-passed counts as "quality proven" — unchecked events (checks
+        # never ran) must neither lean refund-approve nor pose as evidence
+        # of quality.
+        quality_statuses = [
+            derive_quality_gate_status(e.payload) for e in quality_events
+        ]
+        quality_gate_failures = quality_statuses.count("failed")
+        quality_gates_passed = bool(quality_events) and all(
+            s == "passed" for s in quality_statuses
         )
-        quality_gates_passed = bool(quality_events) and quality_gate_failures == 0
         # The last citation_gate event reflects the final verification outcome
         citation_gate_passed = bool(citation_events) and bool(
             (citation_events[-1].payload or {}).get("passed")

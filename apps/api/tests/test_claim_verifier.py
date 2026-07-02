@@ -396,20 +396,26 @@ def pipeline_harness(stack: ExitStack, db_session, mock_redis, *, claim_llm_resp
     stack.enter_context(
         patch(
             "app.services.background_jobs._check_grammar_quality",
-            AsyncMock(return_value=(95.0, 0, True, None)),
+            AsyncMock(return_value=(95.0, 0, "passed", None)),
         )
     )
     stack.enter_context(
         patch(
             "app.services.background_jobs._check_plagiarism_quality",
-            AsyncMock(return_value=(5.0, 95.0, True, None)),
+            AsyncMock(return_value=(5.0, 95.0, "passed", None)),
         )
     )
     stack.enter_context(
         patch(
             "app.services.background_jobs._check_ai_detection_quality",
             AsyncMock(
-                side_effect=lambda content, *a, **k: (20.0, content, "mock", True, None)
+                side_effect=lambda content, *a, **k: (
+                    20.0,
+                    content,
+                    "mock",
+                    "passed",
+                    None,
+                )
             ),
         )
     )

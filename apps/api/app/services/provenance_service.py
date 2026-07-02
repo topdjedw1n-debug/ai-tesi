@@ -18,6 +18,34 @@ from app.models.document import DocumentProvenance
 logger = logging.getLogger(__name__)
 
 
+def derive_quality_gate_status(payload: dict[str, Any] | None) -> str:
+    """
+    Honest status of a quality_gate event: "passed" | "failed" | "unchecked".
+
+    New events carry an explicit `status`. Legacy events (written when
+    provider failures silently passed) are reinterpreted at read time:
+    gates disabled or any check score missing means the checks did not
+    actually run — "unchecked", never "passed".
+
+    Mirrored in apps/web/lib/provenance.ts (deriveQualityGateStatus);
+    update both together.
+    """
+    payload = payload or {}
+    status = payload.get("status")
+    if status in {"passed", "failed", "unchecked"}:
+        return status
+    if payload.get("passed") is False:
+        return "failed"
+    if payload.get("gates_enabled") is False:
+        return "unchecked"
+    if any(
+        payload.get(key) is None
+        for key in ("grammar_score", "plagiarism_score", "ai_detection_score")
+    ):
+        return "unchecked"
+    return "passed"
+
+
 async def record_event(
     db: AsyncSession,
     document_id: int,

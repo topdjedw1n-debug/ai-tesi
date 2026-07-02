@@ -38,7 +38,9 @@ GATE_KEYS = {
     "delivery_package",
 }
 
-GATE_STATUSES = {"passed", "failed", "warning", "no_data", "overridden"}
+# "unchecked": the underlying checks never ran (provider disabled or
+# threw) — blocks release like "failed"/"no_data" until overridden.
+GATE_STATUSES = {"passed", "failed", "warning", "unchecked", "no_data", "overridden"}
 TASK_STATUSES = {"open", "in_progress", "resolved", "rejected"}
 
 

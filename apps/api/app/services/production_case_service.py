@@ -26,13 +26,18 @@ from app.schemas.production import (
     ProductionCaseCreate,
     ProductionCaseUpdate,
 )
+from app.services.provenance_service import derive_quality_gate_status
 
 DETECTOR_GATE_KEYS = {"plagiarism_proxy", "ai_detection_proxy"}
 
 RELEASE_GATE_CONFIG: dict[str, dict[str, Any]] = {
     "citation_verification": {
         "blocking": True,
-        "override_allowed": False,
+        # Override with an audited reason is the intended resolution for
+        # mark_only "warning" states (not_found sources the manager has
+        # reviewed); strict-policy failures kill generation before a case
+        # is releasable anyway.
+        "override_allowed": True,
         "source": "document_provenance",
     },
     "claim_support": {
@@ -360,11 +365,14 @@ class ProductionCaseService:
     ) -> ProductionCase:
         case = await self.get_case(case_id)
         gates = await self.get_release_gates(case_id)
+        # "unchecked" (checks never ran) and "warning" (mark_only let
+        # not_found sources through) block release the same as failures —
+        # a manager must either fix the evidence or override with a reason.
         blockers = [
             gate
             for gate in gates
             if gate["blocking"]
-            and gate["status"] in {"failed", "no_data"}
+            and gate["status"] in {"failed", "no_data", "unchecked", "warning"}
             and gate.get("override_reason") is None
         ]
         if blockers:
@@ -464,8 +472,27 @@ class ProductionCaseService:
             event = _latest_event(events, "citation_gate")
             payload = _event_payload(event)
             if event:
-                status_value = "passed" if payload.get("passed") is True else "failed"
+                explicit = payload.get("status")
+                if explicit in {"passed", "failed", "warning"}:
+                    status_value = explicit
+                elif (
+                    payload.get("passed") is True
+                    and payload.get("policy") == "mark_only"
+                    and int(payload.get("not_found_count") or 0) > 0
+                ):
+                    # Legacy mark_only event: pipeline continued, but
+                    # not_found sources exist — never a clean pass.
+                    status_value = "warning"
+                else:
+                    status_value = (
+                        "passed" if payload.get("passed") is True else "failed"
+                    )
                 summary = f"Citation gate policy {payload.get('policy', 'unknown')}."
+                if status_value == "warning":
+                    summary += (
+                        f" {int(payload.get('not_found_count') or 0)} cited "
+                        f"source(s) not found in any bibliographic database."
+                    )
                 evidence = payload
         elif gate_key == "claim_support":
             event = _latest_event(events, "claim_check_summary")
@@ -483,14 +510,28 @@ class ProductionCaseService:
                 event for event in events if event.event_type == "quality_gate"
             ]
             if quality_events:
-                failed = sum(
-                    1
+                statuses = [
+                    derive_quality_gate_status(_event_payload(event))
                     for event in quality_events
-                    if _event_payload(event).get("passed") is False
+                ]
+                failed = statuses.count("failed")
+                unchecked = statuses.count("unchecked")
+                if failed:
+                    status_value = "failed"
+                elif unchecked:
+                    status_value = "unchecked"
+                else:
+                    status_value = "passed"
+                summary = (
+                    f"{len(statuses) - failed - unchecked}/{len(statuses)} "
+                    f"section gates passed · {failed} failed · "
+                    f"{unchecked} unchecked."
                 )
-                status_value = "failed" if failed else "passed"
-                summary = f"{len(quality_events) - failed}/{len(quality_events)} section gates passed."
-                evidence = {"total": len(quality_events), "failed": failed}
+                evidence = {
+                    "total": len(statuses),
+                    "failed": failed,
+                    "unchecked": unchecked,
+                }
         elif gate_key in DETECTOR_GATE_KEYS:
             status_value = "no_data"
             summary = "Record a structured external detector result before release."

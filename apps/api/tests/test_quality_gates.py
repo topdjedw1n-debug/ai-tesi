@@ -93,7 +93,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                     "app.services.background_jobs._check_grammar_quality",
                     new_callable=AsyncMock,
                 ) as mock_grammar:
-                    mock_grammar.return_value = (95.0, 1, True, None)
+                    mock_grammar.return_value = (95.0, 1, "passed", None)
 
                     # Mock plagiarism check - FAILS (70% unique = 30% plagiarism)
                     with patch(
@@ -103,7 +103,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                         mock_plagiarism.return_value = (
                             30.0,  # plagiarism_score
                             70.0,  # uniqueness
-                            False,  # passed = False
+                            "failed",  # status
                             "Plagiarism too high: 70.0% unique (need 85.0%)",
                         )
 
@@ -116,7 +116,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                                 45.0,
                                 "humanized",
                                 "gptzero",
-                                True,
+                                "passed",
                                 None,
                             )
 
@@ -137,8 +137,12 @@ async def test_quality_gate_blocks_high_plagiarism(
                                     mock_manager.send_error = AsyncMock()
 
                                     # Mock DB queries
-                                    mock_db.execute.return_value.scalar_one_or_none.return_value = None
-                                    mock_db.execute.return_value.scalars.return_value.all.return_value = []
+                                    mock_db.execute.return_value.scalar_one_or_none.return_value = (
+                                        None
+                                    )
+                                    mock_db.execute.return_value.scalars.return_value.all.return_value = (
+                                        []
+                                    )
 
                                     # Execute - should raise exception
                                     BackgroundJobService()
@@ -168,7 +172,7 @@ async def test_quality_gate_blocks_high_plagiarism(
                                                 content, 85.0
                                             )
 
-                                            if plagiarism_ok[2]:  # passed
+                                            if plagiarism_ok[2] == "passed":
                                                 break
                                             elif attempt < 2:
                                                 continue
@@ -216,7 +220,7 @@ async def test_quality_gate_allows_good_content(
                     "app.services.background_jobs._check_grammar_quality",
                     new_callable=AsyncMock,
                 ) as mock_grammar:
-                    mock_grammar.return_value = (95.0, 1, True, None)
+                    mock_grammar.return_value = (95.0, 1, "passed", None)
 
                     # Mock plagiarism check - PASSES (92% unique = 8% plagiarism)
                     with patch(
@@ -226,7 +230,7 @@ async def test_quality_gate_allows_good_content(
                         mock_plagiarism.return_value = (
                             8.0,  # plagiarism_score
                             92.0,  # uniqueness
-                            True,  # passed = True ✅
+                            "passed",  # status ✅
                             None,
                         )
 
@@ -239,7 +243,7 @@ async def test_quality_gate_allows_good_content(
                                 45.0,
                                 "humanized content",
                                 "gptzero",
-                                True,
+                                "passed",
                                 None,
                             )
 
@@ -263,9 +267,11 @@ async def test_quality_gate_allows_good_content(
                                 )
 
                                 # All should pass
-                                assert grammar_result[2] is True  # grammar passed
-                                assert plagiarism_result[2] is True  # plagiarism passed
-                                assert ai_result[3] is True  # AI detection passed
+                                assert grammar_result[2] == "passed"  # grammar passed
+                                assert (
+                                    plagiarism_result[2] == "passed"
+                                )  # plagiarism passed
+                                assert ai_result[3] == "passed"  # AI detection passed
 
                                 # Exit on first attempt (all gates passed)
                                 break
@@ -307,7 +313,7 @@ async def test_quality_gates_can_be_disabled(
                     mock_grammar.return_value = (
                         50.0,
                         50,
-                        False,
+                        "failed",
                         "Too many grammar errors",  # FAIL ❌
                     )
 
@@ -318,7 +324,7 @@ async def test_quality_gates_can_be_disabled(
                         mock_plagiarism.return_value = (
                             40.0,
                             60.0,
-                            False,
+                            "failed",
                             "Plagiarism too high",  # FAIL ❌
                         )
 
@@ -330,7 +336,7 @@ async def test_quality_gates_can_be_disabled(
                                 80.0,
                                 "content",
                                 "gptzero",
-                                False,
+                                "failed",
                                 "AI score too high",  # FAIL ❌
                             )
 
@@ -351,9 +357,9 @@ async def test_quality_gates_can_be_disabled(
                             )
 
                             # All checks FAILED but gates DISABLED
-                            assert grammar_result[2] is False  # grammar failed
-                            assert plagiarism_result[2] is False  # plagiarism failed
-                            assert ai_result[3] is False  # AI detection failed
+                            assert grammar_result[2] == "failed"  # grammar failed
+                            assert plagiarism_result[2] == "failed"  # plagiarism failed
+                            assert ai_result[3] == "failed"  # AI detection failed
 
                             # But content should still be accepted (no exception)
                             # In real code: if not settings.QUALITY_GATES_ENABLED or gates_passed: break

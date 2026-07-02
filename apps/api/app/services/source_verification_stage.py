@@ -380,6 +380,7 @@ async def run_citation_verification_stage(
                     event_type="citation_gate",
                     payload={
                         "passed": True,
+                        "status": "passed",
                         "policy": config.CITATION_VERIFICATION_POLICY,
                         "total": 0,
                         "counts": {},
@@ -516,6 +517,7 @@ async def run_citation_verification_stage(
                 event_type="citation_gate",
                 payload={
                     "passed": True,
+                    "status": "passed",
                     "policy": config.CITATION_VERIFICATION_POLICY,
                     "counts": summary["counts"],
                 },
@@ -567,6 +569,7 @@ async def run_citation_verification_stage(
                 event_type="citation_gate",
                 payload={
                     "passed": False,
+                    "status": "failed",
                     "policy": "strict",
                     "counts": summary["counts"],
                     "not_found_count": not_found_count,
@@ -619,7 +622,11 @@ async def run_citation_verification_stage(
             stage="verification",
             event_type="citation_gate",
             payload={
+                # mark_only did not block the pipeline, but not_found sources
+                # exist — "warning" so release gates and the UI never show
+                # this as a clean pass.
                 "passed": True,
+                "status": "warning",
                 "policy": "mark_only",
                 "counts": summary["counts"],
                 "not_found_count": not_found_count,

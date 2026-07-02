@@ -557,9 +557,9 @@ async def test_pipeline_panel_skipped_on_doomed_attempts_and_stale_feedback_drop
             # Attempt 1: grammar OK; attempt 2: grammar FAILS (panel must be
             # skipped); attempt 3: grammar OK again
             grammar_side_effect=[
-                (95.0, 0, True, None),
-                (40.0, 25, False, "Too many grammar errors"),
-                (95.0, 0, True, None),
+                (95.0, 0, "passed", None),
+                (40.0, 25, "failed", "Too many grammar errors"),
+                (95.0, 0, "passed", None),
             ],
         )
         panel_mock = stack.enter_context(

@@ -172,14 +172,14 @@ def pipeline_harness(
             "app.services.background_jobs._check_grammar_quality",
             AsyncMock(
                 side_effect=grammar_side_effect if grammar_side_effect else None,
-                return_value=(95.0, 0, True, None),
+                return_value=(95.0, 0, "passed", None),
             ),
         )
     )
     stack.enter_context(
         patch(
             "app.services.background_jobs._check_plagiarism_quality",
-            AsyncMock(return_value=(5.0, 95.0, True, None)),
+            AsyncMock(return_value=(5.0, 95.0, "passed", None)),
         )
     )
     stack.enter_context(
@@ -190,7 +190,7 @@ def pipeline_harness(
                     20.0,
                     content,
                     "mock",
-                    True,
+                    "passed",
                     None,
                 )
             ),
@@ -724,8 +724,8 @@ async def test_sources_persisted_only_for_final_attempt(
             ],
             # Attempt 1 fails the grammar gate, attempt 2 passes
             grammar_side_effect=[
-                (40.0, 25, False, "Too many grammar errors"),
-                (95.0, 0, True, None),
+                (40.0, 25, "failed", "Too many grammar errors"),
+                (95.0, 0, "passed", None),
             ],
         )
         await BackgroundJobService.generate_full_document(
@@ -1045,8 +1045,12 @@ async def test_citation_gate_payload_is_frozen_contract(
     events = await provenance_events(db_session, document_id)
     payload = events["citation_gate"]
     assert payload["passed"] is True
+    # mark_only with not_found sources: pipeline continued, but the gate
+    # must carry "warning", never a clean pass
+    assert payload["status"] == "warning"
     assert set(payload) == {
         "passed",
+        "status",
         "policy",
         "counts",
         "not_found_count",
@@ -1093,5 +1097,6 @@ async def test_citation_gate_payload_is_frozen_contract(
     events2 = await provenance_events(db_session, document2_id)
     payload2 = events2["citation_gate"]
     assert payload2["passed"] is True
-    assert set(payload2) == {"passed", "policy", "counts"}
+    assert payload2["status"] == "passed"
+    assert set(payload2) == {"passed", "status", "policy", "counts"}
     CitationGatePayload.model_validate(payload2)

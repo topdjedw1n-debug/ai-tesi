@@ -35,6 +35,18 @@ const STATUS_CONFIG: Record<
     Icon: ExclamationTriangleIcon,
     iconClass: 'text-red-500',
   },
+  warning: {
+    label: 'Warning',
+    badgeClass: 'bg-amber-100 text-amber-800',
+    Icon: ExclamationTriangleIcon,
+    iconClass: 'text-amber-500',
+  },
+  unchecked: {
+    label: 'Unchecked',
+    badgeClass: 'bg-amber-100 text-amber-800',
+    Icon: QuestionMarkCircleIcon,
+    iconClass: 'text-amber-500',
+  },
   missing: {
     label: 'No data',
     badgeClass: 'bg-gray-100 text-gray-800',
@@ -75,6 +87,14 @@ function formatNumber(value: number): string {
   return value.toLocaleString()
 }
 
+function checkDetail(check: QualityEvidenceSummary['checks']['grammar']): string {
+  if (check.status === 'missing') return 'No quality gate events are available for this document.'
+  if (check.status === 'unchecked') {
+    return `Unchecked on ${check.unchecked}/${check.total} sections — provider disabled or unavailable.`
+  }
+  return `${check.passed}/${check.total} passed · ${check.failed} failed · ${check.unchecked} unchecked`
+}
+
 function buildRows(summary: QualityEvidenceSummary) {
   return [
     {
@@ -91,7 +111,22 @@ function buildRows(summary: QualityEvidenceSummary) {
       detail:
         summary.qualityGates.status === 'missing'
           ? 'No quality gate events are available for this document.'
-          : `${summary.qualityGates.passed}/${summary.qualityGates.total} passed · ${summary.qualityGates.failed} failed`,
+          : `${summary.qualityGates.passed}/${summary.qualityGates.total} passed · ${summary.qualityGates.failed} failed · ${summary.qualityGates.unchecked} unchecked`,
+    },
+    {
+      title: 'Grammar',
+      status: summary.checks.grammar.status,
+      detail: checkDetail(summary.checks.grammar),
+    },
+    {
+      title: 'Plagiarism',
+      status: summary.checks.plagiarism.status,
+      detail: checkDetail(summary.checks.plagiarism),
+    },
+    {
+      title: 'AI detection',
+      status: summary.checks.aiDetection.status,
+      detail: checkDetail(summary.checks.aiDetection),
     },
     {
       title: 'Claim support',

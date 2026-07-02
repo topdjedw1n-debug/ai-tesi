@@ -34,6 +34,12 @@ from pydantic import BaseModel, ConfigDict
 SourceStatus = Literal["verified", "mismatched", "not_found", "failed"]
 Policy = Literal["strict", "mark_only"]
 ClaimVerdictName = Literal["supported", "unsupported", "uncertain"]
+# "unchecked" = the check did not run (provider disabled/unconfigured or
+# threw). It is non-blocking for generation but must never read as passed.
+CheckStatusName = Literal["passed", "failed", "unchecked"]
+# "warning" = mark_only policy let the pipeline continue despite not_found
+# sources; release gates surface it instead of a plain pass.
+CitationGateStatus = Literal["passed", "failed", "warning"]
 
 
 class _FrozenPayload(BaseModel):
@@ -76,6 +82,9 @@ class CitationGatePayload(_FrozenPayload):
 
     passed: bool
     policy: Policy
+    # Optional for legacy events; new emissions always set it. mark_only
+    # with not_found sources emits passed=True + status="warning".
+    status: CitationGateStatus | None = None
     counts: dict[SourceStatus, int] | None = None
     total: int | None = None
     not_found_count: int | None = None
@@ -144,11 +153,29 @@ class HumanizedPayload(_FrozenPayload):
     threshold: float
 
 
+class QualityCheckEvidence(_FrozenPayload):
+    """Per-check breakdown inside quality_gate.checks."""
+
+    status: CheckStatusName
+    score: float | None = None
+    reason: str | None = None
+    # Only populated for ai_detection
+    provider: str | None = None
+
+
 class QualityGatePayload(_FrozenPayload):
     """Pass variant carries scores; fail variant only {section_index, passed, detail}."""
 
     section_index: int
     passed: bool
+    # Optional for legacy events; new emissions always set both. Readers
+    # must derive a status for legacy payloads (null score => unchecked,
+    # gates_enabled=False => unchecked) instead of trusting passed=True.
+    status: CheckStatusName | None = None
+    checks: (
+        dict[Literal["grammar", "plagiarism", "ai_detection"], QualityCheckEvidence]
+        | None
+    ) = None
     gates_enabled: bool | None = None
     grammar_score: float | None = None
     plagiarism_score: float | None = None

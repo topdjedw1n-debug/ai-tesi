@@ -147,7 +147,7 @@ def ai_check_filling_trace(
         score_trace["initial_ai_score"] = 60.0
         score_trace["final_ai_score"] = 20.0
         score_trace["multi_pass"] = True
-    return (20.0, content, "mock", True, None)
+    return (20.0, content, "mock", "passed", None)
 
 
 def pipeline_harness(
@@ -193,14 +193,14 @@ def pipeline_harness(
             "app.services.background_jobs._check_grammar_quality",
             AsyncMock(
                 side_effect=grammar_side_effect if grammar_side_effect else None,
-                return_value=(95.0, 0, True, None),
+                return_value=(95.0, 0, "passed", None),
             ),
         )
     )
     stack.enter_context(
         patch(
             "app.services.background_jobs._check_plagiarism_quality",
-            AsyncMock(return_value=(5.0, 95.0, True, None)),
+            AsyncMock(return_value=(5.0, 95.0, "passed", None)),
         )
     )
     stack.enter_context(
@@ -359,10 +359,20 @@ async def test_pipeline_writes_events_for_all_stages(
     gate = by_type["quality_gate"][0]
     assert gate.stage == "quality"
     assert gate.payload["passed"] is True
+    assert gate.payload["status"] == "passed"
     assert gate.payload["grammar_score"] == 95.0
     assert gate.payload["plagiarism_score"] == 5.0
     assert gate.payload["ai_detection_score"] == 20.0
     assert gate.payload["quality_score"] == 85.0
+    checks = gate.payload["checks"]
+    assert checks["grammar"] == {"status": "passed", "score": 95.0, "reason": None}
+    assert checks["plagiarism"] == {"status": "passed", "score": 5.0, "reason": None}
+    assert checks["ai_detection"] == {
+        "status": "passed",
+        "score": 20.0,
+        "reason": None,
+        "provider": "mock",
+    }
 
     summary = by_type["verification_summary"][0]
     assert summary.payload["providers"] == ["crossref"]
@@ -433,7 +443,7 @@ async def test_quality_gate_failure_writes_failed_event(
             db_session,
             mock_redis,
             generate_side_effect=[section_result(1, [SOURCE_A])],
-            grammar_side_effect=[(40.0, 25, False, "Grammar: 25 errors (max: 5)")],
+            grammar_side_effect=[(40.0, 25, "failed", "Grammar: 25 errors (max: 5)")],
         )
         with pytest.raises(QualityThresholdNotMetError):
             await BackgroundJobService.generate_full_document(
@@ -449,8 +459,63 @@ async def test_quality_gate_failure_writes_failed_event(
     failed_gate = next(e for e in events if e.event_type == "quality_gate")
     assert failed_gate.stage == "quality"
     assert failed_gate.payload["passed"] is False
+    assert failed_gate.payload["status"] == "failed"
     assert failed_gate.payload["section_index"] == 1
     assert "Grammar" in failed_gate.payload["detail"]
+
+
+@pytest.mark.asyncio
+async def test_unchecked_gate_is_nonblocking_but_recorded(
+    db_session, mock_redis, monkeypatch
+):
+    """Stage B core case: provider down (e.g. GPTZero off) must NOT fail the
+    job or trigger regeneration, but the quality_gate event must record
+    status='unchecked' with passed=False — never a silent pass."""
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(QUALITY_GATES_ENABLED=True, QUALITY_MAX_REGENERATE_ATTEMPTS=2),
+    )
+    user, document = await seed_document(db_session, section_titles=("Only",))
+    document_id = document.id
+
+    def ai_unchecked(content, *a, **k):
+        return (None, content, "none", "unchecked", "AI detection is disabled")
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[section_result(1, [SOURCE_A])],
+            # grammar also unchecked; plagiarism passes (harness default)
+            grammar_side_effect=[(None, 0, "unchecked", "LanguageTool is disabled")],
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._check_ai_detection_quality",
+                AsyncMock(side_effect=ai_unchecked),
+            )
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=document_id, user_id=user.id
+        )
+        # Non-blocking: exactly one attempt, no regeneration
+        assert mocks["generate_section"].call_count == 1
+
+    events = await ordered_events(db_session, document_id)
+    gate = next(e for e in events if e.event_type == "quality_gate")
+    assert gate.payload["status"] == "unchecked"
+    assert gate.payload["passed"] is False  # no reader may see this as passed
+    checks = gate.payload["checks"]
+    assert checks["grammar"]["status"] == "unchecked"
+    assert checks["grammar"]["reason"] == "LanguageTool is disabled"
+    assert checks["ai_detection"]["status"] == "unchecked"
+    assert checks["ai_detection"]["provider"] == "none"
+    assert checks["plagiarism"]["status"] == "passed"
+    # Section was accepted and exported despite unchecked checks
+    types = [e.event_type for e in events]
+    assert "section_generated" in types
+    assert "exported" in types
 
 
 @pytest.mark.asyncio
@@ -685,15 +750,19 @@ async def test_refund_risk_increases_for_fully_verified_document(db_session):
                 verification_status="verified",
             ),
             gate_event(
-                document.id, "quality_gate", {"section_index": 1, "passed": True}
+                document.id,
+                "quality_gate",
+                {"section_index": 1, "passed": True, "status": "passed"},
             ),
             gate_event(
-                document.id, "quality_gate", {"section_index": 2, "passed": True}
+                document.id,
+                "quality_gate",
+                {"section_index": 2, "passed": True, "status": "passed"},
             ),
             gate_event(
                 document.id,
                 "citation_gate",
-                {"passed": True, "counts": {"verified": 2}},
+                {"passed": True, "status": "passed", "counts": {"verified": 2}},
             ),
         ]
     )
@@ -747,6 +816,34 @@ async def test_refund_risk_decreases_when_ledger_supports_complaint(db_session):
     assert provenance["not_found_sources"] == 1
     assert provenance["quality_gate_failures"] == 1
     assert provenance["all_sources_verified"] is False
+
+
+@pytest.mark.asyncio
+async def test_refund_risk_treats_legacy_scoreless_gates_as_unchecked(db_session):
+    """Legacy fail-open events (passed=True, no scores) are not quality proof:
+    they derive 'unchecked', so risk must NOT increase as if gates passed."""
+    user, document, payment, refund = await seed_refund_case(db_session)
+
+    db_session.add_all(
+        [
+            DocumentSource(
+                document_id=document.id,
+                title="Verified One",
+                verification_status="verified",
+            ),
+            # Legacy shape: no status key, no check scores
+            gate_event(
+                document.id, "quality_gate", {"section_index": 1, "passed": True}
+            ),
+        ]
+    )
+    await db_session.commit()
+
+    result = await RefundService(db_session).analyze_refund_risk(refund.id)
+
+    provenance = result["factors"]["provenance"]
+    assert provenance["quality_gates_passed"] is False  # unchecked, not proven
+    assert provenance["quality_gate_failures"] == 0  # but not a failure either
 
 
 @pytest.mark.asyncio

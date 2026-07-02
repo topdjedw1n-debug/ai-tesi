@@ -42,14 +42,31 @@ const formatCounts = (counts: unknown): string => {
   return entries.map(([status, count]) => `${status}: ${count}`).join(', ')
 }
 
-function PassBadge({ passed }: { passed: boolean }) {
+type BadgeStatus = 'passed' | 'failed' | 'warning' | 'unchecked'
+
+const BADGE_STYLES: Record<BadgeStatus, { label: string; className: string }> = {
+  passed: { label: 'Passed', className: 'bg-green-900 text-green-200' },
+  failed: { label: 'Failed', className: 'bg-red-900 text-red-200' },
+  warning: { label: 'Warning', className: 'bg-amber-900 text-amber-200' },
+  unchecked: { label: 'Unchecked', className: 'bg-amber-900 text-amber-200' },
+}
+
+/** New events carry payload.status; legacy events fall back to the passed bool. */
+function badgeStatus(payload: Record<string, any>): BadgeStatus {
+  const status = payload.status
+  if (status === 'passed' || status === 'failed' || status === 'warning' || status === 'unchecked') {
+    return status
+  }
+  return payload.passed ? 'passed' : 'failed'
+}
+
+function PassBadge({ status }: { status: BadgeStatus }) {
+  const badge = BADGE_STYLES[status]
   return (
     <span
-      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
-        passed ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
-      }`}
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${badge.className}`}
     >
-      {passed ? 'Passed' : 'Failed'}
+      {badge.label}
     </span>
   )
 }
@@ -88,16 +105,16 @@ function EventDetails({ event }: { event: ProvenanceEvent }) {
     case 'quality_gate':
       return (
         <div className="space-y-1">
-          <PassBadge passed={Boolean(payload.passed)} />
-          {payload.passed ? (
+          <PassBadge status={badgeStatus(payload)} />
+          {payload.detail ? (
+            <p className="text-sm text-red-400">{payload.detail}</p>
+          ) : (
             <p className="text-sm text-gray-300">
               Grammar {formatScore(payload.grammar_score)} · Plagiarism{' '}
               {formatScore(payload.plagiarism_score)}% · AI detection{' '}
               {formatScore(payload.ai_detection_score)}% · Quality{' '}
               {formatScore(payload.quality_score)}
             </p>
-          ) : (
-            <p className="text-sm text-red-400">{payload.detail}</p>
           )}
         </div>
       )
@@ -105,7 +122,7 @@ function EventDetails({ event }: { event: ProvenanceEvent }) {
     case 'citation_gate':
       return (
         <div className="space-y-1">
-          <PassBadge passed={Boolean(payload.passed)} />
+          <PassBadge status={badgeStatus(payload)} />
           <p className="text-sm text-gray-300">
             Policy: {payload.policy ?? '—'} · {formatCounts(payload.counts)}
           </p>

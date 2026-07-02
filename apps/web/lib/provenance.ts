@@ -50,7 +50,20 @@ export interface SourcesSummary {
   providers: string[]
 }
 
-export type GateStatus = 'passed' | 'failed' | 'missing'
+/**
+ * 'unchecked' = the underlying check(s) never ran (provider disabled or
+ * threw) — must render amber, never green. 'warning' = mark_only policy let
+ * not_found sources through without blocking the pipeline.
+ */
+export type GateStatus = 'passed' | 'failed' | 'warning' | 'unchecked' | 'missing'
+
+export interface CheckEvidenceSummary {
+  status: GateStatus
+  passed: number
+  failed: number
+  unchecked: number
+  total: number
+}
 
 export interface QualityEvidenceSummary {
   citationGate: {
@@ -63,7 +76,14 @@ export interface QualityEvidenceSummary {
     status: GateStatus
     passed: number
     failed: number
+    unchecked: number
     total: number
+  }
+  /** Per-check breakdown across sections (grammar / plagiarism / AI detection) */
+  checks: {
+    grammar: CheckEvidenceSummary
+    plagiarism: CheckEvidenceSummary
+    aiDetection: CheckEvidenceSummary
   }
   claimVerification: {
     status: GateStatus
@@ -192,6 +212,72 @@ const gateStatus = (passed: boolean | null): GateStatus => {
   return passed ? 'passed' : 'failed'
 }
 
+/**
+ * Honest status of one quality_gate event: 'passed' | 'failed' | 'unchecked'.
+ *
+ * Mirror of apps/api/app/services/provenance_service.derive_quality_gate_status
+ * (update both together). Legacy events (no `status` key, written when
+ * provider failures silently passed) are reinterpreted: gates disabled or a
+ * missing check score means the checks never ran — 'unchecked', not 'passed'.
+ */
+export function deriveQualityGateStatus(payload: Record<string, any> | null): GateStatus {
+  const status = payload?.status
+  if (status === 'passed' || status === 'failed' || status === 'unchecked') return status
+  if (payload?.passed === false) return 'failed'
+  if (payload?.gates_enabled === false) return 'unchecked'
+  if (
+    payload?.grammar_score == null ||
+    payload?.plagiarism_score == null ||
+    payload?.ai_detection_score == null
+  ) {
+    return 'unchecked'
+  }
+  return 'passed'
+}
+
+type CheckKey = 'grammar' | 'plagiarism' | 'ai_detection'
+
+/**
+ * Per-check status for one quality_gate event. New events carry
+ * payload.checks[key].status; legacy events fall back to the null-score
+ * heuristic (score missing = the check never ran).
+ */
+const checkStatusForEvent = (
+  payload: Record<string, any> | null,
+  key: CheckKey
+): 'passed' | 'failed' | 'unchecked' => {
+  const explicit = payload?.checks?.[key]?.status
+  if (explicit === 'passed' || explicit === 'failed' || explicit === 'unchecked') {
+    return explicit
+  }
+  const scoreKey = key === 'ai_detection' ? 'ai_detection_score' : `${key}_score`
+  return payload?.[scoreKey] == null ? 'unchecked' : 'passed'
+}
+
+const summarizeCheck = (
+  payloads: Array<Record<string, any> | null>,
+  key: CheckKey
+): CheckEvidenceSummary => {
+  const statuses = payloads.map((payload) => checkStatusForEvent(payload, key))
+  const failed = statuses.filter((s) => s === 'failed').length
+  const unchecked = statuses.filter((s) => s === 'unchecked').length
+  const passed = statuses.filter((s) => s === 'passed').length
+  return {
+    status:
+      statuses.length === 0
+        ? 'missing'
+        : failed > 0
+          ? 'failed'
+          : unchecked > 0
+            ? 'unchecked'
+            : 'passed',
+    passed,
+    failed,
+    unchecked,
+    total: statuses.length,
+  }
+}
+
 const numberOrZero = (value: unknown): number =>
   typeof value === 'number' && Number.isFinite(value) ? value : 0
 
@@ -216,8 +302,11 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
       : 0)
 
   const qualityGateEvents = events.filter((event) => event.event_type === 'quality_gate')
-  const qualityPassed = qualityGateEvents.filter((event) => event.payload?.passed === true).length
-  const qualityFailed = qualityGateEvents.filter((event) => event.payload?.passed === false).length
+  const qualityStatuses = qualityGateEvents.map((event) => deriveQualityGateStatus(event.payload))
+  const qualityPassed = qualityStatuses.filter((s) => s === 'passed').length
+  const qualityFailed = qualityStatuses.filter((s) => s === 'failed').length
+  const qualityUnchecked = qualityStatuses.filter((s) => s === 'unchecked').length
+  const qualityPayloads = qualityGateEvents.map((event) => event.payload)
 
   const claimSummary = latestEventOfType(events, 'claim_check_summary')
   const claimCounts = claimSummary?.payload?.counts
@@ -249,9 +338,21 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
     0
   )
 
+  // Explicit status wins; legacy mark_only events with not_found sources
+  // derive 'warning' (they carried passed=true despite unresolved sources)
+  const citationExplicit = citationPayload?.status
+  const citationStatus: GateStatus =
+    citationExplicit === 'passed' || citationExplicit === 'failed' || citationExplicit === 'warning'
+      ? citationExplicit
+      : citationPayload?.passed === true &&
+          citationPayload?.policy === 'mark_only' &&
+          numberOrZero(citationPayload?.not_found_count) > 0
+        ? 'warning'
+        : gateStatus(typeof citationPayload?.passed === 'boolean' ? citationPayload.passed : null)
+
   return {
     citationGate: {
-      status: gateStatus(typeof citationPayload?.passed === 'boolean' ? citationPayload.passed : null),
+      status: citationStatus,
       policy: typeof citationPayload?.policy === 'string' ? citationPayload.policy : null,
       total: typeof citationPayload?.total === 'number' ? citationPayload.total : null,
       failedCount: citationFailedCount,
@@ -262,10 +363,18 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
           ? 'missing'
           : qualityFailed > 0
             ? 'failed'
-            : 'passed',
+            : qualityUnchecked > 0
+              ? 'unchecked'
+              : 'passed',
       passed: qualityPassed,
       failed: qualityFailed,
+      unchecked: qualityUnchecked,
       total: qualityGateEvents.length,
+    },
+    checks: {
+      grammar: summarizeCheck(qualityPayloads, 'grammar'),
+      plagiarism: summarizeCheck(qualityPayloads, 'plagiarism'),
+      aiDetection: summarizeCheck(qualityPayloads, 'ai_detection'),
     },
     claimVerification: {
       status: !claimSummary
