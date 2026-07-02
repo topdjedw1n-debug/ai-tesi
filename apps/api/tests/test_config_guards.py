@@ -25,6 +25,7 @@ from app.core.config import Settings
 def test_claim_verification_requires_citation_verification():
     with pytest.raises(ValueError, match="CLAIM_VERIFICATION_ENABLED"):
         Settings(
+            _env_file=None,
             CLAIM_VERIFICATION_ENABLED=True,
             CITATION_VERIFICATION_ENABLED=False,
         )
@@ -32,6 +33,7 @@ def test_claim_verification_requires_citation_verification():
 
 def test_claim_with_citation_accepted():
     settings = Settings(
+        _env_file=None,
         CLAIM_VERIFICATION_ENABLED=True,
         CITATION_VERIFICATION_ENABLED=True,
     )
@@ -40,7 +42,7 @@ def test_claim_with_citation_accepted():
 
 
 def test_defaults_accepted():
-    settings = Settings()
+    settings = Settings(_env_file=None)
     assert settings.CLAIM_VERIFICATION_ENABLED is False
     assert settings.CITATION_VERIFICATION_ENABLED is False
 
@@ -59,6 +61,7 @@ def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
 
 def test_citation_without_claim_accepted():
     settings = Settings(
+        _env_file=None,
         CITATION_VERIFICATION_ENABLED=True,
         CLAIM_VERIFICATION_ENABLED=False,
     )
