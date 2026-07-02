@@ -1,6 +1,27 @@
 # Контрольний прогін doc 5 — репетиція RUN-001 (Етап B6)
 
-**Статус:** ГОТОВИЙ ДО ЗАПУСКУ (код Етапів B1–B5 змержено, тести зелені)
+**Статус:** ВИКОНАНО ДВІЧІ — doc 5 (02.07, знайшов 3 діри) → B-fix хвиля → doc 6 (02.07, чек-лист закрито)
+
+## Результат doc 6 (після B-fix хвилі, комміти aaa665f..d2a4773)
+
+- Токени/вартість: 36 157 ток., $1.32 (job 4) ✓
+- Source pack: 10 джерел, всі verified ✓
+- Плагіат: ЖИВИЙ Copyscape (кредити списуються), 100% unique по секціях ✓
+  (Данте-контроль: 14.63% unique / 12 збігів — детектор реально ловить)
+- Claim-audit: 23 claims / 16 LLM-checked / 13 supported / 0 unsupported ✓
+  (doc 5 було 0 — екстрактор не бачив пак-ключів)
+- Grammar: 70 / 100 / 85 (doc 5: 40) — артефакти вирізання анкорів усунуто ✓
+- Панель: 91.5–93.5, події зі status ✓
+- Bibliografia в DOCX: по секціях 8/6/8 референсів ✓
+- AI-детекція: чесний `unchecked` («All AI detection providers
+  unavailable») — ключа ще немає; це і є живий негативний тест B1:
+  гейт unchecked → реліз блокується до override ✓
+- Grounding: rate 1.0, hedging 9.93/1000, has_evidence по всіх секціях ✓
+- Compilatio-артефакт: `~/Downloads/AI_e_istruzione_doc6_bfix.txt` —
+  завантажити вручну, локально плагіат-еталон не вимірюється.
+
+**Лишилось до RUN-001:** GPTZero Professional ключ (AI-гейт оживе) +
+рішення C-блоку (пороги, Compilatio-процес, відповідальні).
 
 Мета: повний цикл з усіма чесними доказами — пак → генерація → grounding
 gate → citation verified → claim-audit → panel → Bibliografia в DOCX →
