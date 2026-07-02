@@ -19,6 +19,10 @@ PRICING_INPUT = {
     "anthropic": {
         "claude-3-5-sonnet-20241022": 3.0,  # $3 per 1M input tokens
         "claude-3-opus-20240229": 15.0,  # $15 per 1M input tokens
+        "claude-opus-4-8": 5.0,  # $5 per 1M input tokens
+        # Sonnet 5 intro pricing through 2026-08-31 ($2/$10), then $3/$15 —
+        # update both dicts after that date so job costs match the invoice.
+        "claude-sonnet-5": 2.0,
     },
 }
 
@@ -32,6 +36,8 @@ PRICING_OUTPUT = {
     "anthropic": {
         "claude-3-5-sonnet-20241022": 15.0,  # $15 per 1M output tokens
         "claude-3-opus-20240229": 75.0,  # $75 per 1M output tokens
+        "claude-opus-4-8": 25.0,  # $25 per 1M output tokens
+        "claude-sonnet-5": 10.0,  # intro through 2026-08-31, then $15
     },
 }
 

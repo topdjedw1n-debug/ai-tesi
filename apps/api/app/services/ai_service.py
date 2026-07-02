@@ -494,12 +494,19 @@ class AIService:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
+            request_kwargs: dict[str, Any] = {
+                "model": model,
+                "max_tokens": 4000,
+                "system": "You are an expert academic writer specializing in thesis and research paper generation.",
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            # Claude 4+/5 models reject sampling params with a 400; only the
+            # legacy claude-3 family still accepts temperature.
+            if model.startswith("claude-3"):
+                request_kwargs["temperature"] = 0.7
+
             response = await client.messages.create(  # type: ignore[attr-defined]
-                model=model,
-                max_tokens=4000,
-                temperature=0.7,
-                system="You are an expert academic writer specializing in thesis and research paper generation.",
-                messages=[{"role": "user", "content": prompt}],
+                **request_kwargs
             )
 
             content = response.content[0].text

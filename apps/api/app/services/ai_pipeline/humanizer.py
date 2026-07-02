@@ -5,7 +5,7 @@ Paraphrases AI-generated text to make it sound more natural while preserving cit
 
 import logging
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from app.core.config import settings
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
@@ -223,12 +223,19 @@ class Humanizer:
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
+            request_kwargs: dict[str, Any] = {
+                "model": model,
+                "max_tokens": 4000,
+                "system": "You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers.",
+                "messages": [{"role": "user", "content": prompt}],
+            }
+            # Claude 4+/5 models reject sampling params with a 400; only the
+            # legacy claude-3 family still accepts temperature.
+            if model.startswith("claude-3"):
+                request_kwargs["temperature"] = temperature
+
             response = await client.messages.create(  # type: ignore[attr-defined]
-                model=model,
-                max_tokens=4000,
-                temperature=temperature,
-                system="You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers.",
-                messages=[{"role": "user", "content": prompt}],
+                **request_kwargs
             )
 
             if self.usage_tracker is not None:

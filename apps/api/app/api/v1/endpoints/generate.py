@@ -111,6 +111,16 @@ async def list_available_models() -> dict[str, list[dict[str, Any]]]:
         ],
         "anthropic": [
             {
+                "id": "claude-opus-4-8",
+                "name": "Claude Opus 4.8",
+                "max_tokens": 4000,
+            },
+            {
+                "id": "claude-sonnet-5",
+                "name": "Claude Sonnet 5",
+                "max_tokens": 4000,
+            },
+            {
                 "id": "claude-3-5-sonnet-20241022",
                 "name": "Claude 3.5 Sonnet",
                 "max_tokens": 4000,
