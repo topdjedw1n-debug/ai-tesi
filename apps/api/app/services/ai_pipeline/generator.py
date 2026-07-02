@@ -216,13 +216,15 @@ class SectionGenerator:
             # Step 4: Generate section content using AI with automatic fallback
             logger.info(f"Generating section content: {section_title}")
 
-            # Use fallback chain instead of single provider (Task 3.2)
-            # Note: provider/model parameters are now ignored in favor of fallback chain
-            # This ensures maximum reliability with automatic fallback
+            # The document's chosen writer model goes FIRST; the .env fallback
+            # chain is the safety net behind it. (Before the doc-10 fix the
+            # chain silently REPLACED the chosen model — every document was
+            # written by the chain head regardless of what the manager picked.)
             section_content = await self._call_ai_with_fallback(
                 prompt=prompt,
                 language=str(document.language),
                 purpose=f"Section: {section_title}",
+                preferred=(provider, model),
             )
 
             # Store prompt for training data collection
@@ -478,51 +480,46 @@ class SectionGenerator:
         prompt: str,
         language: str = "en",
         purpose: str = "generation",
+        preferred: tuple[str, str] | None = None,
     ) -> str:
         """
         Call AI with automatic fallback chain on failure.
 
-        Tries providers in order from AI_FALLBACK_CHAIN config until one succeeds.
+        When `preferred` (provider, model) is given — the document's chosen
+        writer model — it is tried FIRST; the AI_FALLBACK_CHAIN entries follow
+        as the safety net. Without `preferred` the chain is used as before.
         Each provider already has retry logic (_call_openai/_call_anthropic).
-
-        Default fallback chain:
-        1. OpenAI GPT-4 (best quality)
-        2. OpenAI GPT-3.5 Turbo (cheaper fallback)
-        3. Anthropic Claude 3.5 Sonnet (different provider)
 
         Args:
             prompt: The prompt to send to AI
             language: Language code for system prompt (default: 'en')
             purpose: Description of what this call is for (for logging)
+            preferred: Optional (provider, model) to try before the chain
 
         Returns:
             Generated text from first successful provider
 
         Raises:
             AllProvidersFailedError: If all providers in chain fail
-
-        Example:
-            >>> text = await self._call_ai_with_fallback(
-            >>>     prompt="Generate introduction...",
-            >>>     language="en",
-            >>>     purpose="Introduction section"
-            >>> )
         """
         from app.core.exceptions import AllProvidersFailedError
 
         # Check if fallback is disabled
         if not settings.AI_ENABLE_FALLBACK:
             logger.info(f"Fallback disabled, using default provider for {purpose}")
-            # Use first provider from chain as default
-            provider, model = settings.AI_FALLBACK_CHAIN_LIST[0]
+            provider, model = preferred or settings.AI_FALLBACK_CHAIN_LIST[0]
             return (
                 await self._call_openai(model, prompt, language)
                 if provider == "openai"
                 else await self._call_anthropic(model, prompt, language)
             )
 
-        # Try each provider in fallback chain
-        fallback_chain = settings.AI_FALLBACK_CHAIN_LIST
+        # Preferred (document) model first, then the chain, deduped.
+        fallback_chain = list(settings.AI_FALLBACK_CHAIN_LIST)
+        if preferred is not None and preferred[0] and preferred[1]:
+            fallback_chain = [preferred] + [
+                entry for entry in fallback_chain if entry != preferred
+            ]
         last_error: Exception | None = None
 
         logger.info(

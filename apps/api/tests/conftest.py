@@ -49,6 +49,13 @@ os.environ.setdefault("QUALITY_PANEL_ENABLED", "false")
 # runs; unguarded, pipeline tests that don't patch CitationVerifier run the
 # live Step 4.7 stage (Crossref/OpenAlex/S2 lookups) against the network.
 os.environ.setdefault("CITATION_VERIFICATION_ENABLED", "false")
+# Same leak class: the developer's .env points the fallback chain at LIVE
+# Anthropic models (OpenAI quota outage, 02.07.2026); tests that mock only
+# OpenAI would silently make real Anthropic calls. Pin the code default.
+os.environ.setdefault(
+    "AI_FALLBACK_CHAIN",
+    "openai:gpt-4,openai:gpt-3.5-turbo,anthropic:claude-sonnet-5",
+)
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool

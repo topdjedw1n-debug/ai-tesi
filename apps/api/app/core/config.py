@@ -67,9 +67,10 @@ class Settings(BaseSettings):
     AI_ENABLE_FALLBACK: bool = True  # Enable fallback to other providers
     # Fallback chain: Try providers in order until one succeeds
     # Format: "provider:model,provider:model,..."
-    # Default: GPT-4 → GPT-3.5 Turbo → Claude 3.5 Sonnet
+    # NOTE: claude-3-5-sonnet-20241022 was RETIRED by Anthropic (404) — the
+    # doc-10 run died on it; keep only living models here.
     AI_FALLBACK_CHAIN: str = (
-        "openai:gpt-4," "openai:gpt-3.5-turbo," "anthropic:claude-3-5-sonnet-20241022"
+        "openai:gpt-4," "openai:gpt-3.5-turbo," "anthropic:claude-sonnet-5"
     )
 
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
