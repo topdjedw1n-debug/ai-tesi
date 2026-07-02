@@ -22,7 +22,7 @@ from app.models.document import Document, DocumentOutline, DocumentSection
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
-from app.services.cost_estimator import CostEstimator
+from app.services.cost_estimator import CostEstimator, UsageTracker
 from app.services.retry_strategy import RetryStrategy
 
 logger = logging.getLogger(__name__)
@@ -31,8 +31,12 @@ logger = logging.getLogger(__name__)
 class AIService:
     """Service for AI content generation"""
 
-    def __init__(self, db: AsyncSession):
+    def __init__(self, db: AsyncSession, usage_tracker: "UsageTracker | None" = None):
         self.db = db
+        # Optional UsageTracker: when set, every provider call records its
+        # real response.usage here (covers outline, reviewer panel and claim
+        # verifier, which all route through this service)
+        self.usage_tracker = usage_tracker
         # Initialize circuit breakers for each provider
         self._openai_circuit = CircuitBreaker(failure_threshold=5, recovery_timeout=60)
         self._anthropic_circuit = CircuitBreaker(
@@ -239,7 +243,11 @@ class AIService:
 
             # Use SectionGenerator for RAG-enhanced generation
             start_time = time.time()
-            section_generator = SectionGenerator()
+            # Local tracker captures real provider usage for this call;
+            # falls back to the char-count estimate if no usage was reported
+            section_usage = self.usage_tracker or UsageTracker()
+            section_usage_start = section_usage.snapshot()
+            section_generator = SectionGenerator(usage_tracker=section_usage)
 
             # Get previously generated sections for context
             context_result = await self.db.execute(
@@ -272,10 +280,14 @@ class AIService:
 
             generation_time = int(time.time() - start_time)
 
-            # Estimate tokens used (approximate: ~4 chars per token)
-            # This is a rough estimate since SectionGenerator doesn't return token count
-            content_length = len(section_result.get("content", ""))
-            estimated_tokens = max(content_length // 4, 100)  # Minimum 100 tokens
+            # Prefer real usage recorded by the provider call; fall back to
+            # the legacy char-count estimate when no usage was reported
+            real_tokens = section_usage.total_tokens - section_usage_start
+            if real_tokens > 0:
+                estimated_tokens = real_tokens
+            else:
+                content_length = len(section_result.get("content", ""))
+                estimated_tokens = max(content_length // 4, 100)  # Minimum 100
 
             # Save or update section
             result = await self.db.execute(
@@ -451,6 +463,14 @@ class AIService:
 
             content = response.choices[0].message.content
             tokens_used = response.usage.total_tokens if response.usage else 0
+            if self.usage_tracker is not None and response.usage:
+                self.usage_tracker.add(
+                    "openai",
+                    model,
+                    response.usage.prompt_tokens or 0,
+                    response.usage.completion_tokens or 0,
+                    purpose="ai_service",
+                )
 
             # Parse JSON from content string
             try:
@@ -484,6 +504,14 @@ class AIService:
 
             content = response.content[0].text
             tokens_used = response.usage.input_tokens + response.usage.output_tokens
+            if self.usage_tracker is not None:
+                self.usage_tracker.add(
+                    "anthropic",
+                    model,
+                    response.usage.input_tokens,
+                    response.usage.output_tokens,
+                    purpose="ai_service",
+                )
 
             # Parse JSON from content string
             try:

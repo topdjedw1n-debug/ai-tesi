@@ -72,6 +72,11 @@ class Settings(BaseSettings):
         "openai:gpt-4," "openai:gpt-3.5-turbo," "anthropic:claude-3-5-sonnet-20241022"
     )
 
+    # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
+    # USD cents (pricing tables are USD); the € shown in the manager UI is a
+    # display conversion using this rate.
+    USD_TO_EUR_RATE: float = 0.92
+
     # Quality Thresholds Configuration (Task 3.2 - Quality Gates)
     # Grammar check threshold: max errors before regeneration
     QUALITY_MAX_GRAMMAR_ERRORS: int = 10  # LanguageTool error count threshold

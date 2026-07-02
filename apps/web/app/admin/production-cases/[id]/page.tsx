@@ -360,7 +360,7 @@ export default function ProductionCaseDetailPage() {
 
       <section className="rounded-lg border border-gray-700 bg-gray-800 p-4">
         <h2 className="text-lg font-semibold text-white">Production Economics</h2>
-        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-3">
+        <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
             <p className="text-xs uppercase text-gray-400">Human minutes</p>
             <p className="mt-1 text-white">{productionCase.human_minutes_used}</p>
@@ -368,6 +368,15 @@ export default function ProductionCaseDetailPage() {
           <div>
             <p className="text-xs uppercase text-gray-400">Cost</p>
             <p className="mt-1 text-white">€{(productionCase.cost_cents / 100).toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-xs uppercase text-gray-400">AI cost</p>
+            <p className="mt-1 text-white">
+              €{((productionCase.ai_cost_eur_cents ?? 0) / 100).toFixed(2)}
+            </p>
+            <p className="text-xs text-gray-400">
+              {(productionCase.ai_total_tokens ?? 0).toLocaleString()} tokens
+            </p>
           </div>
           <div>
             <p className="text-xs uppercase text-gray-400">Client</p>

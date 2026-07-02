@@ -21,6 +21,7 @@ from app.services.training_data_collector import TrainingDataCollector
 
 if TYPE_CHECKING:
     from app.services.ai_pipeline.source_pack import SourcePack
+    from app.services.cost_estimator import UsageTracker
 
 logger = logging.getLogger(__name__)
 
@@ -121,6 +122,7 @@ class SectionGenerator:
         rag_retriever: RAGRetriever | None = None,
         citation_formatter: CitationFormatter | None = None,
         humanizer: Humanizer | None = None,
+        usage_tracker: "UsageTracker | None" = None,
     ):
         """
         Initialize section generator
@@ -129,12 +131,16 @@ class SectionGenerator:
             rag_retriever: RAG retriever instance (optional, creates default if None)
             citation_formatter: Citation formatter instance (optional, creates default if None)
             humanizer: Humanizer instance (optional, creates default if None)
+            usage_tracker: When set, every provider call records its real
+                response.usage here (only successful calls are recorded —
+                spend of failed retries is a documented approximation)
         """
         self.rag_retriever = rag_retriever or RAGRetriever()
         self.citation_formatter = citation_formatter or CitationFormatter()
         self.humanizer = humanizer or Humanizer()
         self.prompt_builder = PromptBuilder()
         self.training_collector = TrainingDataCollector()
+        self.usage_tracker = usage_tracker
 
     async def generate_section(
         self,
@@ -618,6 +624,14 @@ class SectionGenerator:
                     max_tokens=4000,
                     temperature=0.7,
                 )
+                if self.usage_tracker is not None and response.usage:
+                    self.usage_tracker.add(
+                        "openai",
+                        model,
+                        response.usage.prompt_tokens or 0,
+                        response.usage.completion_tokens or 0,
+                        purpose="section_generation",
+                    )
                 return response.choices[0].message.content or ""
 
             # Use retry mechanism with exponential backoff
@@ -675,6 +689,14 @@ class SectionGenerator:
                     system=system_prompt,
                     messages=[{"role": "user", "content": prompt}],
                 )
+                if self.usage_tracker is not None and response.usage:
+                    self.usage_tracker.add(
+                        "anthropic",
+                        model,
+                        response.usage.input_tokens,
+                        response.usage.output_tokens,
+                        purpose="section_generation",
+                    )
                 return response.content[0].text
 
             # Use retry mechanism with exponential backoff

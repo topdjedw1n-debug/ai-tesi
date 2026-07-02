@@ -115,6 +115,11 @@ class ProductionCaseResponse(BaseModel):
     human_minutes_budget: int
     human_minutes_used: int
     cost_cents: int
+    # Real AI spend of this case's document (from AIGenerationJob rows):
+    # tokens + USD cents as stored, EUR cents converted at serialization
+    ai_total_tokens: int = 0
+    ai_cost_usd_cents: int = 0
+    ai_cost_eur_cents: int = 0
     release_notes: str | None = None
     released_at: datetime | None = None
     created_at: datetime | None = None

@@ -8,9 +8,11 @@ from fastapi import HTTPException, status
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.models.admin import AdminAuditLog
 from app.models.auth import User
 from app.models.document import (
+    AIGenerationJob,
     Document,
     DocumentProvenance,
     DocumentSection,
@@ -404,6 +406,16 @@ class ProductionCaseService:
         client = await self._get_user(case.client_user_id)
         manager = await self._get_user(case.manager_id) if case.manager_id else None
         editor = await self._get_user(case.editor_id) if case.editor_id else None
+        usage_row = (
+            await self.db.execute(
+                select(
+                    func.coalesce(func.sum(AIGenerationJob.total_tokens), 0),
+                    func.coalesce(func.sum(AIGenerationJob.cost_cents), 0),
+                ).where(AIGenerationJob.document_id == case.document_id)
+            )
+        ).one()
+        ai_total_tokens = int(usage_row[0] or 0)
+        ai_cost_usd_cents = int(usage_row[1] or 0)
         return {
             "id": case.id,
             "document_id": case.document_id,
@@ -423,6 +435,9 @@ class ProductionCaseService:
             "human_minutes_budget": case.human_minutes_budget,
             "human_minutes_used": case.human_minutes_used,
             "cost_cents": case.cost_cents,
+            "ai_total_tokens": ai_total_tokens,
+            "ai_cost_usd_cents": ai_cost_usd_cents,
+            "ai_cost_eur_cents": round(ai_cost_usd_cents * settings.USD_TO_EUR_RATE),
             "release_notes": case.release_notes,
             "released_at": case.released_at,
             "created_at": case.created_at,

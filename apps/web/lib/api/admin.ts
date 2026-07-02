@@ -56,6 +56,7 @@ export interface CostAnalysisResponse {
   }
   totals: {
     total_cost_cents: number
+    total_cost_eur_cents?: number
     total_tokens: number
     average_cost_per_token: number
   }
@@ -81,6 +82,9 @@ export interface ProductionCase {
   human_minutes_budget: number
   human_minutes_used: number
   cost_cents: number
+  ai_total_tokens?: number
+  ai_cost_usd_cents?: number
+  ai_cost_eur_cents?: number
   release_notes: string | null
   released_at: string | null
   created_at: string | null

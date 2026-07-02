@@ -175,3 +175,64 @@ class CostEstimator:
             "input_price_per_1m": input_price,
             "output_price_per_1m": output_price,
         }
+
+
+class UsageTracker:
+    """
+    Accumulates real token usage across every LLM call of one generation run
+    (outline, sections, humanization passes, reviewer panel, claim verifier).
+
+    Thread the same instance through the services' constructors; each
+    provider call records its response.usage here. Totals are written to
+    AIGenerationJob.total_tokens / cost_cents (absolute values, so
+    incremental writes stay idempotent and a crashed job keeps honest
+    partial numbers).
+    """
+
+    def __init__(self) -> None:
+        # (provider, model) -> {"input_tokens": int, "output_tokens": int}
+        self._by_model: dict[tuple[str, str], dict[str, int]] = {}
+
+    def add(
+        self,
+        provider: str,
+        model: str,
+        input_tokens: int,
+        output_tokens: int,
+        purpose: str = "",
+    ) -> None:
+        key = (provider or "unknown", model or "unknown")
+        bucket = self._by_model.setdefault(key, {"input_tokens": 0, "output_tokens": 0})
+        bucket["input_tokens"] += max(int(input_tokens or 0), 0)
+        bucket["output_tokens"] += max(int(output_tokens or 0), 0)
+        if purpose:
+            logger.debug(
+                f"Usage recorded ({purpose}): {key[0]}/{key[1]} "
+                f"+{input_tokens} in / +{output_tokens} out"
+            )
+
+    @property
+    def total_tokens(self) -> int:
+        return sum(
+            bucket["input_tokens"] + bucket["output_tokens"]
+            for bucket in self._by_model.values()
+        )
+
+    def snapshot(self) -> int:
+        """Current total, for computing per-section deltas."""
+        return self.total_tokens
+
+    def cost_usd_cents(self) -> int:
+        """Real cost in USD cents from the per-model input/output split."""
+        total_usd = 0.0
+        for (provider, model), bucket in self._by_model.items():
+            input_price = PRICING_INPUT.get(provider, {}).get(model)
+            output_price = PRICING_OUTPUT.get(provider, {}).get(model)
+            if input_price is None or output_price is None:
+                logger.warning(
+                    f"Unknown pricing for {provider}/{model}, using gpt-4 defaults"
+                )
+                input_price, output_price = 30.0, 60.0
+            total_usd += (bucket["input_tokens"] / 1_000_000) * input_price
+            total_usd += (bucket["output_tokens"] / 1_000_000) * output_price
+        return round(total_usd * 100)

@@ -5,9 +5,13 @@ Paraphrases AI-generated text to make it sound more natural while preserving cit
 
 import logging
 import re
+from typing import TYPE_CHECKING
 
 from app.core.config import settings
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
+
+if TYPE_CHECKING:
+    from app.services.cost_estimator import UsageTracker
 
 logger = logging.getLogger(__name__)
 
@@ -54,14 +58,21 @@ def _english_stopword_ratio(text: str) -> float:
 class Humanizer:
     """Humanize AI-generated text while preserving citations"""
 
-    def __init__(self, temperature: float = 0.9):
+    def __init__(
+        self,
+        temperature: float = 0.9,
+        usage_tracker: "UsageTracker | None" = None,
+    ):
         """
         Initialize humanizer
 
         Args:
             temperature: Temperature for paraphrasing (higher = more creative)
+            usage_tracker: When set, every provider call records its real
+                response.usage here (covers humanize_multi_pass too)
         """
         self.temperature = temperature
+        self.usage_tracker = usage_tracker
 
     async def humanize(
         self,
@@ -188,6 +199,14 @@ class Humanizer:
                 temperature=temperature,
             )
 
+            if self.usage_tracker is not None and response.usage:
+                self.usage_tracker.add(
+                    "openai",
+                    model,
+                    response.usage.prompt_tokens or 0,
+                    response.usage.completion_tokens or 0,
+                    purpose="humanization",
+                )
             return response.choices[0].message.content or ""
 
         except Exception as e:
@@ -212,6 +231,14 @@ class Humanizer:
                 messages=[{"role": "user", "content": prompt}],
             )
 
+            if self.usage_tracker is not None:
+                self.usage_tracker.add(
+                    "anthropic",
+                    model,
+                    response.usage.input_tokens,
+                    response.usage.output_tokens,
+                    purpose="humanization",
+                )
             return response.content[0].text
 
         except Exception as e:

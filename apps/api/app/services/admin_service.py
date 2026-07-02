@@ -10,6 +10,7 @@ import structlog
 from sqlalchemy import and_, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.exceptions import NotFoundError
 from app.core.logging import log_security_audit_event
 from app.models.admin import AdminAuditLog
@@ -926,6 +927,9 @@ class AdminService:
                 },
                 "totals": {
                     "total_cost_cents": total_cost,
+                    "total_cost_eur_cents": round(
+                        total_cost * settings.USD_TO_EUR_RATE
+                    ),
                     "total_tokens": total_tokens,
                     "average_cost_per_token": (
                         total_cost / total_tokens if total_tokens > 0 else 0

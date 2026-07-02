@@ -46,6 +46,7 @@ from app.services.citation_verifier import (
 from app.services.claim_verification_stage import (
     run_claim_verification_stage,
 )
+from app.services.cost_estimator import UsageTracker
 from app.services.db_helpers import (
     safe_scalar_one_or_none as _safe_scalar_one_or_none,
 )
@@ -229,6 +230,7 @@ async def _check_panel_quality(
     content: str,
     section_title: str,
     target_word_count: int,
+    usage_tracker: UsageTracker | None = None,
 ) -> dict[str, Any] | None:
     """
     Run the LLM reviewer panel for one section attempt (GATE 4).
@@ -240,7 +242,9 @@ async def _check_panel_quality(
     one). Only the panel's verdict can fail the gate, never its outage.
     """
     try:
-        validator = QualityValidator(ai_service=AIService(db))
+        validator = QualityValidator(
+            ai_service=AIService(db, usage_tracker=usage_tracker)
+        )
         return await validator.validate_section(
             content=content,
             outline_section={
@@ -519,7 +523,10 @@ async def _run_citation_verification_stage(
 
 
 async def _run_claim_verification_stage(
-    db: AsyncSession, document_id: int, user_id: int
+    db: AsyncSession,
+    document_id: int,
+    user_id: int,
+    usage_tracker: UsageTracker | None = None,
 ) -> None:
     """
     Thin wrapper around claim_verification_stage.run_claim_verification_stage.
@@ -528,12 +535,16 @@ async def _run_claim_verification_stage(
     at call time so test monkeypatches on app.services.background_jobs keep
     reaching the stage.
     """
+
+    def ai_service_factory(session: AsyncSession) -> AIService:
+        return AIService(session, usage_tracker=usage_tracker)
+
     await run_claim_verification_stage(
         db,
         document_id,
         user_id,
         config=settings,
-        ai_service_factory=AIService,
+        ai_service_factory=ai_service_factory,
         send_progress=_safe_send_progress,
     )
 
@@ -595,7 +606,10 @@ class BackgroundJobService:
     @staticmethod
     @background_task_error_handler("generate_full_document")
     async def generate_full_document(
-        document_id: int, user_id: int, additional_requirements: str | None = None
+        document_id: int,
+        user_id: int,
+        additional_requirements: str | None = None,
+        job_id: int | None = None,
     ) -> None:
         """
         Background task to generate a complete document
@@ -611,7 +625,33 @@ class BackgroundJobService:
             document_id: ID of the document to generate
             user_id: ID of the user owning the document
             additional_requirements: Optional additional requirements
+            job_id: Optional AIGenerationJob id; when set, real token usage
+                and USD-cent cost are written to the job row incrementally
+                (after every section) and at the end of the run
         """
+        # Accumulates real response.usage of every LLM call in this run
+        # (outline, sections, humanization, panel, claim verifier)
+        usage = UsageTracker()
+
+        async def write_job_usage(db: AsyncSession) -> None:
+            """Absolute (idempotent) usage write; a crash keeps honest partials."""
+            if job_id is None:
+                return
+            try:
+                await db.execute(
+                    update(AIGenerationJob)
+                    .where(AIGenerationJob.id == job_id)
+                    .values(
+                        total_tokens=usage.total_tokens,
+                        cost_cents=usage.cost_usd_cents(),
+                    )
+                )
+                await db.commit()
+            except Exception as usage_error:
+                logger.warning(
+                    f"⚠️ Failed to write usage for job {job_id}: {usage_error}"
+                )
+
         async with database.AsyncSessionLocal() as db:
             try:
                 logger.info(
@@ -673,7 +713,7 @@ class BackgroundJobService:
                 # Step 1: Generate outline if not exists
                 if not document.outline:
                     logger.info(f"Generating outline for document {document_id}")
-                    ai_service = AIService(db)
+                    ai_service = AIService(db, usage_tracker=usage)
                     try:
                         await ai_service.generate_outline(
                             document_id=document_id,
@@ -711,8 +751,8 @@ class BackgroundJobService:
 
                 # Step 2: Generate all sections
                 sections = document.outline.get("sections", [])
-                section_generator = SectionGenerator()
-                humanizer = Humanizer()
+                section_generator = SectionGenerator(usage_tracker=usage)
+                humanizer = Humanizer(usage_tracker=usage)
 
                 logger.info(
                     f"Generating {len(sections)} sections for document {document_id}"
@@ -884,6 +924,11 @@ class BackgroundJobService:
                         # identical to additional_requirements when the panel
                         # is disabled or hasn't flagged anything
                         effective_requirements = additional_requirements
+
+                        # Real token usage of THIS section = tracker delta
+                        # across the attempt loop (failed regeneration
+                        # attempts included — they cost money too)
+                        section_usage_start = usage.snapshot()
 
                         for attempt in range(
                             settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
@@ -1167,6 +1212,7 @@ class BackgroundJobService:
                                     humanized_content,
                                     section_title,
                                     current_section.get("word_count", 500),
+                                    usage_tracker=usage,
                                 )
                                 if panel_attempt is None:
                                     logger.warning(
@@ -1349,6 +1395,7 @@ class BackgroundJobService:
                         )
 
                         word_count = len(final_content.split())
+                        section_tokens = usage.total_tokens - section_usage_start
 
                         if section:
                             section.content = final_content
@@ -1358,6 +1405,7 @@ class BackgroundJobService:
                             section.plagiarism_score = final_plagiarism_score
                             section.ai_detection_score = final_ai_score
                             section.quality_score = final_quality_score
+                            section.tokens_used = section_tokens
                             section.completed_at = datetime.utcnow()
                         else:
                             section = DocumentSection(
@@ -1371,6 +1419,7 @@ class BackgroundJobService:
                                 plagiarism_score=final_plagiarism_score,
                                 ai_detection_score=final_ai_score,
                                 quality_score=final_quality_score,
+                                tokens_used=section_tokens,
                                 completed_at=datetime.utcnow(),
                             )
                             db.add(section)
@@ -1390,6 +1439,10 @@ class BackgroundJobService:
                             section.quality_panel = panel_result.get("panel")
 
                         await db.commit()
+
+                        # Incremental job usage write: a crashed run keeps
+                        # honest partial totals for completed sections
+                        await write_job_usage(db)
 
                         # Academic Quality Engine: persist this section's
                         # cited sources (only the final accepted attempt's;
@@ -1722,7 +1775,12 @@ class BackgroundJobService:
                 # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
                 # claims raise CitationIntegrityError here, before export)
                 if settings.CLAIM_VERIFICATION_ENABLED:
-                    await _run_claim_verification_stage(db, document_id, user_id)
+                    await _run_claim_verification_stage(
+                        db, document_id, user_id, usage_tracker=usage
+                    )
+
+                # Post-section LLM spend (claim verifier) included
+                await write_job_usage(db)
 
                 # Step 5: Export to DOCX
                 logger.info(f"Exporting document {document_id} to DOCX")
@@ -1904,6 +1962,7 @@ class BackgroundJobService:
                     document_id=document_id,
                     user_id=user_id,
                     additional_requirements=additional_requirements,
+                    job_id=job_id,
                 )
 
                 # Update job to completed
