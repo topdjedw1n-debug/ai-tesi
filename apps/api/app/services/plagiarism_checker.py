@@ -54,7 +54,9 @@ class PlagiarismChecker:
             words = text.split()[:max_words]
             text_to_check = " ".join(words)
 
-            # Prepare request
+            # Prepare request. Copyscape requires POST for text searches —
+            # with GET the "t" parameter is rejected ("Please enter some
+            # text…") and the old code silently read that as 0 matches.
             params = {
                 "u": self.api_username,
                 "k": self.api_key,
@@ -64,13 +66,27 @@ class PlagiarismChecker:
             }
 
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(f"{self.base_url}/", params=params)
+                response = await client.post(f"{self.base_url}/", data=params)
                 response.raise_for_status()
 
             # Parse Copyscape response (XML format)
             import xml.etree.ElementTree as ET
 
             root = ET.fromstring(response.text)
+
+            # API-level errors (bad credentials, no credits, rejected input)
+            # come back as HTTP 200 with an <error> element. Absence of
+            # <result> elements must NOT be read as "no matches" here —
+            # that is exactly the fail-open that masked a dead checker.
+            error_el = root.find(".//error")
+            if error_el is not None and (error_el.text or "").strip():
+                error_text = error_el.text.strip()
+                logger.warning(f"Copyscape API error: {error_text}")
+                return {
+                    "checked": False,
+                    "error": f"Copyscape API error: {error_text}",
+                    "uniqueness_percentage": None,
+                }
 
             # Extract results
             results = []
