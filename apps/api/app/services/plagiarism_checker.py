@@ -88,40 +88,40 @@ class PlagiarismChecker:
                     "uniqueness_percentage": None,
                 }
 
-            # Extract results
+            # Extract results. Real csearch responses carry the match size
+            # in <minwordsmatched> (plus <allwordsmatched> when full
+            # comparisons are enabled) — NOT in <words>/<minwords>, which
+            # the old parser expected and therefore dropped every result.
+            def _int_text(el: Any) -> int:
+                return int(el.text) if el is not None and el.text else 0
+
             results = []
             uniqueness = 100.0
 
             for result in root.findall(".//result"):
                 url = result.find("url")
                 title = result.find("title")
-                words_found = result.find("words")
-                minwords = result.find("minwords")
-
-                if url is not None and words_found is not None:
+                matched = max(
+                    _int_text(result.find("minwordsmatched")),
+                    _int_text(result.find("allwordsmatched")),
+                    _int_text(result.find("words")),  # legacy shape
+                )
+                if url is not None:
                     results.append(
                         {
                             "url": url.text,
                             "title": title.text if title is not None else "",
-                            "words_matched": int(words_found.text)
-                            if words_found.text
-                            else 0,
-                            "min_words": int(minwords.text)
-                            if minwords is not None and minwords.text
-                            else 0,
+                            "words_matched": matched,
                         }
                     )
 
-            # Calculate uniqueness percentage
-            # If matches found, reduce uniqueness based on matched words
-            if results:
-                total_words_checked = len(words)
-                matched_words = sum(r["words_matched"] for r in results)
-                if total_words_checked > 0:
-                    uniqueness = max(
-                        0.0,
-                        100.0 - (matched_words / total_words_checked * 100),
-                    )
+            # Uniqueness = share of the query NOT found in the single best
+            # match. Summing across results would over-count: the same
+            # copied passage appears on many pages at once.
+            querywords = _int_text(root.find(".//querywords")) or len(words)
+            if results and querywords > 0:
+                best_match = max(r["words_matched"] for r in results)
+                uniqueness = max(0.0, 100.0 - (best_match / querywords * 100))
 
             return {
                 "checked": True,

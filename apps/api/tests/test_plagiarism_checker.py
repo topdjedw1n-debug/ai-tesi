@@ -25,11 +25,18 @@ NO_MATCH_XML = (
     "<response>\n\t<query>...</query>\n\t<count>0</count>\n</response>"
 )
 
+# Real csearch shape: querywords at response level, minwordsmatched per
+# result (as returned live by the Copyscape API).
 MATCH_XML = (
     '<?xml version="1.0" encoding="utf-8"?>\n'
-    "<response><count>1</count><result>"
+    "<response><querywords>100</querywords><count>2</count>"
+    "<result><index>1</index>"
     "<url>http://example.com/page</url><title>Example</title>"
-    "<words>40</words><minwords>40</minwords>"
+    "<minwordsmatched>40</minwordsmatched>"
+    "</result>"
+    "<result><index>2</index>"
+    "<url>http://example.org/mirror</url><title>Mirror</title>"
+    "<minwordsmatched>35</minwordsmatched>"
     "</result></response>"
 )
 
@@ -90,14 +97,16 @@ async def test_clean_response_without_results_is_100_unique():
 
 
 @pytest.mark.asyncio
-async def test_matches_reduce_uniqueness():
+async def test_matches_reduce_uniqueness_by_best_match_not_sum():
     client = _client_returning(MATCH_XML)
-    text = " ".join(["parola"] * 100)  # 100 words, 40 matched -> 60% unique
+    text = " ".join(["parola"] * 100)
     with patch("httpx.AsyncClient", return_value=client):
         result = await _configured_checker().check_text(text)
 
     assert result["checked"] is True
-    assert result["matches_found"] == 1
+    assert result["matches_found"] == 2
+    # Best match 40/100 words -> 60% unique. Summing (40+35) would
+    # double-count the same passage mirrored on two pages.
     assert result["uniqueness_percentage"] == 60.0
 
 
