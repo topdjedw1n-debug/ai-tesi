@@ -150,11 +150,52 @@ def content_tokens(text: str | None) -> set[str]:
 _CITATION_RE = re.compile(r"\[[^\]]*\]")
 _ENUMERATION_RE = re.compile(r"^\s*\d+[.)]\s", flags=re.MULTILINE)
 
+# "Named system" evidence (Stage B4): a concrete named technology / platform /
+# case counts as evidence even without numbers. Three deliberately narrow
+# patterns to avoid matching ordinary sentence-initial capitalization:
+# 1) Acronyms: 3+ uppercase letters, optionally with digits ("SAP", "ERP",
+#    "HANA", "GPT" in "GPT-4"). Deliberately NOT 2 letters: "AI"/"IT" appear
+#    in every section of an AI thesis and would make the gate toothless.
+_ACRONYM_RE = re.compile(r"\b[A-Z]{3,}\d*\b")
+# 2) CamelCase tokens ("ChatGPT", "DeepMind", "TensorFlow") — an uppercase
+#    letter appearing after a lowercase letter inside one word.
+_CAMELCASE_RE = re.compile(r"\b[A-Za-z]*[a-z][A-Z][A-Za-z]*\b")
+# 3) Mid-sentence capitalized bigram ("Industria 4.0" is caught by numbers;
+#    "Amazon Web Services" needs this): two adjacent capitalized words
+#    genuinely inside a sentence — the preceding character must be a
+#    lowercase letter/digit/comma, which excludes sentence starts, headings
+#    and line starts. Same-line only ([ \t], not \s) so a heading followed by
+#    a capitalized sentence start can't bridge the newline.
+_MIDSENTENCE_PROPER_BIGRAM_RE = re.compile(
+    r"(?<=[a-zà-ÿ0-9,;:)])[ \t][A-Z][a-zà-ÿ]+[ \t]+[A-Z][a-zà-ÿ]+\b"
+)
+
+
+def contains_named_system(text: str | None) -> bool:
+    """True if the text names a concrete system/technology/case.
+
+    Heuristics: acronyms (SAP, ERP, IoT-style all-caps), CamelCase product
+    names (ChatGPT, TensorFlow), or a capitalized bigram in the middle of a
+    sentence (Amazon Web Services). Bracketed citations are stripped first so
+    author names in "[Rossi2021, 2021]" can't trigger it.
+    """
+    if not text:
+        return False
+    cleaned = _CITATION_RE.sub(" ", text)
+    cleaned = _ENUMERATION_RE.sub(" ", cleaned)
+    return bool(
+        _ACRONYM_RE.search(cleaned)
+        or _CAMELCASE_RE.search(cleaned)
+        or _MIDSENTENCE_PROPER_BIGRAM_RE.search(cleaned)
+    )
+
 
 def contains_concrete_evidence(text: str | None) -> bool:
-    """True if the text carries a concrete numeric detail.
+    """True if the text carries a concrete detail: a numeric fact OR a named
+    system/case (Stage B4 — sources often support qualitative case evidence
+    without numbers; requiring digits produced false evidence-gate failures).
 
-    Counts percentages ("30%"), decimals ("2,5" / "3.7") and multi-digit
+    Numbers: percentages ("30%"), decimals ("2,5" / "3.7") and multi-digit
     numbers ("1200") — AFTER stripping bracketed citations and per-line
     section enumeration, which is what fooled the previous naive `\\d` check
     (citation years and "1." headings are not evidence).
@@ -172,4 +213,5 @@ def contains_concrete_evidence(text: str | None) -> bool:
         re.search(r"\d+\s*%", cleaned)
         or re.search(r"\b\d+[.,]\d+\b", cleaned)
         or re.search(r"\b\d{2,}\b", cleaned)
+        or contains_named_system(text)
     )

@@ -111,3 +111,78 @@ def test_hedging_density_counts_and_clean():
         "Gli studenti hanno migliorato i risultati del 30%.", "it"
     )
     assert assertive["hits"] == 0
+
+
+# ---------------------------------------------------------------------------
+# Stage B4: "named system" counts as evidence (no numbers required).
+# ---------------------------------------------------------------------------
+
+
+def test_evidence_named_system_acronym():
+    from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
+    assert (
+        contains_concrete_evidence(
+            "La piattaforma SAP HANA consente l'analisi in tempo reale."
+        )
+        is True
+    )
+
+
+def test_evidence_named_system_camelcase():
+    from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
+    assert (
+        contains_concrete_evidence(
+            "Strumenti come ChatGPT hanno trasformato il settore."
+        )
+        is True
+    )
+
+
+def test_evidence_named_system_midsentence_bigram():
+    from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
+    assert (
+        contains_concrete_evidence(
+            "L'adozione di Amazon Web Services ha ridotto i costi operativi."
+        )
+        is True
+    )
+
+
+def test_evidence_pure_water_still_fails():
+    from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
+    # No numbers, no named systems — generic filler must stay non-evidence
+    assert (
+        contains_concrete_evidence(
+            "La tecnologia digitale rappresenta una risorsa importante per le "
+            "aziende moderne. Molti esperti concordano su questo punto."
+        )
+        is False
+    )
+
+
+def test_evidence_generic_two_letter_acronym_not_counted():
+    from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
+    # "AI"/"IT" appear in every section of an AI thesis — not evidence
+    assert contains_concrete_evidence("AI is generally regarded as helpful.") is False
+
+
+def test_evidence_citation_author_names_do_not_trigger_named_system():
+    from app.services.ai_pipeline.text_utils import contains_named_system
+
+    # Bracketed citations are stripped before matching
+    assert contains_named_system("Il testo continua [Rossi2021, 2021] ancora.") is False
+
+
+def test_evidence_sentence_start_bigram_not_counted():
+    from app.services.ai_pipeline.text_utils import contains_named_system
+
+    # Sentence-initial capitalization is ordinary prose, not a named system
+    assert (
+        contains_named_system("Molti studiosi concordano. Questo tema resta aperto.")
+        is False
+    )

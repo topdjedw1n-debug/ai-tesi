@@ -9,6 +9,7 @@ import asyncio
 import functools
 import json
 import logging
+import re
 from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
@@ -260,6 +261,12 @@ async def _check_panel_quality(
 # ========== Quality Gate Helper Functions (Task 3.2) ==========
 
 
+# Bracketed in-text citation anchors ("[Rossi2021, 2021]", "[Smith2020;
+# Lee2019]") — stripped before the LanguageTool check (see
+# _check_grammar_quality). Same shape as text_utils._CITATION_RE.
+_CITATION_ANCHOR_RE = re.compile(r"\[[^\]]*\]")
+
+
 class CheckStatus(str, Enum):
     """Outcome of a single quality check.
 
@@ -296,9 +303,14 @@ async def _check_grammar_quality(
         - reason: Failure detail or why the check didn't run; None on pass
     """
     try:
+        # Strip bracketed citation anchors ("[Rossi2021, 2021]") before the
+        # check: LanguageTool flags them (casing/whitespace rules) and at
+        # -5 points per match they tanked real grammar scores (95 -> 60-70).
+        # Offsets are not mapped back — only count/score are used downstream.
+        checked_text = _CITATION_ANCHOR_RE.sub(" ", content)
         grammar_checker = GrammarChecker()
         grammar_result = await grammar_checker.check_text(
-            text=content, language=language
+            text=checked_text, language=language
         )
 
         if grammar_result.get("checked"):

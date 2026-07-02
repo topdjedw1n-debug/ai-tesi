@@ -149,3 +149,24 @@ def test_check_status_str_is_the_value():
     assert str(CheckStatus.UNCHECKED) == "unchecked"
     # Plain-string mocks compare equal (str-mixin contract)
     assert CheckStatus.FAILED == "failed"
+
+
+@pytest.mark.asyncio
+async def test_grammar_check_strips_citation_anchors_before_languagetool():
+    """Stage B4.2: citation anchors like [Rossi2021, 2021] must not reach
+    LanguageTool — they inflate the error count (-5 points per match) and
+    caused the grammar-score regression (95 -> 60-70)."""
+    with patch("app.services.background_jobs.GrammarChecker") as checker_class:
+        check_text = AsyncMock(return_value={"checked": True, "matches": []})
+        checker_class.return_value.check_text = check_text
+        await _check_grammar_quality(
+            "Gli studenti migliorano [Rossi2021, 2021] con il tempo "
+            "[Smith2020; Lee2019].",
+            "it",
+            10,
+        )
+
+    sent_text = check_text.call_args.kwargs["text"]
+    assert "[Rossi2021" not in sent_text
+    assert "[Smith2020" not in sent_text
+    assert "Gli studenti migliorano" in sent_text
