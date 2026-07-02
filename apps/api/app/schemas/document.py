@@ -36,6 +36,8 @@ class AIModel(str, Enum):
     GPT_4_TURBO = "gpt-4-turbo"
     GPT_3_5_TURBO = "gpt-3.5-turbo"
     # Anthropic models
+    CLAUDE_OPUS_4_8 = "claude-opus-4-8"
+    CLAUDE_SONNET_5 = "claude-sonnet-5"
     CLAUDE_3_5_SONNET = "claude-3-5-sonnet-20241022"
     CLAUDE_3_OPUS = "claude-3-opus-20240229"
 
@@ -112,9 +114,15 @@ class DocumentCreate(DocumentBase):
             elif isinstance(provider, str):
                 provider_value = provider.lower()
 
-        # Valid models per provider
+        # Valid models per provider (keep in sync with /generate/models and
+        # cost_estimator pricing tables)
         openai_models = ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
-        anthropic_models = ["claude-3-5-sonnet-20241022", "claude-3-opus-20240229"]
+        anthropic_models = [
+            "claude-opus-4-8",
+            "claude-sonnet-5",
+            "claude-3-5-sonnet-20241022",
+            "claude-3-opus-20240229",
+        ]
 
         if provider_value == "openai":
             if v not in openai_models:
