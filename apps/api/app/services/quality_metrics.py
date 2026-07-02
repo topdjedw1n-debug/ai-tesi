@@ -17,6 +17,7 @@ import re
 import statistics
 from typing import TYPE_CHECKING, Any
 
+from app.services.ai_pipeline.text_utils import contains_concrete_evidence
 from app.services.grounding_gate import evaluate_grounding
 
 if TYPE_CHECKING:
@@ -103,13 +104,55 @@ def connector_cliche_density(text: str, language: str = "en") -> dict[str, float
     return {"hits": hits, "per_1000_words": round(per_1000, 2), "phrases": found}
 
 
-def evidence_presence(text: str, pack: SourcePack | None = None) -> bool:
-    """True if the section carries a concrete signal (a number/percentage).
+# Hedging markers (IT + EN): overuse ("può/potrebbe" stacking) reads as
+# noncommittal AI prose. Matched as whole words/phrases, case-insensitive.
+_HEDGE_PHRASES: tuple[str, ...] = (
+    # Italian
+    "può",
+    "potrebbe",
+    "potrebbero",
+    "possono",
+    "forse",
+    "in qualche modo",
+    "probabilmente",
+    # English
+    "may",
+    "might",
+    "could",
+    "perhaps",
+    "possibly",
+)
 
-    A cheap proxy for 'has a concrete example/statistic'. When a pack is given,
-    it is not required here — grounding is measured separately.
+
+def hedging_density(text: str, language: str = "en") -> dict[str, Any]:
+    """Hedge-word hits per 1000 words (lower = more assertive prose).
+
+    Report-only this wave — feeds tuning with data before any gating.
+    Same shape as connector_cliche_density.
     """
-    return bool(re.search(r"\d", text or ""))
+    low = (text or "").lower()
+    hits = 0
+    found: dict[str, int] = {}
+    for phrase in _HEDGE_PHRASES:
+        n = len(re.findall(r"(?<!\w)" + re.escape(phrase) + r"(?!\w)", low))
+        if n:
+            hits += n
+            found[phrase] = n
+    words = _word_count(text)
+    per_1000 = (hits / words * 1000) if words else 0.0
+    return {"hits": hits, "per_1000_words": round(per_1000, 2), "phrases": found}
+
+
+def evidence_presence(text: str, pack: SourcePack | None = None) -> bool:
+    """True if the section carries a concrete numeric detail.
+
+    Delegates to text_utils.contains_concrete_evidence (shared with the
+    grounding gate): citation years and section numbering do NOT count —
+    the previous naive `\\d` check was satisfied by "1. Introduzione".
+    When a pack is given, it is not required here — grounding is measured
+    separately.
+    """
+    return contains_concrete_evidence(text)
 
 
 def citation_grounding_rate(

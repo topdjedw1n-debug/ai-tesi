@@ -104,6 +104,16 @@ STOP_WORDS: frozenset[str] = frozenset(
         "sua",
         "loro",
         "anche",
+        # Elided Italian articles/prepositions: the tokenizer splits
+        # "dell'intelligenza" into "dell" + "intelligenza" — the stub carries
+        # no content and dilutes topic-coverage scoring.
+        "dell",
+        "sull",
+        "nell",
+        "all",
+        "dall",
+        "quest",
+        "senz",
     }
 )
 
@@ -133,3 +143,33 @@ def content_tokens(text: str | None) -> set[str]:
         for t in tokenize(text)
         if t not in STOP_WORDS and not t.isdigit() and len(t) > 2
     }
+
+
+# Bracketed in-text citations ("[Rossi2021, 2021]") and per-line leading
+# enumeration ("1. Introduzione") — digits that must NOT count as evidence.
+_CITATION_RE = re.compile(r"\[[^\]]*\]")
+_ENUMERATION_RE = re.compile(r"^\s*\d+[.)]\s", flags=re.MULTILINE)
+
+
+def contains_concrete_evidence(text: str | None) -> bool:
+    """True if the text carries a concrete numeric detail.
+
+    Counts percentages ("30%"), decimals ("2,5" / "3.7") and multi-digit
+    numbers ("1200") — AFTER stripping bracketed citations and per-line
+    section enumeration, which is what fooled the previous naive `\\d` check
+    (citation years and "1." headings are not evidence).
+
+    Known limitation: a bare year in prose ("nel 2023") still counts — it is a
+    concrete, checkable fact, and excluding years would also drop real data
+    like "nel 2023 il 40% ...". Shared by quality_metrics.evidence_presence
+    and grounding_gate.evaluate_grounding — keep them consistent.
+    """
+    if not text:
+        return False
+    cleaned = _CITATION_RE.sub(" ", text)
+    cleaned = _ENUMERATION_RE.sub(" ", cleaned)
+    return bool(
+        re.search(r"\d+\s*%", cleaned)
+        or re.search(r"\b\d+[.,]\d+\b", cleaned)
+        or re.search(r"\b\d{2,}\b", cleaned)
+    )

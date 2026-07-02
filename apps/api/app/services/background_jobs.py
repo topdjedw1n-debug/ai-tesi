@@ -514,13 +514,19 @@ async def _run_claim_verification_stage(
 # ========== End Citation Verification Helpers ==========
 
 
-async def _build_source_pack(db: AsyncSession, document: Document) -> Any:
+async def _build_source_pack(
+    db: AsyncSession,
+    document: Document,
+    section_titles: list[str] | None = None,
+) -> Any:
     """
     Thin wrapper around SourcePackBuilder.build for the upfront source pack.
 
     Reads this module's `settings` global at call time so test monkeypatches on
     app.services.background_jobs keep working, mirroring the other stage
     wrappers. Returns a SourcePack (never raises — builder degrades gracefully).
+    section_titles is set on the post-outline rebuild so queries cover every
+    promised section, not just the bare topic.
     """
     builder = SourcePackBuilder()
     return await builder.build(
@@ -529,15 +535,25 @@ async def _build_source_pack(db: AsyncSession, document: Document) -> Any:
         document_id=int(document.id),
         target_size=settings.SOURCE_PACK_TARGET_SIZE,
         min_on_topic_score=settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE,
+        section_titles=section_titles,
     )
 
 
 def _augment_with_grounding_feedback(
     base_requirements: str | None, grounding: GroundingResult
 ) -> str:
-    """Append grounding-failure feedback so the next attempt cites correctly."""
-    keys = ", ".join(grounding.offending_keys[:10]) or "(unresolved)"
+    """Append grounding-failure feedback so the next attempt fixes the right thing."""
     prefix = f"{base_requirements}\n\n" if base_requirements else ""
+    if "concrete evidence" in grounding.reason:
+        # Evidence failure: citations are fine, prose lacks concrete detail.
+        return (
+            f"{prefix}Grounding check failed: {grounding.reason}. Add at least "
+            f"one concrete detail drawn from the AVAILABLE SOURCES (a statistic, "
+            f"numeric finding, or specific study result from their abstracts). "
+            f"NEVER invent numeric data — if the sources give no numbers, state "
+            f"their concrete qualitative findings instead."
+        )
+    keys = ", ".join(grounding.offending_keys[:10]) or "(unresolved)"
     return (
         f"{prefix}Grounding check failed: {grounding.reason}. Cite ONLY sources "
         f"from the provided AVAILABLE SOURCES list, using their exact [Key]. Do "
@@ -712,6 +728,42 @@ class BackgroundJobService:
                     )
                     start_section_index = 0
 
+                # Post-outline pack rebuild (grounding): re-query with the
+                # promised section titles so the pack covers every section, not
+                # just the bare topic (which returned a generic "AI" mix).
+                # ONLY on fresh generation — on resume, already-generated
+                # sections cite the persisted keys and a rebuild would re-key
+                # the pack and orphan their citations.
+                if (
+                    settings.SOURCE_GROUNDING_ENABLED
+                    and source_pack is not None
+                    and start_section_index == 0
+                ):
+                    titles = [s.get("title") for s in sections if s.get("title")]
+                    if titles:
+                        source_pack = await _build_source_pack(
+                            db, document, section_titles=titles
+                        )
+                        await _persist_source_pack(db, document_id, source_pack)
+                        if settings.PROVENANCE_LEDGER_ENABLED:
+                            scores = [ps.on_topic_score for ps in source_pack.sources]
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="retrieval",
+                                event_type="source_pack_rebuilt",
+                                payload={
+                                    "pack_size": len(source_pack.sources),
+                                    "mean_on_topic_score": (
+                                        round(sum(scores) / len(scores), 3)
+                                        if scores
+                                        else 0.0
+                                    ),
+                                    "underfilled": source_pack.underfilled,
+                                    "section_titles": titles[:12],
+                                },
+                            )
+
                 total_sections = len(sections)  # Calculate once for progress tracking
                 for idx, section_data in enumerate(sections):
                     section_title = section_data.get("title", f"Section {idx + 1}")
@@ -850,7 +902,9 @@ class BackgroundJobService:
                                     section_result,
                                     source_pack,
                                     min_grounding_rate=settings.GROUNDING_MIN_RATE,
-                                    require_evidence=True,
+                                    require_evidence=(
+                                        settings.GROUNDING_REQUIRE_EVIDENCE
+                                    ),
                                     min_on_topic_score=(
                                         settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
                                     ),

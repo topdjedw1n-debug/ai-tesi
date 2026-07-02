@@ -185,6 +185,10 @@ class Settings(BaseSettings):
     GROUNDING_GATE_ENABLED: bool = False
     GROUNDING_GATE_POLICY: str = "mark_only"  # strict (fail) | mark_only (annotate)
     GROUNDING_MIN_RATE: float = 0.8  # min citation-grounding rate to pass the gate
+    # Also require a concrete numeric detail in each section's prose (citation
+    # years / section numbering don't count) — missing evidence triggers the
+    # same bounded regeneration as ungrounded citations.
+    GROUNDING_REQUIRE_EVIDENCE: bool = True
 
     # Academic Quality Engine - Blocking claim verification (OFF by default;
     # needs CLAIM_VERIFICATION_ENABLED). When on, an over-threshold count of

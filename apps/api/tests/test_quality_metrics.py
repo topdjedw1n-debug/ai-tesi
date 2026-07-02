@@ -82,3 +82,32 @@ def test_citation_grounding_rate_matches_gate():
         {"content": "A [Rossi2021, 2021] and B [Ghost2020, 2020]."}, pack
     )
     assert rate == 0.5
+
+
+# ---------------------------------------------------------------------------
+# Fix-wave 2: real evidence detector + hedging density.
+# ---------------------------------------------------------------------------
+
+
+def test_evidence_presence_ignores_numbering_and_citations():
+    from app.services.quality_metrics import evidence_presence as ep
+
+    assert ep("1. Introduzione [Rossi2021, 2021] testo.") is False
+    assert ep("Il 30% degli studenti.") is True
+    assert ep("Con 1.200 studenti nel campione.") is True
+    assert ep("") is False
+
+
+def test_hedging_density_counts_and_clean():
+    from app.services.quality_metrics import hedging_density
+
+    hedgy = hedging_density(
+        "L'IA può aiutare. Potrebbe migliorare. Forse funziona.", "it"
+    )
+    assert hedgy["hits"] == 3
+    assert hedgy["per_1000_words"] > 0
+
+    assertive = hedging_density(
+        "Gli studenti hanno migliorato i risultati del 30%.", "it"
+    )
+    assert assertive["hits"] == 0

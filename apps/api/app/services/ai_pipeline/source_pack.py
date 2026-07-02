@@ -59,10 +59,13 @@ _DOMAIN_ANCHORS: dict[str, dict[str, set[str]]] = {
             "universita",
             "higher education",
         },
+        # Matched with fold+prefix semantics (_term_hit): stems cover the
+        # inflected Italian forms (educativ- -> educativo/educativa/educative).
         "anchor": {
             "education",
             "educational",
             "educazione",
+            "educativ",
             "istruzione",
             "scuola",
             "school",
@@ -72,9 +75,9 @@ _DOMAIN_ANCHORS: dict[str, dict[str, set[str]]] = {
             "student",
             "students",
             "learning",
-            "pedagogy",
-            "pedagogical",
-            "didattica",
+            "imparare",
+            "pedagog",
+            "didattic",
             "apprendimento",
             "insegnamento",
             "curriculum",
@@ -83,6 +86,11 @@ _DOMAIN_ANCHORS: dict[str, dict[str, set[str]]] = {
             "scolastic",
             "docenti",
             "studenti",
+            "allievo",
+            "allievi",
+            "discenti",
+            "formazione",
+            "formativ",
             "university",
             "universita",
         },
@@ -103,6 +111,16 @@ _DOMAIN_ANCHORS: dict[str, dict[str, set[str]]] = {
             "enterprise",
             "b2b",
             "recruitment",
+            # Real-but-off-topic domains that slipped into the doc-3 pack:
+            # healthcare, e-voting, psychotherapy papers that mention AI but
+            # have nothing to do with education.
+            "sanit",
+            "clinic",
+            "diagnos",
+            "pazient",
+            "voto",
+            "elettoral",
+            "psicoterap",
         },
     },
 }
@@ -183,7 +201,14 @@ class SourcePackBuilder:
         failed than today.
         """
         topic = (topic or "").strip()
-        queries = self._build_queries(topic, section_titles)
+
+        # Domain first: anchored queries need it, and scoring reuses it.
+        topic_terms = content_tokens(topic)
+        for t in section_titles or []:
+            topic_terms |= content_tokens(t)
+        domain = self._detect_domain(topic_terms)
+
+        queries = self._build_queries(topic, section_titles, language, domain)
         per_query = max(10, target_size)
 
         raw: list[SourceDoc] = []
@@ -195,11 +220,6 @@ class SourcePackBuilder:
                     logger.warning(f"Source pack provider failed for '{query}': {e}")
 
         deduped = self.rag._deduplicate_sources(raw)
-
-        topic_terms = content_tokens(topic)
-        for t in section_titles or []:
-            topic_terms |= content_tokens(t)
-        domain = self._detect_domain(topic_terms)
 
         scored: list[tuple[float, SourceDoc]] = [
             (self._on_topic_score(src, topic_terms, domain), src) for src in deduped
@@ -244,12 +264,36 @@ class SourcePackBuilder:
 
     # ------------------------------------------------------------------ helpers
 
+    # Language-appropriate anchor terms appended to the topic as extra queries
+    # when a domain is detected — they pull domain-specific candidates that the
+    # bare topic query misses (the doc-3 pack was an "Italian AI" grab-bag
+    # because only the bare topic was queried).
+    _QUERY_ANCHORS: dict[str, dict[str, list[str]]] = {
+        "education": {
+            "it": ["istruzione scuola", "apprendimento studenti"],
+            "en": ["education school", "student learning"],
+        },
+    }
+
     @staticmethod
-    def _build_queries(topic: str, section_titles: list[str] | None) -> list[str]:
-        """Deterministic, deduped query set: topic + topic×section-title."""
+    def _build_queries(
+        topic: str,
+        section_titles: list[str] | None,
+        language: str = "en",
+        domain: str | None = None,
+    ) -> list[str]:
+        """Deterministic, deduped query set: topic + topic×anchor + topic×title.
+
+        Bounded: 1 bare topic + ≤2 anchored + ≤8 section-title queries ≤ 11.
+        """
         queries: list[str] = []
         if topic:
             queries.append(topic)
+        if domain is not None and topic:
+            lang_anchors = SourcePackBuilder._QUERY_ANCHORS.get(domain, {})
+            anchors = lang_anchors.get(language) or lang_anchors.get("en") or []
+            for anchor in anchors[:2]:
+                queries.append(f"{topic} {anchor}")
         for title in (section_titles or [])[:8]:
             title = (title or "").strip()
             if title:
@@ -276,10 +320,31 @@ class SourcePackBuilder:
         return None
 
     @staticmethod
+    def _term_hit(source_terms: set[str], markers: set[str]) -> bool:
+        """True if any (accent-folded) source term equals or starts with a marker.
+
+        Prefix-only (no substring) so stems like 'educativ' match 'educative'
+        without 'voto' matching inside unrelated words.
+        """
+        for term in source_terms:
+            folded = ascii_fold(term)
+            for marker in markers:
+                if folded == marker or folded.startswith(marker):
+                    return True
+        return False
+
+    @staticmethod
     def _on_topic_score(
         src: SourceDoc, topic_terms: set[str], domain: str | None
     ) -> float:
-        """Local topic-relevance score in [0,1] (no LLM / external call)."""
+        """Local topic-relevance score in [0,1] (no LLM / external call).
+
+        When a domain is detected, its anchor vocabulary is a HARD GATE: a
+        source with no anchor term in title+abstract scores 0.0 regardless of
+        raw token overlap. This is what stops "any Italian AI paper" (e-voting,
+        healthcare, psychotherapy) from riding in on the shared
+        intelligenza/artificiale/impatto tokens — the doc-3 failure mode.
+        """
         if not topic_terms:
             return 0.0
 
@@ -287,18 +352,25 @@ class SourcePackBuilder:
         if not source_terms:
             return 0.0
 
+        if domain is not None:
+            cfg = _DOMAIN_ANCHORS[domain]
+            # Venue counts toward the gate (an education/formazione journal is
+            # legitimate domain signal even when the abstract is missing) but
+            # NOT toward coverage, so it can't inflate the score.
+            gate_terms = source_terms | content_tokens(src.venue)
+            if not SourcePackBuilder._term_hit(gate_terms, cfg["anchor"]):
+                # Hard gate: a domain topic requires domain vocabulary.
+                return 0.0
+
         # Topic coverage: fraction of topic terms present in the source.
         coverage = len(topic_terms & source_terms) / len(topic_terms)
         score = coverage
 
         if domain is not None:
             cfg = _DOMAIN_ANCHORS[domain]
-            has_anchor = bool(source_terms & cfg["anchor"])
-            has_off_topic = bool(source_terms & cfg["off_topic"])
-            if has_anchor:
-                score += 0.15
-            if has_off_topic and not has_anchor:
-                # Real-but-off-topic (e.g. corporate-training for a school topic).
+            score += 0.15  # anchored (passed the gate above)
+            if SourcePackBuilder._term_hit(source_terms, cfg["off_topic"]):
+                # Anchored but tainted (e.g. "formazione aziendale").
                 score -= 0.4
 
         return max(0.0, min(1.0, score))

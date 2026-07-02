@@ -17,6 +17,8 @@ import re
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
+from app.services.ai_pipeline.text_utils import contains_concrete_evidence
+
 if TYPE_CHECKING:
     from app.services.ai_pipeline.source_pack import SourcePack
 
@@ -74,7 +76,11 @@ def evaluate_grounding(
     counted as ungrounded and reported in offending_keys.
 
     passed = grounding_rate >= min_grounding_rate AND (evidence satisfied), where
-    evidence = at least one grounded citation when require_evidence is set.
+    evidence (when require_evidence is set) means BOTH at least one grounded
+    citation AND a concrete numeric detail in the prose (percentages, decimals,
+    multi-digit numbers — citation years and section numbering excluded; see
+    text_utils.contains_concrete_evidence). The reason string distinguishes the
+    failure modes so regeneration feedback can be targeted.
     """
     content = section_result.get("content", "") or ""
     pack_scores = {ps.citation_key.lower(): ps.on_topic_score for ps in pack.sources}
@@ -94,7 +100,6 @@ def evaluate_grounding(
     # Rate over zero citations is vacuously 1.0; the evidence check (below)
     # still fails an uncited section when require_evidence is set.
     grounding_rate = 1.0 if total == 0 else grounded / total
-    has_evidence = grounded >= 1
 
     passed = grounding_rate >= min_grounding_rate
     reason = ""
@@ -103,9 +108,16 @@ def evaluate_grounding(
             f"grounding rate {grounding_rate:.2f} < {min_grounding_rate:.2f}; "
             f"ungrounded: {sorted(set(offending))[:10]}"
         )
-    elif require_evidence and not has_evidence:
-        passed = False
-        reason = "no grounded citation / evidence in section"
+    elif require_evidence:
+        if grounded < 1:
+            passed = False
+            reason = "no grounded citation in section"
+        elif not contains_concrete_evidence(content):
+            passed = False
+            reason = (
+                "no concrete evidence in section (no statistic, numeric "
+                "finding, or specific figure outside citations/numbering)"
+            )
 
     return GroundingResult(
         passed=passed,

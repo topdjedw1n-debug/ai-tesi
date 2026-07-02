@@ -80,9 +80,12 @@ class PromptBuilder:
                 "- NEVER invent, alter, or cite any source that is not in that "
                 "list. If a statement cannot be supported by a listed source, "
                 "write it WITHOUT a citation — do not fabricate one.\n"
-                "- Ground at least one concrete example, statistic, study "
-                "finding, or named real system/policy (drawn from a listed "
-                "source) in this section.\n"
+                "- Include at least one concrete detail from the listed sources: "
+                "a statistic, numeric finding, named system, or specific study "
+                "result mentioned in their titles/abstracts.\n"
+                "- NEVER invent numeric data. Use numbers only if they appear in "
+                "the sources; otherwise state the source's concrete qualitative "
+                "finding instead.\n"
             )
             style_rules = (
                 "- Vary sentence length: mix short, direct sentences with longer "
@@ -90,6 +93,10 @@ class PromptBuilder:
                 "- Do NOT use the 'balanced approach' / 'double-edged sword' "
                 "refrain, and do NOT stack connectives (moreover, furthermore, "
                 "in conclusion) in every paragraph.\n"
+                "- Limit hedging: verbs like 'può'/'potrebbe' (or 'may'/'might') "
+                "at most once per paragraph. Where a listed source supports a "
+                "claim, state it assertively with its citation instead of "
+                "hedging.\n"
                 "- Do NOT restate the introduction or pad with generic filler; "
                 "every paragraph must add specific content.\n"
             )

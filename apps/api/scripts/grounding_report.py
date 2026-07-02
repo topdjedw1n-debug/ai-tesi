@@ -34,6 +34,7 @@ from app.services.quality_metrics import (  # noqa: E402
     citation_grounding_rate,
     connector_cliche_density,
     evidence_presence,
+    hedging_density,
     outline_adherence,
     sentence_length_stats,
 )
@@ -76,6 +77,7 @@ async def _build_report(document_id: int) -> dict:
                 "sentence_stats": sentence_length_stats(content),
                 "burstiness": burstiness(content),
                 "connector_cliche": connector_cliche_density(content, language),
+                "hedging": hedging_density(content, language),
                 "has_evidence": evidence_presence(content, pack),
             }
             if pack is not None:
@@ -159,6 +161,7 @@ def _print_report(report: dict, artifact_path: str) -> None:
             f"[{r['section_index']:>2}] {str(r['title'])[:40]:<40} "
             f"grounding={gr} burst={r['burstiness']} "
             f"cliche/1k={r['connector_cliche']['per_1000_words']} "
+            f"hedge/1k={r['hedging']['per_1000_words']} "
             f"evidence={r['has_evidence']}"
         )
     print("-" * 72)

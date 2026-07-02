@@ -133,3 +133,103 @@ def test_prompt_block_uses_keys():
     assert "[Rossi2021]" in block
     assert "AI tutoring systems" in block
     assert pack.by_key("rossi2021") is not None  # case-insensitive lookup
+
+
+# ---------------------------------------------------------------------------
+# Fix-wave 2: anchor GATE regression fixtures — the REAL doc-3 offenders.
+# ---------------------------------------------------------------------------
+
+_EDU_TOPIC = "L'impatto dell'intelligenza artificiale sull'istruzione"
+
+
+def _score_for_edu_topic(src):
+    from app.services.ai_pipeline.text_utils import content_tokens
+
+    topic_terms = content_tokens(_EDU_TOPIC)
+    domain = SourcePackBuilder._detect_domain(topic_terms)
+    assert domain == "education"
+    return SourcePackBuilder._on_topic_score(src, topic_terms, domain)
+
+
+def test_gate_rejects_evoting_source():
+    src = SourceDoc(
+        title="impatto dell'intelligenza artificiale sui sistemi di voto "
+        "elettronico nell'epoca delle crisi globali",
+        authors=["Bertoni"],
+        year=2026,
+        abstract="La monografia analizza l'impatto dell'intelligenza artificiale "
+        "sui sistemi di voto elettronico, ricadute normative",
+    )
+    assert _score_for_edu_topic(src) == 0.0
+
+
+def test_gate_rejects_healthcare_source():
+    src = SourceDoc(
+        title="Analisi dei fattori determinanti l'adozione dell'Intelligenza "
+        "Artificiale in sanità",
+        authors=["Domenico"],
+        year=2024,
+        abstract="adozione di strumenti di intelligenza artificiale nelle "
+        "aziende sanitarie",
+    )
+    assert _score_for_edu_topic(src) == 0.0
+
+
+def test_gate_rejects_neuro_diagnosis_source():
+    src = SourceDoc(
+        title="Il contributo dell'intelligenza artificiale nella diagnosi dei "
+        "disturbi neurodegenerativi",
+        authors=["Nappo"],
+        year=2024,
+        abstract="patologie neurodegenerative, emergenza assistenziale",
+    )
+    assert _score_for_edu_topic(src) == 0.0
+
+
+def test_gate_passes_formazione_source():
+    src = SourceDoc(
+        title="Il potere di imparare: navigare la formazione nell'era "
+        "dell'intelligenza artificiale",
+        authors=["Vitolo"],
+        year=2026,
+        abstract="",
+    )
+    assert _score_for_edu_topic(src) >= 0.35
+
+
+def test_gate_counts_venue_as_anchor_signal():
+    # Moscatelli-class: no anchor in title/abstract, but a formazione journal.
+    src = SourceDoc(
+        title="#openAIF: Coltivare un Nuovo Umanesimo nell'Era "
+        "dell'Intelligenza Artificiale",
+        authors=["Moscatelli"],
+        year=2024,
+        abstract="",
+        venue="FOR - Rivista per la formazione",
+    )
+    assert _score_for_edu_topic(src) > 0.0
+
+
+def test_anchored_but_tainted_stays_below_threshold():
+    # Yesterday's corporate-training case: anchored (formazione) but off-topic.
+    src = SourceDoc(
+        title="L'impatto dell'IA nella formazione aziendale: tra etica e "
+        "adattamento",
+        authors=["Vittori"],
+        year=2026,
+        abstract="formazione aziendale con IA per dipendenti",
+    )
+    score = _score_for_edu_topic(src)
+    assert 0.0 <= score < 0.35
+
+
+def test_build_queries_includes_language_anchors_and_is_bounded():
+    qs = SourcePackBuilder._build_queries(
+        _EDU_TOPIC, ["Introduzione", "Futuro"], "it", "education"
+    )
+    assert any("istruzione scuola" in q for q in qs)
+    assert any("apprendimento studenti" in q for q in qs)
+    assert len(qs) <= 11
+    # No domain -> no anchored queries; legacy 2-arg-style call still works.
+    qs_plain = SourcePackBuilder._build_queries(_EDU_TOPIC, None)
+    assert qs_plain == [_EDU_TOPIC]

@@ -31,6 +31,13 @@ os.environ.setdefault(
 # mock stripe.Webhook.construct_event; the endpoint only needs non-None.
 os.environ.setdefault("STRIPE_SECRET_KEY", "sk_test_ci_default")
 os.environ.setdefault("STRIPE_WEBHOOK_SECRET", "whsec_test_ci_default")
+# Source grounding must stay OFF in tests unless a test enables it explicitly
+# (init kwargs beat env vars). A developer's .env legitimately turns it on for
+# real runs — without this guard, pipeline tests that build Settings() from
+# .env start hitting LIVE Crossref/OpenAlex to build source packs (observed:
+# 19-minute suite, 8 network-dependent failures).
+os.environ.setdefault("SOURCE_GROUNDING_ENABLED", "false")
+os.environ.setdefault("GROUNDING_GATE_ENABLED", "false")
 
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import NullPool
