@@ -471,7 +471,7 @@ async def _check_ai_detection_quality(
                     provider=provider,
                     model=model,
                     target_ai_score=threshold - 5.0,  # Aim 5% below threshold
-                    max_attempts=2,
+                    max_attempts=3,
                     preserve_citations=True,
                     language=language,
                 )

@@ -20,25 +20,22 @@ logger = logging.getLogger(__name__)
 # ladder silently sent IDENTICAL requests on those models (doc-10: repeat
 # passes could only regress to the model's default — most detectable — style).
 # Varying the instruction is the knob that still works on every model.
+#
+# MEASURED 03.07.2026 (doc 12, gpt-4 self-rescue): the aggressive v1
+# directives ("aggressively vary sentence length...") RAISED GPTZero
+# 56.4 -> 96.7 on the first pass — instructed "unusualness" reads as MORE
+# AI-like, not less. Directives are now deliberately mild; the plain prompt
+# (variant 0) is the doc-9-proven behavior.
 STYLE_DIRECTIVES = [
     "",
+    "",
     (
-        "- Aggressively vary sentence length: mix short declarative sentences "
-        "with longer ones; break up any uniform rhythm\n"
-        "- Replace formulaic connectors (moreover, furthermore, in conclusion, "
-        "additionally) with plainer or more varied transitions\n"
+        "- Where it reads naturally, prefer slightly simpler wording over "
+        "polished formulations\n"
     ),
     (
-        "- Restructure paragraphs: change where sentences begin, merge or "
-        "split them, reorder clauses within sentences\n"
-        "- Prefer concrete, specific phrasing over smooth generalities; keep "
-        "occasional slight informality a careful human writer would allow\n"
-    ),
-    (
-        "- Rewrite each sentence from scratch expressing the same idea, as a "
-        "different author with a distinct personal style would\n"
-        "- Avoid balanced two-part sentence constructions; let some sentences "
-        "run uneven\n"
+        "- You may merge or split an occasional sentence where a careful "
+        "human editor would\n"
     ),
 ]
 
