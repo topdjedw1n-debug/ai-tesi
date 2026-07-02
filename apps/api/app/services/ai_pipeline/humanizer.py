@@ -186,18 +186,26 @@ class Humanizer:
 
             client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
-            response = await client.chat.completions.create(
-                model=model,
-                messages=[
+            request_kwargs: dict[str, Any] = {
+                "model": model,
+                "messages": [
                     {
                         "role": "system",
                         "content": "You are an expert at paraphrasing academic text while maintaining meaning and preserving citation markers.",
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=4000,
-                temperature=temperature,
-            )
+            }
+            if model.startswith("gpt-5"):
+                # gpt-5 family: max_tokens is rejected (400) — use
+                # max_completion_tokens (covers reasoning tokens too, hence the
+                # higher cap); temperature is not supported.
+                request_kwargs["max_completion_tokens"] = 8000
+            else:
+                request_kwargs["max_tokens"] = 4000
+                request_kwargs["temperature"] = temperature
+
+            response = await client.chat.completions.create(**request_kwargs)
 
             if self.usage_tracker is not None and response.usage:
                 self.usage_tracker.add(

@@ -116,7 +116,7 @@ class DocumentCreate(DocumentBase):
 
         # Valid models per provider (keep in sync with /generate/models and
         # cost_estimator pricing tables)
-        openai_models = ["gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
+        openai_models = ["gpt-5.5", "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
         anthropic_models = [
             "claude-opus-4-8",
             "claude-sonnet-5",

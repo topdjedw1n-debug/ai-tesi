@@ -448,18 +448,26 @@ class AIService:
 
             client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
-            response = await client.chat.completions.create(
-                model=model,
-                messages=[
+            request_kwargs: dict[str, Any] = {
+                "model": model,
+                "messages": [
                     {
                         "role": "system",
                         "content": "You are an expert academic writer specializing in thesis and research paper generation.",
                     },
                     {"role": "user", "content": prompt},
                 ],
-                max_tokens=4000,
-                temperature=0.7,
-            )
+            }
+            if model.startswith("gpt-5"):
+                # gpt-5 family: max_tokens is rejected (400) — use
+                # max_completion_tokens, which also covers internal reasoning
+                # tokens (hence the higher cap); temperature is not supported.
+                request_kwargs["max_completion_tokens"] = 8000
+            else:
+                request_kwargs["max_tokens"] = 4000
+                request_kwargs["temperature"] = 0.7
+
+            response = await client.chat.completions.create(**request_kwargs)
 
             content = response.choices[0].message.content
             tokens_used = response.usage.total_tokens if response.usage else 0

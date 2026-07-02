@@ -15,6 +15,7 @@ PRICING_INPUT = {
         "gpt-4": 30.0,  # $30 per 1M input tokens
         "gpt-4-turbo": 10.0,  # $10 per 1M input tokens
         "gpt-3.5-turbo": 0.5,  # $0.5 per 1M input tokens
+        "gpt-5.5": 5.0,  # $5 per 1M input tokens
     },
     "anthropic": {
         "claude-3-5-sonnet-20241022": 3.0,  # $3 per 1M input tokens
@@ -32,6 +33,7 @@ PRICING_OUTPUT = {
         "gpt-4": 60.0,  # $60 per 1M output tokens
         "gpt-4-turbo": 30.0,  # $30 per 1M output tokens
         "gpt-3.5-turbo": 1.5,  # $1.5 per 1M output tokens
+        "gpt-5.5": 30.0,  # $30 per 1M output tokens
     },
     "anthropic": {
         "claude-3-5-sonnet-20241022": 15.0,  # $15 per 1M output tokens

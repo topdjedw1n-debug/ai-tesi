@@ -3,7 +3,7 @@ AI generation endpoints
 """
 
 import logging
-from datetime import date, datetime
+from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
@@ -105,6 +105,7 @@ async def list_available_models() -> dict[str, list[dict[str, Any]]]:
     """List available AI models"""
     return {
         "openai": [
+            {"id": "gpt-5.5", "name": "GPT-5.5", "max_tokens": 8000},
             {"id": "gpt-4", "name": "GPT-4", "max_tokens": 4000},
             {"id": "gpt-4-turbo", "name": "GPT-4 Turbo", "max_tokens": 8000},
             {"id": "gpt-3.5-turbo", "name": "GPT-3.5 Turbo", "max_tokens": 4000},
@@ -300,7 +301,11 @@ async def _enforce_generation_gate(
             ),
         )
 
-    today_start = datetime.combine(date.today(), datetime.min.time())
+    # UTC day boundary: started_at is written with utcnow(), so "today" must
+    # be the UTC date too. date.today() (local) silently reset the daily
+    # quota at local midnight — a 3h window (Kyiv) where the cap didn't count
+    # today's UTC jobs (caught by the quota tests run just after midnight).
+    today_start = datetime.combine(datetime.utcnow().date(), datetime.min.time())
 
     jobs_today_result = await db.execute(
         select(func.count(AIGenerationJob.id)).where(
