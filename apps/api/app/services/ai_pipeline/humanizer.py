@@ -44,6 +44,34 @@ STYLE_DIRECTIVES = [
 # variants reuse the pool and rely on model stochasticity for spread.
 STYLE_VARIANT_POOL = [0, 2, 3]
 
+# Corruption guard for best-of-N (Masters-2 failure): garbled model output
+# (non-words, stray symbols) reads as impossibly "human" to the detector
+# (0.3-3.4%), so score-only selection crowns garbage. Two cheap signals:
+# characters outside the expected academic-text classes, and alphabetic
+# "words" with no vowels (real Italian/English words virtually always have
+# one). Thresholds are deliberately loose — this must only catch wreckage.
+_ALLOWED_CHAR_RE = re.compile(
+    "[A-Za-zÀ-ÖØ-öø-ÿĀ-ž0-9\\s.,;:!?()\\[\\]'\"«»“”‘’" "—–\\-⟦⟧%€$§/&+*=@#_…·]"
+)
+_VOWELS = set("aeiouyàèéìíòóùúäëïöüáâêîôû")
+_GARBLED_CHAR_RATIO = 0.02
+_GARBLED_VOWELLESS_RATIO = 0.15
+
+
+def _looks_garbled(text: str) -> bool:
+    """True when ``text`` is likely corrupted model output, not prose."""
+    if not text or not text.strip():
+        return True
+    bad_chars = sum(1 for ch in text if not _ALLOWED_CHAR_RE.match(ch))
+    if bad_chars / len(text) > _GARBLED_CHAR_RATIO:
+        return True
+    words = re.findall(r"[A-Za-zÀ-ÖØ-öø-ÿĀ-ž]{4,}", text)
+    if len(words) >= 20:
+        vowelless = sum(1 for w in words if not (set(w.lower()) & _VOWELS))
+        if vowelless / len(words) > _GARBLED_VOWELLESS_RATIO:
+            return True
+    return False
+
 
 ENGLISH_STOPWORDS = {
     "the",
@@ -391,7 +419,11 @@ class Humanizer:
 
         ai_checker = AIDetectionChecker()
         best_of_n = max(1, settings.HUMANIZER_BEST_OF_N)
-        temperatures = [0.9, 1.0, 1.1, 1.2]  # Progressive increase
+        # Capped at 1.0: at 1.1+ gpt-4 on long non-English text degrades into
+        # garbled non-words that score impossibly "human" (0.3-3.4% on the
+        # detector) and win best-of-N, then die at the panel (Masters-2 run).
+        # Winning rescues in Phase 2/4 all happened at 0.9-1.0.
+        temperatures = [0.9, 0.95, 1.0, 1.0]
         detector_calls = 0
         variant_scores: list[list[float]] = []
 
@@ -463,12 +495,27 @@ class Humanizer:
                 )
                 break
 
+            # Reject corrupted variants BEFORE picking the lowest score —
+            # garbage beats real prose on the detector every time.
+            scored_pairs = [
+                (v, s) for v, s in zip(variants, scores, strict=True) if s is not None
+            ]
+            valid_pairs = [(v, s) for v, s in scored_pairs if not _looks_garbled(v)]
+            if len(valid_pairs) < len(scored_pairs):
+                logger.warning(
+                    f"Rejected {len(scored_pairs) - len(valid_pairs)} garbled "
+                    f"variant(s) on attempt {attempt + 1} (scores: "
+                    f"{[round(s, 1) for v, s in scored_pairs if _looks_garbled(v)]})"
+                )
+            if not valid_pairs:
+                logger.warning(
+                    f"All variants garbled on attempt {attempt + 1}; keeping "
+                    f"previous best and retrying."
+                )
+                continue
+
             attempt_best_text, attempt_best_score = min(
-                (
-                    (v, s)
-                    for v, s in zip(variants, scores, strict=True)
-                    if s is not None
-                ),
+                valid_pairs,
                 key=lambda pair: pair[1],
             )
             logger.info(

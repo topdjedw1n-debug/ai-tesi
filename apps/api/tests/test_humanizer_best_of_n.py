@@ -5,7 +5,7 @@ Both the humanizer's provider call and the AI detector are mocked, so these
 tests exercise the selection logic only (no network, no real scoring).
 """
 
-from unittest.mock import AsyncMock
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -141,3 +141,87 @@ async def test_returns_best_when_target_never_reached(monkeypatch):
 
     assert (text, score) == ("h3", 50.0)
     assert h.humanize.await_count == 3
+
+
+# ----------------------------------------------------------------------
+# Corruption guard (Masters-2: garbled gpt-4 output at temp>=1.1 scored
+# 0.3-3.4% "human" and won best-of-N, then died at the panel)
+# ----------------------------------------------------------------------
+
+
+def test_looks_garbled_rejects_symbol_soup():
+    from app.services.ai_pipeline.humanizer import _looks_garbled
+
+    garbage = (
+        "Il riscaldamento globale ⊄⊕ ha ∆∆ effetti ¤¤ significativi "
+        "≈≈ sull'agricoltura ⊗⊗ e ∞∞ sulle ††† risorse ▓▓ idriche ��"
+    )
+    assert _looks_garbled(garbage) is True
+
+
+def test_looks_garbled_rejects_vowelless_nonwords():
+    from app.services.ai_pipeline.humanizer import _looks_garbled
+
+    nonwords = " ".join(["asdkj fjqw pzkr mnbv qwrtz xcvbn"] * 10)
+    assert _looks_garbled(nonwords) is True
+
+
+def test_looks_garbled_accepts_real_italian_prose():
+    from app.services.ai_pipeline.humanizer import _looks_garbled
+
+    prose = (
+        "Il riscaldamento globale rappresenta una delle sfide più gravi "
+        "per i paesi del Medio Oriente [Rossi, 2024]. Lo stress idrico, "
+        "già critico, peggiora — e la sicurezza alimentare ne risente "
+        "(circa il 60% del fabbisogno è importato). «La regione», scrive "
+        "l'autore, “resta la più esposta”. "
+    ) * 10
+    assert _looks_garbled(prose) is False
+
+
+def test_looks_garbled_accepts_frozen_placeholders():
+    from app.services.ai_pipeline.humanizer import _looks_garbled
+
+    text = (
+        "La letteratura recente ⟦C1⟧ conferma questa tendenza, e i dati "
+        "⟦C2⟧ mostrano un peggioramento costante delle riserve idriche "
+        "regionali nel corso dell'ultimo decennio. "
+    ) * 10
+    assert _looks_garbled(text) is False
+
+
+@pytest.mark.asyncio
+async def test_best_of_n_skips_garbled_variant(monkeypatch):
+    """The garbled variant scores lowest but must NOT be selected."""
+    from app.core.config import settings as real_settings
+    from app.services.ai_pipeline.humanizer import Humanizer
+
+    monkeypatch.setattr(real_settings, "HUMANIZER_BEST_OF_N", 3)
+
+    clean = (
+        "Un testo accademico perfettamente leggibile sulla transizione "
+        "energetica europea e le sue conseguenze economiche regionali. "
+    ) * 10
+    garbled = "zxcqw ⊗⊗ pfkrt ∆∆ mnvbz ¤¤ " * 40
+
+    humanizer = Humanizer()
+    variants = iter([garbled, clean, clean])
+    humanizer.humanize = AsyncMock(side_effect=lambda **kw: next(variants))
+
+    scores = {garbled: 0.3, clean: 28.0}
+
+    async def fake_check(text):
+        return {"checked": True, "ai_probability": scores.get(text, 85.0)}
+
+    with patch("app.services.ai_detection_checker.AIDetectionChecker") as checker_cls:
+        checker_cls.return_value.check_text = AsyncMock(side_effect=fake_check)
+        best_text, best_score = await humanizer.humanize_multi_pass(
+            text="testo originale con punteggio alto " * 20,
+            provider="anthropic",
+            model="claude-opus-4-8",
+            target_ai_score=35.0,
+            max_attempts=1,
+        )
+
+    assert best_text == clean
+    assert best_score == 28.0
