@@ -279,6 +279,11 @@ async def test_humanize_citations_lost_returns_original(
 
 @pytest.mark.asyncio
 @patch("app.core.config.settings.ANTHROPIC_API_KEY", "test-anthropic-key")
+# Local .env may set the cross-model humanizer override — neutralize it so
+# the test exercises the writer-provider path it claims to (and never
+# escapes the anthropic mock into a real OpenAI call).
+@patch("app.core.config.settings.HUMANIZER_PROVIDER", None)
+@patch("app.core.config.settings.HUMANIZER_MODEL", None)
 @patch("anthropic.AsyncAnthropic")
 async def test_humanize_anthropic(
     mock_anthropic_class, humanizer_instance, mock_anthropic_response
@@ -379,6 +384,9 @@ def test_humanization_prompt_style_directive():
 
 
 @pytest.mark.asyncio
+# This test asserts the legacy serial path — pin N=1 regardless of the
+# HUMANIZER_BEST_OF_N default (best-of-N has its own test module).
+@patch("app.core.config.settings.HUMANIZER_BEST_OF_N", 1)
 async def test_multi_pass_varies_style_directive(humanizer_instance):
     """Each multi-pass attempt sends a DIFFERENT style variant (temperature
     is rejected by Claude 4+/5 and gpt-5, so the directive is the only knob

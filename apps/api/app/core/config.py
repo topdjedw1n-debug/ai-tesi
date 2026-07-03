@@ -69,8 +69,11 @@ class Settings(BaseSettings):
     # Format: "provider:model,provider:model,..."
     # NOTE: claude-3-5-sonnet-20241022 was RETIRED by Anthropic (404) — the
     # doc-10 run died on it; keep only living models here.
+    # Opus leads the chain per Phase 4c: on Compilatio (the real submission
+    # detector) Opus texts score 19-21% vs gpt-4's 53% — the inverse of what
+    # GPTZero predicted (MODEL-MATRIX-EXPERIMENT.md, Фаза 4c).
     AI_FALLBACK_CHAIN: str = (
-        "openai:gpt-4," "openai:gpt-3.5-turbo," "anthropic:claude-sonnet-5"
+        "anthropic:claude-opus-4-8," "openai:gpt-4," "anthropic:claude-sonnet-5"
     )
 
     # Cross-model humanization (doc-10 finding: a model paraphrasing its own
@@ -84,13 +87,16 @@ class Settings(BaseSettings):
     # Citation freezing: before paraphrasing, swap citation markers and long
     # quotations for inert placeholders, then substitute the originals back —
     # a hard guarantee instead of the legacy "≥80% survived or roll back".
-    # Default False until validated on a real run (plan Stage 3).
-    HUMANIZER_FREEZE_CITATIONS: bool = False
+    # ON by default since Phase 4/4b: citations intact and 0 leaked
+    # placeholders on all 6 experiment runs.
+    HUMANIZER_FREEZE_CITATIONS: bool = True
 
     # Best-of-N: per rescue attempt, generate this many humanized variants in
     # parallel (varying the style directive) and keep the lowest-scoring one.
-    # 1 = legacy single-variant serial behavior (nothing changes).
-    HUMANIZER_BEST_OF_N: int = 1
+    # 1 = legacy single-variant serial behavior. 3 since Phase 4 (Opus raw
+    # 96.5 → 26.0 vs 79.0 serial); only fires when the AI gate fails, so it
+    # triples rescue cost, not baseline cost.
+    HUMANIZER_BEST_OF_N: int = 3
 
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
     # USD cents (pricing tables are USD); the € shown in the manager UI is a
