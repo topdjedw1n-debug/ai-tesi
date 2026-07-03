@@ -39,6 +39,12 @@ STYLE_DIRECTIVES = [
     ),
 ]
 
+# Best-of-N draws its variants from the directives that actually differ:
+# index 1 is an empty duplicate of 0, so the meaningful pool is 0/2/3. N>3
+# variants reuse the pool and rely on model stochasticity for spread.
+STYLE_VARIANT_POOL = [0, 2, 3]
+
+
 ENGLISH_STOPWORDS = {
     "the",
     "and",
@@ -148,12 +154,23 @@ class Humanizer:
                 else []
             )
 
+            # Freeze the evidence base: swap citation markers and long
+            # quotations for inert placeholders so the model has nothing to
+            # reword. Restored verbatim after the rewrite; a dropped
+            # placeholder rejects the attempt (see below).
+            freeze_mapping: dict[str, str] = {}
+            prompt_text = text
+            if preserve_citations and settings.HUMANIZER_FREEZE_CITATIONS:
+                from app.services.ai_pipeline.citation_freezer import CitationFreezer
+
+                prompt_text, freeze_mapping = CitationFreezer.freeze(text)
+
             # Build humanization prompt
             directive = STYLE_DIRECTIVES[
                 min(max(style_variant, 0), len(STYLE_DIRECTIVES) - 1)
             ]
             prompt = PromptBuilder.build_humanization_prompt(
-                text, preserve_citations, language, style_directive=directive
+                prompt_text, preserve_citations, language, style_directive=directive
             )
 
             # Call AI provider with higher temperature
@@ -163,6 +180,22 @@ class Humanizer:
                 prompt=prompt,
                 temperature=self.temperature,
             )
+
+            # Restore frozen spans. If any placeholder was dropped or mangled,
+            # the rewrite corrupted the evidence base — reject it outright.
+            if freeze_mapping:
+                from app.services.ai_pipeline.citation_freezer import CitationFreezer
+
+                if not CitationFreezer.all_present(humanized_text, freeze_mapping):
+                    missing = [
+                        key for key in freeze_mapping if key not in humanized_text
+                    ]
+                    logger.error(
+                        f"Frozen placeholders dropped ({len(missing)}/"
+                        f"{len(freeze_mapping)}). Returning original text."
+                    )
+                    return text
+                humanized_text = CitationFreezer.restore(humanized_text, freeze_mapping)
 
             # Language drift check (only for non-English targets)
             if language != "en":
@@ -308,6 +341,13 @@ class Humanizer:
             logger.error(f"Anthropic API error: {e}")
             raise
 
+    async def _score(self, checker: Any, text: str) -> float | None:
+        """AI-detection score for ``text``; None if the detector didn't run."""
+        result = await checker.check_text(text)
+        if not result["checked"]:
+            return None
+        return result["ai_probability"]
+
     async def humanize_multi_pass(
         self,
         text: str,
@@ -317,12 +357,18 @@ class Humanizer:
         max_attempts: int = 2,
         preserve_citations: bool = True,
         language: str = "en",
+        score_trace: dict[str, Any] | None = None,
     ) -> tuple[str, float]:
         """
-        Multi-pass humanization to achieve target AI detection score
+        Multi-pass humanization to achieve target AI detection score.
 
-        Iteratively humanizes text with increasing temperature until
-        AI detection score drops below target threshold.
+        Detector-in-the-loop rescue. Each attempt rewrites the best text so
+        far and measures the result; the lowest-scoring output is carried
+        forward. With HUMANIZER_BEST_OF_N > 1 the attempt fans out into N
+        parallel variants (different style directives) and keeps the best —
+        the "poor-man's" version of the token-level detector-in-the-loop the
+        literature uses (HUMANIZATION-RESEARCH.md). N = 1 is the legacy
+        single-variant path.
 
         Args:
             text: Original text to humanize
@@ -332,71 +378,119 @@ class Humanizer:
             max_attempts: Max humanization attempts (default: 2)
             preserve_citations: Whether to preserve citation markers
             language: Target language code for the output
+            score_trace: Optional dict; receives best_of_n, detector_calls and
+                per-attempt variant scores so an experiment can be measured
+                (detector spend is otherwise invisible — cost_estimator.py).
 
         Returns:
             Tuple of (humanized_text, final_ai_score)
         """
+        import asyncio
+
         from app.services.ai_detection_checker import AIDetectionChecker
 
         ai_checker = AIDetectionChecker()
-        current_text = text
+        best_of_n = max(1, settings.HUMANIZER_BEST_OF_N)
         temperatures = [0.9, 1.0, 1.1, 1.2]  # Progressive increase
+        detector_calls = 0
+        variant_scores: list[list[float]] = []
+
+        # Baseline score of the incoming text.
+        best_score = await self._score(ai_checker, text)
+        detector_calls += 1
+        if best_score is None:
+            logger.warning(
+                "AI detection unavailable on initial check. Using text as-is."
+            )
+            if score_trace is not None:
+                score_trace["detector_calls"] = detector_calls
+            return text, 100.0
+
+        best_text = text
+        current_text = text
 
         for attempt in range(max_attempts):
-            # Check current AI score
-            detection_result = await ai_checker.check_text(current_text)
-
-            if not detection_result["checked"]:
-                logger.warning(
-                    f"AI detection failed on attempt {attempt + 1}: "
-                    f"{detection_result.get('error', 'Unknown')}. Using text as-is."
+            if best_score <= target_ai_score:
+                logger.info(
+                    f"✅ Target AI score achieved: {best_score:.1f}% "
+                    f"<= {target_ai_score:.1f}%"
                 )
                 break
 
-            current_ai_score = detection_result["ai_probability"]
-            provider_used = detection_result.get("provider", "unknown")
-            logger.info(
-                f"Humanization attempt {attempt + 1}/{max_attempts}: "
-                f"AI score = {current_ai_score:.1f}% (provider: {provider_used})"
-            )
-
-            # Check if target achieved
-            if current_ai_score <= target_ai_score:
-                logger.info(
-                    f"✅ Target AI score achieved: {current_ai_score:.1f}% <= {target_ai_score:.1f}%"
-                )
-                return current_text, current_ai_score
-
-            # Vary BOTH knobs per attempt: temperature (only honored by
-            # models that still accept it) and the style directive (works
-            # everywhere — the only real variation on Claude 4+/5 / gpt-5).
             temp = temperatures[min(attempt, len(temperatures) - 1)]
             self.temperature = temp
+            # One style directive per variant, drawn from the meaningful pool
+            # (single-variant path keeps the legacy attempt+1 directive).
+            if best_of_n == 1:
+                variant_styles = [attempt + 1]
+            else:
+                variant_styles = [
+                    STYLE_VARIANT_POOL[i % len(STYLE_VARIANT_POOL)]
+                    for i in range(best_of_n)
+                ]
             logger.info(
-                f"Re-humanizing with temperature={temp}, "
-                f"style_variant={attempt + 1} (attempt {attempt + 1}/{max_attempts})"
+                f"Attempt {attempt + 1}/{max_attempts}: temperature={temp}, "
+                f"{len(variant_styles)} variant(s), styles={variant_styles}"
             )
 
-            current_text = await self.humanize(
-                text=current_text,
-                provider=provider,
-                model=model,
-                preserve_citations=preserve_citations,
-                language=language,
-                style_variant=attempt + 1,
+            # Generate the variants in parallel.
+            variants = await asyncio.gather(
+                *(
+                    self.humanize(
+                        text=current_text,
+                        provider=provider,
+                        model=model,
+                        preserve_citations=preserve_citations,
+                        language=language,
+                        style_variant=sv,
+                    )
+                    for sv in variant_styles
+                )
             )
 
-        # Max attempts reached - check final score
-        final_detection = await ai_checker.check_text(current_text)
-        final_score = (
-            final_detection.get("ai_probability", 100.0)
-            if final_detection["checked"]
-            else 100.0
-        )
+            # Score them in parallel, then keep the lowest.
+            scores = await asyncio.gather(
+                *(self._score(ai_checker, v) for v in variants)
+            )
+            detector_calls += len(scores)
 
-        logger.warning(
-            f"⚠️ Max humanization attempts ({max_attempts}) reached. "
-            f"Final AI score: {final_score:.1f}%"
-        )
+            attempt_scores = [s for s in scores if s is not None]
+            variant_scores.append(attempt_scores)
+            if not attempt_scores:
+                logger.warning(
+                    f"AI detection unavailable for all variants on attempt "
+                    f"{attempt + 1}. Stopping."
+                )
+                break
 
-        return current_text, final_score
+            attempt_best_text, attempt_best_score = min(
+                (
+                    (v, s)
+                    for v, s in zip(variants, scores, strict=True)
+                    if s is not None
+                ),
+                key=lambda pair: pair[1],
+            )
+            logger.info(
+                f"Attempt {attempt + 1} best variant: "
+                f"{attempt_best_score:.1f}% (was {best_score:.1f}%)"
+            )
+
+            if attempt_best_score < best_score:
+                best_text, best_score = attempt_best_text, attempt_best_score
+            # Carry the attempt's best forward even if it didn't beat the
+            # running best — gives the next pass fresh material to work on.
+            current_text = attempt_best_text
+
+        if best_score > target_ai_score:
+            logger.warning(
+                f"⚠️ Rescue exhausted after {max_attempts} attempt(s). "
+                f"Best AI score: {best_score:.1f}%"
+            )
+
+        if score_trace is not None:
+            score_trace["best_of_n"] = best_of_n
+            score_trace["detector_calls"] = detector_calls
+            score_trace["variant_scores"] = variant_scores
+
+        return best_text, best_score

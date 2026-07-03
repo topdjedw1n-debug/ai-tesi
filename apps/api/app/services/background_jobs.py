@@ -474,6 +474,7 @@ async def _check_ai_detection_quality(
                     max_attempts=3,
                     preserve_citations=True,
                     language=language,
+                    score_trace=score_trace,
                 )
 
                 ai_score = final_ai_score

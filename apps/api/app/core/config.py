@@ -81,6 +81,17 @@ class Settings(BaseSettings):
     HUMANIZER_PROVIDER: str | None = None  # "openai" | "anthropic"
     HUMANIZER_MODEL: str | None = None
 
+    # Citation freezing: before paraphrasing, swap citation markers and long
+    # quotations for inert placeholders, then substitute the originals back —
+    # a hard guarantee instead of the legacy "≥80% survived or roll back".
+    # Default False until validated on a real run (plan Stage 3).
+    HUMANIZER_FREEZE_CITATIONS: bool = False
+
+    # Best-of-N: per rescue attempt, generate this many humanized variants in
+    # parallel (varying the style directive) and keep the lowest-scoring one.
+    # 1 = legacy single-variant serial behavior (nothing changes).
+    HUMANIZER_BEST_OF_N: int = 1
+
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
     # USD cents (pricing tables are USD); the € shown in the manager UI is a
     # display conversion using this rate.
