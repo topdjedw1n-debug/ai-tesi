@@ -10,6 +10,17 @@ from importlib import import_module
 
 import pytest
 
+# SYSTEMIC .env ISOLATION: point Settings' env_file at /dev/null so the test
+# process NEVER reads apps/api/.env. Every setdefault below used to be a
+# point-fix against one .env leak (live Crossref, live Anthropic fallback...);
+# the last straw was HUMANIZER_PROVIDER/HUMANIZER_MODEL from a developer's
+# .env redirecting test_humanize_anthropic past its mock into a REAL paid
+# OpenAI gpt-4 call (03.07.2026). With ENV_FILE=os.devnull the suite runs
+# exactly like CI (no .env): code defaults + the explicit values below.
+# Must be set before app.core.config is imported (it resolves ENV_FILE once,
+# at Settings class definition).
+os.environ["ENV_FILE"] = os.devnull
+
 # Set environment variables BEFORE any test imports
 # This runs BEFORE pytest collects tests, ensuring database.py sees the correct DATABASE_URL
 os.environ.setdefault("SECRET_KEY", "test-secret-key-minimum-32-chars-long-1234567890")
