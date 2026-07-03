@@ -145,6 +145,14 @@ class QualityValidator:
         # LLM caller for the reviewer panel (duck-typed AIService; must
         # provide async call_with_fallback(prompt, purpose) -> dict)
         self.ai_service = ai_service
+        # Pinned judge chain: QUALITY_JUDGE_* first, configured chain as
+        # fallback if the judge itself is down. None = follow the chain.
+        self._judge_chain: list[tuple[str, str]] | None = None
+        if settings.QUALITY_JUDGE_PROVIDER and settings.QUALITY_JUDGE_MODEL:
+            judge = (settings.QUALITY_JUDGE_PROVIDER, settings.QUALITY_JUDGE_MODEL)
+            self._judge_chain = [judge] + [
+                entry for entry in settings.AI_FALLBACK_CHAIN_LIST if entry != judge
+            ]
         # Citation requirements
         self.min_citations_per_500_words = 3
 
@@ -402,6 +410,11 @@ class QualityValidator:
             "critical_override": critical_override,
             "reviewers": reviewers_report,
             "advocate": advocate_report,
+            # Scores are judge-specific — record who judged so reports
+            # across runs are comparable only when this matches.
+            "judge": (
+                "/".join(self._judge_chain[0]) if self._judge_chain else "chain-head"
+            ),
         }
 
         logger.info(
@@ -430,7 +443,9 @@ class QualityValidator:
         """One reviewer call -> {"score": float, "remarks": [...]} or None."""
         prompt = self._build_reviewer_prompt(spec, content, outline_section)
         response = await self.ai_service.call_with_fallback(
-            prompt, purpose=f"quality_panel_{spec['key']}"
+            prompt,
+            purpose=f"quality_panel_{spec['key']}",
+            chain_override=self._judge_chain,
         )
         parsed = _extract_json_object(response)
         if parsed is None:
@@ -446,7 +461,9 @@ class QualityValidator:
         """Devil's advocate call -> {"severity": str, "weakness": str} or None."""
         prompt = self._build_advocate_prompt(content, outline_section)
         response = await self.ai_service.call_with_fallback(
-            prompt, purpose="quality_panel_devils_advocate"
+            prompt,
+            purpose="quality_panel_devils_advocate",
+            chain_override=self._judge_chain,
         )
         parsed = _extract_json_object(response)
         if parsed is None:

@@ -160,6 +160,12 @@ class Settings(BaseSettings):
     QUALITY_PANEL_ENABLED: bool = False
     QUALITY_PANEL_PASS_SCORE: float = 70.0  # gate threshold for the aggregate
     QUALITY_PANEL_MIN_REVIEWERS: int = 2  # panel valid with this many reviewers
+    # Panel judge is pinned, NOT the fallback-chain head: judges differ wildly
+    # (gpt-4 scores 87-95 where sonnet-5 gives 34-52 and opus-4-8 ~64 on the
+    # same text), so a chain reorder must not silently re-judge the gate.
+    # Unset either value to fall back to the chain (legacy behavior).
+    QUALITY_JUDGE_PROVIDER: str | None = "openai"
+    QUALITY_JUDGE_MODEL: str | None = "gpt-4"
 
     # Academic Quality Engine - Claim faithfulness audit (advisory; OFF by default).
     # Checks via LLM whether cited sentences are actually supported by the

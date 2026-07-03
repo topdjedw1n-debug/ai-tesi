@@ -56,7 +56,7 @@ def make_ai_service(responses_by_purpose):
     """Mock AIService dispatching call_with_fallback by purpose"""
     service = MagicMock()
 
-    async def dispatch(prompt, purpose="ai_call"):
+    async def dispatch(prompt, purpose="ai_call", chain_override=None):
         value = responses_by_purpose[purpose]
         if isinstance(value, Exception):
             raise value

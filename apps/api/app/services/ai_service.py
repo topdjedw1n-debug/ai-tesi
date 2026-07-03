@@ -388,7 +388,10 @@ class AIService:
             raise AIProviderError(f"Failed to get usage statistics: {str(e)}") from e
 
     async def call_with_fallback(
-        self, prompt: str, purpose: str = "ai_call"
+        self,
+        prompt: str,
+        purpose: str = "ai_call",
+        chain_override: list[tuple[str, str]] | None = None,
     ) -> dict[str, Any]:
         """
         Call the configured AI fallback chain with a raw prompt.
@@ -396,6 +399,9 @@ class AIService:
         Tries each (provider, model) from AI_FALLBACK_CHAIN_LIST in order
         (each provider already has retry + circuit breaker). When
         AI_ENABLE_FALLBACK is off, only the first chain entry is used.
+        chain_override replaces the configured chain for callers that must
+        pin a specific model (e.g. the reviewer-panel judge, whose scores
+        are only comparable when the judge stays fixed).
 
         Returns:
             Provider response dict: parsed JSON keys when the model returned
@@ -406,7 +412,7 @@ class AIService:
         """
         from app.core.exceptions import AllProvidersFailedError
 
-        chain = settings.AI_FALLBACK_CHAIN_LIST
+        chain = chain_override or settings.AI_FALLBACK_CHAIN_LIST
         if not settings.AI_ENABLE_FALLBACK:
             chain = chain[:1]
 
