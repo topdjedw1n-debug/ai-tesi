@@ -972,6 +972,18 @@ class BackgroundJobService:
                         continue
 
                     current_section = section_data  # For word count target
+                    # ONE per-section length target for writer prompt, panel
+                    # and heuristic validator alike. Outlines store it as
+                    # "estimated_words"; masters-2 run died on the name split:
+                    # the prompt fell back to 500 while the panel demanded
+                    # estimated_words (1050) — a 535-word section passed, its
+                    # twin at ~500 was killed with a 92.1 panel score.
+                    section_target_words = int(
+                        current_section.get("target_word_count")
+                        or current_section.get("estimated_words")
+                        or current_section.get("word_count")
+                        or 500
+                    )
 
                     try:
                         # ✅ TASK 3.7.5: Idempotency - check if section already completed
@@ -1093,9 +1105,7 @@ class BackgroundJobService:
                                 context_sections=context_list,
                                 additional_requirements=effective_requirements,
                                 source_pack=source_pack,
-                                target_word_count=current_section.get(
-                                    "target_word_count", 500
-                                ),
+                                target_word_count=section_target_words,
                             )
 
                             # Honest writer trail: a provider outage must never
@@ -1371,12 +1381,7 @@ class BackgroundJobService:
                                     db,
                                     humanized_content,
                                     section_title,
-                                    # Outline sections carry "estimated_words";
-                                    # "word_count" never existed there, so the
-                                    # panel judged every section against ~500.
-                                    current_section.get("estimated_words")
-                                    or current_section.get("word_count")
-                                    or 500,
+                                    section_target_words,
                                     usage_tracker=usage,
                                 )
                                 if panel_attempt is None:
@@ -1520,11 +1525,7 @@ class BackgroundJobService:
                                         content=final_content,
                                         outline_section={
                                             "title": section_title,
-                                            "target_word_count": current_section.get(
-                                                "estimated_words"
-                                            )
-                                            or current_section.get("word_count")
-                                            or 500,
+                                            "target_word_count": section_target_words,
                                         },
                                     )
                                 )
