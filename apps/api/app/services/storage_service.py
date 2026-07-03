@@ -141,7 +141,6 @@ class StorageService:
         Raises:
             HTTPException: 404 if not found, 500 if download fails
         """
-        object_name = self._parse_s3_path(file_path)
         try:
             bucket_name, object_name = self._parse_path(file_path)
 
