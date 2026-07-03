@@ -44,6 +44,7 @@ class PromptBuilder:
         retrieved_sources: list[str] | None = None,
         additional_requirements: str | None = None,
         source_pack_block: str | None = None,
+        target_word_count: int | None = None,
     ) -> str:
         """
         Build prompt for section generation with RAG context
@@ -58,6 +59,10 @@ class PromptBuilder:
             source_pack_block: Keyed, curated source list. When provided, the
                 section is written CLOSED-BOOK against it (cite only these keys)
                 and stricter anti-generic constraints apply.
+            target_word_count: Per-section length target from the outline.
+                Without it the model guesses from "Target Pages" alone —
+                Validation-6 measured Opus writing 2.6x the requested volume
+                (4753 words on a 6-page brief) while gpt-4 landed on target.
 
         Returns:
             Formatted prompt string
@@ -137,7 +142,7 @@ Section Title: {section_title}
 Section Index: {section_index}
 Language: {document.language}
 Target Pages: {document.target_pages}
-{context_text}
+{PromptBuilder._length_instruction(target_word_count)}{context_text}
 {sources_text}
 Please write this section with:
 - Academic tone and style
@@ -149,6 +154,19 @@ Additional Requirements: {additional_requirements or 'None specified'}
 
 Please provide only the section content without any meta-commentary."""
         return prompt.strip()
+
+    @staticmethod
+    def _length_instruction(target_word_count: int | None) -> str:
+        """Hard per-section length brief; empty string when no target is set."""
+        if not target_word_count or target_word_count <= 0:
+            return ""
+        upper = int(target_word_count * 1.2)
+        return (
+            f"Section Length: write approximately {target_word_count} words "
+            f"for THIS section. HARD LIMIT: do not exceed {upper} words — "
+            "a longer section is a FAILED section. Depth over breadth: "
+            "develop fewer points thoroughly instead of covering more.\n"
+        )
 
     @staticmethod
     def build_humanization_prompt(

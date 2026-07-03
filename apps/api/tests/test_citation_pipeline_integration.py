@@ -889,6 +889,12 @@ LEGACY_RESULT_KEYS = {
     "bibliography",
     "sources_used",
     "humanized",
+    # Honest writer trail (Validation-6): planned vs actual model + fallback
+    # flag are unconditional — a provider outage must never swap the writer
+    # invisibly.
+    "writer_planned",
+    "writer_actual",
+    "writer_fallback_used",
 }
 
 

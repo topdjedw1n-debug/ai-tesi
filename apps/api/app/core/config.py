@@ -110,6 +110,12 @@ class Settings(BaseSettings):
     QUALITY_MAX_GRAMMAR_ERRORS_NON_EN: int = (
         20  # Allow more errors for non-English languages
     )
+    # Length-fair budget on top of the absolute floors above: the gate allows
+    # max(floor, words/1000 * this). Validation-6 exposed the length bias of a
+    # purely absolute cap: Opus sections (~1400 words) failed at 20-24 errors
+    # per 1000 words while a 456-word gpt-4 section passed at 31/1000. The
+    # floor still governs short sections; 0 disables the per-length budget.
+    QUALITY_GRAMMAR_ERRORS_PER_1000: float = 20.0
 
     # Plagiarism check threshold: min uniqueness percentage
     QUALITY_MIN_PLAGIARISM_UNIQUENESS: float = (

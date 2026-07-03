@@ -387,8 +387,31 @@ class QualityValidator:
             overall_score >= settings.QUALITY_PANEL_PASS_SCORE and not critical_override
         )
 
+        # Length check — the panel replaced the heuristic checks wholesale and
+        # silently dropped word count with them, which is how Validation-6 got
+        # 1400-word sections against a ~500-word outline target. Band is wide
+        # (0.5x-1.5x): the prompt now aims at 1.0-1.2x, this is the backstop.
+        length_issue: str | None = None
+        target_words = int(outline_section.get("target_word_count") or 0)
+        word_count = len(content.split())
+        if target_words > 0 and not (
+            target_words * 0.5 <= word_count <= target_words * 1.5
+        ):
+            direction = "Shorten" if word_count > target_words else "Extend"
+            length_issue = (
+                f"[length/major] Section is {word_count} words vs target "
+                f"~{target_words} (allowed 0.5x-1.5x)"
+            )
+            passed = False
+
         issues: list[str] = []
         feedback: list[str] = []
+        if length_issue:
+            issues.append(length_issue)
+            feedback.append(
+                f"{direction} the section to approximately {target_words} words "
+                f"(it is currently {word_count})."
+            )
         for review in valid_reviews:
             for remark in review["remarks"]:
                 line = f"[{review['key']}/{remark['severity']}] {remark['text']}"
@@ -408,6 +431,8 @@ class QualityValidator:
             "overall_score": overall_score,
             "passed": passed,
             "critical_override": critical_override,
+            "word_count": word_count,
+            "target_word_count": target_words or None,
             "reviewers": reviewers_report,
             "advocate": advocate_report,
             # Scores are judge-specific — record who judged so reports

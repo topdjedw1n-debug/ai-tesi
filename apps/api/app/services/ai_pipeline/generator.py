@@ -155,6 +155,7 @@ class SectionGenerator:
         additional_requirements: str | None = None,
         *,
         source_pack: "SourcePack | None" = None,
+        target_word_count: int | None = None,
     ) -> dict[str, Any]:
         """
         Generate a section with RAG context, citations, and optional humanization
@@ -211,6 +212,7 @@ class SectionGenerator:
                 retrieved_sources=source_texts,
                 additional_requirements=additional_requirements,
                 source_pack_block=source_pack_block,
+                target_word_count=target_word_count,
             )
 
             # Step 4: Generate section content using AI with automatic fallback
@@ -220,12 +222,15 @@ class SectionGenerator:
             # chain is the safety net behind it. (Before the doc-10 fix the
             # chain silently REPLACED the chosen model — every document was
             # written by the chain head regardless of what the manager picked.)
+            self._last_writer: tuple[str, str] | None = None
             section_content = await self._call_ai_with_fallback(
                 prompt=prompt,
                 language=str(document.language),
                 purpose=f"Section: {section_title}",
                 preferred=(provider, model),
             )
+            # None only when the method is mocked in tests — then trust the plan.
+            actual_writer = self._last_writer or (provider, model)
 
             # Store prompt for training data collection
             prompt_for_training = prompt
@@ -298,6 +303,11 @@ class SectionGenerator:
                 "bibliography": bibliography,
                 "sources_used": len(source_docs),
                 "humanized": humanize,
+                # Honest writer trail: planned = what the manager chose,
+                # actual = who answered after the fallback chain.
+                "writer_planned": f"{provider}/{model}",
+                "writer_actual": f"{actual_writer[0]}/{actual_writer[1]}",
+                "writer_fallback_used": actual_writer != (provider, model),
             }
 
             # Grounding gate input (ADDITIVE): the pack keys actually cited in
@@ -508,11 +518,13 @@ class SectionGenerator:
         if not settings.AI_ENABLE_FALLBACK:
             logger.info(f"Fallback disabled, using default provider for {purpose}")
             provider, model = preferred or settings.AI_FALLBACK_CHAIN_LIST[0]
-            return (
+            result = (
                 await self._call_openai(model, prompt, language)
                 if provider == "openai"
                 else await self._call_anthropic(model, prompt, language)
             )
+            self._last_writer = (provider, model)
+            return result
 
         # Preferred (document) model first, then the chain, deduped.
         fallback_chain = list(settings.AI_FALLBACK_CHAIN_LIST)
@@ -546,6 +558,10 @@ class SectionGenerator:
                     f"✅ Success with {provider}/{model} for {purpose} "
                     f"(attempt {index + 1}/{len(fallback_chain)})"
                 )
+                # Who ACTUALLY wrote this — read by generate_section so a
+                # fallback swap never goes unrecorded (Validation-6: a credit
+                # outage silently replaced Opus with gpt-4 mid-document).
+                self._last_writer = (provider, model)
                 return result
 
             except Exception as e:

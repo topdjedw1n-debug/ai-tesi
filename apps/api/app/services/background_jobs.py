@@ -340,6 +340,16 @@ async def _check_grammar_quality(
                 if is_english
                 else max(threshold, settings.QUALITY_MAX_GRAMMAR_ERRORS_NON_EN)
             )
+            # Scale the budget with length so long sections aren't punished
+            # for volume: the absolute value above becomes a floor for short
+            # texts, and words/1000 * QUALITY_GRAMMAR_ERRORS_PER_1000 governs
+            # beyond ~1000 words (Validation-6 length-bias fix).
+            if settings.QUALITY_GRAMMAR_ERRORS_PER_1000 > 0:
+                word_count = len(checked_text.split())
+                effective_threshold = max(
+                    effective_threshold,
+                    int(word_count / 1000 * settings.QUALITY_GRAMMAR_ERRORS_PER_1000),
+                )
 
             # Calculate score: max 100, -5 per issue
             score = max(0.0, 100.0 - (error_count * 5.0))
@@ -1083,7 +1093,37 @@ class BackgroundJobService:
                                 context_sections=context_list,
                                 additional_requirements=effective_requirements,
                                 source_pack=source_pack,
+                                target_word_count=current_section.get(
+                                    "target_word_count", 500
+                                ),
                             )
+
+                            # Honest writer trail: a provider outage must never
+                            # silently swap the writer (Validation-6: credit
+                            # exhaustion replaced Opus with gpt-4 mid-document
+                            # and nothing recorded it).
+                            if section_result.get("writer_fallback_used"):
+                                logger.warning(
+                                    f"⚠️ WRITER FALLBACK on section {section_index}: "
+                                    f"planned {section_result.get('writer_planned')}, "
+                                    f"actual {section_result.get('writer_actual')}"
+                                )
+                            if settings.PROVENANCE_LEDGER_ENABLED:
+                                await _record_provenance(
+                                    db,
+                                    document_id,
+                                    stage="generation",
+                                    event_type="section_writer",
+                                    payload={
+                                        "section_index": section_index,
+                                        "attempt": attempt_num,
+                                        "planned": section_result.get("writer_planned"),
+                                        "actual": section_result.get("writer_actual"),
+                                        "fallback_used": section_result.get(
+                                            "writer_fallback_used", False
+                                        ),
+                                    },
+                                )
 
                             # Grounding gate (Academic Quality Engine): score the
                             # raw draft's citations against the source pack BEFORE

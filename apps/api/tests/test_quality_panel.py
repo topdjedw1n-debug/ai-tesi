@@ -31,7 +31,11 @@ CONTENT = (
     "However, transformer architectures changed the field [Vaswani, 2017]. "
     "Therefore, this section reviews their impact in detail. " * 20
 )
-OUTLINE = {"title": "Background", "target_word_count": 200}
+# CONTENT is ~340 words; target 300 keeps it inside the panel's 0.5x-1.5x
+# length backstop so these tests keep exercising what they were written for
+# (aggregation/override/quorum), not the length gate — that one has its own
+# tests below.
+OUTLINE = {"title": "Background", "target_word_count": 300}
 
 
 def reviewer_json(score, remarks=None):
@@ -704,3 +708,56 @@ async def test_pipeline_flag_off_no_panel_calls(db_session, monkeypatch):
     ).scalar_one()
     assert section.quality_panel is None
     assert section.quality_score is not None  # heuristic still scored
+
+
+# ----------------------------------------------------------------------
+# Length backstop in panel mode (Validation-6: the panel had replaced the
+# heuristic checks wholesale and silently dropped word count with them)
+# ----------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_panel_fails_section_far_over_length_target(monkeypatch):
+    """A 340-word section against a 200-word target (1.7x) fails the gate
+    with a length issue and shortening feedback, even with perfect reviews."""
+    panel_settings(monkeypatch)
+    validator = QualityValidator(
+        ai_service=make_ai_service(standard_responses(95, 95, 95))
+    )
+
+    result = await validator.validate_section(
+        CONTENT, {"title": "Background", "target_word_count": 200}
+    )
+
+    assert result["passed"] is False
+    assert any("length" in i for i in result["issues"])
+    assert any("Shorten" in f for f in result["feedback_for_regeneration"])
+    assert result["panel"]["target_word_count"] == 200
+
+
+@pytest.mark.asyncio
+async def test_panel_passes_section_within_length_band(monkeypatch):
+    panel_settings(monkeypatch)
+    validator = QualityValidator(
+        ai_service=make_ai_service(standard_responses(95, 95, 95))
+    )
+
+    result = await validator.validate_section(
+        CONTENT, {"title": "Background", "target_word_count": 300}
+    )
+
+    assert result["passed"] is True
+    assert not any("length" in i for i in result["issues"])
+
+
+@pytest.mark.asyncio
+async def test_panel_no_target_no_length_check(monkeypatch):
+    """Sections without an outline target (legacy docs) skip the backstop."""
+    panel_settings(monkeypatch)
+    validator = QualityValidator(
+        ai_service=make_ai_service(standard_responses(95, 95, 95))
+    )
+
+    result = await validator.validate_section(CONTENT, {"title": "Background"})
+
+    assert result["passed"] is True
