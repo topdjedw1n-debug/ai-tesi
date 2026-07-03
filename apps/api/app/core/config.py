@@ -2,6 +2,7 @@
 Application configuration
 """
 
+import os
 from typing import Any
 from urllib.parse import urlparse
 
@@ -321,7 +322,12 @@ class Settings(BaseSettings):
     MVP_FREE_GENERATION_DAILY_USER_LIMIT: int = 2
 
     model_config = ConfigDict(
-        env_file=".env",
+        # ENV_FILE lets the test suite point this at os.devnull
+        # (tests/conftest.py) so Settings never reads a developer's .env:
+        # local HUMANIZER_*/provider overrides once redirected a mocked
+        # pipeline test into a real paid OpenAI call (03.07.2026). Resolved
+        # once, at class definition — set ENV_FILE before importing app code.
+        env_file=os.environ.get("ENV_FILE", ".env"),
         case_sensitive=True,
         env_ignore_empty=True,  # Ignore empty env vars
         extra="allow",  # Allow extra fields from .env (for backward compatibility)
