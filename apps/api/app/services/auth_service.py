@@ -360,6 +360,9 @@ class AuthService:
             "iat": now,
             "type": "access",
             "nbf": now,  # Not before - token valid from now
+            # Random jti keeps tokens unique even when two are issued for the
+            # same user within the same second (iat/exp have 1s resolution)
+            "jti": secrets.token_urlsafe(16),
         }
 
         # Add iss (issuer) if configured
@@ -384,6 +387,10 @@ class AuthService:
             "iat": now,
             "type": "refresh",
             "nbf": now,  # Not before - token valid from now
+            # Random jti keeps tokens unique even when two are issued for the
+            # same user within the same second — the refresh token is stored as
+            # UserSession.session_token, which has a unique index
+            "jti": secrets.token_urlsafe(16),
         }
 
         # Add iss (issuer) if configured
