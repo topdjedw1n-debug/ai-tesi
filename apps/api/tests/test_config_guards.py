@@ -48,8 +48,17 @@ def test_defaults_accepted():
 
 
 def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
-    monkeypatch.delenv("MVP_FREE_GENERATION_ENABLED", raising=False)
-    monkeypatch.delenv("DAILY_TOKEN_LIMIT", raising=False)
+    # Scrub every var this test asserts defaults for: the ad-hoc API-check
+    # scripts at apps/api root call load_dotenv() at import time, so real
+    # .env values (e.g. MVP_FREE_GENERATION_MAX_PAGES) leak into os.environ
+    # for the whole pytest process before this test runs.
+    for var in (
+        "MVP_FREE_GENERATION_ENABLED",
+        "MVP_FREE_GENERATION_MAX_PAGES",
+        "MVP_FREE_GENERATION_DAILY_USER_LIMIT",
+        "DAILY_TOKEN_LIMIT",
+    ):
+        monkeypatch.delenv(var, raising=False)
 
     settings = Settings(_env_file=None)
 
