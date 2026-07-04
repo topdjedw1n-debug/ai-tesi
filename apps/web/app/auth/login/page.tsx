@@ -43,10 +43,13 @@ export default function LoginPage() {
         }
       }
 
-      toast.success('Signed in')
-      router.push(data.user?.is_admin ? '/admin/dashboard' : '/dashboard')
+      toast.success('Вітаємо!')
+      // Full navigation (not router.push): AuthProvider reads the token only
+      // on mount, so a client-side push lands on a layout that still thinks
+      // we are logged out and bounces back here.
+      window.location.assign(data.user?.is_admin ? '/admin/dashboard' : '/dashboard')
     } catch (error: any) {
-      toast.error(error.message || 'Invalid login or password')
+      toast.error(error.message || 'Невірний логін або пароль')
     } finally {
       setIsLoading(false)
     }
@@ -59,9 +62,9 @@ export default function LoginPage() {
     try {
       await apiClient.post(API_ENDPOINTS.AUTH.MAGIC_LINK, { email })
       setEmailSent(true)
-      toast.success('Magic link sent! Check your email (or console logs in dev mode)')
+      toast.success('Посилання для входу надіслано на email')
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send magic link')
+      toast.error(error.message || 'Не вдалося надіслати посилання')
     } finally {
       setIsLoading(false)
     }
@@ -76,18 +79,18 @@ export default function LoginPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2" data-testid="email-sent-title">Check your email</h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2" data-testid="email-sent-title">Перевір пошту</h2>
           <p className="text-gray-600 mb-6" data-testid="email-sent-message">
-            We&apos;ve sent a magic link to <span className="font-semibold">{email}</span>
+            Ми надіслали посилання для входу на <span className="font-semibold">{email}</span>
           </p>
           <p className="text-sm text-gray-500 mb-4">
-            Click the link in the email to sign in. The link will expire in 15 minutes.
+            Натисни посилання в листі, щоб увійти. Воно діє 15 хвилин.
           </p>
           <button
             onClick={() => setEmailSent(false)}
             className="text-primary-600 hover:text-primary-700 font-medium text-sm"
           >
-            Use a different email
+            Використати інший email
           </button>
         </div>
       </div>
@@ -98,11 +101,14 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 px-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2" data-testid="login-title">Welcome back</h1>
+          <div className="mx-auto mb-4 h-12 w-12 rounded-xl bg-primary-600 flex items-center justify-center">
+            <svg viewBox="34 16 24 58" className="h-7" aria-hidden="true"><path d="M36 24Q36 19 41 19L51 19Q56 19 56 24L56 71 46 61 36 71Z" fill="#fffdf9"/></svg>
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2 font-serif" data-testid="login-title">Thesica</h1>
           <p className="text-gray-600" data-testid="login-subtitle">
             {mode === 'password'
-              ? 'Sign in with your login and password'
-              : 'Sign in to your account with a magic link'}
+              ? 'Внутрішня консоль — вхід за логіном і паролем'
+              : 'Вхід за посиланням на email'}
           </p>
         </div>
 
@@ -110,7 +116,7 @@ export default function LoginPage() {
           <form onSubmit={handlePasswordLogin} className="space-y-6">
             <div>
               <label htmlFor="login" className="block text-sm font-medium text-gray-700 mb-2">
-                Login
+                Логін
               </label>
               <input
                 id="login"
@@ -128,7 +134,7 @@ export default function LoginPage() {
 
             <div>
               <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-2">
-                Password
+                Пароль
               </label>
               <input
                 id="password"
@@ -150,14 +156,14 @@ export default function LoginPage() {
               data-testid="password-login-button"
               className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
             >
-              {isLoading ? 'Signing in...' : 'Sign in →'}
+              {isLoading ? 'Входимо…' : 'Увійти →'}
             </button>
           </form>
         ) : (
           <form onSubmit={handleMagicLink} className="space-y-6">
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
-                Email address
+                Email
               </label>
               <input
                 id="email"
@@ -178,7 +184,7 @@ export default function LoginPage() {
               data-testid="send-magic-link-button"
               className="w-full bg-primary-600 hover:bg-primary-700 disabled:bg-gray-400 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
             >
-              {isLoading ? 'Sending...' : 'Send magic link →'}
+              {isLoading ? 'Надсилаємо…' : 'Надіслати посилання →'}
             </button>
           </form>
         )}
@@ -190,14 +196,14 @@ export default function LoginPage() {
             data-testid="toggle-login-mode"
           >
             {mode === 'password'
-              ? 'Sign in with an email magic link instead'
-              : 'Sign in with a login and password instead'}
+              ? 'Увійти за посиланням на email'
+              : 'Увійти за логіном і паролем'}
           </button>
         </div>
 
         <div className="mt-8 pt-6 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            By continuing, you agree to our Terms of Service and Privacy Policy
+            Внутрішній інструмент Thesica — доступ видає адміністратор
           </p>
         </div>
       </div>

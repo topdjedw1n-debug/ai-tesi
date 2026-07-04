@@ -31,6 +31,10 @@ class UserUpdate(BaseModel):
 class UserResponse(UserBase):
     """Schema for user API responses"""
 
+    # Manager accounts use bare logins (e.g. "manager1") stored in the email
+    # column, so responses must not enforce EmailStr — only UserCreate does.
+    email: str
+
     id: int
     is_active: bool
     is_verified: bool
