@@ -122,3 +122,6 @@ TESIGO-PLAN-status.html
 
 # External reference material (nested repo, kept out of the app tree)
 external/
+
+# Session scratch
+tmp/
