@@ -6,8 +6,8 @@
 
 ## 🔴 Негайні — чекають ручної дії фаундера
 
-- [ ] **T1. Compilatio для Блоку 1.** Прогнати 3 файли з
-  `~/Downloads/THESICA-BLOCK1/{opus,sonnet5,gpt4o}/thesis.docx` через
+- [ ] **T1. Compilatio для Блоку 1.** Прогнати 3 файли
+  `~/Downloads/THESICA-BLOCK1/<tag>/block1-{opus,sonnet5,gpt4o}.docx` через
   Compilatio Studium, записати AI% і плагіат% у таблицю Блоку 1
   (HANDOFF §4). **Це вирішує головне: чи потрібен рятувальник узагалі**
   (сирий текст писаря без рятування — чи вже чистий).
