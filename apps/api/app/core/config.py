@@ -851,10 +851,10 @@ class Settings(BaseSettings):
                 if ":" in item:
                     provider, model = item.split(":", 1)
                     chain.append((provider.strip(), model.strip()))
-            return chain if chain else [("openai", "gpt-4")]
+            return chain if chain else [("anthropic", "claude-opus-4-8")]
         except (ValueError, AttributeError):
             # Fallback to default if parsing fails
-            return [("openai", "gpt-4")]
+            return [("anthropic", "claude-opus-4-8")]
 
 
 # Create settings instance

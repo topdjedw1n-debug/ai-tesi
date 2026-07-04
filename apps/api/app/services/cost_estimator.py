@@ -11,10 +11,22 @@ logger = logging.getLogger(__name__)
 # Token pricing per 1M tokens (as of 2024)
 # Input tokens (prompt)
 PRICING_INPUT = {
+    # OpenAI prices verified against the official pricing page 04.07.2026.
+    # Every model in the schemas/document.py allowlist must appear here,
+    # or its usage gets billed at the gpt-4 backstop ($30/$60) and the
+    # manager UI overstates the real cost by an order of magnitude.
     "openai": {
         "gpt-4": 30.0,  # $30 per 1M input tokens
         "gpt-4-turbo": 10.0,  # $10 per 1M input tokens
         "gpt-3.5-turbo": 0.5,  # $0.5 per 1M input tokens
+        "gpt-4o": 2.5,  # legacy grandfathered rate
+        "gpt-4o-mini": 0.15,
+        "gpt-4.1": 2.0,
+        "gpt-4.1-mini": 0.4,
+        "gpt-4.1-nano": 0.1,
+        "gpt-5.4": 2.5,
+        "gpt-5.4-mini": 0.75,
+        "gpt-5.4-nano": 0.2,
         "gpt-5.5": 5.0,  # $5 per 1M input tokens
     },
     "anthropic": {
@@ -34,6 +46,14 @@ PRICING_OUTPUT = {
         "gpt-4": 60.0,  # $60 per 1M output tokens
         "gpt-4-turbo": 30.0,  # $30 per 1M output tokens
         "gpt-3.5-turbo": 1.5,  # $1.5 per 1M output tokens
+        "gpt-4o": 10.0,  # legacy grandfathered rate
+        "gpt-4o-mini": 0.6,
+        "gpt-4.1": 8.0,
+        "gpt-4.1-mini": 1.6,
+        "gpt-4.1-nano": 0.4,
+        "gpt-5.4": 15.0,
+        "gpt-5.4-mini": 4.5,
+        "gpt-5.4-nano": 1.25,
         "gpt-5.5": 30.0,  # $30 per 1M output tokens
     },
     "anthropic": {

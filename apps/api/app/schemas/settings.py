@@ -55,9 +55,9 @@ class AISettingsUpdate(BaseModel):
     model_config = {
         "json_schema_extra": {
             "example": {
-                "default_provider": "openai",
-                "default_model": "gpt-4",
-                "fallback_models": ["gpt-3.5-turbo"],
+                "default_provider": "anthropic",
+                "default_model": "claude-opus-4-8",
+                "fallback_models": ["gpt-4o"],
                 "max_retries": 3,
                 "timeout_seconds": 300,
                 "temperature_default": 0.7,

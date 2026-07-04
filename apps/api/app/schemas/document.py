@@ -73,10 +73,14 @@ class DocumentBase(BaseModel):
 class DocumentCreate(DocumentBase):
     """Schema for creating a new document"""
 
+    # Default writer = the AI_FALLBACK_CHAIN head. The manager console sends
+    # no model, so these defaults ARE the production writer — keep them in
+    # sync with config.AI_FALLBACK_CHAIN (gpt-4 classic here silently routed
+    # every console document to the $30/$60 model until 04.07.2026).
     ai_provider: AIProvider | None = Field(
-        default=AIProvider.OPENAI, description="AI provider: openai or anthropic"
+        default=AIProvider.ANTHROPIC, description="AI provider: openai or anthropic"
     )
-    ai_model: str | None = Field(default="gpt-4", description="AI model name")
+    ai_model: str | None = Field(default="claude-opus-4-8", description="AI model name")
     additional_requirements: str | None = Field(
         None,
         max_length=5000,
@@ -88,7 +92,7 @@ class DocumentCreate(DocumentBase):
     def validate_ai_provider(cls, v: str | AIProvider | None) -> AIProvider:
         """Validate AI provider enum"""
         if v is None:
-            return AIProvider.OPENAI
+            return AIProvider.ANTHROPIC
         if isinstance(v, str):
             v = v.lower()
             if v not in ["openai", "anthropic"]:
@@ -103,9 +107,6 @@ class DocumentCreate(DocumentBase):
     @classmethod
     def validate_ai_model(cls, v: str | None, info: Any) -> str:
         """Validate AI model matches provider"""
-        if not v:
-            return "gpt-4"  # Default
-
         provider_value = None
         if hasattr(info, "data"):
             provider = info.data.get("ai_provider")
@@ -114,9 +115,30 @@ class DocumentCreate(DocumentBase):
             elif isinstance(provider, str):
                 provider_value = provider.lower()
 
+        if not v:
+            # Provider-aware default so an explicit provider without a model
+            # never produces a provider/model mismatch: openai gets its cheap
+            # tier, everything else the chain-head writer.
+            return "gpt-4o" if provider_value == "openai" else "claude-opus-4-8"
+
         # Valid models per provider (keep in sync with /generate/models and
-        # cost_estimator pricing tables)
-        openai_models = ["gpt-5.5", "gpt-4", "gpt-4-turbo", "gpt-3.5-turbo"]
+        # cost_estimator pricing tables). gpt-4 classic retired as a default
+        # (cost review 03.07.2026) but kept here for legacy docs; the cheap
+        # tier (4o/4.1-mini/5.4-*) is what current runs use.
+        openai_models = [
+            "gpt-5.5",
+            "gpt-5.4",
+            "gpt-5.4-mini",
+            "gpt-5.4-nano",
+            "gpt-4o",
+            "gpt-4o-mini",
+            "gpt-4.1",
+            "gpt-4.1-mini",
+            "gpt-4.1-nano",
+            "gpt-4",
+            "gpt-4-turbo",
+            "gpt-3.5-turbo",
+        ]
         anthropic_models = [
             "claude-opus-4-8",
             "claude-sonnet-5",
@@ -338,7 +360,9 @@ class AsyncGenerationRequest(BaseModel):
     """Schema for async document generation request"""
 
     document_id: int
-    model: str | None = Field(default="gpt-4")
+    # Informational only — generation follows document.ai_model; a hardcoded
+    # default here would just misreport the writer.
+    model: str | None = Field(default=None)
     requirements: str | None = None
 
 

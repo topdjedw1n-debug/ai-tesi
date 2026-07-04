@@ -56,8 +56,8 @@ class DocumentService:
         topic: str,
         language: str = "en",
         target_pages: int = 10,
-        ai_provider: str = "openai",
-        ai_model: str = "gpt-4",
+        ai_provider: str = "anthropic",
+        ai_model: str = "claude-opus-4-8",
         additional_requirements: str | None = None,
     ) -> dict[str, Any]:
         """Create a new document"""

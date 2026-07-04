@@ -64,9 +64,9 @@ async def create_document(
             language=document.language,
             target_pages=document.target_pages,
             ai_provider=(
-                document.ai_provider.value if document.ai_provider else "openai"
+                document.ai_provider.value if document.ai_provider else "anthropic"
             ),
-            ai_model=document.ai_model or "gpt-4",
+            ai_model=document.ai_model or "claude-opus-4-8",
             additional_requirements=document.additional_requirements,
         )
         return result

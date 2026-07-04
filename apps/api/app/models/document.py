@@ -46,8 +46,8 @@ class Document(Base):
     is_archived = Column(Boolean, default=False)
 
     # AI generation settings
-    ai_provider = Column(String(50), default="openai")  # openai, anthropic
-    ai_model = Column(String(100), default="gpt-4")
+    ai_provider = Column(String(50), default="anthropic")  # openai, anthropic
+    ai_model = Column(String(100), default="claude-opus-4-8")
     temperature = Column(Float, default=0.7)
 
     # Content
