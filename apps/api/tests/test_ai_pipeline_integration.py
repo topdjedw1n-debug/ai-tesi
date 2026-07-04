@@ -373,14 +373,16 @@ def test_humanization_prompt_style_directive():
     """Style directive lands in the prompt; empty directive leaves it out"""
     from app.services.ai_pipeline.prompt_builder import PromptBuilder
 
-    directive = "- Aggressively vary sentence length\n"
+    # A mild single-lever nudge (aggressive "vary sentence length" commands
+    # backfire — doc-12 — so directives stay gentle; see STYLE_DIRECTIVES).
+    directive = "- Lean a little harder on turning nouns back into verbs\n"
     with_directive = PromptBuilder.build_humanization_prompt(
         "Some text", True, "it", style_directive=directive
     )
     without = PromptBuilder.build_humanization_prompt("Some text", True, "it")
 
-    assert "Aggressively vary sentence length" in with_directive
-    assert "Aggressively vary sentence length" not in without
+    assert "turning nouns back into verbs" in with_directive
+    assert "turning nouns back into verbs" not in without
 
 
 @pytest.mark.asyncio

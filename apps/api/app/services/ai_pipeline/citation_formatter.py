@@ -15,6 +15,7 @@ class CitationStyle(StrEnum):
     APA = "apa"
     MLA = "mla"
     CHICAGO = "chicago"
+    HARVARD = "harvard"
 
 
 @dataclass
@@ -69,6 +70,8 @@ class CitationFormatter:
             return CitationFormatter._format_mla_intext(authors, year, page)
         elif style == CitationStyle.CHICAGO:
             return CitationFormatter._format_chicago_intext(authors, year, page)
+        elif style == CitationStyle.HARVARD:
+            return CitationFormatter._format_harvard_intext(authors, year, page)
         else:
             raise ValueError(f"Unsupported citation style: {style}")
 
@@ -92,6 +95,8 @@ class CitationFormatter:
             return CitationFormatter._format_mla_reference(source)
         elif style == CitationStyle.CHICAGO:
             return CitationFormatter._format_chicago_reference(source)
+        elif style == CitationStyle.HARVARD:
+            return CitationFormatter._format_harvard_reference(source)
         else:
             raise ValueError(f"Unsupported citation style: {style}")
 
@@ -145,6 +150,26 @@ class CitationFormatter:
 
         if page:
             citation += f", {page}"
+
+        return f"({citation})"
+
+    @staticmethod
+    def _format_harvard_intext(
+        authors: list[str], year: int, page: int | None = None
+    ) -> str:
+        """Format Harvard in-text citation: (Author, Year) / (Author and
+        Author, Year) / (Author et al., Year), pages as ', p. N'."""
+        if len(authors) == 1:
+            citation = authors[0]
+        elif len(authors) == 2:
+            citation = f"{authors[0]} and {authors[1]}"
+        else:
+            citation = f"{authors[0]} et al."
+
+        citation += f", {year}"
+
+        if page:
+            citation += f", p. {page}"
 
         return f"({citation})"
 
@@ -255,6 +280,45 @@ class CitationFormatter:
                 reference += f", {source.city}"
             if source.year:
                 reference += f", {source.year}"
+
+        return reference
+
+    @staticmethod
+    def _format_harvard_reference(source: SourceDocument) -> str:
+        """Format Harvard reference: Author, A. and Author, B. (Year)
+        'Title', Journal, Volume(Issue), pp. Pages. doi: ..."""
+        if len(source.authors) == 1:
+            authors = f"{source.authors[0]}"
+        elif len(source.authors) == 2:
+            authors = f"{source.authors[0]} and {source.authors[1]}"
+        elif len(source.authors) == 3:
+            authors = (
+                f"{source.authors[0]}, {source.authors[1]} and {source.authors[2]}"
+            )
+        else:
+            authors = f"{source.authors[0]} et al."
+
+        year_str = f" ({source.year})"
+
+        if source.journal:
+            reference = f"{authors}{year_str} '{source.title}', {source.journal}"
+            if source.volume:
+                reference += f", {source.volume}"
+                if source.issue:
+                    reference += f"({source.issue})"
+            if source.pages:
+                reference += f", pp. {source.pages}"
+            reference += "."
+            if source.doi:
+                reference += f" doi: {source.doi}."
+        else:
+            # Book or other: title italicization is a rendering concern;
+            # plain text here, consistent with the other formatters.
+            reference = f"{authors}{year_str} {source.title}."
+            if source.city and source.publisher:
+                reference += f" {source.city}: {source.publisher}."
+            elif source.publisher:
+                reference += f" {source.publisher}."
 
         return reference
 

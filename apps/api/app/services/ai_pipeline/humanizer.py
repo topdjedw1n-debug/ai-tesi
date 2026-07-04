@@ -24,24 +24,33 @@ logger = logging.getLogger(__name__)
 # MEASURED 03.07.2026 (doc 12, gpt-4 self-rescue): the aggressive v1
 # directives ("aggressively vary sentence length...") RAISED GPTZero
 # 56.4 -> 96.7 on the first pass — instructed "unusualness" reads as MORE
-# AI-like, not less. Directives are now deliberately mild; the plain prompt
-# (variant 0) is the doc-9-proven behavior.
+# AI-like, not less. So the CONFIRMED levers (de-nominalize, pronouns/
+# auxiliaries, readability, uneven rhythm) now live in the base prompt as
+# natural-writing framing (prompt_builder.build_humanization_prompt), and
+# these directives stay mild — each nudges ONE lever a little further so
+# best-of-N variants explore different directions rather than re-rolling the
+# same request. Variant 0 is the plain base prompt (doc-9-proven). None of
+# them command "strangeness".
 STYLE_DIRECTIVES = [
     "",
-    "",
     (
-        "- Where it reads naturally, prefer slightly simpler wording over "
-        "polished formulations\n"
+        "- Lean a little harder on turning abstract noun phrases back into "
+        "verbs where it reads naturally\n"
     ),
     (
-        "- You may merge or split an occasional sentence where a careful "
-        "human editor would\n"
+        "- Where it reads naturally, prefer plainer, more direct wording over "
+        "polished or ornate formulations\n"
+    ),
+    (
+        "- You may merge or split an occasional sentence where a careful human "
+        "editor would, letting the rhythm stay uneven\n"
     ),
 ]
 
-# Best-of-N draws its variants from the directives that actually differ:
-# index 1 is an empty duplicate of 0, so the meaningful pool is 0/2/3. N>3
-# variants reuse the pool and rely on model stochasticity for spread.
+# Best-of-N draws its variants from three meaningfully different directives.
+# 0 (plain base prompt), 2 (readability) and 3 (rhythm) give the widest spread;
+# 1 (de-nominalization) is the serial path's first attempt. N>3 variants reuse
+# the pool and rely on model stochasticity for further spread.
 STYLE_VARIANT_POOL = [0, 2, 3]
 
 # Corruption guard for best-of-N (Masters-2 failure): garbled model output
@@ -539,5 +548,13 @@ class Humanizer:
             score_trace["best_of_n"] = best_of_n
             score_trace["detector_calls"] = detector_calls
             score_trace["variant_scores"] = variant_scores
+            # Free offline read on the CONFIRMED human-vs-AI markers, before vs
+            # after the rewrite. Costs no detector call — it lets us see
+            # whether the humanization actually moved the linguistic markers in
+            # the human direction, independent of the (paid, noisy) detector.
+            from app.services.ai_pipeline.stylometrics import human_likeness
+
+            score_trace["stylometrics_before"] = human_likeness(text, language)
+            score_trace["stylometrics_after"] = human_likeness(best_text, language)
 
         return best_text, best_score

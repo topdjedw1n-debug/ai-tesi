@@ -95,6 +95,19 @@ class PromptBuilder:
             style_rules = (
                 "- Vary sentence length: mix short, direct sentences with longer "
                 "ones; avoid a uniform rhythm.\n"
+                # Top two confirmed human-vs-AI markers (HUMANIZATION-RESEARCH.md):
+                # AI over-nominalizes and drops pronouns/auxiliaries. Bake the
+                # cure into the WRITER so the draft is human from the start and
+                # needs less (or no) rescue downstream.
+                "- Prefer verbs to abstract noun-stacks: write 'because "
+                "emissions grew' rather than 'due to the growth of emissions', "
+                "and 'this shows' rather than 'this is demonstrative of'. Cut "
+                "-tion/-ment/-ità/-zione abstractions where a plain verb carries "
+                "the meaning.\n"
+                "- Let subjects act: where the academic register allows, use "
+                "pronouns and ordinary verbs ('this shows', 'these data "
+                "indicate', 'we can see') instead of impersonal noun-stacked "
+                "constructions.\n"
                 "- Do NOT use the 'balanced approach' / 'double-edged sword' "
                 "refrain, and do NOT stack connectives (moreover, furthermore, "
                 "in conclusion) in every paragraph.\n"
@@ -176,7 +189,18 @@ Please provide only the section content without any meta-commentary."""
         style_directive: str = "",
     ) -> str:
         """
-        Build prompt for text humanization/paraphrasing
+        Build prompt for text humanization/paraphrasing.
+
+        The rewrite rules below target the CONFIRMED human-vs-AI markers from
+        the 03.07.2026 detection research (docs/phase1-runs/
+        HUMANIZATION-RESEARCH.md): de-nominalize (verbs over abstract nouns),
+        admit pronouns and auxiliaries, keep sentence rhythm uneven, and stay
+        readable. They are framed as "how a careful human writer naturally
+        revises", NOT as loud stylistic gymnastics — because our own doc-12
+        run measured that aggressive style commands ("aggressively vary
+        sentence length") RAISE the detector score (56 -> 97). Refuted "folk"
+        levers (add typos/imperfections, chase lexical variety) are
+        deliberately absent — the research killed them 0-3.
 
         Args:
             original_text: Original text to humanize
@@ -199,28 +223,28 @@ Please provide only the section content without any meta-commentary."""
         lang_name = language_names.get(language, language)
 
         citation_instruction = (
-            "IMPORTANT: Preserve all citation markers in the format [Author, Year] exactly as they appear."
+            "Preserve every citation marker in the format [Author, Year] exactly as it appears — do not move, merge, reword or renumber them."
             if preserve_citations
             else "You may adjust citation formatting if needed."
         )
 
         prompt = f"""IMPORTANT: Keep the text strictly in {lang_name}. Do not translate to any other language.
 
-Paraphrase and humanize the following academic text while maintaining its meaning,
-academic quality, and structure. Make it sound more natural and less AI-generated.
+You are the researcher who wrote the draft below, now revising it by hand for your own thesis. Rewrite it in your own voice so it reads the way a real person writes — keeping every fact, argument, citation and the overall structure intact.
 
 {citation_instruction}
 
 Original text:
 {original_text}
 
-Requirements:
-- Maintain the same academic tone and quality
-- Keep all key information and arguments
-- Make the language flow more naturally
-- Preserve the logical structure
-- Ensure the text reads as if written by a human academic researcher
+How to revise (these are what separate human academic writing from machine writing):
+- Turn heavy noun phrases back into verbs. Prefer "we analysed the data and found" over "the analysis of the data led to the finding that"; prefer "because X grew" over "due to the growth of X". Cut abstract -tion/-ment/-ità/-zione nouns where a plain verb says the same thing.
+- Let real people act in the sentences: use pronouns and ordinary auxiliary verbs ("this shows", "we can see", "it has become", "these results are") instead of impersonal noun-stacked constructions, where the discipline allows.
+- Keep the natural unevenness of human rhythm: some sentences short and direct, some longer and developed. Do not force every sentence to the same measured length, but do not perform strangeness either — write as the thought needs.
+- Favour clear, direct wording over ornate or padded formulations; a human expert writes to be understood, not to sound impressive.
+- Keep all key information, arguments, data and the logical structure exactly.
+- Keep the same academic register — this is a thesis, not a blog post. Natural, not casual.
 - {citation_instruction}
 {style_directive}
-Provide only the paraphrased text without any meta-commentary."""
+Provide only the revised text, in {lang_name}, with no preamble, notes or meta-commentary."""
         return prompt.strip()
