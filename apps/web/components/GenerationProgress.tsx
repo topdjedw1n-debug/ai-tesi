@@ -99,15 +99,15 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
   const getStatusText = () => {
     switch (progressState.status) {
       case 'queued':
-        return 'Queued'
+        return 'В черзі'
       case 'running':
-        return 'Generating...'
+        return 'Генерується…'
       case 'completed':
-        return 'Completed'
+        return 'Готово'
       case 'failed':
-        return 'Failed'
+        return 'Не вдалося'
       default:
-        return 'Unknown'
+        return 'Невідомо'
     }
   }
 
@@ -115,7 +115,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
     <div className="bg-white shadow rounded-lg p-6">
       <div className="mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-medium text-gray-900">Generation Progress</h3>
+          <h3 className="text-lg font-medium text-gray-900">Хід генерації</h3>
           <div className="flex items-center gap-2">
             {getStatusIcon()}
             <span className="text-sm font-medium text-gray-700">{getStatusText()}</span>
@@ -124,13 +124,13 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
 
         {/* Connection Status */}
         {isConnecting && (
-          <div className="text-xs text-gray-500 mb-2">Connecting...</div>
+          <div className="text-xs text-gray-500 mb-2">Підключаємось…</div>
         )}
         {!isConnected && !isConnecting && wsError && (
-          <div className="text-xs text-red-500 mb-2">Connection lost: {wsError}</div>
+          <div className="text-xs text-red-500 mb-2">Звʼязок втрачено: {wsError}</div>
         )}
         {isConnected && (
-          <div className="text-xs text-green-500 mb-2">Connected</div>
+          <div className="text-xs text-green-500 mb-2">Наживо</div>
         )}
       </div>
 
@@ -146,7 +146,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
           <span className="text-sm text-gray-600">{progressState.progress}%</span>
           {progressState.estimatedTime && (
             <span className="text-sm text-gray-500">
-              Estimated time: {progressState.estimatedTime}
+              Орієнтовно лишилось: {progressState.estimatedTime}
             </span>
           )}
         </div>
@@ -156,7 +156,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
       {progressState.currentSection && (
         <div className="mb-4">
           <p className="text-sm text-gray-600">
-            Current section: <span className="font-medium">{progressState.currentSection}</span>
+            Зараз пишеться: <span className="font-medium">{progressState.currentSection}</span>
           </p>
         </div>
       )}
@@ -167,7 +167,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
           <div className="flex items-start">
             <ExclamationTriangleIcon className="h-5 w-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="ml-2">
-              <p className="text-sm font-medium text-red-800">Generation Error</p>
+              <p className="text-sm font-medium text-red-800">Помилка генерації</p>
               <p className="text-sm text-red-700 mt-1">{progressState.error}</p>
             </div>
           </div>
@@ -180,7 +180,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
           <div className="flex items-center">
             <CheckCircleIcon className="h-5 w-5 text-green-500" />
             <p className="ml-2 text-sm font-medium text-green-800">
-              Document generation completed successfully!
+              Роботу згенеровано! Можна закривати сторінку або скачувати файл.
             </p>
           </div>
         </div>

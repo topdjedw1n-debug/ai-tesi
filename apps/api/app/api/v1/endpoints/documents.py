@@ -27,6 +27,8 @@ from app.models.auth import User
 from app.models.document import Document, DocumentProvenance
 from app.schemas.document import (
     DocumentCreate,
+    DocumentFeedbackRequest,
+    DocumentFeedbackResponse,
     DocumentListResponse,
     DocumentProvenanceResponse,
     DocumentResponse,
@@ -291,6 +293,66 @@ async def get_document_provenance(
         document_id=document_id,
         total=len(events),
         events=[ProvenanceEventResponse.model_validate(event) for event in events],
+    )
+
+
+@router.post(
+    "/{document_id}/feedback",
+    response_model=DocumentFeedbackResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+@rate_limit("30/hour")
+async def submit_document_feedback(
+    request: Request,
+    document_id: int,
+    feedback: DocumentFeedbackRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> DocumentFeedbackResponse:
+    """
+    Record manager feedback on a document (internal MVP).
+
+    Stored as a provenance event (stage="feedback") so it lands in the same
+    append-only ledger the admin already reads — no extra table needed.
+    Access: document owner or admin.
+    """
+    result = await db.execute(select(Document).where(Document.id == document_id))
+    document = result.scalar_one_or_none()
+    if not document:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
+        )
+
+    if document.user_id != int(current_user.id) and not current_user.is_admin:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+        )
+
+    event = DocumentProvenance(
+        document_id=document_id,
+        stage="feedback",
+        event_type="manager_feedback",
+        payload={
+            "text": feedback.text,
+            "author_id": int(current_user.id),
+            "author_email": current_user.email,
+        },
+    )
+    db.add(event)
+    try:
+        await db.commit()
+    except Exception:
+        await db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to save feedback",
+        ) from None
+    await db.refresh(event)
+
+    return DocumentFeedbackResponse(
+        document_id=document_id,
+        event_id=int(event.id),
+        created_at=event.created_at,
     )
 
 

@@ -46,28 +46,28 @@ export function StatsOverview() {
 
   const statItems = [
     {
-      name: 'Total Documents',
+      name: 'Усього робіт',
       value: stats.totalDocuments,
       icon: DocumentTextIcon,
       color: 'text-primary-600',
       bgColor: 'bg-primary-100',
     },
     {
-      name: 'Words Generated',
+      name: 'Згенеровано слів',
       value: stats.totalWords.toLocaleString(),
       icon: ClockIcon,
       color: 'text-green-600',
       bgColor: 'bg-green-100',
     },
     {
-      name: 'Total Cost',
+      name: 'Витрати',
       value: `€${stats.totalCost.toFixed(2)}`,
       icon: CurrencyDollarIcon,
       color: 'text-yellow-600',
       bgColor: 'bg-yellow-100',
     },
     {
-      name: 'AI Tokens Used',
+      name: 'Використано токенів',
       value: stats.totalTokens.toLocaleString(),
       icon: SparklesIcon,
       color: 'text-primary-600',

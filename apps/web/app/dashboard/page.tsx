@@ -37,7 +37,7 @@ export default function DashboardPage() {
     // Check if user is authenticated
     const token = getAccessToken()
     if (!token) {
-      toast.error('Please sign in to access the dashboard')
+      toast.error('Увійдіть, щоб користуватися консоллю')
       router.push('/')
       return
     }
@@ -47,9 +47,9 @@ export default function DashboardPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900" data-testid="dashboard-title">Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-900" data-testid="dashboard-title">Головна</h1>
           <p className="mt-1 text-sm text-gray-500" data-testid="dashboard-subtitle">
-            Welcome back! Here&apos;s what&apos;s happening with your thesis projects.
+            Створи нову роботу або переглянь стан поточних
           </p>
         </div>
 

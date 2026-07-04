@@ -207,6 +207,29 @@ class DocumentProvenanceResponse(BaseModel):
     events: list[ProvenanceEventResponse]
 
 
+class DocumentFeedbackRequest(BaseModel):
+    """Manager feedback on a generated document (internal MVP)"""
+
+    text: str = Field(min_length=3, max_length=5000)
+
+    @field_validator("text")
+    @classmethod
+    def sanitize_text(cls, v: str) -> str:
+        # Strip HTML but keep line breaks — feedback is freeform prose.
+        sanitized = re.sub(r"<[^>]*>", "", v).strip()
+        if len(sanitized) < 3:
+            raise ValueError("Feedback text is too short")
+        return sanitized
+
+
+class DocumentFeedbackResponse(BaseModel):
+    """Confirmation that feedback was recorded"""
+
+    document_id: int
+    event_id: int
+    created_at: datetime | None = None
+
+
 class OutlineRequest(BaseModel):
     """Schema for outline generation request"""
 

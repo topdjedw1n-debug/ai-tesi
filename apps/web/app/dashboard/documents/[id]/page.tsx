@@ -6,7 +6,10 @@ import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
 import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
 import { DocumentSources } from '@/components/dashboard/DocumentSources'
+import { DocumentFeedback } from '@/components/dashboard/DocumentFeedback'
 import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
+import { documentStatus } from '@/lib/document-status'
+import { downloadDocumentDocx } from '@/lib/download'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { Button } from '@/components/ui/Button'
 import toast from 'react-hot-toast'
@@ -14,7 +17,6 @@ import {
   DocumentTextIcon,
   ArrowLeftIcon,
   ArrowDownTrayIcon,
-  PencilIcon,
 } from '@heroicons/react/24/outline'
 
 interface Document {
@@ -46,6 +48,7 @@ export default function DocumentDetailPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+  const [isDownloading, setIsDownloading] = useState(false)
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -61,7 +64,7 @@ export default function DocumentDetailPage() {
       }
     } catch (error: any) {
       console.error('Failed to fetch document:', error)
-      toast.error('Failed to load document')
+      toast.error('Не вдалося завантажити роботу')
       router.push('/dashboard')
     } finally {
       setIsLoading(false)
@@ -72,7 +75,7 @@ export default function DocumentDetailPage() {
     // Check if user is authenticated
     const token = getAccessToken()
     if (!token) {
-      toast.error('Please sign in to view documents')
+      toast.error('Увійдіть, щоб переглядати роботи')
       router.push('/')
       return
     }
@@ -82,13 +85,13 @@ export default function DocumentDetailPage() {
 
   const handleGenerationComplete = () => {
     setIsGenerating(false)
-    toast.success('Document generation completed!')
+    toast.success('Генерацію завершено!')
     fetchDocument() // Refresh document data
   }
 
   const handleGenerationError = (error: string) => {
     setIsGenerating(false)
-    toast.error(`Generation failed: ${error}`)
+    toast.error(`Генерація не вдалася: ${error}`)
     fetchDocument() // Refresh to get updated status
   }
 
@@ -96,16 +99,27 @@ export default function DocumentDetailPage() {
     setIsStarting(true)
     try {
       await apiClient.post(API_ENDPOINTS.GENERATE.FULL, { document_id: documentId })
-      toast.success('Generation started')
+      toast.success('Генерація пішла')
       setIsGenerating(true)
       // Optimistically flip status so the progress panel replaces the empty state.
       setDocument((prev) => (prev ? { ...prev, status: 'generating' } : prev))
     } catch (error: any) {
       // The backend returns a human-readable detail for 400/402/429
       // (page cap, payment required, daily limits) — surface it directly.
-      toast.error(error?.message || 'Failed to start generation')
+      toast.error(error?.message || 'Не вдалося запустити генерацію')
     } finally {
       setIsStarting(false)
+    }
+  }
+
+  const handleDownload = async () => {
+    setIsDownloading(true)
+    try {
+      await downloadDocumentDocx(documentId)
+    } catch (error: any) {
+      toast.error(error?.message || 'Не вдалося завантажити файл')
+    } finally {
+      setIsDownloading(false)
     }
   }
 
@@ -124,12 +138,12 @@ export default function DocumentDetailPage() {
       <DashboardLayout>
         <div className="text-center py-12">
           <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Document not found</h3>
-          <p className="mt-1 text-sm text-gray-500">The document you&apos;re looking for doesn&apos;t exist.</p>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Роботу не знайдено</h3>
+          <p className="mt-1 text-sm text-gray-500">Такої роботи не існує або її видалено.</p>
           <div className="mt-6">
             <Button onClick={() => router.push('/dashboard')}>
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              Back to Dashboard
+              До моїх робіт
             </Button>
           </div>
         </div>
@@ -138,6 +152,7 @@ export default function DocumentDetailPage() {
   }
 
   const isGeneratingStatus = document.status === 'generating' || document.status === 'payment_pending'
+  const status = documentStatus(document.status)
 
   return (
     <DashboardLayout>
@@ -150,44 +165,35 @@ export default function DocumentDetailPage() {
               onClick={() => router.push('/dashboard')}
             >
               <ArrowLeftIcon className="h-4 w-4 mr-2" />
-              Back
+              Назад
             </Button>
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{document.title}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 font-serif">{document.title}</h1>
               <p className="mt-1 text-sm text-gray-500">{document.topic}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
             {document.status === 'completed' && (
-              <Button>
-                <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
-                Export
+              <Button onClick={handleDownload} disabled={isDownloading} data-testid="download-docx-button">
+                {isDownloading ? (
+                  <LoadingSpinner className="h-4 w-4 mr-2" />
+                ) : (
+                  <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+                )}
+                Завантажити DOCX
               </Button>
             )}
-            <Button variant="outline">
-              <PencilIcon className="h-4 w-4 mr-2" />
-              Edit
-            </Button>
           </div>
         </div>
 
         {/* Status Badge */}
         <div className="flex items-center gap-2">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-            document.status === 'completed' ? 'bg-green-100 text-green-800' :
-            document.status === 'generating' ? 'bg-primary-100 text-primary-800' :
-            document.status === 'failed' ? 'bg-red-100 text-red-800' :
-            'bg-gray-100 text-gray-800'
-          }`}>
-            {document.status === 'completed' ? 'Completed' :
-             document.status === 'generating' ? 'Generating' :
-             document.status === 'failed' ? 'Failed' :
-             document.status === 'payment_pending' ? 'Payment Pending' :
-             'Draft'}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.badgeClass}`}>
+            {status.label}
           </span>
           {document.word_count > 0 && (
             <span className="text-sm text-gray-500">
-              {document.word_count.toLocaleString()} words
+              {document.word_count.toLocaleString('uk-UA')} слів
             </span>
           )}
         </div>
@@ -201,18 +207,6 @@ export default function DocumentDetailPage() {
           />
         )}
 
-        {/* Document Content */}
-        {document.status === 'completed' && document.content && (
-          <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Document Content</h2>
-            <div className="prose max-w-none">
-              <div className="whitespace-pre-wrap text-gray-700">
-                {document.content}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Sources certificate: cited sources with verification statuses */}
         {!isGeneratingStatus && document.status !== 'draft' && (
           <>
@@ -221,10 +215,27 @@ export default function DocumentDetailPage() {
           </>
         )}
 
+        {/* Manager feedback — always available once generation has run */}
+        {!isGeneratingStatus && document.status !== 'draft' && (
+          <DocumentFeedback documentId={documentId} />
+        )}
+
+        {/* Document Content */}
+        {document.status === 'completed' && document.content && (
+          <div className="bg-white shadow rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Текст роботи</h2>
+            <div className="prose max-w-none">
+              <div className="whitespace-pre-wrap text-gray-700 font-serif leading-relaxed">
+                {document.content}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Sections */}
         {document.sections && document.sections.length > 0 && (
           <div className="bg-white shadow rounded-lg p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Sections</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Розділи</h2>
             <div className="space-y-4">
               {document.sections
                 .sort((a, b) => a.section_index - b.section_index)
@@ -234,12 +245,8 @@ export default function DocumentDetailPage() {
                       <h3 className="font-medium text-gray-900">
                         {section.section_index}. {section.title}
                       </h3>
-                      <span className={`text-xs px-2 py-1 rounded ${
-                        section.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        section.status === 'generating' ? 'bg-primary-100 text-primary-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
-                        {section.status}
+                      <span className={`text-xs px-2 py-1 rounded ${documentStatus(section.status).badgeClass}`}>
+                        {documentStatus(section.status).label}
                       </span>
                     </div>
                     {section.content && (
@@ -249,7 +256,7 @@ export default function DocumentDetailPage() {
                     )}
                     {section.word_count > 0 && (
                       <div className="mt-2 text-xs text-gray-500">
-                        {section.word_count.toLocaleString()} words
+                        {section.word_count.toLocaleString('uk-UA')} слів
                       </div>
                     )}
                   </div>
@@ -262,9 +269,9 @@ export default function DocumentDetailPage() {
         {document.status === 'draft' && !document.content && (
           <div className="bg-white shadow rounded-lg p-12 text-center">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Document not generated yet</h3>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">Роботу ще не згенеровано</h3>
             <p className="mt-1 text-sm text-gray-500">
-              This document is still in draft mode. Start generation to create content.
+              Це поки чернетка. Натисни «Згенерувати», щоб запустити процес.
             </p>
             <div className="mt-6">
               <Button
@@ -275,10 +282,10 @@ export default function DocumentDetailPage() {
                 {isStarting ? (
                   <>
                     <LoadingSpinner className="h-4 w-4 mr-2" />
-                    Starting...
+                    Запускаємо…
                   </>
                 ) : (
-                  'Start generation'
+                  'Згенерувати'
                 )}
               </Button>
             </div>

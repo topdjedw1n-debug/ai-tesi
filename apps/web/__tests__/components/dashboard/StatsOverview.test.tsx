@@ -62,7 +62,7 @@ describe('StatsOverview Component', () => {
       render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
       // Check all stat values are displayed
@@ -83,12 +83,12 @@ describe('StatsOverview Component', () => {
       render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Words Generated')).toBeInTheDocument();
-      expect(screen.getByText('Total Cost')).toBeInTheDocument();
-      expect(screen.getByText('AI Tokens Used')).toBeInTheDocument();
+      expect(screen.getByText('Згенеровано слів')).toBeInTheDocument();
+      expect(screen.getByText('Витрати')).toBeInTheDocument();
+      expect(screen.getByText('Використано токенів')).toBeInTheDocument();
     });
 
     it('handles zero stats gracefully', async () => {
@@ -102,7 +102,7 @@ describe('StatsOverview Component', () => {
       render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
       expect(screen.getByText('€0.00')).toBeInTheDocument();
@@ -119,7 +119,7 @@ describe('StatsOverview Component', () => {
       render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
       expect(screen.getByText('1,234,567')).toBeInTheDocument();
@@ -139,7 +139,7 @@ describe('StatsOverview Component', () => {
         expect(screen.getByText('€0.00')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Total Documents')).toBeInTheDocument();
+      expect(screen.getByText('Усього робіт')).toBeInTheDocument();
     });
 
     it('handles partial data from API', async () => {
@@ -208,14 +208,14 @@ describe('StatsOverview Component', () => {
       render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
       // Should have 4 distinct stat labels
-      expect(screen.getByText('Total Documents')).toBeInTheDocument();
-      expect(screen.getByText('Words Generated')).toBeInTheDocument();
-      expect(screen.getByText('Total Cost')).toBeInTheDocument();
-      expect(screen.getByText('AI Tokens Used')).toBeInTheDocument();
+      expect(screen.getByText('Усього робіт')).toBeInTheDocument();
+      expect(screen.getByText('Згенеровано слів')).toBeInTheDocument();
+      expect(screen.getByText('Витрати')).toBeInTheDocument();
+      expect(screen.getByText('Використано токенів')).toBeInTheDocument();
     });
 
     it('displays icons for each stat', async () => {
@@ -229,7 +229,7 @@ describe('StatsOverview Component', () => {
       const { container } = render(<StatsOverview />);
 
       await waitFor(() => {
-        expect(screen.getByText('Total Documents')).toBeInTheDocument();
+        expect(screen.getByText('Усього робіт')).toBeInTheDocument();
       });
 
       // Should have SVG icons (Heroicons)

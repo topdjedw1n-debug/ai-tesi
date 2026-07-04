@@ -34,7 +34,7 @@ describe('RecentActivity Component', () => {
   });
 
   describe('Loading State', () => {
-    it('shows loading skeleton with Recent Activity header', () => {
+    it('shows loading skeleton with list header', () => {
       (apiClient.get as jest.Mock).mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
       );
@@ -42,7 +42,7 @@ describe('RecentActivity Component', () => {
       render(<RecentActivity />);
 
       // Component shows "Recent Activity" header, not "loading" text
-      expect(screen.getByText('Recent Activity')).toBeInTheDocument();
+      expect(screen.getByText('Останні події')).toBeInTheDocument();
       // Check for skeleton elements
       const skeletons = document.querySelectorAll('.animate-pulse');
       expect(skeletons.length).toBeGreaterThan(0);
@@ -141,7 +141,7 @@ describe('RecentActivity Component', () => {
       render(<RecentActivity />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no recent activity/i)).toBeInTheDocument();
+        expect(screen.getByText(/Поки що подій немає/)).toBeInTheDocument();
       });
     });
 
@@ -151,7 +151,7 @@ describe('RecentActivity Component', () => {
       render(<RecentActivity />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no recent activity/i)).toBeInTheDocument();
+        expect(screen.getByText(/Поки що подій немає/)).toBeInTheDocument();
       });
     });
   });
@@ -164,7 +164,7 @@ describe('RecentActivity Component', () => {
 
       // Should show empty state after error
       await waitFor(() => {
-        expect(screen.getByText(/no recent activity/i)).toBeInTheDocument();
+        expect(screen.getByText(/Поки що подій немає/)).toBeInTheDocument();
       });
     });
   });
@@ -245,7 +245,7 @@ describe('RecentActivity Component', () => {
 
       expect(screen.getByText('My Outline Document')).toBeInTheDocument();
       expect(screen.getByText('My Completed Document')).toBeInTheDocument();
-      
+
       // Check activity labels are shown
       expect(screen.getByText('Document Created')).toBeInTheDocument();
       expect(screen.getByText('Outline Generated')).toBeInTheDocument();

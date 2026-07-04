@@ -323,6 +323,7 @@ export const API_ENDPOINTS = {
     DELETE: (id: number) => `/api/v1/documents/${id}`,
     EXPORT: (id: number) => `/api/v1/documents/${id}/export`,
     PROVENANCE: (id: number) => `/api/v1/documents/${id}/provenance`,
+    FEEDBACK: (id: number) => `/api/v1/documents/${id}/feedback`,
   },
 
   /**

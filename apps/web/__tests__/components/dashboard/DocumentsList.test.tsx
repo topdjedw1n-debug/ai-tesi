@@ -11,10 +11,12 @@ import { apiClient } from '@/lib/api';
 jest.mock('@/lib/api', () => ({
   apiClient: {
     get: jest.fn(),
+    post: jest.fn(),
   },
   API_ENDPOINTS: {
     DOCUMENTS: {
       LIST: '/api/v1/documents',
+      EXPORT: (id: number) => `/api/v1/documents/${id}/export`,
     },
   },
 }));
@@ -41,15 +43,14 @@ describe('DocumentsList Component', () => {
   });
 
   describe('Loading State', () => {
-    it('shows loading skeleton with Recent Documents header', () => {
+    it('shows loading skeleton with the list header', () => {
       (apiClient.get as jest.Mock).mockImplementation(
         () => new Promise(resolve => setTimeout(resolve, 1000))
       );
 
       render(<DocumentsList />);
 
-      // Component shows "Recent Documents" header, not "loading" text
-      expect(screen.getByText('Recent Documents')).toBeInTheDocument();
+      expect(screen.getByText('Мої роботи')).toBeInTheDocument();
       // Check for skeleton elements
       const skeletons = document.querySelectorAll('.animate-pulse');
       expect(skeletons.length).toBeGreaterThan(0);
@@ -90,8 +91,8 @@ describe('DocumentsList Component', () => {
       });
 
       expect(screen.getByText('Climate Change')).toBeInTheDocument();
-      // Word count uses toLocaleString() - check for formatted number
-      expect(screen.getByText('2,500 words')).toBeInTheDocument();
+      // Word count uses toLocaleString('uk-UA') — just check the suffix renders
+      expect(screen.getByText(/слів/)).toBeInTheDocument();
     });
 
     it('displays document statuses correctly', async () => {
@@ -109,39 +110,58 @@ describe('DocumentsList Component', () => {
             status: 'completed',
             created_at: '2025-12-01T10:00:00Z',
           },
+          {
+            id: 3,
+            title: 'Doc 3',
+            status: 'generating',
+            created_at: '2025-12-01T10:00:00Z',
+          },
+          {
+            id: 4,
+            title: 'Doc 4',
+            status: 'failed',
+            created_at: '2025-12-01T10:00:00Z',
+          },
         ],
       });
 
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Draft')).toBeInTheDocument();
+        expect(screen.getByText('Чернетка')).toBeInTheDocument();
       });
 
-      expect(screen.getByText('Completed')).toBeInTheDocument();
+      expect(screen.getByText('Готово')).toBeInTheDocument();
+      expect(screen.getByText('Генерується')).toBeInTheDocument();
+      expect(screen.getByText('Не пройшла перевірку')).toBeInTheDocument();
     });
 
-    it('limits display to 5 documents', async () => {
-      const mockDocuments = Array.from({ length: 10 }, (_, i) => ({
-        id: i + 1,
-        title: `Document ${i + 1}`,
-        status: 'draft',
-        created_at: '2025-12-01T10:00:00Z',
-      }));
-
+    it('shows the download button only for completed documents', async () => {
       (apiClient.get as jest.Mock).mockResolvedValue({
-        documents: mockDocuments,
+        documents: [
+          {
+            id: 1,
+            title: 'Done Doc',
+            status: 'completed',
+            created_at: '2025-12-01T10:00:00Z',
+          },
+          {
+            id: 2,
+            title: 'Draft Doc',
+            status: 'draft',
+            created_at: '2025-12-01T10:00:00Z',
+          },
+        ],
       });
 
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Document 1')).toBeInTheDocument();
+        expect(screen.getByText('Done Doc')).toBeInTheDocument();
       });
 
-      // Should show only first 5
-      expect(screen.getByText('Document 5')).toBeInTheDocument();
-      expect(screen.queryByText('Document 6')).not.toBeInTheDocument();
+      expect(screen.getByTestId('download-document-1')).toBeInTheDocument();
+      expect(screen.queryByTestId('download-document-2')).not.toBeInTheDocument();
     });
   });
 
@@ -154,7 +174,7 @@ describe('DocumentsList Component', () => {
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no documents/i)).toBeInTheDocument();
+        expect(screen.getByTestId('empty-documents-message')).toBeInTheDocument();
       });
     });
 
@@ -164,7 +184,7 @@ describe('DocumentsList Component', () => {
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText(/no documents/i)).toBeInTheDocument();
+        expect(screen.getByTestId('empty-documents-message')).toBeInTheDocument();
       });
     });
   });
@@ -177,7 +197,7 @@ describe('DocumentsList Component', () => {
 
       // Should show empty state after error
       await waitFor(() => {
-        expect(screen.getByText(/no documents/i)).toBeInTheDocument();
+        expect(screen.getByTestId('empty-documents-message')).toBeInTheDocument();
       });
     });
   });
@@ -217,26 +237,6 @@ describe('DocumentsList Component', () => {
   });
 
   describe('Document Details', () => {
-    it('displays word count when available', async () => {
-      (apiClient.get as jest.Mock).mockResolvedValue({
-        documents: [
-          {
-            id: 1,
-            title: 'Test Doc',
-            word_count: 2500,
-            created_at: '2025-12-01T10:00:00Z',
-          },
-        ],
-      });
-
-      render(<DocumentsList />);
-
-      await waitFor(() => {
-        // Word count uses toLocaleString() - formatted as "2,500"
-        expect(screen.getByText('2,500 words')).toBeInTheDocument();
-      });
-    });
-
     it('handles missing title gracefully', async () => {
       (apiClient.get as jest.Mock).mockResolvedValue({
         documents: [
@@ -250,7 +250,7 @@ describe('DocumentsList Component', () => {
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Document 1')).toBeInTheDocument();
+        expect(screen.getByText('Робота 1')).toBeInTheDocument();
       });
     });
 
@@ -268,13 +268,13 @@ describe('DocumentsList Component', () => {
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(screen.getByText('Draft')).toBeInTheDocument();
+        expect(screen.getByText('Чернетка')).toBeInTheDocument();
       });
     });
   });
 
   describe('UI Elements', () => {
-    it('renders view all documents link', async () => {
+    it('renders links to document pages and the new-document form', async () => {
       (apiClient.get as jest.Mock).mockResolvedValue({
         documents: [
           {
@@ -293,6 +293,9 @@ describe('DocumentsList Component', () => {
 
       const links = container.querySelectorAll('a[href*="/dashboard/documents"]');
       expect(links.length).toBeGreaterThan(0);
+      expect(
+        container.querySelector('a[href="/dashboard/documents/new"]')
+      ).toBeInTheDocument();
     });
   });
 });

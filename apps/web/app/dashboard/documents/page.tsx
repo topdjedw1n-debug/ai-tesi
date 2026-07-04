@@ -16,7 +16,7 @@ export default function DocumentsPage() {
     // Check if user is authenticated
     const token = getAccessToken()
     if (!token) {
-      toast.error('Please sign in to view documents')
+      toast.error('Увійдіть, щоб переглядати роботи')
       router.push('/')
       return
     }
@@ -26,9 +26,9 @@ export default function DocumentsPage() {
     <DashboardLayout>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">My Documents</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Мої роботи</h1>
           <p className="mt-1 text-sm text-gray-500">
-            View and manage all your generated documents
+            Усі твої замовлення і їхній стан
           </p>
         </div>
 

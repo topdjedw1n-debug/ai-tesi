@@ -24,31 +24,31 @@ const STATUS_CONFIG: Record<
   { label: string; badgeClass: string; Icon: typeof CheckCircleIcon; iconClass: string }
 > = {
   passed: {
-    label: 'Passed',
+    label: 'Пройдено',
     badgeClass: 'bg-green-100 text-green-800',
     Icon: CheckCircleIcon,
     iconClass: 'text-green-500',
   },
   failed: {
-    label: 'Needs review',
+    label: 'Потребує уваги',
     badgeClass: 'bg-red-100 text-red-800',
     Icon: ExclamationTriangleIcon,
     iconClass: 'text-red-500',
   },
   warning: {
-    label: 'Warning',
+    label: 'Попередження',
     badgeClass: 'bg-amber-100 text-amber-800',
     Icon: ExclamationTriangleIcon,
     iconClass: 'text-amber-500',
   },
   unchecked: {
-    label: 'Unchecked',
+    label: 'Не перевірено',
     badgeClass: 'bg-amber-100 text-amber-800',
     Icon: QuestionMarkCircleIcon,
     iconClass: 'text-amber-500',
   },
   missing: {
-    label: 'No data',
+    label: 'Немає даних',
     badgeClass: 'bg-gray-100 text-gray-800',
     Icon: QuestionMarkCircleIcon,
     iconClass: 'text-gray-400',
@@ -88,85 +88,85 @@ function formatNumber(value: number): string {
 }
 
 function checkDetail(check: QualityEvidenceSummary['checks']['grammar']): string {
-  if (check.status === 'missing') return 'No quality gate events are available for this document.'
+  if (check.status === 'missing') return 'По цій роботі немає записів перевірок якості.'
   if (check.status === 'unchecked') {
-    return `Unchecked on ${check.unchecked}/${check.total} sections — provider disabled or unavailable.`
+    return `Не перевірено на ${check.unchecked}/${check.total} розділах — перевірка вимкнена або недоступна.`
   }
-  return `${check.passed}/${check.total} passed · ${check.failed} failed · ${check.unchecked} unchecked`
+  return `${check.passed}/${check.total} пройдено · ${check.failed} провалено · ${check.unchecked} не перевірено`
 }
 
 function sourcePackDetail(sourcePack: QualityEvidenceSummary['sourcePack']): string {
   if (sourcePack.status === 'missing') {
-    return 'No source pack was recorded for this run (grounding disabled or legacy document).'
+    return 'Пак джерел для цього прогону не записано (grounding вимкнено або стара робота).'
   }
   if (sourcePack.status === 'failed') {
-    return 'Source pack is empty — generation ran closed-book.'
+    return 'Пак джерел порожній — генерація йшла без опори на джерела.'
   }
-  const bilingual = sourcePack.bilingual ? ' · bilingual search' : ''
+  const bilingual = sourcePack.bilingual ? ' · двомовний пошук' : ''
   if (sourcePack.status === 'warning') {
-    return `${sourcePack.packSize} sources — relevance threshold was relaxed to fill the pack, review sources${bilingual}`
+    return `${sourcePack.packSize} джерел — поріг релевантності було послаблено, переглянь джерела${bilingual}`
   }
-  return `${sourcePack.packSize} on-topic sources in the pack${bilingual}`
+  return `${sourcePack.packSize} джерел за темою у паку${bilingual}`
 }
 
 function buildRows(summary: QualityEvidenceSummary) {
   return [
     {
-      title: 'Source availability',
+      title: 'Наявність джерел',
       status: summary.sourcePack.status,
       detail: sourcePackDetail(summary.sourcePack),
     },
     {
-      title: 'Citation gate',
+      title: 'Перевірка цитат',
       status: summary.citationGate.status,
       detail:
         summary.citationGate.status === 'missing'
-          ? 'Citation verification has not emitted a gate event yet.'
-          : `${summary.citationGate.total ?? 0} sources checked · ${summary.citationGate.failedCount} need review · policy ${summary.citationGate.policy ?? 'unknown'}`,
+          ? 'Верифікація цитат ще не залишила запису по цій роботі.'
+          : `${summary.citationGate.total ?? 0} джерел перевірено · ${summary.citationGate.failedCount} потребують уваги · політика ${summary.citationGate.policy ?? 'невідома'}`,
     },
     {
-      title: 'Section quality gates',
+      title: 'Якість розділів',
       status: summary.qualityGates.status,
       detail:
         summary.qualityGates.status === 'missing'
-          ? 'No quality gate events are available for this document.'
-          : `${summary.qualityGates.passed}/${summary.qualityGates.total} passed · ${summary.qualityGates.failed} failed · ${summary.qualityGates.unchecked} unchecked`,
+          ? 'По цій роботі немає записів перевірок якості.'
+          : `${summary.qualityGates.passed}/${summary.qualityGates.total} пройдено · ${summary.qualityGates.failed} провалено · ${summary.qualityGates.unchecked} не перевірено`,
     },
     {
-      title: 'Grammar',
+      title: 'Граматика',
       status: summary.checks.grammar.status,
       detail: checkDetail(summary.checks.grammar),
     },
     {
-      title: 'Plagiarism',
+      title: 'Плагіат',
       status: summary.checks.plagiarism.status,
       detail: checkDetail(summary.checks.plagiarism),
     },
     {
-      title: 'AI detection',
+      title: 'AI-детектор',
       status: summary.checks.aiDetection.status,
       detail: checkDetail(summary.checks.aiDetection),
     },
     {
-      title: 'Claim support',
+      title: 'Підкріпленість тверджень',
       status: summary.claimVerification.status,
       detail:
         summary.claimVerification.status === 'missing'
-          ? 'Claim verification is unavailable or not enabled for this run.'
-          : `${summary.claimVerification.checked}/${summary.claimVerification.total} checked · ${summary.claimVerification.unsupported} unsupported · ${summary.claimVerification.uncertain} uncertain`,
+          ? 'Перевірка тверджень недоступна або вимкнена для цього прогону.'
+          : `${summary.claimVerification.checked}/${summary.claimVerification.total} перевірено · ${summary.claimVerification.unsupported} без опори · ${summary.claimVerification.uncertain} непевних`,
     },
     {
-      title: 'Reviewer panel',
+      title: 'Панель рецензентів',
       status: summary.reviewerPanel.status,
       detail:
         summary.reviewerPanel.status === 'missing'
-          ? 'Reviewer panel is unavailable or not enabled for this run.'
-          : `${summary.reviewerPanel.passed}/${summary.reviewerPanel.total} passed · ${summary.reviewerPanel.failed} failed · ${summary.reviewerPanel.criticalOverrides} critical overrides`,
+          ? 'Панель рецензентів недоступна або вимкнена для цього прогону.'
+          : `${summary.reviewerPanel.passed}/${summary.reviewerPanel.total} пройдено · ${summary.reviewerPanel.failed} провалено · ${summary.reviewerPanel.criticalOverrides} критичних override`,
     },
     {
-      title: 'External detectors',
+      title: 'Зовнішні детектори',
       status: 'missing' as GateStatus,
-      detail: 'Record plagiarism and AI-risk detector results in the Phase 1 run report before delivery.',
+      detail: 'Результати зовнішніх перевірок (плагіат, AI-ризик) фіксуються у звіті прогону перед видачею.',
     },
   ]
 }
@@ -203,7 +203,7 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
   if (isLoading) {
     return (
       <div className="bg-white shadow rounded-lg p-6" data-testid="quality-evidence-loading">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">QA Evidence</h2>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Докази якості</h2>
         <div className="space-y-3 animate-pulse">
           <div className="h-10 bg-gray-100 rounded" />
           <div className="h-10 bg-gray-100 rounded" />
@@ -215,17 +215,17 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
 
   if (!summary) return null
 
-  const models = summary.generation.models.length > 0 ? summary.generation.models.join(', ') : 'unknown model'
+  const models = summary.generation.models.length > 0 ? summary.generation.models.join(', ') : 'невідома модель'
   const providers =
-    summary.generation.providers.length > 0 ? summary.generation.providers.join(', ') : 'unknown provider'
+    summary.generation.providers.length > 0 ? summary.generation.providers.join(', ') : 'невідомий провайдер'
 
   return (
     <div className="bg-white shadow rounded-lg p-6" data-testid="quality-evidence">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">QA Evidence</h2>
+          <h2 className="text-lg font-semibold text-gray-900">Докази якості</h2>
           <p className="mt-1 text-sm text-gray-500">
-            Internal manager proof for Phase 1 release decisions.
+            Причини довіряти чи не довіряти цій роботі перед видачею
           </p>
         </div>
         <ShieldCheckIcon className="h-6 w-6 text-primary-500 flex-shrink-0" aria-hidden="true" />
@@ -233,19 +233,19 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
 
       <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="rounded-lg bg-gray-50 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Sections</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Розділів</p>
           <p className="mt-1 text-lg font-semibold text-gray-900">
             {formatNumber(summary.generation.sectionsGenerated)}
           </p>
         </div>
         <div className="rounded-lg bg-gray-50 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Words</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Слів</p>
           <p className="mt-1 text-lg font-semibold text-gray-900">
             {formatNumber(summary.generation.wordsGenerated)}
           </p>
         </div>
         <div className="rounded-lg bg-gray-50 p-3">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Tokens</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Токенів</p>
           <p className="mt-1 text-lg font-semibold text-gray-900">
             {formatNumber(summary.generation.tokensUsed)}
           </p>
@@ -253,7 +253,7 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
       </div>
 
       <p className="mt-3 text-xs text-gray-500">
-        Generated with {models} via {providers}.
+        Згенеровано моделлю {models} ({providers}).
       </p>
 
       <ul className="mt-3 divide-y divide-gray-100">

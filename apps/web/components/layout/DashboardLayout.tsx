@@ -17,10 +17,10 @@ import {
 } from '@heroicons/react/24/outline'
 
 const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
-  { name: 'Documents', href: '/dashboard/documents', icon: DocumentTextIcon },
+  { name: 'Головна', href: '/dashboard', icon: HomeIcon },
+  { name: 'Мої роботи', href: '/dashboard/documents', icon: DocumentTextIcon },
   { name: 'Профіль', href: '/dashboard/profile', icon: UserCircleIcon },
-  { name: 'Settings', href: '/dashboard/settings', icon: Cog6ToothIcon },
+  { name: 'Налаштування', href: '/dashboard/settings', icon: Cog6ToothIcon },
 ]
 
 interface DashboardLayoutProps {

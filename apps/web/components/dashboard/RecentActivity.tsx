@@ -70,7 +70,7 @@ export function RecentActivity() {
     return (
       <div className="bg-white shadow rounded-lg">
         <div className="px-4 py-5 sm:p-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+          <h3 className="text-lg font-medium text-gray-900 mb-4">Останні події</h3>
           <div className="space-y-4">
             {[...Array(5)].map((_, i) => (
               <div key={i} className="flex items-start space-x-3">
@@ -91,13 +91,13 @@ export function RecentActivity() {
   return (
     <div className="bg-white shadow rounded-lg">
       <div className="px-4 py-5 sm:p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-4">Recent Activity</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-4">Останні події</h3>
 
         {activities.length === 0 ? (
           <div className="text-center py-8">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-            <p className="mt-1 text-sm text-gray-500">Your recent activities will appear here.</p>
+            <h3 className="mt-2 text-sm font-medium text-gray-900">Поки що подій немає</h3>
+            <p className="mt-1 text-sm text-gray-500">Тут з&rsquo;являтимуться події по твоїх роботах.</p>
           </div>
         ) : (
           <div className="flow-root">
