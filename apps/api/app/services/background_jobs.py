@@ -470,8 +470,9 @@ async def _check_ai_detection_quality(
                 score_trace["initial_ai_score"] = ai_score
                 score_trace["multi_pass"] = False
 
-            # If score too high, try multi-pass humanization
-            if ai_score > threshold:
+            # If score too high, try multi-pass humanization (unless the
+            # humanizer is disabled — Block-1 measures the raw writer).
+            if ai_score > threshold and settings.HUMANIZER_ENABLED:
                 logger.info(
                     f"AI score {ai_score:.1f}% > {threshold}%, running multi-pass..."
                 )
@@ -1215,17 +1216,26 @@ class BackgroundJobService:
                                             },
                                         )
 
-                            # Step 3: Humanize content (mandatory)
-                            logger.info(
-                                f"Humanizing section {section_index}: {section_title}"
-                            )
-                            humanized_content = await humanizer.humanize(
-                                text=section_result.get("content", ""),
-                                provider=document.ai_provider,
-                                model=document.ai_model,
-                                preserve_citations=True,
-                                language=document.language,
-                            )
+                            # Step 3: Humanize content (gated by HUMANIZER_ENABLED;
+                            # off = keep raw writer text, for the Block-1 writer
+                            # experiment that measures unrescued Compilatio score)
+                            if settings.HUMANIZER_ENABLED:
+                                logger.info(
+                                    f"Humanizing section {section_index}: {section_title}"
+                                )
+                                humanized_content = await humanizer.humanize(
+                                    text=section_result.get("content", ""),
+                                    provider=document.ai_provider,
+                                    model=document.ai_model,
+                                    preserve_citations=True,
+                                    language=document.language,
+                                )
+                            else:
+                                logger.info(
+                                    f"Humanizer disabled — raw writer text for "
+                                    f"section {section_index}"
+                                )
+                                humanized_content = section_result.get("content", "")
 
                             # ========== QUALITY GATES START ==========
                             # ✅ BUG FIX: Always run ALL checks (for metrics), only block if gates enabled

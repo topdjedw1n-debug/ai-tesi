@@ -73,8 +73,10 @@ class Settings(BaseSettings):
     # Opus leads the chain per Phase 4c: on Compilatio (the real submission
     # detector) Opus texts score 19-21% vs gpt-4's 53% — the inverse of what
     # GPTZero predicted (MODEL-MATRIX-EXPERIMENT.md, Фаза 4c).
+    # Writer fallback is gpt-4o, NOT gpt-4 classic: cheaper AND more capable
+    # (cost review 03.07.2026 retired gpt-4 classic from every default).
     AI_FALLBACK_CHAIN: str = (
-        "anthropic:claude-opus-4-8," "openai:gpt-4," "anthropic:claude-sonnet-5"
+        "anthropic:claude-opus-4-8," "openai:gpt-4o," "anthropic:claude-sonnet-5"
     )
 
     # Cross-model humanization (doc-10 finding: a model paraphrasing its own
@@ -94,10 +96,16 @@ class Settings(BaseSettings):
 
     # Best-of-N: per rescue attempt, generate this many humanized variants in
     # parallel (varying the style directive) and keep the lowest-scoring one.
-    # 1 = legacy single-variant serial behavior. 3 since Phase 4 (Opus raw
-    # 96.5 → 26.0 vs 79.0 serial); only fires when the AI gate fails, so it
-    # triples rescue cost, not baseline cost.
-    HUMANIZER_BEST_OF_N: int = 3
+    # 1 = legacy single-variant serial behavior. Lowered 3 → 2 (cost review
+    # 03.07.2026): gpt-4 rescue+judge dominated the bill ($45/day vs $6 Opus);
+    # best-of-2 keeps most of the win at 2/3 the rescue calls. Only fires when
+    # the AI gate fails, so it scales rescue cost, not baseline cost.
+    HUMANIZER_BEST_OF_N: int = 2
+
+    # Master switch for the humanization step. False = sections keep the raw
+    # writer output (no single-pass rewrite, no multi-pass rescue) — used to
+    # measure a writer's UNrescued Compilatio score (experiment Block 1).
+    HUMANIZER_ENABLED: bool = True
 
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
     # USD cents (pricing tables are USD); the € shown in the manager UI is a
@@ -165,14 +173,20 @@ class Settings(BaseSettings):
     # finding from the devil's advocate fails the gate regardless of the
     # weighted average.
     QUALITY_PANEL_ENABLED: bool = False
-    QUALITY_PANEL_PASS_SCORE: float = 70.0  # gate threshold for the aggregate
+    # 70 → 60: recalibrated for the gpt-4.1-mini judge, which scores a
+    # consistent ~9.5 below the old gpt-4 reference (Block 0, 03.07.2026).
+    # 60@gpt-4.1-mini ≈ 70@gpt-4 in effective strictness at ~75× the cost.
+    QUALITY_PANEL_PASS_SCORE: float = 60.0  # gate threshold for the aggregate
     QUALITY_PANEL_MIN_REVIEWERS: int = 2  # panel valid with this many reviewers
     # Panel judge is pinned, NOT the fallback-chain head: judges differ wildly
     # (gpt-4 scores 87-95 where sonnet-5 gives 34-52 and opus-4-8 ~64 on the
     # same text), so a chain reorder must not silently re-judge the gate.
     # Unset either value to fall back to the chain (legacy behavior).
+    # gpt-4-mini, not gpt-4 classic: judging is scoring, not evasion — no need
+    # for the $30/$60 model (cost review 03.07.2026 retired gpt-4 classic).
+    # NOTE: a new judge scores differently — re-baseline the pass score.
     QUALITY_JUDGE_PROVIDER: str | None = "openai"
-    QUALITY_JUDGE_MODEL: str | None = "gpt-4"
+    QUALITY_JUDGE_MODEL: str | None = "gpt-4.1-mini"
 
     # Academic Quality Engine - Claim faithfulness audit (advisory; OFF by default).
     # Checks via LLM whether cited sentences are actually supported by the

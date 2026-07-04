@@ -28,6 +28,36 @@ from app.services.retry_strategy import RetryStrategy
 logger = logging.getLogger(__name__)
 
 
+def _loads_lenient(content: str) -> dict[str, Any] | None:
+    """Parse a JSON object from a model response, tolerating markdown fences
+    and surrounding prose. gpt-4o and other newer OpenAI models routinely wrap
+    JSON in ```json ... ``` despite instructions, which broke a plain
+    json.loads (Block-1: gpt-4o outline came back with no 'sections').
+    Returns the dict, or None if no JSON object can be recovered."""
+    if not content:
+        return None
+    try:
+        parsed = json.loads(content)
+        return parsed if isinstance(parsed, dict) else None
+    except json.JSONDecodeError:
+        pass
+    text = content.strip()
+    # Strip a leading ```json / ``` fence and its closing fence.
+    if text.startswith("```"):
+        text = text.split("\n", 1)[-1]
+        if text.rstrip().endswith("```"):
+            text = text.rstrip()[:-3]
+    # Fall back to the outermost {...} span.
+    start, end = text.find("{"), text.rfind("}")
+    if start != -1 and end > start:
+        try:
+            parsed = json.loads(text[start : end + 1])
+            return parsed if isinstance(parsed, dict) else None
+        except json.JSONDecodeError:
+            return None
+    return None
+
+
 class AIService:
     """Service for AI content generation"""
 
@@ -486,13 +516,11 @@ class AIService:
                     purpose="ai_service",
                 )
 
-            # Parse JSON from content string
-            try:
-                parsed_content = json.loads(content)
+            # Parse JSON from content string (tolerating markdown fences).
+            parsed_content = _loads_lenient(content)
+            if parsed_content is not None:
                 return {**parsed_content, "tokens_used": tokens_used}
-            except json.JSONDecodeError:
-                # If not valid JSON, return as-is
-                return {"content": content, "tokens_used": tokens_used}
+            return {"content": content, "tokens_used": tokens_used}
 
         # Call with retry strategy and circuit breaker
         return await self._openai_retry.execute_with_retry(_make_request)
@@ -536,7 +564,10 @@ class AIService:
                     purpose="ai_service",
                 )
 
-            # Parse JSON from content string
+            # Parse JSON from content string (tolerating markdown fences).
+            parsed_lenient = _loads_lenient(content)
+            if parsed_lenient is not None:
+                return {**parsed_lenient, "tokens_used": tokens_used}
             try:
                 parsed_content = json.loads(content)
                 return {**parsed_content, "tokens_used": tokens_used}
