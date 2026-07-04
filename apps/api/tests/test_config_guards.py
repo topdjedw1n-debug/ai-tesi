@@ -39,15 +39,31 @@ def test_claim_with_citation_accepted():
     assert settings.CITATION_VERIFICATION_ENABLED is True
 
 
-def test_defaults_accepted():
-    settings = Settings()
+def test_defaults_accepted(monkeypatch):
+    # Assert the *code* defaults, isolated from the environment: _env_file=None
+    # skips apps/api/.env, and delenv clears any ambient values (a stray .env is
+    # also pushed into os.environ by python-dotenv in other collected modules,
+    # which os.environ-reading Settings would otherwise pick up despite
+    # _env_file=None).
+    for var in ("CITATION_VERIFICATION_ENABLED", "CLAIM_VERIFICATION_ENABLED"):
+        monkeypatch.delenv(var, raising=False)
+
+    settings = Settings(_env_file=None)
     assert settings.CLAIM_VERIFICATION_ENABLED is False
     assert settings.CITATION_VERIFICATION_ENABLED is False
 
 
 def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
-    monkeypatch.delenv("MVP_FREE_GENERATION_ENABLED", raising=False)
-    monkeypatch.delenv("DAILY_TOKEN_LIMIT", raising=False)
+    # Isolate from both the ambient .env (_env_file=None) and any os.environ
+    # pollution left by other tests — every var asserted below is cleared so
+    # the constructed Settings reflects the code defaults, not the environment.
+    for var in (
+        "MVP_FREE_GENERATION_ENABLED",
+        "MVP_FREE_GENERATION_MAX_PAGES",
+        "MVP_FREE_GENERATION_DAILY_USER_LIMIT",
+        "DAILY_TOKEN_LIMIT",
+    ):
+        monkeypatch.delenv(var, raising=False)
 
     settings = Settings(_env_file=None)
 

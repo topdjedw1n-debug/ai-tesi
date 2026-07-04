@@ -718,11 +718,15 @@ async def test_retrieve_sources_combines_all_apis(retriever: RAGRetriever):
     tavily_docs = [SourceDoc(title="Tavily Paper", authors=[], year=2021)]
     serper_docs = [SourceDoc(title="Serper Paper", authors=[], year=2020)]
 
-    with patch.object(
+    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
+        retriever, "search_openalex", return_value=[]
+    ), patch.object(
         retriever, "search_semantic_scholar", return_value=semantic_docs
     ), patch.object(
         retriever, "search_perplexity", return_value=perplexity_docs
-    ), patch.object(retriever, "search_tavily", return_value=tavily_docs), patch.object(
+    ), patch.object(
+        retriever, "search_tavily", return_value=tavily_docs
+    ), patch.object(
         retriever, "search_serper", return_value=serper_docs
     ):
         # Act
@@ -749,11 +753,15 @@ async def test_retrieve_sources_deduplicates_results(retriever: RAGRetriever):
     semantic_docs = [duplicate_paper]
     perplexity_docs = [duplicate_paper]  # Duplicate
 
-    with patch.object(
+    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
+        retriever, "search_openalex", return_value=[]
+    ), patch.object(
         retriever, "search_semantic_scholar", return_value=semantic_docs
     ), patch.object(
         retriever, "search_perplexity", return_value=perplexity_docs
-    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+    ), patch.object(
+        retriever, "search_tavily", return_value=[]
+    ), patch.object(
         retriever, "search_serper", return_value=[]
     ):
         # Act
@@ -775,11 +783,15 @@ async def test_retrieve_sources_respects_limit(retriever: RAGRetriever):
         for i in range(50)
     ]
 
-    with patch.object(
+    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
+        retriever, "search_openalex", return_value=[]
+    ), patch.object(
         retriever, "search_semantic_scholar", return_value=many_docs[:25]
     ), patch.object(
         retriever, "search_perplexity", return_value=many_docs[25:]
-    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+    ), patch.object(
+        retriever, "search_tavily", return_value=[]
+    ), patch.object(
         retriever, "search_serper", return_value=[]
     ):
         # Act
@@ -796,11 +808,15 @@ async def test_retrieve_sources_handles_partial_api_failures(retriever: RAGRetri
     # Arrange
     semantic_docs = [SourceDoc(title="Semantic Paper", authors=[], year=2023)]
 
-    with patch.object(
+    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
+        retriever, "search_openalex", return_value=[]
+    ), patch.object(
         retriever, "search_semantic_scholar", return_value=semantic_docs
     ), patch.object(
         retriever, "search_perplexity", side_effect=Exception("API error")
-    ), patch.object(retriever, "search_tavily", return_value=[]), patch.object(
+    ), patch.object(
+        retriever, "search_tavily", return_value=[]
+    ), patch.object(
         retriever, "search_serper", return_value=[]
     ):
         # Act
