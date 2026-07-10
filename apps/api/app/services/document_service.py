@@ -557,7 +557,7 @@ class DocumentService:
 
             return {"message": "Document updated successfully"}
 
-        except NotFoundError:
+        except (NotFoundError, ValidationError):
             await self.db.rollback()
             raise
         except Exception as e:

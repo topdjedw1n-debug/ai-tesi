@@ -331,6 +331,34 @@ async def test_export_document_pdf_unsupported_format(db_session):
 
 
 @pytest.mark.asyncio
+async def test_update_document_locked_after_generation(db_session):
+    """Metadata of a generated document is locked: the guard's own
+    ValidationError must surface unchanged (the endpoint maps it to 409),
+    not be re-wrapped into the generic 'Failed to update document'."""
+    user = User(email="test@example.com", full_name="Test User")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    document = Document(
+        user_id=user.id, title="Locked", topic="Locked topic", status="completed"
+    )
+    db_session.add(document)
+    await db_session.commit()
+    await db_session.refresh(document)
+
+    service = DocumentService(db_session)
+
+    with pytest.raises(ValidationError, match="cannot be edited"):
+        await service.update_document(
+            document_id=document.id, user_id=user.id, title="New Title"
+        )
+
+    await db_session.refresh(document)
+    assert document.title == "Locked"
+
+
+@pytest.mark.asyncio
 async def test_update_document_not_found(db_session):
     """Test updating non-existent document raises NotFoundError"""
     user = User(email="test@example.com", full_name="Test User")

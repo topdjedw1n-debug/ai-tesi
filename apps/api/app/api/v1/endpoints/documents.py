@@ -368,6 +368,10 @@ async def update_document(
         return _mask_unreleased_content(result)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except ValidationError as e:
+        # e.g. metadata of a generated document is locked; the client must
+        # see the reason, not a generic 500
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
