@@ -133,6 +133,54 @@ async def test_build_section_prompt(db_session):
 
 
 @pytest.mark.asyncio
+async def test_section_prompt_reasserts_key_markers_after_requirements(db_session):
+    """Requirements that name a citation style must not override the [Key]
+    marker contract: the precedence rule must stand AFTER the requirements
+    block (restart drill 2026-07-10: 'Stile di citazione: APA' in the
+    threaded intake made the writer emit zero [Key] tokens and the grounding
+    gate failed the run)."""
+    from app.services.ai_pipeline.prompt_builder import PromptBuilder
+
+    user = User(email="precedence@example.com", full_name="Test User")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    document = Document(
+        user_id=user.id,
+        title="Tesi drill",
+        topic="Intelligenza artificiale nelle PMI italiane",
+        language="it",
+        target_pages=5,
+    )
+    db_session.add(document)
+    await db_session.commit()
+    await db_session.refresh(document)
+
+    prompt = PromptBuilder.build_section_prompt(
+        document=document,
+        section_title="Introduzione",
+        section_index=0,
+        additional_requirements="Stile di citazione: APA",
+        source_pack_block="[Rossi2021] Rossi, M. (2021). Studio sulle PMI.",
+    )
+
+    assert "CITATION FORMAT PRECEDENCE" in prompt
+    # The re-assertion must come after the client requirements to win recency.
+    assert prompt.index("Stile di citazione: APA") < prompt.index(
+        "CITATION FORMAT PRECEDENCE"
+    )
+
+    prompt_without_pack = PromptBuilder.build_section_prompt(
+        document=document,
+        section_title="Introduzione",
+        section_index=0,
+        additional_requirements="Stile di citazione: APA",
+    )
+    assert "CITATION FORMAT PRECEDENCE" not in prompt_without_pack
+
+
+@pytest.mark.asyncio
 async def test_call_openai_missing_api_key(db_session):
     """Test calling OpenAI without API key raises error"""
     from app.core.config import settings

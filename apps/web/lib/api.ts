@@ -340,6 +340,8 @@ export const API_ENDPOINTS = {
     OUTLINE: '/api/v1/generate/outline',
     SECTION: '/api/v1/generate/section',
     FULL: '/api/v1/generate/full-document',
+    CANCEL: (documentId: number) =>
+      `/api/v1/generate/full-document/${documentId}/cancel`,
     MODELS: '/api/v1/generate/models',
     USAGE: (userId: number) => `/api/v1/generate/usage/${userId}`,
   },

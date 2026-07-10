@@ -45,6 +45,7 @@ from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
 from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.document_service import DocumentService
 from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_worker import cancel_active_generation_job
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.storage_service import StorageService
@@ -768,4 +769,54 @@ async def generate_full_document(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to start document generation",
+        ) from e
+
+
+@router.post("/full-document/{document_id}/cancel")
+@rate_limit("30/hour")
+async def cancel_full_document_generation(
+    request: Request,
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Terminally cancel the active generation job for an owned document.
+
+    The job flips to `cancelled` and its lease token is cleared, so the
+    running executor loses every subsequent fenced write and the worker
+    never re-claims the row. The document becomes `failed` (retryable via
+    admin retry); any releasable snapshot is revoked fail-closed.
+    """
+    try:
+        doc_service = DocumentService(db)
+        await doc_service.check_document_ownership(document_id, int(current_user.id))
+
+        job_id = await cancel_active_generation_job(
+            db,
+            document_id=document_id,
+            cancelled_by=f"user:{current_user.id}",
+        )
+        if job_id is None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="No active generation job to cancel",
+            )
+        return {
+            "job_id": job_id,
+            "status": "cancelled",
+            "document_status": "failed",
+        }
+    except HTTPException:
+        raise
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except Exception as e:
+        logger.error(
+            f"Failed to cancel document generation: {e}",
+            exc_info=True,
+            extra={"document_id": document_id, "user_id": current_user.id},
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to cancel document generation",
         ) from e

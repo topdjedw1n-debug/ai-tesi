@@ -50,6 +50,7 @@ export default function DocumentDetailPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
+  const [isCancelling, setIsCancelling] = useState(false)
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -110,6 +111,23 @@ export default function DocumentDetailPage() {
       toast.error(error?.message || 'Не вдалося запустити генерацію')
     } finally {
       setIsStarting(false)
+    }
+  }
+
+  const handleCancelGeneration = async () => {
+    if (!window.confirm('Скасувати генерацію? Прогрес буде втрачено, роботу можна буде перезапустити.')) {
+      return
+    }
+    setIsCancelling(true)
+    try {
+      await apiClient.post(API_ENDPOINTS.GENERATE.CANCEL(documentId))
+      toast.success('Генерацію скасовано')
+      setIsGenerating(false)
+      fetchDocument()
+    } catch (error: any) {
+      toast.error(error?.message || 'Не вдалося скасувати генерацію')
+    } finally {
+      setIsCancelling(false)
     }
   }
 
@@ -201,11 +219,25 @@ export default function DocumentDetailPage() {
 
         {/* Generation Progress - Show when document is generating or payment pending */}
         {(document.status === 'generating' || document.status === 'payment_pending' || isGenerating) && (
-          <GenerationProgress
-            documentId={documentId}
-            onComplete={handleGenerationComplete}
-            onError={handleGenerationError}
-          />
+          <>
+            <GenerationProgress
+              documentId={documentId}
+              onComplete={handleGenerationComplete}
+              onError={handleGenerationError}
+            />
+            {(document.status === 'generating' || isGenerating) && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleCancelGeneration}
+                  disabled={isCancelling}
+                  className="text-sm text-red-700 border border-red-300 rounded-md px-3 py-1.5 hover:bg-red-50 disabled:opacity-50"
+                >
+                  {isCancelling ? 'Скасовуємо…' : 'Скасувати генерацію'}
+                </button>
+              </div>
+            )}
+          </>
         )}
 
         {/* Sources certificate: cited sources with verification statuses */}

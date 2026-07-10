@@ -232,6 +232,13 @@ class SectionGenerator:
             # None only when the method is mocked in tests — then trust the plan.
             actual_writer = self._last_writer or (provider, model)
 
+            # The writer's verbatim draft, with internal [Key] markers intact.
+            # The grounding gate MUST evaluate this view: Step 6 below replaces
+            # the markers with formatted in-text citations, and gating the
+            # converted text finds zero [Key] tokens and fails every section
+            # (restart drill 2026-07-10, documents 53-55).
+            content_with_markers = section_content
+
             # Store prompt for training data collection
             prompt_for_training = prompt
 
@@ -351,10 +358,15 @@ class SectionGenerator:
             }
 
             # Grounding gate input (ADDITIVE): the pack keys actually cited in
-            # this section, so the in-loop grounding gate can score without
-            # re-parsing. Present only on the closed-book (pack) path.
+            # this section, plus the writer's verbatim draft with [Key]
+            # markers intact — Step 6 above replaced the markers with
+            # formatted citations in `content`, and gating the converted text
+            # finds zero [Key] tokens and fails every section (drill
+            # 2026-07-10, docs 53-55). Present only on the closed-book path
+            # so legacy/streaming payload keys stay byte-identical.
             if source_pack is not None:
                 result["pack_keys_used"] = pack_keys_used
+                result["content_with_markers"] = content_with_markers
 
             # Academic Quality Engine: expose cited sources (unique SourceDocs
             # that made it into the bibliography via citation_map) for

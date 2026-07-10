@@ -435,11 +435,23 @@ _CITATION_ANCHOR_RE = re.compile(r"\[[^\]]*\]")
 _MULTI_SPACE_RE = re.compile(r"[ \t]{2,}")
 _SPACE_BEFORE_PUNCT_RE = re.compile(r"\s+([.,;:!?])")
 
+# Markdown structure the writer emits ("# 1. Introduzione", "## 1.1 …",
+# "**termine**", "- punto elenco"): LanguageTool reads the syntax characters
+# as prose and flags casing/punctuation on every heading and list line
+# (drill 2026-07-10, docs 52/56: 29-38 "grammar errors" on clean Italian).
+# Strip the MARKUP, keep the text.
+_MD_HEADING_RE = re.compile(r"^\s{0,3}#{1,6}\s+", re.MULTILINE)
+_MD_EMPHASIS_RE = re.compile(r"(\*{1,3}|_{1,3})(?=\S)(.+?)(?<=\S)\1")
+_MD_LIST_RE = re.compile(r"^\s{0,3}[-*+]\s+", re.MULTILINE)
+
 
 def strip_citation_anchors(content: str) -> str:
-    """Remove bracketed citation anchors and normalise the whitespace they
-    leave behind, so LanguageTool sees clean prose."""
+    """Remove bracketed citation anchors plus markdown markup, and normalise
+    the whitespace they leave behind, so LanguageTool sees clean prose."""
     text = _CITATION_ANCHOR_RE.sub(" ", content)
+    text = _MD_HEADING_RE.sub("", text)
+    text = _MD_EMPHASIS_RE.sub(r"\2", text)
+    text = _MD_LIST_RE.sub("", text)
     text = _MULTI_SPACE_RE.sub(" ", text)
     text = _SPACE_BEFORE_PUNCT_RE.sub(r"\1", text)
     return text
@@ -517,11 +529,31 @@ async def _check_grammar_quality(
             score = max(0.0, 100.0 - (error_count * 5.0))
 
             passed = error_count <= effective_threshold
-            error_msg = (
-                None
-                if passed
-                else f"Grammar: {error_count} errors (max: {effective_threshold})"
-            )
+            error_msg = None
+            if not passed:
+                # Name the top offending rules: "38 errors" alone is
+                # undiagnosable in production logs (drill 2026-07-10).
+                rule_counts: dict[str, int] = {}
+                for match in matches:
+                    rule_id = "?"
+                    if isinstance(match, dict):
+                        rule = match.get("rule")
+                        rule_id = str(
+                            match.get("rule_id")
+                            or (rule.get("id") if isinstance(rule, dict) else rule)
+                            or "?"
+                        )
+                    rule_counts[rule_id] = rule_counts.get(rule_id, 0) + 1
+                top_rules = ", ".join(
+                    f"{rule_id}x{count}"
+                    for rule_id, count in sorted(
+                        rule_counts.items(), key=lambda kv: -kv[1]
+                    )[:5]
+                )
+                error_msg = (
+                    f"Grammar: {error_count} errors "
+                    f"(max: {effective_threshold}); top rules: {top_rules}"
+                )
 
             return (
                 score,
@@ -1486,10 +1518,17 @@ class BackgroundJobService:
                                                 effective_requirements, grounding
                                             )
                                         )
+                                        draft_text = (
+                                            section_result.get("content_with_markers")
+                                            or section_result.get("content", "")
+                                            or ""
+                                        )
                                         logger.warning(
                                             f"Grounding gate failed for section "
                                             f"{section_index} (attempt {attempt_num}): "
-                                            f"{grounding.reason} — regenerating"
+                                            f"{grounding.reason} — regenerating; "
+                                            f"draft head: {draft_text[:300]!r} | "
+                                            f"tail: {draft_text[-200:]!r}"
                                         )
                                         continue
                                     # Final attempt: strict fails, mark_only ships.

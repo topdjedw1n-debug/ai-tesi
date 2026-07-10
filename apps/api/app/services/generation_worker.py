@@ -810,6 +810,87 @@ async def release_generation_lease_for_shutdown(
     return released
 
 
+async def cancel_active_generation_job(
+    db: AsyncSession,
+    *,
+    document_id: int,
+    cancelled_by: str,
+    now: datetime | None = None,
+) -> int | None:
+    """Terminally cancel the active full-document job for a document.
+
+    Clearing the lease token fences the running executor out of every
+    subsequent write (sections, sources, evidence, artifacts, completion),
+    and `cancelled` is outside the claimable predicate, so neither the
+    poll loop nor the retry path can resurrect the job. Same cross-path
+    lock order as everywhere: Job -> Document -> ProductionCase.
+    """
+    job_id = (
+        await db.execute(
+            select(AIGenerationJob.id)
+            .where(
+                AIGenerationJob.document_id == document_id,
+                AIGenerationJob.job_type == "full_document",
+                AIGenerationJob.status.in_(("queued", "running")),
+            )
+            .with_for_update()
+        )
+    ).scalar_one_or_none()
+    if job_id is None:
+        await db.rollback()
+        return None
+
+    cancel_time = now or utc_now()
+    cancelled_id = (
+        await db.execute(
+            update(AIGenerationJob)
+            .where(
+                AIGenerationJob.id == job_id,
+                AIGenerationJob.status.in_(("queued", "running")),
+            )
+            .values(
+                status="cancelled",
+                success=False,
+                error_message=f"Cancelled by {cancelled_by}"[:500],
+                completed_at=cancel_time,
+                heartbeat_at=cancel_time,
+                lease_owner=None,
+                lease_token=None,
+                lease_expires_at=None,
+            )
+            .returning(AIGenerationJob.id)
+        )
+    ).scalar_one_or_none()
+    if cancelled_id is None:
+        await db.rollback()
+        return None
+
+    await db.execute(
+        select(Document.id).where(Document.id == document_id).with_for_update()
+    )
+    await db.execute(
+        select(ProductionCase.id)
+        .where(ProductionCase.document_id == document_id)
+        .with_for_update()
+    )
+    # A cancelled run is a failed run for delivery purposes: the document
+    # becomes retryable and no releasable snapshot may survive it.
+    await db.execute(
+        update(Document)
+        .where(Document.id == document_id, Document.status != "failed_quality")
+        .values(status="failed")
+    )
+    await _revoke_failed_generation_release(db, document_id=document_id)
+    await db.commit()
+    logger.info(
+        "Cancelled generation job %s for document %s (%s)",
+        cancelled_id,
+        document_id,
+        cancelled_by,
+    )
+    return int(cancelled_id)
+
+
 async def reschedule_or_fail_generation_job(
     db: AsyncSession,
     *,

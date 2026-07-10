@@ -39,7 +39,7 @@
 ## Economics Baseline
 
 - Price band: EUR 100-200
-- Estimated AI generation cost: NOT SET
+- Estimated AI generation cost: EUR 0.61 measured for a 5-page run with the full academic layer (panel, strict grounding/citations, claim audit) — restart drill 2026-07-10; projected EUR 5-10 for a 40-page run including regeneration allowance. Full-size measurement still pending
 - Estimated detector/proxy cost: NOT SET
 - Estimated editor cost: NOT SET
 - Estimated total cost: NOT SET
@@ -76,7 +76,7 @@
   - Page-level evidence from user-supplied source PDFs remains pending until full-text PDF retrieval is implemented.
   - The normal client download is now bound to a released artifact and its exact file hash; a live/pre-production proof is still pending.
   - Methodology, intake fields, APA, production-case requirements, model choice and the durable job are bound by one generation-contract fingerprint. Changing those inputs invalidates release until a new run succeeds.
-  - Durable single-owner recovery is implemented and covered by automated restart/retry tests. Every content, source, evidence and artifact write is fenced against a stale worker; an intentional restart in pre-production is still required.
+  - Durable single-owner recovery is implemented and covered by automated restart/retry tests. Every content, source, evidence and artifact write is fenced against a stale worker. PROVEN LIVE 2026-07-10: SIGKILL mid-generation → lease-expiry reclaim (attempt 2), resume from checkpoint without duplicate sections, single sha256-bound artifact; live cancel fenced a still-running executor (`docs/phase1-runs/RESTART-DRILL-2026-07-10.md`). After DDL migrations the API process MUST be restarted (stale asyncpg prepared statements).
   - Semantic Scholar key/access: RESOLVED on 2026-07-01 — a valid authenticated key is configured and verified (HTTP 200). All four providers (Crossref/OpenAlex/Semantic Scholar/arXiv) are now reachable.
 
 ## People And Release Ownership
@@ -103,7 +103,7 @@ Phase 1 may start only when all items are true:
 - [x] Compilatio визначено як основний зовнішній сигнал; GPTZero не є гейтом
 - [x] Вимоги з анкети та файла доведено до генерації в повному наскрізному тесті
 - [x] Нормальне завантаження фізично заблоковане до проходження release gates
-- [ ] Примусовий рестарт довів відновлення без дублів
+- [x] Примусовий рестарт довів відновлення без дублів (local drill 2026-07-10, `docs/phase1-runs/RESTART-DRILL-2026-07-10.md`; a short prod restart check remains after deploy)
 - [x] Ранній веб-сигнал плагіату перевіряє весь текст; Compilatio повного артефакту лишається обов'язковою ручною перевіркою
 - [ ] Собівартість одного прогону
 - [ ] Відповідальний за RUN-001

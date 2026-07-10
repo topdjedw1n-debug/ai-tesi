@@ -165,9 +165,31 @@ Please write this section with:
 {citation_rules}{style_rules}- Professional language suitable for academic publication
 
 Additional Requirements: {additional_requirements or 'None specified'}
-
+{PromptBuilder._citation_precedence_rule(bool(source_pack_block))}
 Please provide only the section content without any meta-commentary."""
         return prompt.strip()
+
+    @staticmethod
+    def _citation_precedence_rule(has_source_pack: bool) -> str:
+        """Re-assert the [Key] marker contract AFTER the requirements block.
+
+        Client requirements routinely name a citation style ("Stile di
+        citazione: APA"); stated last, that instruction wins recency and the
+        writer emits (Author, Year) prose citations, which the grounding gate
+        cannot match to the source pack (drill 2026-07-10: doc 53 failed with
+        'no grounded citation in section'). The style named in the
+        requirements is applied downstream by the citation formatter.
+        """
+        if not has_source_pack:
+            return ""
+        return (
+            "\nCITATION FORMAT PRECEDENCE: even if the requirements above "
+            "name a citation style (APA, MLA, Chicago...), you MUST still "
+            "write every in-text citation as the internal [Key] marker from "
+            "AVAILABLE SOURCES (e.g. [Rossi2021]). Do NOT write (Author, "
+            "Year) style citations yourself — the system converts the [Key] "
+            "markers into the requested style afterwards.\n"
+        )
 
     @staticmethod
     def _length_instruction(target_word_count: int | None) -> str:

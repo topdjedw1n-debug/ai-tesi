@@ -82,8 +82,17 @@ def evaluate_grounding(
     excluded) OR a named system/technology/case (see
     text_utils.contains_concrete_evidence). The reason string distinguishes the
     failure modes so regeneration feedback can be targeted.
+
+    The gate scores `content_with_markers` (the writer's verbatim draft) when
+    present: the generator replaces [Key] markers with formatted in-text
+    citations in `content`, so gating the converted text finds zero [Key]
+    tokens and rejects every closed-book section (drill 2026-07-10).
     """
-    content = section_result.get("content", "") or ""
+    content = (
+        section_result.get("content_with_markers")
+        or section_result.get("content", "")
+        or ""
+    )
     pack_scores = {ps.citation_key.lower(): ps.on_topic_score for ps in pack.sources}
 
     candidates = _citation_candidates(content)

@@ -50,6 +50,11 @@ class GrammarChecker:
                 "text": text,
                 "language": language,
             }
+            # Calibrated exclusions (default TYPOS): the IT spell-check
+            # dictionary flags English loanwords in tech prose as errors,
+            # drowning real grammar findings (drill 2026-07-10).
+            if settings.LANGUAGETOOL_DISABLED_CATEGORIES:
+                data["disabledCategories"] = settings.LANGUAGETOOL_DISABLED_CATEGORIES
 
             headers = {}
             if self.api_key:

@@ -274,6 +274,12 @@ class Settings(BaseSettings):
     LANGUAGETOOL_API_URL: str = "https://api.languagetool.org/v2"
     LANGUAGETOOL_API_KEY: str | None = None
     LANGUAGETOOL_ENABLED: bool = True
+    # LanguageTool categories excluded from the grammar gate. TYPOS =
+    # dictionary spell-check (MORFOLOGIK_*): on Italian academic text about
+    # technology it flags every English loanword ("machine learning",
+    # "cloud computing") — 33 of 35 "errors" in drill 2026-07-10 were this
+    # rule, drowning the real grammar signal. Empty string = disable nothing.
+    LANGUAGETOOL_DISABLED_CATEGORIES: str = "TYPOS"
 
     # Training Data Collection (AI Self-Learning)
     TRAINING_DATA_COLLECTION_ENABLED: bool = False

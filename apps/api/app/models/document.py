@@ -234,7 +234,9 @@ class AIGenerationJob(Base):
     ai_model = Column(String(100))
 
     # Job status and progress
-    status = Column(String(50), default="queued")  # queued, running, completed, failed
+    status = Column(
+        String(50), default="queued"
+    )  # queued, running, completed, failed, cancelled
     progress = Column(Integer, default=0)  # 0-100 percentage
 
     # Durable execution contract. The API only enqueues a row; any API process

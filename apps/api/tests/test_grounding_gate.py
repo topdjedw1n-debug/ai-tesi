@@ -141,3 +141,37 @@ def test_reason_distinguishes_no_citation_from_no_evidence():
     )
     assert uncited.passed is False
     assert "no grounded citation" in uncited.reason
+
+
+def test_gate_scores_marker_view_not_converted_content():
+    """Regression (drill 2026-07-10, docs 53-55): the generator converts
+    [Key] markers into formatted APA citations in `content` BEFORE the gate
+    runs, so gating `content` finds zero candidates and rejects every
+    closed-book section. The gate must prefer `content_with_markers`."""
+    pack = _pack(_ps("Rossi2021", 0.9))
+    result = evaluate_grounding(
+        {
+            # What the delivered text looks like after marker conversion:
+            "content": "L'IA migliora i risultati del 30% (Rossi, 2021).",
+            # What the writer actually produced:
+            "content_with_markers": (
+                "L'IA migliora i risultati del 30% [Rossi2021, 2021]."
+            ),
+        },
+        pack,
+        min_grounding_rate=0.8,
+        min_on_topic_score=0.35,
+    )
+    assert result.passed is True
+    assert result.grounded_citations == 1
+
+
+def test_gate_falls_back_to_content_when_marker_view_absent():
+    pack = _pack(_ps("Rossi2021", 0.9))
+    result = evaluate_grounding(
+        {"content": "AI improves outcomes by 30% [Rossi2021, 2021]."},
+        pack,
+        min_grounding_rate=0.8,
+        min_on_topic_score=0.35,
+    )
+    assert result.passed is True
