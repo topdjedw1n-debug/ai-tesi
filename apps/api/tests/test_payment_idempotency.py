@@ -416,15 +416,17 @@ async def test_payment_intent_preserves_metadata(
     """
     service = PaymentService(db_session)
 
+    # 10 pages x default EUR 0.50/page = the server-computed price.
     await service.create_payment_intent(
         user_id=test_user.id,
-        amount=Decimal("25.00"),
+        amount=Decimal("5.00"),
         currency="EUR",
         document_id=test_document.id,
     )
 
-    # VERIFY: Stripe called with metadata
+    # VERIFY: Stripe called with metadata and the SERVER-computed amount
     call_kwargs = mock_stripe["intent"].call_args[1]
+    assert call_kwargs["amount"] == 500  # cents, computed server-side
     assert "metadata" in call_kwargs
     assert call_kwargs["metadata"]["user_id"] == str(test_user.id)
     assert call_kwargs["metadata"]["document_id"] == str(test_document.id)
@@ -613,3 +615,70 @@ def test_summary():
     Note: Tests for timestamp-based idempotency keys removed (tested implicitly)
     """
     pass
+
+
+# ========================================
+# Server-side pricing + ownership (audit 2026-07-10)
+# ========================================
+
+
+@pytest.mark.asyncio
+async def test_payment_intent_rejects_foreign_document(
+    db_session: AsyncSession, test_user: User, mock_stripe
+):
+    """An intent bound to someone else's document must be rejected with the
+    same error as a missing document (no ownership oracle)."""
+    other = User(email="other-owner@example.com", full_name="Other Owner")
+    db_session.add(other)
+    await db_session.commit()
+    await db_session.refresh(other)
+    foreign_doc = Document(
+        user_id=other.id,
+        title="Foreign document",
+        topic="Belongs to another user entirely",
+        target_pages=10,
+        status="draft",
+    )
+    db_session.add(foreign_doc)
+    await db_session.commit()
+    await db_session.refresh(foreign_doc)
+
+    service = PaymentService(db_session)
+    with pytest.raises(ValueError, match="Document not found"):
+        await service.create_payment_intent(
+            user_id=test_user.id,
+            amount=Decimal("5.00"),
+            document_id=foreign_doc.id,
+        )
+    mock_stripe["intent"].assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_payment_intent_rejects_client_amount_mismatch(
+    db_session: AsyncSession, test_user: User, test_document: Document, mock_stripe
+):
+    """The client's amount is only cross-checked; a cheap forged amount must
+    never reach Stripe."""
+    service = PaymentService(db_session)
+    with pytest.raises(ValueError, match="Amount mismatch"):
+        await service.create_payment_intent(
+            user_id=test_user.id,
+            amount=Decimal("1.00"),
+            document_id=test_document.id,
+        )
+    mock_stripe["intent"].assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_payment_intent_requires_document(
+    db_session: AsyncSession, test_user: User, mock_stripe
+):
+    """No document -> no price basis -> no intent."""
+    service = PaymentService(db_session)
+    with pytest.raises(ValueError, match="document_id is required"):
+        await service.create_payment_intent(
+            user_id=test_user.id,
+            amount=Decimal("5.00"),
+            document_id=None,
+        )
+    mock_stripe["intent"].assert_not_called()

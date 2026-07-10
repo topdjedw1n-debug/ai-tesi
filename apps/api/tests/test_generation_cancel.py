@@ -22,6 +22,7 @@ from app.services.generation_worker import (
     claim_next_generation_job,
     persist_generation_section,
     reschedule_or_fail_generation_job,
+    write_generation_usage_monotonic,
 )
 
 
@@ -255,3 +256,94 @@ async def test_cancel_endpoint_returns_cancelled_job(monkeypatch):
     cancel_mock.assert_awaited_once()
     assert cancel_mock.await_args.kwargs["document_id"] == 15
     assert cancel_mock.await_args.kwargs["cancelled_by"] == "user:7"
+
+
+@pytest.mark.asyncio
+async def test_cancelled_job_still_accounts_in_flight_spend(db_session):
+    """GPT audit 2026-07-10: tokens spent on the in-flight section must not
+    vanish when the run is cancelled — the fenced usage write matches zero
+    rows after cancel, so the monotonic variant must land the spend."""
+    document, job, _case = await _seed_cancellable_job(
+        db_session, email="cancel-spend@example.com"
+    )
+    document_id = int(document.id)
+    job_id = int(job.id)
+
+    claimed = await claim_next_generation_job(db_session, worker_id="worker-a")
+    assert claimed is not None
+
+    cancelled_id = await cancel_active_generation_job(
+        db_session, document_id=document_id, cancelled_by="user:1"
+    )
+    assert cancelled_id == job_id
+
+    # The dying executor persists what it already spent on the unfinished
+    # section — keyed by job id alone, no lease required.
+    advanced = await write_generation_usage_monotonic(
+        db_session, job_id=job_id, total_tokens=1234, cost_cents=7
+    )
+    assert advanced is True
+
+    row = (
+        await db_session.execute(
+            select(
+                AIGenerationJob.status,
+                AIGenerationJob.total_tokens,
+                AIGenerationJob.cost_cents,
+            ).where(AIGenerationJob.id == job_id)
+        )
+    ).one()
+    assert row.status == "cancelled"
+    assert row.total_tokens == 1234
+    assert row.cost_cents == 7
+
+
+@pytest.mark.asyncio
+async def test_monotonic_usage_never_decreases(db_session):
+    """A replacement owner's larger totals must never be clobbered."""
+    document, job, _case = await _seed_cancellable_job(
+        db_session, email="cancel-monotonic@example.com"
+    )
+    job_id = int(job.id)
+
+    assert await write_generation_usage_monotonic(
+        db_session, job_id=job_id, total_tokens=2000, cost_cents=11
+    )
+    # A stale, smaller write must be a no-op.
+    assert not await write_generation_usage_monotonic(
+        db_session, job_id=job_id, total_tokens=1500, cost_cents=8
+    )
+
+    row = (
+        await db_session.execute(
+            select(AIGenerationJob.total_tokens, AIGenerationJob.cost_cents).where(
+                AIGenerationJob.id == job_id
+            )
+        )
+    ).one()
+    assert row.total_tokens == 2000
+    assert row.cost_cents == 11
+
+
+def test_pipeline_wires_monotonic_usage_on_cancel_paths():
+    """Pin the wiring: the pipeline's CancelledError handler and the
+    lease-lost failure branch must use the monotonic writer (the fenced one
+    silently drops the spend there)."""
+    import inspect
+
+    from app.services import background_jobs as bj
+
+    # The pipeline lives in generate_full_document; generate_full_document_async
+    # is the durable-worker wrapper whose own CancelledError handler releases
+    # the lease AFTER the pipeline's handler has persisted the spend.
+    source = inspect.getsource(bj.BackgroundJobService.generate_full_document)
+    cancel_block = source.split("except asyncio.CancelledError:")[1].split(
+        "except Exception as e:"
+    )[0]
+    assert "write_job_usage_monotonic" in cancel_block
+
+    # The generic failure handler is the LAST `except Exception as e:` in the
+    # pipeline (earlier ones handle outline/section-local failures).
+    failure_block = source.rsplit("except Exception as e:", 1)[1]
+    assert "isinstance(e, GenerationLeaseLostError)" in failure_block
+    assert "write_job_usage_monotonic" in failure_block

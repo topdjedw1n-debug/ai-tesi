@@ -585,3 +585,32 @@ class EditorTask(Base):
             f"<EditorTask(id={self.id}, case_id={self.production_case_id}, "
             f"status={self.status})>"
         )
+
+
+class ArtifactDeletionOutbox(Base):
+    """Durable retry queue for object-storage deletions.
+
+    Superseded/unbound blobs are deleted best-effort after commit; when
+    storage fails, the path must not vanish into a log line (audit
+    2026-07-10). Rows are enqueued in the same transaction that supersedes
+    the artifact and swept by the generation worker with exponential
+    backoff until storage confirms the deletion.
+    """
+
+    __tablename__ = "artifact_deletion_outbox"
+
+    id = Column(Integer, primary_key=True, index=True)
+    file_path = Column(Text, nullable=False, unique=True)
+    reason = Column(String(100), nullable=False, default="superseded")
+    attempts = Column(Integer, nullable=False, default=0)
+    next_attempt_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_error = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    def __repr__(self) -> str:
+        return (
+            f"<ArtifactDeletionOutbox(id={self.id}, path={self.file_path!r}, "
+            f"attempts={self.attempts})>"
+        )

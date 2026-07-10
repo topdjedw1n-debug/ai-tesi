@@ -69,8 +69,35 @@ class PaymentService:
             if not user:
                 raise ValueError(f"User {user_id} not found")
 
-            # 2. Apply discount (TODO: implement logic)
-            final_amount = amount
+            # 2. The price is a SERVER decision. The client's amount is only
+            # cross-checked, never trusted, and the document must belong to
+            # the paying user: without both checks anyone could create a
+            # cheap intent bound to someone else's document (audit
+            # 2026-07-10). Same "Document not found" for missing and foreign
+            # documents — no ownership oracle.
+            if document_id is None:
+                raise ValueError("document_id is required for a payment intent")
+            doc_result = await self.db.execute(
+                select(Document).where(Document.id == document_id)
+            )
+            document = doc_result.scalar_one_or_none()
+            if document is None or int(document.user_id) != int(user_id):
+                raise ValueError("Document not found")
+
+            price_per_page = await PricingService(self.db).get_current_price()
+            server_amount = (
+                Decimal(price_per_page) * int(document.target_pages or 0)
+            ).quantize(Decimal("0.01"))
+            if server_amount <= 0:
+                raise ValueError("Document has no billable pages")
+            if Decimal(amount).quantize(Decimal("0.01")) != server_amount:
+                raise ValueError(
+                    "Amount mismatch: the server-computed price for this "
+                    f"document is {server_amount} EUR"
+                )
+
+            # 3. Apply discount (TODO: implement logic)
+            final_amount = server_amount
             discount_amount = Decimal(0)
 
             # 3. Get/create Stripe customer

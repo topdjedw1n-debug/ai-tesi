@@ -18,15 +18,17 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from sqlalchemy import and_, case, func, or_, select, update
+from sqlalchemy import and_, case, delete, func, or_, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import database
 from app.core.config import settings
 from app.models.document import (
     AIGenerationJob,
+    ArtifactDeletionOutbox,
     Document,
     DocumentSection,
     ProductionCase,
@@ -35,6 +37,9 @@ from app.services.generation_contract import (
     generation_contract_error,
     generation_contract_sha256,
 )
+
+if TYPE_CHECKING:
+    from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
 
@@ -810,6 +815,143 @@ async def release_generation_lease_for_shutdown(
     return released
 
 
+async def enqueue_artifact_deletions(
+    db: AsyncSession, paths: list[str], *, reason: str = "superseded"
+) -> int:
+    """Persist deletion intents in the CALLER's transaction (no commit here).
+
+    Best-effort post-commit cleanup used to be the only deletion attempt: a
+    storage failure was logged and the blob stayed forever (audit
+    2026-07-10). Enqueued rows survive the crash of whoever tried first and
+    are retried by the worker sweep. Duplicates are ignored so re-invalidating
+    the same artifact is idempotent.
+    """
+    unique = list(dict.fromkeys(str(p) for p in paths if p))
+    if not unique:
+        return 0
+    existing = set(
+        (
+            await db.execute(
+                select(ArtifactDeletionOutbox.file_path).where(
+                    ArtifactDeletionOutbox.file_path.in_(unique)
+                )
+            )
+        ).scalars()
+    )
+    added = 0
+    for path in unique:
+        if path in existing:
+            continue
+        try:
+            async with db.begin_nested():
+                db.add(ArtifactDeletionOutbox(file_path=path, reason=reason))
+                await db.flush()
+            added += 1
+        except IntegrityError:
+            # A concurrent enqueue won the unique constraint — same outcome.
+            continue
+    return added
+
+
+async def clear_artifact_deletion_entries(db: AsyncSession, paths: list[str]) -> None:
+    """Drop outbox rows whose blobs were confirmed deleted elsewhere."""
+    unique = [str(p) for p in dict.fromkeys(paths) if p]
+    if not unique:
+        return
+    await db.execute(
+        delete(ArtifactDeletionOutbox).where(
+            ArtifactDeletionOutbox.file_path.in_(unique)
+        )
+    )
+    await db.commit()
+
+
+async def process_artifact_deletion_outbox(
+    db: AsyncSession,
+    *,
+    storage: StorageService | None = None,
+    now: datetime | None = None,
+    limit: int = 10,
+) -> tuple[int, int]:
+    """Retry due storage deletions; returns (processed, confirmed_deleted).
+
+    Failure backs the row off exponentially (60s .. 6h) instead of dropping
+    it; success removes the row. Deleting an already-absent object counts as
+    success (S3 semantics), so rows for blobs cleaned by the immediate
+    post-commit attempt drain on the first sweep.
+    """
+    sweep_time = now or utc_now()
+    rows = (
+        (
+            await db.execute(
+                select(ArtifactDeletionOutbox)
+                .where(ArtifactDeletionOutbox.next_attempt_at <= sweep_time)
+                .order_by(
+                    ArtifactDeletionOutbox.next_attempt_at.asc(),
+                    ArtifactDeletionOutbox.id.asc(),
+                )
+                .limit(limit)
+                .with_for_update()
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not rows:
+        await db.rollback()
+        return (0, 0)
+
+    if storage is None:
+        from app.services.storage_service import StorageService
+
+        storage = StorageService()
+
+    confirmed = 0
+    for row in rows:
+        error: str | None = None
+        try:
+            deleted = await storage.delete_file(str(row.file_path))
+        except Exception as exc:
+            deleted = False
+            error = str(exc)
+        if deleted:
+            await db.delete(row)
+            confirmed += 1
+        else:
+            row.attempts = int(row.attempts or 0) + 1
+            backoff = min(21600, 60 * (2 ** max(0, row.attempts - 1)))
+            row.next_attempt_at = sweep_time + timedelta(seconds=backoff)
+            row.last_error = (error or "storage did not confirm deletion")[:500]
+    await db.commit()
+    return (len(rows), confirmed)
+
+
+async def write_generation_usage_monotonic(
+    db: AsyncSession, *, job_id: int, total_tokens: int, cost_cents: int
+) -> bool:
+    """Unfenced, upward-only usage write for cancel/shutdown unwinding.
+
+    After a cancel or lease loss the job row is no longer
+    running-with-our-token, so the fenced usage write matches zero rows and
+    the in-flight section's spend vanishes from accounting (audit
+    2026-07-10). Spend is append-only truth, not content: key the write by
+    job id alone, but only ever move totals UPWARD so a replacement owner's
+    larger numbers are never clobbered. Returns True when the row advanced.
+    """
+    result = await db.execute(
+        update(AIGenerationJob)
+        .where(
+            AIGenerationJob.id == job_id,
+            func.coalesce(AIGenerationJob.total_tokens, 0) < int(total_tokens),
+        )
+        .values(total_tokens=int(total_tokens), cost_cents=int(cost_cents))
+        .returning(AIGenerationJob.id)
+    )
+    advanced = result.scalar_one_or_none() is not None
+    await db.commit()
+    return advanced
+
+
 async def cancel_active_generation_job(
     db: AsyncSession,
     *,
@@ -1199,6 +1341,20 @@ class GenerationWorker:
             exhausted = await fail_exhausted_generation_jobs(db)
         if exhausted:
             logger.error("Failed %s exhausted generation job(s)", exhausted)
+
+        # Storage-deletion retry sweep: cheap when the outbox is empty, and a
+        # sweep failure must never stall generation work.
+        try:
+            async with database.AsyncSessionLocal() as db:
+                processed, confirmed = await process_artifact_deletion_outbox(db)
+            if processed:
+                logger.info(
+                    "Deletion outbox sweep: %s processed, %s confirmed",
+                    processed,
+                    confirmed,
+                )
+        except Exception:
+            logger.exception("Artifact deletion outbox sweep failed")
 
         async with database.AsyncSessionLocal() as db:
             claimed = await claim_next_generation_job(

@@ -58,6 +58,7 @@ from app.services.generation_worker import (
     GenerationLeaseLostError,
     claim_generation_job_by_id,
     complete_generation_job,
+    enqueue_artifact_deletions,
     generation_lease_is_owned,
     hold_generation_job_lease,
     lock_generation_lease_for_mutation,
@@ -68,6 +69,7 @@ from app.services.generation_worker import (
     reschedule_or_fail_generation_job,
     update_generation_document,
     update_generation_section_status,
+    write_generation_usage_monotonic,
 )
 from app.services.grammar_checker import GrammarChecker
 from app.services.grounding_gate import GroundingResult, evaluate_grounding
@@ -186,24 +188,42 @@ async def _export_document_with_fence(
         )
     except BaseException:
         try:
-            await storage.delete_file(uploaded_path)
+            if not await storage.delete_file(uploaded_path):
+                raise RuntimeError("storage did not confirm deletion")
         except Exception as cleanup_error:
             logger.error(
-                "Failed to delete unbound artifact %s: %s",
+                "Failed to delete unbound artifact %s: %s (outbox will retry)",
                 uploaded_path,
                 cleanup_error,
             )
+            await _enqueue_deletion_outbox_best_effort(uploaded_path, "unbound")
         raise
     if previous_path and previous_path != uploaded_path:
         try:
-            await storage.delete_file(previous_path)
+            if not await storage.delete_file(previous_path):
+                raise RuntimeError("storage did not confirm deletion")
         except Exception as cleanup_error:
             logger.warning(
-                "Failed to delete replaced artifact %s: %s",
+                "Failed to delete replaced artifact %s: %s (outbox will retry)",
                 previous_path,
                 cleanup_error,
             )
+            await _enqueue_deletion_outbox_best_effort(previous_path, "replaced")
     return export_result
+
+
+async def _enqueue_deletion_outbox_best_effort(path: str, reason: str) -> None:
+    """Record a failed blob deletion for the worker sweep to retry.
+
+    Runs in its own short session because the caller's transaction is being
+    unwound; if even this fails, the log line above is the last trace.
+    """
+    try:
+        async with database.AsyncSessionLocal() as outbox_db:
+            await enqueue_artifact_deletions(outbox_db, [path], reason=reason)
+            await outbox_db.commit()
+    except Exception:
+        logger.exception("Failed to enqueue deletion outbox entry for %s", path)
 
 
 async def _send_terminal_failure_notification(
@@ -997,6 +1017,28 @@ class BackgroundJobService:
                 )
                 # Leave the session usable for the caller: a failed write
                 # here must not poison the transaction for follow-up work.
+                try:
+                    await db.rollback()
+                except Exception as rollback_error:
+                    logger.warning(
+                        f"⚠️ Rollback after usage-write failure: {rollback_error}"
+                    )
+
+        async def write_job_usage_monotonic(db: AsyncSession) -> None:
+            """Cancel/shutdown spend write — see write_generation_usage_monotonic."""
+            if job_id is None:
+                return
+            try:
+                await write_generation_usage_monotonic(
+                    db,
+                    job_id=job_id,
+                    total_tokens=usage_baseline_tokens + usage.total_tokens,
+                    cost_cents=(usage_baseline_cost_cents + usage.cost_usd_cents()),
+                )
+            except Exception as usage_error:
+                logger.warning(
+                    f"⚠️ Failed monotonic usage write for job {job_id}: {usage_error}"
+                )
                 try:
                     await db.rollback()
                 except Exception as rollback_error:
@@ -2465,6 +2507,17 @@ class BackgroundJobService:
                 # not generation completion. At this point the artifact is
                 # still awaiting Compilatio/editorial review.
 
+            except asyncio.CancelledError:
+                # Graceful shutdown / soft restart: the lease is about to be
+                # released, so the fenced usage write can no longer match.
+                # Persist the in-flight section's spend monotonically before
+                # unwinding (audit 2026-07-10), then propagate the cancel.
+                try:
+                    await db.rollback()
+                except Exception as rollback_error:
+                    logger.warning(f"⚠️ Rollback in cancel handler: {rollback_error}")
+                await write_job_usage_monotonic(db)
+                raise
             except Exception as e:
                 logger.error(
                     f"Critical error in background document generation: {e}",
@@ -2477,8 +2530,13 @@ class BackgroundJobService:
                 except Exception as rollback_error:
                     logger.warning(f"⚠️ Rollback in failure handler: {rollback_error}")
                 # Failed runs are the expensive ones (multiple attempts,
-                # panel, humanizer) — keep their spend honest.
-                await write_job_usage(db)
+                # panel, humanizer) — keep their spend honest. After a lease
+                # loss (user cancel / replacement owner) the fenced write
+                # matches zero rows — use the monotonic variant instead.
+                if isinstance(e, GenerationLeaseLostError):
+                    await write_job_usage_monotonic(db)
+                else:
+                    await write_job_usage(db)
 
                 # Mark document as failed
                 try:

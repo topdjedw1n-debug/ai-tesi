@@ -12,6 +12,7 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core import database
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
@@ -45,7 +46,11 @@ from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
 from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.document_service import DocumentService
 from app.services.generation_contract import generation_contract_sha256
-from app.services.generation_worker import cancel_active_generation_job
+from app.services.generation_worker import (
+    cancel_active_generation_job,
+    clear_artifact_deletion_entries,
+    enqueue_artifact_deletions,
+)
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.storage_service import StorageService
@@ -464,6 +469,10 @@ async def _invalidate_previous_generation_evidence(
         if document is not None
         else []
     )
+    # Durable deletion intent in the SAME transaction that supersedes the
+    # blobs: if the post-commit best-effort delete fails or never runs, the
+    # worker sweep retries until storage confirms (audit 2026-07-10).
+    await enqueue_artifact_deletions(db, superseded_paths, reason="superseded")
     await db.execute(
         update(ProductionCase)
         .where(ProductionCase.document_id == document_id)
@@ -523,15 +532,35 @@ async def _invalidate_previous_generation_evidence(
 
 
 async def _delete_superseded_artifacts(paths: list[str]) -> None:
-    """Best-effort post-commit cleanup; paths remain in the job for GDPR."""
+    """Immediate post-commit cleanup attempt.
+
+    Every path here is already enqueued in artifact_deletion_outbox by
+    _invalidate_previous_generation_evidence, so a failure needs no handling
+    beyond the log — the worker sweep retries until storage confirms.
+    Confirmed deletions clear their outbox rows so the sweep stays empty.
+    """
     if not paths:
         return
     storage = StorageService()
+    deleted: list[str] = []
     for path in dict.fromkeys(paths):
         try:
-            await storage.delete_file(path)
+            if await storage.delete_file(path):
+                deleted.append(path)
         except Exception:
-            logger.exception("Deferred cleanup failed for superseded artifact %s", path)
+            logger.exception(
+                "Deferred cleanup failed for superseded artifact %s "
+                "(outbox will retry)",
+                path,
+            )
+    if deleted:
+        try:
+            async with database.AsyncSessionLocal() as db:
+                await clear_artifact_deletion_entries(db, deleted)
+        except Exception:
+            # Harmless: the sweep re-deletes an absent object (S3 semantics)
+            # and clears the row itself.
+            logger.exception("Failed to clear deletion outbox entries")
 
 
 @router.post("/full-document", response_model=AsyncGenerationResponse)
