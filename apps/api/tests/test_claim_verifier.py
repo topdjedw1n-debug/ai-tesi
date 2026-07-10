@@ -174,6 +174,43 @@ async def test_unmatched_citation_marks_uncertain_without_llm_call():
 
 
 @pytest.mark.asyncio
+async def test_legacy_citation_year_alone_cannot_match_wrong_author():
+    source = make_source(
+        title="A Different 2017 Paper",
+        authors=["Mario Rossi"],
+        year=2017,
+        abstract=ABSTRACT,
+    )
+    ai = make_ai()
+    verifier = ClaimVerifier(ai)
+
+    claims = verifier.extract_claims(CONTENT_ONE_CLAIM, [source])
+    verdicts, llm_used = await verifier.verify_claims(claims, budget=10)
+
+    assert len(claims) == 1
+    assert claims[0].source_id is None
+    assert llm_used == 0
+    assert verdicts[0].verdict == "uncertain"
+    assert verdicts[0].explanation == REASON_NO_SOURCE
+    ai.call_with_fallback.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_legacy_citation_matches_last_first_source_name():
+    source = make_source(
+        authors=["Vaswani, Ashish"],
+        canonical_metadata={"abstract": ABSTRACT},
+    )
+    verifier = ClaimVerifier(make_ai())
+
+    claims = verifier.extract_claims(CONTENT_ONE_CLAIM, [source])
+
+    assert len(claims) == 1
+    assert claims[0].source_id == source.id
+    assert claims[0].abstract == ABSTRACT
+
+
+@pytest.mark.asyncio
 async def test_abstract_prefers_canonical_metadata_over_rag():
     source = make_source(
         abstract="RAG abstract", canonical_metadata={"abstract": "Canonical abstract"}

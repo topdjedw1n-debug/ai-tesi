@@ -6,6 +6,7 @@ AI service for generating content using various providers
 import json
 import logging
 import time
+from collections.abc import Awaitable, Callable
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any
 
@@ -23,6 +24,7 @@ from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
 from app.services.cost_estimator import CostEstimator, UsageTracker
+from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.retry_strategy import RetryStrategy
 
 logger = logging.getLogger(__name__)
@@ -114,6 +116,7 @@ class AIService:
         additional_requirements: str | None = None,
         *,
         source_pack: "SourcePack | None" = None,
+        before_persist: Callable[[], Awaitable[None]] | None = None,
     ) -> dict[str, Any]:
         """Generate document outline using AI"""
         try:
@@ -127,6 +130,11 @@ class AIService:
 
             if not document:
                 raise NotFoundError("Document not found")
+
+            additional_requirements = combine_generation_requirements(
+                document.additional_requirements,
+                additional_requirements,
+            )
 
             # Check daily token limit (optional)
             await self._check_daily_token_limit()
@@ -142,6 +150,9 @@ class AIService:
             )
 
             generation_time = int(time.time() - start_time)
+
+            if before_persist is not None:
+                await before_persist()
 
             # Save outline
             outline = DocumentOutline(
@@ -268,6 +279,11 @@ class AIService:
             if not document:
                 raise NotFoundError("Document not found")
 
+            additional_requirements = combine_generation_requirements(
+                document.additional_requirements,
+                additional_requirements,
+            )
+
             # Check daily token limit (optional)
             await self._check_daily_token_limit()
 
@@ -302,7 +318,9 @@ class AIService:
                 section_index=section_index,
                 provider=str(document.ai_provider),
                 model=str(document.ai_model),
-                citation_style=CitationStyle.APA,  # Default to APA
+                citation_style=CitationStyle(
+                    str(document.citation_style or "apa").lower()
+                ),
                 humanize=False,  # Can be made configurable later
                 context_sections=context_sections if context_sections else None,
                 additional_requirements=additional_requirements,

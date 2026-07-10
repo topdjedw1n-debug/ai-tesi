@@ -1,7 +1,4 @@
-"""
-Background jobs service for async document generation
-Uses FastAPI BackgroundTasks for async processing
-"""
+"""Full-document generation pipeline executed by the durable DB worker."""
 
 from __future__ import annotations
 
@@ -10,6 +7,7 @@ import functools
 import json
 import logging
 import re
+import uuid
 from collections.abc import Callable
 from datetime import datetime
 from enum import Enum
@@ -48,6 +46,7 @@ from app.services.claim_verification_stage import (
     run_claim_verification_stage,
 )
 from app.services.cost_estimator import UsageTracker
+from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.db_helpers import (
     safe_scalar_one_or_none as _safe_scalar_one_or_none,
 )
@@ -55,10 +54,25 @@ from app.services.db_helpers import (
     safe_scalars_all as _safe_scalars_all,
 )
 from app.services.document_service import DocumentService
+from app.services.generation_worker import (
+    GenerationLeaseLostError,
+    claim_generation_job_by_id,
+    complete_generation_job,
+    generation_lease_is_owned,
+    hold_generation_job_lease,
+    lock_generation_lease_for_mutation,
+    persist_generation_artifact,
+    persist_generation_section,
+    release_generation_lease_for_shutdown,
+    renew_generation_lease,
+    reschedule_or_fail_generation_job,
+    update_generation_document,
+    update_generation_section_status,
+)
 from app.services.grammar_checker import GrammarChecker
 from app.services.grounding_gate import GroundingResult, evaluate_grounding
 from app.services.plagiarism_checker import PlagiarismChecker
-from app.services.provenance_service import record_event as _record_provenance
+from app.services.provenance_service import record_event as _raw_record_provenance
 from app.services.quality_validator import QualityValidator
 from app.services.source_verification_stage import (
     load_source_pack as _load_source_pack,
@@ -75,12 +89,24 @@ from app.services.source_verification_stage import (
 from app.services.source_verification_stage import (
     run_citation_verification_stage,
 )
+from app.services.storage_service import StorageService
 from app.services.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
 
 # Redis client for checkpoints (initialized on first use)
 _redis_client: aioredis.Redis | None = None
+
+
+def _resolve_citation_style(raw_style: str | None) -> CitationStyle:
+    """Resolve a durable document setting without letting legacy data crash a job."""
+    try:
+        return CitationStyle(str(raw_style or "apa").lower())
+    except ValueError:
+        logger.warning(
+            "Unsupported stored citation style %r; falling back to APA", raw_style
+        )
+        return CitationStyle.APA
 
 
 async def get_redis() -> aioredis.Redis:
@@ -106,6 +132,109 @@ async def _clear_generation_checkpoint(document_id: int, context: str) -> None:
         logger.warning(
             f"⚠️ Failed to clear checkpoint for document {document_id} ({context}): {checkpoint_error}"
         )
+
+
+async def _assert_generation_lease(
+    job_id: int | None,
+    lease_owner: str | None,
+    lease_token: str | None,
+) -> None:
+    """Fence stale executors before they persist or export new work."""
+    if job_id is None or lease_owner is None or lease_token is None:
+        return
+    async with database.AsyncSessionLocal() as lease_db:
+        if not await generation_lease_is_owned(
+            lease_db,
+            job_id=job_id,
+            worker_id=lease_owner,
+            lease_token=lease_token,
+        ):
+            raise GenerationLeaseLostError(
+                f"Generation lease for job {job_id} is owned by another worker"
+            )
+
+
+async def _export_document_with_fence(
+    db: AsyncSession,
+    *,
+    document_service: DocumentService,
+    document_id: int,
+    user_id: int,
+    job_id: int,
+    lease_owner: str,
+    lease_token: str,
+) -> dict[str, Any]:
+    """Upload then atomically bind an artifact, deleting any unbound blob."""
+    export_result = await document_service.export_document(
+        document_id=document_id,
+        format="docx",
+        user_id=user_id,
+        persist_pointer=False,
+    )
+    uploaded_path = str(export_result["storage_path"])
+    storage = StorageService()
+    try:
+        previous_path = await persist_generation_artifact(
+            db,
+            job_id=job_id,
+            worker_id=lease_owner,
+            lease_token=lease_token,
+            document_id=document_id,
+            artifact_format="docx",
+            storage_path=uploaded_path,
+            artifact_sha256=str(export_result["artifact_sha256"]),
+        )
+    except BaseException:
+        try:
+            await storage.delete_file(uploaded_path)
+        except Exception as cleanup_error:
+            logger.error(
+                "Failed to delete unbound artifact %s: %s",
+                uploaded_path,
+                cleanup_error,
+            )
+        raise
+    if previous_path and previous_path != uploaded_path:
+        try:
+            await storage.delete_file(previous_path)
+        except Exception as cleanup_error:
+            logger.warning(
+                "Failed to delete replaced artifact %s: %s",
+                previous_path,
+                cleanup_error,
+            )
+    return export_result
+
+
+async def _send_terminal_failure_notification(
+    document_id: int, user_id: int, error_message: str
+) -> None:
+    """Notify only after the durable retry budget is genuinely exhausted."""
+    try:
+        from app.models.auth import User
+        from app.services.notification_service import notification_service
+
+        async with database.AsyncSessionLocal() as notification_db:
+            user_result = await notification_db.execute(
+                select(User).where(User.id == user_id)
+            )
+            user = _safe_scalar_one_or_none(
+                user_result, "terminal_failure_email_user_lookup"
+            )
+            document_result = await notification_db.execute(
+                select(Document).where(Document.id == document_id)
+            )
+            document = _safe_scalar_one_or_none(
+                document_result, "terminal_failure_email_document_lookup"
+            )
+        if user and user.email:
+            await notification_service.send_document_failed_notification(
+                email=user.email,
+                document_title=document.title if document else "Unknown",
+                error_message=error_message[:200],
+            )
+    except Exception as email_error:
+        logger.warning("Failed to send terminal failure email: %s", email_error)
 
 
 # Type variable for background task functions
@@ -157,8 +286,15 @@ def background_task_error_handler(task_name: str) -> Callable[[F], F]:
 
 
 async def send_periodic_heartbeat(
-    user_id: int, job_id: int, document_id: int, interval: int = 10
-) -> None:
+    user_id: int,
+    job_id: int,
+    document_id: int,
+    interval: int = 10,
+    *,
+    lease_owner: str | None = None,
+    lease_token: str | None = None,
+    lease_seconds: int | None = None,
+) -> bool:
     """
     Send periodic heartbeat to keep WebSocket connection alive during long generations
 
@@ -189,19 +325,45 @@ async def send_periodic_heartbeat(
         try:
             await asyncio.sleep(interval)
 
-            # Check if job still running (fetch fresh from DB)
+            # Renew the durable DB lease before sending the cosmetic WebSocket
+            # heartbeat. A missing/mismatched owner means another process owns
+            # recovery now and this executor must stop.
             async with database.AsyncSessionLocal() as db:
-                result = await db.execute(
-                    select(AIGenerationJob).where(AIGenerationJob.id == job_id)
-                )
-                job = _safe_scalar_one_or_none(result, "heartbeat_job_lookup")
-
-                # Stop if job finished/failed/not found
-                if not job or job.status not in ["running", "generating"]:
-                    logger.info(
-                        f"Heartbeat stopped: job {job_id} status={job.status if job else 'not_found'}"
+                if lease_owner is not None and lease_token is not None:
+                    renewed = await renew_generation_lease(
+                        db,
+                        job_id=job_id,
+                        worker_id=lease_owner,
+                        lease_token=lease_token,
+                        lease_seconds=lease_seconds,
                     )
-                    break
+                    if not renewed:
+                        logger.warning(
+                            "Generation lease lost for job %s (owner %s)",
+                            job_id,
+                            lease_owner,
+                        )
+                        return False
+                elif lease_owner is None and lease_token is None:
+                    # Backwards-compatible status-only heartbeat for legacy
+                    # direct tests and disabled legacy endpoints.
+                    result = await db.execute(
+                        select(AIGenerationJob).where(AIGenerationJob.id == job_id)
+                    )
+                    job = _safe_scalar_one_or_none(result, "heartbeat_job_lookup")
+                    if not job or job.status not in ["running", "generating"]:
+                        logger.info(
+                            "Heartbeat stopped: job %s status=%s",
+                            job_id,
+                            job.status if job else "not_found",
+                        )
+                        return False
+                else:
+                    logger.error(
+                        "Heartbeat stopped: incomplete fencing lease for job %s",
+                        job_id,
+                    )
+                    return False
 
             # Send heartbeat via WebSocket
             await manager.send_progress(
@@ -218,7 +380,7 @@ async def send_periodic_heartbeat(
         except asyncio.CancelledError:
             # Task cancelled (normal shutdown)
             logger.info(f"Heartbeat task cancelled for job {job_id}")
-            break
+            return True
         except Exception as e:
             # Log error but continue sending heartbeats
             # Connection is critical - one failed heartbeat shouldn't stop all
@@ -714,6 +876,8 @@ class BackgroundJobService:
         user_id: int,
         additional_requirements: str | None = None,
         job_id: int | None = None,
+        lease_owner: str | None = None,
+        lease_token: str | None = None,
     ) -> None:
         """
         Background task to generate a complete document
@@ -736,18 +900,62 @@ class BackgroundJobService:
         # Accumulates real response.usage of every LLM call in this run
         # (outline, sections, humanization, panel, claim verifier)
         usage = UsageTracker()
+        usage_baseline_tokens = 0
+        usage_baseline_cost_cents = 0
+        fenced_execution = (
+            job_id is not None and lease_owner is not None and lease_token is not None
+        )
+        if (lease_owner is None) != (lease_token is None) or (
+            lease_owner is not None and job_id is None
+        ):
+            raise RuntimeError("Incomplete generation fencing context")
+
+        async def fence_next_mutation(
+            db: AsyncSession, *, lock_case: bool = False
+        ) -> None:
+            if not fenced_execution:
+                return
+            await lock_generation_lease_for_mutation(
+                db,
+                job_id=job_id,
+                worker_id=lease_owner,
+                lease_token=lease_token,
+                document_id=document_id,
+                lock_case=lock_case,
+            )
+
+        async def _record_provenance(
+            db: AsyncSession,
+            target_document_id: int,
+            stage: str,
+            event_type: str,
+            payload: dict[str, Any] | None = None,
+        ) -> None:
+            await fence_next_mutation(db)
+            await _raw_record_provenance(
+                db,
+                target_document_id,
+                stage=stage,
+                event_type=event_type,
+                payload=payload,
+            )
 
         async def write_job_usage(db: AsyncSession) -> None:
             """Absolute (idempotent) usage write; a crash keeps honest partials."""
             if job_id is None:
                 return
             try:
+                statement = update(AIGenerationJob).where(AIGenerationJob.id == job_id)
+                if fenced_execution:
+                    statement = statement.where(
+                        AIGenerationJob.status == "running",
+                        AIGenerationJob.lease_owner == lease_owner,
+                        AIGenerationJob.lease_token == lease_token,
+                    )
                 await db.execute(
-                    update(AIGenerationJob)
-                    .where(AIGenerationJob.id == job_id)
-                    .values(
-                        total_tokens=usage.total_tokens,
-                        cost_cents=usage.cost_usd_cents(),
+                    statement.values(
+                        total_tokens=usage_baseline_tokens + usage.total_tokens,
+                        cost_cents=(usage_baseline_cost_cents + usage.cost_usd_cents()),
                     )
                 )
                 await db.commit()
@@ -780,15 +988,60 @@ class BackgroundJobService:
 
                 if not document:
                     logger.error(f"Document {document_id} not found for user {user_id}")
-                    return
+                    raise RuntimeError(
+                        f"Document {document_id} not found for generation owner {user_id}"
+                    )
 
-                # Update status to generating
-                await db.execute(
-                    update(Document)
-                    .where(Document.id == document_id)
-                    .values(status="generating")
+                if job_id is not None:
+                    usage_statement = select(
+                        AIGenerationJob.total_tokens,
+                        AIGenerationJob.cost_cents,
+                    ).where(AIGenerationJob.id == job_id)
+                    if fenced_execution:
+                        usage_statement = usage_statement.where(
+                            AIGenerationJob.status == "running",
+                            AIGenerationJob.lease_owner == lease_owner,
+                            AIGenerationJob.lease_token == lease_token,
+                        )
+                    usage_row = (await db.execute(usage_statement)).first()
+                    if usage_row is None and fenced_execution:
+                        raise GenerationLeaseLostError(
+                            f"Generation lease lost before job {job_id} usage baseline"
+                        )
+                    if usage_row is not None:
+                        usage_baseline_tokens = int(usage_row.total_tokens or 0)
+                        usage_baseline_cost_cents = int(usage_row.cost_cents or 0)
+
+                # Creation-time intake and the parsed methodology are durable
+                # requirements. A per-run request may add context, but can
+                # never replace or drop that persisted source of truth.
+                additional_requirements = combine_generation_requirements(
+                    document.additional_requirements,
+                    additional_requirements,
                 )
-                await db.commit()
+
+                document_citation_style = _resolve_citation_style(
+                    document.citation_style
+                )
+
+                # Update status to generating. Durable executions lock and
+                # validate the lease in the same transaction as the write.
+                if fenced_execution:
+                    await update_generation_document(
+                        db,
+                        job_id=job_id,
+                        worker_id=lease_owner,
+                        lease_token=lease_token,
+                        document_id=document_id,
+                        values={"status": "generating"},
+                    )
+                else:
+                    await db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(status="generating")
+                    )
+                    await db.commit()
 
                 # Step 0: Build the upfront topic-locked source pack (grounding).
                 # Built once and reused for the outline + every section so
@@ -805,6 +1058,7 @@ class BackgroundJobService:
                             ai_service=AIService(db, usage_tracker=usage),
                         )
                         if source_pack is not None:
+                            await fence_next_mutation(db)
                             await _persist_source_pack(db, document_id, source_pack)
                             if settings.PROVENANCE_LEDGER_ENABLED:
                                 scores = [
@@ -839,22 +1093,33 @@ class BackgroundJobService:
                             user_id=user_id,
                             additional_requirements=additional_requirements,
                             source_pack=source_pack,
+                            before_persist=functools.partial(fence_next_mutation, db),
                         )
                         logger.info(
                             f"Outline generated successfully for document {document_id}"
                         )
                     except Exception as e:
                         logger.error(f"Failed to generate outline: {e}")
-                        await db.execute(
-                            update(Document)
-                            .where(Document.id == document_id)
-                            .values(status="failed")
-                        )
-                        await db.commit()
+                        if fenced_execution:
+                            await update_generation_document(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                values={"status": "failed"},
+                            )
+                        else:
+                            await db.execute(
+                                update(Document)
+                                .where(Document.id == document_id)
+                                .values(status="failed")
+                            )
+                            await db.commit()
                         # LLM spend of the failed outline attempt stays
                         # honest — failed runs are the expensive ones.
                         await write_job_usage(db)
-                        return
+                        raise RuntimeError("Outline generation failed") from e
 
                 # Reload document to get outline
                 await db.refresh(document)
@@ -863,14 +1128,24 @@ class BackgroundJobService:
                     logger.error(
                         f"No outline sections found for document {document_id}"
                     )
-                    await db.execute(
-                        update(Document)
-                        .where(Document.id == document_id)
-                        .values(status="failed")
-                    )
-                    await db.commit()
+                    if fenced_execution:
+                        await update_generation_document(
+                            db,
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                            values={"status": "failed"},
+                        )
+                    else:
+                        await db.execute(
+                            update(Document)
+                            .where(Document.id == document_id)
+                            .values(status="failed")
+                        )
+                        await db.commit()
                     await write_job_usage(db)  # outline LLM call succeeded
-                    return
+                    raise RuntimeError("Generated outline contains no sections")
 
                 # Step 2: Generate all sections
                 sections = document.outline.get("sections", [])
@@ -888,25 +1163,34 @@ class BackgroundJobService:
                     checkpoint_raw = await redis.get(f"checkpoint:doc:{document_id}")
                     if checkpoint_raw:
                         checkpoint = json.loads(checkpoint_raw)
-                        start_section_index = checkpoint.get(
-                            "last_completed_section_index", 0
-                        )
-                        logger.info(
-                            f"♻️ Resuming generation from section {start_section_index + 1}/{len(sections)}"
-                        )
+                        checkpoint_job_id = checkpoint.get("job_id")
+                        if job_id is not None and checkpoint_job_id != job_id:
+                            await redis.delete(f"checkpoint:doc:{document_id}")
+                            checkpoint = {}
+                        if checkpoint:
+                            start_section_index = checkpoint.get(
+                                "last_completed_section_index", 0
+                            )
+                            logger.info(
+                                f"♻️ Resuming generation from section {start_section_index + 1}/{len(sections)}"
+                            )
 
-                        # Send WebSocket notification about resume
-                        await manager.send_progress(
-                            user_id,
-                            {
-                                "progress": int(
-                                    (start_section_index / len(sections)) * 100
-                                ),
-                                "stage": f"Resuming from section {start_section_index + 1}",
-                                "status": "generating",
-                                "document_id": document_id,
-                            },
-                        )
+                            # Send WebSocket notification about resume
+                            await manager.send_progress(
+                                user_id,
+                                {
+                                    "progress": int(
+                                        (start_section_index / len(sections)) * 100
+                                    ),
+                                    "stage": f"Resuming from section {start_section_index + 1}",
+                                    "status": "generating",
+                                    "document_id": document_id,
+                                },
+                            )
+                        else:
+                            logger.info(
+                                f"Starting fresh generation for document {document_id}"
+                            )
                     else:
                         logger.info(
                             f"Starting fresh generation for document {document_id}"
@@ -937,6 +1221,7 @@ class BackgroundJobService:
                             section_titles=titles,
                             ai_service=AIService(db, usage_tracker=usage),
                         )
+                        await fence_next_mutation(db)
                         await _persist_source_pack(db, document_id, source_pack)
                         if settings.PROVENANCE_LEDGER_ENABLED:
                             scores = [ps.on_topic_score for ps in source_pack.sources]
@@ -1007,15 +1292,26 @@ class BackgroundJobService:
                             continue
 
                         # Update section status to generating
-                        await db.execute(
-                            update(DocumentSection)
-                            .where(
-                                DocumentSection.document_id == document_id,
-                                DocumentSection.section_index == section_index,
+                        if fenced_execution:
+                            await update_generation_section_status(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                section_index=section_index,
+                                status="generating",
                             )
-                            .values(status="generating")
-                        )
-                        await db.commit()
+                        else:
+                            await db.execute(
+                                update(DocumentSection)
+                                .where(
+                                    DocumentSection.document_id == document_id,
+                                    DocumentSection.section_index == section_index,
+                                )
+                                .values(status="generating")
+                            )
+                            await db.commit()
 
                         # Get previously generated sections for context (✅ LIMITED to last N sections)
                         context_result = await db.execute(
@@ -1101,12 +1397,17 @@ class BackgroundJobService:
                                 section_index=section_index,
                                 provider=document.ai_provider,
                                 model=document.ai_model,
-                                citation_style=CitationStyle.APA,  # Default to APA
+                                citation_style=document_citation_style,
                                 humanize=False,  # Will humanize in next step
                                 context_sections=context_list,
                                 additional_requirements=effective_requirements,
                                 source_pack=source_pack,
                                 target_word_count=section_target_words,
+                            )
+                            # A worker whose lease expired while it awaited an
+                            # AI provider may not persist the returned draft.
+                            await _assert_generation_lease(
+                                job_id, lease_owner, lease_token
                             )
 
                             # Honest writer trail: a provider outage must never
@@ -1332,6 +1633,7 @@ class BackgroundJobService:
                             if (
                                 ai_status == CheckStatus.FAILED
                                 and settings.QUALITY_GATES_ENABLED
+                                and settings.AI_DETECTION_BLOCKING
                             ):
                                 gates_passed = False
                                 attempt_errors.append(ai_reason)
@@ -1373,6 +1675,7 @@ class BackgroundJobService:
                                     "score": final_ai_score,
                                     "reason": ai_reason,
                                     "provider": provider_used,
+                                    "blocking": settings.AI_DETECTION_BLOCKING,
                                 },
                             }
 
@@ -1564,63 +1867,59 @@ class BackgroundJobService:
                             logger.error(error_msg)
                             raise RuntimeError(error_msg)
 
-                        # Save or update section (using final scores from quality gates)
-                        section_result_db = await db.execute(
-                            select(DocumentSection).where(
-                                DocumentSection.document_id == document_id,
-                                DocumentSection.section_index == section_index,
-                            )
-                        )
-                        section = _safe_scalar_one_or_none(
-                            section_result_db,
-                            f"section_lookup_{section_index}",
-                        )
-
                         word_count = len(final_content.split())
                         section_tokens = usage.total_tokens - section_usage_start
-
-                        if section:
-                            section.content = final_content
-                            section.status = "completed"
-                            section.word_count = word_count
-                            section.grammar_score = final_grammar_score
-                            section.plagiarism_score = final_plagiarism_score
-                            section.ai_detection_score = final_ai_score
-                            section.quality_score = final_quality_score
-                            section.tokens_used = section_tokens
-                            section.completed_at = datetime.utcnow()
-                        else:
-                            section = DocumentSection(
+                        section_values = {
+                            "title": section_title,
+                            "content": final_content,
+                            "status": "completed",
+                            "word_count": word_count,
+                            "grammar_score": final_grammar_score,
+                            "plagiarism_score": final_plagiarism_score,
+                            "ai_detection_score": final_ai_score,
+                            "quality_score": final_quality_score,
+                            "tokens_used": section_tokens,
+                            "completed_at": datetime.utcnow(),
+                            "bibliography": section_result.get("bibliography") or [],
+                            "pack_keys_used": section_result.get("pack_keys_used")
+                            or [],
+                            "quality_panel": (
+                                panel_result.get("panel")
+                                if panel_result is not None
+                                else None
+                            ),
+                        }
+                        if fenced_execution:
+                            section = await persist_generation_section(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
                                 document_id=document_id,
-                                title=section_title,
                                 section_index=section_index,
-                                content=final_content,
-                                status="completed",
-                                word_count=word_count,
-                                grammar_score=final_grammar_score,
-                                plagiarism_score=final_plagiarism_score,
-                                ai_detection_score=final_ai_score,
-                                quality_score=final_quality_score,
-                                tokens_used=section_tokens,
-                                completed_at=datetime.utcnow(),
+                                values=section_values,
                             )
-                            db.add(section)
-
-                        # Persist the final accepted attempt's bibliography so
-                        # document assembly and exporters can rebuild the
-                        # Bibliografia section after checkpoint-resume. Assign
-                        # NEW lists (JSON columns don't track in-place mutation).
-                        section.bibliography = section_result.get("bibliography") or []
-                        section.pack_keys_used = (
-                            section_result.get("pack_keys_used") or []
-                        )
-
-                        if panel_result is not None:
-                            # Assign a NEW dict (JSON columns don't track
-                            # in-place mutation)
-                            section.quality_panel = panel_result.get("panel")
-
-                        await db.commit()
+                        else:
+                            section_result_db = await db.execute(
+                                select(DocumentSection).where(
+                                    DocumentSection.document_id == document_id,
+                                    DocumentSection.section_index == section_index,
+                                )
+                            )
+                            section = _safe_scalar_one_or_none(
+                                section_result_db,
+                                f"section_lookup_{section_index}",
+                            )
+                            if section is None:
+                                section = DocumentSection(
+                                    document_id=document_id,
+                                    section_index=section_index,
+                                    title=section_title,
+                                )
+                                db.add(section)
+                            for key, value in section_values.items():
+                                setattr(section, key, value)
+                            await db.commit()
 
                         # Incremental job usage write: a crashed run keeps
                         # honest partial totals for completed sections
@@ -1632,6 +1931,7 @@ class BackgroundJobService:
                         # section.id is populated post-commit thanks to
                         # expire_on_commit=False. Non-critical: never raises.
                         if settings.CITATION_VERIFICATION_ENABLED:
+                            await fence_next_mutation(db)
                             await _persist_cited_sources(
                                 db,
                                 document_id,
@@ -1704,6 +2004,7 @@ class BackgroundJobService:
                             check_statuses = [
                                 c["status"]
                                 for c in (final_check_breakdown or {}).values()
+                                if c.get("blocking", True)
                             ]
                             overall_gate_status = (
                                 "failed"
@@ -1825,6 +2126,7 @@ class BackgroundJobService:
                         try:
                             checkpoint_data = {
                                 "document_id": document_id,
+                                "job_id": job_id,
                                 "last_completed_section_index": section_index,
                                 "total_sections": len(sections),
                                 "completed_at": datetime.utcnow().isoformat(),
@@ -1834,7 +2136,7 @@ class BackgroundJobService:
                             await redis.set(
                                 f"checkpoint:doc:{document_id}",
                                 json.dumps(checkpoint_data),
-                                ex=3600,  # TTL: 1 hour
+                                ex=settings.GENERATION_CHECKPOINT_TTL_SECONDS,
                             )
                             logger.info(
                                 f"✅ Checkpoint saved: section {section_index}/{len(sections)} "
@@ -1851,15 +2153,26 @@ class BackgroundJobService:
                         logger.error(
                             f"❌ Quality threshold not met for section {section_index}: {e}"
                         )
-                        await db.execute(
-                            update(DocumentSection)
-                            .where(
-                                DocumentSection.document_id == document_id,
-                                DocumentSection.section_index == section_index,
+                        if fenced_execution:
+                            await update_generation_section_status(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                section_index=section_index,
+                                status="failed_quality",
                             )
-                            .values(status="failed_quality")
-                        )
-                        await db.commit()
+                        else:
+                            await db.execute(
+                                update(DocumentSection)
+                                .where(
+                                    DocumentSection.document_id == document_id,
+                                    DocumentSection.section_index == section_index,
+                                )
+                                .values(status="failed_quality")
+                            )
+                            await db.commit()
 
                         if settings.PROVENANCE_LEDGER_ENABLED:
                             await _record_provenance(
@@ -1891,19 +2204,33 @@ class BackgroundJobService:
 
                     except Exception as e:
                         logger.error(f"Error generating section {section_index}: {e}")
-                        await db.execute(
-                            update(DocumentSection)
-                            .where(
-                                DocumentSection.document_id == document_id,
-                                DocumentSection.section_index == section_index,
+                        if isinstance(e, GenerationLeaseLostError):
+                            raise
+                        if fenced_execution:
+                            await update_generation_section_status(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                section_index=section_index,
+                                status="failed",
                             )
-                            .values(status="failed")
-                        )
-                        await db.commit()
+                        else:
+                            await db.execute(
+                                update(DocumentSection)
+                                .where(
+                                    DocumentSection.document_id == document_id,
+                                    DocumentSection.section_index == section_index,
+                                )
+                                .values(status="failed")
+                            )
+                            await db.commit()
                         # Stop generation to avoid incomplete document
                         raise
 
                 # Step 4: Check if all sections completed
+                await _assert_generation_lease(job_id, lease_owner, lease_token)
                 sections_result = await db.execute(
                     select(DocumentSection).where(
                         DocumentSection.document_id == document_id,
@@ -1917,14 +2244,24 @@ class BackgroundJobService:
 
                 if len(completed_sections) == 0:
                     logger.error(f"No sections completed for document {document_id}")
-                    await db.execute(
-                        update(Document)
-                        .where(Document.id == document_id)
-                        .values(status="failed")
-                    )
-                    await db.commit()
+                    if fenced_execution:
+                        await update_generation_document(
+                            db,
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                            values={"status": "failed"},
+                        )
+                    else:
+                        await db.execute(
+                            update(Document)
+                            .where(Document.id == document_id)
+                            .values(status="failed")
+                        )
+                        await db.commit()
                     await write_job_usage(db)  # spend of the failed attempts
-                    return
+                    raise RuntimeError("No document sections completed")
 
                 if len(completed_sections) < total_sections:
                     error_msg = (
@@ -1960,28 +2297,66 @@ class BackgroundJobService:
                         document_bibliography
                     )
 
-                await db.execute(
-                    update(Document)
-                    .where(Document.id == document_id)
-                    .values(content=final_content, status="sections_generated")
-                )
-                await db.commit()
+                if fenced_execution:
+                    await update_generation_document(
+                        db,
+                        job_id=job_id,
+                        worker_id=lease_owner,
+                        lease_token=lease_token,
+                        document_id=document_id,
+                        values={
+                            "content": final_content,
+                            "status": "sections_generated",
+                        },
+                    )
+                else:
+                    await db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(content=final_content, status="sections_generated")
+                    )
+                    await db.commit()
 
                 # Step 4.7: Citation verification + integrity gate
                 # (Academic Quality Engine). Strict policy raises
                 # CitationIntegrityError here, before export; mark_only and
                 # internal failures never block (fail-open).
                 if settings.CITATION_VERIFICATION_ENABLED:
-                    await _run_citation_verification_stage(db, document_id, user_id)
+                    if fenced_execution:
+                        async with hold_generation_job_lease(
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                        ):
+                            await _run_citation_verification_stage(
+                                db, document_id, user_id
+                            )
+                    else:
+                        await _run_citation_verification_stage(db, document_id, user_id)
 
                 # Step 4.8: Claim faithfulness audit (advisory by default;
                 # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
                 # claims raise CitationIntegrityError here, before export)
                 try:
                     if settings.CLAIM_VERIFICATION_ENABLED:
-                        await _run_claim_verification_stage(
-                            db, document_id, user_id, usage_tracker=usage
-                        )
+                        if fenced_execution:
+                            async with hold_generation_job_lease(
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                            ):
+                                await _run_claim_verification_stage(
+                                    db,
+                                    document_id,
+                                    user_id,
+                                    usage_tracker=usage,
+                                )
+                        else:
+                            await _run_claim_verification_stage(
+                                db, document_id, user_id, usage_tracker=usage
+                            )
                 finally:
                     # Post-section LLM spend (claim verifier) included —
                     # also on the blocking path (CitationIntegrityError),
@@ -1989,12 +2364,24 @@ class BackgroundJobService:
                     await write_job_usage(db)
 
                 # Step 5: Export to DOCX
+                await _assert_generation_lease(job_id, lease_owner, lease_token)
                 logger.info(f"Exporting document {document_id} to DOCX")
                 try:
                     document_service = DocumentService(db)
-                    export_result = await document_service.export_document(
-                        document_id=document_id, format="docx", user_id=user_id
-                    )
+                    if fenced_execution:
+                        export_result = await _export_document_with_fence(
+                            db,
+                            document_service=document_service,
+                            document_id=document_id,
+                            user_id=user_id,
+                            job_id=job_id,
+                            lease_owner=lease_owner,
+                            lease_token=lease_token,
+                        )
+                    else:
+                        export_result = await document_service.export_document(
+                            document_id=document_id, format="docx", user_id=user_id
+                        )
                     logger.info(
                         f"Document {document_id} exported successfully: {export_result.get('download_url')}"
                     )
@@ -2018,47 +2405,32 @@ class BackgroundJobService:
                         )
                 except Exception as e:
                     logger.error(f"Failed to export document {document_id}: {e}")
-                    # Export failure doesn't fail the entire job, but log it
+                    # A completed document must have a real downloadable file.
+                    # Let the outer failure handler mark both document and job failed.
+                    raise
 
-                # Step 6: Update document status to completed
-                await db.execute(
-                    update(Document)
-                    .where(Document.id == document_id)
-                    .values(status="completed", completed_at=datetime.utcnow())
-                )
-                await db.commit()
+                # Step 6: The wrapper atomically marks both the job and document
+                # completed using the current fencing token. Direct test/helper
+                # calls without a durable job keep the legacy completion path.
+                if not fenced_execution:
+                    await db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(status="completed", completed_at=datetime.utcnow())
+                    )
+                    await db.commit()
 
                 logger.info(f"Document {document_id} generation completed successfully")
 
-                # Step 7: Send email notification to user
-                try:
-                    from app.models.auth import User
-                    from app.services.notification_service import notification_service
-
-                    user_result = await db.execute(
-                        select(User).where(User.id == user_id)
-                    )
-                    user = _safe_scalar_one_or_none(
-                        user_result,
-                        "completion_email_user_lookup",
-                    )
-
-                    if user and user.email:
-                        await notification_service.send_document_ready_notification(
-                            email=user.email,
-                            document_title=document.title,
-                            document_id=document_id,
-                        )
-                except Exception as e:
-                    logger.warning(f"Failed to send completion email: {e}")
+                # Client notification belongs to the explicit release action,
+                # not generation completion. At this point the artifact is
+                # still awaiting Compilatio/editorial review.
 
             except Exception as e:
                 logger.error(
                     f"Critical error in background document generation: {e}",
                     exc_info=True,
                 )
-                error_message = str(e)
-
                 # The transaction may be poisoned by the exception —
                 # clear it so the usage write and status update can land.
                 try:
@@ -2071,52 +2443,36 @@ class BackgroundJobService:
 
                 # Mark document as failed
                 try:
-                    # The citation integrity gate already set 'failed_quality'
-                    # and committed; don't overwrite it with the generic
-                    # 'failed'. Flag off => this exception never exists.
-                    if not isinstance(e, CitationIntegrityError):
-                        await db.execute(
-                            update(Document)
-                            .where(Document.id == document_id)
-                            .values(status="failed")
-                        )
-                        await db.commit()
-
-                    # Send failure notification email
-                    try:
-                        from app.models.auth import User
-                        from app.services.notification_service import (
-                            notification_service,
-                        )
-
-                        user_result = await db.execute(
-                            select(User).where(User.id == user_id)
-                        )
-                        user = _safe_scalar_one_or_none(
-                            user_result,
-                            "failure_email_user_lookup",
-                        )
-
-                        if user and user.email:
-                            await notification_service.send_document_failed_notification(
-                                email=user.email,
-                                document_title=(
-                                    document.title if document else "Unknown"
-                                ),
-                                error_message=error_message[:200],  # Limit length
+                    # Quality/integrity gates already set 'failed_quality' and
+                    # committed; don't overwrite that meaningful terminal state
+                    # with the generic infrastructure-failure status.
+                    if not isinstance(
+                        e,
+                        CitationIntegrityError
+                        | QualityThresholdNotMetError
+                        | GenerationLeaseLostError,
+                    ):
+                        if fenced_execution:
+                            await update_generation_document(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                values={"status": "failed"},
                             )
-                    except Exception as email_error:
-                        logger.warning(f"Failed to send failure email: {email_error}")
+                        else:
+                            await db.execute(
+                                update(Document)
+                                .where(Document.id == document_id)
+                                .values(status="failed")
+                            )
+                            await db.commit()
                 except Exception:
                     logger.error(
                         f"Failed to update document {document_id} status to failed"
                     )
                 raise
-            finally:
-                # Always cleanup checkpoint on terminal state to avoid stale recovery data.
-                await _clear_generation_checkpoint(
-                    document_id, "generate_full_document"
-                )
 
     @staticmethod
     @background_task_error_handler("generate_full_document_async")
@@ -2125,32 +2481,49 @@ class BackgroundJobService:
         user_id: int,
         job_id: int,
         additional_requirements: str | None = None,
+        lease_owner: str | None = None,
+        lease_token: str | None = None,
     ) -> None:
-        """
-        Async version of generate_full_document with job progress tracking.
-
-        Updates AIGenerationJob status and progress throughout generation.
-
-        Args:
-            document_id: ID of the document to generate
-            user_id: ID of the user owning the document
-            job_id: ID of the AIGenerationJob for tracking
-            additional_requirements: Optional additional requirements
-        """
-        # ✅ STEP 1.2: WebSocket heartbeat task (prevents 5-10 min timeouts)
-        heartbeat_task = None
+        """Execute a leased job, preserving checkpoints across retries/restarts."""
+        owner = lease_owner or f"direct:{uuid.uuid4().hex}"
+        token = lease_token
+        heartbeat_task: asyncio.Task[bool] | None = None
+        generation_task: asyncio.Task[None] | None = None
 
         async with database.AsyncSessionLocal() as db:
-            try:
-                # Update job to running
-                await db.execute(
-                    update(AIGenerationJob)
-                    .where(AIGenerationJob.id == job_id)
-                    .values(status="running", progress=0)
+            if lease_owner is None:
+                claimed = await claim_generation_job_by_id(
+                    db,
+                    job_id=job_id,
+                    worker_id=owner,
+                    lease_seconds=settings.GENERATION_JOB_LEASE_SECONDS,
                 )
-                await db.commit()
+                if claimed is None:
+                    logger.warning(
+                        "Skipped duplicate generation delivery for job %s", job_id
+                    )
+                    return
+                token = claimed.lease_token
+                # Direct legacy callers may omit the durable payload.
+                if additional_requirements is None:
+                    additional_requirements = claimed.additional_requirements
+            elif token is None or not await generation_lease_is_owned(
+                db,
+                job_id=job_id,
+                worker_id=owner,
+                lease_token=token,
+            ):
+                await db.rollback()
+                logger.warning(
+                    "Worker %s no longer owns generation job %s", owner, job_id
+                )
+                return
+            else:
+                # End the ownership-check transaction before the hours-long
+                # pipeline; heartbeat/finalization use short transactions.
+                await db.rollback()
 
-                # Notify WebSocket clients
+            try:
                 await manager.send_progress(
                     user_id,
                     {
@@ -2162,36 +2535,57 @@ class BackgroundJobService:
                     },
                 )
 
-                # ✅ STEP 1.2: Start heartbeat task to keep WebSocket alive
                 heartbeat_task = asyncio.create_task(
                     send_periodic_heartbeat(
                         user_id=user_id,
                         job_id=job_id,
                         document_id=document_id,
-                        interval=10,  # 10 seconds (prevents Chrome 5 min, Nginx 60 sec timeouts)
-                    )
+                        interval=settings.GENERATION_JOB_HEARTBEAT_SECONDS,
+                        lease_owner=owner,
+                        lease_token=token,
+                        lease_seconds=settings.GENERATION_JOB_LEASE_SECONDS,
+                    ),
+                    name=f"generation-heartbeat:{job_id}",
                 )
-                logger.info(f"💓 Heartbeat task started for job {job_id}")
+                generation_task = asyncio.create_task(
+                    BackgroundJobService.generate_full_document(
+                        document_id=document_id,
+                        user_id=user_id,
+                        additional_requirements=additional_requirements,
+                        job_id=job_id,
+                        lease_owner=owner,
+                        lease_token=token,
+                    ),
+                    name=f"generation-pipeline:{job_id}",
+                )
 
-                # Call the original generation method
-                await BackgroundJobService.generate_full_document(
-                    document_id=document_id,
-                    user_id=user_id,
-                    additional_requirements=additional_requirements,
+                done, _ = await asyncio.wait(
+                    {heartbeat_task, generation_task},
+                    return_when=asyncio.FIRST_COMPLETED,
+                )
+                if heartbeat_task in done and generation_task not in done:
+                    lease_still_owned = heartbeat_task.result()
+                    if not lease_still_owned:
+                        generation_task.cancel()
+                        await asyncio.gather(generation_task, return_exceptions=True)
+                        raise GenerationLeaseLostError(
+                            f"Generation lease lost for job {job_id}"
+                        )
+
+                # Propagate pipeline failures after the heartbeat race check.
+                await generation_task
+                completed = await complete_generation_job(
+                    db,
                     job_id=job_id,
+                    worker_id=owner,
+                    lease_token=token,
                 )
-
-                # Update job to completed
-                await db.execute(
-                    update(AIGenerationJob)
-                    .where(AIGenerationJob.id == job_id)
-                    .values(
-                        status="completed", progress=100, completed_at=datetime.utcnow()
+                if not completed:
+                    raise GenerationLeaseLostError(
+                        f"Generation job {job_id} finished after its lease was lost"
                     )
-                )
-                await db.commit()
 
-                # Notify WebSocket clients
+                await _clear_generation_checkpoint(document_id, "job_completed")
                 await manager.send_progress(
                     user_id,
                     {
@@ -2202,36 +2596,66 @@ class BackgroundJobService:
                         "progress": 100,
                     },
                 )
+                logger.info("Job %s completed successfully", job_id)
 
-                logger.info(f"Job {job_id} completed successfully")
-
-            except Exception as e:
-                # Update job to failed
+            except asyncio.CancelledError:
+                # A graceful deploy/shutdown requeues immediately and keeps both
+                # Redis + persisted section checkpoints intact.
+                if generation_task is not None and not generation_task.done():
+                    generation_task.cancel()
+                    await asyncio.gather(generation_task, return_exceptions=True)
                 try:
-                    await db.execute(
-                        update(AIGenerationJob)
-                        .where(AIGenerationJob.id == job_id)
-                        .values(
-                            status="failed",
-                            error_message=str(e)[:500],  # Limit error message length
-                            success=False,
-                            completed_at=datetime.utcnow(),
-                        )
+                    await db.rollback()
+                    await release_generation_lease_for_shutdown(
+                        db,
+                        job_id=job_id,
+                        worker_id=owner,
+                        lease_token=token,
                     )
-                    await db.commit()
-
-                    # ✅ TASK 3.7.4: Clear checkpoint on failure
-                    try:
-                        redis = await get_redis()
-                        await redis.delete(f"checkpoint:doc:{document_id}")
-                        logger.info("✅ Checkpoint cleared after failure")
-                    except Exception as checkpoint_error:
-                        # ⚠️ Non-critical: log warning
-                        logger.warning(
-                            f"⚠️ Failed to clear checkpoint on failure: {checkpoint_error}"
-                        )
-
-                    # Notify WebSocket clients
+                except Exception:
+                    logger.exception(
+                        "Failed to release generation lease during shutdown: job %s",
+                        job_id,
+                    )
+                raise
+            except GenerationLeaseLostError:
+                # Never overwrite the state of the replacement owner. The
+                # checkpoint remains available to that owner.
+                if generation_task is not None and not generation_task.done():
+                    generation_task.cancel()
+                    await asyncio.gather(generation_task, return_exceptions=True)
+                await db.rollback()
+                logger.warning("Stopped stale generation executor for job %s", job_id)
+                raise
+            except Exception as error:
+                await db.rollback()
+                terminal = isinstance(
+                    error, CitationIntegrityError | QualityThresholdNotMetError
+                )
+                decision = await reschedule_or_fail_generation_job(
+                    db,
+                    job_id=job_id,
+                    worker_id=owner,
+                    lease_token=token,
+                    error=error,
+                    terminal=terminal,
+                )
+                if decision == "retry":
+                    await manager.send_progress(
+                        user_id,
+                        {
+                            "type": "job_retrying",
+                            "job_id": job_id,
+                            "document_id": document_id,
+                            "status": "queued",
+                            "error": str(error)[:200],
+                        },
+                    )
+                elif decision == "failed":
+                    await _clear_generation_checkpoint(document_id, "job_failed")
+                    await _send_terminal_failure_notification(
+                        document_id, user_id, str(error)
+                    )
                     await manager.send_progress(
                         user_id,
                         {
@@ -2239,22 +2663,21 @@ class BackgroundJobService:
                             "job_id": job_id,
                             "document_id": document_id,
                             "status": "failed",
-                            "error": str(e)[:200],
+                            "error": str(error)[:200],
                         },
                     )
-                except Exception:
-                    logger.error(f"Failed to update job {job_id} status to failed")
-                raise  # Re-raise to maintain error logging
-
+                raise
             finally:
-                # ✅ STEP 1.2: Cleanup heartbeat task
-                if heartbeat_task and not heartbeat_task.done():
-                    heartbeat_task.cancel()
-                    try:
-                        await heartbeat_task
-                    except asyncio.CancelledError:
-                        pass  # Expected when cancelling
-                    logger.info(f"💓 Heartbeat task stopped for job {job_id}")
+                for task in (heartbeat_task, generation_task):
+                    if task is not None and not task.done():
+                        task.cancel()
+                pending = [
+                    task
+                    for task in (heartbeat_task, generation_task)
+                    if task is not None and not task.done()
+                ]
+                if pending:
+                    await asyncio.gather(*pending, return_exceptions=True)
 
     @staticmethod
     @background_task_error_handler("process_custom_requirement")

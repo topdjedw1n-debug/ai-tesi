@@ -18,11 +18,16 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import select, update
+from sqlalchemy import or_, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import CitationIntegrityError
-from app.models.document import Document, DocumentProvenance, DocumentSource
+from app.models.document import (
+    Document,
+    DocumentProvenance,
+    DocumentSection,
+    DocumentSource,
+)
 from app.services.citation_verifier import (
     FUZZY_MATCH_THRESHOLD,
     SourceInput,
@@ -334,9 +339,10 @@ async def run_citation_verification_stage(
     verifier's Redis cache makes repeats cheap. Updates verification_status
     + canonical_metadata, writes a DocumentProvenance summary event, then
     enforces the integrity gate:
-    - strict: any not_found source -> Document.status='failed_quality'
-      + CitationIntegrityError (blocks export)
-    - mark_only: write integrity report and continue
+    - strict: no persisted sources, any not_found source, or any mismatched
+      source -> Document.status='failed_quality' + CitationIntegrityError
+      (blocks export)
+    - mark_only: record a visible warning and continue
 
     Unexpected internal errors degrade gracefully (logged + provenance
     'verification_error' event, gate skipped = fail-open). The ONLY exception
@@ -345,8 +351,28 @@ async def run_citation_verification_stage(
     summary: dict[str, Any] | None = None
 
     try:
+        used_keys_result = await db.execute(
+            select(DocumentSection.pack_keys_used).where(
+                DocumentSection.document_id == document_id
+            )
+        )
+        used_pack_keys = {
+            str(key)
+            for keys in used_keys_result.scalars().all()
+            for key in (keys or [])
+            if key
+        }
+        cited_filter = DocumentSource.section_id.is_not(None)
+        if used_pack_keys:
+            cited_filter = or_(
+                cited_filter,
+                DocumentSource.citation_key.in_(used_pack_keys),
+            )
         sources_result = await db.execute(
-            select(DocumentSource).where(DocumentSource.document_id == document_id)
+            select(DocumentSource).where(
+                DocumentSource.document_id == document_id,
+                cited_filter,
+            )
         )
         all_sources = safe_scalars_all(
             sources_result, f"verification_sources_doc_{document_id}"
@@ -372,20 +398,70 @@ async def run_citation_verification_stage(
                 )
             )
             await db.commit()
+            is_strict = config.CITATION_VERIFICATION_POLICY == "strict"
+            gate_payload: dict[str, Any] = {
+                "passed": False,
+                "status": "failed" if is_strict else "warning",
+                "policy": config.CITATION_VERIFICATION_POLICY,
+                "total": 0,
+                "counts": {},
+            }
+            if is_strict:
+                try:
+                    await db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(status="failed_quality")
+                    )
+                    await db.commit()
+                except Exception as gate_error:
+                    logger.error(
+                        f"Failed to persist empty citation gate state for "
+                        f"document {document_id}: {gate_error}"
+                    )
+                    try:
+                        await db.rollback()
+                    except Exception:
+                        pass
             if config.PROVENANCE_LEDGER_ENABLED:
-                await record_event(
-                    db,
-                    document_id,
-                    stage="verification",
-                    event_type="citation_gate",
-                    payload={
-                        "passed": True,
-                        "status": "passed",
-                        "policy": config.CITATION_VERIFICATION_POLICY,
-                        "total": 0,
-                        "counts": {},
-                    },
+                try:
+                    await record_event(
+                        db,
+                        document_id,
+                        stage="verification",
+                        event_type="citation_gate",
+                        payload=gate_payload,
+                    )
+                except Exception as ledger_error:
+                    logger.error(
+                        f"Failed to record empty citation gate for document "
+                        f"{document_id}: {ledger_error}"
+                    )
+                    try:
+                        await db.rollback()
+                    except Exception:
+                        pass
+            if is_strict:
+                detail = (
+                    "Citation verification failed: no cited sources were "
+                    "persisted for this document"
                 )
+                try:
+                    await send_progress(
+                        user_id,
+                        {
+                            "stage": "citation_gate_failed",
+                            "progress": 97,
+                            "message": detail,
+                            "document_id": document_id,
+                        },
+                    )
+                except Exception as progress_error:
+                    logger.warning(
+                        f"Failed to send empty citation gate progress for "
+                        f"document {document_id}: {progress_error}"
+                    )
+                raise CitationIntegrityError(detail=detail)
             return
 
         await send_progress(
@@ -415,6 +491,7 @@ async def run_citation_verification_stage(
 
         status_counts: dict[str, int] = {}
         not_found_titles: list[str] = []
+        mismatched_titles: list[str] = []
         source_records: list[dict[str, Any]] = []
         providers_used: set[str] = set()
         for source, result in zip(all_sources, results, strict=True):
@@ -425,6 +502,8 @@ async def run_citation_verification_stage(
             status_counts[mapped_status] = status_counts.get(mapped_status, 0) + 1
             if mapped_status == "not_found":
                 not_found_titles.append(source.title)
+            elif mapped_status == "mismatched":
+                mismatched_titles.append(source.title)
             # Per-source record for the frontend "sources certificate"
             source_records.append(
                 {
@@ -474,10 +553,13 @@ async def run_citation_verification_stage(
         summary = {
             "counts": status_counts,
             "not_found_titles": not_found_titles,
+            "mismatched_titles": mismatched_titles,
         }
+    except CitationIntegrityError:
+        raise
     except Exception as e:
         # ⚠️ Fail-open: infrastructure errors in OUR stage must not block the
-        # user's document. Only confirmed not_found sources may block (below).
+        # user's document. Only confirmed integrity findings may block (below).
         logger.error(
             f"Citation verification stage failed for document {document_id}: {e}",
             exc_info=True,
@@ -508,14 +590,14 @@ async def run_citation_verification_stage(
     # Integrity gate — deliberately OUTSIDE the try above so it can never be
     # swallowed by the stage's graceful-degradation handler.
     not_found_count = summary["counts"].get("not_found", 0)
-    if not_found_count == 0:
-        # "0 not_found" is only a pass if something was actually verified.
+    mismatched_count = summary["counts"].get("mismatched", 0)
+    if not_found_count == 0 and mismatched_count == 0:
+        # "0 findings" is only a pass if something was actually verified.
         # When every provider errored, all sources land in "failed"
         # (UNRESOLVABLE) and nothing was checked — that is an unchecked
         # gate, not a green one (same fail-open the quality gates had).
         failed_count = summary["counts"].get("failed", 0)
-        total_sources = sum(summary["counts"].values())
-        nothing_verified = total_sources > 0 and failed_count == total_sources
+        anything_unchecked = failed_count > 0
         if config.PROVENANCE_LEDGER_ENABLED:
             await record_event(
                 db,
@@ -523,8 +605,8 @@ async def run_citation_verification_stage(
                 stage="verification",
                 event_type="citation_gate",
                 payload={
-                    "passed": not nothing_verified,
-                    "status": "unchecked" if nothing_verified else "passed",
+                    "passed": not anything_unchecked,
+                    "status": "unchecked" if anything_unchecked else "passed",
                     "policy": config.CITATION_VERIFICATION_POLICY,
                     "counts": summary["counts"],
                 },
@@ -532,12 +614,32 @@ async def run_citation_verification_stage(
         return
 
     if config.CITATION_VERIFICATION_POLICY == "strict":
-        titles_preview = "; ".join(summary["not_found_titles"][:5])
-        detail = (
-            f"Citation verification failed: {not_found_count} cited source(s) "
-            f"could not be found in any bibliographic database "
-            f"(Crossref, OpenAlex, Semantic Scholar, arXiv): {titles_preview}"
-        )
+        detail_parts: list[str] = []
+        if not_found_count:
+            titles_preview = "; ".join(summary["not_found_titles"][:5])
+            detail_parts.append(
+                f"{not_found_count} cited source(s) could not be found in any "
+                f"bibliographic database: {titles_preview}"
+            )
+        if mismatched_count:
+            titles_preview = "; ".join(summary["mismatched_titles"][:5])
+            detail_parts.append(
+                f"{mismatched_count} cited source(s) did not match the canonical "
+                f"bibliographic record: {titles_preview}"
+            )
+        detail = "Citation verification failed: " + "; ".join(detail_parts)
+        finding_payload = {
+            "policy": "strict",
+            "not_found_count": not_found_count,
+            "not_found_titles": summary["not_found_titles"][:20],
+        }
+        if mismatched_count:
+            finding_payload.update(
+                {
+                    "mismatched_count": mismatched_count,
+                    "mismatched_titles": summary["mismatched_titles"][:20],
+                }
+            )
         # Best-effort persistence of the failure state; the raise below is
         # unconditional even if these writes fail (export still blocked).
         try:
@@ -551,11 +653,7 @@ async def run_citation_verification_stage(
                     document_id=document_id,
                     stage="verification",
                     event_type="integrity_gate_failed",
-                    payload={
-                        "policy": "strict",
-                        "not_found_count": not_found_count,
-                        "not_found_titles": summary["not_found_titles"][:20],
-                    },
+                    payload=finding_payload,
                 )
             )
             await db.commit()
@@ -577,10 +675,8 @@ async def run_citation_verification_stage(
                 payload={
                     "passed": False,
                     "status": "failed",
-                    "policy": "strict",
                     "counts": summary["counts"],
-                    "not_found_count": not_found_count,
-                    "not_found_titles": summary["not_found_titles"][:20],
+                    **finding_payload,
                 },
             )
         await send_progress(
@@ -595,23 +691,32 @@ async def run_citation_verification_stage(
         raise CitationIntegrityError(detail=detail)
 
     # mark_only: record the report and let the pipeline continue
+    finding_payload = {
+        "policy": "mark_only",
+        "not_found_count": not_found_count,
+        "not_found_titles": summary["not_found_titles"][:20],
+    }
+    if mismatched_count:
+        finding_payload.update(
+            {
+                "mismatched_count": mismatched_count,
+                "mismatched_titles": summary["mismatched_titles"][:20],
+            }
+        )
     try:
         db.add(
             DocumentProvenance(
                 document_id=document_id,
                 stage="verification",
                 event_type="integrity_report",
-                payload={
-                    "policy": "mark_only",
-                    "not_found_count": not_found_count,
-                    "not_found_titles": summary["not_found_titles"][:20],
-                },
+                payload=finding_payload,
             )
         )
         await db.commit()
         logger.warning(
             f"⚠️ Citation integrity report for document {document_id}: "
-            f"{not_found_count} not_found source(s) (policy=mark_only, continuing)"
+            f"{not_found_count} not_found, {mismatched_count} mismatched "
+            f"source(s) (policy=mark_only, continuing)"
         )
     except Exception as report_error:
         logger.warning(
@@ -629,14 +734,12 @@ async def run_citation_verification_stage(
             stage="verification",
             event_type="citation_gate",
             payload={
-                # mark_only did not block the pipeline, but not_found sources
+                # mark_only did not block the pipeline, but integrity findings
                 # exist — "warning" so release gates and the UI never show
                 # this as a clean pass.
                 "passed": True,
                 "status": "warning",
-                "policy": "mark_only",
                 "counts": summary["counts"],
-                "not_found_count": not_found_count,
-                "not_found_titles": summary["not_found_titles"][:20],
+                **finding_payload,
             },
         )

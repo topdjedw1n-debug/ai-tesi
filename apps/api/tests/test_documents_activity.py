@@ -278,7 +278,9 @@ async def test_activity_status_mapping(
     statuses = [
         ("draft", "pending"),
         ("generating", "pending"),
-        ("completed", "success"),
+        # Generated is not the same as released: the client sees success only
+        # after every required gate has passed.
+        ("completed", "pending"),
         ("failed", "error"),
         ("outline_generated", "success"),
     ]

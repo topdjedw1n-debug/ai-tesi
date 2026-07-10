@@ -299,22 +299,18 @@ async def test_document_export_flow(client, db_session, auth_token):
             doc.content = "# Test Document\n\nThis is test content for export."
             await session.commit()
 
-    # Test export (might fail if export service not fully configured, that's ok)
+    # Delivery is fail-closed: a completed document without a released
+    # production case must not reach the exporter.
     export_response = await client.post(
         f"/api/v1/documents/{document_id}/export",
         json={"format": "pdf"},
         headers=headers,
     )
 
-    # Export might return 200 (success), 202 (accepted), 404 (not found), or 500 (service error)
-    # We just verify the endpoint exists and handles the request
-    assert export_response.status_code in [
-        200,
-        202,
-        404,
-        500,
-        503,
-    ], f"Unexpected export response: {export_response.status_code}"
+    assert export_response.status_code == 409
+    assert export_response.json()["detail"] == (
+        "Document has not been released for delivery"
+    )
 
     # Cleanup
     await client.delete(f"/api/v1/documents/{document_id}", headers=headers)

@@ -540,7 +540,9 @@ async def test_generate_section_with_humanization(
     )
     mock_human_choice = MagicMock()
     mock_human_message = MagicMock()
-    mock_human_message.content = "Humanized content (Smith, 2023)."
+    # The humanizer freezes citations before the model sees them. A successful
+    # response must retain the opaque placeholder verbatim.
+    mock_human_message.content = "Humanized content ⟦C1⟧."
     mock_human_choice.message = mock_human_message
     mock_human_response.choices = [mock_human_choice]
 
@@ -660,6 +662,25 @@ def test_score_citation_match_no_match(generator_instance):
     assert score == 0.0
 
 
+def test_score_citation_match_same_year_wrong_author_is_not_a_match(
+    generator_instance,
+):
+    citation = {"year": 2023, "authors": ["Invented"], "original": "(Invented, 2023)"}
+    source = SourceDoc(
+        title="A Real Paper From The Same Year",
+        authors=["Rossi, Mario"],
+        year=2023,
+        abstract="Abstract",
+        paper_id="same-year",
+        venue="Journal",
+        citation_count=1,
+        url="http://example.com/same-year",
+        doi=None,
+    )
+
+    assert generator_instance._score_citation_match(citation, source) == 0.0
+
+
 # ============================================================================
 # C. CITATION FORMATTER TESTS (6 tests)
 # ============================================================================
@@ -671,6 +692,24 @@ def test_format_apa_intext_single_author(citation_formatter_instance):
         authors=["Smith"], year=2023, style=CitationStyle.APA
     )
     assert result == "(Smith, 2023)"
+
+
+@pytest.mark.parametrize("author", ["Mario Rossi", "Rossi, Mario"])
+def test_format_apa_intext_uses_surname_for_full_name(author):
+    result = CitationFormatter.format_intext(
+        authors=[author], year=2021, style=CitationStyle.APA
+    )
+    assert result == "(Rossi, 2021)"
+
+
+def test_format_apa_intext_two_authors_and_year_suffix():
+    result = CitationFormatter.format_intext(
+        authors=["Mario Rossi", "Lucia Bianchi"],
+        year=2021,
+        year_suffix="b",
+        style=CitationStyle.APA,
+    )
+    assert result == "(Rossi & Bianchi, 2021b)"
 
 
 def test_format_apa_intext_multiple_authors(citation_formatter_instance):
@@ -731,9 +770,6 @@ def test_format_chicago_reference(citation_formatter_instance):
     assert "Neural Networks Theory" in result
 
 
-@pytest.mark.skip(
-    reason="extract_citations_from_text not implemented yet - returns empty list"
-)
 def test_extract_citations_from_text(citation_formatter_instance):
     """Test extracting citations from generated text"""
     text = """
@@ -743,11 +779,11 @@ def test_extract_citations_from_text(citation_formatter_instance):
 
     citations = CitationFormatter.extract_citations_from_text(text)
 
-    # Should extract all 3 citations
-    assert len(citations) >= 2  # At least 2 clear citations
-    # Check that year extraction works
-    years = [c.get("year") for c in citations if c.get("year")]
-    assert 2023 in years or 2022 in years or 2021 in years
+    assert len(citations) == 3
+    assert [citation["year"] for citation in citations] == [2023, 2022, 2021]
+    assert citations[1]["authors"] == ["Doe", "Johnson"]
+    assert citations[2]["authors"] == ["Brown"]
+    assert citations[2]["et_al"] is True
 
 
 # ============================================================================
@@ -791,10 +827,7 @@ def test_format_apa_reference_no_journal_title(citation_formatter_instance):
     result = CitationFormatter.format_reference(source, style=CitationStyle.APA)
 
     # Should format as book citation (note: extra space before title is actual formatter output)
-    assert (
-        "Smith, John (2023).  Machine Learning Handbook." in result
-        or "Smith, John (2023). Machine Learning Handbook." in result
-    )
+    assert "Smith, J. (2023)." in result
     assert "Academic Press" in result
     assert "New York" in result
 
@@ -868,6 +901,19 @@ def test_format_apa_reference_8_plus_authors(citation_formatter_instance):
     assert "..." in result
     assert "Author9" in result
     assert "Nature" in result
+
+
+def test_format_apa_reference_uses_initials_and_year_suffix():
+    source = SourceDocument(
+        title="Digital universities in Italy",
+        authors=["Mario Rossi", "Bianchi, Lucia"],
+        year=2021,
+        journal="Higher Education Review",
+    )
+    result = CitationFormatter.format_reference(
+        source, style=CitationStyle.APA, year_suffix="a"
+    )
+    assert result.startswith("Rossi, M., & Bianchi, L. (2021a).")
 
 
 def test_generate_bibliography_apa_sorted_alphabetically(citation_formatter_instance):
@@ -977,9 +1023,17 @@ async def test_full_pipeline_rag_to_citations(
 
     # Mock citation extraction (method returns empty list by default)
     mock_extract_citations.return_value = [
-        {"author": "Smith & Doe", "year": 2023, "original": "(Smith & Doe, 2023)"},
-        {"author": "Johnson", "year": 2022, "original": "(Johnson, 2022)"},
-        {"author": "Brown et al.", "year": 2021, "original": "(Brown et al., 2021)"},
+        {
+            "authors": ["Smith", "Doe"],
+            "year": 2023,
+            "original": "(Smith & Doe, 2023)",
+        },
+        {"authors": ["Johnson"], "year": 2022, "original": "(Johnson, 2022)"},
+        {
+            "authors": ["Brown"],
+            "year": 2021,
+            "original": "(Brown et al., 2021)",
+        },
     ]
 
     # Mock AI response with citations
@@ -1056,7 +1110,7 @@ async def test_full_pipeline_with_humanization(
     )
     mock_human_choice = MagicMock()
     mock_human_message = MagicMock()
-    mock_human_message.content = "Humanized section content (Smith, 2023)."
+    mock_human_message.content = "Humanized section content ⟦C1⟧."
     mock_human_choice.message = mock_human_message
     mock_human_response.choices = [mock_human_choice]
 

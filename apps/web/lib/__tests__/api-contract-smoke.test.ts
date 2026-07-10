@@ -78,7 +78,8 @@ describe('API contract smoke checks', () => {
     const payload = {
       detector_name: 'GPTZero',
       result_percent: 24,
-      threshold_percent: 35,
+      decision: 'passed' as const,
+      artifact_format: 'docx' as const,
       checked_at: '2026-06-22T10:00:00Z',
       report_ref: 'docs/phase1-runs/RUN-001.md',
       reason: 'Phase 1 proof run detector evidence.',

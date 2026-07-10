@@ -116,7 +116,9 @@ def mock_stripe():
         "stripe.checkout.Session.create"
     ) as mock_session, patch("stripe.Webhook.construct_event") as mock_webhook, patch(
         "stripe.Customer.create"
-    ) as mock_customer, patch("stripe.Customer.retrieve") as mock_customer_retrieve:
+    ) as mock_customer, patch(
+        "stripe.Customer.retrieve"
+    ) as mock_customer_retrieve:
         # Mock PaymentIntent creation
         mock_intent.return_value = MagicMock(
             id="pi_test_idempotency_123",
@@ -269,6 +271,7 @@ async def test_duplicate_webhook_ignored_by_status_check(
 
 @pytest.mark.asyncio
 async def test_payment_webhook_creates_generation_job_once(
+    monkeypatch,
     client: AsyncClient,
     db_session: AsyncSession,
     test_user: User,
@@ -285,6 +288,11 @@ async def test_payment_webhook_creates_generation_job_once(
 
     This validates RACE CONDITION prevention
     """
+    # Auto-start exists only in paid/sales mode. The narrow free MVP records
+    # legacy Stripe events but deliberately requires the normal manual start.
+    monkeypatch.setattr(
+        "app.api.v1.endpoints.payment.settings.MVP_FREE_GENERATION_ENABLED", False
+    )
     # Create payment in pending state
     payment = Payment(
         user_id=test_user.id,
@@ -326,27 +334,23 @@ async def test_payment_webhook_creates_generation_job_once(
         job_id = jobs_list[0].id
 
         # Send webhook #2 - DUPLICATE
-        with patch("app.api.v1.endpoints.payment.logger") as mock_logger:
-            response2 = await client.post(
-                "/api/v1/payment/webhook",
-                content=payload,
-                headers={"Stripe-Signature": "sig_test_job"},
-            )
-            assert response2.status_code == 200
+        response2 = await client.post(
+            "/api/v1/payment/webhook",
+            content=payload,
+            headers={"Stripe-Signature": "sig_test_job"},
+        )
+        assert response2.status_code == 200
 
-            # VERIFY: No new job created
-            jobs2 = await db_session.execute(
-                select(AIGenerationJob).where(
-                    AIGenerationJob.document_id == test_document.id
-                )
+        # VERIFY: No new job created. The duplicate may be stopped either by
+        # payment idempotency or by the generation-job uniqueness guard.
+        jobs2 = await db_session.execute(
+            select(AIGenerationJob).where(
+                AIGenerationJob.document_id == test_document.id
             )
-            jobs2_list = jobs2.scalars().all()
-            assert len(jobs2_list) == 1, "Should still have only 1 job"
-            assert jobs2_list[0].id == job_id, "Should be same job"
-
-            # VERIFY: Log message about existing job
-            info_calls = [str(call) for call in mock_logger.info.call_args_list]
-            assert any("already exists" in call.lower() for call in info_calls)
+        )
+        jobs2_list = jobs2.scalars().all()
+        assert len(jobs2_list) == 1, "Should still have only 1 job"
+        assert jobs2_list[0].id == job_id, "Should be same job"
 
     print("✅ Test 4 PASSED: Webhook created job once, duplicate skipped")
 

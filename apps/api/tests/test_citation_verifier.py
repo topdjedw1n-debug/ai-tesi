@@ -226,7 +226,10 @@ async def test_doi_normalization(mock_redis):
     requested_url = client.get.call_args_list[0].args[0]
     assert requested_url.endswith("/works/10.1234/abc")
     cache_key = mock_redis.set.call_args.args[0]
-    assert cache_key == "citation_verify:doi:10.1234/abc"
+    # Cache schema v2 binds the lookup to all citation identity fields, so an
+    # author/year change cannot reuse an earlier green result.
+    assert cache_key.startswith("citation_verify:v2:")
+    assert len(cache_key.removeprefix("citation_verify:v2:")) == 64
 
 
 # ----------------------------------------------------------------------

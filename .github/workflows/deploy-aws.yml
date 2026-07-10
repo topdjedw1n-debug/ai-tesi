@@ -1,126 +1,480 @@
 name: Deploy to AWS EC2
 
 on:
-  push:
+  workflow_run:
+    workflows: ["CI Quality Gates"]
+    types: [completed]
     branches:
       - main
       - production
-  workflow_dispatch: # Allows manual trigger
+  workflow_dispatch:
+    inputs:
+      commit_sha:
+        description: Exact 40-character commit SHA that already passed CI
+        required: true
+        type: string
+      target_branch:
+        description: Branch that must contain the selected commit
+        required: true
+        type: choice
+        options:
+          - main
+          - production
+
+permissions:
+  actions: read
+  contents: read
+
+# A second deploy waits instead of cancelling or racing the active production deploy.
+concurrency:
+  group: deploy-aws-ec2
+  cancel-in-progress: false
 
 jobs:
   deploy:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       (github.event.workflow_run.head_branch == 'main' ||
+        github.event.workflow_run.head_branch == 'production'))
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Resolve the exact release revision
+        id: release
+        env:
+          WORKFLOW_RUN_SHA: ${{ github.event.workflow_run.head_sha }}
+          WORKFLOW_RUN_BRANCH: ${{ github.event.workflow_run.head_branch }}
+          MANUAL_SHA: ${{ inputs.commit_sha }}
+          MANUAL_BRANCH: ${{ inputs.target_branch }}
+        run: |
+          set -Eeuo pipefail
 
-      - name: Configure SSH
+          if [ "$GITHUB_EVENT_NAME" = "workflow_run" ]; then
+            deploy_sha="$WORKFLOW_RUN_SHA"
+            deploy_branch="$WORKFLOW_RUN_BRANCH"
+            deploy_mode="automatic"
+          else
+            deploy_sha="$MANUAL_SHA"
+            deploy_branch="$MANUAL_BRANCH"
+            deploy_mode="manual"
+          fi
+
+          if [[ ! "$deploy_sha" =~ ^[0-9a-fA-F]{40}$ ]]; then
+            echo "The release revision must be an exact 40-character commit SHA." >&2
+            exit 1
+          fi
+
+          case "$deploy_branch" in
+            main|production) ;;
+            *)
+              echo "Only main or production can be deployed." >&2
+              exit 1
+              ;;
+          esac
+
+          printf 'sha=%s\n' "${deploy_sha,,}" >> "$GITHUB_OUTPUT"
+          printf 'branch=%s\n' "$deploy_branch" >> "$GITHUB_OUTPUT"
+          printf 'mode=%s\n' "$deploy_mode" >> "$GITHUB_OUTPUT"
+
+      - name: Verify a manual release already passed CI
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          DEPLOY_SHA: ${{ steps.release.outputs.sha }}
+          DEPLOY_BRANCH: ${{ steps.release.outputs.branch }}
+          DEPLOY_MODE: ${{ steps.release.outputs.mode }}
+        run: |
+          set -Eeuo pipefail
+
+          successful_runs="$(
+            gh api --method GET \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "repos/${GITHUB_REPOSITORY}/actions/workflows/ci.yml/runs" \
+              -f branch="$DEPLOY_BRANCH" \
+              -f head_sha="$DEPLOY_SHA" \
+              -f event=push \
+              -f status=success \
+              -f per_page=1
+          )"
+
+          verified_run_id="$(
+            jq -r \
+              --arg sha "$DEPLOY_SHA" \
+              --arg branch "$DEPLOY_BRANCH" \
+              '.workflow_runs[] | select(.head_sha == $sha and .head_branch == $branch and .event == "push" and .conclusion == "success") | .id' \
+              <<< "$successful_runs" | head -n 1
+          )"
+
+          if [ -z "$verified_run_id" ]; then
+            echo "This exact commit has no successful CI run on $DEPLOY_BRANCH." >&2
+            exit 1
+          fi
+
+      - name: Configure pinned SSH host identity
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+          set -Eeuo pipefail
+          : "${SSH_PRIVATE_KEY:?GitHub secret EC2_SSH_KEY is required}"
+          : "${EC2_KNOWN_HOSTS:?GitHub secret EC2_KNOWN_HOSTS is required}"
+          : "${EC2_HOST:?GitHub secret EC2_HOST is required}"
 
-      - name: Deploy to EC2
+          install -d -m 700 "$HOME/.ssh"
+          printf '%s\n' "$SSH_PRIVATE_KEY" > "$HOME/.ssh/id_rsa"
+          chmod 600 "$HOME/.ssh/id_rsa"
+          printf '%s\n' "$EC2_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          chmod 600 "$HOME/.ssh/known_hosts"
+
+          ssh-keygen -y -f "$HOME/.ssh/id_rsa" >/dev/null
+          ssh-keygen -F "$EC2_HOST" -f "$HOME/.ssh/known_hosts" >/dev/null
+
+      - name: Deploy the verified revision
         env:
+          DEPLOY_SHA: ${{ steps.release.outputs.sha }}
+          DEPLOY_BRANCH: ${{ steps.release.outputs.branch }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
+          PUBLIC_FRONTEND_URL: ${{ vars.PUBLIC_FRONTEND_URL }}
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           MINIO_ROOT_USER: ${{ secrets.MINIO_ROOT_USER }}
           MINIO_ROOT_PASSWORD: ${{ secrets.MINIO_ROOT_PASSWORD }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_PUBLISHABLE_KEY: ${{ secrets.STRIPE_PUBLISHABLE_KEY }}
           STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
           RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          COPYSCAPE_API_KEY: ${{ secrets.COPYSCAPE_API_KEY }}
+          COPYSCAPE_USERNAME: ${{ secrets.COPYSCAPE_USERNAME }}
+          GPTZERO_API_KEY: ${{ secrets.GPTZERO_API_KEY }}
+          ORIGINALITY_AI_API_KEY: ${{ secrets.ORIGINALITY_AI_API_KEY }}
+          SEMANTIC_SCHOLAR_API_KEY: ${{ secrets.SEMANTIC_SCHOLAR_API_KEY }}
+          OPENALEX_API_KEY: ${{ secrets.OPENALEX_API_KEY }}
         run: |
-          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'ENDSSH'
-            set -e
+          set -Eeuo pipefail
+          umask 077
 
-            echo "📦 Updating code from repository..."
-            cd /home/$USER/ai-thesis || {
-              echo "❌ Project directory not found. Run setup script first!"
+          : "${EC2_USER:?GitHub secret EC2_USER is required}"
+          : "${EC2_HOST:?GitHub secret EC2_HOST is required}"
+          if [[ ! "$EC2_USER" =~ ^[a-zA-Z_][a-zA-Z0-9._-]*$ ]]; then
+            echo "EC2_USER contains unsupported characters." >&2
+            exit 1
+          fi
+          if [[ ! "$EC2_HOST" =~ ^[a-zA-Z0-9.-]+$ ]]; then
+            echo "EC2_HOST must be a hostname or IPv4 address without a scheme or port." >&2
+            exit 1
+          fi
+
+          local_env_file="$RUNNER_TEMP/ai-thesis-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.env.production"
+          remote_env_file="/tmp/ai-thesis-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.env.production"
+          export DEPLOY_ENV_FILE="$local_env_file"
+
+          cleanup_local_secret() {
+            rm -f "$local_env_file"
+          }
+          trap cleanup_local_secret EXIT
+
+          python3 <<'PY'
+          import ipaddress
+          import json
+          import os
+          from pathlib import Path
+          from urllib.parse import quote, urlsplit
+
+
+          def required(name: str) -> str:
+              value = os.environ.get(name, "")
+              if not value:
+                  raise SystemExit(f"Required deployment value is missing: {name}")
+              return value
+
+
+          def https_origin(name: str) -> tuple[str, str]:
+              value = required(name)
+              if value != value.strip() or any(character.isspace() for character in value):
+                  raise SystemExit(f"{name} must not contain whitespace")
+
+              try:
+                  parsed = urlsplit(value)
+                  parsed.port
+              except ValueError as error:
+                  raise SystemExit(f"{name} is not a valid URL: {error}") from error
+              if (
+                  parsed.scheme != "https"
+                  or not parsed.hostname
+                  or parsed.username is not None
+                  or parsed.password is not None
+                  or parsed.query
+                  or parsed.fragment
+                  or parsed.path not in {"", "/"}
+              ):
+                  raise SystemExit(f"{name} must be a public HTTPS origin without a path")
+
+              host = parsed.hostname.lower()
+              if host == "localhost" or host.endswith(".local"):
+                  raise SystemExit(f"{name} must not use a local hostname")
+              try:
+                  address = ipaddress.ip_address(host)
+              except ValueError:
+                  pass
+              else:
+                  if not address.is_global:
+                      raise SystemExit(f"{name} must not use a private or local IP address")
+
+              return value.rstrip("/"), host
+
+
+          def dotenv_quote(value: str) -> str:
+              if any(character in value for character in "\0\r\n"):
+                  raise SystemExit("Deployment values must not contain NUL or line breaks")
+              escaped = value.replace("\\", "\\\\").replace("'", "\\'")
+              return f"'{escaped}'"
+
+
+          frontend_url, frontend_host = https_origin("PUBLIC_FRONTEND_URL")
+          api_url, api_host = https_origin("PUBLIC_API_URL")
+          postgres_user = required("POSTGRES_USER")
+          postgres_password = required("POSTGRES_PASSWORD")
+          postgres_db = required("POSTGRES_DB")
+
+          database_url = (
+              "postgresql+asyncpg://"
+              f"{quote(postgres_user, safe='')}:{quote(postgres_password, safe='')}"
+              f"@postgres:5432/{quote(postgres_db, safe='')}"
+          )
+          allowed_hosts = json.dumps(
+              sorted({api_host, frontend_host, "ai-thesis-api", "localhost", "127.0.0.1"}),
+              separators=(",", ":"),
+          )
+
+          values = {
+              "POSTGRES_DB": postgres_db,
+              "POSTGRES_USER": postgres_user,
+              "POSTGRES_PASSWORD": postgres_password,
+              "DATABASE_URL": database_url,
+              "MINIO_ROOT_USER": required("MINIO_ROOT_USER"),
+              "MINIO_ROOT_PASSWORD": required("MINIO_ROOT_PASSWORD"),
+              "MINIO_ENDPOINT": "minio:9000",
+              "MINIO_BUCKET": "ai-thesis-documents",
+              "MINIO_SECURE": "false",
+              "REDIS_URL": "redis://redis:6379/0",
+              "SECRET_KEY": required("SECRET_KEY"),
+              "JWT_SECRET": required("JWT_SECRET"),
+              "CORS_ALLOWED_ORIGINS": frontend_url,
+              "ALLOWED_HOSTS": allowed_hosts,
+              "OPENAI_API_KEY": os.environ.get("OPENAI_API_KEY", ""),
+              "ANTHROPIC_API_KEY": os.environ.get("ANTHROPIC_API_KEY", ""),
+              "COPYSCAPE_API_KEY": os.environ.get("COPYSCAPE_API_KEY", ""),
+              "COPYSCAPE_USERNAME": os.environ.get("COPYSCAPE_USERNAME", ""),
+              "GPTZERO_API_KEY": os.environ.get("GPTZERO_API_KEY", ""),
+              "ORIGINALITY_AI_API_KEY": os.environ.get("ORIGINALITY_AI_API_KEY", ""),
+              "SEMANTIC_SCHOLAR_API_KEY": os.environ.get("SEMANTIC_SCHOLAR_API_KEY", ""),
+              "OPENALEX_API_KEY": os.environ.get("OPENALEX_API_KEY", ""),
+              "STRIPE_SECRET_KEY": os.environ.get("STRIPE_SECRET_KEY", ""),
+              "STRIPE_PUBLISHABLE_KEY": os.environ.get("STRIPE_PUBLISHABLE_KEY", ""),
+              "STRIPE_WEBHOOK_SECRET": os.environ.get("STRIPE_WEBHOOK_SECRET", ""),
+              "RESEND_API_KEY": os.environ.get("RESEND_API_KEY", ""),
+              "FROM_EMAIL": "noreply@yourdomain.com",
+              "ENVIRONMENT": "production",
+              "FRONTEND_URL": frontend_url,
+              "BACKEND_URL": api_url,
+              "NEXT_PUBLIC_API_URL": api_url,
+          }
+
+          rendered_lines = [
+              f"{key}={dotenv_quote(value)}\n" for key, value in values.items()
+          ]
+          path = Path(required("DEPLOY_ENV_FILE"))
+          flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+          descriptor = os.open(path, flags, 0o600)
+          with os.fdopen(descriptor, "w", encoding="utf-8", newline="\n") as handle:
+              handle.writelines(rendered_lines)
+          PY
+
+          scp -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$local_env_file" \
+            "$EC2_USER@$EC2_HOST:$remote_env_file"
+
+          ssh -o BatchMode=yes -o StrictHostKeyChecking=yes \
+            "$EC2_USER@$EC2_HOST" \
+            bash -s -- \
+            "$DEPLOY_SHA" "$DEPLOY_BRANCH" "$DEPLOY_MODE" "$remote_env_file" <<'ENDSSH'
+          set -Eeuo pipefail
+
+          DEPLOY_SHA="$1"
+          DEPLOY_BRANCH="$2"
+          DEPLOY_MODE="$3"
+          REMOTE_ENV_FILE="$4"
+          PROJECT_DIR="$HOME/ai-thesis"
+
+          cleanup_remote_secret() {
+            rm -f "$REMOTE_ENV_FILE"
+          }
+          trap cleanup_remote_secret EXIT
+
+          if [[ ! "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]; then
+            echo "Invalid release revision received by the server." >&2
+            exit 1
+          fi
+          case "$DEPLOY_BRANCH" in
+            main|production) ;;
+            *)
+              echo "Invalid release branch received by the server." >&2
               exit 1
-            }
+              ;;
+          esac
+          case "$DEPLOY_MODE" in
+            automatic|manual) ;;
+            *)
+              echo "Invalid deployment mode received by the server." >&2
+              exit 1
+              ;;
+          esac
 
-            # Pull latest code
-            git fetch origin
-            git reset --hard origin/main
+          if [ ! -d "$PROJECT_DIR/.git" ]; then
+            echo "Project directory not found. Run the one-time server setup first." >&2
+            exit 1
+          fi
+          cd "$PROJECT_DIR"
 
-            echo "🔧 Updating environment variables..."
-            cat > .env.production << EOF
-          # Database
-          POSTGRES_DB=${POSTGRES_DB}
-          POSTGRES_USER=${POSTGRES_USER}
-          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-          DATABASE_URL=postgresql+asyncpg://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+          git fetch --prune origin \
+            "+refs/heads/$DEPLOY_BRANCH:refs/remotes/origin/$DEPLOY_BRANCH"
+          git cat-file -e "${DEPLOY_SHA}^{commit}"
+          branch_head="$(git rev-parse "refs/remotes/origin/$DEPLOY_BRANCH")"
+          if [ "$DEPLOY_MODE" = "automatic" ]; then
+            if [ "$DEPLOY_SHA" != "$branch_head" ]; then
+              echo "A newer branch revision exists; skipping this stale automatic deploy." >&2
+              exit 1
+            fi
+          else
+            git merge-base --is-ancestor "$DEPLOY_SHA" "$branch_head"
+          fi
+          git reset --hard "$DEPLOY_SHA"
+          test "$(git rev-parse HEAD)" = "$DEPLOY_SHA"
 
-          # MinIO
-          MINIO_ROOT_USER=${MINIO_ROOT_USER}
-          MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
-          MINIO_ENDPOINT=minio:9000
-          MINIO_BUCKET=ai-thesis-documents
+          install -m 600 "$REMOTE_ENV_FILE" .env.production
+          rm -f "$REMOTE_ENV_FILE"
 
-          # Redis
-          REDIS_URL=redis://redis:6379/0
+          cd infra/docker
+          if docker compose version >/dev/null 2>&1; then
+            COMPOSE=(docker compose)
+          elif command -v docker-compose >/dev/null 2>&1; then
+            COMPOSE=(docker-compose)
+          else
+            echo "Docker Compose is not installed on the server." >&2
+            exit 1
+          fi
 
-          # Security
-          SECRET_KEY=${SECRET_KEY}
-          ADMIN_PASSWORD_HASH=\$2b\$12\$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GQrs1kUOdIC6
+          compose() {
+            "${COMPOSE[@]}" \
+              --env-file ../../.env.production \
+              -f docker-compose.prod.yml \
+              "$@"
+          }
 
-          # AI APIs
-          OPENAI_API_KEY=${OPENAI_API_KEY}
-          ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+          wait_healthy() {
+            local service="$1"
+            local timeout_seconds="$2"
+            local deadline=$((SECONDS + timeout_seconds))
+            local container_id=""
+            local health=""
 
-          # Stripe
-          STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
-          STRIPE_PUBLISHABLE_KEY=${STRIPE_PUBLISHABLE_KEY}
-          STRIPE_WEBHOOK_SECRET=${STRIPE_WEBHOOK_SECRET}
+            while (( SECONDS < deadline )); do
+              container_id="$(compose ps -q "$service")"
+              if [ -n "$container_id" ]; then
+                health="$(
+                  docker inspect \
+                    --format '{{if .State.Health}}{{.State.Health.Status}}{{else}}{{.State.Status}}{{end}}' \
+                    "$container_id" 2>/dev/null || true
+                )"
+                if [ "$health" = "healthy" ]; then
+                  return 0
+                fi
+              fi
+              sleep 2
+            done
 
-          # Email
-          RESEND_API_KEY=${RESEND_API_KEY}
-          FROM_EMAIL=noreply@yourdomain.com
+            echo "$service did not become healthy within ${timeout_seconds}s." >&2
+            compose logs --tail=100 "$service" >&2
+            return 1
+          }
 
-          # App
-          ENVIRONMENT=production
-          FRONTEND_URL=http://${EC2_HOST}:3000
-          BACKEND_URL=http://${EC2_HOST}:8000
-          EOF
+          stop_if_running() {
+            local service="$1"
+            if [ -n "$(compose ps -q "$service")" ]; then
+              compose stop "$service"
+            fi
+          }
 
-            echo "🐳 Stopping old containers..."
-            cd infra/docker
-            docker-compose -f docker-compose.prod.yml down || true
+          # Build first; the currently running application remains available here.
+          compose config >/dev/null
+          compose build api web
 
-            echo "🚀 Starting new containers..."
-            docker-compose -f docker-compose.prod.yml --env-file ../../.env.production up -d --build
+          # Start and verify infrastructure before touching the application.
+          compose up -d postgres redis minio
+          wait_healthy postgres 180
+          wait_healthy redis 180
+          wait_healthy minio 180
+          compose run --rm --no-deps minio-setup
 
-            echo "⏳ Waiting for services to be healthy..."
-            sleep 10
+          # From this point a failure leaves api/web stopped rather than serving
+          # a version whose schema or checks did not finish.
+          stop_if_running web
+          stop_if_running api
 
-            echo "🗄️ Running database migrations..."
-            docker-compose -f docker-compose.prod.yml exec -T api alembic upgrade head
+          # create_all is the explicit fresh-database bootstrap. It is idempotent
+          # on an existing database and runs before ordered SQL migrations.
+          compose run --rm --no-deps api \
+            python -c 'import asyncio; from app.core.database import init_db; asyncio.run(init_db())'
 
-            echo "✅ Deployment completed successfully!"
-            docker-compose -f docker-compose.prod.yml ps
+          migration_count=0
+          for migration in ../../apps/api/migrations/[0-9][0-9][0-9]_*.sql; do
+            [ -f "$migration" ] || continue
+            migration_count=$((migration_count + 1))
+            echo "Applying $(basename "$migration")"
+            compose exec -T postgres \
+              sh -ec 'exec psql --set ON_ERROR_STOP=1 --single-transaction --username "$POSTGRES_USER" --dbname "$POSTGRES_DB"' \
+              < "$migration"
+          done
+          if [ "$migration_count" -eq 0 ]; then
+            echo "No database migrations were found; refusing to start the application." >&2
+            exit 1
+          fi
+
+          compose up -d --no-deps --force-recreate api
+          wait_healthy api 240
+          compose up -d --no-deps --force-recreate web
+          wait_healthy web 240
+          compose ps
           ENDSSH
 
-      - name: Health check
+      - name: Verify public HTTPS endpoints
         env:
-          EC2_HOST: ${{ secrets.EC2_HOST }}
+          PUBLIC_FRONTEND_URL: ${{ vars.PUBLIC_FRONTEND_URL }}
+          PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}
         run: |
-          sleep 5
-          curl -f http://$EC2_HOST:8000/health || echo "⚠️ Backend health check failed"
-          curl -f http://$EC2_HOST:3000 || echo "⚠️ Frontend health check failed"
+          set -Eeuo pipefail
+          api_url="${PUBLIC_API_URL%/}"
+          frontend_url="${PUBLIC_FRONTEND_URL%/}"
+
+          curl --fail --show-error --silent \
+            --proto '=https' --tlsv1.2 --retry 5 --retry-all-errors \
+            "$api_url/health"
+          curl --fail --show-error --silent \
+            --proto '=https' --tlsv1.2 --retry 5 --retry-all-errors \
+            "$frontend_url/"
 
       - name: Notify on failure
         if: failure()
-        run: |
-          echo "❌ Deployment failed! Check logs above."
+        run: echo "Deployment failed. Check the failed step before retrying."

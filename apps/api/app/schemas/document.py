@@ -19,6 +19,9 @@ class DocumentStatus(str, Enum):
     SECTIONS_GENERATED = "sections_generated"
     COMPLETED = "completed"
     FAILED = "failed"
+    FAILED_QUALITY = "failed_quality"
+    PAYMENT_PENDING = "payment_pending"
+    PAYMENT_FAILED = "payment_failed"
 
 
 class AIProvider(str, Enum):
@@ -51,6 +54,7 @@ class DocumentBase(BaseModel):
     target_pages: int = Field(
         default=50, ge=3, le=1000
     )  # CRITICAL: Minimum 3 pages as per business rules
+    citation_style: str = Field(default="apa", max_length=50)
 
     @staticmethod
     def _sanitize(text: str) -> str:
@@ -69,6 +73,14 @@ class DocumentBase(BaseModel):
     def validate_topic(cls, v: str) -> str:
         return cls._sanitize(v)
 
+    @field_validator("citation_style", mode="before")
+    @classmethod
+    def normalize_citation_style(cls, v: str | None) -> str:
+        # Response models also inherit this schema. Preserve legacy values on
+        # reads so an old row cannot make list/detail response validation fail;
+        # new writes are restricted by DocumentCreate below.
+        return str(v or "apa").strip().lower()
+
 
 class DocumentCreate(DocumentBase):
     """Schema for creating a new document"""
@@ -86,6 +98,15 @@ class DocumentCreate(DocumentBase):
         max_length=5000,
         description="Additional requirements, max 5000 characters",
     )
+
+    @field_validator("citation_style")
+    @classmethod
+    def require_apa_for_mvp(cls, v: str) -> str:
+        # The first production contour is deliberately APA-only. Other styles
+        # need citation rules that the current generator cannot yet guarantee.
+        if v != "apa":
+            raise ValueError("citation_style must be apa for the current MVP")
+        return v
 
     @field_validator("ai_provider", mode="before")
     @classmethod
@@ -193,6 +214,8 @@ class DocumentResponse(DocumentBase):
     updated_at: datetime | None
     word_count: int
     estimated_reading_time: int
+    requirements_file_processed: bool = False
+    release_status: str = "not_ready"
     outline: dict[str, Any] | None = None
     sections: list[dict[str, Any]] | None = None
 
@@ -363,7 +386,11 @@ class AsyncGenerationRequest(BaseModel):
     # Informational only — generation follows document.ai_model; a hardcoded
     # default here would just misreport the writer.
     model: str | None = Field(default=None)
-    requirements: str | None = None
+    requirements: str | None = Field(
+        default=None,
+        max_length=5000,
+        description="Optional additions for this run; durable intake is always retained",
+    )
 
 
 class AsyncGenerationResponse(BaseModel):

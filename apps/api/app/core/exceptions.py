@@ -109,14 +109,12 @@ class AllProvidersFailedError(APIException):
 
 class CitationIntegrityError(APIException):
     """
-    Cited sources failed existence verification (strict policy)
+    Cited sources failed integrity verification (strict policy)
 
-    Raised by the citation verification stage when one or more cited sources
-    could not be found in any bibliographic database (Crossref, OpenAlex,
-    Semantic Scholar, arXiv) and CITATION_VERIFICATION_POLICY is "strict".
-
-    Only not_found sources block the export. Sources that are unresolvable
-    (provider outage) or mismatched (low title similarity) never block.
+    Raised when no cited sources were persisted, a source could not be found,
+    or a source identifier resolved to mismatched canonical metadata while
+    CITATION_VERIFICATION_POLICY is "strict". Provider outages remain visible
+    as unchecked rather than being mistaken for a confirmed integrity failure.
 
     This is a 422 Unprocessable Entity error. The document has already been
     marked status='failed_quality' when this is raised, and the detail string

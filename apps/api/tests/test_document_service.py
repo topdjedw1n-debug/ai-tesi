@@ -1,6 +1,8 @@
 """
 Unit tests for DocumentService
 """
+from unittest.mock import AsyncMock, call, patch
+
 import pytest
 
 from app.core.exceptions import NotFoundError, ValidationError
@@ -172,7 +174,12 @@ async def test_delete_document_success(db_session):
 
     # Create document
     document = Document(
-        user_id=user.id, title="Test Thesis", topic="AI in Education", status="draft"
+        user_id=user.id,
+        title="Test Thesis",
+        topic="AI in Education",
+        status="draft",
+        docx_path="s3://documents/test.docx",
+        pdf_path="s3://documents/test.pdf",
     )
     db_session.add(document)
     await db_session.commit()
@@ -181,13 +188,56 @@ async def test_delete_document_success(db_session):
 
     # Create service and delete document
     service = DocumentService(db_session)
-    result = await service.delete_document(document_id=document_id, user_id=user.id)
+    with patch(
+        "app.services.storage_service.StorageService.delete_file",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as delete_file:
+        result = await service.delete_document(document_id=document_id, user_id=user.id)
 
     assert result["message"] == "Document deleted successfully"
+    assert delete_file.await_args_list == [
+        call("s3://documents/test.docx"),
+        call("s3://documents/test.pdf"),
+    ]
 
     # Verify document was deleted
     deleted_document = await db_session.get(Document, document_id)
     assert deleted_document is None
+
+
+@pytest.mark.asyncio
+async def test_delete_document_keeps_database_record_when_storage_fails(db_session):
+    """A blob deletion failure must never be reported as document deletion."""
+    user = User(email="storage-failure@example.com", full_name="Test User")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    document = Document(
+        user_id=user.id,
+        title="Stored Thesis",
+        topic="AI in Education",
+        status="completed",
+        docx_path="s3://documents/still-present.docx",
+    )
+    db_session.add(document)
+    await db_session.commit()
+    await db_session.refresh(document)
+    document_id = document.id
+
+    service = DocumentService(db_session)
+    with patch(
+        "app.services.storage_service.StorageService.delete_file",
+        new_callable=AsyncMock,
+        return_value=False,
+    ):
+        with pytest.raises(ValidationError, match="Storage did not confirm deletion"):
+            await service.delete_document(document_id=document_id, user_id=user.id)
+
+    persisted_document = await db_session.get(Document, document_id)
+    assert persisted_document is not None
+    assert persisted_document.docx_path == "s3://documents/still-present.docx"
 
 
 @pytest.mark.asyncio

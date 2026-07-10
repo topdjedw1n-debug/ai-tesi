@@ -95,6 +95,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
   const [currentStep, setCurrentStep] = useState<FormStep>('form')
   const [isCreating, setIsCreating] = useState(false)
   const [createdDocumentId, setCreatedDocumentId] = useState<number | null>(null)
+  const [methodologyFile, setMethodologyFile] = useState<File | null>(null)
 
   const handleChange = (key: string, value: string) => {
     setValues((prev) => ({ ...prev, [key]: value }))
@@ -115,6 +116,11 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
       return
     }
 
+    if (!methodologyFile) {
+      toast.error('Додай методичку університету — без неї генерація не стартує.')
+      return
+    }
+
     const token = getAccessToken()
     if (!token) {
       toast.error('Увійдіть, щоб створити роботу')
@@ -129,6 +135,34 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
       })
 
       setCreatedDocumentId(document.id)
+
+      const formData = new FormData()
+      formData.append('file', methodologyFile)
+      try {
+        await apiClient.post(
+          API_ENDPOINTS.DOCUMENTS.UPLOAD_REQUIREMENTS(document.id),
+          formData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        )
+      } catch (uploadError: any) {
+        let draftRemoved = false
+        try {
+          await apiClient.delete(API_ENDPOINTS.DOCUMENTS.DELETE(document.id), {
+            headers: { Authorization: `Bearer ${token}` },
+          })
+          draftRemoved = true
+        } catch (cleanupError) {
+          console.error('Failed to remove draft after methodology upload error:', cleanupError)
+        }
+        setCreatedDocumentId(null)
+        toast.error(
+          uploadError?.message ||
+            (draftRemoved
+              ? 'Методичку не завантажено. Чернетку прибрано — перевір файл і спробуй ще раз.'
+              : 'Методичку не завантажено, генерацію не запущено. Спробуй ще раз або прибери чернетку вручну.')
+        )
+        return
+      }
 
       if (!isUserPaymentFlowEnabled) {
         // Internal MVP: one action for the manager — create the draft and
@@ -213,6 +247,30 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
             onChange={handleChange}
           />
         ))}
+
+        <div className="sm:col-span-2">
+          <label
+            htmlFor="methodology"
+            className="block text-sm font-medium text-gray-700"
+          >
+            Методичка
+            <span className="font-normal text-gray-500">
+              {' '}— PDF, DOCX або TXT, до 10 МБ
+            </span>
+          </label>
+          <input
+            id="methodology"
+            type="file"
+            required
+            accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+            data-testid="document-methodology-input"
+            onChange={(event) => setMethodologyFile(event.target.files?.[0] ?? null)}
+            className={inputClass}
+          />
+          {methodologyFile && (
+            <p className="mt-1 text-sm text-gray-500">{methodologyFile.name}</p>
+          )}
+        </div>
 
         <div className="sm:col-span-2 flex justify-end">
           <Button type="submit" disabled={isCreating} data-testid="create-document-submit">

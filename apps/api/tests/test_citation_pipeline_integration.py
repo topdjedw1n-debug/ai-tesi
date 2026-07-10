@@ -24,12 +24,14 @@ from app.models.document import (
     DocumentSection,
     DocumentSource,
 )
+from app.schemas.provenance import CitationGatePayload, IntegrityReportPayload
 from app.services.background_jobs import (
     BackgroundJobService,
     _map_verification_status,
     _persist_cited_sources,
 )
 from app.services.citation_verifier import VerificationResult, VerificationStatus
+from app.services.generation_contract import generation_contract_sha256
 
 # ----------------------------------------------------------------------
 # Fixtures and helpers
@@ -108,6 +110,9 @@ async def seed_document(db_session, section_titles=("Introduction", "Methods")):
         language="en",
         ai_provider="openai",
         ai_model="gpt-4",
+        additional_requirements="Extracted university methodology",
+        requirements_file_processed=True,
+        citation_style="apa",
         outline={"sections": [{"title": t} for t in section_titles]},
     )
     db_session.add(document)
@@ -374,9 +379,86 @@ async def test_strict_blocks_on_not_found(db_session, mock_redis, monkeypatch):
 
 
 @pytest.mark.asyncio
-async def test_strict_does_not_block_on_unresolvable_or_mismatched(
+async def test_strict_blocks_when_no_sources_were_persisted(
     db_session, mock_redis, monkeypatch
 ):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(CITATION_VERIFICATION_POLICY="strict"),
+    )
+    user, document = await seed_document(db_session)
+    document_id = document.id
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[
+                section_result(1, []),
+                section_result(2, []),
+            ],
+        )
+        with pytest.raises(CitationIntegrityError):
+            await BackgroundJobService.generate_full_document(
+                document_id=document_id, user_id=user.id
+            )
+        assert mocks["export_document"].called is False
+
+    refreshed = (
+        await db_session.execute(select(Document).where(Document.id == document_id))
+    ).scalar_one()
+    assert refreshed.status == "failed_quality"
+
+    events = await provenance_events(db_session, document_id)
+    assert events["verification_summary"]["total"] == 0
+    assert events["citation_gate"] == {
+        "passed": False,
+        "status": "failed",
+        "policy": "strict",
+        "total": 0,
+        "counts": {},
+    }
+
+
+@pytest.mark.asyncio
+async def test_mark_only_no_sources_is_warning_never_passed(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(CITATION_VERIFICATION_POLICY="mark_only"),
+    )
+    user, document = await seed_document(db_session)
+    document_id = document.id
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[
+                section_result(1, []),
+                section_result(2, []),
+            ],
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=document_id, user_id=user.id
+        )
+        assert mocks["export_document"].call_count == 1
+
+    events = await provenance_events(db_session, document_id)
+    assert events["citation_gate"] == {
+        "passed": False,
+        "status": "warning",
+        "policy": "mark_only",
+        "total": 0,
+        "counts": {},
+    }
+
+
+@pytest.mark.asyncio
+async def test_strict_blocks_on_mismatched_source(db_session, mock_redis, monkeypatch):
     monkeypatch.setattr(
         "app.services.background_jobs.settings",
         make_settings(CITATION_VERIFICATION_POLICY="strict"),
@@ -395,9 +477,6 @@ async def test_strict_does_not_block_on_unresolvable_or_mismatched(
             ],
             verifier_side_effect=verifier_by_title(
                 {
-                    SOURCE_A["title"]: vres(
-                        VerificationStatus.UNRESOLVABLE, title=SOURCE_A["title"]
-                    ),
                     SOURCE_B["title"]: vres(
                         VerificationStatus.VERIFIED,
                         title=SOURCE_B["title"],
@@ -406,15 +485,16 @@ async def test_strict_does_not_block_on_unresolvable_or_mismatched(
                 }
             ),
         )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-        assert mocks["export_document"].call_count == 1
+        with pytest.raises(CitationIntegrityError):
+            await BackgroundJobService.generate_full_document(
+                document_id=document_id, user_id=user.id
+            )
+        assert mocks["export_document"].called is False
 
     refreshed = (
         await db_session.execute(select(Document).where(Document.id == document_id))
     ).scalar_one()
-    assert refreshed.status == "completed"
+    assert refreshed.status == "failed_quality"
 
     statuses = {
         s.title: s.verification_status
@@ -426,11 +506,98 @@ async def test_strict_does_not_block_on_unresolvable_or_mismatched(
         .scalars()
         .all()
     }
-    assert statuses[SOURCE_A["title"]] == "failed"  # unresolvable
+    assert statuses[SOURCE_A["title"]] == "verified"
     assert statuses[SOURCE_B["title"]] == "mismatched"  # low match_score
 
     events = await provenance_events(db_session, document_id)
     assert events["verification_summary"]["counts"].get("not_found", 0) == 0
+    assert events["citation_gate"]["passed"] is False
+    assert events["citation_gate"]["mismatched_count"] == 1
+    assert events["citation_gate"]["mismatched_titles"] == [SOURCE_B["title"]]
+    CitationGatePayload.model_validate(events["citation_gate"])
+    IntegrityReportPayload.model_validate(events["integrity_gate_failed"])
+
+
+@pytest.mark.asyncio
+async def test_mark_only_mismatched_source_is_warning_and_continues(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(CITATION_VERIFICATION_POLICY="mark_only"),
+    )
+    user, document = await seed_document(db_session)
+    document_id = document.id
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[
+                section_result(1, [SOURCE_A]),
+                section_result(2, [SOURCE_B]),
+            ],
+            verifier_side_effect=verifier_by_title(
+                {
+                    SOURCE_B["title"]: vres(
+                        VerificationStatus.VERIFIED,
+                        title=SOURCE_B["title"],
+                        score=0.75,
+                    )
+                }
+            ),
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=document_id, user_id=user.id
+        )
+        assert mocks["export_document"].call_count == 1
+
+    events = await provenance_events(db_session, document_id)
+    assert events["citation_gate"]["passed"] is True
+    assert events["citation_gate"]["status"] == "warning"
+    assert events["citation_gate"]["mismatched_count"] == 1
+    assert events["citation_gate"]["mismatched_titles"] == [SOURCE_B["title"]]
+    CitationGatePayload.model_validate(events["citation_gate"])
+    IntegrityReportPayload.model_validate(events["integrity_report"])
+
+
+@pytest.mark.asyncio
+async def test_strict_keeps_unresolvable_sources_unchecked_but_non_blocking(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(CITATION_VERIFICATION_POLICY="strict"),
+    )
+    user, document = await seed_document(db_session)
+    document_id = document.id
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[
+                section_result(1, [SOURCE_A]),
+                section_result(2, [SOURCE_A]),
+            ],
+            verifier_side_effect=verifier_by_title(
+                {
+                    SOURCE_A["title"]: vres(
+                        VerificationStatus.UNRESOLVABLE, title=SOURCE_A["title"]
+                    )
+                }
+            ),
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=document_id, user_id=user.id
+        )
+        assert mocks["export_document"].call_count == 1
+
+    events = await provenance_events(db_session, document_id)
+    assert events["citation_gate"]["passed"] is False
+    assert events["citation_gate"]["status"] == "unchecked"
 
 
 @pytest.mark.asyncio
@@ -627,20 +794,25 @@ async def test_resume_reverification_idempotent(db_session, mock_redis, monkeypa
     document_id = document.id
 
     # Previous run: completed sections + already-verified sources
+    persisted_sections = []
     for index, title in enumerate(["Introduction", "Methods"], start=1):
-        db_session.add(
-            DocumentSection(
-                document_id=document_id,
-                title=title,
-                section_index=index,
-                content=f"Content {index}",
-                status="completed",
-            )
+        section = DocumentSection(
+            document_id=document_id,
+            title=title,
+            section_index=index,
+            content=f"Content {index} [Vaswani, 2017]",
+            status="completed",
         )
+        db_session.add(section)
+        persisted_sections.append(section)
+    await db_session.flush()
     db_session.add(
         DocumentSource(
             document_id=document_id,
+            section_id=persisted_sections[0].id,
             title=SOURCE_A["title"],
+            authors=SOURCE_A["authors"],
+            year=SOURCE_A["year"],
             doi=SOURCE_A["doi"],
             verification_status="verified",
         )
@@ -761,6 +933,12 @@ async def test_strict_block_survives_async_wrapper(db_session, mock_redis, monke
         job_type="document_generation",
         status="queued",
         progress=0,
+        request_payload={
+            "additional_requirements": None,
+            "generation_contract_sha256": generation_contract_sha256(
+                document, None, None
+            ),
+        },
     )
     db_session.add(job)
     await db_session.commit()

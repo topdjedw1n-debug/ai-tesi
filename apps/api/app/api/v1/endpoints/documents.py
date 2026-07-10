@@ -2,7 +2,9 @@
 Document management endpoints
 """
 
+import hmac
 import logging
+from datetime import datetime, timedelta
 from typing import Any
 
 from fastapi import (
@@ -15,16 +17,22 @@ from fastapi import (
     UploadFile,
     status,
 )
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, verify_download_token
 from app.core.exceptions import NotFoundError, ValidationError
+from app.core.security import create_download_token
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
-from app.models.document import Document, DocumentProvenance
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentProvenance,
+    ProductionCase,
+)
 from app.schemas.document import (
     DocumentCreate,
     DocumentFeedbackRequest,
@@ -39,11 +47,159 @@ from app.schemas.document import (
 )
 from app.services.custom_requirements_service import CustomRequirementsService
 from app.services.document_service import DocumentService
+from app.services.production_case_service import (
+    ProductionCaseService,
+    revoke_release,
+)
 from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
 
 router = APIRouter()  # 307 redirect for trailing slash is standard REST API behavior
+
+
+def _mask_unreleased_content(result: dict[str, Any]) -> dict[str, Any]:
+    if (
+        result.get("release_status") == "released"
+        and result.get("status") == "completed"
+    ):
+        return result
+    for section in result.get("sections") or []:
+        section["content"] = None
+    result["content"] = None
+    return result
+
+
+async def _require_released_production_case(
+    db: AsyncSession, document_id: int
+) -> ProductionCase:
+    """Fail closed unless the document has passed the production release gate."""
+    result = await db.execute(
+        select(ProductionCase).where(ProductionCase.document_id == document_id)
+    )
+    production_case = result.scalar_one_or_none()
+    if production_case is None or production_case.release_status != "released":
+        logger.warning(
+            "Document delivery blocked: document_id=%s, release_status=%s",
+            document_id,
+            (
+                production_case.release_status
+                if production_case is not None
+                else "missing_production_case"
+            ),
+        )
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Document has not been released for delivery",
+        )
+
+    gates = await ProductionCaseService(db).get_release_gates(int(production_case.id))
+    blockers = [
+        gate
+        for gate in gates
+        if gate["blocking"]
+        and gate["status"] in {"failed", "no_data", "unchecked", "warning"}
+        and gate.get("override_reason") is None
+    ]
+    if blockers:
+        revoke_release(production_case)
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Document release evidence is no longer current",
+        )
+    return production_case
+
+
+async def _require_released_artifact(
+    db: AsyncSession,
+    document: Document,
+    file_format: str,
+) -> tuple[str, ProductionCase]:
+    production_case = await _require_released_production_case(db, int(document.id))
+    if document.status != "completed":
+        revoke_release(production_case)
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Document is no longer in a completed delivery state",
+        )
+    released_path = (
+        production_case.released_docx_path
+        if file_format == "docx"
+        else production_case.released_pdf_path
+    )
+    current_path = document.docx_path if file_format == "docx" else document.pdf_path
+    released_sha256 = (
+        production_case.released_docx_sha256
+        if file_format == "docx"
+        else production_case.released_pdf_sha256
+    )
+    current_sha256 = (
+        document.docx_sha256 if file_format == "docx" else document.pdf_sha256
+    )
+    if not released_path:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"No reviewed {file_format.upper()} artifact is available",
+        )
+    if (
+        str(current_path or "") != str(released_path)
+        or not released_sha256
+        or not current_sha256
+        or not hmac.compare_digest(str(current_sha256), str(released_sha256))
+    ):
+        revoke_release(production_case)
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The reviewed delivery artifact is no longer current",
+        )
+    storage = StorageService()
+    try:
+        actual_sha256 = await storage.get_file_sha256(str(released_path))
+    except Exception:
+        actual_sha256 = None
+    if not actual_sha256 or not hmac.compare_digest(
+        actual_sha256, str(released_sha256)
+    ):
+        revoke_release(production_case)
+        await db.commit()
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="The released delivery file is missing from storage",
+        )
+    return str(released_path), production_case
+
+
+async def _delivery_response(
+    db: AsyncSession,
+    document: Document,
+    user_id: int,
+    file_format: str,
+) -> dict[str, Any]:
+    file_path, production_case = await _require_released_artifact(
+        db, document, file_format
+    )
+    storage = StorageService()
+    file_size = await storage.get_file_size(file_path)
+    download_token = create_download_token(
+        document_id=int(document.id),
+        user_id=user_id,
+        expiration_minutes=60,
+        file_format=file_format,
+        file_path=file_path,
+        release_version=int(production_case.release_version),
+        file_sha256=str(production_case.released_docx_sha256)
+        if file_format == "docx"
+        else str(production_case.released_pdf_sha256),
+    )
+    return {
+        "download_url": f"/api/v1/documents/download/file?token={download_token}",
+        "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
+        "file_size": file_size,
+        "format": file_format,
+    }
 
 
 @router.post("/", response_model=DocumentResponse)
@@ -68,6 +224,7 @@ async def create_document(
             ),
             ai_model=document.ai_model or "claude-opus-4-8",
             additional_requirements=document.additional_requirements,
+            citation_style=document.citation_style,
         )
         return result
     except ValidationError as e:
@@ -175,7 +332,7 @@ async def get_document(
         result = await document_service.get_document(document_id, int(current_user.id))
         if not result:
             raise NotFoundError("Document not found")
-        return result
+        return _mask_unreleased_content(result)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except Exception:
@@ -208,7 +365,7 @@ async def update_document(
         )
         # Fetch updated document to return
         result = await document_service.get_document(document_id, int(current_user.id))
-        return result
+        return _mask_unreleased_content(result)
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except Exception:
@@ -241,6 +398,8 @@ async def delete_document(
         return {"message": "Document deleted successfully"}
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except ValidationError as e:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(e)) from e
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -369,15 +528,19 @@ async def export_document(
     try:
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(
+        document = await document_service.check_document_ownership(
             document_id, int(current_user.id)
         )
-        result = await document_service.export_document(
-            document_id, export_request.format, int(current_user.id)
+        return await _delivery_response(
+            db,
+            document,
+            int(current_user.id),
+            export_request.format,
         )
-        return result
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -396,17 +559,26 @@ async def export_document_get(
 ) -> ExportResponse:
     """Export document via GET route to match frontend: /documents/{id}/export/{format}"""
     try:
+        if format not in {"docx", "pdf"}:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Export format must be docx or pdf",
+            )
         document_service = DocumentService(db)
         # Check ownership using helper function
-        await document_service.check_document_ownership(
+        document = await document_service.check_document_ownership(
             document_id, int(current_user.id)
         )
-        result = await document_service.export_document(
-            document_id, format, int(current_user.id)
+        return await _delivery_response(
+            db,
+            document,
+            int(current_user.id),
+            format,
         )
-        return result
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except HTTPException:
+        raise
     except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -428,21 +600,77 @@ async def upload_custom_requirements(
     Extracts text from the file and stores it
     """
     try:
-        # Get document and verify ownership
-        document_service = DocumentService(db)
-        await document_service.check_document_ownership(
-            document_id, int(current_user.id)
-        )
-
-        # Extract text from uploaded file
+        # Parse first, then use the global document -> production-case lock order.
+        # generation and release. The state check happens under those locks so
+        # a run cannot start while a methodology change is being persisted.
         requirements_service = CustomRequirementsService()
         extracted_text = await requirements_service.extract_text(file)
 
-        # Store the extracted text in document (for now, we store in content or outline)
-        # In production, you might want to store in a separate field or MinIO
-        # TODO: Store extracted_text in document properly
+        user_result = await db.execute(
+            select(User)
+            .where(User.id == int(current_user.id))
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        locked_user = user_result.scalar_one_or_none()
+        if locked_user is None or not locked_user.is_active:
+            raise NotFoundError("User account not found")
+        if locked_user.deletion_requested_at is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Account deletion is pending; requirements cannot be changed",
+            )
+
+        document_result = await db.execute(
+            select(Document)
+            .where(Document.id == document_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        document = document_result.scalar_one_or_none()
+        if document is None or document.user_id != int(current_user.id):
+            raise NotFoundError("Document not found")
+        case_result = await db.execute(
+            select(ProductionCase)
+            .where(ProductionCase.document_id == document_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        production_case = case_result.scalar_one_or_none()
+
+        active_job_result = await db.execute(
+            select(AIGenerationJob.id).where(
+                AIGenerationJob.document_id == document_id,
+                AIGenerationJob.status.in_(["queued", "running"]),
+            )
+        )
+        if document.status == "generating" or active_job_result.first() is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Requirements cannot change while generation is running",
+            )
+
+        document.additional_requirements = requirements_service.merge_with_existing(
+            document.additional_requirements, extracted_text
+        )
+        document.requirements_file_processed = True
+        # New requirements invalidate any old review. The old binary may stay
+        # in storage for internal history, but it is no longer deliverable and
+        # the next run must rebuild the thesis under the changed methodology.
+        if document.status not in {"draft", "payment_pending", "payment_failed"}:
+            document.status = "draft"
+            document.completed_at = None
+        if production_case is not None:
+            revoke_release(production_case)
+            production_case.generation_status = "not_started"
+            production_case.qa_status = "no_data"
+            production_case.editorial_status = "not_started"
+        await db.commit()
+
         logger.info(
-            f"Extracted {len(extracted_text)} characters from file {file.filename}"
+            "Persisted %s extracted requirements characters for document %s",
+            len(extracted_text),
+            document_id,
         )
 
         return {
@@ -459,6 +687,8 @@ async def upload_custom_requirements(
         raise HTTPException(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
         ) from e
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -466,11 +696,11 @@ async def upload_custom_requirements(
         ) from e
 
 
-@router.get("/download")
+@router.get("/download/file")
 async def download_document_secure(
     token: str = Query(..., description="Signed download token"),
     db: AsyncSession = Depends(get_db),
-) -> FileResponse:
+) -> StreamingResponse:
     """
     Secure document download endpoint with JWT token validation.
 
@@ -480,55 +710,110 @@ async def download_document_secure(
     try:
         # Verify token and extract claims
         payload = verify_download_token(token)
-        document_id = payload["document_id"]
-        user_id = payload["user_id"]
+        document_id = int(payload["document_id"])
+        user_id = int(payload["user_id"])
+        token_scope = str(payload.get("scope") or "client_delivery")
+        file_format = str(payload.get("file_format") or "")
+        token_file_path = str(payload.get("file_path") or "")
+        token_file_sha256 = str(payload.get("file_sha256") or "")
+        if (
+            file_format not in {"docx", "pdf"}
+            or not token_file_path
+            or len(token_file_sha256) != 64
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Download token is not bound to a delivery artifact",
+            )
 
-        # Get document from database
-        document_service = DocumentService(db)
-        document = await document_service.get_document(document_id, user_id)
+        # Query the model directly: the regular document service returns a
+        # serialized dictionary, while secure download needs storage fields.
+        result = await db.execute(select(Document).where(Document.id == document_id))
+        document = result.scalar_one_or_none()
 
         if not document:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
             )
 
-        # Verify ownership (CRITICAL security check)
-        if document.user_id != user_id:
+        current_path = (
+            str(document.docx_path or "")
+            if file_format == "docx"
+            else str(document.pdf_path or "")
+        )
+        if current_path != token_file_path:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The signed artifact is no longer current",
+            )
+
+        if token_scope == "internal_review":
+            file_path = token_file_path
+            expected_sha256 = str(
+                (document.docx_sha256 if file_format == "docx" else document.pdf_sha256)
+                or ""
+            )
+        elif token_scope == "client_delivery":
+            # Verify ownership (CRITICAL security check)
+            if document.user_id != user_id:
+                logger.warning(
+                    f"SECURITY: Download attempt with mismatched ownership. "
+                    f"Token user_id={user_id}, Document user_id={document.user_id}, "
+                    f"Document ID={document_id}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+                )
+            file_path, production_case = await _require_released_artifact(
+                db, document, file_format
+            )
+            if int(payload.get("release_version", -1)) != int(
+                production_case.release_version
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Download token belongs to an earlier release",
+                )
+            expected_sha256 = str(
+                (
+                    production_case.released_docx_sha256
+                    if file_format == "docx"
+                    else production_case.released_pdf_sha256
+                )
+                or ""
+            )
+        else:
             logger.warning(
-                f"SECURITY: Download attempt with mismatched ownership. "
-                f"Token user_id={user_id}, Document user_id={document.user_id}, "
-                f"Document ID={document_id}"
+                "SECURITY: Download attempt with unknown scope %s", token_scope
             )
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN, detail="Access denied"
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid download scope"
             )
 
-        # Check if document has file path in storage (prefer DOCX over PDF)
-        file_path = document.docx_path or document.pdf_path
-
-        if not file_path:
-            # If no file, return content as text (fallback)
-            logger.info(f"No file path for document {document_id}, returning content")
-            content = document.content or "No content available"
-            return StreamingResponse(
-                iter([content.encode("utf-8")]),
-                media_type="text/plain",
-                headers={
-                    "Content-Disposition": f'attachment; filename="{document.title}.txt"'
-                },
+        if not expected_sha256 or not hmac.compare_digest(
+            token_file_sha256, expected_sha256
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="The signed artifact fingerprint is no longer current",
             )
 
         # Initialize StorageService
         storage_service = StorageService()
+        try:
+            actual_sha256 = await storage_service.get_file_sha256(file_path)
+        except Exception:
+            actual_sha256 = None
+        if not actual_sha256 or not hmac.compare_digest(actual_sha256, expected_sha256):
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Delivery file is missing or differs from the reviewed artifact",
+            )
 
-        # Determine media type and file extension based on file path
-        media_type = "application/octet-stream"
-        file_extension = ".docx"  # default
-
-        if file_path.endswith(".docx"):
+        if file_format == "docx":
             media_type = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
             file_extension = ".docx"
-        elif file_path.endswith(".pdf"):
+        else:
             media_type = "application/pdf"
             file_extension = ".pdf"
 
@@ -544,7 +829,9 @@ async def download_document_secure(
             file_stream,
             media_type=media_type,
             headers={
-                "Content-Disposition": f'attachment; filename="{document.title}{file_extension}"'
+                "Content-Disposition": f'attachment; filename="{document.title}{file_extension}"',
+                "Cache-Control": "private, no-store",
+                "Pragma": "no-cache",
             },
         )
 

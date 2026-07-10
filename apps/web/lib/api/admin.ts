@@ -98,6 +98,15 @@ export interface ProductionCase {
     target_pages: number
     docx_path?: string | null
     pdf_path?: string | null
+    artifact_bindings?: Partial<Record<
+      'docx' | 'pdf',
+      {
+        format: 'docx' | 'pdf'
+        identifier: string
+        fingerprint_sha256: string
+        document_completed_at: string | null
+      }
+    >>
   } | null
   client_email: string | null
   manager_email: string | null
@@ -132,7 +141,8 @@ export interface ReleaseGate {
 export interface ManualDetectorResultPayload {
   detector_name: string
   result_percent: number
-  threshold_percent: number
+  decision: 'passed' | 'failed'
+  artifact_format: 'docx' | 'pdf'
   checked_at: string
   report_ref: string
   reason: string

@@ -5,6 +5,7 @@ Covers /api/v1/admin/documents/* endpoints
 
 import os
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock, patch
 
 import pytest
 from httpx import AsyncClient
@@ -263,3 +264,69 @@ async def test_delete_document_requires_admin(
     doc_id = sample_documents[0].id
     response = await client.delete(f"/api/v1/admin/documents/{doc_id}", headers=headers)
     assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_admin_delete_document_uses_storage_first_path(
+    client, db_session, admin_user, admin_token, regular_user
+):
+    document = Document(
+        user_id=regular_user.id,
+        title="Stored Admin Document",
+        topic="Privacy",
+        status="completed",
+        docx_path="s3://documents/admin-delete.docx",
+    )
+    db_session.add(document)
+    await db_session.commit()
+    await db_session.refresh(document)
+    document_id = document.id
+
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    with patch(
+        "app.services.storage_service.StorageService.delete_file",
+        new_callable=AsyncMock,
+        return_value=True,
+    ) as delete_file:
+        response = await client.delete(
+            f"/api/v1/admin/documents/{document_id}", headers=headers
+        )
+
+    assert response.status_code == 200, response.text
+    delete_file.assert_awaited_once_with("s3://documents/admin-delete.docx")
+    db_session.expire_all()
+    assert await db_session.get(Document, document_id) is None
+
+
+@pytest.mark.asyncio
+async def test_admin_delete_document_keeps_record_when_storage_fails(
+    client, db_session, admin_user, admin_token, regular_user
+):
+    document = Document(
+        user_id=regular_user.id,
+        title="Stored Admin Document",
+        topic="Privacy",
+        status="completed",
+        docx_path="s3://documents/admin-still-present.docx",
+    )
+    db_session.add(document)
+    await db_session.commit()
+    await db_session.refresh(document)
+    document_id = document.id
+
+    headers = {"Authorization": f"Bearer {admin_token}"}
+    with patch(
+        "app.services.storage_service.StorageService.delete_file",
+        new_callable=AsyncMock,
+        side_effect=RuntimeError("storage unavailable"),
+    ):
+        response = await client.delete(
+            f"/api/v1/admin/documents/{document_id}", headers=headers
+        )
+
+    assert response.status_code != 200
+    assert "storage unavailable" in response.text
+    db_session.expire_all()
+    persisted_document = await db_session.get(Document, document_id)
+    assert persisted_document is not None
+    assert persisted_document.docx_path == "s3://documents/admin-still-present.docx"

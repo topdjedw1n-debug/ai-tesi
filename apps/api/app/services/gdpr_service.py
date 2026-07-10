@@ -3,15 +3,20 @@ GDPR compliance service for data export and account deletion
 """
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import NotFoundError, ValidationError
-from app.models.auth import User, UserConsent
-from app.models.document import Document, DocumentSection
+from app.models.auth import MagicLinkToken, User, UserConsent, UserSession
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentSection,
+    ProductionCase,
+)
 from app.models.payment import Payment
 
 logger = logging.getLogger(__name__)
@@ -192,31 +197,124 @@ class GDPRService:
             dict with deletion status
         """
         try:
-            # Get user
-            result = await self.db.execute(select(User).where(User.id == user_id))
-            user = result.scalar_one_or_none()
+            # Phase 1 persists the user's privacy intent before any slow storage
+            # call. The row lock serializes compliant enqueue paths; migration
+            # 023 is the database backstop for any path that forgets the lock.
+            marker_result = await self.db.execute(
+                select(User)
+                .where(User.id == user_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            marker_user = marker_result.scalar_one_or_none()
+            if marker_user is None:
+                raise NotFoundError("User not found")
+            if marker_user.deletion_requested_at is None:
+                marker_user.deletion_requested_at = datetime.now(UTC)
+            await self.db.commit()
 
-            if not user:
+            # Phase 2 reacquires the same user lock and holds it until account
+            # cleanup finishes. A failure rolls back cleanup, not the durable
+            # deletion marker committed above.
+            user_result = await self.db.execute(
+                select(User)
+                .where(User.id == user_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            user = user_result.scalar_one_or_none()
+            if user is None:
                 raise NotFoundError("User not found")
 
-            # Get user documents for file deletion
-            documents_result = await self.db.execute(
-                select(Document).where(Document.user_id == user_id)
+            original_email = str(user.email)
+
+            # Worker/export fencing owns Job before Document. Inspect and lock
+            # active jobs first; if one exists, return before touching documents.
+            # The durable marker + trigger prevent a completed job from being
+            # reactivated or a new job from appearing after this check.
+            active_job = (
+                await self.db.execute(
+                    select(AIGenerationJob.id)
+                    .where(
+                        AIGenerationJob.user_id == user_id,
+                        AIGenerationJob.status.in_(["queued", "running"]),
+                    )
+                    .order_by(AIGenerationJob.id.asc())
+                    .with_for_update()
+                    .limit(1)
+                )
+            ).scalar_one_or_none()
+            if active_job is not None:
+                raise ValidationError(
+                    "Account deletion is pending while document generation is active; "
+                    "retry deletion after the active job finishes"
+                )
+
+            # No active job remains. Lock the complete job history before the
+            # documents so deferred cleanup paths from an earlier regeneration
+            # cannot disappear with the SQL rows while their blobs survive.
+            generation_jobs_result = await self.db.execute(
+                select(AIGenerationJob)
+                .where(AIGenerationJob.user_id == user_id)
+                .order_by(AIGenerationJob.id.asc())
+                .with_for_update()
+                .execution_options(populate_existing=True)
             )
-            documents = documents_result.scalars().all()
+            generation_jobs = list(generation_jobs_result.scalars().all())
 
-            # Delete files from storage (MinIO/S3)
-            deleted_files = []
+            # Lock the stable document/case snapshot in deterministic order
+            # before deleting any referenced storage object.
+            documents_result = await self.db.execute(
+                select(Document)
+                .where(Document.user_id == user_id)
+                .order_by(Document.id.asc())
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            documents = list(documents_result.scalars().all())
+            document_ids = [int(document.id) for document in documents]
+            if document_ids:
+                cases_result = await self.db.execute(
+                    select(ProductionCase.id)
+                    .where(ProductionCase.document_id.in_(document_ids))
+                    .order_by(ProductionCase.id.asc())
+                    .with_for_update()
+                )
+                cases_result.all()
+
+            # The locked rows are now a stable file snapshot. New jobs are
+            # blocked by the durable marker, so no later generation can add a path.
+
+            # Delete every referenced file before removing its database record.
+            # A storage failure must abort the account deletion so we never claim
+            # that personal data was deleted while a required blob still exists.
+            referenced_paths: list[str] = []
             for doc in documents:
-                if doc.docx_path:
-                    await self._delete_from_storage(str(doc.docx_path))
-                    deleted_files.append(doc.docx_path)
-                    logger.info(f"Deleted DOCX: {doc.docx_path}")
+                referenced_paths.extend(
+                    str(file_path)
+                    for file_path in (
+                        doc.docx_path,
+                        doc.pdf_path,
+                        doc.custom_requirements_file_path,
+                    )
+                    if file_path
+                )
 
-                if doc.pdf_path:
-                    await self._delete_from_storage(str(doc.pdf_path))
-                    deleted_files.append(doc.pdf_path)
-                    logger.info(f"Deleted PDF: {doc.pdf_path}")
+            for job in generation_jobs:
+                payload = (
+                    job.request_payload if isinstance(job.request_payload, dict) else {}
+                )
+                superseded_paths = payload.get("superseded_artifact_paths")
+                if isinstance(superseded_paths, list):
+                    referenced_paths.extend(
+                        str(path) for path in superseded_paths if path
+                    )
+
+            deleted_files: list[str] = []
+            for path in dict.fromkeys(referenced_paths):
+                await self._delete_from_storage(path)
+                deleted_files.append(path)
+                logger.info("Deleted user file: %s", path)
 
             # Anonymize user data instead of hard delete
             user.email = f"deleted_{user.id}@deleted.com"  # type: ignore[assignment]
@@ -227,6 +325,18 @@ class GDPRService:
             # Delete consents (sensitive data)
             await self.db.execute(
                 delete(UserConsent).where(UserConsent.user_id == user_id)
+            )
+            await self.db.execute(
+                delete(UserSession).where(UserSession.user_id == user_id)
+            )
+            await self.db.execute(
+                delete(MagicLinkToken).where(MagicLinkToken.email == original_email)
+            )
+
+            # Completed/failed job history can contain prompts and errors. It is
+            # personal data too, including rows whose document_id is already NULL.
+            await self.db.execute(
+                delete(AIGenerationJob).where(AIGenerationJob.user_id == user_id)
             )
 
             # Delete documents (cascade will handle sections)
@@ -243,36 +353,33 @@ class GDPRService:
             return {
                 "status": "account_deleted",
                 "user_id": user_id,
-                "deleted_at": datetime.now().isoformat(),
+                "deleted_at": datetime.now(UTC).isoformat(),
                 "files_deleted": len(deleted_files),
             }
 
-        except Exception as e:
+        except (NotFoundError, ValidationError):
             await self.db.rollback()
-            logger.error(f"Error deleting user account: {e}")
+            raise
+        except Exception as e:
+            # deletion_requested_at was committed in phase 1 and intentionally
+            # survives this rollback so no new personal data can be generated.
+            await self.db.rollback()
+            logger.error("Error deleting user account: %s", e)
             raise ValidationError(f"Failed to delete account: {str(e)}") from e
 
-    async def _delete_from_storage(self, file_path: str) -> None:
+    async def _delete_from_storage(self, file_path: str) -> bool:
         """
         Delete file from MinIO/S3 storage.
 
         Args:
             file_path: Path to file in storage (e.g., "s3://bucket/path/to/file.pdf")
         """
-        try:
-            from app.services.storage_service import StorageService
+        from app.services.storage_service import StorageService
 
-            # Initialize StorageService
-            storage_service = StorageService()
+        storage_service = StorageService()
+        success = await storage_service.delete_file(file_path)
+        if not success:
+            raise RuntimeError(f"Storage did not confirm deletion: {file_path}")
 
-            # Delete file using StorageService (silent mode for GDPR)
-            success = await storage_service.delete_file(file_path, silent=True)
-
-            if success:
-                logger.info(f"✅ Deleted file from storage: {file_path}")
-            else:
-                logger.warning(f"File deletion failed or not found: {file_path}")
-
-        except Exception as e:
-            logger.error(f"Error deleting file from storage {file_path}: {e}")
-            # Don't raise - continue with other deletions
+        logger.info("Deleted file from storage: %s", file_path)
+        return True

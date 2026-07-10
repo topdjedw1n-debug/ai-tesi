@@ -40,7 +40,15 @@ def create_access_token(user_id: int) -> str:
 
 
 def create_download_token(
-    document_id: int, user_id: int, expiration_minutes: int = 60
+    document_id: int,
+    user_id: int,
+    expiration_minutes: int = 60,
+    *,
+    file_format: str | None = None,
+    file_path: str | None = None,
+    scope: str = "client_delivery",
+    release_version: int | None = None,
+    file_sha256: str | None = None,
 ) -> str:
     """
     Create JWT token for secure document download.
@@ -59,11 +67,20 @@ def create_download_token(
         "document_id": document_id,
         "user_id": user_id,
         "type": "download",
+        "scope": scope,
         "exp": expire,
         "iat": now,
         "iss": "thesica-api",
         "aud": "thesica-download",
     }
+    if file_format:
+        to_encode["file_format"] = file_format
+    if file_path:
+        to_encode["file_path"] = file_path
+    if release_version is not None:
+        to_encode["release_version"] = release_version
+    if file_sha256:
+        to_encode["file_sha256"] = file_sha256
     return str(
         jwt.encode(to_encode, settings.jwt_secret_key, algorithm=settings.JWT_ALG)
     )

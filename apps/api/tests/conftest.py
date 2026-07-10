@@ -60,6 +60,14 @@ os.environ.setdefault("QUALITY_PANEL_ENABLED", "false")
 # runs; unguarded, pipeline tests that don't patch CitationVerifier run the
 # live Step 4.7 stage (Crossref/OpenAlex/S2 lookups) against the network.
 os.environ.setdefault("CITATION_VERIFICATION_ENABLED", "false")
+# App-lifespan tests must not start a real polling loop against the shared
+# module database. Worker behavior has focused tests with explicit instances.
+os.environ.setdefault("GENERATION_WORKER_ENABLED", "false")
+# Most of the legacy unit suite predates the narrow Italian intake contour.
+# Keep those tests explicit about exercising legacy behavior; code and sample
+# runtime defaults stay fail-closed for real deployments.
+os.environ.setdefault("METHODOLOGY_REQUIRED_FOR_GENERATION", "false")
+os.environ.setdefault("LEGACY_GENERATION_ENDPOINTS_ENABLED", "true")
 # Same leak class: the developer's .env points the fallback chain at LIVE
 # Anthropic models (OpenAI quota outage, 02.07.2026); tests that mock only
 # OpenAI would silently make real Anthropic calls. Pin the code default.

@@ -2,7 +2,17 @@
 Authentication related models
 """
 
-from sqlalchemy import Boolean, Column, DateTime, ForeignKey, Index, Integer, String
+from sqlalchemy import (
+    DDL,
+    Boolean,
+    Column,
+    DateTime,
+    ForeignKey,
+    Index,
+    Integer,
+    String,
+    event,
+)
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -26,6 +36,9 @@ class User(Base):
     is_verified = Column(Boolean, default=False)
     is_admin = Column(Boolean, default=False)
     is_super_admin = Column(Boolean, default=False)  # Super admin has all permissions
+    # Durable privacy intent. Once set, every generation enqueue path must
+    # refuse new work even when the actual storage cleanup needs a later retry.
+    deletion_requested_at = Column(DateTime(timezone=True), nullable=True)
 
     # Preferences
     preferred_language = Column(String(10), default="en")
@@ -132,3 +145,47 @@ class UserConsent(Base):
 
     def __repr__(self) -> str:
         return f"<UserConsent(id={self.id}, user_id={self.user_id}, type={self.consent_type})>"
+
+
+# Production receives equivalent PostgreSQL triggers from migration 023. Tests
+# and local SQLite databases need the same invariant or a race regression could
+# pass locally while allowing an enqueue for an account already being deleted.
+event.listen(
+    Base.metadata,
+    "after_create",
+    DDL(
+        """
+        CREATE TRIGGER IF NOT EXISTS trg_generation_job_block_deleting_user_insert
+        BEFORE INSERT ON ai_generation_jobs
+        FOR EACH ROW
+        WHEN NEW.status IN ('queued', 'running')
+          AND EXISTS (
+              SELECT 1 FROM users
+              WHERE id = NEW.user_id AND deletion_requested_at IS NOT NULL
+          )
+        BEGIN
+            SELECT RAISE(ABORT, 'generation blocked: account deletion requested');
+        END
+        """
+    ).execute_if(dialect="sqlite"),
+)
+event.listen(
+    Base.metadata,
+    "after_create",
+    DDL(
+        """
+        CREATE TRIGGER IF NOT EXISTS trg_generation_job_block_deleting_user_update
+        BEFORE UPDATE OF user_id, status ON ai_generation_jobs
+        FOR EACH ROW
+        WHEN NEW.status IN ('queued', 'running')
+          AND OLD.status NOT IN ('queued', 'running')
+          AND EXISTS (
+              SELECT 1 FROM users
+              WHERE id = NEW.user_id AND deletion_requested_at IS NOT NULL
+          )
+        BEGIN
+            SELECT RAISE(ABORT, 'generation blocked: account deletion requested');
+        END
+        """
+    ).execute_if(dialect="sqlite"),
+)

@@ -11,6 +11,7 @@ PlagiarismChecker (Copyscape) parsing must be fail-visible:
 
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import httpx
 import pytest
 
 from app.services.plagiarism_checker import PlagiarismChecker
@@ -51,6 +52,13 @@ def _client_returning(xml_text: str) -> MagicMock:
     client.__aenter__ = AsyncMock(return_value=client)
     client.__aexit__ = AsyncMock(return_value=False)
     return client
+
+
+def _response(xml_text: str) -> MagicMock:
+    response = MagicMock()
+    response.text = xml_text
+    response.raise_for_status = MagicMock()
+    return response
 
 
 def _configured_checker() -> PlagiarismChecker:
@@ -119,3 +127,72 @@ async def test_unconfigured_credentials_are_unchecked():
 
     assert result["checked"] is False
     assert result["uniqueness_percentage"] is None
+
+
+@pytest.mark.asyncio
+async def test_long_text_checks_words_after_first_1000_and_uses_worst_chunk():
+    words = [f"word-{index}" for index in range(1100)]
+    client = _client_returning(NO_MATCH_XML)
+    client.post = AsyncMock(side_effect=[_response(NO_MATCH_XML), _response(MATCH_XML)])
+
+    with patch("httpx.AsyncClient", return_value=client):
+        result = await _configured_checker().check_document_section(
+            " ".join(words), "Analisi"
+        )
+
+    assert client.post.await_count == 2
+    first_request = client.post.await_args_list[0].kwargs["data"]["t"].split()
+    second_request = client.post.await_args_list[1].kwargs["data"]["t"].split()
+    assert first_request == words[:1000]
+    assert second_request == words[1000:]
+
+    assert result["checked"] is True
+    assert result["section_title"] == "Analisi"
+    assert result["uniqueness_percentage"] == 60.0
+    assert result["text_length_words"] == 1100
+    assert result["chunks_total"] == 2
+    assert result["chunks_checked"] == 2
+    assert [chunk["text_length_words"] for chunk in result["chunk_results"]] == [
+        1000,
+        100,
+    ]
+    assert result["matches"][0]["chunk_index"] == 2
+    assert result["matches"][0]["word_start"] == 1001
+    assert result["matches"][0]["word_end"] == 1100
+
+
+@pytest.mark.asyncio
+async def test_partial_chunk_failure_is_unchecked_but_keeps_checked_evidence():
+    words = [f"word-{index}" for index in range(2100)]
+    client = _client_returning(NO_MATCH_XML)
+    client.post = AsyncMock(
+        side_effect=[
+            _response(MATCH_XML),
+            httpx.ReadTimeout("provider timeout"),
+            _response(NO_MATCH_XML),
+        ]
+    )
+
+    with patch("httpx.AsyncClient", return_value=client):
+        result = await _configured_checker().check_text(" ".join(words))
+
+    # A failed middle request must not prevent later chunks from being checked.
+    assert client.post.await_count == 3
+    assert result["checked"] is False
+    assert result["uniqueness_percentage"] is None
+    assert result["partial_uniqueness_percentage"] == 60.0
+    assert result["text_length_words"] == 2100
+    assert result["chunks_total"] == 3
+    assert result["chunks_checked"] == 2
+    assert result["failed_chunks"] == [2]
+    assert "chunk 2" in result["error"]
+
+    # Successful chunks still keep their match evidence for diagnosis/review.
+    assert result["matches_found"] == 2
+    assert {match["url"] for match in result["matches"]} == {
+        "http://example.com/page",
+        "http://example.org/mirror",
+    }
+    assert all(match["chunk_index"] == 1 for match in result["matches"])
+    assert result["chunk_results"][1]["checked"] is False
+    assert "provider timeout" in result["chunk_results"][1]["error"]

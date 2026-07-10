@@ -5,12 +5,15 @@ from typing import Any
 from fastapi import APIRouter, BackgroundTasks, Depends, Header, HTTPException, Request
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
 from app.models.payment import Payment
 from app.models.user import User
 from app.schemas.payment import PaymentCreate, PaymentIntentResponse, PaymentResponse
-from app.services.background_jobs import BackgroundJobService
+from app.services.background_jobs import (  # noqa: F401 - legacy patch surface
+    BackgroundJobService,
+)
 from app.services.payment_service import PaymentService
 
 logger = logging.getLogger(__name__)
@@ -95,58 +98,138 @@ async def stripe_webhook(
 
         # CRITICAL: Start document generation if payment completed with document
         if payment and payment.status == "completed" and payment.document_id:
+            # Sales are disabled in the narrow MVP. A stray/legacy Stripe
+            # webhook may record payment, but must never open a second start
+            # path around the methodology and single-owner contract.
+            if settings.MVP_FREE_GENERATION_ENABLED:
+                return {"status": "payment_recorded", "generation": "manual_start"}
+
             # Import here to avoid circular imports
             from sqlalchemy import select
             from sqlalchemy.exc import IntegrityError
 
-            from app.models.document import AIGenerationJob
+            from app.api.v1.endpoints.generate import (
+                _delete_superseded_artifacts,
+                _enforce_generation_gate,
+                _invalidate_previous_generation_evidence,
+            )
+            from app.models.auth import User
+            from app.models.document import AIGenerationJob, Document, ProductionCase
+            from app.services.generation_contract import generation_contract_sha256
 
-            # CRITICAL: Use database lock (SELECT FOR UPDATE) to prevent race condition
-            # This locks rows for this document_id until transaction commits
-            # Prevents concurrent webhooks from creating duplicate jobs
-            try:
-                existing_job_result = await db.execute(
+            owner = (
+                await db.execute(
+                    select(User)
+                    .where(User.id == int(payment.user_id))
+                    .with_for_update()
+                    .execution_options(populate_existing=True)
+                )
+            ).scalar_one_or_none()
+            if owner is None or owner.deletion_requested_at is not None:
+                return {"status": "payment_recorded", "generation": "blocked"}
+
+            document = (
+                await db.execute(
+                    select(Document)
+                    .where(Document.id == payment.document_id)
+                    .with_for_update()
+                    .execution_options(populate_existing=True)
+                )
+            ).scalar_one_or_none()
+            if document is None:
+                return {"status": "payment_recorded", "generation": "document_missing"}
+
+            production_case = (
+                await db.execute(
+                    select(ProductionCase)
+                    .where(ProductionCase.document_id == payment.document_id)
+                    .with_for_update()
+                    .execution_options(populate_existing=True)
+                )
+            ).scalar_one_or_none()
+
+            prior_job = (
+                await db.execute(
                     select(AIGenerationJob)
                     .where(
                         AIGenerationJob.document_id == payment.document_id,
                         AIGenerationJob.job_type == "full_document",
-                        AIGenerationJob.status.in_(["queued", "running"]),
                     )
-                    .with_for_update()  # CRITICAL: Lock rows to prevent race condition
+                    .order_by(AIGenerationJob.id.desc())
+                    .limit(1)
                 )
-                existing_job = existing_job_result.scalar_one_or_none()
+            ).scalar_one_or_none()
+            if prior_job is not None:
+                return {
+                    "status": "payment_recorded",
+                    "generation": "already_triggered",
+                    "job_id": int(prior_job.id),
+                }
 
-                if existing_job:
-                    logger.info(
-                        f"⚠️ Generation job {existing_job.id} already exists for document {payment.document_id}, skipping duplicate"
-                    )
-                else:
-                    # Create generation job within the locked transaction
-                    job = AIGenerationJob(
-                        user_id=payment.user_id,
-                        document_id=payment.document_id,
-                        job_type="full_document",
-                        status="queued",
-                        progress=0,
-                    )
-                    db.add(job)
-                    await db.flush()  # Get job.id before commit
+            if production_case is None:
+                production_case = ProductionCase(
+                    document_id=int(document.id),
+                    client_user_id=int(document.user_id),
+                    citation_style=str(document.citation_style or "apa"),
+                    generation_status="not_started",
+                    payment_status="completed",
+                )
+                db.add(production_case)
+                await db.flush()
 
-                    # Commit the job creation first
-                    await db.commit()
+            try:
+                await _enforce_generation_gate(db, document, int(payment.user_id))
+            except HTTPException as gate_error:
+                document.status = "draft"
+                await db.commit()
+                logger.warning(
+                    "Paid document %s remains blocked from generation: %s",
+                    payment.document_id,
+                    gate_error.detail,
+                )
+                return {"status": "payment_recorded", "generation": "blocked"}
 
-                    # Start background generation task AFTER commit to ensure job exists in DB
-                    background_tasks.add_task(
-                        BackgroundJobService.generate_full_document_async,
-                        document_id=int(payment.document_id),
-                        user_id=int(payment.user_id),
-                        job_id=int(job.id),
-                        additional_requirements=None,
-                    )
+            run_requirements = (
+                str(production_case.requirements_text)
+                if production_case.requirements_text
+                else None
+            )
+            contract_sha256 = generation_contract_sha256(
+                document,
+                production_case,
+                run_requirements,
+            )
+            superseded_paths = await _invalidate_previous_generation_evidence(
+                db,
+                int(payment.document_id),
+                contract_sha256=contract_sha256,
+            )
 
-                    logger.info(
-                        f"🚀 Started generation for document {payment.document_id} after payment {payment.id}, job_id={job.id}"
-                    )
+            try:
+                job = AIGenerationJob(
+                    user_id=payment.user_id,
+                    document_id=payment.document_id,
+                    job_type="full_document",
+                    status="queued",
+                    progress=0,
+                    request_payload={
+                        "additional_requirements": run_requirements,
+                        "generation_contract_sha256": contract_sha256,
+                        "superseded_artifact_paths": superseded_paths,
+                    },
+                    max_attempts=settings.GENERATION_JOB_MAX_ATTEMPTS,
+                )
+                db.add(job)
+                await db.flush()
+                document.status = "generating"
+                await db.commit()
+                await _delete_superseded_artifacts(superseded_paths)
+                logger.info(
+                    "Queued durable generation for document %s after payment %s, job_id=%s",
+                    payment.document_id,
+                    payment.id,
+                    job.id,
+                )
 
             except IntegrityError as e:
                 # Handle race condition if it still occurs (e.g., unique constraint violation)
@@ -154,7 +237,7 @@ async def stripe_webhook(
                 logger.warning(
                     f"⚠️ Race condition detected for document {payment.document_id}: {e}"
                 )
-                # Re-check for existing job after rollback
+                # Re-check for the winner after rollback.
                 existing_job_result = await db.execute(
                     select(AIGenerationJob).where(
                         AIGenerationJob.document_id == payment.document_id,

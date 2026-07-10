@@ -2,6 +2,7 @@
 Document service for managing documents and sections
 """
 
+import hashlib
 import io
 import logging
 from datetime import datetime, timedelta
@@ -13,7 +14,12 @@ from sqlalchemy.orm import selectinload
 
 from app.core.exceptions import NotFoundError, ValidationError
 from app.models.auth import User
-from app.models.document import Document, DocumentSection
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentSection,
+    ProductionCase,
+)
 from app.models.payment import Payment
 from app.services.ai_pipeline.citation_formatter import (
     bibliography_heading,
@@ -28,6 +34,23 @@ class DocumentService:
 
     def __init__(self, db: AsyncSession):
         self.db = db
+
+    async def _lock_user_for_personal_data_write(self, user_id: int) -> User:
+        """Serialize document mutations with durable GDPR deletion intent."""
+        result = await self.db.execute(
+            select(User)
+            .where(User.id == user_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        user = result.scalar_one_or_none()
+        if user is None or not user.is_active:
+            raise ValidationError("User account is not active")
+        if user.deletion_requested_at is not None:
+            raise ValidationError(
+                "Account deletion is pending; new personal data cannot be saved"
+            )
+        return user
 
     async def check_document_ownership(
         self, document_id: int, user_id: int
@@ -59,9 +82,11 @@ class DocumentService:
         ai_provider: str = "anthropic",
         ai_model: str = "claude-opus-4-8",
         additional_requirements: str | None = None,
+        citation_style: str = "apa",
     ) -> dict[str, Any]:
         """Create a new document"""
         try:
+            await self._lock_user_for_personal_data_write(user_id)
             document = Document(
                 user_id=user_id,
                 title=title,
@@ -70,6 +95,8 @@ class DocumentService:
                 target_pages=target_pages,
                 ai_provider=ai_provider,
                 ai_model=ai_model,
+                additional_requirements=additional_requirements,
+                citation_style=citation_style,
                 status="draft",
             )
 
@@ -104,6 +131,9 @@ class DocumentService:
                 "topic": document.topic,
                 "language": document.language,
                 "target_pages": document.target_pages,
+                "citation_style": document.citation_style,
+                "requirements_file_processed": document.requirements_file_processed,
+                "release_status": "not_ready",
                 "status": document.status,
                 "ai_provider": document.ai_provider,
                 "ai_model": document.ai_model,
@@ -153,6 +183,13 @@ class DocumentService:
             estimated_reading_time = max(
                 1, word_count // 200
             )  # Assume 200 WPM reading speed
+            release_status = (
+                await self.db.execute(
+                    select(ProductionCase.release_status).where(
+                        ProductionCase.document_id == document_id
+                    )
+                )
+            ).scalar_one_or_none() or "not_ready"
 
             return {
                 "id": document.id,
@@ -161,6 +198,9 @@ class DocumentService:
                 "topic": document.topic,
                 "language": document.language,
                 "target_pages": document.target_pages,
+                "citation_style": document.citation_style,
+                "requirements_file_processed": document.requirements_file_processed,
+                "release_status": release_status,
                 "status": document.status,
                 "is_archived": document.is_archived,
                 "ai_provider": document.ai_provider,
@@ -220,6 +260,19 @@ class DocumentService:
                 .offset(offset)
             )
             documents = result.scalars().all()
+            document_ids = [int(doc.id) for doc in documents]
+            release_statuses: dict[int, str] = {}
+            if document_ids:
+                release_rows = await self.db.execute(
+                    select(
+                        ProductionCase.document_id,
+                        ProductionCase.release_status,
+                    ).where(ProductionCase.document_id.in_(document_ids))
+                )
+                release_statuses = {
+                    int(document_id): str(release_status)
+                    for document_id, release_status in release_rows.all()
+                }
 
             # Calculate pagination metadata
             total_pages = (total_count + limit - 1) // limit if limit > 0 else 1
@@ -246,6 +299,11 @@ class DocumentService:
                         "topic": doc.topic,
                         "language": doc.language,
                         "target_pages": doc.target_pages,
+                        "citation_style": doc.citation_style,
+                        "requirements_file_processed": doc.requirements_file_processed,
+                        "release_status": release_statuses.get(
+                            int(doc.id), "not_ready"
+                        ),
                         "status": doc.status,
                         "is_archived": doc.is_archived,
                         "ai_provider": doc.ai_provider,
@@ -352,6 +410,19 @@ class DocumentService:
                 .limit(limit)
             )
             documents = result.scalars().all()
+            document_ids = [int(doc.id) for doc in documents]
+            release_statuses: dict[int, str] = {}
+            if document_ids:
+                release_rows = await self.db.execute(
+                    select(
+                        ProductionCase.document_id,
+                        ProductionCase.release_status,
+                    ).where(ProductionCase.document_id.in_(document_ids))
+                )
+                release_statuses = {
+                    int(document_id): str(release_status)
+                    for document_id, release_status in release_rows.all()
+                }
 
             activities = []
             for doc in documents:
@@ -361,6 +432,8 @@ class DocumentService:
 
                 if doc.status == "completed":
                     activity_type = "document_completed"
+                    if release_statuses.get(int(doc.id)) != "released":
+                        activity_status = "pending"
                 elif doc.status == "sections_generated":
                     activity_type = "section_generated"
                 elif doc.status == "outline_generated":
@@ -383,7 +456,10 @@ class DocumentService:
                     description = ""
                     if doc.status == "completed":
                         word_count = len(doc.content.split()) if doc.content else 0
-                        description = f"Thesis completed with {word_count:,} words"
+                        if release_statuses.get(int(doc.id)) == "released":
+                            description = f"Thesis released with {word_count:,} words"
+                        else:
+                            description = "Generation completed; awaiting review"
                     elif doc.status == "sections_generated":
                         description = "Sections generated successfully"
                     elif doc.status == "outline_generated":
@@ -421,18 +497,36 @@ class DocumentService:
     ) -> dict[str, Any]:
         """Update document"""
         try:
-            # Check if document exists and belongs to user
+            await self._lock_user_for_personal_data_write(user_id)
             result = await self.db.execute(
-                select(Document).where(
-                    Document.id == document_id, Document.user_id == user_id
-                )
+                select(Document)
+                .where(Document.id == document_id, Document.user_id == user_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
             )
             document = result.scalar_one_or_none()
 
             if not document:
                 raise NotFoundError("Document not found")
+            case_result = await self.db.execute(
+                select(ProductionCase)
+                .where(ProductionCase.document_id == document_id)
+                .with_for_update()
+                .execution_options(populate_existing=True)
+            )
+            production_case = case_result.scalar_one_or_none()
 
             # Update allowed fields
+            if document.status not in {
+                "draft",
+                "payment_pending",
+                "failed",
+                "failed_quality",
+            }:
+                raise ValidationError(
+                    "Generated document metadata cannot be edited; start a fresh retry instead"
+                )
+
             allowed_fields = [
                 "title",
                 "topic",
@@ -446,6 +540,14 @@ class DocumentService:
             update_data = {k: v for k, v in updates.items() if k in allowed_fields}
 
             if update_data:
+                if production_case is not None:
+                    production_case.release_status = "blocked"
+                    production_case.delivery_status = "not_ready"
+                    production_case.released_at = None
+                    production_case.released_docx_path = None
+                    production_case.released_pdf_path = None
+                    production_case.released_docx_sha256 = None
+                    production_case.released_pdf_sha256 = None
                 await self.db.execute(
                     update(Document)
                     .where(Document.id == document_id)
@@ -466,16 +568,53 @@ class DocumentService:
     async def delete_document(self, document_id: int, user_id: int) -> dict[str, Any]:
         """Delete document"""
         try:
-            # Check if document exists and belongs to user
+            await self._lock_user_for_personal_data_write(user_id)
             result = await self.db.execute(
-                select(Document).where(
-                    Document.id == document_id, Document.user_id == user_id
-                )
+                select(Document)
+                .where(Document.id == document_id, Document.user_id == user_id)
+                .with_for_update()
             )
             document = result.scalar_one_or_none()
 
             if not document:
                 raise NotFoundError("Document not found")
+            await self.db.execute(
+                select(ProductionCase)
+                .where(ProductionCase.document_id == document_id)
+                .with_for_update()
+            )
+
+            active_job = (
+                await self.db.execute(
+                    select(AIGenerationJob.id).where(
+                        AIGenerationJob.document_id == document_id,
+                        AIGenerationJob.status.in_(["queued", "running"]),
+                    )
+                )
+            ).first()
+            if active_job is not None:
+                raise ValidationError(
+                    "Document cannot be deleted while generation is active"
+                )
+
+            # Storage must confirm deletion before the database pointer is
+            # removed. Otherwise users would receive a success response while
+            # their exported files remain in object storage.
+            from app.services.storage_service import StorageService
+
+            storage_service = StorageService()
+            file_paths = (
+                document.docx_path,
+                document.pdf_path,
+                document.custom_requirements_file_path,
+            )
+            for file_path in file_paths:
+                if not file_path:
+                    continue
+                path = str(file_path)
+                deleted = await storage_service.delete_file(path)
+                if not deleted:
+                    raise RuntimeError(f"Storage did not confirm deletion: {path}")
 
             # Delete document (cascade will handle sections)
             await self.db.execute(delete(Document).where(Document.id == document_id))
@@ -484,6 +623,9 @@ class DocumentService:
 
             return {"message": "Document deleted successfully"}
 
+        except NotFoundError:
+            await self.db.rollback()
+            raise
         except Exception as e:
             await self.db.rollback()
             logger.error(f"Error deleting document: {e}")
@@ -539,6 +681,7 @@ class DocumentService:
     ) -> dict[str, Any]:
         """Update document content"""
         try:
+            await self._lock_user_for_personal_data_write(user_id)
             # Verify document ownership
             result = await self.db.execute(
                 select(Document).where(
@@ -675,7 +818,12 @@ class DocumentService:
             }
 
     async def export_document(
-        self, document_id: int, format: str, user_id: int
+        self,
+        document_id: int,
+        format: str,
+        user_id: int,
+        *,
+        persist_pointer: bool = True,
     ) -> dict[str, Any]:
         """Export document to DOCX or PDF format"""
         logger.info(
@@ -912,9 +1060,13 @@ class DocumentService:
             else:
                 raise ValidationError(f"Unsupported export format: {format}")
 
-            # Generate object name
+            artifact_sha256 = hashlib.sha256(file_data).hexdigest()
+
+            # Content-addressed object names prevent a later export from
+            # silently overwriting the binary that an editor reviewed.
             object_name = (
-                f"documents/{user_id}/{document_id}/{document_id}.{file_extension}"
+                f"documents/{user_id}/{document_id}/"
+                f"{document_id}-{artifact_sha256[:16]}.{file_extension}"
             )
 
             logger.info(f"Uploading {format} file: {object_name} ({file_size} bytes)")
@@ -933,22 +1085,30 @@ class DocumentService:
             download_url = f"http://{settings.MINIO_ENDPOINT}/{settings.MINIO_BUCKET}/{object_name}"
             logger.info(f"Generated download URL: {download_url}")
 
-            # Update document path
+            # Update document path. The durable worker disables this direct
+            # write and binds the uploaded object in its own fenced transaction;
+            # interactive/manual exports retain the original behavior.
             storage_path = f"s3://{settings.MINIO_BUCKET}/{object_name}"
-            if format == "docx":
-                await self.db.execute(
-                    update(Document)
-                    .where(Document.id == document_id)
-                    .values(docx_path=storage_path)
-                )
-            elif format == "pdf":
-                await self.db.execute(
-                    update(Document)
-                    .where(Document.id == document_id)
-                    .values(pdf_path=storage_path)
-                )
-
-            await self.db.commit()
+            if persist_pointer:
+                if format == "docx":
+                    await self.db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(
+                            docx_path=storage_path,
+                            docx_sha256=artifact_sha256,
+                        )
+                    )
+                elif format == "pdf":
+                    await self.db.execute(
+                        update(Document)
+                        .where(Document.id == document_id)
+                        .values(
+                            pdf_path=storage_path,
+                            pdf_sha256=artifact_sha256,
+                        )
+                    )
+                await self.db.commit()
 
             # Return response
             return {
@@ -956,6 +1116,8 @@ class DocumentService:
                 "expires_at": (datetime.utcnow() + timedelta(hours=1)).isoformat(),
                 "file_size": file_size,
                 "format": format,
+                "artifact_sha256": artifact_sha256,
+                "storage_path": storage_path,
             }
 
         except NotFoundError:

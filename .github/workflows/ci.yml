@@ -2,9 +2,9 @@ name: CI Quality Gates
 
 on:
   pull_request:
-    branches: [main, develop]
+    branches: [main, develop, production]
   push:
-    branches: [main, develop]
+    branches: [main, develop, production]
 
 permissions:
   contents: read

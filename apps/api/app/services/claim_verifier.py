@@ -52,7 +52,8 @@ _HEADING_LINE = re.compile(r"^\s*#{1,6}\s")
 # CitationFormatter.extract_citations_from_text handles. Multiple keys may
 # share one bracket pair: "[Ciofalo2024; Corsi2025]".
 _PACK_KEY_RE = re.compile(
-    r"\[([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:\s*;\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?)*)\]"
+    r"\[([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:,\s*\d{4})?"
+    r"(?:\s*;\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:,\s*\d{4})?)*)\]"
 )
 
 
@@ -136,40 +137,63 @@ def _match_source(citation: dict[str, Any], sources: list[Any]) -> Any | None:
     """
     Match an extracted citation to a persisted DocumentSource.
 
-    Same idea as SectionGenerator's citation matching: exact year +50,
-    author last-name overlap +30 per citation author. Best score > 0 wins.
+    Legacy markers contain author(s) and year but no title. A matching year is
+    therefore only a disambiguator: at least one cited author must match, and
+    an explicit citation year must also match. This prevents a same-year paper
+    by a different author from being attached to the claim.
     """
     best = None
     best_score = 0.0
-    for source in sources:
-        score = 0.0
-        if citation.get("year") and source.year:
-            try:
-                if int(citation["year"]) == int(source.year):
-                    score += 50.0
-            except (TypeError, ValueError):
-                pass
 
-        source_last_names = [
-            author.strip().split()[-1].lower()
-            for author in (source.authors or [])
-            if author and author.strip()
-        ]
-        for cited_author in citation.get("authors") or []:
-            cited_author = (cited_author or "").strip()
-            if not cited_author:
+    def _surname(author: str) -> str:
+        normalized = (author or "").strip()
+        if not normalized:
+            return ""
+        surname = (
+            normalized.split(",", 1)[0] if "," in normalized else normalized.split()[-1]
+        )
+        return re.sub(r"[^\w-]", "", surname, flags=re.UNICODE).casefold()
+
+    for source in sources:
+        cited_year = citation.get("year")
+        if cited_year:
+            try:
+                if not source.year or int(cited_year) != int(source.year):
+                    continue
+            except (TypeError, ValueError):
                 continue
-            cited_last = cited_author.split()[-1].lower()
-            if any(
-                cited_last in source_last or source_last in cited_last
-                for source_last in source_last_names
+        year_suffix = str(citation.get("year_suffix") or "")
+        if year_suffix:
+            citation_key = str(getattr(source, "citation_key", "") or "")
+            if not citation_key.casefold().endswith(
+                f"{cited_year}{year_suffix}".casefold()
             ):
-                score += 30.0
+                continue
+
+        source_last_names = {
+            surname
+            for author in (source.authors or [])
+            if (surname := _surname(author))
+        }
+        author_score = 0.0
+        for cited_author in citation.get("authors") or []:
+            cited_last = _surname(cited_author)
+            if not cited_last:
+                continue
+            if cited_last in source_last_names:
+                author_score += 30.0
+
+        # A year by itself carries no identity evidence. Legacy citations do
+        # not contain a title, so author overlap is mandatory.
+        if author_score == 0:
+            continue
+
+        score = author_score + (50.0 if cited_year else 0.0)
 
         if score > best_score:
             best_score = score
             best = source
-    return best if best_score > 0 else None
+    return best
 
 
 class ClaimVerifier:
@@ -231,7 +255,8 @@ class ClaimVerifier:
         for sentence in split_sentences(content):
             # Source-pack keys first: the production (grounded) format
             for match in _PACK_KEY_RE.finditer(sentence):
-                for key in (k.strip() for k in match.group(1).split(";")):
+                for raw_key in (k.strip() for k in match.group(1).split(";")):
+                    key = raw_key.split(",", 1)[0].strip()
                     source = key_index.get(key.casefold())
                     claims.append(
                         CitedClaim(

@@ -65,6 +65,7 @@ describe('DocumentsList Component', () => {
           title: 'AI in Education',
           topic: 'Machine Learning',
           status: 'completed',
+          release_status: 'released',
           created_at: '2025-12-01T10:00:00Z',
           updated_at: '2025-12-01T11:00:00Z',
           word_count: 2500,
@@ -108,6 +109,7 @@ describe('DocumentsList Component', () => {
             id: 2,
             title: 'Doc 2',
             status: 'completed',
+            release_status: 'released',
             created_at: '2025-12-01T10:00:00Z',
           },
           {
@@ -143,6 +145,7 @@ describe('DocumentsList Component', () => {
             id: 1,
             title: 'Done Doc',
             status: 'completed',
+            release_status: 'released',
             created_at: '2025-12-01T10:00:00Z',
           },
           {

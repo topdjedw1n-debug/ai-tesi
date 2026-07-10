@@ -2,6 +2,7 @@
 Custom requirements file upload and processing service
 Handles PDF, DOCX, and TXT file uploads for additional document requirements
 """
+
 import io
 import logging
 from pathlib import Path
@@ -24,10 +25,70 @@ ALLOWED_MIME_TYPES = {
 
 ALLOWED_EXTENSIONS = {".pdf", ".docx", ".txt"}
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
+MAX_STORED_REQUIREMENTS_CHARS = 50_000
+MAX_GENERATION_REQUIREMENTS_CHARS = 60_000
+UPLOADED_REQUIREMENTS_START = "=== BEGIN UPLOADED UNIVERSITY REQUIREMENTS ==="
+UPLOADED_REQUIREMENTS_END = "=== END UPLOADED UNIVERSITY REQUIREMENTS ==="
+RUN_REQUIREMENTS_START = "=== BEGIN GENERATION REQUEST ADDITIONS ==="
+RUN_REQUIREMENTS_END = "=== END GENERATION REQUEST ADDITIONS ==="
+
+
+def combine_generation_requirements(
+    persisted_text: str | None, request_text: str | None
+) -> str | None:
+    """Keep durable intake/methodology context and append per-run additions."""
+    persisted = (persisted_text or "").strip()
+    requested = (request_text or "").strip()
+
+    if not requested or requested == persisted:
+        combined = persisted or None
+    elif persisted and requested.startswith(f"{persisted}\n\n"):
+        combined = requested
+    elif not persisted:
+        combined = requested
+    else:
+        combined = (
+            f"{persisted}\n\n"
+            f"{RUN_REQUIREMENTS_START}\n"
+            f"{requested}\n"
+            f"{RUN_REQUIREMENTS_END}"
+        )
+
+    if combined and len(combined) > MAX_GENERATION_REQUIREMENTS_CHARS:
+        raise ValidationError(
+            "Combined methodology and run requirements exceed the "
+            f"{MAX_GENERATION_REQUIREMENTS_CHARS}-character generation limit"
+        )
+    return combined
 
 
 class CustomRequirementsService:
     """Service for handling custom requirements file uploads"""
+
+    @staticmethod
+    def merge_with_existing(existing_text: str | None, uploaded_text: str) -> str:
+        """Append uploaded requirements without silently truncating either source."""
+        uploaded_text = uploaded_text.strip()
+        if not uploaded_text:
+            raise ValidationError("Uploaded requirements file contains no usable text")
+
+        uploaded_block = (
+            f"{UPLOADED_REQUIREMENTS_START}\n"
+            f"{uploaded_text}\n"
+            f"{UPLOADED_REQUIREMENTS_END}"
+        )
+        existing_text = (existing_text or "").strip()
+        combined_text = (
+            f"{existing_text}\n\n{uploaded_block}" if existing_text else uploaded_block
+        )
+
+        if len(combined_text) > MAX_STORED_REQUIREMENTS_CHARS:
+            raise ValidationError(
+                "Combined intake and uploaded requirements exceed the "
+                f"{MAX_STORED_REQUIREMENTS_CHARS}-character limit"
+            )
+
+        return combined_text
 
     @staticmethod
     async def validate_file(file: UploadFile) -> None:
@@ -78,7 +139,9 @@ class CustomRequirementsService:
             text_parts = []
 
             for page in pdf.pages:
-                text_parts.append(page.extract_text())
+                page_text = page.extract_text()
+                if page_text and page_text.strip():
+                    text_parts.append(page_text)
 
             extracted_text = "\n\n".join(text_parts)
             if not extracted_text or not extracted_text.strip():
@@ -107,6 +170,20 @@ class CustomRequirementsService:
             for paragraph in doc.paragraphs:
                 if paragraph.text.strip():
                     text_parts.append(paragraph.text)
+
+            # University templates often keep decisive formatting/citation
+            # rules in tables, headers, or footers rather than body paragraphs.
+            for table in doc.tables:
+                for row in table.rows:
+                    for cell in row.cells:
+                        for paragraph in cell.paragraphs:
+                            if paragraph.text.strip():
+                                text_parts.append(paragraph.text)
+            for section in doc.sections:
+                for container in (section.header, section.footer):
+                    for paragraph in container.paragraphs:
+                        if paragraph.text.strip():
+                            text_parts.append(paragraph.text)
 
             extracted_text = "\n\n".join(text_parts)
             if not extracted_text or not extracted_text.strip():

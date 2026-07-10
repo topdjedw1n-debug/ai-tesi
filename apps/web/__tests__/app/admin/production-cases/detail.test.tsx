@@ -52,6 +52,17 @@ const productionCase = {
     status: 'completed',
     language: 'it',
     target_pages: 20,
+    docx_path: 's3://documents/123/123.docx',
+    pdf_path: null,
+    artifact_bindings: {
+      docx: {
+        format: 'docx',
+        identifier: 'document-123-docx-a1b2c3d4e5f60708',
+        fingerprint_sha256:
+          'a1b2c3d4e5f60708a1b2c3d4e5f60708a1b2c3d4e5f60708a1b2c3d4e5f60708',
+        document_completed_at: '2026-06-22T00:00:00Z',
+      },
+    },
   },
   client_email: 'client@example.com',
   manager_email: 'manager@example.com',
@@ -96,27 +107,36 @@ describe('ProductionCaseDetailPage QA evidence', () => {
     fireEvent.change(screen.getByLabelText('Result %'), {
       target: { value: '24' },
     })
-    fireEvent.change(screen.getByLabelText('Threshold %'), {
-      target: { value: '35' },
+    fireEvent.change(screen.getByLabelText('Release decision'), {
+      target: { value: 'passed' },
     })
-    fireEvent.change(screen.getByLabelText('Reason'), {
+    fireEvent.change(screen.getByLabelText('Release-manager rationale'), {
       target: { value: 'Phase 1 proof run detector evidence.' },
     })
 
-    fireEvent.click(screen.getByRole('button', { name: 'Record detector result' }))
+    expect(
+      screen.getByText(/Server artifact ID: document-123-docx-a1b2c3d4e5f60708/)
+    ).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole('button', { name: 'Record release decision' }))
 
     await waitFor(() => {
       expect(adminApiClient.recordDetectorResult).toHaveBeenCalledWith(
         77,
         'ai_detection_proxy',
         expect.objectContaining({
-          detector_name: 'GPTZero',
+          detector_name: 'Compilatio',
           result_percent: 24,
-          threshold_percent: 35,
+          decision: 'passed',
+          artifact_format: 'docx',
           report_ref: 'docs/phase1-runs/RUN-001.md',
           reason: 'Phase 1 proof run detector evidence.',
         })
       )
     })
+    const submittedPayload = (adminApiClient.recordDetectorResult as jest.Mock).mock
+      .calls[0][2]
+    expect(submittedPayload).not.toHaveProperty('artifact_identifier')
+    expect(submittedPayload).not.toHaveProperty('artifact_fingerprint_sha256')
   })
 })

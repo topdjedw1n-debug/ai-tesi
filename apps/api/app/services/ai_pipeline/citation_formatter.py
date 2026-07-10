@@ -51,6 +51,7 @@ class CitationFormatter:
         year: int,
         style: CitationStyle = CitationStyle.APA,
         page: int | None = None,
+        year_suffix: str = "",
     ) -> str:
         """
         Format in-text citation
@@ -65,7 +66,9 @@ class CitationFormatter:
             Formatted in-text citation string
         """
         if style == CitationStyle.APA:
-            return CitationFormatter._format_apa_intext(authors, year, page)
+            return CitationFormatter._format_apa_intext(
+                authors, year, page, year_suffix
+            )
         elif style == CitationStyle.MLA:
             return CitationFormatter._format_mla_intext(authors, year, page)
         elif style == CitationStyle.CHICAGO:
@@ -77,7 +80,9 @@ class CitationFormatter:
 
     @staticmethod
     def format_reference(
-        source: SourceDocument, style: CitationStyle = CitationStyle.APA
+        source: SourceDocument,
+        style: CitationStyle = CitationStyle.APA,
+        year_suffix: str = "",
     ) -> str:
         """
         Format full reference for bibliography
@@ -90,7 +95,7 @@ class CitationFormatter:
             Formatted reference string
         """
         if style == CitationStyle.APA:
-            return CitationFormatter._format_apa_reference(source)
+            return CitationFormatter._format_apa_reference(source, year_suffix)
         elif style == CitationStyle.MLA:
             return CitationFormatter._format_mla_reference(source)
         elif style == CitationStyle.CHICAGO:
@@ -102,15 +107,19 @@ class CitationFormatter:
 
     @staticmethod
     def _format_apa_intext(
-        authors: list[str], year: int, page: int | None = None
+        authors: list[str],
+        year: int,
+        page: int | None = None,
+        year_suffix: str = "",
     ) -> str:
         """Format APA in-text citation"""
+        surnames = [CitationFormatter._author_surname(author) for author in authors]
         if len(authors) == 1:
-            citation = f"{authors[0]}, {year}"
+            citation = f"{surnames[0]}, {year}{year_suffix}"
         elif len(authors) == 2:
-            citation = f"{authors[0]} & {authors[1]}, {year}"
+            citation = f"{surnames[0]} & {surnames[1]}, {year}{year_suffix}"
         else:
-            citation = f"{authors[0]} et al., {year}"
+            citation = f"{surnames[0]} et al., {year}{year_suffix}"
 
         if page:
             citation += f", p. {page}"
@@ -174,18 +183,23 @@ class CitationFormatter:
         return f"({citation})"
 
     @staticmethod
-    def _format_apa_reference(source: SourceDocument) -> str:
+    def _format_apa_reference(source: SourceDocument, year_suffix: str = "") -> str:
         """Format APA reference"""
+        formatted_authors = [
+            CitationFormatter._format_apa_author(author) for author in source.authors
+        ]
         # Author list
         if len(source.authors) == 1:
-            authors = f"{source.authors[0]}"
+            authors = formatted_authors[0]
         elif len(source.authors) <= 7:
-            authors = ", ".join(source.authors[:-1]) + f", & {source.authors[-1]}"
+            authors = ", ".join(formatted_authors[:-1]) + f", & {formatted_authors[-1]}"
         else:
-            authors = ", ".join(source.authors[:6]) + ", ... " + source.authors[-1]
+            authors = (
+                ", ".join(formatted_authors[:6]) + ", ... " + formatted_authors[-1]
+            )
 
         # Year
-        year_str = f" ({source.year})."
+        year_str = f" ({source.year}{year_suffix})."
 
         # Title
         title_str = f" {source.title}."
@@ -210,6 +224,30 @@ class CitationFormatter:
                 reference += f". {source.city}"
 
         return reference
+
+    @staticmethod
+    def _author_surname(author: str) -> str:
+        value = author.strip()
+        if not value:
+            return "Unknown"
+        return value.split(",", 1)[0].strip() if "," in value else value.split()[-1]
+
+    @staticmethod
+    def _format_apa_author(author: str) -> str:
+        value = author.strip()
+        if not value:
+            return "Unknown"
+        if "," in value:
+            surname, given = (part.strip() for part in value.split(",", 1))
+        else:
+            parts = value.split()
+            if len(parts) == 1:
+                return parts[0]
+            surname, given = parts[-1], " ".join(parts[:-1])
+        initials = " ".join(
+            f"{part[0].upper()}." for part in given.replace("-", " ").split() if part
+        )
+        return f"{surname}, {initials}" if initials else surname
 
     @staticmethod
     def _format_mla_reference(source: SourceDocument) -> str:
@@ -336,31 +374,56 @@ class CitationFormatter:
         import re
 
         citations = []
-        # Pattern: [Author, Year] or [Author et al., Year]
-        pattern = r"\[([^\]]+),\s*(\d{4})\]"
+        # Parse parenthetical/bracket groups first, then split APA multi-source
+        # groups on semicolons. This avoids greedily treating
+        # ``(Rossi, 2021; Bianchi, 2022)`` as one invented author string.
+        group_pattern = r"[\[(]([^\]\)]+)[\])]"
+        part_pattern = re.compile(
+            r"\s*(.+?),\s*(\d{4})([a-z]?)(?:,\s*p\.\s*\d+)?\s*$",
+            re.IGNORECASE,
+        )
 
-        for match in re.finditer(pattern, text):
-            citation_str = match.group(1)
-            year = int(match.group(2))
+        for group in re.finditer(group_pattern, text):
+            cursor = group.start(1)
+            for raw_part in group.group(1).split(";"):
+                part = raw_part.strip()
+                part_match = part_pattern.fullmatch(part)
+                if part_match is None:
+                    cursor += len(raw_part) + 1
+                    continue
 
-            # Parse authors (handle "et al.")
-            if "et al." in citation_str:
-                authors = [citation_str.replace(" et al.", "").strip()]
-                et_al = True
-            else:
-                authors = [a.strip() for a in citation_str.split(" & ")]
-                authors = [a.strip() for author in authors for a in author.split(",")]
-                et_al = False
+                citation_str = part_match.group(1).strip()
+                year = int(part_match.group(2))
+                year_suffix = part_match.group(3).lower()
 
-            citations.append(
-                {
-                    "authors": authors,
-                    "year": year,
-                    "et_al": et_al,
-                    "original": match.group(0),
-                    "position": match.start(),
-                }
-            )
+                et_al = "et al." in citation_str.casefold()
+                if et_al:
+                    authors = [
+                        re.sub(
+                            r"\s+et\s+al\.$",
+                            "",
+                            citation_str,
+                            flags=re.IGNORECASE,
+                        ).strip()
+                    ]
+                else:
+                    authors = [
+                        author.strip()
+                        for author in re.split(r"\s+(?:&|and)\s+", citation_str)
+                        if author.strip()
+                    ]
+
+                citations.append(
+                    {
+                        "authors": authors,
+                        "year": year,
+                        "year_suffix": year_suffix,
+                        "et_al": et_al,
+                        "original": f"{group.group(0)[0]}{part}{group.group(0)[-1]}",
+                        "position": cursor,
+                    }
+                )
+                cursor += len(raw_part) + 1
 
         return citations
 

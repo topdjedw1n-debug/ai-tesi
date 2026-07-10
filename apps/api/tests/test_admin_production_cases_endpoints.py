@@ -151,6 +151,11 @@ async def test_admin_can_create_production_case_without_payment(
 async def test_admin_can_list_and_get_production_cases(
     client, db_session, admin_user, sample_document
 ):
+    # Generation state is derived from the live document, not from a manually
+    # editable case field.
+    sample_document.status = "generating"
+    await db_session.commit()
+
     production_case = ProductionCase(
         document_id=sample_document.id,
         client_user_id=sample_document.user_id,
@@ -205,12 +210,9 @@ async def test_admin_can_patch_separate_status_dimensions(
             "manager_id": admin_user.id,
             "editor_id": editor_user.id,
             "intake_status": "ready",
-            "generation_status": "completed",
             "qa_status": "needs_review",
             "editorial_status": "in_progress",
             "payment_status": "pending",
-            "delivery_status": "not_ready",
-            "release_status": "blocked",
             "human_minutes_budget": 45,
             "human_minutes_used": 12,
         },
@@ -221,14 +223,23 @@ async def test_admin_can_patch_separate_status_dimensions(
     assert body["manager_id"] == admin_user.id
     assert body["editor_id"] == editor_user.id
     assert body["intake_status"] == "ready"
-    assert body["generation_status"] == "completed"
+    assert body["generation_status"] == "not_started"
     assert body["qa_status"] == "needs_review"
     assert body["editorial_status"] == "in_progress"
     assert body["payment_status"] == "pending"
     assert body["delivery_status"] == "not_ready"
-    assert body["release_status"] == "blocked"
+    assert body["release_status"] == "not_ready"
     assert body["human_minutes_budget"] == 45
     assert body["human_minutes_used"] == 12
+
+    # Delivery and release are consequences of verified gates. An admin cannot
+    # paint them green by editing status fields directly.
+    protected_response = await client.patch(
+        f"/api/v1/admin/production-cases/{production_case.id}",
+        headers=auth_headers(admin_user),
+        json={"delivery_status": "delivered", "release_status": "released"},
+    )
+    assert protected_response.status_code == 422
 
 
 @pytest.mark.asyncio

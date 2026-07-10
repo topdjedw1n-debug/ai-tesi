@@ -39,6 +39,9 @@ class Document(Base):
     topic = Column(String(500), nullable=False)
     language = Column(String(10), default="en")
     target_pages = Column(Integer, default=10)
+    additional_requirements = Column(Text, nullable=True)
+    citation_style = Column(String(50), default="apa", nullable=False)
+    requirements_file_processed = Column(Boolean, default=False, nullable=False)
 
     # Document state
     status = Column(String(50), default="draft")  # draft, generating, completed, failed
@@ -57,6 +60,8 @@ class Document(Base):
     # File paths
     docx_path = Column(String(500))
     pdf_path = Column(String(500))
+    docx_sha256 = Column(String(64), nullable=True)
+    pdf_sha256 = Column(String(64), nullable=True)
     custom_requirements_file_path = Column(String(500), nullable=True)
 
     # Usage tracking
@@ -93,10 +98,20 @@ class DocumentSection(Base):
     """Document section model"""
 
     __tablename__ = "document_sections"
-    __table_args__ = (Index("ix_document_sections_document_id", "document_id"),)
+    __table_args__ = (
+        Index("ix_document_sections_document_id", "document_id"),
+        Index(
+            "uq_document_sections_document_section_index",
+            "document_id",
+            "section_index",
+            unique=True,
+        ),
+    )
 
     id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
 
     # Section metadata
     title = Column(String(500), nullable=False)
@@ -166,7 +181,9 @@ class DocumentOutline(Base):
     __tablename__ = "document_outlines"
 
     id = Column(Integer, primary_key=True, index=True)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=False)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=False
+    )
 
     # Outline structure
     outline_data = Column(JSON, nullable=False)  # Store the full outline structure
@@ -192,14 +209,24 @@ class AIGenerationJob(Base):
     __table_args__ = (
         Index("ix_ai_generation_jobs_user_id", "user_id"),
         Index("ix_ai_generation_jobs_started_at", "started_at"),
-        # NOTE: Consider adding unique constraint for (document_id, job_type) where status IN ('queued', 'running')
-        # to provide additional protection against race conditions at DB level
-        # Example: UniqueConstraint('document_id', 'job_type', name='uq_active_job_per_document', postgresql_where=status.in_(['queued', 'running']))
+        Index(
+            "uq_ai_generation_jobs_active_document_job_type",
+            "document_id",
+            "job_type",
+            unique=True,
+            postgresql_where=text("status IN ('queued', 'running')"),
+            # Test and local-development databases use SQLite. Keeping the
+            # same partial predicate there exercises the production invariant
+            # without turning job history into an unconditional unique key.
+            sqlite_where=text("status IN ('queued', 'running')"),
+        ),
     )
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    document_id = Column(
+        Integer, ForeignKey("documents.id", ondelete="CASCADE"), nullable=True
+    )
 
     # Job metadata
     job_type = Column(String(50), nullable=False)  # outline, section, etc.
@@ -209,6 +236,24 @@ class AIGenerationJob(Base):
     # Job status and progress
     status = Column(String(50), default="queued")  # queued, running, completed, failed
     progress = Column(Integer, default=0)  # 0-100 percentage
+
+    # Durable execution contract. The API only enqueues a row; any API process
+    # may atomically lease it and resume it after a crash. request_payload keeps
+    # per-run requirements out of process memory, while the lease fields fence
+    # duplicate deliveries and make stale work discoverable.
+    request_payload = Column(JSON, nullable=True)
+    lease_owner = Column(String(255), nullable=True)
+    # A fresh unguessable token is minted for every acquisition. ``lease_owner``
+    # identifies the process for diagnostics; this token fences an older
+    # coroutine even when the same process later reacquires the job.
+    lease_token = Column(String(64), nullable=True)
+    lease_expires_at = Column(DateTime(timezone=True), nullable=True)
+    heartbeat_at = Column(DateTime(timezone=True), nullable=True)
+    available_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    attempt_count = Column(Integer, default=0, nullable=False)
+    max_attempts = Column(Integer, default=3, nullable=False)
 
     # Usage tracking
     total_tokens = Column(Integer, default=0)
@@ -231,7 +276,10 @@ class DocumentDraft(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     document_id = Column(
-        Integer, ForeignKey("documents.id"), nullable=False, index=True
+        Integer,
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
     )
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
 
@@ -409,6 +457,11 @@ class ProductionCase(Base):
     human_minutes_used = Column(Integer, default=0, nullable=False)
     cost_cents = Column(Integer, default=0, nullable=False)
     release_notes = Column(Text, nullable=True)
+    released_docx_path = Column(String(500), nullable=True)
+    released_pdf_path = Column(String(500), nullable=True)
+    released_docx_sha256 = Column(String(64), nullable=True)
+    released_pdf_sha256 = Column(String(64), nullable=True)
+    release_version = Column(Integer, default=0, nullable=False)
     released_at = Column(DateTime(timezone=True), nullable=True)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -12,7 +12,98 @@ import pytest
 
 from app.core.config import Settings
 from app.core.exceptions import QualityThresholdNotMetError
-from app.services.background_jobs import BackgroundJobService
+from app.models.auth import User
+from app.models.document import Document
+from app.services.ai_pipeline.citation_formatter import CitationStyle
+from app.services.background_jobs import (
+    BackgroundJobService,
+    _resolve_citation_style,
+)
+from app.services.document_service import DocumentService
+
+
+def test_resolve_citation_style_uses_stored_style_not_hardcoded_apa():
+    assert _resolve_citation_style("chicago") is CitationStyle.CHICAGO
+    assert _resolve_citation_style("MLA") is CitationStyle.MLA
+    assert _resolve_citation_style(None) is CitationStyle.APA
+
+
+@pytest.mark.asyncio
+async def test_document_creation_persists_additional_requirements(db_session):
+    """Creation requirements remain available after the request transaction ends."""
+    user = User(email="requirements@example.com", full_name="Requirements User")
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+
+    requirements = (
+        "Work type: Master's thesis. Citation style: Chicago. "
+        "Follow the uploaded university methodology."
+    )
+    result = await DocumentService(db_session).create_document(
+        user_id=user.id,
+        title="Italian Thesis",
+        topic="Digital transformation in Italian universities",
+        additional_requirements=requirements,
+        citation_style="chicago",
+    )
+
+    document = await db_session.get(Document, result["id"])
+    assert document is not None
+    assert document.additional_requirements == requirements
+    assert document.citation_style == "chicago"
+
+
+@pytest.mark.asyncio
+async def test_generation_falls_back_to_persisted_requirements(mock_db, mock_settings):
+    """A document-id-only start still sends stored requirements to the writer."""
+    requirements = "Citation style: Chicago. Follow the university methodology."
+    document = MagicMock(
+        id=700,
+        user_id=7,
+        title="Italian Thesis",
+        language="it",
+        ai_provider="anthropic",
+        ai_model="claude-opus-4-8",
+        outline=None,
+        additional_requirements=requirements,
+    )
+    document_result = MagicMock()
+    document_result.scalar_one_or_none.return_value = document
+    update_result = MagicMock()
+    mock_db.execute.side_effect = [
+        document_result,
+        update_result,
+        update_result,
+    ]
+
+    ai_service = MagicMock()
+    ai_service.generate_outline = AsyncMock(
+        side_effect=RuntimeError("stop after capture")
+    )
+
+    with (
+        patch("app.services.background_jobs.AIService", return_value=ai_service),
+        patch(
+            "app.services.background_jobs.database.AsyncSessionLocal"
+        ) as session_class,
+    ):
+        session = MagicMock()
+        session.__aenter__ = AsyncMock(return_value=mock_db)
+        session.__aexit__ = AsyncMock(return_value=None)
+        session_class.return_value = session
+
+        with pytest.raises(RuntimeError, match="Outline generation failed"):
+            await BackgroundJobService.generate_full_document(
+                document_id=700, user_id=7
+            )
+
+    ai_service.generate_outline.assert_awaited_once()
+    assert (
+        ai_service.generate_outline.await_args.kwargs["additional_requirements"]
+        == requirements
+    )
+
 
 # ============================================================================
 # Test 1: Section Generation Error - Stop Generation
@@ -719,16 +810,16 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
 
 
 # ============================================================================
-# Test 6: Export Failure - Non-Critical
+# Test 6: Export Failure - Document Must Fail
 # ============================================================================
 
 
 @pytest.mark.asyncio
-async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
+async def test_export_failure_marks_document_failed(mock_db, mock_redis, mock_settings):
     """
-    Test: export_document() fails → warning logged, document still completed.
+    Test: export_document() fails → error bubbles up and document is failed.
 
-    Coverage: Lines 937-938 (export error handling)
+    A generated document without a downloadable file must never be marked completed.
     """
     document = MagicMock()
     document.id = 600
@@ -824,14 +915,26 @@ async def test_export_failure_non_critical(mock_db, mock_redis, mock_settings):
         )
         mock_doc_service_class.return_value = mock_doc_service
 
-        # Execute
-        await BackgroundJobService.generate_full_document(document_id=600, user_id=6)
+        # Execute: the export error must fail the generation.
+        with pytest.raises(Exception, match="MinIO connection error"):
+            await BackgroundJobService.generate_full_document(
+                document_id=600, user_id=6
+            )
 
         # Verify: Export was attempted
         assert mock_doc_service.export_document.called, "Export should be attempted"
 
-        # Verify: Document still completed (DB commits happened)
-        assert mock_db.commit.call_count >= 3, "Document should be marked completed"
+        # Verify: document was marked failed and never marked completed.
+        document_statuses = []
+        for call in mock_db.execute.await_args_list:
+            statement = call.args[0]
+            if getattr(getattr(statement, "table", None), "name", None) == "documents":
+                status_value = statement.compile().params.get("status")
+                if status_value:
+                    document_statuses.append(status_value)
+
+        assert "failed" in document_statuses
+        assert "completed" not in document_statuses
 
 
 # ============================================================================

@@ -37,8 +37,9 @@ services:
     container_name: ai-thesis-minio
     command: server /data --console-address ":9001"
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      MINIO_BUCKET: ${MINIO_BUCKET:-ai-thesis-documents}
     volumes:
       - minio_data:/data
     healthcheck:
@@ -50,8 +51,31 @@ services:
     networks:
       - ai-thesis-network
 
+  minio-setup:
+    image: minio/mc:latest
+    container_name: ai-thesis-minio-setup
+    depends_on:
+      minio:
+        condition: service_healthy
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
+      MINIO_BUCKET: ${MINIO_BUCKET:-ai-thesis-documents}
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - >-
+        mc alias set storage http://minio:9000 "$$MINIO_ROOT_USER" "$$MINIO_ROOT_PASSWORD" &&
+        mc mb --ignore-existing "storage/$$MINIO_BUCKET" &&
+        mc anonymous set none "storage/$$MINIO_BUCKET"
+    restart: "no"
+    networks:
+      - ai-thesis-network
+
   api:
     image: ${API_IMAGE:-ai-thesis-api}
+    build:
+      context: ../../apps/api
     container_name: ai-thesis-api
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
@@ -59,20 +83,50 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}
       - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS}
       - FRONTEND_URL=${FRONTEND_URL:-http://localhost:3000}
-      - JWT_SECRET=${JWT_SECRET}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET is required}
       - MINIO_ENDPOINT=${MINIO_ENDPOINT}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_ACCESS_KEY=${MINIO_ROOT_USER:?MINIO_ROOT_USER is required}
+      - MINIO_SECRET_KEY=${MINIO_ROOT_PASSWORD:?MINIO_ROOT_PASSWORD is required}
       - MINIO_BUCKET=${MINIO_BUCKET}
       - MINIO_SECURE=${MINIO_SECURE:-false}
       - SECRET_KEY=${SECRET_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - MVP_FREE_GENERATION_ENABLED=${MVP_FREE_GENERATION_ENABLED:-true}
-      - MVP_FREE_GENERATION_MAX_PAGES=${MVP_FREE_GENERATION_MAX_PAGES:-20}
+      - MVP_FREE_GENERATION_MAX_PAGES=${MVP_FREE_GENERATION_MAX_PAGES:-50}
       - MVP_FREE_GENERATION_DAILY_USER_LIMIT=${MVP_FREE_GENERATION_DAILY_USER_LIMIT:-2}
       - DAILY_TOKEN_LIMIT=${DAILY_TOKEN_LIMIT:-2000000}
+      - METHODOLOGY_REQUIRED_FOR_GENERATION=true
+      - LEGACY_GENERATION_ENDPOINTS_ENABLED=false
+      - RELEASE_PRIMARY_DETECTOR_NAME=Compilatio
+      # Production quality contract: a fresh deploy must not silently fall
+      # back to the legacy pipeline that omits grounding and verification.
+      - QUALITY_GATES_ENABLED=true
+      - PARTIAL_COMPLETION_ENABLED=false
+      - PROVENANCE_LEDGER_ENABLED=true
+      - SOURCE_GROUNDING_ENABLED=true
+      - GROUNDING_GATE_ENABLED=true
+      - GROUNDING_GATE_POLICY=strict
+      - CITATION_VERIFICATION_ENABLED=true
+      - CITATION_VERIFICATION_POLICY=strict
+      - CLAIM_VERIFICATION_ENABLED=true
+      - CLAIM_VERIFICATION_BLOCKING=false
+      - QUALITY_PANEL_ENABLED=true
+      - AI_DETECTION_ENABLED=true
+      - AI_DETECTION_BLOCKING=false
+      # Baseline Italian proof runs measure the writer without an automatic
+      # rewrite. Humanization can be re-enabled only after paired evidence.
+      - HUMANIZER_ENABLED=false
+      # External providers remain explicit. Missing credentials produce an
+      # honest unchecked result, which the release contract must block.
+      - COPYSCAPE_API_KEY=${COPYSCAPE_API_KEY:-}
+      - COPYSCAPE_USERNAME=${COPYSCAPE_USERNAME:-}
+      - GPTZERO_API_KEY=${GPTZERO_API_KEY:-}
+      - ORIGINALITY_AI_API_KEY=${ORIGINALITY_AI_API_KEY:-}
+      - SEMANTIC_SCHOLAR_API_KEY=${SEMANTIC_SCHOLAR_API_KEY:-}
+      - OPENALEX_API_KEY=${OPENALEX_API_KEY:-}
     ports:
       - "8000:8000"
     depends_on:
@@ -82,6 +136,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      minio-setup:
+        condition: service_completed_successfully
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 10s
@@ -93,6 +149,10 @@ services:
 
   web:
     image: ${WEB_IMAGE:-ai-thesis-web}
+    build:
+      context: ../../apps/web
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:?NEXT_PUBLIC_API_URL is required}
     container_name: ai-thesis-web
     environment:
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000}

@@ -17,6 +17,8 @@ export const DOCUMENT_STATUS: Record<string, StatusConfig> = {
   sections_generated: { label: 'Розділи готові', badgeClass: 'bg-amber-100 text-amber-800' },
   completed: { label: 'Готово', badgeClass: 'bg-green-100 text-green-800' },
   failed: { label: 'Не пройшла перевірку', badgeClass: 'bg-red-100 text-red-800' },
+  failed_quality: { label: 'Не пройшла перевірку якості', badgeClass: 'bg-red-100 text-red-800' },
+  payment_failed: { label: 'Помилка оплати', badgeClass: 'bg-red-100 text-red-800' },
   pending: { label: 'В черзі', badgeClass: 'bg-gray-100 text-gray-800' },
   queued: { label: 'В черзі', badgeClass: 'bg-gray-100 text-gray-800' },
   running: { label: 'Генерується', badgeClass: 'bg-primary-100 text-primary-800' },
@@ -27,6 +29,12 @@ const UNKNOWN_STATUS: StatusConfig = {
   badgeClass: 'bg-gray-100 text-gray-800',
 }
 
-export function documentStatus(status: string | undefined | null): StatusConfig {
+export function documentStatus(
+  status: string | undefined | null,
+  releaseStatus?: string | null
+): StatusConfig {
+  if (status === 'completed' && releaseStatus !== 'released') {
+    return { label: 'На перевірці', badgeClass: 'bg-amber-100 text-amber-800' }
+  }
   return (status && DOCUMENT_STATUS[status]) || UNKNOWN_STATUS
 }

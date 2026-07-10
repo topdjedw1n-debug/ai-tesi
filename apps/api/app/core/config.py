@@ -59,6 +59,12 @@ class Settings(BaseSettings):
     # AI Providers
     OPENAI_API_KEY: str | None = None
     ANTHROPIC_API_KEY: str | None = None
+    GPTZERO_API_KEY: str | None = None
+    ORIGINALITY_AI_API_KEY: str | None = None
+    AI_DETECTION_ENABLED: bool = True
+    # Automated detectors are diagnostic in the Italian MVP. Compilatio is
+    # recorded manually in its own release gate and is the release evidence.
+    AI_DETECTION_BLOCKING: bool = False
 
     # AI Retry & Fallback Configuration (Task 3.1-3.2)
     AI_MAX_RETRIES: int = 3  # Number of retry attempts per provider
@@ -346,6 +352,25 @@ class Settings(BaseSettings):
     MVP_FREE_GENERATION_ENABLED: bool = True
     MVP_FREE_GENERATION_MAX_PAGES: int = 20
     MVP_FREE_GENERATION_DAILY_USER_LIMIT: int = 2
+    # Narrow Italian production contour: generation must not start until a
+    # university methodology file has been successfully parsed and persisted.
+    METHODOLOGY_REQUIRED_FOR_GENERATION: bool = True
+    LEGACY_GENERATION_ENDPOINTS_ENABLED: bool = False
+    # Only the agreed primary external checker may authorize delivery for the
+    # narrow Italian contour. Other detector scores remain diagnostic.
+    RELEASE_PRIMARY_DETECTOR_NAME: str = "Compilatio"
+
+    # Durable database-backed generation worker. Every API process polls the
+    # same queue; row leases ensure that exactly one process owns a job while
+    # expired leases become recoverable after a crash or deploy restart.
+    GENERATION_WORKER_ENABLED: bool = True
+    GENERATION_WORKER_POLL_SECONDS: float = 1.0
+    GENERATION_JOB_LEASE_SECONDS: int = 120
+    GENERATION_JOB_HEARTBEAT_SECONDS: int = 20
+    GENERATION_JOB_MAX_ATTEMPTS: int = 3
+    GENERATION_JOB_RETRY_BASE_SECONDS: int = 15
+    GENERATION_JOB_RETRY_MAX_SECONDS: int = 300
+    GENERATION_CHECKPOINT_TTL_SECONDS: int = 604800  # 7 days
 
     model_config = ConfigDict(
         # ENV_FILE lets the test suite point this at os.devnull
@@ -360,6 +385,14 @@ class Settings(BaseSettings):
         # Exclude ALLOWED_ORIGINS from env file parsing - it's set via model_validator
         env_prefix="",  # No prefix needed
     )  # type: ignore[typeddict-unknown-key,assignment]
+
+    @field_validator("RELEASE_PRIMARY_DETECTOR_NAME")
+    @classmethod
+    def validate_release_primary_detector_name(cls, value: str) -> str:
+        normalized = value.strip()
+        if not normalized:
+            raise ValueError("RELEASE_PRIMARY_DETECTOR_NAME must not be empty")
+        return normalized
 
     @field_validator("CITATION_VERIFICATION_POLICY")
     @classmethod

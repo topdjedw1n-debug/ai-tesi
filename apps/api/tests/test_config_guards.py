@@ -57,6 +57,8 @@ def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
         "MVP_FREE_GENERATION_MAX_PAGES",
         "MVP_FREE_GENERATION_DAILY_USER_LIMIT",
         "DAILY_TOKEN_LIMIT",
+        "METHODOLOGY_REQUIRED_FOR_GENERATION",
+        "LEGACY_GENERATION_ENDPOINTS_ENABLED",
     ):
         monkeypatch.delenv(var, raising=False)
 
@@ -66,6 +68,9 @@ def test_stage0_mvp_generation_defaults_enabled(monkeypatch):
     assert settings.MVP_FREE_GENERATION_MAX_PAGES == 20
     assert settings.MVP_FREE_GENERATION_DAILY_USER_LIMIT == 2
     assert settings.DAILY_TOKEN_LIMIT == 2_000_000
+    assert settings.METHODOLOGY_REQUIRED_FOR_GENERATION is True
+    assert settings.LEGACY_GENERATION_ENDPOINTS_ENABLED is False
+    assert settings.RELEASE_PRIMARY_DETECTOR_NAME == "Compilatio"
 
 
 def test_citation_without_claim_accepted():
@@ -76,3 +81,8 @@ def test_citation_without_claim_accepted():
     )
     assert settings.CITATION_VERIFICATION_ENABLED is True
     assert settings.CLAIM_VERIFICATION_ENABLED is False
+
+
+def test_release_primary_detector_cannot_be_blank():
+    with pytest.raises(ValueError, match="RELEASE_PRIMARY_DETECTOR_NAME"):
+        Settings(_env_file=None, RELEASE_PRIMARY_DETECTOR_NAME="   ")

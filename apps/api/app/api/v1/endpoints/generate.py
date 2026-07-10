@@ -8,16 +8,26 @@ from typing import Any
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user
-from app.core.exceptions import AIProviderError, NotFoundError
+from app.core.exceptions import AIProviderError, NotFoundError, ValidationError
 from app.middleware.rate_limit import rate_limit
 from app.models.auth import User
-from app.models.document import AIGenerationJob, Document
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentOutline,
+    DocumentProvenance,
+    DocumentSection,
+    DocumentSource,
+    ProductionCase,
+    ReleaseGateResult,
+)
 from app.models.payment import Payment
 from app.schemas.document import (
     AsyncGenerationRequest,
@@ -28,14 +38,49 @@ from app.schemas.document import (
     SectionResponse,
 )
 from app.services.ai_service import AIService
-from app.services.background_jobs import BackgroundJobService
+from app.services.background_jobs import (  # noqa: F401 - legacy patch surface
+    BackgroundJobService,
+)
 from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
+from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.document_service import DocumentService
+from app.services.generation_contract import generation_contract_sha256
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
+from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
+
+
+def _require_legacy_generation_enabled() -> None:
+    if not settings.LEGACY_GENERATION_ENDPOINTS_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This generation path is disabled; use full-document generation.",
+        )
+
+
+async def _get_active_generation_job(
+    db: AsyncSession, document_id: int, job_type: str = "full_document"
+) -> AIGenerationJob | None:
+    """Return the single active job protected by the database constraint."""
+    result = await db.execute(
+        select(AIGenerationJob).where(
+            AIGenerationJob.document_id == document_id,
+            AIGenerationJob.job_type == job_type,
+            AIGenerationJob.status.in_(["queued", "running"]),
+        )
+    )
+    return result.scalar_one_or_none()
+
+
+def _active_job_response(job: AIGenerationJob) -> AsyncGenerationResponse:
+    return AsyncGenerationResponse(
+        job_id=int(job.id),
+        status=str(job.status),
+        check_url=f"/api/v1/jobs/{job.id}/status",
+    )
 
 
 @router.post("/outline", response_model=OutlineResponse)
@@ -47,6 +92,7 @@ async def generate_outline(
     db: AsyncSession = Depends(get_db),
 ) -> OutlineResponse:
     """Generate document outline using AI"""
+    _require_legacy_generation_enabled()
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_outline(
@@ -57,6 +103,10 @@ async def generate_outline(
         return result
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
     except AIProviderError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY, detail=str(e)
@@ -77,6 +127,7 @@ async def generate_section(
     db: AsyncSession = Depends(get_db),
 ) -> SectionResponse:
     """Generate a specific section using AI"""
+    _require_legacy_generation_enabled()
     try:
         ai_service = AIService(db)
         result = await ai_service.generate_section(
@@ -200,11 +251,18 @@ async def estimate_cost(
 class PlagiarismCheckRequest(BaseModel):
     """Request schema for plagiarism check"""
 
-    text: str = Field(..., min_length=10, description="Text to check for plagiarism")
+    text: str = Field(
+        ...,
+        min_length=10,
+        max_length=50_000,
+        description="Text to check for plagiarism (maximum 50,000 characters)",
+    )
 
 
 @router.post("/check-plagiarism")
+@rate_limit("5/hour")
 async def check_plagiarism(
+    http_request: Request,
     request: PlagiarismCheckRequest,
     current_user: User = Depends(get_current_user),
 ) -> dict[str, Any]:
@@ -276,6 +334,24 @@ async def _enforce_generation_gate(
     (``429``). Raises ``HTTPException`` when a guardrail is hit; returns ``None``
     when generation is allowed.
     """
+    if settings.METHODOLOGY_REQUIRED_FOR_GENERATION:
+        if not document.requirements_file_processed:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "A university methodology file must be uploaded and "
+                    "processed before generation can start."
+                ),
+            )
+        if str(document.citation_style or "apa").lower() != "apa":
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "The current Italian MVP supports APA citations only. "
+                    "Create an APA document before generation."
+                ),
+            )
+
     if not settings.MVP_FREE_GENERATION_ENABLED:
         payment_result = await db.execute(
             select(Payment.id).where(
@@ -332,28 +408,129 @@ async def _enforce_generation_gate(
         )
         tokens_today = tokens_today_result.scalar() or 0
 
-        active_projected_tokens_result = await db.execute(
-            select(func.coalesce(func.sum(Document.target_pages * TOKENS_PER_PAGE), 0))
+        active_reservations_result = await db.execute(
+            select(
+                Document.target_pages,
+                func.coalesce(AIGenerationJob.total_tokens, 0),
+            )
             .select_from(AIGenerationJob)
             .join(Document, AIGenerationJob.document_id == Document.id)
             .where(
                 AIGenerationJob.user_id == user_id,
                 AIGenerationJob.started_at >= today_start,
                 AIGenerationJob.status.in_(["queued", "running"]),
-                func.coalesce(AIGenerationJob.total_tokens, 0) == 0,
             )
         )
-        active_projected_tokens = active_projected_tokens_result.scalar() or 0
+        # Actual usage is already included in tokens_today. Keep reserving the
+        # unspent remainder of every active job; otherwise its reservation
+        # vanished after the first token write and parallel documents could
+        # oversubscribe the daily budget.
+        active_remaining_tokens = sum(
+            max(
+                int(target_pages or 0) * TOKENS_PER_PAGE - int(tokens_used or 0),
+                0,
+            )
+            for target_pages, tokens_used in active_reservations_result.all()
+        )
 
         projected_tokens = target_pages * TOKENS_PER_PAGE
         if (
-            tokens_today + active_projected_tokens + projected_tokens
+            tokens_today + active_remaining_tokens + projected_tokens
             > settings.DAILY_TOKEN_LIMIT
         ):
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Daily token budget exhausted; try again tomorrow.",
             )
+
+
+async def _invalidate_previous_generation_evidence(
+    db: AsyncSession,
+    document_id: int,
+    *,
+    contract_sha256: str | None = None,
+) -> list[str]:
+    """Revoke old DB evidence and return blobs to delete after commit.
+
+    Object storage is deliberately not mutated inside this SQL transaction:
+    a later flush/commit failure can roll SQL back, but cannot undelete a blob.
+    """
+    document = (
+        await db.execute(select(Document).where(Document.id == document_id))
+    ).scalar_one_or_none()
+    superseded_paths = (
+        [str(path) for path in (document.docx_path, document.pdf_path) if path]
+        if document is not None
+        else []
+    )
+    await db.execute(
+        update(ProductionCase)
+        .where(ProductionCase.document_id == document_id)
+        .values(
+            release_status="blocked",
+            delivery_status="not_ready",
+            editorial_status="not_started",
+            released_at=None,
+            released_docx_path=None,
+            released_pdf_path=None,
+            released_docx_sha256=None,
+            released_pdf_sha256=None,
+        )
+    )
+    await db.execute(
+        delete(DocumentSource).where(DocumentSource.document_id == document_id)
+    )
+    case_ids = select(ProductionCase.id).where(
+        ProductionCase.document_id == document_id
+    )
+    await db.execute(
+        delete(ReleaseGateResult).where(
+            ReleaseGateResult.production_case_id.in_(case_ids)
+        )
+    )
+    await db.execute(
+        delete(DocumentSection).where(DocumentSection.document_id == document_id)
+    )
+    await db.execute(
+        delete(DocumentOutline).where(DocumentOutline.document_id == document_id)
+    )
+    await db.execute(
+        update(Document)
+        .where(Document.id == document_id)
+        .values(
+            outline=None,
+            content=None,
+            docx_path=None,
+            pdf_path=None,
+            docx_sha256=None,
+            pdf_sha256=None,
+            completed_at=None,
+        )
+    )
+    db.add(
+        DocumentProvenance(
+            document_id=document_id,
+            stage="generation",
+            event_type="generation_run_started",
+            payload={
+                "started_at": datetime.utcnow().isoformat(),
+                "generation_contract_sha256": contract_sha256,
+            },
+        )
+    )
+    return superseded_paths
+
+
+async def _delete_superseded_artifacts(paths: list[str]) -> None:
+    """Best-effort post-commit cleanup; paths remain in the job for GDPR."""
+    if not paths:
+        return
+    storage = StorageService()
+    for path in dict.fromkeys(paths):
+        try:
+            await storage.delete_file(path)
+        except Exception:
+            logger.exception("Deferred cleanup failed for superseded artifact %s", path)
 
 
 @router.post("/full-document", response_model=AsyncGenerationResponse)
@@ -396,11 +573,40 @@ async def generate_full_document(
             req_data.document_id, int(current_user.id)
         )
 
-        # 2. Get document with lock (prevent race conditions)
+        # 2. Serialize every daily-quota decision for this user, including jobs
+        # for different documents. The lock is held through the gate check,
+        # job insert, and commit, so the queued job becomes the reservation
+        # observed by the next request. User is the first row in the global
+        # lock order: user -> document -> production case -> generation job.
+        user_lock_result = await db.execute(
+            select(User)
+            .where(User.id == int(current_user.id))
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        locked_user = user_lock_result.scalar_one_or_none()
+        if locked_user is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="User account no longer exists.",
+            )
+        # GDPR deletion and generation share this user lock. Once deletion is
+        # requested, no new durable work may be queued behind it.
+        if getattr(locked_user, "deletion_requested_at", None) is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Generation cannot start while account deletion is pending.",
+            )
+
+        # Lock the document before looking up its optional production case.
+        # The document row always exists, so it serializes generation against
+        # case creation even when no case row exists yet. Case creation uses
+        # the same document -> case order.
         result = await db.execute(
             select(Document)
             .where(Document.id == req_data.document_id)
             .with_for_update()
+            .execution_options(populate_existing=True)
         )
         document = result.scalar_one_or_none()
 
@@ -409,7 +615,58 @@ async def generate_full_document(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Document not found"
             )
 
-        # 3. Validate document is ready for generation
+        # Re-read the case only after the document lock is held. If case
+        # creation won the document lock, its requirements are committed and
+        # visible here; if generation won, creation waits and is then rejected
+        # while this job is active instead of silently missing requirements.
+        case_result = await db.execute(
+            select(ProductionCase)
+            .where(ProductionCase.document_id == req_data.document_id)
+            .with_for_update()
+            .execution_options(populate_existing=True)
+        )
+        production_case = case_result.scalar_one_or_none()
+
+        # 3. Make repeated/concurrent requests idempotent. This check must run
+        # before the document-status guard because the winning transaction
+        # sets the document to "generating" when it creates the job.
+        existing_job = await _get_active_generation_job(db, req_data.document_id)
+        if existing_job:
+            logger.info(
+                f"Returning existing job {existing_job.id} for document {req_data.document_id}"
+            )
+            return _active_job_response(existing_job)
+
+        if production_case is None:
+            # Every new deliverable run needs a case that predates its artifact.
+            # The active-job check above prevents this from retroactively
+            # attaching a case to work that already started.
+            production_case = ProductionCase(
+                document_id=int(document.id),
+                client_user_id=int(document.user_id),
+                citation_style=str(document.citation_style or "apa"),
+                generation_status="not_started",
+                payment_status="not_required",
+            )
+            db.add(production_case)
+            await db.flush()
+
+        generation_requirements = req_data.requirements
+        if production_case is not None:
+            generation_requirements = combine_generation_requirements(
+                production_case.requirements_text,
+                req_data.requirements,
+            )
+            if production_case.citation_style:
+                case_style = str(production_case.citation_style).strip().lower()
+                if case_style not in {"apa", "apa-7"}:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="The current Italian MVP supports APA citations only.",
+                    )
+                document.citation_style = "apa"
+
+        # 4. Validate document is ready for generation
         if document.status == "generating":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -422,28 +679,22 @@ async def generate_full_document(
                 detail="Document already completed. Create new document for regeneration.",
             )
 
-        # 4. Check for existing active jobs (prevent duplicates)
-        existing_job_result = await db.execute(
-            select(AIGenerationJob).where(
-                AIGenerationJob.document_id == req_data.document_id,
-                AIGenerationJob.status.in_(["queued", "running"]),
-            )
-        )
-        existing_job = existing_job_result.scalar_one_or_none()
-
-        if existing_job:
-            # Return existing job instead of creating duplicate
-            logger.info(
-                f"Returning existing job {existing_job.id} for document {req_data.document_id}"
-            )
-            return AsyncGenerationResponse(
-                job_id=int(existing_job.id),
-                status=existing_job.status,
-                check_url=f"/api/v1/jobs/{existing_job.id}/status",
-            )
-
         # 5. Enforce the MVP free-generation / payment gate before any job exists
         await _enforce_generation_gate(db, document, int(current_user.id))
+
+        # A new run invalidates every prior release and citation association.
+        # Otherwise a regenerated file could inherit the previous review, or
+        # stale sources could make a zero-citation retry look verified.
+        contract_sha256 = generation_contract_sha256(
+            document,
+            production_case,
+            generation_requirements,
+        )
+        superseded_paths = await _invalidate_previous_generation_evidence(
+            db,
+            req_data.document_id,
+            contract_sha256=contract_sha256,
+        )
 
         # 6. Create new generation job
         job = AIGenerationJob(
@@ -454,9 +705,31 @@ async def generate_full_document(
             ai_model=req_data.model or document.ai_model,
             status="queued",
             progress=0,
+            request_payload={
+                "additional_requirements": generation_requirements,
+                "generation_contract_sha256": contract_sha256,
+                "superseded_artifact_paths": superseded_paths,
+            },
+            max_attempts=settings.GENERATION_JOB_MAX_ATTEMPTS,
         )
         db.add(job)
-        await db.flush()  # Get job.id before commit
+        try:
+            await db.flush()  # Get job.id before commit
+        except IntegrityError:
+            # Another transaction can win after the optimistic lookup (for
+            # example, a future recovery worker). The partial unique index is
+            # the final arbiter. Roll back the failed insert, then return the
+            # winner instead of surfacing a misleading 500 to the caller.
+            await db.rollback()
+            existing_job = await _get_active_generation_job(db, req_data.document_id)
+            if existing_job is None:
+                raise
+            logger.info(
+                "Generation race resolved with existing job %s for document %s",
+                existing_job.id,
+                req_data.document_id,
+            )
+            return _active_job_response(existing_job)
 
         # 7. Update document status
         document.status = "generating"
@@ -464,18 +737,17 @@ async def generate_full_document(
         # 8. Commit transaction before starting background task
         await db.commit()
 
+        # The new job and release revocation are now durable. Blob cleanup can
+        # no longer leave SQL pointing at a file that was rolled back into use.
+        await _delete_superseded_artifacts(superseded_paths)
+
         logger.info(
             f"Created generation job {job.id} for document {req_data.document_id}"
         )
 
-        # 9. Start background generation task
-        background_tasks.add_task(
-            BackgroundJobService.generate_full_document_async,
-            document_id=req_data.document_id,
-            user_id=int(current_user.id),
-            job_id=int(job.id),
-            additional_requirements=req_data.requirements,
-        )
+        # 9. Do not attach execution to this web process. The committed row is
+        # the durable queue item; any API worker may lease it after this request
+        # returns, and a later worker may resume it after a restart.
 
         return AsyncGenerationResponse(
             job_id=int(job.id),

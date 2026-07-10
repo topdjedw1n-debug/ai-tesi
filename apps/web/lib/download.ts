@@ -13,5 +13,7 @@ export async function downloadDocumentDocx(documentId: number): Promise<void> {
   if (!response?.download_url) {
     throw new Error('Експорт не повернув посилання на файл')
   }
-  window.open(response.download_url, '_blank', 'noopener')
+  const apiOrigin = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+  const downloadUrl = new URL(response.download_url, apiOrigin).toString()
+  window.open(downloadUrl, '_blank', 'noopener')
 }

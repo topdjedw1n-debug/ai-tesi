@@ -77,7 +77,7 @@ export const INTAKE_FIELDS: IntakeField[] = [
     label: 'Тип роботи',
     type: 'select',
     requirementsLabel: 'Тип роботи',
-    defaultValue: 'Дипломна (бакалавр)',
+    defaultValue: 'Магістерська',
     options: [
       { value: 'Дипломна (бакалавр)', label: 'Дипломна (бакалавр)' },
       { value: 'Магістерська', label: 'Магістерська' },
@@ -95,11 +95,6 @@ export const INTAKE_FIELDS: IntakeField[] = [
     defaultValue: 'APA',
     options: [
       { value: 'APA', label: 'APA' },
-      { value: 'MLA', label: 'MLA' },
-      { value: 'Chicago', label: 'Chicago' },
-      { value: 'Harvard', label: 'Harvard' },
-      { value: 'ДСТУ 8302:2015', label: 'ДСТУ 8302:2015' },
-      { value: 'інший — у вимогах', label: 'Інший (описано у вимогах)' },
     ],
     half: true,
   },
@@ -142,6 +137,7 @@ export function buildDocumentPayload(values: IntakeFormValues): {
   topic: string
   language: string
   target_pages: number
+  citation_style: string
   additional_requirements: string
 } {
   const topic = String(values.topic ?? '').trim()
@@ -163,6 +159,7 @@ export function buildDocumentPayload(values: IntakeFormValues): {
     topic,
     language: String(values.language || 'it'),
     target_pages: Number(values.pages) || 0,
+    citation_style: 'apa',
     additional_requirements: lines.join('\n'),
   }
 }

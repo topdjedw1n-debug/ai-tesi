@@ -20,6 +20,16 @@ function gateTone(gate: ReleaseGate) {
 
 const DETECTOR_GATES = new Set(['plagiarism_proxy', 'ai_detection_proxy'])
 
+type DetectorForm = {
+  detector_name: string
+  result_percent: string
+  decision: '' | 'passed' | 'failed'
+  artifact_format: '' | 'docx' | 'pdf'
+  checked_at: string
+  report_ref: string
+  reason: string
+}
+
 export default function ProductionCaseDetailPage() {
   const params = useParams()
   const caseId = Number(params.id)
@@ -28,19 +38,7 @@ export default function ProductionCaseDetailPage() {
   const [loading, setLoading] = useState(true)
   const [isReleasing, setIsReleasing] = useState(false)
   const [savingDetector, setSavingDetector] = useState<string | null>(null)
-  const [detectorForms, setDetectorForms] = useState<
-    Record<
-      string,
-      {
-        detector_name: string
-        result_percent: string
-        threshold_percent: string
-        checked_at: string
-        report_ref: string
-        reason: string
-      }
-    >
-  >({})
+  const [detectorForms, setDetectorForms] = useState<Record<string, DetectorForm>>({})
 
   const blockers = useMemo(
     () =>
@@ -100,15 +98,23 @@ export default function ProductionCaseDetailPage() {
     }
   }
 
-  const detectorFormFor = (gateKey: string) =>
-    detectorForms[gateKey] || {
-      detector_name: gateKey === 'ai_detection_proxy' ? 'GPTZero' : 'Plagiarism Proxy',
+  const detectorFormFor = (gateKey: string): DetectorForm => {
+    const artifactBindings = productionCase?.document?.artifact_bindings
+    const defaultArtifactFormat: DetectorForm['artifact_format'] = artifactBindings?.docx
+      ? 'docx'
+      : artifactBindings?.pdf
+        ? 'pdf'
+        : ''
+    return detectorForms[gateKey] || {
+      detector_name: 'Compilatio',
       result_percent: '',
-      threshold_percent: gateKey === 'ai_detection_proxy' ? '35' : '15',
+      decision: '',
+      artifact_format: defaultArtifactFormat,
       checked_at: new Date().toISOString().slice(0, 16),
       report_ref: 'docs/phase1-runs/RUN-001.md',
       reason: '',
     }
+  }
 
   const updateDetectorForm = (
     gateKey: string,
@@ -126,12 +132,17 @@ export default function ProductionCaseDetailPage() {
   ) => {
     event.preventDefault()
     const form = detectorFormFor(gate.gate_key)
+    if (!form.decision || !form.artifact_format) {
+      toast.error('Choose a release decision and the exact artifact that was checked')
+      return
+    }
     try {
       setSavingDetector(gate.gate_key)
       await adminApiClient.recordDetectorResult(caseId, gate.gate_key, {
         detector_name: form.detector_name,
         result_percent: Number(form.result_percent),
-        threshold_percent: Number(form.threshold_percent),
+        decision: form.decision,
+        artifact_format: form.artifact_format,
         checked_at: new Date(form.checked_at).toISOString(),
         report_ref: form.report_ref,
         reason: form.reason,
@@ -139,7 +150,7 @@ export default function ProductionCaseDetailPage() {
       toast.success('Detector result recorded')
       await load()
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to record detector result')
+      toast.error(error?.message || 'Failed to record release decision')
     } finally {
       setSavingDetector(null)
     }
@@ -201,6 +212,9 @@ export default function ProductionCaseDetailPage() {
           {gates.map((gate) => {
             const form = detectorFormFor(gate.gate_key)
             const isDetectorGate = DETECTOR_GATES.has(gate.gate_key)
+            const selectedArtifactBinding = form.artifact_format
+              ? productionCase.document?.artifact_bindings?.[form.artifact_format]
+              : undefined
             return (
               <div key={gate.gate_key} className={`rounded-lg border p-4 ${gateTone(gate)}`}>
                 <div className="flex items-start justify-between gap-3">
@@ -222,9 +236,12 @@ export default function ProductionCaseDetailPage() {
                         [
                           'detector_name',
                           'result_percent',
-                          'threshold_percent',
+                          'decision',
                           'checked_at',
                           'report_ref',
+                          'artifact_format',
+                          'artifact_identifier',
+                          'binding_status',
                         ].includes(key)
                       )
                       .map(([key, value]) => (
@@ -247,17 +264,16 @@ export default function ProductionCaseDetailPage() {
                   >
                     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                       <label className="text-xs text-gray-300">
-                        Detector
+                        Release detector
                         <input
                           value={form.detector_name}
-                          onChange={(event) =>
-                            updateDetectorForm(gate.gate_key, {
-                              detector_name: event.target.value,
-                            })
-                          }
-                          className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
+                          readOnly
+                          className="mt-1 w-full rounded border border-gray-600 bg-gray-900 px-2 py-1.5 text-sm text-gray-300"
                           required
                         />
+                        <span className="mt-1 block text-gray-500">
+                          GPTZero is diagnostic only and cannot authorize release.
+                        </span>
                       </label>
                       <label className="text-xs text-gray-300">
                         Checked at
@@ -291,23 +307,55 @@ export default function ProductionCaseDetailPage() {
                         />
                       </label>
                       <label className="text-xs text-gray-300">
-                        Threshold %
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step="0.01"
-                          value={form.threshold_percent}
+                        Release decision
+                        <select
+                          value={form.decision}
                           onChange={(event) =>
                             updateDetectorForm(gate.gate_key, {
-                              threshold_percent: event.target.value,
+                              decision: event.target.value as DetectorForm['decision'],
                             })
                           }
                           className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
                           required
-                        />
+                        >
+                          <option value="">Choose passed or failed</option>
+                          <option value="passed">Passed</option>
+                          <option value="failed">Failed</option>
+                        </select>
                       </label>
                     </div>
+                    <label className="block text-xs text-gray-300">
+                      Checked artifact
+                      <select
+                        value={form.artifact_format}
+                        onChange={(event) =>
+                          updateDetectorForm(gate.gate_key, {
+                            artifact_format: event.target.value as DetectorForm['artifact_format'],
+                          })
+                        }
+                        className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
+                        required
+                      >
+                        <option value="">Choose the generated file you checked</option>
+                        {(['docx', 'pdf'] as const).map((artifactFormat) => {
+                          const binding = productionCase.document?.artifact_bindings?.[artifactFormat]
+                          return binding ? (
+                            <option key={artifactFormat} value={artifactFormat}>
+                              {artifactFormat.toUpperCase()} · {binding.identifier}
+                            </option>
+                          ) : null
+                        })}
+                      </select>
+                      <span className="mt-1 block text-gray-500">
+                        Plagiarism and AI decisions must both use this same final file.
+                      </span>
+                    </label>
+                    {selectedArtifactBinding && (
+                      <p className="rounded border border-gray-700 bg-gray-950 p-2 text-xs text-gray-300">
+                        Server artifact ID: {selectedArtifactBinding.identifier}. This ID is attached
+                        automatically and cannot be supplied by the browser.
+                      </p>
+                    )}
                     <label className="block text-xs text-gray-300">
                       Run report reference
                       <input
@@ -322,7 +370,7 @@ export default function ProductionCaseDetailPage() {
                       />
                     </label>
                     <label className="block text-xs text-gray-300">
-                      Reason
+                      Release-manager rationale
                       <textarea
                         value={form.reason}
                         onChange={(event) =>
@@ -339,7 +387,7 @@ export default function ProductionCaseDetailPage() {
                       disabled={savingDetector === gate.gate_key}
                       className="rounded bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-500 disabled:opacity-50"
                     >
-                      {savingDetector === gate.gate_key ? 'Saving...' : 'Record detector result'}
+                      {savingDetector === gate.gate_key ? 'Saving...' : 'Record release decision'}
                     </button>
                   </form>
                 )}

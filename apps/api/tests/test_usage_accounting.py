@@ -293,6 +293,46 @@ async def test_job_partial_totals_survive_midrun_failure(
     assert refreshed_job.total_tokens == 2400
 
 
+@pytest.mark.asyncio
+async def test_recovered_attempt_adds_to_persisted_usage_baseline(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings", harness_mod.make_settings()
+    )
+    user, document = await harness_mod.seed_document(
+        db_session, section_titles=("Recovered section",)
+    )
+    job = await _seed_job(db_session, user, document)
+    job_id = int(job.id)
+    job.total_tokens = 2400
+    job.cost_cents = 75
+    await db_session.commit()
+
+    with ExitStack() as stack:
+        harness_mod.pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            generate_side_effect=[None],
+        )
+        _capturing_generator_patch(
+            stack,
+            [harness_mod.section_result(1, [harness_mod.SOURCE_A])],
+            tokens_per_call=1200,
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=document.id,
+            user_id=user.id,
+            job_id=job_id,
+        )
+
+    db_session.expire_all()
+    recovered_job = await db_session.get(AIGenerationJob, job_id)
+    assert recovered_job.total_tokens == 3600
+    assert recovered_job.cost_cents > 75
+
+
 # ---------------------------------------------------------------------------
 # Aggregation surfaces
 # ---------------------------------------------------------------------------

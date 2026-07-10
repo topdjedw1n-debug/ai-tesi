@@ -372,6 +372,7 @@ async def test_pipeline_writes_events_for_all_stages(
         "score": 20.0,
         "reason": None,
         "provider": "mock",
+        "blocking": False,
     }
 
     summary = by_type["verification_summary"][0]

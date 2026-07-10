@@ -19,6 +19,7 @@ interface Document {
   title: string
   topic: string
   status: string
+  release_status: string
   created_at: string
   updated_at: string
   word_count: number
@@ -41,6 +42,7 @@ export function DocumentsList() {
           title: doc.title || `Робота ${doc.id}`,
           topic: doc.topic || '',
           status: doc.status || 'draft',
+          release_status: doc.release_status || 'not_ready',
           created_at: doc.created_at,
           updated_at: doc.updated_at || doc.created_at,
           word_count: doc.word_count || 0,
@@ -125,7 +127,7 @@ export function DocumentsList() {
         ) : (
           <div className="space-y-4" data-testid="documents-list-container">
             {documents.map((document) => {
-              const status = documentStatus(document.status)
+              const status = documentStatus(document.status, document.release_status)
               return (
                 <div key={document.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors" data-testid={`document-item-${document.id}`}>
                   <div className="flex items-start justify-between">
@@ -159,7 +161,7 @@ export function DocumentsList() {
                             <EyeIcon className="h-4 w-4" />
                           </Link>
                         </Button>
-                        {document.status === 'completed' && (
+                        {document.status === 'completed' && document.release_status === 'released' && (
                           <Button
                             variant="ghost"
                             size="sm"

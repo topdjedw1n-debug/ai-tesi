@@ -123,7 +123,7 @@ services:
       /bin/sh -c "
       /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
       /usr/bin/mc mb myminio/ai-thesis-documents --ignore-existing;
-      /usr/bin/mc policy set public myminio/ai-thesis-documents;
+      /usr/bin/mc anonymous set none myminio/ai-thesis-documents;
       exit 0;
       "
 

@@ -81,7 +81,8 @@ class PromptBuilder:
             )
             citation_rules = (
                 "- Cite ONLY sources from the AVAILABLE SOURCES list above, using "
-                "their exact key in [Key, Year] form (e.g. [Rossi2021, 2021]).\n"
+                "their exact internal marker (e.g. [Rossi2021]). The system "
+                "will convert it to the selected citation style.\n"
                 "- NEVER invent, alter, or cite any source that is not in that "
                 "list. If a statement cannot be supported by a listed source, "
                 "write it WITHOUT a citation — do not fabricate one.\n"

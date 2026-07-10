@@ -1,7 +1,7 @@
 """Production case schemas for the internal QA-first platform."""
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -65,6 +65,8 @@ class ProductionCaseCreate(BaseModel):
 
 
 class ProductionCaseUpdate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     manager_id: int | None = Field(default=None, gt=0)
     editor_id: int | None = Field(default=None, gt=0)
     deadline_at: datetime | None = None
@@ -75,8 +77,6 @@ class ProductionCaseUpdate(BaseModel):
     qa_status: str | None = None
     editorial_status: str | None = None
     payment_status: str | None = None
-    delivery_status: str | None = None
-    release_status: str | None = None
     human_minutes_budget: int | None = Field(default=None, ge=0)
     human_minutes_used: int | None = Field(default=None, ge=0)
     cost_cents: int | None = Field(default=None, ge=0)
@@ -88,8 +88,6 @@ class ProductionCaseUpdate(BaseModel):
         "qa_status",
         "editorial_status",
         "payment_status",
-        "delivery_status",
-        "release_status",
     )
     @classmethod
     def validate_case_status(cls, value: str | None) -> str | None:
@@ -121,6 +119,11 @@ class ProductionCaseResponse(BaseModel):
     ai_cost_usd_cents: int = 0
     ai_cost_eur_cents: int = 0
     release_notes: str | None = None
+    released_docx_path: str | None = None
+    released_pdf_path: str | None = None
+    released_docx_sha256: str | None = None
+    released_pdf_sha256: str | None = None
+    release_version: int = 0
     released_at: datetime | None = None
     created_at: datetime | None = None
     updated_at: datetime | None = None
@@ -164,9 +167,12 @@ class GateOverrideRequest(BaseModel):
 
 
 class ManualDetectorResultRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     detector_name: str = Field(min_length=2, max_length=200)
     result_percent: float = Field(ge=0, le=100)
-    threshold_percent: float = Field(ge=0, le=100)
+    decision: Literal["passed", "failed"]
+    artifact_format: Literal["docx", "pdf"]
     checked_at: datetime
     report_ref: str = Field(min_length=3, max_length=500)
     reason: str = Field(min_length=10, max_length=2000)

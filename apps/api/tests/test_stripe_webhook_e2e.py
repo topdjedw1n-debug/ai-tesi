@@ -234,7 +234,7 @@ async def test_webhook_payment_intent_succeeded_e2e(
 
     Expected:
     - Payment status: pending → completed
-    - Document status: payment_pending → generating
+    - Document remains payment_pending until the webhook endpoint durably queues it
     - Payment method saved
     """
     service = PaymentService(db_session)
@@ -276,9 +276,11 @@ async def test_webhook_payment_intent_succeeded_e2e(
     assert result.completed_at is not None
     assert result.payment_method == "card"
 
-    # VERIFY: Document status updated
+    # The payment service records payment only. The webhook endpoint owns the
+    # durable enqueue, preventing a paid document from being marked as running
+    # before a worker has accepted it.
     await db_session.refresh(test_document)
-    assert test_document.status == "generating"
+    assert test_document.status == "payment_pending"
 
     print("✅ Test 1 PASSED: payment_intent.succeeded handled correctly")
 

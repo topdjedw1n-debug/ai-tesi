@@ -475,13 +475,14 @@ async def test_pipeline_panel_feedback_reaches_regeneration_prompt(
         )
         assert "reviewer feedback" in second_call_requirements
         assert "Too shallow" in second_call_requirements
-        # Attempt 1 had no feedback yet
+        # Attempt 1 had no reviewer feedback yet, but the uploaded
+        # methodology is always part of the generation contract.
         first_call_requirements = (
             mocks["generate_section"]
             .call_args_list[0]
             .kwargs["additional_requirements"]
         )
-        assert first_call_requirements is None
+        assert first_call_requirements == "Extracted university methodology"
         assert panel_mock.call_count == 2
 
     refreshed = (
@@ -585,7 +586,11 @@ async def test_pipeline_panel_skipped_on_doomed_attempts_and_stale_feedback_drop
         assert "Too shallow" in calls[1].kwargs["additional_requirements"]
         # Attempt 3: panel didn't flag attempt 2 (it was skipped) -> stale
         # attempt-1 feedback must be DROPPED, prompt back to the original
-        assert calls[2].kwargs["additional_requirements"] is None
+        # methodology requirements.
+        assert (
+            calls[2].kwargs["additional_requirements"]
+            == "Extracted university methodology"
+        )
 
 
 @pytest.mark.asyncio

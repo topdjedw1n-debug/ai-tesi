@@ -53,7 +53,7 @@ from app.core.config import settings
 logger = logging.getLogger(__name__)
 
 CACHE_PREFIX = "citation_verify"
-CACHE_SCHEMA_VERSION = 1
+CACHE_SCHEMA_VERSION = 2
 CACHE_TTL_SECONDS = 90 * 24 * 3600  # 90 days
 FUZZY_MATCH_THRESHOLD = 0.90
 YEAR_TOLERANCE = 1
@@ -164,6 +164,20 @@ def normalize_title(title: str | None) -> str:
     normalized = normalized.lower()
     normalized = re.sub(r"[^\w\s]", " ", normalized)
     return re.sub(r"\s+", " ", normalized).strip()
+
+
+def normalized_author_surnames(authors: list[str] | None) -> set[str]:
+    """Normalize author surnames for deterministic identity comparison."""
+    surnames: set[str] = set()
+    for author in authors or []:
+        value = (author or "").strip()
+        if not value:
+            continue
+        surname = value.split(",", 1)[0] if "," in value else value.split()[-1]
+        normalized = normalize_title(surname).replace(" ", "")
+        if normalized:
+            surnames.add(normalized)
+    return surnames
 
 
 def normalize_doi(doi: str | None) -> str | None:
@@ -337,7 +351,13 @@ class CitationVerifier:
                 reason="insufficient_metadata",
             )
 
-        cache_key = self._cache_key(norm_doi, norm_arxiv, norm_title, source.year)
+        cache_key = self._cache_key(
+            norm_doi,
+            norm_arxiv,
+            norm_title,
+            source.year,
+            source.authors,
+        )
         cached = await self._cache_get(cache_key)
         if cached is not None:
             return cached
@@ -356,13 +376,13 @@ class CitationVerifier:
         # the canonical DOI. A clean DOI 404 is deliberately NOT treated as
         # an authoritative no-match for the same reason.
         if norm_doi:
-            outcome = await self._query_crossref_by_doi(norm_doi, norm_title)
+            outcome = await self._query_crossref_by_doi(norm_doi, source, norm_title)
             if outcome.matched:
                 result = outcome.matched
             any_error = any_error or outcome.errored
 
         if result is None and norm_arxiv:
-            outcome = await self._query_arxiv_by_id(norm_arxiv, norm_title)
+            outcome = await self._query_arxiv_by_id(norm_arxiv, source, norm_title)
             if outcome.matched:
                 result = outcome.matched
             any_error = any_error or outcome.errored
@@ -423,7 +443,7 @@ class CitationVerifier:
     # ------------------------------------------------------------------
 
     def _match_candidate(
-        self, norm_title: str, source_year: int | None, candidate: dict
+        self, source: SourceInput, norm_title: str, candidate: dict
     ) -> float | None:
         """Score a candidate against the source; None if it doesn't match."""
         candidate_title = normalize_title(candidate.get("title"))
@@ -437,10 +457,14 @@ class CitationVerifier:
                 return None
         candidate_year = candidate.get("year")
         if (
-            source_year is not None
+            source.year is not None
             and candidate_year is not None
-            and abs(source_year - candidate_year) > YEAR_TOLERANCE
+            and abs(source.year - candidate_year) > YEAR_TOLERANCE
         ):
+            return None
+        asserted_authors = normalized_author_surnames(source.authors)
+        canonical_authors = normalized_author_surnames(candidate.get("authors"))
+        if asserted_authors and not (asserted_authors & canonical_authors):
             return None
         return score
 
@@ -450,15 +474,28 @@ class CitationVerifier:
         best: dict | None = None
         best_score = 0.0
         for candidate in candidates:
-            score = self._match_candidate(norm_title, source.year, candidate)
+            score = self._match_candidate(source, norm_title, candidate)
             if score is not None and score > best_score:
                 best, best_score = candidate, score
         return (best, best_score) if best is not None else None
 
-    def _identifier_score(self, norm_title: str, candidate: dict) -> float:
+    def _identifier_score(
+        self, source: SourceInput, norm_title: str, candidate: dict
+    ) -> float:
         """Score for identifier (DOI/arXiv id) hits: the identifier is
         authoritative that the work exists; the title similarity is carried
         in match_score so the integration layer can flag mismatches."""
+        candidate_year = candidate.get("year")
+        if (
+            source.year is not None
+            and candidate_year is not None
+            and abs(source.year - candidate_year) > YEAR_TOLERANCE
+        ):
+            return 0.0
+        asserted_authors = normalized_author_surnames(source.authors)
+        canonical_authors = normalized_author_surnames(candidate.get("authors"))
+        if asserted_authors and not (asserted_authors & canonical_authors):
+            return 0.0
         if not norm_title:
             return 1.0
         candidate_title = normalize_title(candidate.get("title"))
@@ -545,7 +582,7 @@ class CitationVerifier:
     # ------------------------------------------------------------------
 
     async def _query_crossref_by_doi(
-        self, norm_doi: str, norm_title: str
+        self, norm_doi: str, source: SourceInput, norm_title: str
     ) -> _ProviderOutcome:
         status, response = await self._fetch(
             PROVIDER_CROSSREF, f"{self.crossref_url}/works/{norm_doi}"
@@ -562,7 +599,7 @@ class CitationVerifier:
         if not candidate.get("title"):
             return _ProviderOutcome()
         candidate["doi"] = candidate.get("doi") or norm_doi
-        score = self._identifier_score(norm_title, candidate)
+        score = self._identifier_score(source, norm_title, candidate)
         return _ProviderOutcome(
             matched=self._result_from_candidate(candidate, PROVIDER_CROSSREF, score)
         )
@@ -648,7 +685,7 @@ class CitationVerifier:
         )
 
     async def _query_arxiv_by_id(
-        self, norm_arxiv: str, norm_title: str
+        self, norm_arxiv: str, source: SourceInput, norm_title: str
     ) -> _ProviderOutcome:
         status, response = await self._fetch(
             PROVIDER_ARXIV,
@@ -665,7 +702,7 @@ class CitationVerifier:
             title = candidate.get("title")
             if not title or title.strip().lower() == "error":
                 continue
-            score = self._identifier_score(norm_title, candidate)
+            score = self._identifier_score(source, norm_title, candidate)
             return _ProviderOutcome(
                 matched=self._result_from_candidate(candidate, PROVIDER_ARXIV, score)
             )
@@ -807,15 +844,14 @@ class CitationVerifier:
         norm_arxiv: str | None,
         norm_title: str,
         year: int | None,
+        authors: list[str] | None,
     ) -> str:
-        if norm_doi:
-            return f"{CACHE_PREFIX}:doi:{norm_doi}"
-        if norm_arxiv:
-            # Version-agnostic: 1706.03762v3 and v1 are the same work
-            versionless = re.sub(r"v\d+$", "", norm_arxiv)
-            return f"{CACHE_PREFIX}:arxiv:{versionless}"
-        digest = hashlib.sha256(f"{norm_title}:{year or ''}".encode()).hexdigest()
-        return f"{CACHE_PREFIX}:title:{digest}"
+        author_key = ",".join(sorted(normalized_author_surnames(authors)))
+        identifier = norm_doi or re.sub(r"v\d+$", "", norm_arxiv or "")
+        digest = hashlib.sha256(
+            f"{identifier}:{norm_title}:{year or ''}:{author_key}".encode()
+        ).hexdigest()
+        return f"{CACHE_PREFIX}:v{CACHE_SCHEMA_VERSION}:{digest}"
 
     async def _get_redis(self) -> aioredis.Redis | None:
         if self._redis is not None:

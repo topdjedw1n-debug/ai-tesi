@@ -253,6 +253,28 @@ class SectionGenerator:
                     if re.search(re.escape(key) + r"(?![0-9A-Za-z])", section_content):
                         pack_keys_used.append(key)
                         citation_map[key] = packed.source
+
+                # Convert internal stable keys into actual in-text citations
+                # only after exact source resolution. Internal markers must
+                # never leak into the delivered thesis.
+                for packed in source_pack.sources:
+                    if packed.citation_key not in citation_map:
+                        continue
+                    source = packed.source
+                    if not source.authors or not source.year:
+                        continue
+                    suffix_match = re.search(r"\d{4}([a-z])$", packed.citation_key)
+                    year_suffix = suffix_match.group(1) if suffix_match else ""
+                    formatted = self.citation_formatter.format_intext(
+                        source.authors,
+                        int(source.year),
+                        style=citation_style,
+                        year_suffix=year_suffix,
+                    )
+                    marker = re.compile(
+                        rf"\[{re.escape(packed.citation_key)}(?:,\s*\d{{4}})?\]"
+                    )
+                    section_content = marker.sub(formatted, section_content)
             else:
                 # Legacy path: map citations to sources using scoring algorithm.
                 for citation in citations:
@@ -279,8 +301,26 @@ class SectionGenerator:
             # Generate bibliography entries
             for doc in source_docs:
                 if doc in citation_map.values():
+                    year_suffix = ""
+                    if source_pack is not None:
+                        packed_match = next(
+                            (
+                                packed
+                                for packed in source_pack.sources
+                                if packed.source == doc
+                                and packed.citation_key in citation_map
+                            ),
+                            None,
+                        )
+                        if packed_match is not None:
+                            suffix_match = re.search(
+                                r"\d{4}([a-z])$", packed_match.citation_key
+                            )
+                            year_suffix = suffix_match.group(1) if suffix_match else ""
                     reference = self.citation_formatter.format_reference(
-                        doc.to_source_document(), style=citation_style
+                        doc.to_source_document(),
+                        style=citation_style,
+                        year_suffix=year_suffix,
                     )
                     bibliography.append(reference)
 
@@ -377,35 +417,36 @@ class SectionGenerator:
         Returns:
             Match score (higher = better match, 0 = no match)
 
-        Scoring algorithm:
-            - Exact year match: +50 points
-            - Author last name match: +30 points per matching author
-            - Title word overlap: +20 points
+        A year is only a disambiguator, never identity evidence. At least one
+        cited author must match the source, and an explicit year must agree.
         """
-        score = 0.0
+        cited_year = citation.get("year")
+        if cited_year and str(source.year) != str(cited_year):
+            return 0.0
 
-        # 1. Year matching (most reliable indicator)
-        if citation.get("year") and str(source.year) == str(citation["year"]):
+        def _last_name(author: str) -> str:
+            author = author.strip()
+            if not author:
+                return ""
+            surname = author.split(",", 1)[0] if "," in author else author.split()[-1]
+            return re.sub(r"[^\w-]", "", surname, flags=re.UNICODE).casefold()
+
+        # Author identity is mandatory on this legacy path. Stable source-pack
+        # citations use exact keys and never come through this fuzzy matcher.
+        citation_authors = citation.get("authors", [])
+        cited_last_names = {_last_name(author) for author in citation_authors}
+        source_last_names = {_last_name(author) for author in (source.authors or [])}
+        cited_last_names.discard("")
+        source_last_names.discard("")
+        matching_authors = cited_last_names & source_last_names
+        if not matching_authors:
+            return 0.0
+
+        score = 30.0 * len(matching_authors)
+        if cited_year:
             score += 50.0
 
-        # 2. Author matching (check last names)
-        citation_authors = citation.get("authors", [])
-        if citation_authors and source.authors:
-            for citation_author in citation_authors:
-                # Extract last name (last word in author string)
-                citation_last_name = citation_author.strip().split()[-1].lower()
-
-                for source_author in source.authors:
-                    source_last_name = source_author.strip().split()[-1].lower()
-
-                    if (
-                        citation_last_name in source_last_name
-                        or source_last_name in citation_last_name
-                    ):
-                        score += 30.0
-                        break  # Count each citation author only once
-
-        # 3. Title similarity (check for word overlap)
+        # Title overlap is a small tie-breaker after identity evidence exists.
         citation_text = citation.get("original", "").lower()
         title_words = set(source.title.lower().split())
 

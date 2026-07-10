@@ -17,6 +17,7 @@ Created: 2025-11-29
 Related to: Storage Service implementation (MVP_PLAN.md)
 """
 
+import hashlib
 import logging
 from collections.abc import AsyncGenerator
 from datetime import timedelta
@@ -259,6 +260,25 @@ class StorageService:
             return True
         except S3Error:
             return False
+
+    async def get_file_size(self, file_path: str) -> int:
+        """Return stored object size, raising if storage cannot confirm it."""
+        bucket_name, object_name = self._parse_path(file_path)
+        stat = self.client.stat_object(bucket_name, object_name)
+        return int(stat.size)
+
+    async def get_file_sha256(self, file_path: str) -> str:
+        """Hash the exact stored bytes so review cannot bind to a mutable path."""
+        bucket_name, object_name = self._parse_path(file_path)
+        response = self.client.get_object(bucket_name, object_name)
+        digest = hashlib.sha256()
+        try:
+            for chunk in response.stream(1024 * 1024):
+                digest.update(chunk)
+        finally:
+            response.close()
+            response.release_conn()
+        return digest.hexdigest()
 
     async def get_presigned_url(
         self, file_path: str, expiry_seconds: int = 3600

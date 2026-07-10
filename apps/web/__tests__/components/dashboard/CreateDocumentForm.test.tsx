@@ -26,10 +26,16 @@ jest.mock('@/lib/api', () => ({
   apiClient: {
     get: jest.fn(),
     post: jest.fn(),
+    delete: jest.fn(),
   },
   getAccessToken: jest.fn(() => 'test-token'),
   API_ENDPOINTS: {
-    DOCUMENTS: { CREATE: '/api/v1/documents' },
+    DOCUMENTS: {
+      CREATE: '/api/v1/documents',
+      UPLOAD_REQUIREMENTS: (id: number) =>
+        `/api/v1/documents/${id}/custom-requirements/upload`,
+      DELETE: (id: number) => `/api/v1/documents/${id}`,
+    },
     GENERATE: { FULL: '/api/v1/generate/full-document' },
     PRICING: { CURRENT: '/api/v1/pricing/current' },
   },
@@ -78,19 +84,23 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     fireEvent.change(screen.getByTestId('document-deadline-input'), {
       target: { value: '2026-07-15' },
     })
-    fireEvent.change(screen.getByTestId('document-citationStyle-input'), {
-      target: { value: 'Chicago' },
-    })
     fireEvent.change(screen.getByTestId('document-requirements-input'), {
       target: { value: 'Use the university methodology template.' },
     })
-    fireEvent.click(screen.getByTestId('create-document-submit'))
+    const methodology = new File(['university rules'], 'linee-guida.pdf', {
+      type: 'application/pdf',
+    })
+    fireEvent.change(screen.getByTestId('document-methodology-input'), {
+      target: { files: [methodology] },
+    })
+    fireEvent.submit(screen.getByTestId('create-document-form'))
 
     await waitFor(() => {
       expect(apiClient.post).toHaveBeenCalledWith(
         '/api/v1/documents',
         expect.objectContaining({
           target_pages: 45,
+          citation_style: 'apa',
           additional_requirements: expect.stringContaining('Deadline: 2026-07-15'),
         }),
         expect.any(Object)
@@ -98,7 +108,8 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     })
     const payload = (apiClient.post as jest.Mock).mock.calls[0][1]
     expect(payload.title).toContain('artificial intelligence')
-    expect(payload.additional_requirements).toContain('Citation style: Chicago')
+    expect(payload.additional_requirements).toContain('Тип роботи: Магістерська')
+    expect(payload.additional_requirements).toContain('Citation style: APA')
     expect(payload.additional_requirements).toContain('Use the university methodology template.')
 
     // Free MVP mode: generation is kicked off right after the draft.
@@ -114,9 +125,42 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     expect(screen.queryByText(/потрібна оплата/i)).not.toBeInTheDocument()
   })
 
+  it('uploads the selected university methodology before generation starts', async () => {
+    render(<CreateDocumentForm />)
+
+    fireEvent.change(screen.getByTestId('document-topic-input'), {
+      target: { value: 'Corporate governance in Italian family businesses' },
+    })
+    const methodology = new File(['university rules'], 'linee-guida.pdf', {
+      type: 'application/pdf',
+    })
+    fireEvent.change(screen.getByTestId('document-methodology-input'), {
+      target: { files: [methodology] },
+    })
+    fireEvent.submit(screen.getByTestId('create-document-form'))
+
+    await waitFor(() => {
+      expect(apiClient.post).toHaveBeenCalledWith(
+        '/api/v1/documents/123/custom-requirements/upload',
+        expect.any(FormData),
+        expect.any(Object)
+      )
+    })
+
+    const calls = (apiClient.post as jest.Mock).mock.calls
+    const uploadIndex = calls.findIndex(
+      ([url]) => url === '/api/v1/documents/123/custom-requirements/upload'
+    )
+    const generationIndex = calls.findIndex(
+      ([url]) => url === '/api/v1/generate/full-document'
+    )
+    expect(uploadIndex).toBeGreaterThan(-1)
+    expect(generationIndex).toBeGreaterThan(uploadIndex)
+  })
+
   it('shows a validation error when the topic is missing', async () => {
     render(<CreateDocumentForm />)
-    fireEvent.click(screen.getByTestId('create-document-submit'))
+    fireEvent.submit(screen.getByTestId('create-document-form'))
     await waitFor(() => {
       expect(screen.getByText('Обов’язкове поле')).toBeInTheDocument()
     })

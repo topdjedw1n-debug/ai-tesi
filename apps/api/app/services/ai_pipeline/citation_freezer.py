@@ -27,7 +27,7 @@ _QUOTE_PLACEHOLDER = "⟦Q{n}⟧"
 # [Author, Year] / [Author et al., Year] — identical to
 # CitationFormatter.extract_citations_from_text so freezing and the citation
 # formatter always agree on what a marker is.
-_CITATION_RE = re.compile(r"\[[^\]]+,\s*\d{4}\]")
+_CITATION_RE = re.compile(r"[\[(][^\]\)]+,\s*\d{4}[a-z]?[\])]")
 
 # Direct quotations. Straight ("), curly (“ ”) and guillemet (« ») pairs; the
 # body is non-greedy and must not contain the opening delimiter again.

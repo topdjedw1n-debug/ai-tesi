@@ -32,6 +32,7 @@ from app.api.v1.endpoints import (
 from app.api.v1.endpoints import (
     settings as settings_endpoints,
 )
+from app.api.v1.endpoints import user as user_endpoints
 from app.core.config import settings
 from app.core.database import init_db
 from app.core.exceptions import APIException
@@ -40,6 +41,7 @@ from app.core.monitoring import setup_prometheus, setup_sentry
 from app.middleware.csrf import CSRFMiddleware
 from app.middleware.maintenance import MaintenanceModeMiddleware
 from app.middleware.rate_limit import close_redis, init_redis, setup_rate_limiter
+from app.services.generation_worker import GenerationWorker
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -48,17 +50,27 @@ logging.basicConfig(level=logging.INFO)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
+    generation_worker: GenerationWorker | None = None
     # Startup
     with logger.contextualize(correlation_id="startup"):
         logger.info("Starting Thesica API...")
         await init_db()
         logger.info("Database initialized")
         await init_redis()
-    yield
-    # Shutdown
-    with logger.contextualize(correlation_id="shutdown"):
-        logger.info("Shutting down Thesica API...")
-        await close_redis()
+        if settings.GENERATION_WORKER_ENABLED:
+            generation_worker = GenerationWorker()
+            await generation_worker.start()
+            app.state.generation_worker = generation_worker
+    try:
+        yield
+    finally:
+        # Stop execution before closing Redis. Cancellation requeues the leased
+        # job immediately and deliberately preserves its checkpoint.
+        with logger.contextualize(correlation_id="shutdown"):
+            logger.info("Shutting down Thesica API...")
+            if generation_worker is not None:
+                await generation_worker.stop()
+            await close_redis()
 
 
 # Create FastAPI application
@@ -172,6 +184,7 @@ async def health_check():
 
 # Include API routers
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
+app.include_router(user_endpoints.router, prefix="/api/v1/user", tags=["user"])
 app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation"])
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])

@@ -39,7 +39,7 @@ ClaimVerdictName = Literal["supported", "unsupported", "uncertain"]
 CheckStatusName = Literal["passed", "failed", "unchecked"]
 # "warning" = mark_only policy let the pipeline continue despite not_found
 # sources; release gates surface it instead of a plain pass.
-CitationGateStatus = Literal["passed", "failed", "warning"]
+CitationGateStatus = Literal["passed", "failed", "warning", "unchecked"]
 
 
 class _FrozenPayload(BaseModel):
@@ -89,6 +89,8 @@ class CitationGatePayload(_FrozenPayload):
     total: int | None = None
     not_found_count: int | None = None
     not_found_titles: list[str] | None = None
+    mismatched_count: int | None = None
+    mismatched_titles: list[str] | None = None
 
 
 class IntegrityReportPayload(_FrozenPayload):
@@ -97,6 +99,8 @@ class IntegrityReportPayload(_FrozenPayload):
     policy: Policy
     not_found_count: int
     not_found_titles: list[str]
+    mismatched_count: int | None = None
+    mismatched_titles: list[str] | None = None
 
 
 class ErrorPayload(_FrozenPayload):

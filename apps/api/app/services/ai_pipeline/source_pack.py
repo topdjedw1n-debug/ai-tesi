@@ -465,19 +465,27 @@ class SourcePackBuilder:
         ordered = sorted(
             selected, key=lambda item: (-item[0], (item[1].title or "").lower())
         )
-        used: set[str] = set()
         packed: list[PackedSource] = []
+        groups: dict[str, list[tuple[float, SourceDoc, str]]] = {}
         for score, src in ordered:
             base = SourcePackBuilder._base_key(src)
-            key = base
-            suffix = ord("b")
-            while key.lower() in used:
-                key = f"{base}{chr(suffix)}"
-                suffix += 1
-            used.add(key.lower())
-            packed.append(
-                PackedSource(source=src, citation_key=key, on_topic_score=score)
-            )
+            groups.setdefault(base.casefold(), []).append((score, src, base))
+
+        for items in groups.values():
+            collision = len(items) > 1
+            for index, (score, src, base) in enumerate(items):
+                # APA requires every same-author/same-year member to carry a
+                # suffix (2021a, 2021b), including the first one. Using an
+                # unsuffixed first source would make the in-text citation and
+                # bibliography ambiguous.
+                suffix = SourcePackBuilder._alpha_suffix(index) if collision else ""
+                packed.append(
+                    PackedSource(
+                        source=src,
+                        citation_key=f"{base}{suffix}",
+                        on_topic_score=score,
+                    )
+                )
         # Present most-relevant first for prompts.
         packed.sort(key=lambda ps: ps.on_topic_score, reverse=True)
         return packed
@@ -487,9 +495,11 @@ class SourcePackBuilder:
         """AuthorYear key, e.g. 'Rossi2021' (fallbacks: title word, 'nd')."""
         name = ""
         if src.authors:
-            last = ascii_fold(src.authors[0]).strip().split()
-            if last:
-                name = "".join(c for c in last[-1] if c.isalnum())
+            author = ascii_fold(src.authors[0]).strip()
+            author_parts = author.split()
+            if author_parts:
+                surname = author.split(",", 1)[0] if "," in author else author_parts[-1]
+                name = "".join(c for c in surname if c.isalnum())
         if not name:
             for tok in ascii_fold(src.title or "").split():
                 cleaned = "".join(c for c in tok if c.isalnum())
@@ -500,3 +510,13 @@ class SourcePackBuilder:
             name = "Source"
         year = str(src.year) if src.year else "nd"
         return f"{name}{year}"
+
+    @staticmethod
+    def _alpha_suffix(index: int) -> str:
+        """Return deterministic a..z, aa.. suffixes for rare large collisions."""
+        value = index + 1
+        chars: list[str] = []
+        while value:
+            value, remainder = divmod(value - 1, 26)
+            chars.append(chr(ord("a") + remainder))
+        return "".join(reversed(chars))

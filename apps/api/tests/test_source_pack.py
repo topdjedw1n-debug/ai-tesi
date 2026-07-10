@@ -54,10 +54,20 @@ def test_citation_key_stability_and_collision_suffix():
     b = _edu_source("Second study on AI tutoring", authors=["Rossi"], year=2021)
     packed = builder._assign_keys([(0.9, a), (0.8, b)])
     keys = sorted(p.citation_key for p in packed)
-    assert keys == ["Rossi2021", "Rossi2021b"]
+    assert keys == ["Rossi2021a", "Rossi2021b"]
     # Deterministic: same input -> same keys.
     packed2 = builder._assign_keys([(0.9, a), (0.8, b)])
     assert sorted(p.citation_key for p in packed2) == keys
+
+
+def test_citation_key_uses_surname_for_comma_form_author():
+    source = _edu_source(
+        "Italian higher education study",
+        authors=["Rossi, Mario"],
+        year=2021,
+    )
+    packed = SourcePackBuilder._assign_keys([(0.9, source)])
+    assert packed[0].citation_key == "Rossi2021"
 
 
 def test_base_key_fallbacks():

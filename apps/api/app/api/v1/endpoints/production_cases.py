@@ -57,7 +57,9 @@ async def list_production_cases(
 )
 async def create_production_case(
     payload: ProductionCaseCreate,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.MANAGE_PRODUCTION_CASES)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Create a production case around an existing document without payment."""
@@ -82,7 +84,9 @@ async def get_production_case(
 async def update_production_case(
     case_id: int,
     payload: ProductionCaseUpdate,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.MANAGE_PRODUCTION_CASES)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Patch production case assignment, metadata, and separate status dimensions."""
@@ -113,7 +117,9 @@ async def override_release_gate(
     case_id: int,
     gate_key: str,
     payload: GateOverrideRequest,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.MANAGE_PRODUCTION_CASES)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Override an allowed release gate with an audited reason."""
@@ -133,10 +139,12 @@ async def record_detector_result(
     case_id: int,
     gate_key: str,
     payload: ManualDetectorResultRequest,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.RELEASE_DOCUMENTS)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    """Record a structured manual plagiarism/AI detector proxy result."""
+    """Record a release-manager decision for a current detector artifact."""
     return await ProductionCaseService(db).record_detector_result(
         case_id,
         gate_key,
@@ -149,7 +157,9 @@ async def record_detector_result(
 async def release_production_case(
     case_id: int,
     payload: ReleaseRequest,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.RELEASE_DOCUMENTS)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Release a case only when all blocking gates are resolved."""
@@ -166,7 +176,9 @@ async def release_production_case(
 async def create_editor_task(
     case_id: int,
     payload: EditorTaskCreate,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_permission(AdminPermissions.MANAGE_PRODUCTION_CASES)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
     """Create an editor task tied to a case and source finding."""

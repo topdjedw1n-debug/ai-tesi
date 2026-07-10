@@ -249,11 +249,16 @@ export const apiClient: HttpMethod = {
 
   post: async <T = any>(url: string, data?: any, config?: RequestInit): Promise<T> => {
     const headers = await createHeaders(config?.headers);
+    const isFormData = typeof FormData !== 'undefined' && data instanceof FormData;
+    if (isFormData) {
+      // The browser must set the multipart boundary itself.
+      delete headers['Content-Type'];
+    }
     const response = await fetch(`${BASE_URL}${url}`, {
       method: 'POST',
       ...config,
       headers,
-      body: JSON.stringify(data),
+      body: isFormData ? data : JSON.stringify(data),
     });
     return handleResponse<T>(response);
   },
@@ -322,6 +327,8 @@ export const API_ENDPOINTS = {
     UPDATE: (id: number) => `/api/v1/documents/${id}`,
     DELETE: (id: number) => `/api/v1/documents/${id}`,
     EXPORT: (id: number) => `/api/v1/documents/${id}/export`,
+    UPLOAD_REQUIREMENTS: (id: number) =>
+      `/api/v1/documents/${id}/custom-requirements/upload`,
     PROVENANCE: (id: number) => `/api/v1/documents/${id}/provenance`,
     FEEDBACK: (id: number) => `/api/v1/documents/${id}/feedback`,
   },

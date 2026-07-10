@@ -338,7 +338,7 @@ class PaymentService:
                 select(Document).where(Document.id == payment.document_id)
             )
             document = doc_result.scalar_one_or_none()
-            if document:
+            if document and not settings.MVP_FREE_GENERATION_ENABLED:
                 # Mark document as ready for generation
                 document.status = "generating"  # type: ignore[assignment]
                 logger.info(
@@ -386,7 +386,11 @@ class PaymentService:
                 select(Document).where(Document.id == payment.document_id)
             )
             document = doc_result.scalar_one_or_none()
-            if document and document.status == "payment_pending":
+            if (
+                document
+                and document.status == "payment_pending"
+                and not settings.MVP_FREE_GENERATION_ENABLED
+            ):
                 document.status = "generating"  # type: ignore[assignment]
 
         await self.db.commit()

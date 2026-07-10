@@ -24,6 +24,7 @@ interface Document {
   title: string
   topic: string
   status: string
+  release_status: string
   content: string | null
   outline: any
   word_count: number
@@ -33,7 +34,7 @@ interface Document {
     id: number
     title: string
     section_index: number
-    content: string
+    content: string | null
     word_count: number
     status: string
   }>
@@ -152,7 +153,7 @@ export default function DocumentDetailPage() {
   }
 
   const isGeneratingStatus = document.status === 'generating' || document.status === 'payment_pending'
-  const status = documentStatus(document.status)
+  const status = documentStatus(document.status, document.release_status)
 
   return (
     <DashboardLayout>
@@ -173,7 +174,7 @@ export default function DocumentDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {document.status === 'completed' && (
+            {document.status === 'completed' && document.release_status === 'released' && (
               <Button onClick={handleDownload} disabled={isDownloading} data-testid="download-docx-button">
                 {isDownloading ? (
                   <LoadingSpinner className="h-4 w-4 mr-2" />

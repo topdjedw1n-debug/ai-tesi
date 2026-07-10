@@ -15,6 +15,7 @@ from fastapi import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_current_user_ws
 from app.core.exceptions import NotFoundError
@@ -44,6 +45,11 @@ async def generate_document_async(
     Start async document generation.
     Returns immediately with job_id for status checking.
     """
+    if not settings.LEGACY_GENERATION_ENDPOINTS_ENABLED:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="This generation path is disabled; use full-document generation.",
+        )
     try:
         # Verify document exists and belongs to user
         document_service = DocumentService(db)

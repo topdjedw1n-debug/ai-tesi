@@ -19,6 +19,8 @@ class AdminPermissions(str, Enum):
     VIEW_DOCUMENTS = "view_documents"
     DELETE_DOCUMENTS = "delete_documents"
     RETRY_DOCUMENTS = "retry_documents"
+    MANAGE_PRODUCTION_CASES = "manage_production_cases"
+    RELEASE_DOCUMENTS = "release_documents"
 
     # Payments
     VIEW_PAYMENTS = "view_payments"

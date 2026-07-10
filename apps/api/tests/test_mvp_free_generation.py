@@ -367,3 +367,38 @@ async def test_free_mode_daily_token_budget_counts_active_projected_jobs(
     assert response.status_code == 429
     assert await _job_count(document_id) == 0
     assert await _document_status(document_id) == "draft"
+
+
+@pytest.mark.asyncio
+async def test_active_job_keeps_remaining_token_reservation_after_partial_usage(
+    client, test_user, auth_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_ENABLED", True)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_MAX_PAGES", 20)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_DAILY_USER_LIMIT", 5)
+    # Existing 2-page job has spent 400/2000 tokens. Its remaining 1600 must
+    # stay reserved: 400 actual + 1600 remaining + 1000 new > 2800.
+    monkeypatch.setattr(settings, "DAILY_TOKEN_LIMIT", 2800)
+
+    active_document_id = await _make_document(test_user.id, target_pages=2)
+    async with AsyncSessionLocal() as session:
+        session.add(
+            AIGenerationJob(
+                user_id=test_user.id,
+                document_id=active_document_id,
+                job_type="full_document",
+                status="running",
+                progress=50,
+                total_tokens=400,
+            )
+        )
+        await session.commit()
+
+    document_id = await _make_document(test_user.id, target_pages=1)
+    response = await client.post(
+        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+    )
+
+    assert response.status_code == 429
+    assert await _job_count(document_id) == 0
+    assert await _document_status(document_id) == "draft"
