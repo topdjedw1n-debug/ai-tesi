@@ -68,7 +68,7 @@
 - OpenAlex access: CONFIRMED from local machine on 2026-06-30 via HTTP 200 smoke request
 - Semantic Scholar access/key: CONFIRMED — authenticated key configured in local `apps/api/.env`; smoke request returned HTTP 200 on 2026-07-01. The prior HTTP 403 on 2026-06-30 was a placeholder/invalid key value; unkeyed access returns HTTP 429. S2 is now the 4th live bibliographic provider (Crossref/OpenAlex/Semantic Scholar/arXiv).
 - arXiv access: CONFIRMED from local machine on 2026-06-30 via HTTP 200 smoke request
-- Target environment evidence: production configuration and automated checks validate locally; deployment and a forced pre-production restart remain pending before live delivery
+- Target environment evidence: DEPLOYED to production (app.thesica.co, Hetzner) on 2026-07-10 at commit 26c4183 — DB backed up, migrations 013-023 applied cleanly, api/web rebuilt and healthy, generation worker started with zero polling errors, strict academic contract verified inside the running container (grounding strict, citation strict, claim verification, panel on, humanizer off). Forced mid-generation restart proven locally (see restart drill); a prod mid-generation restart can be exercised during RUN-001
 - Known blind spots:
   - GPTZero is diagnostic only and must not be represented as Turnitin AI or Compilatio.
   - The early web plagiarism signal now checks every text chunk. It is not an academic-database guarantee and does not replace the manual full-artifact Compilatio check.
