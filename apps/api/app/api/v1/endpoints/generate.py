@@ -54,6 +54,7 @@ from app.services.generation_worker import (
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.storage_service import StorageService
+from app.services.uploaded_sources import uploaded_sources_digest
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -719,6 +720,7 @@ async def generate_full_document(
             document,
             production_case,
             generation_requirements,
+            await uploaded_sources_digest(db, req_data.document_id),
         )
         superseded_paths = await _invalidate_previous_generation_evidence(
             db,

@@ -19,11 +19,14 @@ def generation_contract_payload(
     document: Any,
     production_case: Any | None,
     run_requirements: str | None,
+    uploaded_sources_sha: str | None = None,
 ) -> dict[str, Any]:
     """Return canonical, non-secret inputs that determine a run's contract.
 
     Long methodology/intake text is represented by SHA-256 rather than copied
-    into logs or release-gate evidence.
+    into logs or release-gate evidence. ``uploaded_sources_sha`` (digest of
+    the document's uploaded source PDFs) joins the contract only when
+    sources exist, so documents without uploads keep their original hashes.
     """
     case_payload = None
     if production_case is not None:
@@ -36,7 +39,7 @@ def generation_contract_payload(
             "requirements_sha256": _text_sha256(production_case.requirements_text),
         }
 
-    return {
+    payload = {
         "version": 1,
         "document_id": int(document.id),
         "title_sha256": _text_sha256(document.title),
@@ -51,14 +54,20 @@ def generation_contract_payload(
         "production_case": case_payload,
         "run_requirements_sha256": _text_sha256(run_requirements),
     }
+    if uploaded_sources_sha is not None:
+        payload["uploaded_sources_sha256"] = str(uploaded_sources_sha)
+    return payload
 
 
 def generation_contract_sha256(
     document: Any,
     production_case: Any | None,
     run_requirements: str | None,
+    uploaded_sources_sha: str | None = None,
 ) -> str:
-    payload = generation_contract_payload(document, production_case, run_requirements)
+    payload = generation_contract_payload(
+        document, production_case, run_requirements, uploaded_sources_sha
+    )
     encoded = json.dumps(
         payload,
         sort_keys=True,

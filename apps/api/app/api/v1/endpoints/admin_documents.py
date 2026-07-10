@@ -30,6 +30,7 @@ from app.services.admin_service import AdminService
 from app.services.document_service import DocumentService
 from app.services.generation_contract import generation_contract_sha256
 from app.services.storage_service import StorageService
+from app.services.uploaded_sources import uploaded_sources_digest
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -576,6 +577,7 @@ async def retry_document_generation(
             document,
             production_case,
             run_requirements,
+            await uploaded_sources_digest(db, document_id),
         )
         superseded_paths = await _invalidate_previous_generation_evidence(
             db,

@@ -182,6 +182,19 @@ class _ScalarResult:
         return self._value
 
 
+class _ScalarsResult:
+    """Empty scalars() result — e.g. the uploaded-sources digest query."""
+
+    def __init__(self, values=()):
+        self._values = list(values)
+
+    def scalars(self):
+        return self
+
+    def all(self):
+        return list(self._values)
+
+
 def _generation_handler():
     return getattr(
         generate_endpoint.generate_full_document,
@@ -319,6 +332,7 @@ async def test_generation_race_returns_competing_active_job(monkeypatch):
             _ScalarResult(document),
             _ScalarResult(production_case),
             _ScalarResult(None),
+            _ScalarsResult([]),  # uploaded-sources digest (no uploads)
             _ScalarResult(competing_job),
         ]
     )
@@ -392,6 +406,7 @@ async def test_generation_locks_shared_user_budget_then_rereads_case(monkeypatch
             _ScalarResult(document),
             _ScalarResult(production_case),
             _ScalarResult(None),
+            _ScalarsResult([]),  # uploaded-sources digest (no uploads)
         ]
     )
     added: list[object] = []

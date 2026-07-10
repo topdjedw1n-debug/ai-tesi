@@ -614,3 +614,80 @@ class ArtifactDeletionOutbox(Base):
             f"<ArtifactDeletionOutbox(id={self.id}, path={self.file_path!r}, "
             f"attempts={self.attempts})>"
         )
+
+
+class DocumentSourceFile(Base):
+    """A user-uploaded scientific PDF that grounds one document.
+
+    Stage "full-text evidence" (2026-07-11): these files — not external API
+    abstracts — become the source pack when present, and their per-page text
+    (SourceFilePage) anchors claim -> excerpt -> PDF -> page evidence.
+    """
+
+    __tablename__ = "document_source_files"
+    __table_args__ = (
+        UniqueConstraint(
+            "document_id", "sha256", name="uq_document_source_files_doc_sha"
+        ),
+        UniqueConstraint(
+            "document_id",
+            "citation_key",
+            name="uq_document_source_files_doc_key",
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    document_id = Column(
+        Integer,
+        ForeignKey("documents.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    filename = Column(String(255), nullable=False)
+    citation_key = Column(String(100), nullable=False)
+    title = Column(Text, nullable=True)
+    authors = Column(Text, nullable=True)  # "; "-joined, honest best-effort
+    year = Column(Integer, nullable=True)
+    storage_path = Column(Text, nullable=False)
+    sha256 = Column(String(64), nullable=False)
+    page_count = Column(Integer, nullable=False, default=0)
+    text_chars = Column(Integer, nullable=False, default=0)
+    status = Column(String(30), nullable=False, default="parsed")
+    metadata_incomplete = Column(Boolean, nullable=False, default=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    pages = relationship(
+        "SourceFilePage",
+        back_populates="source_file",
+        cascade="all, delete-orphan",
+        order_by="SourceFilePage.page_number",
+    )
+
+    def __repr__(self) -> str:
+        return (
+            f"<DocumentSourceFile(id={self.id}, doc={self.document_id}, "
+            f"key={self.citation_key!r}, pages={self.page_count})>"
+        )
+
+
+class SourceFilePage(Base):
+    """Extracted text of one PDF page — the unit of page-anchored evidence."""
+
+    __tablename__ = "source_file_pages"
+    __table_args__ = (
+        UniqueConstraint(
+            "source_file_id", "page_number", name="uq_source_file_pages_file_page"
+        ),
+    )
+
+    id = Column(Integer, primary_key=True, index=True)
+    source_file_id = Column(
+        Integer,
+        ForeignKey("document_source_files.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True,
+    )
+    page_number = Column(Integer, nullable=False)  # 1-based
+    text = Column(Text, nullable=False)
+
+    source_file = relationship("DocumentSourceFile", back_populates="pages")

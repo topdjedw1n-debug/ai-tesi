@@ -31,7 +31,9 @@ from app.models.document import (
     AIGenerationJob,
     Document,
     DocumentProvenance,
+    DocumentSourceFile,
     ProductionCase,
+    SourceFilePage,
 )
 from app.schemas.document import (
     DocumentCreate,
@@ -45,6 +47,7 @@ from app.schemas.document import (
     ExportResponse,
     ProvenanceEventResponse,
 )
+from app.services import uploaded_sources
 from app.services.custom_requirements_service import CustomRequirementsService
 from app.services.document_service import DocumentService
 from app.services.production_case_service import (
@@ -846,4 +849,306 @@ async def download_document_secure(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to download document",
+        ) from e
+
+
+def _reset_document_after_input_change(
+    document: Document, production_case: ProductionCase | None
+) -> None:
+    """Changed grounding inputs invalidate any generated/released state —
+    identical semantics to a methodology change."""
+    if document.status not in {"draft", "payment_pending", "payment_failed"}:
+        document.status = "draft"
+        document.completed_at = None
+    if production_case is not None:
+        revoke_release(production_case)
+        production_case.generation_status = "not_started"
+        production_case.qa_status = "no_data"
+        production_case.editorial_status = "not_started"
+
+
+async def _lock_document_for_source_change(
+    db: AsyncSession, document_id: int, user_id: int
+) -> tuple[Document, ProductionCase | None]:
+    """User -> Document -> ProductionCase locks + the active-generation guard
+    shared by every uploaded-source mutation."""
+    user_result = await db.execute(
+        select(User)
+        .where(User.id == user_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    locked_user = user_result.scalar_one_or_none()
+    if locked_user is None or not locked_user.is_active:
+        raise NotFoundError("User account not found")
+    if locked_user.deletion_requested_at is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Account deletion is pending; sources cannot be changed",
+        )
+    document_result = await db.execute(
+        select(Document)
+        .where(Document.id == document_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    document = document_result.scalar_one_or_none()
+    if document is None or document.user_id != user_id:
+        raise NotFoundError("Document not found")
+    case_result = await db.execute(
+        select(ProductionCase)
+        .where(ProductionCase.document_id == document_id)
+        .with_for_update()
+        .execution_options(populate_existing=True)
+    )
+    production_case = case_result.scalar_one_or_none()
+    active_job_result = await db.execute(
+        select(AIGenerationJob.id).where(
+            AIGenerationJob.document_id == document_id,
+            AIGenerationJob.status.in_(["queued", "running"]),
+        )
+    )
+    if document.status == "generating" or active_job_result.first() is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Sources cannot change while generation is running",
+        )
+    return document, production_case
+
+
+@router.post("/{document_id}/sources/upload")
+@rate_limit("30/hour")
+async def upload_source_file(
+    request: Request,
+    document_id: int,
+    file: UploadFile = File(...),
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Upload one scientific PDF that must ground this document.
+
+    The file is parsed page by page (no OCR: scans are stored but flagged
+    and excluded from retrieval) and becomes part of the generation
+    contract — swapping sources later invalidates the run and the release.
+    """
+    try:
+        filename = (file.filename or "source.pdf").strip() or "source.pdf"
+        if not filename.lower().endswith(".pdf"):
+            raise ValidationError("Only PDF sources are supported")
+        data = await file.read()
+        if not data:
+            raise ValidationError("Empty file")
+        pages = uploaded_sources.extract_pdf_pages(data)
+        digest = uploaded_sources.sha256_hex(data)
+
+        document, production_case = await _lock_document_for_source_change(
+            db, document_id, int(current_user.id)
+        )
+
+        duplicate = (
+            await db.execute(
+                select(DocumentSourceFile.id).where(
+                    DocumentSourceFile.document_id == document_id,
+                    DocumentSourceFile.sha256 == digest,
+                )
+            )
+        ).scalar_one_or_none()
+        if duplicate is not None:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="This PDF is already uploaded for this document",
+            )
+
+        meta = uploaded_sources.derive_source_metadata(filename, data, pages)
+        existing_keys = set(
+            (
+                await db.execute(
+                    select(DocumentSourceFile.citation_key).where(
+                        DocumentSourceFile.document_id == document_id
+                    )
+                )
+            ).scalars()
+        )
+        citation_key = str(meta["citation_key"])
+        if citation_key in existing_keys:
+            for suffix in "bcdefghijklmnopqrstuvwxyz":
+                candidate = f"{citation_key}{suffix}"
+                if candidate not in existing_keys:
+                    citation_key = candidate
+                    break
+            else:
+                raise ValidationError("Too many sources with the same citation key")
+
+        text_chars = sum(len(p) for p in pages)
+        has_text_layer = pages and (
+            text_chars / max(1, len(pages)) >= uploaded_sources.MIN_TEXT_CHARS_PER_PAGE
+        )
+
+        storage = StorageService()
+        object_name = (
+            f"documents/{int(current_user.id)}/{document_id}/sources/"
+            f"{digest[:16]}.pdf"
+        )
+        storage_path = await storage.upload_file(
+            object_name, data, content_type="application/pdf"
+        )
+
+        source_file = DocumentSourceFile(
+            document_id=document_id,
+            filename=filename[:255],
+            citation_key=citation_key,
+            title=str(meta["title"]) if meta["title"] else None,
+            authors=str(meta["authors"]) if meta["authors"] else None,
+            year=int(meta["year"]) if meta["year"] else None,
+            storage_path=storage_path,
+            sha256=digest,
+            page_count=len(pages),
+            text_chars=text_chars,
+            status="parsed" if has_text_layer else "no_text_layer",
+            metadata_incomplete=bool(meta["metadata_incomplete"]),
+        )
+        db.add(source_file)
+        await db.flush()
+        if has_text_layer:
+            for page_number, text in enumerate(pages, start=1):
+                if text.strip():
+                    db.add(
+                        SourceFilePage(
+                            source_file_id=int(source_file.id),
+                            page_number=page_number,
+                            text=text,
+                        )
+                    )
+
+        _reset_document_after_input_change(document, production_case)
+        await db.commit()
+
+        logger.info(
+            "Uploaded source %s for document %s: %s pages, %s chars, status=%s",
+            citation_key,
+            document_id,
+            len(pages),
+            text_chars,
+            source_file.status,
+        )
+        return {
+            "id": int(source_file.id),
+            "citation_key": citation_key,
+            "filename": filename,
+            "title": source_file.title,
+            "authors": source_file.authors,
+            "year": source_file.year,
+            "page_count": len(pages),
+            "status": source_file.status,
+            "metadata_incomplete": bool(source_file.metadata_incomplete),
+            "warning": (
+                None
+                if has_text_layer
+                else "No text layer detected (scanned PDF?) — this source "
+                "will not be used for grounding"
+            ),
+        }
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except (ValidationError, ValueError) as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Source upload failed for document {document_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to upload source file",
+        ) from e
+
+
+@router.get("/{document_id}/sources/files")
+async def list_source_files(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """List the uploaded grounding sources of an owned document."""
+    try:
+        document_service = DocumentService(db)
+        await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
+        rows = (
+            (
+                await db.execute(
+                    select(DocumentSourceFile)
+                    .where(DocumentSourceFile.document_id == document_id)
+                    .order_by(DocumentSourceFile.id.asc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        return {
+            "files": [
+                {
+                    "id": int(row.id),
+                    "citation_key": row.citation_key,
+                    "filename": row.filename,
+                    "title": row.title,
+                    "authors": row.authors,
+                    "year": row.year,
+                    "page_count": int(row.page_count or 0),
+                    "status": row.status,
+                    "metadata_incomplete": bool(row.metadata_incomplete),
+                }
+                for row in rows
+            ]
+        }
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@router.delete("/{document_id}/sources/files/{file_id}")
+async def delete_source_file(
+    document_id: int,
+    file_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Remove an uploaded source. Fail-closed: the blob must be confirmed
+    deleted from storage before the rows go."""
+    try:
+        document, production_case = await _lock_document_for_source_change(
+            db, document_id, int(current_user.id)
+        )
+        source_file = (
+            await db.execute(
+                select(DocumentSourceFile).where(
+                    DocumentSourceFile.id == file_id,
+                    DocumentSourceFile.document_id == document_id,
+                )
+            )
+        ).scalar_one_or_none()
+        if source_file is None:
+            raise NotFoundError("Source file not found")
+
+        storage = StorageService()
+        if not await storage.delete_file(str(source_file.storage_path)):
+            raise HTTPException(
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="Storage did not confirm deletion; source kept",
+            )
+        await db.delete(source_file)
+        _reset_document_after_input_change(document, production_case)
+        await db.commit()
+        return {"message": "Source file deleted", "id": file_id}
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Source delete failed for document {document_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to delete source file",
         ) from e

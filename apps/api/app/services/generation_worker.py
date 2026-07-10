@@ -37,6 +37,7 @@ from app.services.generation_contract import (
     generation_contract_error,
     generation_contract_sha256,
 )
+from app.services.uploaded_sources import uploaded_sources_digest
 
 if TYPE_CHECKING:
     from app.services.storage_service import StorageService
@@ -84,6 +85,7 @@ def _generation_contract_error(
     lease_owner: str | None = None,
     lease_token: str | None = None,
     lease_expires_at: datetime | None = None,
+    uploaded_sources_sha: str | None = None,
 ) -> str | None:
     """Return why a durable full-document job is unsafe to execute.
 
@@ -112,6 +114,7 @@ def _generation_contract_error(
         document,
         production_case,
         run_requirements,
+        uploaded_sources_sha,
     )
     if stored_contract != expected_contract:
         return "generation contract changed after enqueue"
@@ -243,6 +246,11 @@ async def _claim_job(
             )
         ).scalar_one_or_none()
 
+    sources_sha = (
+        await uploaded_sources_digest(db, int(mapping["document_id"]))
+        if mapping["document_id"] is not None
+        else None
+    )
     contract_error = _generation_contract_error(
         document=document,
         production_case=production_case,
@@ -252,6 +260,7 @@ async def _claim_job(
         lease_owner=mapping["lease_owner"],
         lease_token=mapping["lease_token"],
         lease_expires_at=lease_expires_at,
+        uploaded_sources_sha=sources_sha,
     )
     if contract_error is not None:
         # Invalid/legacy rows are quarantined while this claim still owns the
@@ -1257,6 +1266,11 @@ async def quarantine_invalid_generation_jobs(
                     .execution_options(populate_existing=True)
                 )
             ).scalar_one_or_none()
+        sources_sha = (
+            await uploaded_sources_digest(db, int(job.document_id))
+            if job.document_id is not None
+            else None
+        )
         contract_error = _generation_contract_error(
             document=document,
             production_case=production_case,
@@ -1266,6 +1280,7 @@ async def quarantine_invalid_generation_jobs(
             lease_owner=job.lease_owner,
             lease_token=job.lease_token,
             lease_expires_at=job.lease_expires_at,
+            uploaded_sources_sha=sources_sha,
         )
         if contract_error is None:
             await db.rollback()
