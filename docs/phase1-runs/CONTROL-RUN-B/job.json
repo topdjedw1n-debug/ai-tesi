@@ -1,0 +1,15 @@
+[
+  {
+    "id": 51,
+    "status": "failed",
+    "attempt_count": 1,
+    "success": false,
+    "error_message": "Citation verification failed: 1 cited source(s) could not be found in any bibliographic database: Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce",
+    "total_tokens": 93644,
+    "cost_cents": 55,
+    "started_at": "2026-07-11T12:50:31.995061+00:00",
+    "completed_at": "2026-07-11T12:53:56.879594+00:00",
+    "ai_provider": "anthropic",
+    "ai_model": "claude-opus-4-8"
+  }
+]

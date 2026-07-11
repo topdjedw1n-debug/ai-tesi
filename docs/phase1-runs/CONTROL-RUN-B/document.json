@@ -1,0 +1,17 @@
+[
+  {
+    "id": 62,
+    "title": "L'impatto dell'economia circolare sulla competitività delle piccole e medie imprese italiane",
+    "topic": "L'impatto dell'economia circolare sulla competitività delle piccole e medie imprese italiane",
+    "language": "it",
+    "target_pages": 10,
+    "citation_style": "apa",
+    "work_type": "tesi_magistrale",
+    "status": "failed_quality",
+    "ai_provider": "anthropic",
+    "ai_model": "claude-opus-4-8",
+    "contract_confirmed_sha256": null,
+    "contract_confirmed_at": null,
+    "created_at": "2026-07-11T12:49:48.678821+00:00"
+  }
+]

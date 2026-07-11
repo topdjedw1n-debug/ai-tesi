@@ -1,0 +1,1188 @@
+[
+  {
+    "id": 856,
+    "stage": "generation",
+    "event_type": "generation_run_started",
+    "payload": {
+      "started_at": "2026-07-11T12:50:32.019475",
+      "generation_contract_sha256": "1ecdcdb0ff7d2fd149e8f588ede4ea7ba1dc19019ee6ed691f37759c9c3e6b58"
+    },
+    "created_at": "2026-07-11T12:50:31.995061+00:00"
+  },
+  {
+    "id": 857,
+    "stage": "intake",
+    "event_type": "task_contract",
+    "payload": {
+      "basis": "university_methodology",
+      "basis_label": "university methodology",
+      "rules": [
+        {
+          "key": "topic",
+          "value": "L'impatto dell'economia circolare sulla competitività delle piccole e medie imprese italiane",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "language",
+          "value": "it",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "target_pages",
+          "value": 10,
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "citation_style",
+          "value": "apa",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "work_type",
+          "value": "tesi_magistrale",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "structure",
+          "value": "university_methodology",
+          "source": "methodology",
+          "status": "explicit",
+          "note": "structure and formatting follow the uploaded methodology"
+        },
+        {
+          "key": "sources_policy",
+          "value": {
+            "mode": "auto"
+          },
+          "source": "system_default",
+          "status": "explicit",
+          "note": "academic sources are retrieved automatically"
+        }
+      ],
+      "sha256": "65247a29703e46230c6ba0141eccf2cedece9ad938a15a9f82e303d088bc6a01"
+    },
+    "created_at": "2026-07-11T12:50:32.951423+00:00"
+  },
+  {
+    "id": 858,
+    "stage": "retrieval",
+    "event_type": "source_pack_built",
+    "payload": {
+      "pack_size": 24,
+      "mean_on_topic_score": 0.634,
+      "underfilled": false,
+      "bilingual": true
+    },
+    "created_at": "2026-07-11T12:50:38.147133+00:00"
+  },
+  {
+    "id": 859,
+    "stage": "retrieval",
+    "event_type": "source_pack_rebuilt",
+    "payload": {
+      "pack_size": 24,
+      "mean_on_topic_score": 0.429,
+      "underfilled": false,
+      "bilingual": true,
+      "section_titles": [
+        "Introduzione e Revisione della Letteratura: Economia Circolare e Competitività delle PMI",
+        "Metodologia e Analisi dei Fattori di Adozione: Barriere, Abilitatori e Tecnologie Digitali",
+        "Risultati, Discussione e Conclusioni: Impatto sulla Performance e Competitività delle PMI Italiane"
+      ]
+    },
+    "created_at": "2026-07-11T12:51:08.608111+00:00"
+  },
+  {
+    "id": 860,
+    "stage": "generation",
+    "event_type": "section_writer",
+    "payload": {
+      "section_index": 1,
+      "attempt": 1,
+      "planned": "anthropic/claude-opus-4-8",
+      "actual": "anthropic/claude-opus-4-8",
+      "fallback_used": false
+    },
+    "created_at": "2026-07-11T12:51:08.619674+00:00"
+  },
+  {
+    "id": 861,
+    "stage": "retrieval",
+    "event_type": "rag_retrieved",
+    "payload": {
+      "section_index": 1,
+      "section_title": "Introduzione e Revisione della Letteratura: Economia Circolare e Competitività delle PMI",
+      "sources_used": 24,
+      "sources": [
+        {
+          "title": "Evaluation of key factors for industry 4.0 technologies adoption in small and medium enterprises (SMEs): an emerging economy context",
+          "doi": "10.1108/jabs-05-2021-0202",
+          "year": 2022,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Implementation of Circular Economy Business Models by Small and Medium-Sized Enterprises (SMEs): Barriers and Enablers",
+          "doi": "10.3390/su8111212",
+          "year": 2016,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The role of digital transformation as a key driver of competitiveness in small and medium-sized enterprises",
+          "doi": "10.7200/esicm.56.423",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial intelligence (AI)‐driven strategic business model innovations in small‐ and medium‐sized enterprises. Insights on technological and strategic enablers for carbon neutral businesses",
+          "doi": "10.1002/bse.3617",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Circular Economy in Small and Medium Sized Enterprises—Current Trends, Practical Challenges and Future Research Agenda",
+          "doi": "10.20944/preprints202501.1824.v1",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The Adoption of Digital Technologies by Small and Medium-Sized Enterprises for Sustainability and Value Creation in Pakistan: The Application of a Two-Staged Hybrid SEM-ANN Approach",
+          "doi": "10.3390/su16177351",
+          "year": 2024,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial intelligence-driven supply chain resilience in Vietnamese manufacturing small- and medium-sized enterprises",
+          "doi": "10.1080/00207543.2023.2179859",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Circular Economy in The Opinions of Small- and Medium-sized Hotel Enterprises",
+          "doi": "10.5604/01.3001.0012.7698",
+          "year": 2018,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Sustainability and financial performance of small and medium sized enterprises: A bibliometric and systematic literature review",
+          "doi": "10.1002/bse.2434",
+          "year": 2019,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The Adoption of the Circular Economy by Small and Medium Sized Enterprises in the Pakistan Construction Sector",
+          "doi": "10.7771/3067-4883.1703",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The role of digital technologies in supporting the implementation of circular economy practices by industrial small and medium enterprises",
+          "doi": "10.1002/bse.3388",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Unlocking the potential of small and medium-sized enterprises in an emerging economy: A critical analysis of enablers and barriers",
+          "doi": "10.53894/ijirss.v8i2.5086",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "A PRISMA-Based Systematic Literature Review on the Impact of Knowledge Management on Competitiveness and Innovation in Medium-Sized Small and Medium Enterprises (SMEs)",
+          "doi": "10.47153/jbmr.v7i3.1865",
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Adoption of circular economy practices in small and medium-sized enterprises: Evidence from Europe",
+          "doi": "10.1016/j.ijpe.2022.108496",
+          "year": 2022,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Learning from Failure and Success: The Challenges for Circular Economy Implementation in SMEs in an Emerging Economy",
+          "doi": "10.3390/su13031529",
+          "year": 2021,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The drivers of eco‐innovations in small and medium‐sized enterprises: A systematic literature review and research directions",
+          "doi": "10.1002/bse.3197",
+          "year": 2022,
+          "verification_status": "unverified"
+        }
+      ]
+    },
+    "created_at": "2026-07-11T12:52:01.076437+00:00"
+  },
+  {
+    "id": 862,
+    "stage": "generation",
+    "event_type": "section_generated",
+    "payload": {
+      "section_index": 1,
+      "section_title": "Introduzione e Revisione della Letteratura: Economia Circolare e Competitività delle PMI",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "word_count": 940,
+      "tokens_used": 25585,
+      "attempts": 1
+    },
+    "created_at": "2026-07-11T12:52:01.082819+00:00"
+  },
+  {
+    "id": 863,
+    "stage": "generation",
+    "event_type": "humanized",
+    "payload": {
+      "section_index": 1,
+      "ai_score_before": 73.36383593414733,
+      "ai_score_after": 73.36383593414733,
+      "multi_pass": false,
+      "threshold": 35.0
+    },
+    "created_at": "2026-07-11T12:52:01.084931+00:00"
+  },
+  {
+    "id": 864,
+    "stage": "quality",
+    "event_type": "quality_gate",
+    "payload": {
+      "section_index": 1,
+      "passed": true,
+      "status": "passed",
+      "checks": {
+        "grammar": {
+          "status": "passed",
+          "score": 100.0,
+          "reason": null
+        },
+        "plagiarism": {
+          "status": "passed",
+          "score": 0.0,
+          "reason": null
+        },
+        "ai_detection": {
+          "status": "failed",
+          "score": 73.36383593414733,
+          "reason": "AI detection: 73.4% (max: 35.0%)",
+          "provider": "gptzero",
+          "blocking": false
+        }
+      },
+      "gates_enabled": true,
+      "grammar_score": 100.0,
+      "plagiarism_score": 0.0,
+      "ai_detection_score": 73.36383593414733,
+      "quality_score": 88.5
+    },
+    "created_at": "2026-07-11T12:52:01.086714+00:00"
+  },
+  {
+    "id": 865,
+    "stage": "quality",
+    "event_type": "panel_review",
+    "payload": {
+      "section_index": 1,
+      "status": "passed",
+      "overall_score": 88.5,
+      "passed": true,
+      "critical_override": false,
+      "attempts": 1,
+      "panel": {
+        "valid": true,
+        "overall_score": 88.5,
+        "passed": true,
+        "critical_override": false,
+        "word_count": 940,
+        "target_word_count": 850,
+        "reviewers": [
+          {
+            "key": "methodology",
+            "title": "Methodology & Structure",
+            "weight": 0.4,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "The section could benefit from a clearer explicit statement of the methodological approach used to conduct the literature review, to enhance completeness relative to the section title."
+              },
+              {
+                "severity": "minor",
+                "text": "While the argument development is logically structured, some transitions between subsections could be smoother to improve flow and coherence."
+              }
+            ]
+          },
+          {
+            "key": "citations",
+            "title": "Citations & Source Use",
+            "weight": 0.3,
+            "ok": true,
+            "score": 85.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "Citation density is generally good but some statements, such as 'Le piccole e medie imprese costituiscono la spina dorsale del tessuto produttivo italiano ed europeo,' could benefit from additional citations to reinforce foundational claims."
+              },
+              {
+                "severity": "minor",
+                "text": "There is some slight citation clustering at the end of paragraphs, which can give a sense of citation dumping rather than seamless integration of sources into the argument."
+              },
+              {
+                "severity": "major",
+                "text": "The referencing style is inconsistent with author names sometimes fully spelled out and sometimes abbreviated, e.g., 'saputro et al., 2026' should be capitalized as 'Saputro et al., 2026' to maintain academic referencing norms."
+              }
+            ]
+          },
+          {
+            "key": "coherence",
+            "title": "Coherence & Academic Style",
+            "weight": 0.3,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "La frase \"Le piccole e medie imprese costituiscono la spina dorsale del tessuto produttivo italiano ed europeo\" sarebbe più coerente se la definizione di PMI fosse mantenuta costante in tutto il testo, evitando variazioni terminologiche implicite."
+              },
+              {
+                "severity": "minor",
+                "text": "In \"Il digitale, dunque, non affianca semplicemente la circolarità: ne costituisce spesso il presupposto operativo.\", la transizione tra le frasi potrebbe essere migliorata con un collegamento esplicito più fluido per favorire la continuità del discorso."
+              }
+            ]
+          }
+        ],
+        "advocate": {
+          "ok": true,
+          "severity": "major",
+          "weakness": "The citation of multiple 2025 and 2026 sources in an introductory literature review is problematic as these are future dates, indicating either speculative or non-existent references, which undermines the credibility and reliability of the literature foundation."
+        },
+        "judge": "openai/gpt-4.1-mini"
+      }
+    },
+    "created_at": "2026-07-11T12:52:01.088437+00:00"
+  },
+  {
+    "id": 866,
+    "stage": "generation",
+    "event_type": "section_writer",
+    "payload": {
+      "section_index": 2,
+      "attempt": 1,
+      "planned": "anthropic/claude-opus-4-8",
+      "actual": "anthropic/claude-opus-4-8",
+      "fallback_used": false
+    },
+    "created_at": "2026-07-11T12:52:01.093614+00:00"
+  },
+  {
+    "id": 867,
+    "stage": "retrieval",
+    "event_type": "rag_retrieved",
+    "payload": {
+      "section_index": 2,
+      "section_title": "Metodologia e Analisi dei Fattori di Adozione: Barriere, Abilitatori e Tecnologie Digitali",
+      "sources_used": 24,
+      "sources": [
+        {
+          "title": "Evaluation of key factors for industry 4.0 technologies adoption in small and medium enterprises (SMEs): an emerging economy context",
+          "doi": "10.1108/jabs-05-2021-0202",
+          "year": 2022,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Implementation of Circular Economy Business Models by Small and Medium-Sized Enterprises (SMEs): Barriers and Enablers",
+          "doi": "10.3390/su8111212",
+          "year": 2016,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial intelligence (AI)‐driven strategic business model innovations in small‐ and medium‐sized enterprises. Insights on technological and strategic enablers for carbon neutral businesses",
+          "doi": "10.1002/bse.3617",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The Adoption of Digital Technologies by Small and Medium-Sized Enterprises for Sustainability and Value Creation in Pakistan: The Application of a Two-Staged Hybrid SEM-ANN Approach",
+          "doi": "10.3390/su16177351",
+          "year": 2024,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce",
+          "doi": null,
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial intelligence-driven supply chain resilience in Vietnamese manufacturing small- and medium-sized enterprises",
+          "doi": "10.1080/00207543.2023.2179859",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Circular Economy in The Opinions of Small- and Medium-sized Hotel Enterprises",
+          "doi": "10.5604/01.3001.0012.7698",
+          "year": 2018,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Competitiveness and Productivity in SMEs",
+          "doi": "10.4018/979-8-3373-2817-1.ch007",
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "ESA’s Business Incubation Centres’ (ESA BICs) impact on small and medium-sized enterprises (SMEs)",
+          "doi": "10.31229/osf.io/2dzb4",
+          "year": 2024,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The Adoption of the Circular Economy by Small and Medium Sized Enterprises in the Pakistan Construction Sector",
+          "doi": "10.7771/3067-4883.1703",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The role of digital technologies in supporting the implementation of circular economy practices by industrial small and medium enterprises",
+          "doi": "10.1002/bse.3388",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Unlocking the potential of small and medium-sized enterprises in an emerging economy: A critical analysis of enablers and barriers",
+          "doi": "10.53894/ijirss.v8i2.5086",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Collaborazioni che funzionano: quando universita, imprese e istituzioni innovano insieme",
+          "doi": null,
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "A PRISMA-Based Systematic Literature Review on the Impact of Knowledge Management on Competitiveness and Innovation in Medium-Sized Small and Medium Enterprises (SMEs)",
+          "doi": "10.47153/jbmr.v7i3.1865",
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Adoption of circular economy practices in small and medium-sized enterprises: Evidence from Europe",
+          "doi": "10.1016/j.ijpe.2022.108496",
+          "year": 2022,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial Intelligence Adoption by SMEs to Achieve Sustainable Business Performance: Application of Technology–Organization–Environment Framework",
+          "doi": "10.3390/su16051864",
+          "year": 2024,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Capability Maturity Models for Digital Transformation and Sustainable Competitiveness in Small and Medium-sized Enterprises",
+          "doi": "10.61145/urlk8020",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Learning from Failure and Success: The Challenges for Circular Economy Implementation in SMEs in an Emerging Economy",
+          "doi": "10.3390/su13031529",
+          "year": 2021,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The drivers of eco‐innovations in small and medium‐sized enterprises: A systematic literature review and research directions",
+          "doi": "10.1002/bse.3197",
+          "year": 2022,
+          "verification_status": "unverified"
+        }
+      ]
+    },
+    "created_at": "2026-07-11T12:52:57.30323+00:00"
+  },
+  {
+    "id": 868,
+    "stage": "generation",
+    "event_type": "section_generated",
+    "payload": {
+      "section_index": 2,
+      "section_title": "Metodologia e Analisi dei Fattori di Adozione: Barriere, Abilitatori e Tecnologie Digitali",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "word_count": 987,
+      "tokens_used": 26943,
+      "attempts": 1
+    },
+    "created_at": "2026-07-11T12:52:57.319203+00:00"
+  },
+  {
+    "id": 869,
+    "stage": "generation",
+    "event_type": "humanized",
+    "payload": {
+      "section_index": 2,
+      "ai_score_before": 85.42539025856438,
+      "ai_score_after": 85.42539025856438,
+      "multi_pass": false,
+      "threshold": 35.0
+    },
+    "created_at": "2026-07-11T12:52:57.322528+00:00"
+  },
+  {
+    "id": 870,
+    "stage": "quality",
+    "event_type": "quality_gate",
+    "payload": {
+      "section_index": 2,
+      "passed": true,
+      "status": "passed",
+      "checks": {
+        "grammar": {
+          "status": "passed",
+          "score": 90.0,
+          "reason": null
+        },
+        "plagiarism": {
+          "status": "passed",
+          "score": 0.0,
+          "reason": null
+        },
+        "ai_detection": {
+          "status": "failed",
+          "score": 85.42539025856438,
+          "reason": "AI detection: 85.4% (max: 35.0%)",
+          "provider": "gptzero",
+          "blocking": false
+        }
+      },
+      "gates_enabled": true,
+      "grammar_score": 90.0,
+      "plagiarism_score": 0.0,
+      "ai_detection_score": 85.42539025856438,
+      "quality_score": 88.5
+    },
+    "created_at": "2026-07-11T12:52:57.325496+00:00"
+  },
+  {
+    "id": 871,
+    "stage": "quality",
+    "event_type": "panel_review",
+    "payload": {
+      "section_index": 2,
+      "status": "passed",
+      "overall_score": 88.5,
+      "passed": true,
+      "critical_override": false,
+      "attempts": 1,
+      "panel": {
+        "valid": true,
+        "overall_score": 88.5,
+        "passed": true,
+        "critical_override": false,
+        "word_count": 987,
+        "target_word_count": 850,
+        "reviewers": [
+          {
+            "key": "methodology",
+            "title": "Methodology & Structure",
+            "weight": 0.4,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "Section 2.1 could improve clarity by explicitly detailing the criteria for literature selection to enhance transparency of the methodological approach."
+              },
+              {
+                "severity": "minor",
+                "text": "In section 2.4, a few references lack consistent formatting (e.g., [EnriPeiró2025], ABITABILE, 2025) which slightly detracts from the professional structure."
+              }
+            ]
+          },
+          {
+            "key": "citations",
+            "title": "Citations & Source Use",
+            "weight": 0.3,
+            "ok": true,
+            "score": 85.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "The citation density is generally appropriate, but some claims such as the role of culture in overcoming operational resistance could benefit from additional citations to strengthen support."
+              },
+              {
+                "severity": "minor",
+                "text": "There is inconsistent referencing style, e.g., the citation '[EnriPeiró2025]' deviates from the otherwise author-year format and should be corrected for uniformity."
+              },
+              {
+                "severity": "major",
+                "text": "The integration of sources is mostly good, but there are occasional instances where multiple citations are clustered at the end of paragraphs without clearly linking each claim to a specific reference, which risks citation dumping rather than seamless integration."
+              }
+            ]
+          },
+          {
+            "key": "coherence",
+            "title": "Coherence & Academic Style",
+            "weight": 0.3,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "The inconsistent capitalization of author names (e.g., 'saputro et al., 2026' vs 'Soomro et al., 2024') slightly detracts from terminological consistency."
+              },
+              {
+                "severity": "minor",
+                "text": "The use of square brackets with a citation [EnriPeiró2025] differs from the standard parenthetical style used elsewhere, affecting formal tone and consistency."
+              }
+            ]
+          }
+        ],
+        "advocate": {
+          "ok": true,
+          "severity": "major",
+          "weakness": "The methodology section claims to adopt a systematic and comparative literature review but lacks a clear description of the review protocol, selection criteria, and how studies were synthesized, making the foundational approach insufficiently supported and potentially biased."
+        },
+        "judge": "openai/gpt-4.1-mini"
+      }
+    },
+    "created_at": "2026-07-11T12:52:57.329208+00:00"
+  },
+  {
+    "id": 872,
+    "stage": "generation",
+    "event_type": "section_writer",
+    "payload": {
+      "section_index": 3,
+      "attempt": 1,
+      "planned": "anthropic/claude-opus-4-8",
+      "actual": "anthropic/claude-opus-4-8",
+      "fallback_used": false
+    },
+    "created_at": "2026-07-11T12:52:57.337256+00:00"
+  },
+  {
+    "id": 873,
+    "stage": "retrieval",
+    "event_type": "rag_retrieved",
+    "payload": {
+      "section_index": 3,
+      "section_title": "Risultati, Discussione e Conclusioni: Impatto sulla Performance e Competitività delle PMI Italiane",
+      "sources_used": 24,
+      "sources": [
+        {
+          "title": "Implementation of Circular Economy Business Models by Small and Medium-Sized Enterprises (SMEs): Barriers and Enablers",
+          "doi": "10.3390/su8111212",
+          "year": 2016,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Artificial intelligence (AI)‐driven strategic business model innovations in small‐ and medium‐sized enterprises. Insights on technological and strategic enablers for carbon neutral businesses",
+          "doi": "10.1002/bse.3617",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Circular Economy in Small and Medium Sized Enterprises—Current Trends, Practical Challenges and Future Research Agenda",
+          "doi": "10.20944/preprints202501.1824.v1",
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce",
+          "doi": null,
+          "year": 2025,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Competitiveness and Productivity in SMEs",
+          "doi": "10.4018/979-8-3373-2817-1.ch007",
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Sustainability and financial performance of small and medium sized enterprises: A bibliometric and systematic literature review",
+          "doi": "10.1002/bse.2434",
+          "year": 2019,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "The role of digital technologies in supporting the implementation of circular economy practices by industrial small and medium enterprises",
+          "doi": "10.1002/bse.3388",
+          "year": 2023,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Collaborazioni che funzionano: quando universita, imprese e istituzioni innovano insieme",
+          "doi": null,
+          "year": 2026,
+          "verification_status": "unverified"
+        },
+        {
+          "title": "Adoption of circular economy practices in small and medium-sized enterprises: Evidence from Europe",
+          "doi": "10.1016/j.ijpe.2022.108496",
+          "year": 2022,
+          "verification_status": "unverified"
+        }
+      ]
+    },
+    "created_at": "2026-07-11T12:53:51.740196+00:00"
+  },
+  {
+    "id": 874,
+    "stage": "generation",
+    "event_type": "section_generated",
+    "payload": {
+      "section_index": 3,
+      "section_title": "Risultati, Discussione e Conclusioni: Impatto sulla Performance e Competitività delle PMI Italiane",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "word_count": 915,
+      "tokens_used": 25787,
+      "attempts": 1
+    },
+    "created_at": "2026-07-11T12:53:51.747577+00:00"
+  },
+  {
+    "id": 875,
+    "stage": "generation",
+    "event_type": "humanized",
+    "payload": {
+      "section_index": 3,
+      "ai_score_before": 80.04751125419669,
+      "ai_score_after": 80.04751125419669,
+      "multi_pass": false,
+      "threshold": 35.0
+    },
+    "created_at": "2026-07-11T12:53:51.750561+00:00"
+  },
+  {
+    "id": 876,
+    "stage": "quality",
+    "event_type": "quality_gate",
+    "payload": {
+      "section_index": 3,
+      "passed": true,
+      "status": "passed",
+      "checks": {
+        "grammar": {
+          "status": "passed",
+          "score": 85.0,
+          "reason": null
+        },
+        "plagiarism": {
+          "status": "passed",
+          "score": 0.0,
+          "reason": null
+        },
+        "ai_detection": {
+          "status": "failed",
+          "score": 80.04751125419669,
+          "reason": "AI detection: 80.0% (max: 35.0%)",
+          "provider": "gptzero",
+          "blocking": false
+        }
+      },
+      "gates_enabled": true,
+      "grammar_score": 85.0,
+      "plagiarism_score": 0.0,
+      "ai_detection_score": 80.04751125419669,
+      "quality_score": 88.5
+    },
+    "created_at": "2026-07-11T12:53:51.753732+00:00"
+  },
+  {
+    "id": 877,
+    "stage": "quality",
+    "event_type": "panel_review",
+    "payload": {
+      "section_index": 3,
+      "status": "passed",
+      "overall_score": 88.5,
+      "passed": true,
+      "critical_override": false,
+      "attempts": 1,
+      "panel": {
+        "valid": true,
+        "overall_score": 88.5,
+        "passed": true,
+        "critical_override": false,
+        "word_count": 915,
+        "target_word_count": 800,
+        "reviewers": [
+          {
+            "key": "methodology",
+            "title": "Methodology & Structure",
+            "weight": 0.4,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "The section would benefit from a clearer explicit statement of the methodological approach used to generate the results, as the analysis references various external studies but does not detail the original methods applied."
+              },
+              {
+                "severity": "minor",
+                "text": "The discussion could improve by explicitly linking the results more systematically back to the research questions or hypotheses outlined earlier in the thesis to strengthen argument development."
+              }
+            ]
+          },
+          {
+            "key": "citations",
+            "title": "Citations & Source Use",
+            "weight": 0.3,
+            "ok": true,
+            "score": 85.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "The citation '[EnriPeiró2025]' in section 3.2 is inconsistent with the referencing style used elsewhere and lacks full bibliographic detail, reducing clarity and professional presentation."
+              },
+              {
+                "severity": "minor",
+                "text": "The placeholder citation '(N. et al., 2026)' appears twice without full author information, which disrupts the integration of sources into the argument and impairs source traceability."
+              }
+            ]
+          },
+          {
+            "key": "coherence",
+            "title": "Coherence & Academic Style",
+            "weight": 0.3,
+            "ok": true,
+            "score": 90.0,
+            "remarks": [
+              {
+                "severity": "minor",
+                "text": "L'analisi condotta sui fattori di adozione dell'economia circolare rivela un quadro articolato, in cui i benefici competitivi coesistono con vincoli strutturali propri della piccola dimensione."
+              },
+              {
+                "severity": "minor",
+                "text": "I risultati esposti dialogano in modo produttivo con il quadro teorico."
+              },
+              {
+                "severity": "minor",
+                "text": "Va però evitata una lettura eccessivamente ottimistica."
+              }
+            ]
+          }
+        ],
+        "advocate": {
+          "ok": true,
+          "severity": "major",
+          "weakness": "The section relies heavily on secondary sources and qualitative evidence without presenting any primary empirical data specific to Italian SMEs, making the claimed impact on competitiveness and performance insufficiently substantiated and vulnerable to criticism for lack of direct evidence."
+        },
+        "judge": "openai/gpt-4.1-mini"
+      }
+    },
+    "created_at": "2026-07-11T12:53:51.756533+00:00"
+  },
+  {
+    "id": 878,
+    "stage": "verification",
+    "event_type": "verification_summary",
+    "payload": {
+      "total": 22,
+      "counts": {
+        "verified": 21,
+        "not_found": 1
+      },
+      "policy": "strict",
+      "not_found_titles": [
+        "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce"
+      ],
+      "sources": [
+        {
+          "title": "Sustainability and financial performance of small and medium sized enterprises: A bibliometric and systematic literature review",
+          "authors": [
+            "Francesca Bartolacci",
+            "Andrea Caputo",
+            "Michela Soverchia"
+          ],
+          "year": 2019,
+          "doi": "10.1002/bse.2434",
+          "status": "verified"
+        },
+        {
+          "title": "Adoption of circular economy practices in small and medium-sized enterprises: Evidence from Europe",
+          "authors": [
+            "Prasanta Kumar Dey",
+            "Chrysovalantis Malesios",
+            "Soumyadeb Chowdhury",
+            "Krishnendu Saha",
+            "Pawan Budhwar"
+          ],
+          "year": 2022,
+          "doi": "10.1016/j.ijpe.2022.108496",
+          "status": "verified"
+        },
+        {
+          "title": "Circular Economy in Small and Medium Sized Enterprises—Current Trends, Practical Challenges and Future Research Agenda",
+          "authors": [
+            "Ayon Chakraborty",
+            "Debashree De",
+            "Prasanta Kumar Dey"
+          ],
+          "year": 2025,
+          "doi": "10.20944/preprints202501.1824.v1",
+          "status": "verified"
+        },
+        {
+          "title": "Circular Economy in The Opinions of Small- and Medium-sized Hotel Enterprises",
+          "authors": [
+            "Magdalena Kachniewska"
+          ],
+          "year": 2018,
+          "doi": "10.5604/01.3001.0012.7698",
+          "status": "verified"
+        },
+        {
+          "title": "Implementation of Circular Economy Business Models by Small and Medium-Sized Enterprises (SMEs): Barriers and Enablers",
+          "authors": [
+            "Vasileios Rizos",
+            "Arno Behrens",
+            "Wytze van der Gaast",
+            "Erwin Hofman",
+            "Αναστασία Ιωάννου"
+          ],
+          "year": 2016,
+          "doi": "10.3390/su8111212",
+          "status": "verified"
+        },
+        {
+          "title": "The role of digital technologies in supporting the implementation of circular economy practices by industrial small and medium enterprises",
+          "authors": [
+            "Alessandra Neri",
+            "Marta Negri",
+            "Enrico Cagno",
+            "Simone Franzò",
+            "Prof Vikas Kumar"
+          ],
+          "year": 2023,
+          "doi": "10.1002/bse.3388",
+          "status": "verified"
+        },
+        {
+          "title": "Artificial intelligence-driven supply chain resilience in Vietnamese manufacturing small- and medium-sized enterprises",
+          "authors": [
+            "Prasanta Kumar Dey",
+            "Soumyadeb Chowdhury",
+            "Amélie Abadie",
+            "Emilia Vann Yaroson",
+            "Sobhan Sarkar"
+          ],
+          "year": 2023,
+          "doi": "10.1080/00207543.2023.2179859",
+          "status": "verified"
+        },
+        {
+          "title": "Capability Maturity Models for Digital Transformation and Sustainable Competitiveness in Small and Medium-sized Enterprises",
+          "authors": [
+            "Guven Gurkan Inan"
+          ],
+          "year": 2025,
+          "doi": "10.61145/urlk8020",
+          "status": "verified"
+        },
+        {
+          "title": "Evaluation of key factors for industry 4.0 technologies adoption in small and medium enterprises (SMEs): an emerging economy context",
+          "authors": [
+            "Koppiahraj Karuppiah",
+            "Bathrinath Sankaranarayanan",
+            "Idiano D’Adamo",
+            "Syed Mithun Ali"
+          ],
+          "year": 2022,
+          "doi": "10.1108/jabs-05-2021-0202",
+          "status": "verified"
+        },
+        {
+          "title": "The role of digital transformation as a key driver of competitiveness in small and medium-sized enterprises",
+          "authors": [
+            "Sandra Enri-Peiró",
+            "Gustavo González-Arroyo",
+            "María Guijarro-García"
+          ],
+          "year": 2025,
+          "doi": "10.7200/esicm.56.423",
+          "status": "verified"
+        },
+        {
+          "title": "Artificial intelligence (AI)‐driven strategic business model innovations in small‐ and medium‐sized enterprises. Insights on technological and strategic enablers for carbon neutral businesses",
+          "authors": [
+            "Aqueeb Sohail Shaik",
+            "Safiya Mukhtar Alshibani",
+            "Girish Jain",
+            "Bhumika Gupta",
+            "Ankit Mehrotra"
+          ],
+          "year": 2023,
+          "doi": "10.1002/bse.3617",
+          "status": "verified"
+        },
+        {
+          "title": "The Adoption of Digital Technologies by Small and Medium-Sized Enterprises for Sustainability and Value Creation in Pakistan: The Application of a Two-Staged Hybrid SEM-ANN Approach",
+          "authors": [
+            "Raheem Bux Soomro",
+            "Sanam Gul Memon",
+            "Nisar Ahmed Dahri",
+            "Waleed Mugahed Al-Rahmi",
+            "Khalid Aldriwish"
+          ],
+          "year": 2024,
+          "doi": "10.3390/su16177351",
+          "status": "verified"
+        },
+        {
+          "title": "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce",
+          "authors": [
+            "ABITABILE, ROBERTA"
+          ],
+          "year": 2025,
+          "doi": null,
+          "status": "not_found"
+        },
+        {
+          "title": "Competitiveness and Productivity in SMEs",
+          "authors": [
+            "Rismawati Rismawati",
+            "Vicky Bin Djusmin",
+            "Gromyko Bongso"
+          ],
+          "year": 2026,
+          "doi": "10.4018/979-8-3373-2817-1.ch007",
+          "status": "verified"
+        },
+        {
+          "title": "ESA’s Business Incubation Centres’ (ESA BICs) impact on small and medium-sized enterprises (SMEs)",
+          "authors": [
+            "Elia Montanari"
+          ],
+          "year": 2024,
+          "doi": "10.31229/osf.io/2dzb4",
+          "status": "verified"
+        },
+        {
+          "title": "The Adoption of the Circular Economy by Small and Medium Sized Enterprises in the Pakistan Construction Sector",
+          "authors": [
+            "Khurram Iqbal Ahmad Khan",
+            "Roger Flanagan"
+          ],
+          "year": 2025,
+          "doi": "10.7771/3067-4883.1703",
+          "status": "verified"
+        },
+        {
+          "title": "Unlocking the potential of small and medium-sized enterprises in an emerging economy: A critical analysis of enablers and barriers",
+          "authors": [
+            "Adel Al Malki",
+            "Anthony Sumnaya Kumasey",
+            "Farhad Hossain"
+          ],
+          "year": 2025,
+          "doi": "10.53894/ijirss.v8i2.5086",
+          "status": "verified"
+        },
+        {
+          "title": "Collaborazioni che funzionano: quando universita, imprese e istituzioni innovano insieme",
+          "authors": [
+            "Buonsante N.",
+            "Colapinto C.",
+            "Finotto V.",
+            "Pavan D."
+          ],
+          "year": 2026,
+          "doi": null,
+          "status": "verified"
+        },
+        {
+          "title": "A PRISMA-Based Systematic Literature Review on the Impact of Knowledge Management on Competitiveness and Innovation in Medium-Sized Small and Medium Enterprises (SMEs)",
+          "authors": [
+            "Arie Hendra saputro",
+            "Suwatno",
+            "Hady Siti hadijah"
+          ],
+          "year": 2026,
+          "doi": "10.47153/jbmr.v7i3.1865",
+          "status": "verified"
+        },
+        {
+          "title": "Artificial Intelligence Adoption by SMEs to Achieve Sustainable Business Performance: Application of Technology–Organization–Environment Framework",
+          "authors": [
+            "Saeed Badghish",
+            "Yasir Ali Soomro"
+          ],
+          "year": 2024,
+          "doi": "10.3390/su16051864",
+          "status": "verified"
+        },
+        {
+          "title": "Learning from Failure and Success: The Challenges for Circular Economy Implementation in SMEs in an Emerging Economy",
+          "authors": [
+            "Andrea Cantú",
+            "Eduardo Aguiñaga",
+            "Carlos Scheel"
+          ],
+          "year": 2021,
+          "doi": "10.3390/su13031529",
+          "status": "verified"
+        },
+        {
+          "title": "The drivers of eco‐innovations in small and medium‐sized enterprises: A systematic literature review and research directions",
+          "authors": [
+            "Renato Passaro",
+            "Ivana Quinto",
+            "Giuseppe Scandurra",
+            "Antonio Thomas"
+          ],
+          "year": 2022,
+          "doi": "10.1002/bse.3197",
+          "status": "verified"
+        }
+      ],
+      "providers": [
+        "crossref",
+        "openalex"
+      ]
+    },
+    "created_at": "2026-07-11T12:53:51.770488+00:00"
+  },
+  {
+    "id": 879,
+    "stage": "verification",
+    "event_type": "integrity_gate_failed",
+    "payload": {
+      "policy": "strict",
+      "not_found_count": 1,
+      "not_found_titles": [
+        "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce"
+      ]
+    },
+    "created_at": "2026-07-11T12:53:56.85562+00:00"
+  },
+  {
+    "id": 880,
+    "stage": "verification",
+    "event_type": "citation_gate",
+    "payload": {
+      "passed": false,
+      "status": "failed",
+      "counts": {
+        "verified": 21,
+        "not_found": 1
+      },
+      "policy": "strict",
+      "not_found_count": 1,
+      "not_found_titles": [
+        "Industria 4.0, digitalizzazione e organizzazione aziendale: il contributo dei sistemi CRM e il caso Salesforce"
+      ]
+    },
+    "created_at": "2026-07-11T12:53:56.859571+00:00"
+  }
+]

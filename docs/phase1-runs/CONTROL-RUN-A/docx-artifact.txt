@@ -1,0 +1,5 @@
+DOCX artifact (RUN A, document 61, job 50)
+path (MinIO): ai-thesis-documents/documents/11/61/61-76cc78d020a97c69.docx
+size: 45807 bytes
+sha256: 76cc78d020a97c691e8791587365bf915ba6accac6aa8d00b1849c1116229caf
+release_status: blocked (дефолтний стан до ручного релізу менеджером; реліз — окремий крок поза цим прогоном)

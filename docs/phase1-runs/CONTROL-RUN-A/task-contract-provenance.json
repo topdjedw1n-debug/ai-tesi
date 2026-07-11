@@ -1,0 +1,81 @@
+[
+  {
+    "id": 826,
+    "stage": "intake",
+    "event_type": "task_contract_confirmed",
+    "payload": {
+      "sha256": "6c9e1ad1764f303eaeeaddc92e047c5ac6f59d814308002e6dbe2fc480475eb7",
+      "basis": "standard_academic",
+      "assumptions": [
+        {
+          "key": "structure",
+          "value": "introduction with research question; numbered chapters and sub-paragraphs including a literature review; discussion; conclusions; bibliography and sitography",
+          "source": "system_default",
+          "status": "assumed",
+          "note": "no methodology uploaded; neutral academic structure for the work type"
+        }
+      ],
+      "confirmed_by_user_id": 11
+    },
+    "created_at": "2026-07-11T12:42:39.25712+00:00"
+  },
+  {
+    "id": 828,
+    "stage": "intake",
+    "event_type": "task_contract",
+    "payload": {
+      "basis": "standard_academic",
+      "basis_label": "standard academic rules with manager-confirmed parameters",
+      "rules": [
+        {
+          "key": "topic",
+          "value": "L'impatto dell'economia circolare sulla competitività delle piccole e medie imprese italiane",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "language",
+          "value": "it",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "target_pages",
+          "value": 10,
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "citation_style",
+          "value": "apa",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "work_type",
+          "value": "tesi_magistrale",
+          "source": "intake",
+          "status": "explicit"
+        },
+        {
+          "key": "structure",
+          "value": "introduction with research question; numbered chapters and sub-paragraphs including a literature review; discussion; conclusions; bibliography and sitography",
+          "source": "system_default",
+          "status": "assumed",
+          "note": "no methodology uploaded; neutral academic structure for the work type"
+        },
+        {
+          "key": "sources_policy",
+          "value": {
+            "mode": "auto"
+          },
+          "source": "system_default",
+          "status": "explicit",
+          "note": "academic sources are retrieved automatically"
+        }
+      ],
+      "sha256": "6c9e1ad1764f303eaeeaddc92e047c5ac6f59d814308002e6dbe2fc480475eb7"
+    },
+    "created_at": "2026-07-11T12:42:39.548431+00:00"
+  }
+]

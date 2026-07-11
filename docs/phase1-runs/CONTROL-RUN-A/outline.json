@@ -1,0 +1,88 @@
+[
+  {
+    "id": 52,
+    "outline_data": {
+      "sections": [
+        {
+          "title": "Introduzione: economia circolare e competitività delle PMI italiane",
+          "main_points": [
+            "Presentazione del tema dell'economia circolare come paradigma di transizione da modelli lineari a modelli circolari nelle catene di fornitura",
+            "Rilevanza delle PMI italiane nel tessuto economico nazionale e loro sfide competitive nell'era globale",
+            "Formulazione della domanda di ricerca: in che modo l'adozione di pratiche di economia circolare influisce sulla competitività delle piccole e medie imprese italiane?",
+            "Obiettivi della tesi e struttura del lavoro"
+          ],
+          "subsections": [
+            "Contesto e background del tema",
+            "Definizione del problema di ricerca e domanda di ricerca",
+            "Obiettivi e struttura della tesi"
+          ],
+          "estimated_words": 500,
+          "key_concepts": [
+            "Economia circolare",
+            "PMI italiane",
+            "Competitività",
+            "Domanda di ricerca",
+            "Sviluppo sostenibile"
+          ]
+        },
+        {
+          "title": "Rassegna della letteratura: economia circolare, sostenibilità e competitività nelle PMI",
+          "main_points": [
+            "Il concetto di economia circolare e i modelli di business circolari orientati alla sostenibilità e agli SDGs delle Nazioni Unite",
+            "Adozione delle pratiche di economia circolare nelle PMI europee: fattori organizzativi, prestazioni di sostenibilità e performance finanziaria",
+            "Barriere e fattori abilitanti all'implementazione della CE nelle PMI, con integrazione in una gestione strategica sostenibile",
+            "Il ruolo delle tecnologie digitali e dell'Industria 4.0 come driver della transizione circolare e della competitività",
+            "Competitività delle PMI italiane: caratteristiche, marketing, internazionalizzazione e sviluppo nell'era globale"
+          ],
+          "subsections": [
+            "Fondamenti teorici dell'economia circolare e dei modelli di business circolari",
+            "Adozione della CE nelle PMI: evidenze europee e fattori organizzativi",
+            "Barriere e fattori abilitanti all'implementazione della CE",
+            "Digitalizzazione, Industria 4.0 e supply chain circolari",
+            "La competitività delle PMI italiane nel contesto globale"
+          ],
+          "estimated_words": 1200,
+          "key_concepts": [
+            "Modelli di business circolari",
+            "Fattori organizzativi",
+            "Barriere ed enabler",
+            "Industria 4.0",
+            "Reverse logistics",
+            "Performance finanziaria"
+          ]
+        },
+        {
+          "title": "Discussione e conclusioni: implicazioni per la competitività delle PMI italiane",
+          "main_points": [
+            "Discussione critica del nesso tra economia circolare e vantaggio competitivo per le PMI italiane, con riferimento al caso della manifattura ceramica italiana",
+            "Sintesi delle barriere specifiche e delle leve abilitanti nel contesto italiano, incluse digitalizzazione e integrazione strategica",
+            "Implicazioni manageriali e di policy per rafforzare la competitività attraverso la circolarità",
+            "Risposta alla domanda di ricerca, limiti dello studio e agenda di ricerca futura",
+            "Conclusioni finali"
+          ],
+          "subsections": [
+            "Il nesso tra economia circolare e competitività: evidenze e caso italiano",
+            "Implicazioni manageriali e di policy",
+            "Limiti dello studio e prospettive di ricerca futura",
+            "Conclusioni"
+          ],
+          "estimated_words": 800,
+          "key_concepts": [
+            "Vantaggio competitivo",
+            "Caso italiano",
+            "Implicazioni manageriali",
+            "Policy",
+            "Agenda di ricerca futura"
+          ]
+        }
+      ],
+      "tokens_used": 5787
+    },
+    "total_sections": 3,
+    "ai_provider": "anthropic",
+    "ai_model": "claude-opus-4-8",
+    "tokens_used": 5787,
+    "generation_time_seconds": 17,
+    "created_at": "2026-07-11T12:42:46.414233+00:00"
+  }
+]

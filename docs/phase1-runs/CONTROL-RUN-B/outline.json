@@ -1,0 +1,82 @@
+[
+  {
+    "id": 53,
+    "outline_data": {
+      "sections": [
+        {
+          "title": "Introduzione e Revisione della Letteratura: Economia Circolare e Competitività delle PMI",
+          "main_points": [
+            "Presentazione del tema e della sua rilevanza nel dibattito pubblico ed europeo sulla transizione sostenibile",
+            "Definizione dei concetti chiave di economia circolare e competitività delle PMI",
+            "Rassegna della letteratura accademica sull'adozione delle pratiche di economia circolare nelle PMI europee e italiane",
+            "Formulazione della domanda di ricerca e definizione del quadro teorico-concettuale"
+          ],
+          "subsections": [
+            "Contesto e rilevanza del tema",
+            "Il ruolo e la competitività delle PMI italiane",
+            "L'economia circolare come paradigma per la sostenibilità e la competitività",
+            "Gap nella letteratura e domanda di ricerca"
+          ],
+          "estimated_words": 850,
+          "key_concepts": [
+            "Economia circolare",
+            "Competitività delle PMI",
+            "Sviluppo sostenibile",
+            "Vantaggio competitivo"
+          ]
+        },
+        {
+          "title": "Metodologia e Analisi dei Fattori di Adozione: Barriere, Abilitatori e Tecnologie Digitali",
+          "main_points": [
+            "Descrizione dell'approccio metodologico basato sull'analisi comparativa della letteratura empirica esistente",
+            "Analisi delle barriere interne ed esterne all'implementazione dell'economia circolare nelle PMI",
+            "Identificazione dei fattori abilitanti e del ruolo dei fattori organizzativi",
+            "Il contributo delle tecnologie digitali e dell'Industria 4.0 nella transizione circolare"
+          ],
+          "subsections": [
+            "Impostazione metodologica e fonti dei dati",
+            "Barriere all'adozione delle pratiche circolari nelle PMI",
+            "Abilitatori e modelli di business circolari",
+            "Digitalizzazione e supply chain circolare come leve competitive"
+          ],
+          "estimated_words": 850,
+          "key_concepts": [
+            "Barriere e abilitatori",
+            "Modelli di business circolari",
+            "Tecnologie digitali",
+            "Smart circular supply chain"
+          ]
+        },
+        {
+          "title": "Risultati, Discussione e Conclusioni: Impatto sulla Performance e Competitività delle PMI Italiane",
+          "main_points": [
+            "Esposizione dei risultati sull'impatto delle pratiche circolari sulla performance economico-finanziaria e ambientale",
+            "Discussione critica del caso italiano, con riferimento a best practice come il settore manifatturiero ceramico",
+            "Confronto con la letteratura di riferimento evidenziando punti in comune e discrepanze",
+            "Sintesi conclusiva, implicazioni pratiche e suggerimenti per le PMI italiane"
+          ],
+          "subsections": [
+            "Impatto sulla performance e sulla sostenibilità delle PMI",
+            "Il caso italiano: evidenze e best practice",
+            "Discussione dei risultati alla luce della letteratura",
+            "Conclusioni e prospettive future"
+          ],
+          "estimated_words": 800,
+          "key_concepts": [
+            "Performance sostenibile",
+            "Best practice italiane",
+            "Vantaggio competitivo circolare",
+            "Implicazioni manageriali"
+          ]
+        }
+      ],
+      "tokens_used": 14690
+    },
+    "total_sections": 3,
+    "ai_provider": "anthropic",
+    "ai_model": "claude-opus-4-8",
+    "tokens_used": 14690,
+    "generation_time_seconds": 15,
+    "created_at": "2026-07-11T12:50:38.15252+00:00"
+  }
+]

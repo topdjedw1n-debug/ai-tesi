@@ -1,0 +1,41 @@
+[
+  {
+    "section_index": 1,
+    "title": "Introduzione e Revisione della Letteratura: Economia Circolare e Competitività delle PMI",
+    "section_type": "content",
+    "word_count": 940,
+    "status": "completed",
+    "grammar_score": 100,
+    "plagiarism_score": 0,
+    "ai_detection_score": 73.36383593414733,
+    "quality_score": 88.5,
+    "tokens_used": 25585,
+    "generation_time_seconds": 0
+  },
+  {
+    "section_index": 2,
+    "title": "Metodologia e Analisi dei Fattori di Adozione: Barriere, Abilitatori e Tecnologie Digitali",
+    "section_type": "content",
+    "word_count": 987,
+    "status": "completed",
+    "grammar_score": 90,
+    "plagiarism_score": 0,
+    "ai_detection_score": 85.42539025856438,
+    "quality_score": 88.5,
+    "tokens_used": 26943,
+    "generation_time_seconds": 0
+  },
+  {
+    "section_index": 3,
+    "title": "Risultati, Discussione e Conclusioni: Impatto sulla Performance e Competitività delle PMI Italiane",
+    "section_type": "content",
+    "word_count": 915,
+    "status": "completed",
+    "grammar_score": 85,
+    "plagiarism_score": 0,
+    "ai_detection_score": 80.04751125419669,
+    "quality_score": 88.5,
+    "tokens_used": 25787,
+    "generation_time_seconds": 0
+  }
+]

@@ -1,0 +1,15 @@
+[
+  {
+    "id": 50,
+    "status": "completed",
+    "attempt_count": 1,
+    "success": true,
+    "error_message": null,
+    "total_tokens": 88864,
+    "cost_cents": 60,
+    "started_at": "2026-07-11T12:42:39.312572+00:00",
+    "completed_at": "2026-07-11T12:46:52.468324+00:00",
+    "ai_provider": "anthropic",
+    "ai_model": "claude-opus-4-8"
+  }
+]

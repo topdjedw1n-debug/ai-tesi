@@ -1,0 +1,41 @@
+[
+  {
+    "section_index": 1,
+    "title": "Introduzione: economia circolare e competitività delle PMI italiane",
+    "section_type": "content",
+    "word_count": 558,
+    "status": "completed",
+    "grammar_score": 100,
+    "plagiarism_score": 0,
+    "ai_detection_score": 95.46619871918315,
+    "quality_score": 88.5,
+    "tokens_used": 12052,
+    "generation_time_seconds": 0
+  },
+  {
+    "section_index": 2,
+    "title": "Rassegna della letteratura: economia circolare, sostenibilità e competitività nelle PMI",
+    "section_type": "content",
+    "word_count": 1314,
+    "status": "completed",
+    "grammar_score": 95,
+    "plagiarism_score": 0,
+    "ai_detection_score": 48.37384219435001,
+    "quality_score": 90,
+    "tokens_used": 20136,
+    "generation_time_seconds": 0
+  },
+  {
+    "section_index": 3,
+    "title": "Discussione e conclusioni: implicazioni per la competitività delle PMI italiane",
+    "section_type": "content",
+    "word_count": 915,
+    "status": "completed",
+    "grammar_score": 100,
+    "plagiarism_score": 0,
+    "ai_detection_score": 95.72434778249867,
+    "quality_score": 86.5,
+    "tokens_used": 15989,
+    "generation_time_seconds": 0
+  }
+]

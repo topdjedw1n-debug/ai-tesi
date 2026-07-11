@@ -1,0 +1,14 @@
+[
+  {
+    "id": 11,
+    "release_status": "blocked",
+    "release_version": 1,
+    "released_docx_path": null,
+    "released_docx_sha256": null,
+    "released_pdf_path": null,
+    "released_pdf_sha256": null,
+    "generation_status": "failed",
+    "qa_status": "no_data",
+    "delivery_status": "not_ready"
+  }
+]
