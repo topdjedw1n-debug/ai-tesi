@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import logging
 from dataclasses import dataclass, field
+from typing import Any
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.ai_pipeline.text_utils import ascii_fold, content_tokens
@@ -156,6 +157,10 @@ class SourcePack:
     # True when the pack was queried/scored against an alt-language (English)
     # topic translation as well — recorded in provenance for the QA panel.
     bilingual: bool = False
+    # Full-text passages from manager-uploaded PDFs (uploaded_sources.py).
+    # None for API-built packs; when present, prompt_block(query=...) appends
+    # the top page-anchored excerpts for the section being written.
+    passages: list[Any] | None = None
 
     def keys(self) -> list[str]:
         return [ps.citation_key for ps in self.sources]
@@ -167,8 +172,20 @@ class SourcePack:
                 return ps
         return None
 
-    def prompt_block(self, limit: int | None = None) -> str:
-        """Deterministic, model-facing source list keyed for closed-book citing."""
+    def prompt_block(
+        self,
+        limit: int | None = None,
+        *,
+        query: str | None = None,
+        excerpt_limit: int = 6,
+    ) -> str:
+        """Deterministic, model-facing source list keyed for closed-book citing.
+
+        Without ``query`` (or without full-text passages) the output is
+        byte-identical to the pre-full-text format. With both, the top
+        page-anchored excerpts for the section being written are appended —
+        real page numbers, so downstream evidence can cite them.
+        """
         rows = self.sources if limit is None else self.sources[:limit]
         if not rows:
             return ""
@@ -187,7 +204,30 @@ class SourcePack:
             lines.append(
                 f"[{ps.citation_key}] {src.title} ({authors}, {year}).{venue}{snippet}"
             )
-        return "\n".join(lines)
+        block = "\n".join(lines)
+
+        if query and self.passages:
+            # Local import: uploaded_sources imports this module for the pack
+            # types, so the excerpt selector must be imported lazily here.
+            from app.services.uploaded_sources import select_passages
+
+            excerpts = select_passages(self.passages, query, limit=excerpt_limit)
+            if excerpts:
+                excerpt_lines = [
+                    "",
+                    "FULL-TEXT EXCERPTS from the sources above "
+                    "(page numbers are real):",
+                ]
+                for passage in excerpts:
+                    text = passage.text.strip().replace("\n", " ")
+                    if len(text) > 700:
+                        text = text[:700].rstrip() + "…"
+                    excerpt_lines.append(
+                        f"[{passage.citation_key} | p. {passage.page_number}] "
+                        f"«{text}»"
+                    )
+                block = block + "\n".join(excerpt_lines)
+        return block
 
 
 class SourcePackBuilder:

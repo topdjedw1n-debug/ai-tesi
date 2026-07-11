@@ -187,7 +187,16 @@ class SectionGenerator:
                     f"sources) for section: {section_title}"
                 )
                 source_docs = [ps.source for ps in source_pack.sources]
-                source_pack_block = source_pack.prompt_block()
+                # Full-text packs (manager-uploaded PDFs) get the top
+                # page-anchored excerpts for THIS section; API packs keep the
+                # byte-identical abstract-only block.
+                source_pack_block = source_pack.prompt_block(
+                    query=(
+                        f"{document.topic} {section_title}"
+                        if getattr(source_pack, "passages", None)
+                        else None
+                    )
+                )
                 source_texts = []
             else:
                 logger.info(f"Retrieving sources for section: {section_title}")

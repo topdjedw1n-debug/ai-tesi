@@ -92,6 +92,7 @@ from app.services.source_verification_stage import (
     run_citation_verification_stage,
 )
 from app.services.storage_service import StorageService
+from app.services.uploaded_sources import build_uploaded_source_pack
 from app.services.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -1124,7 +1125,30 @@ class BackgroundJobService:
                 # pipeline follows the legacy per-section retrieval path.
                 source_pack = None
                 if settings.SOURCE_GROUNDING_ENABLED:
-                    source_pack = await _load_source_pack(db, document_id)
+                    # Manager-uploaded PDFs take precedence over API retrieval:
+                    # they are the mandated bibliography and carry full-text
+                    # page-anchored passages. Rebuilt deterministically on
+                    # every (re)run, so resume gets the identical pack.
+                    source_pack = await build_uploaded_source_pack(
+                        db, document_id, str(document.topic or "")
+                    )
+                    if source_pack is not None:
+                        await fence_next_mutation(db)
+                        await _persist_source_pack(db, document_id, source_pack)
+                        if settings.PROVENANCE_LEDGER_ENABLED:
+                            await _record_provenance(
+                                db,
+                                document_id,
+                                stage="retrieval",
+                                event_type="source_pack_built",
+                                payload={
+                                    "origin": "uploaded_files",
+                                    "pack_size": len(source_pack.sources),
+                                    "passages": len(source_pack.passages or []),
+                                },
+                            )
+                    if source_pack is None:
+                        source_pack = await _load_source_pack(db, document_id)
                     if source_pack is None or not source_pack.sources:
                         source_pack = await _build_source_pack(
                             db,

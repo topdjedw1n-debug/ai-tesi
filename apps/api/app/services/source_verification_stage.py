@@ -474,27 +474,69 @@ async def run_citation_verification_stage(
             },
         )
 
-        # One verifier instance per call: the pipeline runs in its own event
-        # loop and CitationVerifier binds asyncio primitives/Redis to it.
-        verifier = verifier_factory()
-        inputs = [
-            SourceInput(
-                title=source.title or "",
-                authors=list(source.authors or []),
-                year=source.year,
-                doi=source.doi,
-            )
+        # Manager-uploaded PDFs are their own existence proof: resolving a
+        # course reader or book chapter against Crossref/OpenAlex would
+        # honestly return NOT_FOUND and strict policy would kill the run for
+        # having exactly the sources the professor mandated. Claim-support
+        # against their page text is a separate stage; THIS stage only asks
+        # "does the source exist" — the file answers that.
+        uploaded_sources = [
+            source
             for source in all_sources
+            if str(source.paper_id or "").startswith("uploaded:")
         ]
-        # Order-preserving and never raises (contract of verify_sources)
-        results = await verifier.verify_sources(inputs)
+        external_sources = [
+            source
+            for source in all_sources
+            if not str(source.paper_id or "").startswith("uploaded:")
+        ]
 
         status_counts: dict[str, int] = {}
         not_found_titles: list[str] = []
         mismatched_titles: list[str] = []
         source_records: list[dict[str, Any]] = []
         providers_used: set[str] = set()
-        for source, result in zip(all_sources, results, strict=True):
+
+        for source in uploaded_sources:
+            source.verification_status = "verified"
+            source.canonical_metadata = {
+                "status": "verified",
+                "provider": "uploaded_file",
+                "reason": "manager-uploaded source PDF",
+            }
+            status_counts["verified"] = status_counts.get("verified", 0) + 1
+            source_records.append(
+                {
+                    "title": (source.title or "")[:300],
+                    "authors": list(source.authors or [])[:5],
+                    "year": source.year,
+                    "doi": source.doi,
+                    "status": "verified",
+                    "provider": "uploaded_file",
+                }
+            )
+        if uploaded_sources:
+            providers_used.add("uploaded_file")
+
+        results: list[Any] = []
+        if external_sources:
+            # One verifier instance per call: the pipeline runs in its own
+            # event loop and CitationVerifier binds asyncio primitives/Redis
+            # to it.
+            verifier = verifier_factory()
+            inputs = [
+                SourceInput(
+                    title=source.title or "",
+                    authors=list(source.authors or []),
+                    year=source.year,
+                    doi=source.doi,
+                )
+                for source in external_sources
+            ]
+            # Order-preserving and never raises (contract of verify_sources)
+            results = await verifier.verify_sources(inputs)
+
+        for source, result in zip(external_sources, results, strict=True):
             mapped_status = map_verification_status(result)
             source.verification_status = mapped_status
             # Assign a NEW dict: plain JSON columns don't track mutations

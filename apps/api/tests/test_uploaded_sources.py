@@ -11,9 +11,11 @@ from starlette.requests import Request
 from app.api.v1.endpoints import documents as documents_endpoint
 from app.models.auth import User
 from app.models.document import Document, DocumentSourceFile, SourceFilePage
+from app.services import uploaded_sources as uploaded_sources_module
 from app.services.generation_contract import generation_contract_sha256
 from app.services.uploaded_sources import (
     SourcePassage,
+    build_uploaded_source_pack,
     derive_source_metadata,
     extract_pdf_pages,
     select_passages,
@@ -318,3 +320,202 @@ async def test_source_passage_dataclass_defaults():
         text="testo",
     )
     assert passage.score == 0.0
+
+
+async def _seed_parsed_file(
+    db_session,
+    document_id: int,
+    *,
+    key: str,
+    filename: str,
+    pages: list[str],
+    authors: str | None = None,
+    year: int | None = None,
+) -> DocumentSourceFile:
+    source_file = DocumentSourceFile(
+        document_id=document_id,
+        filename=filename,
+        citation_key=key,
+        title=filename.replace(".pdf", "").replace("_", " "),
+        authors=authors,
+        year=year,
+        storage_path=f"s3://bucket/{filename}",
+        sha256=uploaded_sources_module.sha256_hex(filename.encode()),
+        page_count=len(pages),
+        text_chars=sum(len(p) for p in pages),
+        status="parsed",
+        metadata_incomplete=authors is None or year is None,
+    )
+    db_session.add(source_file)
+    await db_session.flush()
+    for number, text in enumerate(pages, start=1):
+        db_session.add(
+            SourceFilePage(
+                source_file_id=int(source_file.id),
+                page_number=number,
+                text=text,
+            )
+        )
+    await db_session.commit()
+    await db_session.refresh(source_file)
+    return source_file
+
+
+@pytest.mark.asyncio
+async def test_build_uploaded_pack_scores_and_fallbacks(db_session):
+    """Uploaded files become the pack with mandate score 1.0; missing
+    metadata gets visible fallbacks so [Key] conversion can never leak."""
+    user, document = await _seed_document(db_session, "pack-build@example.com")
+    long_page1 = (PAGE1 + " ") * 4
+    long_page2 = (PAGE2 + " ") * 4
+    await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Rossi2021",
+        filename="Rossi_2021_AI.pdf",
+        pages=[long_page1, long_page2],
+        authors="Mario Rossi",
+        year=2021,
+    )
+    await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Dispensa",
+        filename="Dispensa_corso.pdf",
+        pages=[long_page2],  # no authors/year on purpose
+    )
+
+    pack = await build_uploaded_source_pack(
+        db_session, int(document.id), "AI nelle PMI italiane"
+    )
+    assert pack is not None
+    assert pack.keys() == ["Rossi2021", "Dispensa"]
+    assert all(ps.on_topic_score == 1.0 for ps in pack.sources)
+    assert pack.sources[0].source.paper_id.startswith("uploaded:")
+    assert pack.passages, "full-text passages must ride on the pack"
+
+    # Fallbacks: the metadata-poor dispensa still has authors and a year.
+    dispensa = pack.by_key("Dispensa").source
+    assert dispensa.authors and dispensa.year
+
+    # No uploads -> no pack (API path takes over).
+    _, empty_doc = await _seed_document(db_session, "pack-empty@example.com")
+    assert await build_uploaded_source_pack(db_session, int(empty_doc.id), "x") is None
+
+
+@pytest.mark.asyncio
+async def test_prompt_block_appends_page_anchored_excerpts(db_session):
+    user, document = await _seed_document(db_session, "pack-prompt@example.com")
+    await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Rossi2021",
+        filename="Rossi_2021_AI.pdf",
+        pages=[(PAGE1 + " ") * 4, (PAGE2 + " ") * 4],
+        authors="Mario Rossi",
+        year=2021,
+    )
+    pack = await build_uploaded_source_pack(
+        db_session, int(document.id), "AI nelle PMI italiane"
+    )
+
+    plain = pack.prompt_block()
+    assert "FULL-TEXT EXCERPTS" not in plain  # API-compatible default
+
+    with_query = pack.prompt_block(query="produttivita formazione personale")
+    assert "FULL-TEXT EXCERPTS" in with_query
+    assert "[Rossi2021 | p. 2]" in with_query
+
+
+@pytest.mark.asyncio
+async def test_verification_auto_verifies_uploaded_sources(db_session):
+    """The uploaded PDF is its own existence proof: it must never be sent to
+    Crossref/OpenAlex (where a course reader is honestly NOT_FOUND and
+    strict policy would kill the mandated bibliography)."""
+    from unittest.mock import MagicMock
+
+    from app.core.config import settings
+    from app.models.document import DocumentSection, DocumentSource
+    from app.services.citation_verifier import (
+        VerificationResult,
+        VerificationStatus,
+    )
+    from app.services.source_verification_stage import (
+        run_citation_verification_stage,
+    )
+
+    user, document = await _seed_document(db_session, "verify-mixed@example.com")
+    db_session.add(
+        DocumentSection(
+            document_id=int(document.id),
+            title="Introduzione",
+            section_index=0,
+            status="completed",
+            pack_keys_used=["Rossi2021", "Crossref2020"],
+        )
+    )
+    db_session.add(
+        DocumentSource(
+            document_id=int(document.id),
+            title="Dispensa del corso",
+            authors=["Mario Rossi"],
+            year=2021,
+            paper_id="uploaded:7",
+            citation_key="Rossi2021",
+            is_in_upfront_pack=True,
+        )
+    )
+    db_session.add(
+        DocumentSource(
+            document_id=int(document.id),
+            title="External API paper",
+            authors=["Anna Bianchi"],
+            year=2020,
+            citation_key="Crossref2020",
+            is_in_upfront_pack=True,
+        )
+    )
+    await db_session.commit()
+
+    verifier = MagicMock()
+    verifier.verify_sources = AsyncMock(
+        return_value=[VerificationResult(status=VerificationStatus.VERIFIED)]
+    )
+
+    await run_citation_verification_stage(
+        db_session,
+        int(document.id),
+        int(user.id),
+        config=settings,
+        verifier_factory=lambda: verifier,
+        send_progress=AsyncMock(),
+    )
+
+    # Only the external source went to the providers.
+    (sent_inputs,) = verifier.verify_sources.await_args.args
+    assert [s.title for s in sent_inputs] == ["External API paper"]
+
+    rows = (
+        (await db_session.execute(select(DocumentSource).order_by(DocumentSource.id)))
+        .scalars()
+        .all()
+    )
+    by_key = {row.citation_key: row for row in rows}
+    assert by_key["Rossi2021"].verification_status == "verified"
+    assert by_key["Rossi2021"].canonical_metadata["provider"] == "uploaded_file"
+    assert by_key["Crossref2020"].verification_status == "verified"
+
+
+def test_generation_pipeline_wiring_for_uploaded_packs():
+    """Pin the wiring: Step 0 prefers uploaded packs; the generator asks for
+    section-specific excerpts when the pack carries passages."""
+    import inspect
+
+    from app.services import background_jobs as bj
+    from app.services.ai_pipeline.generator import SectionGenerator
+
+    step0 = inspect.getsource(bj.BackgroundJobService.generate_full_document)
+    assert step0.index("build_uploaded_source_pack") < step0.index("_load_source_pack")
+
+    gen = inspect.getsource(SectionGenerator.generate_section)
+    assert "prompt_block(" in gen and "query=" in gen

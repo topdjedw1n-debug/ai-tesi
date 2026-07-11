@@ -321,3 +321,104 @@ async def uploaded_sources_digest(db: AsyncSession, document_id: int) -> str | N
     if not hashes:
         return None
     return hashlib.sha256("\n".join(hashes).encode("utf-8")).hexdigest()
+
+
+async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: str):
+    """Build the grounding pack FROM manager-uploaded PDFs, or None.
+
+    When uploads exist they replace API retrieval entirely: the manager
+    chose these readings, so every file enters the pack with
+    on_topic_score 1.0 (the score exists to filter API junk, not to
+    second-guess a mandated bibliography). Deterministic — a resumed run
+    rebuilds the identical pack, passages included.
+
+    Formatting fallbacks are honest but visible: files without extractable
+    authors/year get filename-derived authors and the upload year so the
+    [Key] -> (Author, Year) conversion can never leak internal markers into
+    the delivered text; such files stay flagged metadata_incomplete for the
+    manager to correct before release.
+    """
+    from app.services.ai_pipeline.rag_retriever import SourceDoc
+    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
+
+    files = (
+        (
+            await db.execute(
+                select(DocumentSourceFile)
+                .where(
+                    DocumentSourceFile.document_id == document_id,
+                    DocumentSourceFile.status == "parsed",
+                )
+                .order_by(DocumentSourceFile.id.asc())
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if not files:
+        return None
+
+    all_passages: list[SourcePassage] = []
+    packed: list[PackedSource] = []
+    for source_file in files:
+        rows = (
+            (
+                await db.execute(
+                    select(SourceFilePage)
+                    .where(SourceFilePage.source_file_id == source_file.id)
+                    .order_by(SourceFilePage.page_number.asc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        passages = split_passages(
+            source_file_id=int(source_file.id),
+            citation_key=str(source_file.citation_key),
+            filename=str(source_file.filename),
+            pages=[(int(r.page_number), str(r.text)) for r in rows],
+        )
+        all_passages.extend(passages)
+
+        authors = [
+            a.strip() for a in str(source_file.authors or "").split(";") if a.strip()
+        ]
+        if not authors:
+            stem = re.sub(r"\.pdf$", "", str(source_file.filename), flags=re.I)
+            authors = [stem.replace("_", " ").split()[0][:60] or "Fonte"]
+        year = (
+            int(source_file.year)
+            if source_file.year
+            else (
+                source_file.created_at.year
+                if source_file.created_at is not None
+                else 2026
+            )
+        )
+        abstract = passages[0].text[:1000] if passages else None
+        packed.append(
+            PackedSource(
+                SourceDoc(
+                    title=str(source_file.title or source_file.filename),
+                    authors=authors,
+                    year=year,
+                    abstract=abstract,
+                    paper_id=f"uploaded:{int(source_file.id)}",
+                    venue=None,
+                    url=None,
+                    doi=None,
+                ),
+                str(source_file.citation_key),
+                1.0,
+            )
+        )
+
+    pack = SourcePack(document_id=document_id, topic=topic, sources=packed)
+    pack.passages = all_passages
+    logger.info(
+        "Built uploaded-sources pack for document %s: %s files, %s passages",
+        document_id,
+        len(packed),
+        len(all_passages),
+    )
+    return pack
