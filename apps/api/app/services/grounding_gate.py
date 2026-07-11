@@ -83,10 +83,11 @@ def evaluate_grounding(
     text_utils.contains_concrete_evidence). The reason string distinguishes the
     failure modes so regeneration feedback can be targeted.
 
-    The gate scores `content_with_markers` (the writer's verbatim draft) when
+    The gate scores `content_with_markers` (the canonical marker view) when
     present: the generator replaces [Key] markers with formatted in-text
     citations in `content`, so gating the converted text finds zero [Key]
-    tokens and rejects every closed-book section (drill 2026-07-10).
+    tokens and rejects every closed-book section.  The untouched draft remains
+    available separately as `raw_content_with_markers` for diagnosis.
     """
     content = (
         section_result.get("content_with_markers")

@@ -28,6 +28,7 @@ from app.models.document import (
     AIGenerationJob,
     Document,
     DocumentSection,
+    DocumentSource,
 )
 from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import (
@@ -35,16 +36,29 @@ from app.services.ai_pipeline.citation_formatter import (
     bibliography_heading,
     merge_bibliographies,
 )
+from app.services.ai_pipeline.citation_keys import (
+    convert_pack_markers,
+    internal_marker_keys,
+)
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
+from app.services.ai_pipeline.rag_retriever import SourceDoc
+from app.services.ai_pipeline.source_identity import sources_equivalent
 from app.services.ai_pipeline.source_pack import SourcePackBuilder
+from app.services.ai_pipeline.source_pack_preflight import (
+    invalid_preverified_source_keys,
+    preverify_source_pack,
+)
 from app.services.ai_service import AIService
 from app.services.citation_verifier import (
     CitationVerifier,
 )
 from app.services.claim_verification_stage import (
     run_claim_verification_stage,
+    technical_uncertain_claims,
+    verify_section_claims,
 )
+from app.services.claim_verifier import ClaimVerifier
 from app.services.cost_estimator import UsageTracker
 from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.db_helpers import (
@@ -64,9 +78,11 @@ from app.services.generation_worker import (
     lock_generation_lease_for_mutation,
     persist_generation_artifact,
     persist_generation_section,
+    persist_generation_source_pack,
     release_generation_lease_for_shutdown,
     renew_generation_lease,
     reschedule_or_fail_generation_job,
+    reserve_generation_claim_checks,
     update_generation_document,
     update_generation_section_status,
     write_generation_usage_monotonic,
@@ -76,6 +92,9 @@ from app.services.grounding_gate import GroundingResult, evaluate_grounding
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.provenance_service import record_event as _raw_record_provenance
 from app.services.quality_validator import QualityValidator
+from app.services.source_verification_stage import (
+    apply_source_pack_rows as _apply_source_pack_rows,
+)
 from app.services.source_verification_stage import (
     load_source_pack as _load_source_pack,
 )
@@ -789,6 +808,7 @@ async def _run_claim_verification_stage(
     document_id: int,
     user_id: int,
     usage_tracker: UsageTracker | None = None,
+    job_id: int | None = None,
 ) -> None:
     """
     Thin wrapper around claim_verification_stage.run_claim_verification_stage.
@@ -808,6 +828,7 @@ async def _run_claim_verification_stage(
         config=settings,
         ai_service_factory=ai_service_factory,
         send_progress=_safe_send_progress,
+        job_id=job_id,
     )
 
 
@@ -859,7 +880,7 @@ async def _translate_pack_terms(
         return None, None
 
 
-def _merge_source_packs(uploaded_pack, api_pack):
+def _merge_source_packs(uploaded_pack, api_pack, *, limit: int | None = None):
     """Uploaded sources first and immutable; API sources fill the rest.
 
     Key collisions resolve in favour of the uploaded file (its key is the
@@ -867,10 +888,11 @@ def _merge_source_packs(uploaded_pack, api_pack):
     """
     from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 
+    resolved_limit = limit or settings.SOURCE_PACK_TARGET_SIZE
     taken = {ps.citation_key.lower() for ps in uploaded_pack.sources}
     merged = list(uploaded_pack.sources)
     for packed in getattr(api_pack, "sources", None) or []:
-        if len(merged) >= settings.SOURCE_PACK_TARGET_SIZE:
+        if len(merged) >= resolved_limit:
             break
         key = packed.citation_key
         if key.lower() in taken:
@@ -890,6 +912,10 @@ def _merge_source_packs(uploaded_pack, api_pack):
         sources=merged,
         underfilled=bool(getattr(api_pack, "underfilled", False)),
         bilingual=bool(getattr(api_pack, "bilingual", False)),
+        provider_errors=[
+            *list(getattr(uploaded_pack, "provider_errors", []) or []),
+            *list(getattr(api_pack, "provider_errors", []) or []),
+        ],
     )
     pack.passages = uploaded_pack.passages
     return pack
@@ -900,6 +926,11 @@ async def _build_source_pack(
     document: Document,
     section_titles: list[str] | None = None,
     ai_service: AIService | None = None,
+    *,
+    target_size: int | None = None,
+    allow_threshold_relaxation: bool = True,
+    retrieval_page: int = 1,
+    raise_on_provider_error: bool = False,
 ) -> Any:
     """
     Thin wrapper around SourcePackBuilder.build for the upfront source pack.
@@ -931,11 +962,14 @@ async def _build_source_pack(
         topic=str(document.topic),
         language=str(document.language),
         document_id=int(document.id),
-        target_size=settings.SOURCE_PACK_TARGET_SIZE,
+        target_size=target_size or settings.SOURCE_PACK_TARGET_SIZE,
         min_on_topic_score=settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE,
         section_titles=section_titles,
         alt_topic=alt_topic,
         alt_section_titles=alt_titles,
+        allow_threshold_relaxation=allow_threshold_relaxation,
+        retrieval_page=retrieval_page,
+        raise_on_provider_error=raise_on_provider_error,
     )
 
 
@@ -959,6 +993,84 @@ def _augment_with_grounding_feedback(
         f"from the provided AVAILABLE SOURCES list, using their exact [Key]. Do "
         f"NOT use these ungrounded or invented citations: {keys}. If a claim has "
         f"no supporting listed source, state it without a citation."
+    )
+
+
+def _claim_sources_for_attempt(
+    persisted_sources: list[Any], section_result: dict[str, Any]
+) -> list[Any]:
+    """Add current legacy-RAG sources without duplicating persisted pack rows."""
+    sources = list(persisted_sources)
+    for raw in section_result.get("cited_sources") or []:
+        candidate = SourceDoc(
+            title=str(raw.get("title") or ""),
+            authors=list(raw.get("authors") or []),
+            year=int(raw.get("year") or 0),
+            abstract=raw.get("abstract"),
+            paper_id=raw.get("paper_id"),
+            venue=raw.get("venue"),
+            citation_count=raw.get("citation_count"),
+            url=raw.get("url"),
+            doi=raw.get("doi"),
+            provider=raw.get("provider"),
+            source_type=raw.get("source_type"),
+        )
+        if candidate.title and not any(
+            sources_equivalent(existing, candidate) for existing in sources
+        ):
+            sources.append(candidate)
+    return sources
+
+
+def _augment_with_claim_feedback(
+    base_requirements: str | None, summary: dict[str, Any]
+) -> str:
+    unsupported = [
+        claim
+        for claim in summary.get("claims") or []
+        if claim.get("verdict") == "unsupported"
+    ][:5]
+    if not unsupported:
+        return base_requirements or ""
+    lines = []
+    for claim in unsupported:
+        lines.append(
+            "- Claim: "
+            + str(claim.get("sentence") or "")[:300]
+            + " | Citation: "
+            + str(claim.get("citation") or "")
+            + " | Problem: "
+            + str(claim.get("explanation") or "")[:240]
+        )
+    prefix = f"{base_requirements}\n\n" if base_requirements else ""
+    return (
+        prefix + "The previous draft contained cited claims that its sources did not "
+        "support. For each item below, support it accurately, soften it, replace "
+        "it with a supported claim, or remove it. Never invent evidence:\n"
+        + "\n".join(lines)
+    )
+
+
+def _assert_rewrite_citation_keys_unchanged(
+    original_keys: list[str] | None,
+    rewritten_keys: list[str] | None,
+    *,
+    stage: str,
+) -> None:
+    """A rewrite may move citations, but it may not add or drop sources."""
+    before = {str(key) for key in original_keys or [] if key}
+    after = {str(key) for key in rewritten_keys or [] if key}
+    if before == after:
+        return
+    added = sorted(after - before)
+    removed = sorted(before - after)
+    details: list[str] = []
+    if added:
+        details.append("added: " + ", ".join(added[:10]))
+    if removed:
+        details.append("removed: " + ", ".join(removed[:10]))
+    raise CitationIntegrityError(
+        detail=f"{stage} changed the section's citation set ({'; '.join(details)})"
     )
 
 
@@ -1187,17 +1299,31 @@ class BackgroundJobService:
                     )
                     await db.commit()
 
-                # Step 0: Build the upfront topic-locked source pack (grounding).
-                # Built once and reused for the outline + every section so
-                # citations come from a curated, on-topic set. Gated: when
-                # SOURCE_GROUNDING_ENABLED is off, source_pack stays None and the
-                # pipeline follows the legacy per-section retrieval path.
+                completed_index_result = await db.execute(
+                    select(DocumentSection.section_index).where(
+                        DocumentSection.document_id == document_id,
+                        DocumentSection.status == "completed",
+                    )
+                )
+                durable_completed_indices = {
+                    int(index) for index in completed_index_result.scalars().all()
+                }
+                expected_source_pack_sha: str | None = None
+                if job_id is not None:
+                    expected_source_pack_sha = (
+                        await db.execute(
+                            select(AIGenerationJob.source_pack_sha256).where(
+                                AIGenerationJob.id == job_id
+                            )
+                        )
+                    ).scalar_one_or_none()
+
+                # Step 0: build a provisional pack for the outline, or reuse
+                # the exact verified pack when durable sections already exist.
                 source_pack = None
+                source_pack_reused = False
+                uploaded_pack = None
                 if settings.SOURCE_GROUNDING_ENABLED:
-                    # Files the manager marked MANDATORY gate the run with an
-                    # explicit message; unusable supplementary files are only
-                    # excluded, with a visible warning (course correction
-                    # 2026-07-11: uploaded PDFs are supplementary by default).
                     source_blockers, source_warnings = await uploaded_sources_blockers(
                         db, document_id
                     )
@@ -1216,49 +1342,84 @@ class BackgroundJobService:
                             event_type="source_files_excluded",
                             payload={"warnings": source_warnings[:20]},
                         )
-                    # Uploaded PDFs join the pack first (chosen readings,
-                    # full-text passages); API retrieval SUPPLEMENTS them up
-                    # to the target size instead of being replaced. Rebuilt
-                    # deterministically on every (re)run.
                     uploaded_pack = await build_uploaded_source_pack(
                         db, document_id, str(document.topic or "")
                     )
-                    if uploaded_pack is not None:
-                        if (
-                            len(uploaded_pack.sources)
-                            < settings.SOURCE_PACK_TARGET_SIZE
-                        ):
-                            api_pack = await _build_source_pack(
-                                db,
-                                document,
-                                ai_service=AIService(db, usage_tracker=usage),
+
+                    if settings.SOURCE_PACK_PREFLIGHT_ENABLED and (
+                        durable_completed_indices or expected_source_pack_sha
+                    ):
+                        source_pack = await _load_source_pack(db, document_id)
+                        if source_pack is None or not source_pack.sources:
+                            raise CitationIntegrityError(
+                                detail=(
+                                    "This generation already froze a source pack, "
+                                    "but its persisted rows are missing"
+                                )
                             )
-                            source_pack = _merge_source_packs(uploaded_pack, api_pack)
-                        else:
-                            source_pack = uploaded_pack
-                        await fence_next_mutation(db)
-                        await _persist_source_pack(db, document_id, source_pack)
+                        if uploaded_pack is not None:
+                            source_pack.passages = uploaded_pack.passages
+                        invalid_keys = invalid_preverified_source_keys(source_pack)
+                        if invalid_keys:
+                            raise CitationIntegrityError(
+                                detail=(
+                                    "Frozen source pack has no valid preflight proof "
+                                    "for key(s): " + ", ".join(invalid_keys[:20])
+                                )
+                            )
+                        actual_digest = source_pack.sha256()
+                        if fenced_execution and not expected_source_pack_sha:
+                            raise CitationIntegrityError(
+                                detail=(
+                                    "Completed sections exist without a frozen "
+                                    "source-pack digest"
+                                )
+                            )
+                        if (
+                            expected_source_pack_sha
+                            and actual_digest != expected_source_pack_sha
+                        ):
+                            raise CitationIntegrityError(
+                                detail="Frozen source pack changed after section writing"
+                            )
+                        if expected_source_pack_sha is None:
+                            expected_source_pack_sha = actual_digest
+                        source_pack_reused = True
                         if settings.PROVENANCE_LEDGER_ENABLED:
                             await _record_provenance(
                                 db,
                                 document_id,
                                 stage="retrieval",
-                                event_type="source_pack_built",
+                                event_type="source_pack_reused",
                                 payload={
-                                    "origin": "uploaded_plus_auto",
-                                    "uploaded": len(uploaded_pack.sources),
-                                    "pack_size": len(source_pack.sources),
-                                    "passages": len(source_pack.passages or []),
+                                    "size": len(source_pack.sources),
+                                    "sha256": actual_digest,
                                 },
                             )
-                    if source_pack is None:
-                        source_pack = await _load_source_pack(db, document_id)
-                    if source_pack is None or not source_pack.sources:
-                        source_pack = await _build_source_pack(
-                            db,
-                            document,
-                            ai_service=AIService(db, usage_tracker=usage),
-                        )
+                    else:
+                        if uploaded_pack is not None:
+                            if (
+                                len(uploaded_pack.sources)
+                                < settings.SOURCE_PACK_TARGET_SIZE
+                            ):
+                                api_pack = await _build_source_pack(
+                                    db,
+                                    document,
+                                    ai_service=AIService(db, usage_tracker=usage),
+                                )
+                                source_pack = _merge_source_packs(
+                                    uploaded_pack, api_pack
+                                )
+                            else:
+                                source_pack = uploaded_pack
+                        if source_pack is None:
+                            source_pack = await _load_source_pack(db, document_id)
+                        if source_pack is None or not source_pack.sources:
+                            source_pack = await _build_source_pack(
+                                db,
+                                document,
+                                ai_service=AIService(db, usage_tracker=usage),
+                            )
                         if source_pack is not None:
                             await fence_next_mutation(db)
                             await _persist_source_pack(db, document_id, source_pack)
@@ -1272,6 +1433,16 @@ class BackgroundJobService:
                                     stage="retrieval",
                                     event_type="source_pack_built",
                                     payload={
+                                        "origin": (
+                                            "uploaded_plus_auto"
+                                            if uploaded_pack is not None
+                                            else "automatic"
+                                        ),
+                                        "uploaded": (
+                                            len(uploaded_pack.sources)
+                                            if uploaded_pack is not None
+                                            else 0
+                                        ),
                                         "pack_size": len(source_pack.sources),
                                         "mean_on_topic_score": (
                                             round(sum(scores) / len(scores), 3)
@@ -1279,9 +1450,8 @@ class BackgroundJobService:
                                             else 0.0
                                         ),
                                         "underfilled": source_pack.underfilled,
-                                        "bilingual": bool(
-                                            getattr(source_pack, "bilingual", False)
-                                        ),
+                                        "bilingual": bool(source_pack.bilingual),
+                                        "passages": len(source_pack.passages or []),
                                     },
                                 )
 
@@ -1359,7 +1529,7 @@ class BackgroundJobService:
                 )
 
                 # ✅ TASK 3.7.2: Check for checkpoint and resume from last completed section
-                start_section_index = 0
+                start_section_index = max(durable_completed_indices, default=0)
                 try:
                     redis = await get_redis()
                     checkpoint_raw = await redis.get(f"checkpoint:doc:{document_id}")
@@ -1370,8 +1540,9 @@ class BackgroundJobService:
                             await redis.delete(f"checkpoint:doc:{document_id}")
                             checkpoint = {}
                         if checkpoint:
-                            start_section_index = checkpoint.get(
-                                "last_completed_section_index", 0
+                            start_section_index = max(
+                                start_section_index,
+                                int(checkpoint.get("last_completed_section_index", 0)),
                             )
                             logger.info(
                                 f"♻️ Resuming generation from section {start_section_index + 1}/{len(sections)}"
@@ -1398,59 +1569,212 @@ class BackgroundJobService:
                             f"Starting fresh generation for document {document_id}"
                         )
                 except Exception as checkpoint_error:
-                    # ⚠️ Non-critical: log warning and start from beginning
+                    # Redis is only a progress hint. Durable completed rows are
+                    # the recovery truth and must never be forgotten.
                     logger.warning(
-                        f"⚠️ Failed to load checkpoint: {checkpoint_error}. Starting from beginning."
+                        f"⚠️ Failed to load checkpoint: {checkpoint_error}. "
+                        "Using durable section state."
                     )
-                    start_section_index = 0
 
-                # Post-outline pack rebuild (grounding): re-query with the
-                # promised section titles so the pack covers every section, not
-                # just the bare topic (which returned a generic "AI" mix).
-                # ONLY on fresh generation — on resume, already-generated
-                # sections cite the persisted keys and a rebuild would re-key
-                # the pack and orphan their citations.
-                if (
-                    settings.SOURCE_GROUNDING_ENABLED
-                    and source_pack is not None
-                    and start_section_index == 0
-                    # Uploaded packs are the mandated bibliography: the API
-                    # rebuild must never displace them (GPT review
-                    # 2026-07-11). Their per-section relevance is handled by
-                    # prompt_block(query=...) at generation time instead.
-                    and not getattr(source_pack, "passages", None)
-                ):
-                    titles = [s.get("title") for s in sections if s.get("title")]
-                    if titles:
-                        source_pack = await _build_source_pack(
+                # Final source pack: verify it BEFORE the first section writer
+                # and freeze the exact result for crash recovery.
+                titles = [s.get("title") for s in sections if s.get("title")]
+                if settings.SOURCE_PACK_PREFLIGHT_ENABLED:
+                    if not source_pack_reused:
+                        api_candidates = await _build_source_pack(
                             db,
                             document,
                             section_titles=titles,
                             ai_service=AIService(db, usage_tracker=usage),
+                            target_size=settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE,
+                            allow_threshold_relaxation=False,
+                            retrieval_page=1,
+                            raise_on_provider_error=True,
                         )
-                        await fence_next_mutation(db)
-                        await _persist_source_pack(db, document_id, source_pack)
+                        candidate_pack = (
+                            _merge_source_packs(
+                                uploaded_pack,
+                                api_candidates,
+                                limit=settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE,
+                            )
+                            if uploaded_pack is not None
+                            else api_candidates
+                        )
+                        verifier = CitationVerifier()
+                        preflight = await preverify_source_pack(
+                            candidate_pack,
+                            verifier,
+                            target_size=settings.SOURCE_PACK_TARGET_SIZE,
+                            minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
+                        )
+                        top_up_attempted = False
+                        if preflight.needs_top_up:
+                            top_up_attempted = True
+                            top_up = await _build_source_pack(
+                                db,
+                                document,
+                                section_titles=titles,
+                                ai_service=AIService(db, usage_tracker=usage),
+                                target_size=(
+                                    settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE
+                                ),
+                                allow_threshold_relaxation=False,
+                                retrieval_page=2,
+                                raise_on_provider_error=True,
+                            )
+                            combined_candidates = _merge_source_packs(
+                                candidate_pack,
+                                top_up,
+                                limit=(settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE * 2),
+                            )
+                            preflight = await preverify_source_pack(
+                                combined_candidates,
+                                verifier,
+                                target_size=settings.SOURCE_PACK_TARGET_SIZE,
+                                minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
+                            )
+
                         if settings.PROVENANCE_LEDGER_ENABLED:
-                            scores = [ps.on_topic_score for ps in source_pack.sources]
                             await _record_provenance(
                                 db,
                                 document_id,
-                                stage="retrieval",
-                                event_type="source_pack_rebuilt",
-                                payload={
-                                    "pack_size": len(source_pack.sources),
-                                    "mean_on_topic_score": (
-                                        round(sum(scores) / len(scores), 3)
-                                        if scores
-                                        else 0.0
-                                    ),
-                                    "underfilled": source_pack.underfilled,
-                                    "bilingual": bool(
-                                        getattr(source_pack, "bilingual", False)
-                                    ),
-                                    "section_titles": titles[:12],
-                                },
+                                stage="verification",
+                                event_type="source_pack_preflight",
+                                payload=preflight.provenance_payload(
+                                    top_up_attempted=top_up_attempted
+                                ),
                             )
+
+                        if not preflight.meets_minimum:
+                            detail = (
+                                "Source preflight found only "
+                                f"{preflight.verified_count} verified source(s); "
+                                f"minimum is {settings.SOURCE_PACK_MIN_VERIFIED}"
+                            )
+                            if preflight.transient_count:
+                                raise RuntimeError(
+                                    detail
+                                    + "; bibliographic providers were unavailable"
+                                )
+                            if fenced_execution:
+                                await update_generation_document(
+                                    db,
+                                    job_id=job_id,
+                                    worker_id=lease_owner,
+                                    lease_token=lease_token,
+                                    document_id=document_id,
+                                    values={"status": "failed_quality"},
+                                )
+                            else:
+                                await db.execute(
+                                    update(Document)
+                                    .where(Document.id == document_id)
+                                    .values(status="failed_quality")
+                                )
+                                await db.commit()
+                            raise CitationIntegrityError(detail=detail)
+
+                        source_pack = preflight.pack
+                        if fenced_execution:
+                            expected_source_pack_sha = (
+                                await persist_generation_source_pack(
+                                    db,
+                                    job_id=job_id,
+                                    worker_id=lease_owner,
+                                    lease_token=lease_token,
+                                    document_id=document_id,
+                                    pack=source_pack,
+                                )
+                            )
+                        else:
+                            await _apply_source_pack_rows(db, document_id, source_pack)
+                            await db.commit()
+                            expected_source_pack_sha = source_pack.sha256()
+                    elif source_pack is None:
+                        raise CitationIntegrityError(
+                            detail="Frozen source pack could not be restored"
+                        )
+                elif (
+                    settings.SOURCE_GROUNDING_ENABLED
+                    and source_pack is not None
+                    and start_section_index == 0
+                    and not getattr(source_pack, "passages", None)
+                    and titles
+                ):
+                    # Legacy, flag-off behavior retained for existing runs.
+                    source_pack = await _build_source_pack(
+                        db,
+                        document,
+                        section_titles=titles,
+                        ai_service=AIService(db, usage_tracker=usage),
+                    )
+                    await fence_next_mutation(db)
+                    await _persist_source_pack(db, document_id, source_pack)
+                    if settings.PROVENANCE_LEDGER_ENABLED:
+                        scores = [ps.on_topic_score for ps in source_pack.sources]
+                        await _record_provenance(
+                            db,
+                            document_id,
+                            stage="retrieval",
+                            event_type="source_pack_rebuilt",
+                            payload={
+                                "pack_size": len(source_pack.sources),
+                                "mean_on_topic_score": (
+                                    round(sum(scores) / len(scores), 3)
+                                    if scores
+                                    else 0.0
+                                ),
+                                "underfilled": source_pack.underfilled,
+                                "bilingual": bool(source_pack.bilingual),
+                                "section_titles": titles[:12],
+                            },
+                        )
+
+                claim_verifier: ClaimVerifier | None = None
+                claim_sources: list[Any] = []
+                claim_budget_remaining = max(0, settings.CLAIM_VERIFICATION_MAX_CHECKS)
+                if settings.CLAIM_VERIFICATION_ENABLED:
+                    claim_sources_result = await db.execute(
+                        select(DocumentSource).where(
+                            DocumentSource.document_id == document_id
+                        )
+                    )
+                    claim_sources = _safe_scalars_all(
+                        claim_sources_result,
+                        f"claim_sources_before_sections_{document_id}",
+                    )
+                    claim_verifier = ClaimVerifier(
+                        AIService(db, usage_tracker=usage),
+                        batch_size=settings.CLAIM_VERIFICATION_BATCH_SIZE,
+                        abstract_max_chars=settings.CLAIM_ABSTRACT_MAX_CHARS,
+                    )
+                    if fenced_execution:
+                        persisted_claim_checks = (
+                            await db.execute(
+                                select(AIGenerationJob.claim_checks_used).where(
+                                    AIGenerationJob.id == job_id
+                                )
+                            )
+                        ).scalar_one_or_none()
+                        claim_budget_remaining = max(
+                            0,
+                            claim_budget_remaining - int(persisted_claim_checks or 0),
+                        )
+                    else:
+                        completed_claim_result = await db.execute(
+                            select(DocumentSection.claim_verification).where(
+                                DocumentSection.document_id == document_id,
+                                DocumentSection.status == "completed",
+                            )
+                        )
+                        already_checked = sum(
+                            int((summary or {}).get("checked") or 0)
+                            for summary in completed_claim_result.scalars().all()
+                            if isinstance(summary, dict)
+                        )
+                        claim_budget_remaining = max(
+                            0, claim_budget_remaining - already_checked
+                        )
 
                 total_sections = len(sections)  # Calculate once for progress tracking
                 for idx, section_data in enumerate(sections):
@@ -1556,6 +1880,7 @@ class BackgroundJobService:
                         final_plagiarism_score = None
                         final_ai_score = None
                         final_quality_score = None
+                        final_claim_summary: dict[str, Any] | None = None
                         # Per-check status/score/reason of the final accepted
                         # attempt — recorded in the quality_gate event so
                         # unchecked checks are visible downstream
@@ -1648,21 +1973,36 @@ class BackgroundJobService:
                             # raw draft's citations against the source pack BEFORE
                             # humanization. Ungrounded/off-topic citations trigger
                             # bounded regeneration within this loop's budget.
-                            if (
-                                settings.GROUNDING_GATE_ENABLED
-                                and source_pack is not None
+                            unresolved_markers = list(
+                                section_result.get("unresolved_pack_markers") or []
+                            )
+                            if source_pack is not None and (
+                                unresolved_markers or settings.GROUNDING_GATE_ENABLED
                             ):
-                                grounding = evaluate_grounding(
-                                    section_result,
-                                    source_pack,
-                                    min_grounding_rate=settings.GROUNDING_MIN_RATE,
-                                    require_evidence=(
-                                        settings.GROUNDING_REQUIRE_EVIDENCE
-                                    ),
-                                    min_on_topic_score=(
-                                        settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
-                                    ),
-                                )
+                                if unresolved_markers:
+                                    grounding = GroundingResult(
+                                        passed=False,
+                                        grounding_rate=0.0,
+                                        total_citations=len(unresolved_markers),
+                                        grounded_citations=0,
+                                        offending_keys=unresolved_markers,
+                                        reason=(
+                                            "unresolved source-pack marker(s): "
+                                            + ", ".join(unresolved_markers[:10])
+                                        ),
+                                    )
+                                else:
+                                    grounding = evaluate_grounding(
+                                        section_result,
+                                        source_pack,
+                                        min_grounding_rate=settings.GROUNDING_MIN_RATE,
+                                        require_evidence=(
+                                            settings.GROUNDING_REQUIRE_EVIDENCE
+                                        ),
+                                        min_on_topic_score=(
+                                            settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
+                                        ),
+                                    )
                                 if not grounding.passed:
                                     if settings.PROVENANCE_LEDGER_ENABLED:
                                         await _record_provenance(
@@ -1707,7 +2047,10 @@ class BackgroundJobService:
                                         )
                                         continue
                                     # Final attempt: strict fails, mark_only ships.
-                                    if settings.GROUNDING_GATE_POLICY == "strict":
+                                    if (
+                                        unresolved_markers
+                                        or settings.GROUNDING_GATE_POLICY == "strict"
+                                    ):
                                         raise QualityThresholdNotMetError(
                                             detail=(
                                                 f"Section {section_index} failed the "
@@ -1734,12 +2077,17 @@ class BackgroundJobService:
                             # Step 3: Humanize content (gated by HUMANIZER_ENABLED;
                             # off = keep raw writer text, for the Block-1 writer
                             # experiment that measures unrescued Compilatio score)
+                            rewrite_input = (
+                                section_result.get("content_with_markers", "")
+                                if source_pack is not None
+                                else section_result.get("content", "")
+                            )
                             if settings.HUMANIZER_ENABLED:
                                 logger.info(
                                     f"Humanizing section {section_index}: {section_title}"
                                 )
                                 humanized_content = await humanizer.humanize(
-                                    text=section_result.get("content", ""),
+                                    text=rewrite_input,
                                     provider=document.ai_provider,
                                     model=document.ai_model,
                                     preserve_citations=True,
@@ -1750,13 +2098,52 @@ class BackgroundJobService:
                                     f"Humanizer disabled — raw writer text for "
                                     f"section {section_index}"
                                 )
-                                humanized_content = section_result.get("content", "")
+                                humanized_content = rewrite_input
+
+                            # Keep canonical [Key] identity through every rewrite
+                            # and render only for user-facing quality checks. This
+                            # avoids reverse-guessing identical MLA citations.
+                            canonical_claim_content: str | None = None
+                            if source_pack is not None:
+                                post_humanizer_conversion = convert_pack_markers(
+                                    humanized_content,
+                                    source_pack,
+                                    citation_style=document_citation_style,
+                                )
+                                if post_humanizer_conversion.unresolved_keys:
+                                    raise CitationIntegrityError(
+                                        detail=(
+                                            "Humanized section contains unresolved "
+                                            "source markers: "
+                                            + ", ".join(
+                                                post_humanizer_conversion.unresolved_keys[
+                                                    :10
+                                                ]
+                                            )
+                                        )
+                                    )
+                                _assert_rewrite_citation_keys_unchanged(
+                                    section_result.get("pack_keys_used") or [],
+                                    post_humanizer_conversion.used_keys,
+                                    stage="Humanization",
+                                )
+                                canonical_claim_content = (
+                                    post_humanizer_conversion.content_with_markers
+                                )
+                                rendered_humanized_content = (
+                                    post_humanizer_conversion.content
+                                )
+                            else:
+                                rendered_humanized_content = humanized_content
 
                             # ========== QUALITY GATES START ==========
                             # ✅ BUG FIX: Always run ALL checks (for metrics), only block if gates enabled
 
                             gates_passed = True
                             attempt_errors = []
+                            claim_gate_failed = False
+                            claim_feedback_summary: dict[str, Any] | None = None
+                            attempt_claim_summary: dict[str, Any] | None = None
                             # Reset per attempt: stale remarks about an older
                             # draft must not leak into later prompts
                             panel_feedback = []
@@ -1768,7 +2155,7 @@ class BackgroundJobService:
                                 grammar_status,
                                 grammar_reason,
                             ) = await _check_grammar_quality(
-                                humanized_content,
+                                rendered_humanized_content,
                                 document.language,
                                 settings.QUALITY_MAX_GRAMMAR_ERRORS,
                             )
@@ -1800,7 +2187,7 @@ class BackgroundJobService:
                                 plagiarism_status,
                                 plagiarism_reason,
                             ) = await _check_plagiarism_quality(
-                                humanized_content,
+                                rendered_humanized_content,
                                 settings.QUALITY_MIN_PLAGIARISM_UNIQUENESS,
                             )
                             final_plagiarism_score = plagiarism_score  # Save for DB
@@ -1843,6 +2230,32 @@ class BackgroundJobService:
                                 score_trace=ai_trace,
                             )
                             final_ai_score = ai_score  # Save for DB
+
+                            if source_pack is not None:
+                                post_ai_conversion = convert_pack_markers(
+                                    humanized_content,
+                                    source_pack,
+                                    citation_style=document_citation_style,
+                                )
+                                if post_ai_conversion.unresolved_keys:
+                                    raise CitationIntegrityError(
+                                        detail=(
+                                            "Final rewritten section contains "
+                                            "unresolved source markers: "
+                                            + ", ".join(
+                                                post_ai_conversion.unresolved_keys[:10]
+                                            )
+                                        )
+                                    )
+                                _assert_rewrite_citation_keys_unchanged(
+                                    section_result.get("pack_keys_used") or [],
+                                    post_ai_conversion.used_keys,
+                                    stage="AI-detection rewrite",
+                                )
+                                canonical_claim_content = (
+                                    post_ai_conversion.content_with_markers
+                                )
+                                humanized_content = post_ai_conversion.content
 
                             if (
                                 ai_status == CheckStatus.FAILED
@@ -1893,12 +2306,142 @@ class BackgroundJobService:
                                 },
                             }
 
+                            # Claim faithfulness checks the exact post-humanizer
+                            # text that may be persisted. Unsupported claims
+                            # share this section's existing retry budget;
+                            # uncertain claims remain visible for manager review.
+                            if (
+                                settings.CLAIM_VERIFICATION_ENABLED
+                                and gates_passed
+                                and claim_verifier is not None
+                            ):
+                                try:
+                                    attempt_claim_sources = _claim_sources_for_attempt(
+                                        claim_sources, section_result
+                                    )
+                                    attempt_claims = claim_verifier.extract_claims(
+                                        (
+                                            canonical_claim_content
+                                            if canonical_claim_content is not None
+                                            else humanized_content
+                                        ),
+                                        attempt_claim_sources,
+                                        citation_style=document_citation_style,
+                                    )
+                                    requested_claim_checks = sum(
+                                        1
+                                        for claim in attempt_claims
+                                        if (
+                                            claim.source_id is not None
+                                            or claim.source_title is not None
+                                        )
+                                        and claim.abstract
+                                    )
+                                    claim_attempt_budget = min(
+                                        requested_claim_checks,
+                                        claim_budget_remaining,
+                                    )
+                                    if fenced_execution and requested_claim_checks:
+                                        (
+                                            claim_attempt_budget,
+                                            total_claim_checks_reserved,
+                                        ) = await reserve_generation_claim_checks(
+                                            db,
+                                            job_id=job_id,
+                                            worker_id=lease_owner,
+                                            lease_token=lease_token,
+                                            document_id=document_id,
+                                            requested=requested_claim_checks,
+                                            max_checks=(
+                                                settings.CLAIM_VERIFICATION_MAX_CHECKS
+                                            ),
+                                        )
+                                        claim_budget_remaining = max(
+                                            0,
+                                            settings.CLAIM_VERIFICATION_MAX_CHECKS
+                                            - total_claim_checks_reserved,
+                                        )
+                                    (
+                                        attempt_claim_summary,
+                                        _claim_verdicts,
+                                        claim_llm_used,
+                                    ) = await verify_section_claims(
+                                        claim_verifier,
+                                        content=humanized_content,
+                                        canonical_marker_content=(
+                                            canonical_claim_content
+                                        ),
+                                        sources=attempt_claim_sources,
+                                        budget_remaining=claim_attempt_budget,
+                                        citation_style=document_citation_style,
+                                        claims=attempt_claims,
+                                    )
+                                    if not fenced_execution:
+                                        claim_budget_remaining = max(
+                                            0,
+                                            claim_budget_remaining - claim_llm_used,
+                                        )
+                                except Exception as claim_error:
+                                    if settings.PROVENANCE_LEDGER_ENABLED:
+                                        await _record_provenance(
+                                            db,
+                                            document_id,
+                                            stage="verification",
+                                            event_type="claim_verification_error",
+                                            payload={"error": str(claim_error)[:500]},
+                                        )
+                                    if settings.CLAIM_VERIFICATION_BLOCKING:
+                                        if fenced_execution:
+                                            await update_generation_document(
+                                                db,
+                                                job_id=job_id,
+                                                worker_id=lease_owner,
+                                                lease_token=lease_token,
+                                                document_id=document_id,
+                                                values={"status": "failed_quality"},
+                                            )
+                                        else:
+                                            await db.execute(
+                                                update(Document)
+                                                .where(Document.id == document_id)
+                                                .values(status="failed_quality")
+                                            )
+                                            await db.commit()
+                                        raise CitationIntegrityError(
+                                            detail=(
+                                                "Claim verification could not be "
+                                                "completed safely"
+                                            )
+                                        ) from claim_error
+                                unsupported_count = int(
+                                    (attempt_claim_summary or {})
+                                    .get("counts", {})
+                                    .get("unsupported", 0)
+                                )
+                                incomplete_count = len(
+                                    technical_uncertain_claims(attempt_claim_summary)
+                                )
+                                if (
+                                    unsupported_count > 0 or incomplete_count > 0
+                                ) and settings.CLAIM_VERIFICATION_BLOCKING:
+                                    claim_gate_failed = True
+                                    claim_feedback_summary = attempt_claim_summary
+                                    attempt_errors.append(
+                                        f"{unsupported_count} unsupported and "
+                                        f"{incomplete_count} technically unchecked "
+                                        "cited claim(s)"
+                                    )
+
                             # GATE 4: Reviewer Panel (flag-gated: 4 LLM calls
                             # per run, unlike gates 1-3 it does NOT always
                             # run; also skipped when gates 1-3 already failed
                             # this attempt - the draft will be regenerated
                             # anyway, no point reviewing a doomed draft)
-                            if settings.QUALITY_PANEL_ENABLED and gates_passed:
+                            if (
+                                settings.QUALITY_PANEL_ENABLED
+                                and gates_passed
+                                and not claim_gate_failed
+                            ):
                                 # Reset so a crash here doesn't leave scores/
                                 # reports describing an older attempt's draft
                                 panel_result = None
@@ -1951,9 +2494,12 @@ class BackgroundJobService:
 
                             # ========== QUALITY GATES DECISION ==========
 
-                            if not settings.QUALITY_GATES_ENABLED or gates_passed:
+                            if (
+                                not settings.QUALITY_GATES_ENABLED or gates_passed
+                            ) and not claim_gate_failed:
                                 # ALL GATES PASSED or GATES DISABLED ✅
                                 final_content = humanized_content
+                                final_claim_summary = attempt_claim_summary
                                 logger.info(
                                     f"✅ Section {section_index} passed all quality gates (enabled={settings.QUALITY_GATES_ENABLED})"
                                 )
@@ -1987,6 +2533,13 @@ class BackgroundJobService:
                                     )
                                 else:
                                     effective_requirements = additional_requirements
+                                if claim_feedback_summary is not None:
+                                    effective_requirements = (
+                                        _augment_with_claim_feedback(
+                                            effective_requirements,
+                                            claim_feedback_summary,
+                                        )
+                                    )
 
                                 # WebSocket: Notify regeneration
                                 await manager.send_progress(
@@ -2005,6 +2558,58 @@ class BackgroundJobService:
 
                             else:
                                 # GATES FAILED and NO ATTEMPTS LEFT → FAIL JOB
+                                if claim_gate_failed:
+                                    unsupported = int(
+                                        (attempt_claim_summary or {})
+                                        .get("counts", {})
+                                        .get("unsupported", 0)
+                                    )
+                                    incomplete = len(
+                                        technical_uncertain_claims(
+                                            attempt_claim_summary
+                                        )
+                                    )
+                                    if fenced_execution:
+                                        await update_generation_document(
+                                            db,
+                                            job_id=job_id,
+                                            worker_id=lease_owner,
+                                            lease_token=lease_token,
+                                            document_id=document_id,
+                                            values={"status": "failed_quality"},
+                                        )
+                                    else:
+                                        await db.execute(
+                                            update(Document)
+                                            .where(Document.id == document_id)
+                                            .values(status="failed_quality")
+                                        )
+                                        await db.commit()
+                                    if settings.PROVENANCE_LEDGER_ENABLED:
+                                        await _record_provenance(
+                                            db,
+                                            document_id,
+                                            stage="verification",
+                                            event_type="claim_integrity_gate_failed",
+                                            payload={
+                                                "unsupported": unsupported,
+                                                "incomplete": incomplete,
+                                                "counts": dict(
+                                                    (attempt_claim_summary or {}).get(
+                                                        "counts", {}
+                                                    )
+                                                ),
+                                            },
+                                        )
+                                    raise CitationIntegrityError(
+                                        detail=(
+                                            f"{unsupported} cited claim(s) remain "
+                                            "unsupported and "
+                                            f"{incomplete} cited claim(s) remain "
+                                            "technically unchecked after all repair "
+                                            "attempts"
+                                        )
+                                    )
                                 error_detail = f"Section {section_index} quality validation failed after {settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} attempts: {', '.join(attempt_errors)}"
                                 logger.error(f"❌ {error_detail}")
                                 # Preserve the failing attempt's reviewer
@@ -2097,6 +2702,7 @@ class BackgroundJobService:
                             "bibliography": section_result.get("bibliography") or [],
                             "pack_keys_used": section_result.get("pack_keys_used")
                             or [],
+                            "claim_verification": final_claim_summary,
                             "quality_panel": (
                                 panel_result.get("panel")
                                 if panel_result is not None
@@ -2223,9 +2829,11 @@ class BackgroundJobService:
                             overall_gate_status = (
                                 "failed"
                                 if "failed" in check_statuses
-                                else "unchecked"
-                                if "unchecked" in check_statuses
-                                else "passed"
+                                else (
+                                    "unchecked"
+                                    if "unchecked" in check_statuses
+                                    else "passed"
+                                )
                             )
                             await _record_provenance(
                                 db,
@@ -2252,9 +2860,11 @@ class BackgroundJobService:
                                     event_type="panel_review",
                                     payload={
                                         "section_index": section_index,
-                                        "status": "passed"
-                                        if panel_result.get("passed")
-                                        else "failed",
+                                        "status": (
+                                            "passed"
+                                            if panel_result.get("passed")
+                                            else "failed"
+                                        ),
                                         "overall_score": panel_result.get(
                                             "overall_score"
                                         ),
@@ -2485,6 +3095,49 @@ class BackgroundJobService:
                     logger.error(error_msg)
                     raise QualityThresholdNotMetError(detail=error_msg)
 
+                if settings.SOURCE_PACK_PREFLIGHT_ENABLED:
+                    persisted_pack = await _load_source_pack(db, document_id)
+                    if persisted_pack is not None and uploaded_pack is not None:
+                        persisted_pack.passages = uploaded_pack.passages
+                    invalid_keys = (
+                        invalid_preverified_source_keys(persisted_pack)
+                        if persisted_pack is not None
+                        else []
+                    )
+                    persisted_digest = (
+                        persisted_pack.sha256() if persisted_pack is not None else None
+                    )
+                    if (
+                        not expected_source_pack_sha
+                        or persisted_digest != expected_source_pack_sha
+                        or invalid_keys
+                    ):
+                        detail = (
+                            "Frozen source pack is missing or changed before export"
+                        )
+                        if invalid_keys:
+                            detail = (
+                                "Frozen source pack lost verification proof before "
+                                "export for key(s): " + ", ".join(invalid_keys[:20])
+                            )
+                        if fenced_execution:
+                            await update_generation_document(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                values={"status": "failed_quality"},
+                            )
+                        else:
+                            await db.execute(
+                                update(Document)
+                                .where(Document.id == document_id)
+                                .values(status="failed_quality")
+                            )
+                            await db.commit()
+                        raise CitationIntegrityError(detail=detail)
+
                 # Step 4.5: Combine sections into final document content
                 logger.info(
                     f"Combining {len(completed_sections)} sections into document {document_id}"
@@ -2511,6 +3164,45 @@ class BackgroundJobService:
                         document_bibliography
                     )
 
+                # Last-line safety net: a model-written internal [Key] must
+                # never reach preview/export even if an earlier gate is
+                # disabled or regresses.  Preserve the text for diagnosis,
+                # but fail closed instead of deleting the broken citation.
+                leaked_markers = internal_marker_keys(final_content)
+                if leaked_markers:
+                    detail = (
+                        "Unresolved internal citation marker(s) remain after "
+                        "section assembly: " + ", ".join(leaked_markers[:20])
+                    )
+                    if fenced_execution:
+                        await update_generation_document(
+                            db,
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                            values={
+                                "content": final_content,
+                                "status": "failed_quality",
+                            },
+                        )
+                    else:
+                        await db.execute(
+                            update(Document)
+                            .where(Document.id == document_id)
+                            .values(content=final_content, status="failed_quality")
+                        )
+                        await db.commit()
+                    if settings.PROVENANCE_LEDGER_ENABLED:
+                        await _record_provenance(
+                            db,
+                            document_id,
+                            stage="verification",
+                            event_type="citation_marker_gate_failed",
+                            payload={"markers": leaked_markers[:50]},
+                        )
+                    raise CitationIntegrityError(detail=detail)
+
                 if fenced_execution:
                     await update_generation_document(
                         db,
@@ -2533,8 +3225,9 @@ class BackgroundJobService:
 
                 # Step 4.7: Citation verification + integrity gate
                 # (Academic Quality Engine). Strict policy raises
-                # CitationIntegrityError here, before export; mark_only and
-                # internal failures never block (fail-open).
+                # CitationIntegrityError here, before export. Strict mode is
+                # fail-closed if the verifier cannot complete; mark_only keeps
+                # failures visible without blocking.
                 if settings.CITATION_VERIFICATION_ENABLED:
                     if fenced_execution:
                         async with hold_generation_job_lease(
@@ -2566,10 +3259,15 @@ class BackgroundJobService:
                                     document_id,
                                     user_id,
                                     usage_tracker=usage,
+                                    job_id=job_id,
                                 )
                         else:
                             await _run_claim_verification_stage(
-                                db, document_id, user_id, usage_tracker=usage
+                                db,
+                                document_id,
+                                user_id,
+                                usage_tracker=usage,
+                                job_id=job_id,
                             )
                 finally:
                     # Post-section LLM spend (claim verifier) included —

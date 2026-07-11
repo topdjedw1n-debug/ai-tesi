@@ -75,6 +75,8 @@ async def test_generation_falls_back_to_persisted_requirements(mock_db, mock_set
         document_result,
         update_result,
         update_result,
+        update_result,
+        update_result,
     ]
 
     ai_service = MagicMock()
@@ -725,6 +727,7 @@ async def test_redis_load_error_starts_fresh(mock_db, mock_redis, mock_settings)
     mock_db.execute.side_effect = [
         doc_result,
         update_result,
+        update_result,  # durable completed-section recovery query
         # Section 1:
         section_result_none,
         section_result_none,
@@ -850,6 +853,7 @@ async def test_export_failure_marks_document_failed(mock_db, mock_redis, mock_se
     mock_db.execute.side_effect = [
         doc_result,
         update_result,
+        update_result,  # durable completed-section recovery query
         section_result_none,
         section_result_none,
         update_result,

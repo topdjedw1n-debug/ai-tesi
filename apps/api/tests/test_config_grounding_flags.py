@@ -32,6 +32,9 @@ def test_defaults_are_off():
     assert s.GROUNDING_GATE_POLICY == "mark_only"
     assert s.CLAIM_VERIFICATION_BLOCKING is False
     assert s.SOURCE_PACK_TARGET_SIZE == 24
+    assert s.SOURCE_PACK_PREFLIGHT_ENABLED is False
+    assert s.SOURCE_PACK_CANDIDATE_RESERVE_SIZE == 48
+    assert s.SOURCE_PACK_MIN_VERIFIED == 18
     # Bilingual pack is ON by default (kill switch for bad translations);
     # it only activates when grounding itself is enabled.
     assert s.SOURCE_PACK_BILINGUAL_ENABLED is True
@@ -73,3 +76,54 @@ def test_claim_blocking_valid_combo():
 def test_grounding_require_evidence_default_and_override():
     assert make().GROUNDING_REQUIRE_EVIDENCE is True
     assert make(GROUNDING_REQUIRE_EVIDENCE=False).GROUNDING_REQUIRE_EVIDENCE is False
+
+
+def test_source_pack_preflight_requires_full_strict_quality_profile():
+    with pytest.raises(ValueError):
+        make(SOURCE_PACK_PREFLIGHT_ENABLED=True)
+
+    enabled = make(
+        SOURCE_PACK_PREFLIGHT_ENABLED=True,
+        SOURCE_GROUNDING_ENABLED=True,
+        CITATION_VERIFICATION_ENABLED=True,
+        CITATION_VERIFICATION_POLICY="strict",
+        CLAIM_VERIFICATION_ENABLED=True,
+        CLAIM_VERIFICATION_BLOCKING=True,
+    )
+    assert enabled.SOURCE_PACK_PREFLIGHT_ENABLED is True
+
+
+@pytest.mark.parametrize(
+    "override",
+    [
+        {"CITATION_VERIFICATION_POLICY": "mark_only"},
+        {"CLAIM_VERIFICATION_ENABLED": False},
+        {"CLAIM_VERIFICATION_BLOCKING": False},
+        {"HUMANIZER_FREEZE_CITATIONS": False},
+    ],
+)
+def test_source_pack_preflight_cannot_silently_run_advisory(override):
+    values = {
+        "SOURCE_PACK_PREFLIGHT_ENABLED": True,
+        "SOURCE_GROUNDING_ENABLED": True,
+        "CITATION_VERIFICATION_ENABLED": True,
+        "CITATION_VERIFICATION_POLICY": "strict",
+        "CLAIM_VERIFICATION_ENABLED": True,
+        "CLAIM_VERIFICATION_BLOCKING": True,
+    }
+    values.update(override)
+    with pytest.raises(ValueError):
+        make(**values)
+
+
+@pytest.mark.parametrize(
+    "overrides",
+    [
+        {"SOURCE_PACK_MIN_VERIFIED": 0},
+        {"SOURCE_PACK_MIN_VERIFIED": 25},
+        {"SOURCE_PACK_CANDIDATE_RESERVE_SIZE": 23},
+    ],
+)
+def test_source_pack_size_invariants(overrides):
+    with pytest.raises(ValueError, match="minimum verified"):
+        make(**overrides)

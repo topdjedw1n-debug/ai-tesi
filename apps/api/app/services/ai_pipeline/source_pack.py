@@ -15,11 +15,15 @@ extra API calls). Persistence lives in source_verification_stage.py
 
 from __future__ import annotations
 
+import hashlib
+import json
 import logging
+import re
 from dataclasses import dataclass, field
 from typing import Any
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+from app.services.ai_pipeline.source_identity import normalize_doi
 from app.services.ai_pipeline.text_utils import ascii_fold, content_tokens
 
 logger = logging.getLogger(__name__)
@@ -32,6 +36,32 @@ _UNDERFILL_FLOOR = 6
 # pass. Keeps the HTTP volume bounded: ≤11 primary + ≤7 alt = ≤18 queries
 # × 2 providers.
 _ALT_TITLE_QUERY_CAP = 4
+
+_BLOCKED_AUTOMATIC_TYPES = {
+    "dissertation",
+    "thesis",
+    "doctoral thesis",
+    "master thesis",
+    "masters thesis",
+    "bachelor thesis",
+    "student thesis",
+    "degree thesis",
+}
+
+_STUDENT_WORK_TEXT_RE = re.compile(
+    r"\b(?:"
+    r"doctoral\s+(?:thesis|dissertation)|"
+    r"phd\s+(?:thesis|dissertation)|"
+    r"master(?:s|\s+s)?\s+(?:thesis|dissertation)|"
+    r"bachelor(?:s|\s+s)?\s+(?:thesis|dissertation)|"
+    r"student\s+(?:thesis|dissertation)|"
+    r"degree\s+(?:thesis|dissertation)|"
+    r"electronic\s+theses?\s+and\s+dissertations?(?:\s+repository)?|"
+    r"theses?\s+and\s+dissertations?\s+repository|"
+    r"tesi\s+(?:di\s+laurea|magistrale|dottorale|di\s+dottorato)|"
+    r"dissertazione\s+(?:di\s+laurea|dottorale)"
+    r")\b"
+)
 
 # Coarse domain detection → anchor terms (reward) + off-topic markers (penalize).
 # Small, curated constants (YAGNI); make configurable later only if needed. The
@@ -161,6 +191,10 @@ class SourcePack:
     # None for API-built packs; when present, prompt_block(query=...) appends
     # the top page-anchored excerpts for the section being written.
     passages: list[Any] | None = None
+    # Retrieval outages observed while building the candidate reserve.  An
+    # underfilled pack with provider errors is retryable, not proof that too
+    # few valid sources exist.
+    provider_errors: list[str] = field(default_factory=list)
 
     def keys(self) -> list[str]:
         return [ps.citation_key for ps in self.sources]
@@ -171,6 +205,96 @@ class SourcePack:
             if ps.citation_key.lower() == target:
                 return ps
         return None
+
+    @staticmethod
+    def _canonical_source_sort_key(item: PackedSource) -> tuple[Any, ...]:
+        """One stable order for persistence, digests and writer prompts.
+
+        Relevance remains the primary product rule.  The remaining fields are
+        deterministic tie-breakers so equal-scored uploaded files and restored
+        database rows cannot silently swap places between attempts.
+        """
+        source = item.source
+        return (
+            -round(float(item.on_topic_score), 12),
+            str(item.citation_key or "").casefold(),
+            normalize_doi(source.doi) or "",
+            str(source.title or "").strip().casefold(),
+            int(source.year or 0),
+            str(source.paper_id or ""),
+        )
+
+    def canonical_sources(self) -> list[PackedSource]:
+        """Return the exact deterministic source order shown to the writer."""
+        return sorted(self.sources, key=self._canonical_source_sort_key)
+
+    @staticmethod
+    def _canonical_passage_sort_key(passage: Any) -> tuple[Any, ...]:
+        """Stable full-text order, including overlapping windows on one page."""
+        return (
+            str(getattr(passage, "citation_key", "") or "").casefold(),
+            int(getattr(passage, "source_file_id", 0) or 0),
+            int(getattr(passage, "page_number", 0) or 0),
+            str(getattr(passage, "filename", "") or "").casefold(),
+            str(getattr(passage, "text", "") or ""),
+        )
+
+    def canonical_passages(self) -> list[Any]:
+        """Return deterministic PDF passages used by both digest and prompt."""
+        return sorted(self.passages or [], key=self._canonical_passage_sort_key)
+
+    def sha256(self) -> str:
+        """Digest of every prompt-significant source-pack field.
+
+        Sources and uploaded-PDF passages use the same canonical order as the
+        writer prompt.  This makes a database reload stable while still
+        detecting changes to source rank, passage identity, page, filename or
+        excerpt content. Full uploaded file bytes remain covered by the
+        separate task-contract digest.
+        """
+        rows: list[dict[str, Any]] = []
+        for position, packed in enumerate(self.canonical_sources()):
+            source = packed.source
+            abstract = str(source.abstract or "")
+            rows.append(
+                {
+                    "position": position,
+                    "citation_key": packed.citation_key,
+                    "on_topic_score": round(float(packed.on_topic_score), 6),
+                    "title": str(source.title or "").strip(),
+                    "authors": [str(author).strip() for author in source.authors or []],
+                    "year": source.year,
+                    "doi": normalize_doi(source.doi),
+                    "venue": str(source.venue or "").strip() or None,
+                    "paper_id": source.paper_id,
+                    "provider": getattr(source, "provider", None),
+                    "source_type": getattr(source, "source_type", None),
+                    "abstract_sha256": hashlib.sha256(
+                        abstract.encode("utf-8")
+                    ).hexdigest(),
+                }
+            )
+        passage_rows: list[dict[str, Any]] = []
+        for position, passage in enumerate(self.canonical_passages()):
+            passage_rows.append(
+                {
+                    "position": position,
+                    "source_file_id": int(getattr(passage, "source_file_id", 0) or 0),
+                    "citation_key": str(getattr(passage, "citation_key", "") or ""),
+                    "filename": str(getattr(passage, "filename", "") or ""),
+                    "page_number": int(getattr(passage, "page_number", 0) or 0),
+                    "text_sha256": hashlib.sha256(
+                        str(getattr(passage, "text", "") or "").encode("utf-8")
+                    ).hexdigest(),
+                }
+            )
+        canonical = json.dumps(
+            {"sources": rows, "passages": passage_rows},
+            sort_keys=True,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        )
+        return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
 
     def prompt_block(
         self,
@@ -186,7 +310,8 @@ class SourcePack:
         page-anchored excerpts for the section being written are appended —
         real page numbers, so downstream evidence can cite them.
         """
-        rows = self.sources if limit is None else self.sources[:limit]
+        ordered_sources = self.canonical_sources()
+        rows = ordered_sources if limit is None else ordered_sources[:limit]
         if not rows:
             return ""
         lines = []
@@ -211,7 +336,9 @@ class SourcePack:
             # types, so the excerpt selector must be imported lazily here.
             from app.services.uploaded_sources import select_passages
 
-            excerpts = select_passages(self.passages, query, limit=excerpt_limit)
+            excerpts = select_passages(
+                self.canonical_passages(), query, limit=excerpt_limit
+            )
             if excerpts:
                 excerpt_lines = [
                     "",
@@ -233,6 +360,35 @@ class SourcePack:
         return block
 
 
+def is_blocked_automatic_source(source: SourceDoc) -> bool:
+    """Return whether an automatically retrieved record is student work.
+
+    Known degree-work provider types block immediately.  Provider taxonomies
+    also contain vague non-empty values such as ``posted-content``; those are
+    not proof that a record is a scholarly publication, so explicit degree-
+    work signals in the bibliographic metadata are always checked as well.
+    Manager-uploaded material is governed by the separate uploaded-source
+    policy and does not pass through the automatic builder.
+    """
+    source_type = re.sub(
+        r"[_-]+", " ", str(source.source_type or "").strip().casefold()
+    )
+    if source_type and (
+        source_type in _BLOCKED_AUTOMATIC_TYPES
+        or "dissertation" in source_type
+        or source_type.endswith(" thesis")
+    ):
+        return True
+    text = ascii_fold(
+        " ".join(
+            str(value or "")
+            for value in (source.title, source.venue, source.url, source.paper_id)
+        )
+    ).casefold()
+    text = re.sub(r"[^\w]+", " ", text)
+    return bool(_STUDENT_WORK_TEXT_RE.search(text))
+
+
 class SourcePackBuilder:
     """Builds a topic-locked SourcePack from the free scholarly providers."""
 
@@ -250,6 +406,9 @@ class SourcePackBuilder:
         section_titles: list[str] | None = None,
         alt_topic: str | None = None,
         alt_section_titles: list[str] | None = None,
+        allow_threshold_relaxation: bool = True,
+        retrieval_page: int = 1,
+        raise_on_provider_error: bool = False,
     ) -> SourcePack:
         """
         Retrieve, topic-score, filter, rank and key a source pack.
@@ -300,11 +459,25 @@ class SourcePackBuilder:
         per_query = max(10, target_size)
 
         raw: list[SourceDoc] = []
+        provider_errors: list[str] = []
         for query in queries:
             for provider in (self.rag.search_crossref, self.rag.search_openalex):
                 try:
-                    raw.extend(await provider(query, limit=per_query))
+                    if retrieval_page == 1 and not raise_on_provider_error:
+                        raw.extend(await provider(query, limit=per_query))
+                    else:
+                        raw.extend(
+                            await provider(
+                                query,
+                                limit=per_query,
+                                page=retrieval_page,
+                                raise_on_error=raise_on_provider_error,
+                            )
+                        )
                 except Exception as e:  # provider hiccup must not kill the build
+                    provider_errors.append(
+                        f"{getattr(provider, '__name__', 'provider')}: {e}"
+                    )
                     logger.warning(f"Source pack provider failed for '{query}': {e}")
 
         deduped = self.rag._deduplicate_sources(raw)
@@ -321,6 +494,19 @@ class SourcePackBuilder:
                 f"candidate(s) (missing author/year) for document {document_id}"
             )
         deduped = citable
+
+        # Apply suitability before the candidate-reserve cut. Otherwise a page
+        # full of high-ranked dissertations can consume every reserve slot and
+        # hide valid records retrieved on that same page.
+        eligible = [src for src in deduped if not is_blocked_automatic_source(src)]
+        if len(eligible) < len(deduped):
+            logger.info(
+                "Source pack dropped %s automatic student-work candidate(s) "
+                "before reserve selection for document %s",
+                len(deduped) - len(eligible),
+                document_id,
+            )
+        deduped = eligible
 
         # Bilingual scoring: max() of the two passes, so a good EN source is
         # not killed by comparison against Italian tokens (and max only ever
@@ -346,7 +532,7 @@ class SourcePackBuilder:
 
         underfilled = False
         kept = [(s, src) for s, src in scored if s >= min_on_topic_score]
-        if len(kept) < _UNDERFILL_FLOOR:
+        if len(kept) < _UNDERFILL_FLOOR and allow_threshold_relaxation:
             # Relax the threshold once rather than ship an (almost) empty pack.
             relaxed = max(0.0, min_on_topic_score / 2)
             kept = [(s, src) for s, src in scored if s >= relaxed]
@@ -373,8 +559,9 @@ class SourcePackBuilder:
             document_id=document_id,
             topic=topic,
             sources=packed,
-            underfilled=underfilled or not packed,
+            underfilled=underfilled or len(packed) < target_size,
             bilingual=bool(alt_terms),
+            provider_errors=provider_errors,
         )
         logger.info(
             f"Built source pack for document {document_id}: {len(packed)} sources "
@@ -529,8 +716,8 @@ class SourcePackBuilder:
                         on_topic_score=score,
                     )
                 )
-        # Present most-relevant first for prompts.
-        packed.sort(key=lambda ps: ps.on_topic_score, reverse=True)
+        # Present in the same canonical order used by prompts and digests.
+        packed.sort(key=SourcePack._canonical_source_sort_key)
         return packed
 
     @staticmethod

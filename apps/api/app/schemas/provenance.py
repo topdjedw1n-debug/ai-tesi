@@ -12,9 +12,9 @@ real emitted payloads in tests only (tests/test_provenance_schemas.py and
 the frozen-contract tests in tests/test_citation_pipeline_integration.py).
 Emission sites in app/services/background_jobs.py,
 source_verification_stage.py and claim_verification_stage.py are
-intentionally NOT routed through these models at runtime: four event
-types are written via direct db.add() with transactional fail-open
-semantics that a validation layer must not disturb.
+intentionally NOT routed through these models at runtime: several event types
+are written inside existing generation transactions, which a validation layer
+must not disturb.
 
 Migration path (post-stabilization): first unify the direct db.add()
 provenance writes through provenance_service.record_event, then construct
@@ -93,6 +93,18 @@ class CitationGatePayload(_FrozenPayload):
     mismatched_titles: list[str] | None = None
 
 
+class CitationClosurePayload(_FrozenPayload):
+    """Proof that every citation marker used in the text was verified."""
+
+    passed: bool
+    used_keys: list[str]
+    verified_keys: list[str]
+    missing_keys: list[str]
+    unverified_keys: list[str]
+    used_total: int
+    verified_total: int
+
+
 class IntegrityReportPayload(_FrozenPayload):
     """Shared by integrity_gate_failed (strict) and integrity_report (mark_only)."""
 
@@ -122,6 +134,7 @@ class ClaimsVerifiedPayload(_FrozenPayload):
     checked: int
     counts: dict[ClaimVerdictName, int]
     unsupported: list[UnsupportedClaim]
+    uncertain: list[UnsupportedClaim]
 
 
 class ClaimCheckSummaryPayload(_FrozenPayload):
@@ -130,6 +143,8 @@ class ClaimCheckSummaryPayload(_FrozenPayload):
     counts: dict[ClaimVerdictName, int]
     budget: int
     budget_exhausted: bool
+    reserved_checks: int
+    incomplete: int = 0
 
 
 class RagRetrievedPayload(_FrozenPayload):
@@ -215,6 +230,7 @@ class ExportedPayload(_FrozenPayload):
 PROVENANCE_PAYLOAD_SCHEMAS: dict[str, type[BaseModel]] = {
     "verification_summary": VerificationSummaryPayload,
     "citation_gate": CitationGatePayload,
+    "citation_closure": CitationClosurePayload,
     "integrity_gate_failed": IntegrityReportPayload,
     "integrity_report": IntegrityReportPayload,
     "verification_error": ErrorPayload,

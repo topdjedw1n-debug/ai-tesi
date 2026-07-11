@@ -194,12 +194,14 @@ class Settings(BaseSettings):
     QUALITY_JUDGE_PROVIDER: str | None = "openai"
     QUALITY_JUDGE_MODEL: str | None = "gpt-4.1-mini"
 
-    # Academic Quality Engine - Claim faithfulness audit (advisory; OFF by default).
+    # Academic Quality Engine - Claim faithfulness audit (OFF by default).
     # Checks via LLM whether cited sentences are actually supported by the
-    # cited source's abstract. Never blocks generation - results are recorded
-    # in the provenance ledger and DocumentSection.claim_verification only.
+    # cited source's abstract. Verdicts are always recorded; blocking mode
+    # repairs unsupported claims inside the bounded section retry loop and
+    # prevents export when repair is exhausted.
     CLAIM_VERIFICATION_ENABLED: bool = False
-    CLAIM_VERIFICATION_MAX_CHECKS: int = 50  # max LLM-checked claims per document
+    # Hard document-wide ceiling, including rejected drafts and repair attempts.
+    CLAIM_VERIFICATION_MAX_CHECKS: int = 50
     CLAIM_VERIFICATION_BATCH_SIZE: int = 10  # claims per LLM prompt
     CLAIM_ABSTRACT_MAX_CHARS: int = 1500  # abstract excerpt length in prompts
 
@@ -239,6 +241,12 @@ class Settings(BaseSettings):
     # per-section retrieval or the model's parametric memory.
     SOURCE_GROUNDING_ENABLED: bool = False
     SOURCE_PACK_TARGET_SIZE: int = 24  # sources kept in the pack
+    # Pre-writing source preflight keeps a reserve because some retrieved
+    # records will fail bibliographic verification or be unsuitable student
+    # works.  The writer only sees the final verified target-sized pack.
+    SOURCE_PACK_PREFLIGHT_ENABLED: bool = False
+    SOURCE_PACK_CANDIDATE_RESERVE_SIZE: int = 48
+    SOURCE_PACK_MIN_VERIFIED: int = 18
     SOURCE_PACK_MIN_ON_TOPIC_SCORE: float = 0.35  # topic-relevance cutoff [0,1]
     # Bilingual source pack (doc-8 fix): for non-English documents, translate
     # topic + section titles to English (one small LLM call) and query/score
@@ -262,8 +270,9 @@ class Settings(BaseSettings):
 
     # Academic Quality Engine - Blocking claim verification (OFF by default;
     # needs CLAIM_VERIFICATION_ENABLED). When on, an over-threshold count of
-    # unsupported cited claims blocks export; otherwise claim verification stays
-    # purely advisory (records verdicts, never blocks).
+    # unsupported cited claims are repaired within the existing bounded retry
+    # budget and block export if repair is exhausted. Otherwise verification is
+    # advisory (records verdicts without blocking).
     CLAIM_VERIFICATION_BLOCKING: bool = False
 
     # Plagiarism Check API
@@ -456,6 +465,40 @@ class Settings(BaseSettings):
         return self
 
     @model_validator(mode="after")
+    def validate_source_pack_preflight(self) -> "Settings":
+        """The preflight flag identifies the strict, pre-pilot quality profile."""
+        if not (
+            0
+            < self.SOURCE_PACK_MIN_VERIFIED
+            <= self.SOURCE_PACK_TARGET_SIZE
+            <= self.SOURCE_PACK_CANDIDATE_RESERVE_SIZE
+        ):
+            raise ValueError(
+                "Source-pack sizes must satisfy 0 < minimum verified <= target "
+                "<= candidate reserve"
+            )
+        if self.SOURCE_PACK_PREFLIGHT_ENABLED:
+            if not (
+                self.SOURCE_GROUNDING_ENABLED
+                and self.CITATION_VERIFICATION_ENABLED
+                and self.CLAIM_VERIFICATION_ENABLED
+                and self.CLAIM_VERIFICATION_BLOCKING
+                and self.HUMANIZER_FREEZE_CITATIONS
+            ):
+                raise ValueError(
+                    "SOURCE_PACK_PREFLIGHT_ENABLED=True requires source grounding, "
+                    "citation verification, claim verification, blocking claim "
+                    "repair, and frozen citations during rewriting. The strict "
+                    "pre-pilot profile must not silently run in advisory mode."
+                )
+            if self.CITATION_VERIFICATION_POLICY != "strict":
+                raise ValueError(
+                    "SOURCE_PACK_PREFLIGHT_ENABLED=True requires "
+                    "CITATION_VERIFICATION_POLICY='strict'"
+                )
+        return self
+
+    @model_validator(mode="after")
     def validate_claim_blocking_dependencies(self) -> "Settings":
         """Blocking claim mode requires claim verification to run at all; that in
         turn (via validate_verification_dependencies) requires citation
@@ -464,7 +507,7 @@ class Settings(BaseSettings):
             raise ValueError(
                 "CLAIM_VERIFICATION_BLOCKING=True requires "
                 "CLAIM_VERIFICATION_ENABLED=True. Blocking mode enforces the "
-                "advisory claim verdicts; enable CLAIM_VERIFICATION_ENABLED or "
+                "claim verdicts; enable CLAIM_VERIFICATION_ENABLED or "
                 "disable CLAIM_VERIFICATION_BLOCKING."
             )
         return self

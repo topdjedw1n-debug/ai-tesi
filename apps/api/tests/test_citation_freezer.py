@@ -87,3 +87,16 @@ def test_no_citations_is_noop():
     assert frozen == text
     assert mapping == {}
     assert CitationFreezer.all_present(frozen, mapping)
+
+
+def test_pack_markers_keep_source_identity_when_rewrite_reorders_sentences():
+    text = "First [Smith2020]. Second [Smith2021 | p. 7]."
+    frozen, mapping = CitationFreezer.freeze(text)
+
+    assert mapping == {
+        "⟦C1⟧": "[Smith2020]",
+        "⟦C2⟧": "[Smith2021 | p. 7]",
+    }
+    reordered = "Second ⟦C2⟧. First ⟦C1⟧."
+    restored = CitationFreezer.restore(reordered, mapping)
+    assert restored == "Second [Smith2021 | p. 7]. First [Smith2020]."

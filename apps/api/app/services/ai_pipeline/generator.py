@@ -14,6 +14,10 @@ from typing import TYPE_CHECKING, Any, TypeVar
 from app.core.config import settings
 from app.models.document import Document
 from app.services.ai_pipeline.citation_formatter import CitationFormatter, CitationStyle
+from app.services.ai_pipeline.citation_keys import (
+    convert_pack_markers,
+    year_suffix_from_citation_key,
+)
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
@@ -241,11 +245,10 @@ class SectionGenerator:
             # None only when the method is mocked in tests — then trust the plan.
             actual_writer = self._last_writer or (provider, model)
 
-            # The writer's verbatim draft, with internal [Key] markers intact.
-            # The grounding gate MUST evaluate this view: Step 6 below replaces
-            # the markers with formatted in-text citations, and gating the
-            # converted text finds zero [Key] tokens and fails every section
-            # (restart drill 2026-07-10, documents 53-55).
+            # Preserve the untouched writer draft for diagnosis.  The separate
+            # canonical marker view below is what grounding evaluates after
+            # deterministic key-variant resolution.
+            raw_content_with_markers = section_content
             content_with_markers = section_content
 
             # Store prompt for training data collection
@@ -260,37 +263,26 @@ class SectionGenerator:
             bibliography = []
             citation_map: dict[str, SourceDoc] = {}
             pack_keys_used: list[str] = []
+            unresolved_pack_markers: list[str] = []
 
             if source_pack is not None:
-                # Closed-book: resolve in-text [Key, Year] citations against the
-                # pack's stable keys (exact key match, not fuzzy scoring).
-                for packed in source_pack.sources:
-                    key = packed.citation_key
-                    if re.search(re.escape(key) + r"(?![0-9A-Za-z])", section_content):
-                        pack_keys_used.append(key)
+                # Resolve deterministic model variants (restored diacritics or
+                # a reconstructed author+year key) to the canonical pack key.
+                # Unknown/ambiguous markers stay visible and are returned to
+                # the strict in-loop/final gates; they are never deleted.
+                conversion = convert_pack_markers(
+                    section_content,
+                    source_pack,
+                    citation_style=citation_style,
+                )
+                content_with_markers = conversion.content_with_markers
+                section_content = conversion.content
+                pack_keys_used = conversion.used_keys
+                unresolved_pack_markers = conversion.unresolved_keys
+                for key in pack_keys_used:
+                    packed = source_pack.by_key(key)
+                    if packed is not None:
                         citation_map[key] = packed.source
-
-                # Convert internal stable keys into actual in-text citations
-                # only after exact source resolution. Internal markers must
-                # never leak into the delivered thesis.
-                for packed in source_pack.sources:
-                    if packed.citation_key not in citation_map:
-                        continue
-                    source = packed.source
-                    if not source.authors or not source.year:
-                        continue
-                    suffix_match = re.search(r"\d{4}([a-z])$", packed.citation_key)
-                    year_suffix = suffix_match.group(1) if suffix_match else ""
-                    formatted = self.citation_formatter.format_intext(
-                        source.authors,
-                        int(source.year),
-                        style=citation_style,
-                        year_suffix=year_suffix,
-                    )
-                    marker = re.compile(
-                        rf"\[{re.escape(packed.citation_key)}(?:,\s*\d{{4}})?\]"
-                    )
-                    section_content = marker.sub(formatted, section_content)
             else:
                 # Legacy path: map citations to sources using scoring algorithm.
                 for citation in citations:
@@ -329,10 +321,9 @@ class SectionGenerator:
                             None,
                         )
                         if packed_match is not None:
-                            suffix_match = re.search(
-                                r"\d{4}([a-z])$", packed_match.citation_key
+                            year_suffix = year_suffix_from_citation_key(
+                                packed_match.citation_key
                             )
-                            year_suffix = suffix_match.group(1) if suffix_match else ""
                     reference = self.citation_formatter.format_reference(
                         doc.to_source_document(),
                         style=citation_style,
@@ -375,7 +366,9 @@ class SectionGenerator:
             # so legacy/streaming payload keys stay byte-identical.
             if source_pack is not None:
                 result["pack_keys_used"] = pack_keys_used
+                result["raw_content_with_markers"] = raw_content_with_markers
                 result["content_with_markers"] = content_with_markers
+                result["unresolved_pack_markers"] = unresolved_pack_markers
 
             # Academic Quality Engine: expose cited sources (unique SourceDocs
             # that made it into the bibliography via citation_map) for

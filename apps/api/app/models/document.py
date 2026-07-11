@@ -251,6 +251,14 @@ class AIGenerationJob(Base):
     # per-run requirements out of process memory, while the lease fields fence
     # duplicate deliveries and make stale work discoverable.
     request_payload = Column(JSON, nullable=True)
+    # Digest of the exact preverified source pack frozen for this job.  A
+    # recovering worker must reuse rows with this digest instead of retrieving
+    # a different bibliography for already-written sections.
+    source_pack_sha256 = Column(String(64), nullable=True)
+    # Durable document-wide reservation counter for LLM claim checks.  A
+    # worker reserves capacity before the external call, so a crash or lease
+    # handoff cannot silently reset the configured cost ceiling.
+    claim_checks_used = Column(Integer, nullable=False, default=0, server_default="0")
     lease_owner = Column(String(255), nullable=True)
     # A fresh unguessable token is minted for every acquisition. ``lease_owner``
     # identifies the process for diagnostics; this token fences an older
@@ -392,6 +400,8 @@ class DocumentSource(Base):
     citation_count = Column(Integer, nullable=True)
     url = Column(String(1000), nullable=True)
     doi = Column(String(255), nullable=True)  # normalized lowercase
+    retrieval_provider = Column(String(50), nullable=True)
+    source_type = Column(String(100), nullable=True)
 
     # Verification state
     verification_status = Column(

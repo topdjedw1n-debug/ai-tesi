@@ -76,6 +76,24 @@ class CitationFreezer:
         # Freeze long quotations first so a [Author, Year] marker sitting
         # inside a quote is preserved as part of that quote, not double-frozen.
         frozen = _QUOTE_RE.sub(_sub_quote, text)
+        # Grounded sections carry canonical [Key] markers through every
+        # humanizer pass and render them only afterwards.  Freeze each marker
+        # with a unique placeholder, preserving identity even when two MLA
+        # citations would later render to the same author string.
+        from app.services.ai_pipeline.citation_keys import internal_marker_spans
+
+        chunks: list[str] = []
+        cursor = 0
+        for start, end, original in internal_marker_spans(frozen):
+            chunks.append(frozen[cursor:start])
+            counter["c"] += 1
+            key = _CITE_PLACEHOLDER.format(n=counter["c"])
+            mapping[key] = original
+            chunks.append(key)
+            cursor = end
+        if chunks:
+            chunks.append(frozen[cursor:])
+            frozen = "".join(chunks)
         frozen = _CITATION_RE.sub(_sub_citation, frozen)
         return frozen, mapping
 

@@ -22,8 +22,15 @@ from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import CitationIntegrityError
-from app.models.document import Document, DocumentSection, DocumentSource
-from app.services.claim_verifier import ClaimVerifier, summarize_verdicts
+from app.models.document import AIGenerationJob, Document, DocumentSection
+from app.services.ai_pipeline.citation_formatter import CitationStyle
+from app.services.claim_verifier import (
+    TECHNICAL_UNCERTAIN_REASONS,
+    CitedClaim,
+    ClaimVerdict,
+    ClaimVerifier,
+    summarize_verdicts,
+)
 from app.services.db_helpers import safe_scalars_all
 from app.services.provenance_service import record_event
 
@@ -35,6 +42,54 @@ logger = logging.getLogger(__name__)
 SendProgress = Callable[[int, dict[str, Any]], Awaitable[None]]
 
 
+async def verify_section_claims(
+    verifier: ClaimVerifier,
+    *,
+    content: str,
+    canonical_marker_content: str | None = None,
+    sources: list[Any],
+    budget_remaining: int,
+    citation_style: CitationStyle,
+    claims: list[CitedClaim] | None = None,
+) -> tuple[dict[str, Any], list[ClaimVerdict], int]:
+    """Check the exact candidate text that may be persisted for one section."""
+    if claims is None:
+        claims = verifier.extract_claims(
+            canonical_marker_content
+            if canonical_marker_content is not None
+            else content,
+            sources,
+            citation_style=citation_style,
+        )
+    verdicts, llm_used = await verifier.verify_claims(claims, budget_remaining)
+    return summarize_verdicts(verdicts), verdicts, llm_used
+
+
+def technical_uncertain_claims(summary: dict[str, Any] | None) -> list[dict[str, Any]]:
+    """Unchecked infrastructure/budget outcomes are not semantic uncertainty."""
+    return [
+        claim
+        for claim in (summary or {}).get("claims") or []
+        if claim.get("verdict") == "uncertain"
+        and claim.get("explanation") in TECHNICAL_UNCERTAIN_REASONS
+    ]
+
+
+def _claims_for_provenance(
+    summary: dict[str, Any], verdict_name: str
+) -> list[dict[str, Any]]:
+    return [
+        {
+            "sentence": str(claim.get("sentence") or "")[:300],
+            "citation": str(claim.get("citation") or ""),
+            "source_title": claim.get("source_title"),
+            "explanation": str(claim.get("explanation") or "")[:300],
+        }
+        for claim in summary.get("claims") or []
+        if claim.get("verdict") == verdict_name
+    ]
+
+
 async def run_claim_verification_stage(
     db: AsyncSession,
     document_id: int,
@@ -43,26 +98,10 @@ async def run_claim_verification_stage(
     config: Settings,
     ai_service_factory: Callable[[AsyncSession], Any],
     send_progress: SendProgress,
+    job_id: int | None = None,
 ) -> None:
-    """
-    Advisory claim-faithfulness pass (after citation verification, before
-    export).
-
-    For each completed section: extract sentences carrying [Author, Year]
-    citations, match them to persisted DocumentSource rows and ask the LLM
-    (AIService fallback chain) whether the cited abstract supports each
-    sentence. Verdicts go to DocumentSection.claim_verification and the
-    provenance ledger.
-
-    Advisory by default: the audit itself NEVER raises. When
-    CLAIM_VERIFICATION_BLOCKING is set, a separate enforcement step (outside the
-    audit's try/except) blocks export if any cited claim is unsupported — an
-    internal audit error leaves the stage incomplete and never blocks
-    (fail-open). LLM spend is capped at CLAIM_VERIFICATION_MAX_CHECKS per document.
-    """
-    total_claims = 0
-    total_counts: dict[str, int] = {}
-    stage_completed = False
+    """Aggregate already accepted per-section verdicts without a second LLM pass."""
+    del ai_service_factory  # kept in the injected API for compatibility
 
     try:
         sections_result = await db.execute(
@@ -76,13 +115,6 @@ async def run_claim_verification_stage(
         sections = safe_scalars_all(
             sections_result, f"claim_check_sections_doc_{document_id}"
         )
-        sources_result = await db.execute(
-            select(DocumentSource).where(DocumentSource.document_id == document_id)
-        )
-        sources = safe_scalars_all(
-            sources_result, f"claim_check_sources_doc_{document_id}"
-        )
-
         if not sections:
             return
 
@@ -96,44 +128,40 @@ async def run_claim_verification_stage(
             },
         )
 
-        verifier = ClaimVerifier(
-            ai_service_factory(db),
-            batch_size=config.CLAIM_VERIFICATION_BATCH_SIZE,
-            abstract_max_chars=config.CLAIM_ABSTRACT_MAX_CHARS,
-        )
-        budget_remaining = max(0, config.CLAIM_VERIFICATION_MAX_CHECKS)
         total_claims = 0
         total_checked = 0
         total_counts: dict[str, int] = {}
+        budget_exhausted = False
+        total_incomplete = 0
+        missing_sections: list[int] = []
+        reserved_checks: int | None = None
+        if job_id is not None:
+            reserved_checks = (
+                await db.execute(
+                    select(AIGenerationJob.claim_checks_used).where(
+                        AIGenerationJob.id == job_id,
+                        AIGenerationJob.document_id == document_id,
+                    )
+                )
+            ).scalar_one_or_none()
 
         for section in sections:
-            claims = verifier.extract_claims(section.content or "", sources)
-            if not claims:
+            summary = section.claim_verification
+            if not isinstance(summary, dict):
+                missing_sections.append(int(section.section_index))
                 continue
 
-            verdicts, llm_used = await verifier.verify_claims(claims, budget_remaining)
-            budget_remaining -= llm_used
-
-            summary = summarize_verdicts(verdicts)
-            # Assign a NEW dict: plain JSON columns don't track mutations
-            section.claim_verification = summary
-
-            total_claims += summary["total"]
-            total_checked += summary["checked"]
-            for verdict_name, count in summary["counts"].items():
+            total_claims += int(summary.get("total") or 0)
+            total_checked += int(summary.get("checked") or 0)
+            for verdict_name, count in (summary.get("counts") or {}).items():
                 total_counts[verdict_name] = total_counts.get(verdict_name, 0) + count
+            budget_exhausted = budget_exhausted or any(
+                claim.get("explanation") == "Per-document claim check budget exhausted"
+                for claim in summary.get("claims") or []
+            )
+            total_incomplete += len(technical_uncertain_claims(summary))
 
             if config.PROVENANCE_LEDGER_ENABLED:
-                unsupported_claims = [
-                    {
-                        "sentence": v.sentence[:300],
-                        "citation": v.citation_text,
-                        "source_title": v.source_title,
-                        "explanation": v.explanation[:300],
-                    }
-                    for v in verdicts
-                    if v.verdict == "unsupported"
-                ]
                 await record_event(
                     db,
                     document_id,
@@ -141,18 +169,20 @@ async def run_claim_verification_stage(
                     event_type="claims_verified",
                     payload={
                         "section_index": section.section_index,
-                        "total": summary["total"],
-                        "checked": summary["checked"],
-                        "counts": summary["counts"],
-                        "unsupported": unsupported_claims[:10],
+                        "total": int(summary.get("total") or 0),
+                        "checked": int(summary.get("checked") or 0),
+                        "counts": dict(summary.get("counts") or {}),
+                        "unsupported": _claims_for_provenance(summary, "unsupported"),
+                        "uncertain": _claims_for_provenance(summary, "uncertain"),
                     },
                 )
 
-        await db.commit()  # persist claim_verification on sections
+        if missing_sections:
+            raise RuntimeError(
+                "Missing accepted claim evidence for completed section(s): "
+                + ", ".join(str(index) for index in missing_sections)
+            )
 
-        # Emit the summary even at 0 claims: silence here left the
-        # claim_support release gate at "no_data" with no way to tell
-        # "audit never ran" from "audit ran and found nothing to check".
         if config.PROVENANCE_LEDGER_ENABLED:
             await record_event(
                 db,
@@ -164,18 +194,53 @@ async def run_claim_verification_stage(
                     "checked": total_checked,
                     "counts": total_counts,
                     "budget": config.CLAIM_VERIFICATION_MAX_CHECKS,
-                    "budget_exhausted": budget_remaining <= 0,
+                    "budget_exhausted": budget_exhausted,
+                    "reserved_checks": (
+                        int(reserved_checks)
+                        if reserved_checks is not None
+                        else total_checked
+                    ),
+                    "incomplete": total_incomplete,
                 },
             )
 
-        stage_completed = True
         logger.info(
-            f"✅ Claim faithfulness audit for document {document_id}: "
+            f"✅ Claim faithfulness evidence aggregated for document {document_id}: "
             f"{total_claims} claim(s), {total_checked} LLM-checked, "
             f"counts={total_counts}"
         )
+
+        unsupported = total_counts.get("unsupported", 0)
+        if config.CLAIM_VERIFICATION_BLOCKING and (
+            unsupported > 0 or total_incomplete > 0
+        ):
+            detail = (
+                f"{unsupported} cited claim(s) are not supported and "
+                f"{total_incomplete} cited claim(s) were not technically checked "
+                "(claim faithfulness gate)."
+            )
+            await db.execute(
+                update(Document)
+                .where(Document.id == document_id)
+                .values(status="failed_quality")
+            )
+            await db.commit()
+            if config.PROVENANCE_LEDGER_ENABLED:
+                await record_event(
+                    db,
+                    document_id,
+                    stage="verification",
+                    event_type="claim_integrity_gate_failed",
+                    payload={
+                        "unsupported": unsupported,
+                        "incomplete": total_incomplete,
+                        "counts": total_counts,
+                    },
+                )
+            raise CitationIntegrityError(detail=detail)
     except Exception as e:
-        # ⚠️ Advisory pass: any internal error degrades gracefully
+        if isinstance(e, CitationIntegrityError):
+            raise
         logger.error(
             f"Claim verification stage failed for document {document_id}: {e}",
             exc_info=True,
@@ -194,31 +259,13 @@ async def run_claim_verification_stage(
                 event_type="claim_verification_error",
                 payload={"error": str(e)[:500]},
             )
-
-    # Blocking enforcement (opt-in), OUTSIDE the advisory try/except so a
-    # genuine over-threshold failure propagates before export. An internal
-    # audit error leaves stage_completed False and never blocks (fail-open).
-    if config.CLAIM_VERIFICATION_BLOCKING and stage_completed:
-        unsupported = total_counts.get("unsupported", 0)
-        if unsupported > 0:
-            detail = (
-                f"{unsupported} cited claim(s) are not supported by their "
-                f"sources (claim faithfulness gate)."
-            )
-            # Mark failed_quality before raising so the outer handler in
-            # background_jobs does not overwrite it with a generic 'failed'.
+        if config.CLAIM_VERIFICATION_BLOCKING:
             await db.execute(
                 update(Document)
                 .where(Document.id == document_id)
                 .values(status="failed_quality")
             )
             await db.commit()
-            if config.PROVENANCE_LEDGER_ENABLED:
-                await record_event(
-                    db,
-                    document_id,
-                    stage="verification",
-                    event_type="claim_integrity_gate_failed",
-                    payload={"unsupported": unsupported, "counts": total_counts},
-                )
-            raise CitationIntegrityError(detail=detail)
+            raise CitationIntegrityError(
+                detail="Claim verification evidence could not be completed safely"
+            ) from e

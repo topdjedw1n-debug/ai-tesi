@@ -18,7 +18,7 @@ import logging
 from collections.abc import Awaitable, Callable
 from typing import TYPE_CHECKING, Any
 
-from sqlalchemy import or_, select, update
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.exceptions import CitationIntegrityError
@@ -28,20 +28,20 @@ from app.models.document import (
     DocumentSection,
     DocumentSource,
 )
+from app.services.ai_pipeline.source_identity import sources_equivalent
+from app.services.ai_pipeline.source_pack import SourcePack
 from app.services.citation_verifier import (
     FUZZY_MATCH_THRESHOLD,
     SourceInput,
     VerificationResult,
     VerificationStatus,
     normalize_doi,
-    normalize_title,
 )
 from app.services.db_helpers import safe_scalars_all
 from app.services.provenance_service import record_event
 
 if TYPE_CHECKING:
     from app.core.config import Settings
-    from app.services.ai_pipeline.source_pack import SourcePack
     from app.services.citation_verifier import CitationVerifier
 
 logger = logging.getLogger(__name__)
@@ -78,9 +78,8 @@ async def persist_cited_sources(
     """
     Persist cited sources for a section as DocumentSource rows ('unverified').
 
-    Deduplicates against existing rows by normalized DOI, and by
-    (normalized title, year) for DOI-less sources, so the partial unique
-    index uq_document_sources_document_id_doi is never violated.
+    Deduplicates against existing rows using the shared source-identity rule:
+    uploaded-file identity, normalized DOI, or title/year/author evidence.
 
     ⚠️ Non-critical: never raises. Failures are logged and rolled back so the
     shared session stays usable for the rest of the pipeline.
@@ -95,46 +94,34 @@ async def persist_cited_sources(
         existing_rows = safe_scalars_all(
             existing_result, f"existing_sources_doc_{document_id}"
         )
-        seen_dois = {row.doi for row in existing_rows if row.doi}
-        seen_title_year = {
-            (normalize_title(row.title), row.year)
-            for row in existing_rows
-            if not row.doi
-        }
-
         added = 0
         for source in cited_sources:
             title = (source.get("title") or "").strip()
             if not title:
                 continue
 
+            if any(sources_equivalent(row, source) for row in existing_rows):
+                continue
             norm_doi = normalize_doi(source.get("doi"))
-            if norm_doi:
-                if norm_doi in seen_dois:
-                    continue
-                seen_dois.add(norm_doi)
-            else:
-                title_year_key = (normalize_title(title), source.get("year"))
-                if title_year_key in seen_title_year:
-                    continue
-                seen_title_year.add(title_year_key)
 
-            db.add(
-                DocumentSource(
-                    document_id=document_id,
-                    section_id=section_id,
-                    title=title[:1000],
-                    authors=list(source.get("authors") or []),
-                    year=source.get("year"),
-                    abstract=source.get("abstract"),
-                    paper_id=source.get("paper_id"),
-                    venue=(source.get("venue") or "")[:500] or None,
-                    citation_count=source.get("citation_count"),
-                    url=(source.get("url") or "")[:1000] or None,
-                    doi=norm_doi,
-                    verification_status="unverified",
-                )
+            row = DocumentSource(
+                document_id=document_id,
+                section_id=section_id,
+                title=title[:1000],
+                authors=list(source.get("authors") or []),
+                year=source.get("year"),
+                abstract=source.get("abstract"),
+                paper_id=source.get("paper_id"),
+                venue=(source.get("venue") or "")[:500] or None,
+                citation_count=source.get("citation_count"),
+                url=(source.get("url") or "")[:1000] or None,
+                doi=norm_doi,
+                retrieval_provider=source.get("provider"),
+                source_type=source.get("source_type"),
+                verification_status="unverified",
             )
+            db.add(row)
+            existing_rows.append(row)
             added += 1
 
         if added:
@@ -164,8 +151,8 @@ async def persist_source_pack(
     """
     Persist the upfront topic-locked source pack as DocumentSource rows.
 
-    Idempotent upsert: existing rows (matched by normalized DOI, or by
-    (normalized title, year) for DOI-less sources) are updated in place with
+    Idempotent upsert: existing rows matched by the shared source-identity
+    rule are updated in place with
     citation_key / on_topic_score / is_in_upfront_pack; new sources are
     inserted. Previous pack membership for the document is reset first so
     citation keys stay unique per document and stale members drop out of the
@@ -178,75 +165,7 @@ async def persist_source_pack(
         return
 
     try:
-        # Reset prior pack membership so re-runs never collide on citation_key.
-        await db.execute(
-            update(DocumentSource)
-            .where(DocumentSource.document_id == document_id)
-            .values(is_in_upfront_pack=False, citation_key=None)
-        )
-
-        existing_result = await db.execute(
-            select(DocumentSource).where(DocumentSource.document_id == document_id)
-        )
-        existing_rows = safe_scalars_all(
-            existing_result, f"pack_sources_doc_{document_id}"
-        )
-        by_doi = {row.doi: row for row in existing_rows if row.doi}
-        by_title_year = {
-            (normalize_title(row.title), row.year): row
-            for row in existing_rows
-            if not row.doi
-        }
-
-        inserted = updated = 0
-        for packed in pack.sources:
-            src = packed.source
-            title = (src.title or "").strip()
-            if not title:
-                continue
-
-            norm_doi = normalize_doi(src.doi)
-            if norm_doi:
-                existing = by_doi.get(norm_doi)
-            else:
-                existing = by_title_year.get((normalize_title(title), src.year))
-
-            if existing is not None:
-                existing.citation_key = packed.citation_key
-                existing.on_topic_score = packed.on_topic_score
-                existing.is_in_upfront_pack = True
-                # Backfill metadata that a cited-only row may have been missing.
-                if not existing.abstract and src.abstract:
-                    existing.abstract = src.abstract
-                if not existing.venue and src.venue:
-                    existing.venue = (src.venue or "")[:500] or None
-                updated += 1
-            else:
-                row = DocumentSource(
-                    document_id=document_id,
-                    section_id=None,
-                    title=title[:1000],
-                    authors=list(src.authors or []),
-                    year=src.year,
-                    abstract=src.abstract,
-                    paper_id=src.paper_id,
-                    venue=(src.venue or "")[:500] or None,
-                    citation_count=src.citation_count,
-                    url=(src.url or "")[:1000] or None,
-                    doi=norm_doi,
-                    verification_status="unverified",
-                    citation_key=packed.citation_key,
-                    on_topic_score=packed.on_topic_score,
-                    is_in_upfront_pack=True,
-                )
-                db.add(row)
-                # Keep local maps in sync to avoid duplicate inserts within the pack.
-                if norm_doi:
-                    by_doi[norm_doi] = row
-                else:
-                    by_title_year[(normalize_title(title), src.year)] = row
-                inserted += 1
-
+        inserted, updated = await apply_source_pack_rows(db, document_id, pack)
         await db.commit()
         logger.info(
             f"✅ Persisted source pack for document {document_id}: "
@@ -263,6 +182,98 @@ async def persist_source_pack(
             logger.warning(
                 f"⚠️ Rollback after source-pack persistence failed: {rollback_error}"
             )
+
+
+async def apply_source_pack_rows(
+    db: AsyncSession,
+    document_id: int,
+    pack: SourcePack,
+) -> tuple[int, int]:
+    """Apply a complete pack without committing; raises on any inconsistency.
+
+    This is the transactional core used by durable job fencing.  One existing
+    database row can satisfy at most one incoming source, preventing a DOI-less
+    title/year collision from silently overwriting another citation key.
+    """
+    existing_result = await db.execute(
+        select(DocumentSource).where(DocumentSource.document_id == document_id)
+    )
+    existing_rows = safe_scalars_all(existing_result, f"pack_sources_doc_{document_id}")
+    for row in existing_rows:
+        row.is_in_upfront_pack = False
+        row.citation_key = None
+
+    claimed_rows: set[int] = set()
+    incoming: list[Any] = []
+    inserted = updated = 0
+
+    for packed in pack.canonical_sources():
+        src = packed.source
+        title = (src.title or "").strip()
+        if not title:
+            raise ValueError("Source pack contains a source without a title")
+        norm_doi = normalize_doi(src.doi)
+        for previous in incoming:
+            if sources_equivalent(previous, src):
+                raise ValueError(f"Source pack contains duplicate publication: {title}")
+            if norm_doi and normalize_doi(previous.doi) == norm_doi:
+                raise ValueError(
+                    "Source pack assigns the same DOI to conflicting source "
+                    f"identities: {norm_doi}"
+                )
+        incoming.append(src)
+
+        candidates = [row for row in existing_rows if id(row) not in claimed_rows]
+        existing = next(
+            (
+                row
+                for row in candidates
+                if norm_doi and normalize_doi(row.doi) == norm_doi
+            ),
+            None,
+        )
+        if existing is not None and not sources_equivalent(existing, src):
+            raise ValueError(
+                "Persisted source and incoming pack source share DOI but have "
+                f"conflicting identities: {norm_doi}"
+            )
+        if existing is None:
+            existing = next(
+                (row for row in candidates if sources_equivalent(row, src)),
+                None,
+            )
+
+        values = {
+            "title": title[:1000],
+            "authors": list(src.authors or []),
+            "year": src.year,
+            "abstract": src.abstract,
+            "paper_id": src.paper_id,
+            "venue": (src.venue or "")[:500] or None,
+            "citation_count": src.citation_count,
+            "url": (src.url or "")[:1000] or None,
+            "doi": norm_doi,
+            "retrieval_provider": getattr(src, "provider", None),
+            "source_type": getattr(src, "source_type", None),
+            "verification_status": getattr(src, "verification_status", "unverified"),
+            "canonical_metadata": getattr(src, "canonical_metadata", None),
+            "citation_key": packed.citation_key,
+            "on_topic_score": packed.on_topic_score,
+            "is_in_upfront_pack": True,
+        }
+        if existing is None:
+            row = DocumentSource(document_id=document_id, section_id=None, **values)
+            db.add(row)
+            existing_rows.append(row)
+            inserted += 1
+        else:
+            for key, value in values.items():
+                setattr(existing, key, value)
+            claimed_rows.add(id(existing))
+            updated += 1
+
+    await db.flush()
+    return inserted, updated
 
 
 async def load_source_pack(
@@ -286,9 +297,15 @@ async def load_source_pack(
         topic = doc.topic if doc is not None else ""
 
         result = await db.execute(
-            select(DocumentSource).where(
+            select(DocumentSource)
+            .where(
                 DocumentSource.document_id == document_id,
                 DocumentSource.is_in_upfront_pack.is_(True),
+            )
+            .order_by(
+                DocumentSource.on_topic_score.desc(),
+                DocumentSource.citation_key.asc(),
+                DocumentSource.id.asc(),
             )
         )
         rows = safe_scalars_all(result, f"load_pack_doc_{document_id}")
@@ -307,6 +324,10 @@ async def load_source_pack(
                     citation_count=row.citation_count,
                     url=row.url,
                     doi=row.doi,
+                    provider=row.retrieval_provider,
+                    source_type=row.source_type,
+                    verification_status=row.verification_status or "unverified",
+                    canonical_metadata=row.canonical_metadata,
                 ),
                 citation_key=row.citation_key or "",
                 on_topic_score=(
@@ -315,7 +336,7 @@ async def load_source_pack(
             )
             for row in rows
         ]
-        packed.sort(key=lambda p: p.on_topic_score, reverse=True)
+        packed.sort(key=SourcePack._canonical_source_sort_key)
         return SourcePack(document_id=document_id, topic=topic, sources=packed)
     except Exception as e:
         logger.warning(f"⚠️ Failed to load source pack for document {document_id}: {e}")
@@ -334,19 +355,20 @@ async def run_citation_verification_stage(
     """
     Verify persisted cited sources in ONE batch (between assembly and export).
 
-    Re-verifies ALL DocumentSource rows of the document (not only
-    'unverified') so transient 'failed' rows self-heal on re-runs; the
-    verifier's Redis cache makes repeats cheap. Updates verification_status
-    + canonical_metadata, writes a DocumentProvenance summary event, then
+    On the grounded path, re-verifies exactly the canonical pack keys used by
+    completed sections. The legacy path re-verifies section-linked sources.
+    Transient 'failed' rows can therefore self-heal on re-runs, while the
+    verifier's Redis cache makes repeats cheap. Updates verification_status +
+    canonical_metadata, writes a DocumentProvenance summary event, then
     enforces the integrity gate:
     - strict: no persisted sources, any not_found source, or any mismatched
       source -> Document.status='failed_quality' + CitationIntegrityError
       (blocks export)
     - mark_only: record a visible warning and continue
 
-    Unexpected internal errors degrade gracefully (logged + provenance
-    'verification_error' event, gate skipped = fail-open). The ONLY exception
-    this function raises is CitationIntegrityError.
+    Unexpected internal errors are recorded.  Under strict policy they fail
+    closed because an unavailable verifier is not evidence that citations are
+    valid; under mark_only they remain a visible warning.
     """
     summary: dict[str, Any] | None = None
 
@@ -362,12 +384,14 @@ async def run_citation_verification_stage(
             for key in (keys or [])
             if key
         }
-        cited_filter = DocumentSource.section_id.is_not(None)
         if used_pack_keys:
-            cited_filter = or_(
-                cited_filter,
-                DocumentSource.citation_key.in_(used_pack_keys),
-            )
+            # The grounded path has a stronger invariant than the legacy
+            # section-linked path: every canonical key used by the writer must
+            # resolve to exactly one persisted pack row.  Selecting with OR
+            # hid missing keys by inflating the batch with unrelated rows.
+            cited_filter = DocumentSource.citation_key.in_(used_pack_keys)
+        else:
+            cited_filter = DocumentSource.section_id.is_not(None)
         sources_result = await db.execute(
             select(DocumentSource).where(
                 DocumentSource.document_id == document_id,
@@ -377,6 +401,10 @@ async def run_citation_verification_stage(
         all_sources = safe_scalars_all(
             sources_result, f"verification_sources_doc_{document_id}"
         )
+        present_used_keys = {
+            str(source.citation_key) for source in all_sources if source.citation_key
+        }
+        missing_used_keys = sorted(used_pack_keys - present_used_keys)
 
         if not all_sources:
             logger.info(
@@ -398,6 +426,22 @@ async def run_citation_verification_stage(
                 )
             )
             await db.commit()
+            if used_pack_keys and config.PROVENANCE_LEDGER_ENABLED:
+                await record_event(
+                    db,
+                    document_id,
+                    stage="verification",
+                    event_type="citation_closure",
+                    payload={
+                        "passed": False,
+                        "used_keys": sorted(used_pack_keys),
+                        "verified_keys": [],
+                        "missing_keys": sorted(used_pack_keys),
+                        "unverified_keys": sorted(used_pack_keys),
+                        "used_total": len(used_pack_keys),
+                        "verified_total": 0,
+                    },
+                )
             is_strict = config.CITATION_VERIFICATION_POLICY == "strict"
             gate_payload: dict[str, Any] = {
                 "passed": False,
@@ -494,6 +538,7 @@ async def run_citation_verification_stage(
         status_counts: dict[str, int] = {}
         not_found_titles: list[str] = []
         mismatched_titles: list[str] = []
+        failed_titles: list[str] = []
         source_records: list[dict[str, Any]] = []
         providers_used: set[str] = set()
 
@@ -546,6 +591,8 @@ async def run_citation_verification_stage(
                 not_found_titles.append(source.title)
             elif mapped_status == "mismatched":
                 mismatched_titles.append(source.title)
+            elif mapped_status == "failed":
+                failed_titles.append(source.title)
             # Per-source record for the frontend "sources certificate"
             source_records.append(
                 {
@@ -576,6 +623,30 @@ async def run_citation_verification_stage(
         )
         await db.commit()
 
+        verified_used_keys = {
+            str(source.citation_key)
+            for source in all_sources
+            if source.citation_key and source.verification_status == "verified"
+        }
+        unverified_used_keys = sorted(used_pack_keys - verified_used_keys)
+        closure_payload = {
+            "passed": not missing_used_keys and not unverified_used_keys,
+            "used_keys": sorted(used_pack_keys),
+            "verified_keys": sorted(verified_used_keys),
+            "missing_keys": missing_used_keys,
+            "unverified_keys": unverified_used_keys,
+            "used_total": len(used_pack_keys),
+            "verified_total": len(verified_used_keys),
+        }
+        if config.PROVENANCE_LEDGER_ENABLED:
+            await record_event(
+                db,
+                document_id,
+                stage="verification",
+                event_type="citation_closure",
+                payload=closure_payload,
+            )
+
         logger.info(
             f"✅ Citation verification for document {document_id}: "
             f"{len(all_sources)} source(s), counts={status_counts}"
@@ -596,12 +667,14 @@ async def run_citation_verification_stage(
             "counts": status_counts,
             "not_found_titles": not_found_titles,
             "mismatched_titles": mismatched_titles,
+            "failed_titles": failed_titles,
+            "closure": closure_payload,
         }
     except CitationIntegrityError:
         raise
     except Exception as e:
-        # ⚠️ Fail-open: infrastructure errors in OUR stage must not block the
-        # user's document. Only confirmed integrity findings may block (below).
+        # Strict mode is deliberately fail-closed: an interrupted verifier is
+        # an unchecked gate, never a green one. mark_only remains non-blocking.
         logger.error(
             f"Citation verification stage failed for document {document_id}: {e}",
             exc_info=True,
@@ -627,19 +700,40 @@ async def run_citation_verification_stage(
                 f"⚠️ Failed to record verification_error event "
                 f"for document {document_id}"
             )
+        if config.CITATION_VERIFICATION_POLICY == "strict":
+            try:
+                await db.execute(
+                    update(Document)
+                    .where(Document.id == document_id)
+                    .values(status="failed_quality")
+                )
+                await db.commit()
+            except Exception:
+                try:
+                    await db.rollback()
+                except Exception:
+                    pass
+            raise CitationIntegrityError(
+                detail="Citation verification could not be completed safely"
+            ) from e
         return
 
     # Integrity gate — deliberately OUTSIDE the try above so it can never be
     # swallowed by the stage's graceful-degradation handler.
     not_found_count = summary["counts"].get("not_found", 0)
     mismatched_count = summary["counts"].get("mismatched", 0)
-    if not_found_count == 0 and mismatched_count == 0:
+    failed_count = summary["counts"].get("failed", 0)
+    closure_failed = not summary["closure"]["passed"]
+    if (
+        not_found_count == 0
+        and mismatched_count == 0
+        and failed_count == 0
+        and not closure_failed
+    ):
         # "0 findings" is only a pass if something was actually verified.
         # When every provider errored, all sources land in "failed"
         # (UNRESOLVABLE) and nothing was checked — that is an unchecked
-        # gate, not a green one (same fail-open the quality gates had).
-        failed_count = summary["counts"].get("failed", 0)
-        anything_unchecked = failed_count > 0
+        # gate, not a green one (the old fail-open behaviour was unsafe).
         if config.PROVENANCE_LEDGER_ENABLED:
             await record_event(
                 db,
@@ -647,8 +741,8 @@ async def run_citation_verification_stage(
                 stage="verification",
                 event_type="citation_gate",
                 payload={
-                    "passed": not anything_unchecked,
-                    "status": "unchecked" if anything_unchecked else "passed",
+                    "passed": True,
+                    "status": "passed",
                     "policy": config.CITATION_VERIFICATION_POLICY,
                     "counts": summary["counts"],
                 },
@@ -668,6 +762,24 @@ async def run_citation_verification_stage(
             detail_parts.append(
                 f"{mismatched_count} cited source(s) did not match the canonical "
                 f"bibliographic record: {titles_preview}"
+            )
+        if failed_count:
+            titles_preview = "; ".join(summary["failed_titles"][:5])
+            detail_parts.append(
+                f"{failed_count} cited source(s) could not be checked because "
+                f"verification was unavailable: {titles_preview}"
+            )
+        if closure_failed:
+            missing_preview = ", ".join(summary["closure"]["missing_keys"][:10])
+            unverified_preview = ", ".join(summary["closure"]["unverified_keys"][:10])
+            detail_parts.append(
+                "citation closure failed"
+                + (f"; missing keys: {missing_preview}" if missing_preview else "")
+                + (
+                    f"; unverified keys: {unverified_preview}"
+                    if unverified_preview
+                    else ""
+                )
             )
         detail = "Citation verification failed: " + "; ".join(detail_parts)
         finding_payload = {

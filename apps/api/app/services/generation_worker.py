@@ -40,6 +40,7 @@ from app.services.generation_contract import (
 from app.services.uploaded_sources import uploaded_sources_digest
 
 if TYPE_CHECKING:
+    from app.services.ai_pipeline.source_pack import SourcePack
     from app.services.storage_service import StorageService
 
 logger = logging.getLogger(__name__)
@@ -529,6 +530,7 @@ async def persist_generation_section(
         "completed_at",
         "bibliography",
         "pack_keys_used",
+        "claim_verification",
         "quality_panel",
     }
     for key, value in values.items():
@@ -537,6 +539,85 @@ async def persist_generation_section(
     await db.flush()
     await db.commit()
     return section
+
+
+async def persist_generation_source_pack(
+    db: AsyncSession,
+    *,
+    job_id: int,
+    worker_id: str,
+    lease_token: str,
+    document_id: int,
+    pack: SourcePack,
+    now: datetime | None = None,
+) -> str:
+    """Atomically freeze the verified source pack under the generation lease."""
+    lease = await _lock_generation_lease(
+        db,
+        job_id=job_id,
+        worker_id=worker_id,
+        lease_token=lease_token,
+        document_id=document_id,
+        now=now,
+    )
+    if lease is None:
+        await db.rollback()
+        raise _lease_lost(job_id)
+
+    from app.services.source_verification_stage import apply_source_pack_rows
+
+    digest = pack.sha256()
+    frozen_digest = lease.source_pack_sha256
+    if frozen_digest and frozen_digest != digest:
+        await db.rollback()
+        raise ValueError(
+            "Generation source pack is already frozen with a different digest"
+        )
+    await apply_source_pack_rows(db, document_id, pack)
+    if not frozen_digest:
+        lease.source_pack_sha256 = digest
+    await db.commit()
+    return frozen_digest or digest
+
+
+async def reserve_generation_claim_checks(
+    db: AsyncSession,
+    *,
+    job_id: int,
+    worker_id: str,
+    lease_token: str,
+    document_id: int,
+    requested: int,
+    max_checks: int,
+    now: datetime | None = None,
+) -> tuple[int, int]:
+    """Atomically reserve document-wide claim-check capacity before an LLM call.
+
+    Returns ``(reserved_now, total_reserved_for_job)``.  Reserving before the
+    external call makes the ceiling survive worker crashes and lease handoffs.
+    """
+    lease = await _lock_generation_lease(
+        db,
+        job_id=job_id,
+        worker_id=worker_id,
+        lease_token=lease_token,
+        document_id=document_id,
+        now=now,
+    )
+    if lease is None:
+        await db.rollback()
+        raise _lease_lost(job_id)
+
+    current = max(0, int(lease.claim_checks_used or 0))
+    ceiling = max(0, int(max_checks))
+    available = max(0, ceiling - current)
+    reserved = min(max(0, int(requested)), available)
+    if reserved:
+        lease.claim_checks_used = current + reserved
+        await db.commit()
+    else:
+        await db.rollback()
+    return reserved, current + reserved
 
 
 async def update_generation_section_status(

@@ -17,6 +17,7 @@ import pytest
 from sqlalchemy import select
 
 from app.core.config import Settings
+from app.core.exceptions import CitationIntegrityError
 from app.models.auth import User
 from app.models.document import (
     Document,
@@ -24,13 +25,17 @@ from app.models.document import (
     DocumentSection,
     DocumentSource,
 )
+from app.services.ai_pipeline.citation_formatter import CitationFormatter, CitationStyle
 from app.services.background_jobs import BackgroundJobService
 from app.services.citation_verifier import VerificationResult, VerificationStatus
+from app.services.claim_verification_stage import run_claim_verification_stage
 from app.services.claim_verifier import (
     REASON_BUDGET,
     REASON_LLM_FAILED,
     REASON_NO_ABSTRACT,
     REASON_NO_SOURCE,
+    REASON_NO_VERDICT,
+    CitedClaim,
     ClaimVerifier,
     summarize_verdicts,
 )
@@ -75,7 +80,12 @@ def llm_verdicts(*entries):
     """Response shape when the model returned valid JSON (parsed by AIService)"""
     return {
         "verdicts": [
-            {"id": i, "verdict": verdict, "explanation": explanation}
+            {
+                "id": i,
+                "source": "S1",
+                "verdict": verdict,
+                "explanation": explanation,
+            }
             for i, (verdict, explanation) in enumerate(entries, start=1)
         ],
         "tokens_used": 42,
@@ -221,6 +231,67 @@ async def test_abstract_prefers_canonical_metadata_over_rag():
     assert claims[0].abstract == "Canonical abstract"
 
 
+@pytest.mark.parametrize(
+    "citation_style",
+    [
+        CitationStyle.APA,
+        CitationStyle.MLA,
+        CitationStyle.CHICAGO,
+        CitationStyle.HARVARD,
+    ],
+)
+def test_exact_delivered_citation_is_matched_in_every_supported_style(
+    citation_style,
+):
+    source = make_source(canonical_metadata={"abstract": ABSTRACT})
+    source.citation_key = "Vaswani2017"
+    citation = CitationFormatter.format_intext(
+        source.authors,
+        int(source.year),
+        style=citation_style,
+    )
+
+    claims = ClaimVerifier(make_ai()).extract_claims(
+        f"A delivered claim {citation}.",
+        [source],
+        citation_style=citation_style,
+    )
+
+    assert len(claims) == 1
+    assert claims[0].source_id == source.id
+
+
+@pytest.mark.parametrize(
+    "citation_style",
+    [CitationStyle.MLA, CitationStyle.CHICAGO, CitationStyle.HARVARD],
+)
+def test_canonical_marker_view_disambiguates_same_author_sources(citation_style):
+    first = make_source(
+        source_id=21,
+        authors=["Alice Smith"],
+        year=2020,
+        title="First Smith paper",
+    )
+    first.citation_key = "Smith2020"
+    second = make_source(
+        source_id=22,
+        authors=["Alice Smith"],
+        year=2021 if citation_style == CitationStyle.MLA else 2020,
+        title="Second Smith paper",
+    )
+    second.citation_key = (
+        "Smith2021" if citation_style == CitationStyle.MLA else "Smith2020b"
+    )
+
+    claims = ClaimVerifier(make_ai()).extract_claims(
+        f"Prima tesi [{first.citation_key}]. Seconda tesi [{second.citation_key}].",
+        [first, second],
+        citation_style=citation_style,
+    )
+
+    assert [claim.source_id for claim in claims] == [21, 22]
+
+
 # ----------------------------------------------------------------------
 # Unit: budget and batching
 # ----------------------------------------------------------------------
@@ -282,9 +353,9 @@ async def test_batching_multiple_claims_in_one_prompt():
         {
             "content": (
                 'Here is my analysis:\n{"verdicts": ['
-                '{"id": 1, "verdict": "supported", "explanation": "a"},'
-                '{"id": 2, "verdict": "uncertain", "explanation": "b"},'
-                '{"id": 3, "verdict": "unsupported", "explanation": "c"}]}'
+                '{"id": 1, "source": "S1", "verdict": "supported", "explanation": "a"},'
+                '{"id": 2, "source": "S1", "verdict": "uncertain", "explanation": "b"},'
+                '{"id": 3, "source": "S1", "verdict": "unsupported", "explanation": "c"}]}'
             ),
             "tokens_used": 100,
         }
@@ -305,6 +376,176 @@ async def test_batching_multiple_claims_in_one_prompt():
 
     assert [v.verdict for v in verdicts] == ["supported", "uncertain", "unsupported"]
     assert all(v.checked_by_llm for v in verdicts)
+
+
+def _two_distinct_claims() -> list[CitedClaim]:
+    return [
+        CitedClaim(
+            sentence="First claim.",
+            citation_text="[First2020]",
+            source_id=1,
+            source_title="First source",
+            abstract="Evidence for the first claim.",
+        ),
+        CitedClaim(
+            sentence="Second claim.",
+            citation_text="[Second2021]",
+            source_id=2,
+            source_title="Second source",
+            abstract="Evidence for the second claim.",
+        ),
+    ]
+
+
+@pytest.mark.asyncio
+async def test_swapped_source_labels_are_technical_no_verdicts():
+    ai = make_ai(
+        {
+            "verdicts": [
+                {
+                    "id": 1,
+                    "source": "S2",
+                    "verdict": "supported",
+                    "explanation": "Uses the wrong abstract.",
+                },
+                {
+                    "id": 2,
+                    "source": "S1",
+                    "verdict": "supported",
+                    "explanation": "Uses the wrong abstract.",
+                },
+            ]
+        }
+    )
+
+    verdicts, llm_used = await ClaimVerifier(ai).verify_claims(
+        _two_distinct_claims(), budget=2
+    )
+
+    assert llm_used == 2
+    assert [verdict.explanation for verdict in verdicts] == [
+        REASON_NO_VERDICT,
+        REASON_NO_VERDICT,
+    ]
+    assert all(verdict.verdict == "uncertain" for verdict in verdicts)
+    assert all(verdict.checked_by_llm is False for verdict in verdicts)
+
+
+@pytest.mark.asyncio
+async def test_duplicate_claim_id_invalidates_that_claim_only():
+    ai = make_ai(
+        {
+            "verdicts": [
+                {
+                    "id": 1,
+                    "source": "S1",
+                    "verdict": "supported",
+                    "explanation": "First answer.",
+                },
+                {
+                    "id": 1,
+                    "source": "S1",
+                    "verdict": "unsupported",
+                    "explanation": "Conflicting duplicate.",
+                },
+                {
+                    "id": 2,
+                    "source": "S2",
+                    "verdict": "supported",
+                    "explanation": "Second answer.",
+                },
+            ]
+        }
+    )
+
+    verdicts, _ = await ClaimVerifier(ai).verify_claims(
+        _two_distinct_claims(), budget=2
+    )
+
+    assert verdicts[0].explanation == REASON_NO_VERDICT
+    assert verdicts[0].checked_by_llm is False
+    assert verdicts[1].verdict == "supported"
+    assert verdicts[1].checked_by_llm is True
+
+
+@pytest.mark.asyncio
+async def test_out_of_range_id_cannot_supply_a_missing_claim_verdict():
+    ai = make_ai(
+        {
+            "verdicts": [
+                {
+                    "id": 1,
+                    "source": "S1",
+                    "verdict": "supported",
+                    "explanation": "First answer.",
+                },
+                {
+                    "id": 99,
+                    "source": "S2",
+                    "verdict": "supported",
+                    "explanation": "Out of range.",
+                },
+            ]
+        }
+    )
+
+    verdicts, _ = await ClaimVerifier(ai).verify_claims(
+        _two_distinct_claims(), budget=2
+    )
+
+    assert verdicts[0].verdict == "supported"
+    assert verdicts[0].checked_by_llm is True
+    assert verdicts[1].explanation == REASON_NO_VERDICT
+    assert verdicts[1].checked_by_llm is False
+
+
+@pytest.mark.asyncio
+async def test_incomplete_response_leaves_missing_claim_unchecked():
+    ai = make_ai(
+        {
+            "verdicts": [
+                {
+                    "id": 1,
+                    "source": "S1",
+                    "verdict": "supported",
+                    "explanation": "First answer.",
+                }
+            ]
+        }
+    )
+
+    verdicts, _ = await ClaimVerifier(ai).verify_claims(
+        _two_distinct_claims(), budget=2
+    )
+
+    assert verdicts[0].checked_by_llm is True
+    assert verdicts[1].verdict == "uncertain"
+    assert verdicts[1].explanation == REASON_NO_VERDICT
+    assert verdicts[1].checked_by_llm is False
+
+
+@pytest.mark.asyncio
+async def test_invalid_verdict_entry_is_not_counted_as_checked():
+    ai = make_ai(
+        {
+            "verdicts": [
+                {
+                    "id": 1,
+                    "source": "S1",
+                    "verdict": "probably",
+                    "explanation": "Not a valid verdict.",
+                }
+            ]
+        }
+    )
+
+    verdicts, _ = await ClaimVerifier(ai).verify_claims(
+        [_two_distinct_claims()[0]], budget=1
+    )
+
+    assert verdicts[0].verdict == "uncertain"
+    assert verdicts[0].explanation == REASON_NO_VERDICT
+    assert verdicts[0].checked_by_llm is False
 
 
 @pytest.mark.asyncio
@@ -511,7 +752,11 @@ def pipeline_harness(stack: ExitStack, db_session, mock_redis, *, claim_llm_resp
 
     stack.enter_context(patch("app.services.notification_service.notification_service"))
 
-    return {"ai_service": ai_service, "export_document": doc_service.export_document}
+    return {
+        "ai_service": ai_service,
+        "export_document": doc_service.export_document,
+        "generate_section": generator.generate_section,
+    }
 
 
 @pytest.fixture
@@ -582,6 +827,7 @@ async def test_pipeline_unsupported_claims_do_not_block(
     assert by_type["claims_verified"]["unsupported"][0]["citation"] == "[Vaswani, 2017]"
     assert by_type["claim_check_summary"]["total_claims"] == 1
     assert by_type["claim_check_summary"]["budget_exhausted"] is False
+    assert by_type["claim_check_summary"]["reserved_checks"] == 1
 
     types = [e.event_type for e in events]
     assert types.index("verification_summary") < types.index("claims_verified")
@@ -679,6 +925,338 @@ async def test_pipeline_blocking_unsupported_claims_block_export(
         .all()
     }
     assert "claim_integrity_gate_failed" in event_types
+
+
+@pytest.mark.asyncio
+async def test_blocking_claim_is_repaired_inside_existing_attempt_budget(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            CLAIM_VERIFICATION_MAX_CHECKS=2,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=1,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(("unsupported", "Not supported.")),
+        )
+        mocks["ai_service"].call_with_fallback.side_effect = [
+            llm_verdicts(("unsupported", "Not supported.")),
+            llm_verdicts(("supported", "The abstract supports it.")),
+        ]
+
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+        assert mocks["generate_section"].call_count == 2
+        assert mocks["ai_service"].call_with_fallback.call_count == 2
+        assert mocks["export_document"].call_count == 1
+        assert "previous draft contained cited claims" in (
+            mocks["generate_section"]
+            .call_args_list[1]
+            .kwargs["additional_requirements"]
+        )
+
+    section = (
+        await db_session.execute(
+            select(DocumentSection).where(
+                DocumentSection.document_id == int(document.id)
+            )
+        )
+    ).scalar_one()
+    assert section.claim_verification["counts"] == {"supported": 1}
+
+
+@pytest.mark.asyncio
+async def test_rejected_draft_consumes_document_budget_and_cannot_fail_open(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            CLAIM_VERIFICATION_MAX_CHECKS=1,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=1,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(("unsupported", "Not supported.")),
+        )
+
+        with pytest.raises(CitationIntegrityError, match="technically unchecked"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["generate_section"].call_count == 2
+        assert mocks["ai_service"].call_with_fallback.call_count == 1
+        assert mocks["export_document"].called is False
+
+
+@pytest.mark.asyncio
+async def test_blocking_claim_exhausts_three_total_attempts_then_blocks(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=2,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(("unsupported", "Not supported.")),
+        )
+        with pytest.raises(CitationIntegrityError, match="all repair attempts"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["generate_section"].call_count == 3
+        assert mocks["export_document"].called is False
+
+
+@pytest.mark.asyncio
+async def test_blocking_final_candidate_over_claim_limit_blocks_export(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            CLAIM_VERIFICATION_MAX_CHECKS=1,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=0,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(("supported", "Supported.")),
+        )
+        result = dict(mocks["generate_section"].return_value)
+        result[
+            "content"
+        ] = "First supported claim [Vaswani, 2017]. Second claim [Vaswani, 2017]."
+        mocks["generate_section"].return_value = result
+
+        with pytest.raises(CitationIntegrityError, match="technically unchecked"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["ai_service"].call_with_fallback.call_count == 1
+        assert mocks["export_document"].called is False
+
+
+@pytest.mark.asyncio
+async def test_blocking_claim_judge_failure_blocks_export(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=0,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(),
+        )
+        mocks["ai_service"].call_with_fallback.side_effect = RuntimeError(
+            "claim judge unavailable"
+        )
+
+        with pytest.raises(CitationIntegrityError, match="technically unchecked"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["export_document"].called is False
+
+
+@pytest.mark.asyncio
+async def test_uncertain_claim_does_not_regenerate_and_is_visible_in_provenance(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(
+            CLAIM_VERIFICATION_BLOCKING=True,
+            QUALITY_MAX_REGENERATE_ATTEMPTS=2,
+        ),
+    )
+    user, document = await seed_document(db_session)
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(
+                ("uncertain", "The abstract does not state the exact detail.")
+            ),
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+        assert mocks["generate_section"].call_count == 1
+
+    event = (
+        await db_session.execute(
+            select(DocumentProvenance).where(
+                DocumentProvenance.document_id == int(document.id),
+                DocumentProvenance.event_type == "claims_verified",
+            )
+        )
+    ).scalar_one()
+    assert event.payload["uncertain"][0]["sentence"]
+
+
+@pytest.mark.asyncio
+async def test_claim_check_receives_post_ai_rescue_text(
+    db_session, mock_redis, monkeypatch
+):
+    monkeypatch.setattr("app.services.background_jobs.settings", make_settings())
+    user, document = await seed_document(db_session)
+    transformed = "Post-rescue wording [Vaswani, 2017]."
+
+    with ExitStack() as stack:
+        mocks = pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=llm_verdicts(("supported", "Supported.")),
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._check_ai_detection_quality",
+                AsyncMock(return_value=(20.0, transformed, "mock", "passed", None)),
+            )
+        )
+
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+    prompt = mocks["ai_service"].call_with_fallback.call_args.args[0]
+    assert "Post-rescue wording" in prompt
+
+
+@pytest.mark.asyncio
+async def test_missing_completed_section_claim_evidence_fails_closed_in_blocking_mode(
+    db_session,
+):
+    user, document = await seed_document(db_session)
+    document_id = int(document.id)
+    db_session.add(
+        DocumentSection(
+            document_id=document_id,
+            section_index=1,
+            title="Introduction",
+            content="Delivered text.",
+            status="completed",
+            claim_verification=None,
+        )
+    )
+    await db_session.commit()
+    config = make_settings(CLAIM_VERIFICATION_BLOCKING=True)
+    factory = MagicMock()
+
+    with pytest.raises(CitationIntegrityError, match="completed safely"):
+        await run_claim_verification_stage(
+            db_session,
+            document_id,
+            int(user.id),
+            config=config,
+            ai_service_factory=factory,
+            send_progress=AsyncMock(),
+        )
+
+    factory.assert_not_called()
+    refreshed = await db_session.get(Document, document_id)
+    assert refreshed.status == "failed_quality"
+
+
+@pytest.mark.asyncio
+async def test_all_uncertain_claims_are_available_in_provenance(db_session):
+    user, document = await seed_document(db_session)
+    claims = [
+        {
+            "sentence": f"Uncertain claim {index}",
+            "citation": "[Vaswani2017]",
+            "source_title": "Attention Is All You Need",
+            "verdict": "uncertain",
+            "explanation": "The abstract does not state the exact detail.",
+            "checked_by_llm": True,
+        }
+        for index in range(12)
+    ]
+    db_session.add(
+        DocumentSection(
+            document_id=int(document.id),
+            section_index=1,
+            title="Introduction",
+            content="Delivered text.",
+            status="completed",
+            claim_verification={
+                "total": 12,
+                "checked": 12,
+                "counts": {"uncertain": 12},
+                "claims": claims,
+            },
+        )
+    )
+    await db_session.commit()
+
+    await run_claim_verification_stage(
+        db_session,
+        int(document.id),
+        int(user.id),
+        config=make_settings(CLAIM_VERIFICATION_BLOCKING=False),
+        ai_service_factory=MagicMock(),
+        send_progress=AsyncMock(),
+    )
+
+    event = (
+        await db_session.execute(
+            select(DocumentProvenance).where(
+                DocumentProvenance.document_id == int(document.id),
+                DocumentProvenance.event_type == "claims_verified",
+            )
+        )
+    ).scalar_one()
+    assert len(event.payload["uncertain"]) == 12
 
 
 # ----------------------------------------------------------------------

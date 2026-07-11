@@ -18,11 +18,13 @@ import pytest
 from sqlalchemy import select
 
 import tests.test_provenance_ledger as harness_mod
+from app.core.exceptions import ValidationError
 from app.models.document import Document, DocumentSection
 from app.services.ai_pipeline.citation_formatter import (
     bibliography_heading,
     merge_bibliographies,
 )
+from app.services.ai_pipeline.citation_keys import internal_marker_keys
 from app.services.background_jobs import BackgroundJobService
 from app.services.document_service import DocumentService
 
@@ -395,6 +397,59 @@ async def test_export_docx_empty_bibliography_no_heading_no_crash(db_session):
 
     docx = DocxDocument(io.BytesIO(uploads["data"]))
     assert all("Bibliografia" not in p.text for p in docx.paragraphs)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("format", ["docx", "pdf"])
+@pytest.mark.parametrize(
+    "marker",
+    [
+        "[Rossi2021]",
+        "[Rossi2021, p. 12]",
+        "[Rossi2021 | pp. 12–14]",
+        "[Rossi2021aa, chapter 3]",
+        "[Rossi2021aa | section 2.1]",
+        "[Rossind]",
+        "[Rossi0950]",
+    ],
+)
+async def test_export_refuses_unresolved_internal_citation_marker(
+    db_session, format, marker
+):
+    user, document = await _seed_completed_document(
+        db_session,
+        content=f"# Introduzione\n\nUn'affermazione ancora grezza {marker}.",
+    )
+
+    expected_key = internal_marker_keys(marker)[0]
+    with pytest.raises(
+        ValidationError,
+        match=f"unresolved internal citation markers: {expected_key}",
+    ):
+        await DocumentService(db_session).export_document(
+            document_id=document.id, format=format, user_id=user.id
+        )
+
+
+@pytest.mark.asyncio
+async def test_export_allows_iso_and_figure_labels(db_session):
+    user, document = await _seed_completed_document(
+        db_session,
+        content=(
+            "# Introduzione\n\nLo standard [ISO9001] è illustrato in " "[Figure1234]."
+        ),
+    )
+
+    with ExitStack() as stack:
+        _capture_upload(stack)
+        result = await DocumentService(db_session).export_document(
+            document_id=document.id,
+            format="docx",
+            user_id=user.id,
+        )
+
+    assert result["format"] == "docx"
+    assert result["file_size"] > 0
 
 
 @pytest.mark.asyncio

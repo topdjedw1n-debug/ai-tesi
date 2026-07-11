@@ -19,6 +19,8 @@ from app.models.document import (
     ProductionCase,
 )
 from app.services import generation_worker as generation_worker_module
+from app.services.ai_pipeline.rag_retriever import SourceDoc
+from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.background_jobs import (
     BackgroundJobService,
     _export_document_with_fence,
@@ -31,8 +33,10 @@ from app.services.generation_worker import (
     complete_generation_job,
     lock_generation_lease_for_mutation,
     persist_generation_section,
+    persist_generation_source_pack,
     release_generation_lease_for_shutdown,
     reschedule_or_fail_generation_job,
+    reserve_generation_claim_checks,
     update_generation_document,
     utc_now,
 )
@@ -120,6 +124,146 @@ async def test_only_one_worker_can_lease_a_queued_job(db_session):
     assert first.attempt_count == 1
     assert first.additional_requirements == "Use the persisted methodic"
     assert second is None
+
+
+@pytest.mark.asyncio
+async def test_verified_source_pack_and_digest_are_frozen_atomically(db_session):
+    document, job = await _seed_job(db_session, email="worker-source-pack@example.com")
+    claimed = await claim_next_generation_job(
+        db_session, worker_id="pack-worker", lease_seconds=120
+    )
+    assert claimed is not None
+    source = SourceDoc(
+        title="Verified academic source",
+        authors=["Mario Rossi"],
+        year=2023,
+        doi="10.1234/verified",
+        provider="crossref",
+        source_type="journal-article",
+        verification_status="verified",
+        canonical_metadata={"status": "verified"},
+    )
+    pack = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[PackedSource(source, "Rossi2023", 0.9)],
+    )
+
+    digest = await persist_generation_source_pack(
+        db_session,
+        job_id=int(job.id),
+        worker_id=claimed.lease_owner,
+        lease_token=claimed.lease_token,
+        document_id=int(document.id),
+        pack=pack,
+    )
+
+    refreshed_job = await db_session.get(AIGenerationJob, int(job.id))
+    rows = (
+        (
+            await db_session.execute(
+                select(DocumentSource).where(
+                    DocumentSource.document_id == int(document.id),
+                    DocumentSource.is_in_upfront_pack.is_(True),
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert digest == pack.sha256()
+    assert refreshed_job.source_pack_sha256 == digest
+    assert len(rows) == 1
+    assert rows[0].verification_status == "verified"
+
+    replacement = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[
+            PackedSource(
+                SourceDoc(
+                    title="Different verified source",
+                    authors=["Anna Bianchi"],
+                    year=2024,
+                    doi="10.1234/different",
+                    provider="crossref",
+                    source_type="journal-article",
+                    verification_status="verified",
+                    canonical_metadata={"status": "verified"},
+                ),
+                "Bianchi2024",
+                0.95,
+            )
+        ],
+    )
+    with pytest.raises(ValueError, match="already frozen"):
+        await persist_generation_source_pack(
+            db_session,
+            job_id=int(job.id),
+            worker_id=claimed.lease_owner,
+            lease_token=claimed.lease_token,
+            document_id=int(document.id),
+            pack=replacement,
+        )
+    await db_session.refresh(refreshed_job)
+    assert refreshed_job.source_pack_sha256 == digest
+
+
+@pytest.mark.asyncio
+async def test_claim_check_budget_is_reserved_durably_and_never_exceeds_cap(
+    db_session,
+):
+    document, job = await _seed_job(db_session, email="worker-claim-budget@example.com")
+    claimed = await claim_next_generation_job(
+        db_session, worker_id="claim-worker", lease_seconds=120
+    )
+    assert claimed is not None
+
+    first, total = await reserve_generation_claim_checks(
+        db_session,
+        job_id=int(job.id),
+        worker_id=claimed.lease_owner,
+        lease_token=claimed.lease_token,
+        document_id=int(document.id),
+        requested=4,
+        max_checks=5,
+    )
+    second, total_after = await reserve_generation_claim_checks(
+        db_session,
+        job_id=int(job.id),
+        worker_id=claimed.lease_owner,
+        lease_token=claimed.lease_token,
+        document_id=int(document.id),
+        requested=4,
+        max_checks=5,
+    )
+
+    assert (first, total) == (4, 4)
+    assert (second, total_after) == (1, 5)
+    refreshed = await db_session.get(AIGenerationJob, int(job.id))
+    assert refreshed.claim_checks_used == 5
+
+    released = await release_generation_lease_for_shutdown(
+        db_session,
+        job_id=int(job.id),
+        worker_id=claimed.lease_owner,
+        lease_token=claimed.lease_token,
+    )
+    assert released is True
+    resumed = await claim_next_generation_job(
+        db_session, worker_id="claim-worker-after-restart", lease_seconds=120
+    )
+    assert resumed is not None
+    third, resumed_total = await reserve_generation_claim_checks(
+        db_session,
+        job_id=int(job.id),
+        worker_id=resumed.lease_owner,
+        lease_token=resumed.lease_token,
+        document_id=int(document.id),
+        requested=1,
+        max_checks=5,
+    )
+    assert (third, resumed_total) == (0, 5)
 
 
 @pytest.mark.asyncio
@@ -316,10 +460,17 @@ async def test_stale_attempt_cannot_mutate_generation_or_leave_artifact(
             "title": "Introduzione",
             "content": "Accepted content from the first owned attempt.",
             "status": "completed",
+            "claim_verification": {
+                "total": 1,
+                "checked": 1,
+                "counts": {"supported": 1},
+                "claims": [],
+            },
         },
         now=start + timedelta(seconds=1),
     )
     assert section.content == "Accepted content from the first owned attempt."
+    assert section.claim_verification["counts"] == {"supported": 1}
 
     replacement = await claim_next_generation_job(
         db_session,

@@ -1,9 +1,8 @@
 """
-Claim-faithfulness verifier (advisory pass) for the Academic Quality Engine.
+Claim-faithfulness verifier for the Academic Quality Engine.
 
-After sections are generated and cited sources verified, checks via an LLM
-whether each sentence carrying an [Author, Year] citation is actually
-supported by the cited source's abstract. Verdict per claim:
+Before a section is accepted, checks via an LLM whether each cited sentence is
+actually supported by the cited source's abstract. Verdict per claim:
 supported / unsupported / uncertain + a one-sentence explanation.
 
 Key properties:
@@ -11,12 +10,15 @@ Key properties:
   citation_verifier) with a fallback to the RAG-retrieved
   DocumentSource.abstract; without an abstract the claim is marked
   'uncertain' WITHOUT spending an LLM call.
-- Budget-capped: at most CLAIM_VERIFICATION_MAX_CHECKS claims per document
-  are sent to the LLM; the rest are marked 'uncertain'.
+- Budget-capped across the whole document, including rejected drafts and
+  repair attempts. Capacity is durably reserved before each LLM call so a
+  restart cannot reset the ceiling. Overflow is marked 'uncertain' and is a
+  blocking technical gap in strict mode.
 - Batched: multiple claims share one prompt (CLAIM_VERIFICATION_BATCH_SIZE),
   abstracts are deduplicated inside the prompt.
-- Advisory only: verdicts are recorded (provenance ledger +
-  DocumentSection.claim_verification) and never block the pipeline.
+- Verdicts are recorded in the provenance ledger and
+  DocumentSection.claim_verification. The caller decides whether unsupported
+  claims are advisory or must be repaired before export.
 """
 
 from __future__ import annotations
@@ -28,7 +30,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from app.core.config import settings
-from app.services.ai_pipeline.citation_formatter import CitationFormatter
+from app.services.ai_pipeline.citation_formatter import CitationFormatter, CitationStyle
+from app.services.ai_pipeline.citation_keys import internal_marker_groups
 
 logger = logging.getLogger(__name__)
 
@@ -43,18 +46,23 @@ REASON_NO_SOURCE = "Citation could not be matched to a verified source"
 REASON_BUDGET = "Per-document claim check budget exhausted"
 REASON_LLM_FAILED = "LLM claim check failed"
 REASON_NO_VERDICT = "LLM did not return a verdict for this claim"
+TECHNICAL_UNCERTAIN_REASONS = {
+    REASON_BUDGET,
+    REASON_LLM_FAILED,
+    REASON_NO_SOURCE,
+    REASON_NO_VERDICT,
+}
 
 _SENTENCE_BOUNDARY = re.compile(r"(?<=[.!?])\s+")
 _HEADING_LINE = re.compile(r"^\s*#{1,6}\s")
+
 
 # Source-pack citation keys, e.g. "[Ciofalo2024]" / "[DeSimone2024a]".
 # No comma inside — disjoint from the legacy "[Author, Year]" format that
 # CitationFormatter.extract_citations_from_text handles. Multiple keys may
 # share one bracket pair: "[Ciofalo2024; Corsi2025]".
-_PACK_KEY_RE = re.compile(
-    r"\[([A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:,\s*\d{4})?"
-    r"(?:\s*;\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'\-]*\d{4}[a-z]?(?:,\s*\d{4})?)*)\]"
-)
+def _normalize_rendered_citation(value: str) -> str:
+    return re.sub(r"\s+", " ", str(value or "").strip()).casefold()
 
 
 @dataclass
@@ -115,7 +123,9 @@ def summarize_verdicts(verdicts: list[ClaimVerdict]) -> dict[str, Any]:
         "total": len(verdicts),
         "checked": sum(1 for v in verdicts if v.checked_by_llm),
         "counts": counts,
-        "claims": [v.to_dict() for v in verdicts[:50]],
+        # This is the manager's drill-down evidence.  Truncating it made the
+        # aggregate count honest while hiding the later uncertain claims.
+        "claims": [v.to_dict() for v in verdicts],
     }
 
 
@@ -236,7 +246,13 @@ class ClaimVerifier:
     # Claim extraction (pure, no LLM)
     # ------------------------------------------------------------------
 
-    def extract_claims(self, content: str, sources: list[Any]) -> list[CitedClaim]:
+    def extract_claims(
+        self,
+        content: str,
+        sources: list[Any],
+        *,
+        citation_style: CitationStyle = CitationStyle.APA,
+    ) -> list[CitedClaim]:
         """
         Extract sentences carrying citations and match each citation to a
         persisted source (one claim per sentence-citation pair).
@@ -252,35 +268,71 @@ class ClaimVerifier:
             for source in sources
             if getattr(source, "citation_key", None)
         }
+        rendered_index: dict[str, list[Any]] = {}
+        for source in sources:
+            if not source.authors or not source.year:
+                continue
+            citation_key = str(getattr(source, "citation_key", "") or "")
+            suffix_match = re.search(r"\d{1,4}([a-z]+)$", citation_key, re.IGNORECASE)
+            rendered = CitationFormatter.format_intext(
+                list(source.authors or []),
+                int(source.year),
+                style=citation_style,
+                year_suffix=(suffix_match.group(1) if suffix_match else ""),
+            )
+            inner = rendered[1:-1] if rendered[:1] in "([" else rendered
+            rendered_index.setdefault(_normalize_rendered_citation(inner), []).append(
+                source
+            )
+
         for sentence in split_sentences(content):
-            # Source-pack keys first: the production (grounded) format
-            for match in _PACK_KEY_RE.finditer(sentence):
-                for raw_key in (k.strip() for k in match.group(1).split(";")):
-                    key = raw_key.split(",", 1)[0].strip()
-                    source = key_index.get(key.casefold())
-                    claims.append(
-                        CitedClaim(
-                            sentence=sentence,
-                            citation_text=f"[{key}]",
-                            source_id=getattr(source, "id", None) if source else None,
-                            source_title=source.title if source else None,
-                            abstract=_source_abstract(source) if source else None,
-                        )
-                    )
-            # Legacy "[Author, Year]" markers (comma required — disjoint
-            # from pack keys, so no double counting)
-            citations = CitationFormatter.extract_citations_from_text(sentence)
-            for citation in citations:
-                source = _match_source(citation, sources)
+            seen_claims: set[tuple[int | None, str]] = set()
+
+            def append_claim(
+                citation_text: str,
+                source: Any | None,
+                *,
+                sentence_text: str = sentence,
+                seen: set[tuple[int | None, str]] = seen_claims,
+            ) -> None:
+                identity = (getattr(source, "id", None), citation_text.casefold())
+                if identity in seen:
+                    return
+                seen.add(identity)
                 claims.append(
                     CitedClaim(
-                        sentence=sentence,
-                        citation_text=citation["original"],
+                        sentence=sentence_text,
+                        citation_text=citation_text,
                         source_id=getattr(source, "id", None) if source else None,
                         source_title=source.title if source else None,
                         abstract=_source_abstract(source) if source else None,
                     )
                 )
+
+            # Source-pack keys first: the production (grounded) format
+            for _marker, marker_keys in internal_marker_groups(sentence):
+                for key in marker_keys:
+                    source = key_index.get(key.casefold())
+                    append_claim(f"[{key}]", source)
+
+            # Match the exact user-facing citation strings produced by the
+            # selected style. This covers APA, MLA, Chicago and Harvard,
+            # including multi-source parenthetical groups.
+            for group in re.finditer(r"[\[(]([^\]\)\n]+)[\])]", sentence):
+                for part in group.group(1).split(";"):
+                    normalized = _normalize_rendered_citation(part)
+                    matches = rendered_index.get(normalized, [])
+                    if len(matches) == 1:
+                        append_claim(
+                            f"{group.group(0)[0]}{part.strip()}{group.group(0)[-1]}",
+                            matches[0],
+                        )
+
+            # Legacy variations that are not byte-identical to the formatter.
+            citations = CitationFormatter.extract_citations_from_text(sentence)
+            for citation in citations:
+                source = _match_source(citation, sources)
+                append_claim(citation["original"], source)
         return claims
 
     # ------------------------------------------------------------------
@@ -323,21 +375,26 @@ class ClaimVerifier:
         llm_used = 0
         for start in range(0, len(within_budget), self.batch_size):
             batch = within_budget[start : start + self.batch_size]
+            batch_claims = [claim for _, claim in batch]
+            expected_sources = dict(
+                enumerate(self._batch_source_labels(batch_claims), start=1)
+            )
             # Budget counts claims SENT to the LLM (even on failure) so a
             # flaky provider cannot turn the cap into a retry storm.
             llm_used += len(batch)
 
             parsed: dict[int, tuple[str, str]] = {}
+            llm_call_failed = False
             try:
                 response = await self.ai_service.call_with_fallback(
-                    self._build_batch_prompt([claim for _, claim in batch]),
+                    self._build_batch_prompt(batch_claims),
                     purpose="claim_verification",
                 )
-                parsed = self._parse_batch_response(response)
+                parsed = self._parse_batch_response(response, expected_sources)
             except Exception as e:
+                llm_call_failed = True
                 logger.warning(
-                    f"⚠️ Claim verification LLM call failed "
-                    f"({len(batch)} claim(s)): {e}"
+                    f"⚠️ Claim verification LLM call failed ({len(batch)} claim(s)): {e}"
                 )
 
             for position, (index, claim) in enumerate(batch, start=1):
@@ -353,7 +410,7 @@ class ClaimVerifier:
                         checked_by_llm=True,
                     )
                 else:
-                    reason = REASON_LLM_FAILED if not parsed else REASON_NO_VERDICT
+                    reason = REASON_LLM_FAILED if llm_call_failed else REASON_NO_VERDICT
                     verdicts[index] = self._uncertain(claim, reason)
 
         return [verdicts[index] for index in range(len(claims))], llm_used
@@ -362,23 +419,37 @@ class ClaimVerifier:
     # Prompt building / response parsing
     # ------------------------------------------------------------------
 
-    def _build_batch_prompt(self, batch: list[CitedClaim]) -> str:
-        """One prompt for a batch of claims; abstracts deduplicated as S1..Sn"""
+    @staticmethod
+    def _batch_source_labels(batch: list[CitedClaim]) -> list[str]:
+        """Return the exact S-label assigned to each claim in prompt order."""
         labels: dict[Any, str] = {}
-        source_blocks: list[str] = []
-        claim_lines: list[str] = []
-
-        for position, claim in enumerate(batch, start=1):
+        assigned: list[str] = []
+        for claim in batch:
             key = claim.source_id if claim.source_id is not None else claim.source_title
             if key not in labels:
                 labels[key] = f"S{len(labels) + 1}"
+            assigned.append(labels[key])
+        return assigned
+
+    def _build_batch_prompt(self, batch: list[CitedClaim]) -> str:
+        """One prompt for a batch of claims; abstracts deduplicated as S1..Sn"""
+        assigned_labels = self._batch_source_labels(batch)
+        source_blocks: list[str] = []
+        claim_lines: list[str] = []
+        emitted_sources: set[str] = set()
+
+        for position, (claim, source_label) in enumerate(
+            zip(batch, assigned_labels, strict=True), start=1
+        ):
+            if source_label not in emitted_sources:
+                emitted_sources.add(source_label)
                 abstract = (claim.abstract or "")[: self.abstract_max_chars]
                 source_blocks.append(
-                    f"[{labels[key]}] {claim.source_title or 'Unknown source'}\n"
+                    f"[{source_label}] {claim.source_title or 'Unknown source'}\n"
                     f"Abstract: {abstract}"
                 )
             claim_lines.append(
-                f"{position}. (source {labels[key]}: "
+                f"{position}. (source {source_label}: "
                 f'"{claim.source_title or "Unknown source"}") "{claim.sentence}"'
             )
 
@@ -410,13 +481,19 @@ Respond with ONLY valid JSON (no markdown, no extra text), one entry per claim. 
 {{"verdicts": [{{"id": 1, "source": "S1", "verdict": "supported", "explanation": "<one sentence>"}}]}}"""
 
     @staticmethod
-    def _parse_batch_response(response: Any) -> dict[int, tuple[str, str]]:
+    def _parse_batch_response(
+        response: Any,
+        expected_sources: dict[int, str],
+    ) -> dict[int, tuple[str, str]]:
         """
         Parse the LLM response into {claim position -> (verdict, explanation)}.
 
         AIService returns either the parsed JSON keys directly (model emitted
         valid JSON) or {"content": "<raw text>"}; both shapes are handled.
-        Invalid entries are dropped (callers mark those claims 'uncertain').
+        An entry is trusted only when its id is unique and in range, and its
+        source label exactly matches the label assigned to that claim in the
+        prompt. Invalid, duplicate, or missing entries are dropped so callers
+        record a technical no-verdict rather than an LLM-checked judgement.
         """
         verdicts_raw: list[Any] | None = None
         if isinstance(response, dict):
@@ -435,18 +512,35 @@ Respond with ONLY valid JSON (no markdown, no extra text), one entry per claim. 
                         pass
 
         result: dict[int, tuple[str, str]] = {}
+        seen_positions: set[int] = set()
+        duplicate_positions: set[int] = set()
         for item in verdicts_raw or []:
             if not isinstance(item, dict):
                 continue
-            try:
-                position = int(item.get("id"))
-            except (TypeError, ValueError):
+            raw_position = item.get("id")
+            if isinstance(raw_position, bool) or not isinstance(raw_position, int):
+                continue
+            position = raw_position
+            if position not in expected_sources:
+                continue
+            if position in seen_positions:
+                duplicate_positions.add(position)
+                result.pop(position, None)
+                continue
+            seen_positions.add(position)
+
+            if item.get("source") != expected_sources[position]:
                 continue
             verdict = str(item.get("verdict", "")).strip().lower()
             if verdict not in VALID_VERDICTS:
-                verdict = VERDICT_UNCERTAIN
-            explanation = str(item.get("explanation") or "").strip()[:300]
+                continue
+            raw_explanation = item.get("explanation")
+            if not isinstance(raw_explanation, str) or not raw_explanation.strip():
+                continue
+            explanation = raw_explanation.strip()[:300]
             result[position] = (verdict, explanation)
+        for position in duplicate_positions:
+            result.pop(position, None)
         return result
 
     @staticmethod

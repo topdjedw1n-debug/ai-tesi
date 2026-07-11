@@ -563,7 +563,7 @@ async def test_mark_only_mismatched_source_is_warning_and_continues(
 
 
 @pytest.mark.asyncio
-async def test_strict_keeps_unresolvable_sources_unchecked_but_non_blocking(
+async def test_strict_blocks_when_sources_cannot_be_checked(
     db_session, mock_redis, monkeypatch
 ):
     monkeypatch.setattr(
@@ -590,14 +590,16 @@ async def test_strict_keeps_unresolvable_sources_unchecked_but_non_blocking(
                 }
             ),
         )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-        assert mocks["export_document"].call_count == 1
+        with pytest.raises(CitationIntegrityError, match="could not be checked"):
+            await BackgroundJobService.generate_full_document(
+                document_id=document_id, user_id=user.id
+            )
+        assert mocks["export_document"].called is False
 
     events = await provenance_events(db_session, document_id)
     assert events["citation_gate"]["passed"] is False
-    assert events["citation_gate"]["status"] == "unchecked"
+    assert events["citation_gate"]["status"] == "failed"
+    assert events["citation_gate"]["counts"]["failed"] == 1
 
 
 @pytest.mark.asyncio
@@ -750,7 +752,9 @@ async def test_duplicate_doi_across_sections_single_row(
 
 
 @pytest.mark.asyncio
-async def test_verification_stage_crash_fails_open(db_session, mock_redis, monkeypatch):
+async def test_verification_stage_crash_fails_closed_in_strict_mode(
+    db_session, mock_redis, monkeypatch
+):
     monkeypatch.setattr(
         "app.services.background_jobs.settings",
         make_settings(CITATION_VERIFICATION_POLICY="strict"),
@@ -769,15 +773,16 @@ async def test_verification_stage_crash_fails_open(db_session, mock_redis, monke
             ],
             verifier_side_effect=RuntimeError("unexpected verifier bug"),
         )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-        assert mocks["export_document"].call_count == 1  # fail-open
+        with pytest.raises(CitationIntegrityError, match="completed safely"):
+            await BackgroundJobService.generate_full_document(
+                document_id=document_id, user_id=user.id
+            )
+        assert mocks["export_document"].called is False
 
     refreshed = (
         await db_session.execute(select(Document).where(Document.id == document_id))
     ).scalar_one()
-    assert refreshed.status == "completed"
+    assert refreshed.status == "failed_quality"
 
     events = await provenance_events(db_session, document_id)
     assert "unexpected verifier bug" in events["verification_error"]["error"]

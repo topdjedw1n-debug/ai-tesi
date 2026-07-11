@@ -52,6 +52,15 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
         "not_found_count": 1,
         "not_found_titles": ["Imaginary Paper"],
     },
+    "citation_closure": {
+        "passed": False,
+        "used_keys": ["Vaswani2017", "Imaginary2024"],
+        "verified_keys": ["Vaswani2017"],
+        "missing_keys": ["Imaginary2024"],
+        "unverified_keys": [],
+        "used_total": 2,
+        "verified_total": 1,
+    },
     "integrity_gate_failed": {
         "policy": "strict",
         "not_found_count": 1,
@@ -76,6 +85,14 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
                 "explanation": "Abstract does not state this claim.",
             }
         ],
+        "uncertain": [
+            {
+                "sentence": "The reported effect was exactly 30%.",
+                "citation": "[Vaswani, 2017]",
+                "source_title": "Attention Is All You Need",
+                "explanation": "The abstract does not provide that number.",
+            }
+        ],
     },
     "claim_check_summary": {
         "total_claims": 3,
@@ -83,6 +100,7 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
         "counts": {"supported": 1, "unsupported": 1, "uncertain": 1},
         "budget": 50,
         "budget_exhausted": False,
+        "reserved_checks": 2,
     },
     "claim_verification_error": {"error": "LLM provider timeout"},
     "rag_retrieved": {

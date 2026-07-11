@@ -132,6 +132,109 @@ async def test_build_underfill_relaxes_threshold(monkeypatch):
     assert pack.underfilled is True
 
 
+@pytest.mark.asyncio
+async def test_preflight_candidate_build_never_relaxes_relevance_threshold():
+    builder = SourcePackBuilder()
+    weak = _edu_source(
+        "A tangential note on education policy",
+        abstract="policy education",
+    )
+    builder.rag.search_crossref = AsyncMock(return_value=[weak])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic="AI in education",
+        language="en",
+        document_id=1,
+        target_size=48,
+        min_on_topic_score=1.01,
+        allow_threshold_relaxation=False,
+    )
+
+    assert pack.sources == []
+    assert pack.underfilled is True
+
+
+@pytest.mark.asyncio
+async def test_student_works_do_not_consume_candidate_reserve_slots():
+    builder = SourcePackBuilder()
+    blocked = [
+        SourceDoc(
+            title=f"AI education dissertation {index}",
+            authors=[f"Student {index}"],
+            year=2024,
+            abstract="AI education evidence",
+            citation_count=100,
+            source_type="dissertation",
+        )
+        for index in range(12)
+    ]
+    eligible = [
+        SourceDoc(
+            title=f"AI education journal study {index}",
+            authors=[f"Scholar {index}"],
+            year=2023,
+            abstract="AI education evidence",
+            citation_count=1,
+            source_type="journal-article",
+        )
+        for index in range(5)
+    ]
+    builder.rag.search_crossref = AsyncMock(return_value=[*blocked, *eligible])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic="AI education",
+        language="en",
+        document_id=1,
+        target_size=5,
+        min_on_topic_score=0.1,
+        allow_threshold_relaxation=False,
+    )
+
+    assert len(pack.sources) == 5
+    assert {item.source.title for item in pack.sources} == {
+        source.title for source in eligible
+    }
+
+
+@pytest.mark.asyncio
+async def test_candidate_top_up_requests_second_provider_page():
+    builder = SourcePackBuilder()
+    builder.rag.search_crossref = AsyncMock(return_value=[])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    await builder.build(
+        topic="AI in education",
+        language="en",
+        document_id=1,
+        retrieval_page=2,
+        raise_on_provider_error=True,
+        allow_threshold_relaxation=False,
+    )
+
+    assert builder.rag.search_crossref.await_args.kwargs["page"] == 2
+    assert builder.rag.search_openalex.await_args.kwargs["page"] == 2
+
+
+@pytest.mark.asyncio
+async def test_candidate_build_records_provider_outage():
+    builder = SourcePackBuilder()
+    builder.rag.search_crossref = AsyncMock(side_effect=RuntimeError("outage"))
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic="AI in education",
+        language="en",
+        document_id=1,
+        raise_on_provider_error=True,
+        allow_threshold_relaxation=False,
+    )
+
+    assert pack.provider_errors
+    assert "outage" in pack.provider_errors[0]
+
+
 def test_prompt_block_uses_keys():
     src = _edu_source("AI tutoring systems", authors=["Rossi", "Bianchi"], year=2021)
     pack = SourcePack(

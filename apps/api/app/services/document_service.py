@@ -25,6 +25,7 @@ from app.services.ai_pipeline.citation_formatter import (
     bibliography_heading,
     merge_bibliographies,
 )
+from app.services.ai_pipeline.citation_keys import internal_marker_keys
 
 logger = logging.getLogger(__name__)
 
@@ -853,6 +854,17 @@ class DocumentService:
             if document.status not in ["completed", "sections_generated"]:
                 raise ValidationError(
                     "Document is not ready for export. Status must be 'completed' or 'sections_generated'."
+                )
+
+            export_text = document.content or "\n".join(
+                str(section.content or "") for section in document.sections
+            )
+            unresolved_markers = internal_marker_keys(export_text)
+            if unresolved_markers:
+                preview = ", ".join(dict.fromkeys(unresolved_markers[:10]))
+                raise ValidationError(
+                    "Document contains unresolved internal citation markers: "
+                    f"{preview}"
                 )
 
             # Generate file based on format

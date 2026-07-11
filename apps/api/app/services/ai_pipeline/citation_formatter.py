@@ -52,6 +52,7 @@ class CitationFormatter:
         style: CitationStyle = CitationStyle.APA,
         page: int | None = None,
         year_suffix: str = "",
+        disambiguation_title: str | None = None,
     ) -> str:
         """
         Format in-text citation
@@ -70,11 +71,26 @@ class CitationFormatter:
                 authors, year, page, year_suffix
             )
         elif style == CitationStyle.MLA:
-            return CitationFormatter._format_mla_intext(authors, year, page)
+            return CitationFormatter._format_mla_intext(
+                authors,
+                year,
+                page,
+                disambiguation_title,
+            )
         elif style == CitationStyle.CHICAGO:
-            return CitationFormatter._format_chicago_intext(authors, year, page)
+            return CitationFormatter._format_chicago_intext(
+                authors,
+                year,
+                page,
+                year_suffix,
+            )
         elif style == CitationStyle.HARVARD:
-            return CitationFormatter._format_harvard_intext(authors, year, page)
+            return CitationFormatter._format_harvard_intext(
+                authors,
+                year,
+                page,
+                year_suffix,
+            )
         else:
             raise ValueError(f"Unsupported citation style: {style}")
 
@@ -99,9 +115,9 @@ class CitationFormatter:
         elif style == CitationStyle.MLA:
             return CitationFormatter._format_mla_reference(source)
         elif style == CitationStyle.CHICAGO:
-            return CitationFormatter._format_chicago_reference(source)
+            return CitationFormatter._format_chicago_reference(source, year_suffix)
         elif style == CitationStyle.HARVARD:
-            return CitationFormatter._format_harvard_reference(source)
+            return CitationFormatter._format_harvard_reference(source, year_suffix)
         else:
             raise ValueError(f"Unsupported citation style: {style}")
 
@@ -128,7 +144,10 @@ class CitationFormatter:
 
     @staticmethod
     def _format_mla_intext(
-        authors: list[str], year: int, page: int | None = None
+        authors: list[str],
+        year: int,
+        page: int | None = None,
+        disambiguation_title: str | None = None,
     ) -> str:
         """Format MLA in-text citation"""
         if len(authors) == 1:
@@ -138,6 +157,9 @@ class CitationFormatter:
         else:
             citation = f"{authors[0]} et al."
 
+        if disambiguation_title:
+            citation += f', "{disambiguation_title}"'
+
         if page:
             citation += f" {page}"
 
@@ -145,7 +167,10 @@ class CitationFormatter:
 
     @staticmethod
     def _format_chicago_intext(
-        authors: list[str], year: int, page: int | None = None
+        authors: list[str],
+        year: int,
+        page: int | None = None,
+        year_suffix: str = "",
     ) -> str:
         """Format Chicago in-text citation (notes-bibliography style)"""
         if len(authors) == 1:
@@ -155,7 +180,7 @@ class CitationFormatter:
         else:
             citation = f"{authors[0]} et al."
 
-        citation += f", {year}"
+        citation += f", {year}{year_suffix}"
 
         if page:
             citation += f", {page}"
@@ -164,7 +189,10 @@ class CitationFormatter:
 
     @staticmethod
     def _format_harvard_intext(
-        authors: list[str], year: int, page: int | None = None
+        authors: list[str],
+        year: int,
+        page: int | None = None,
+        year_suffix: str = "",
     ) -> str:
         """Format Harvard in-text citation: (Author, Year) / (Author and
         Author, Year) / (Author et al., Year), pages as ', p. N'."""
@@ -175,7 +203,7 @@ class CitationFormatter:
         else:
             citation = f"{authors[0]} et al."
 
-        citation += f", {year}"
+        citation += f", {year}{year_suffix}"
 
         if page:
             citation += f", p. {page}"
@@ -284,7 +312,10 @@ class CitationFormatter:
         return reference
 
     @staticmethod
-    def _format_chicago_reference(source: SourceDocument) -> str:
+    def _format_chicago_reference(
+        source: SourceDocument,
+        year_suffix: str = "",
+    ) -> str:
         """Format Chicago reference (notes-bibliography style)"""
         # Author list
         if len(source.authors) == 1:
@@ -307,7 +338,7 @@ class CitationFormatter:
             elif source.volume:
                 reference += f" {source.volume}"
             if source.year:
-                reference += f" ({source.year})"
+                reference += f" ({source.year}{year_suffix})"
             if source.pages:
                 reference += f": {source.pages}"
         else:
@@ -317,12 +348,15 @@ class CitationFormatter:
             if source.city:
                 reference += f", {source.city}"
             if source.year:
-                reference += f", {source.year}"
+                reference += f", {source.year}{year_suffix}"
 
         return reference
 
     @staticmethod
-    def _format_harvard_reference(source: SourceDocument) -> str:
+    def _format_harvard_reference(
+        source: SourceDocument,
+        year_suffix: str = "",
+    ) -> str:
         """Format Harvard reference: Author, A. and Author, B. (Year)
         'Title', Journal, Volume(Issue), pp. Pages. doi: ..."""
         if len(source.authors) == 1:
@@ -336,7 +370,7 @@ class CitationFormatter:
         else:
             authors = f"{source.authors[0]} et al."
 
-        year_str = f" ({source.year})"
+        year_str = f" ({source.year}{year_suffix})"
 
         if source.journal:
             reference = f"{authors}{year_str} '{source.title}', {source.journal}"
@@ -379,7 +413,7 @@ class CitationFormatter:
         # ``(Rossi, 2021; Bianchi, 2022)`` as one invented author string.
         group_pattern = r"[\[(]([^\]\)]+)[\])]"
         part_pattern = re.compile(
-            r"\s*(.+?),\s*(\d{4})([a-z]?)(?:,\s*p\.\s*\d+)?\s*$",
+            r"\s*(.+?),\s*(\d{4})([a-z]*)(?:,\s*p\.\s*\d+)?\s*$",
             re.IGNORECASE,
         )
 

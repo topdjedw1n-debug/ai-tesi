@@ -17,6 +17,11 @@ from tavily import TavilyClient
 
 from app.core.config import settings
 from app.services.ai_pipeline.citation_formatter import SourceDocument
+from app.services.ai_pipeline.source_identity import (
+    normalize_doi,
+    normalize_title,
+    sources_equivalent,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +39,26 @@ class SourceDoc:
     citation_count: int | None = None
     url: str | None = None
     doi: str | None = None
+    # Retrieval provenance is intentionally carried with the in-memory source
+    # so later quality gates can distinguish automatic database results from
+    # manager-uploaded material without guessing from URLs or titles.
+    provider: str | None = None
+    source_type: str | None = None
+    verification_status: str = "unverified"
+    canonical_metadata: dict[str, Any] | None = None
+
+    def __post_init__(self) -> None:
+        """Backfill metadata for the existing uploaded-source identifier.
+
+        Uploaded PDF packs pre-date the explicit provider/type fields and use
+        a stable ``uploaded:<id>`` paper identifier.  Inferring only this
+        already-established identifier keeps old callers and cached objects
+        compatible while preserving their origin for the preflight gate.
+        """
+        if self.provider is None and (self.paper_id or "").startswith("uploaded:"):
+            self.provider = "uploaded"
+        if self.source_type is None and self.provider == "uploaded":
+            self.source_type = "uploaded_pdf"
 
     def to_source_document(self) -> SourceDocument:
         """Convert to SourceDocument for citation formatting"""
@@ -136,6 +161,7 @@ class RAGRetriever:
                     "citationCount",
                     "url",
                     "doi",
+                    "publicationTypes",
                 ],
             }
 
@@ -177,6 +203,14 @@ class RAGRetriever:
                     if author_name:
                         authors.append(author_name)
 
+                publication_types = paper.get("publicationTypes")
+                if isinstance(publication_types, list):
+                    source_type = publication_types[0] if publication_types else None
+                elif isinstance(publication_types, str):
+                    source_type = publication_types
+                else:
+                    source_type = None
+
                 # Create SourceDoc
                 source_doc = SourceDoc(
                     title=paper.get("title", ""),
@@ -188,6 +222,8 @@ class RAGRetriever:
                     citation_count=paper.get("citationCount"),
                     url=paper.get("url"),
                     doi=paper.get("doi"),
+                    provider="semantic_scholar",
+                    source_type=source_type,
                 )
                 source_docs.append(source_doc)
 
@@ -228,6 +264,8 @@ class RAGRetriever:
                         "citation_count": doc.citation_count,
                         "url": doc.url,
                         "doi": doc.doi,
+                        "provider": doc.provider,
+                        "source_type": doc.source_type,
                     }
                     for doc in source_docs
                 ],
@@ -268,6 +306,8 @@ class RAGRetriever:
                     citation_count=s.get("citation_count"),
                     url=s.get("url"),
                     doi=s.get("doi"),
+                    provider=s.get("provider"),
+                    source_type=s.get("source_type"),
                 )
                 for s in cache_data.get("sources", [])
             ]
@@ -338,6 +378,8 @@ class RAGRetriever:
                             abstract=citation.get("abstract"),
                             url=citation.get("url"),
                             venue=citation.get("source", citation.get("venue")),
+                            provider="perplexity",
+                            source_type=citation.get("type"),
                         )
                         source_docs.append(source_doc)
                     elif isinstance(citation, str):
@@ -347,6 +389,7 @@ class RAGRetriever:
                             authors=[],
                             year=datetime.now().year,
                             url=citation,
+                            provider="perplexity",
                         )
                         source_docs.append(source_doc)
 
@@ -407,12 +450,14 @@ class RAGRetriever:
                     title=item.get("title", "Unknown"),
                     authors=[item.get("author")] if item.get("author") else [],
                     year=year or datetime.now().year,
-                    abstract=item.get("content", "")[:500]
-                    if item.get("content")
-                    else None,
+                    abstract=(
+                        item.get("content", "")[:500] if item.get("content") else None
+                    ),
                     url=item.get("url"),
                     venue=item.get("published_date"),
                     citation_count=item.get("score", 0),  # Use relevance score as proxy
+                    provider="tavily",
+                    source_type=item.get("type"),
                 )
                 source_docs.append(source_doc)
 
@@ -504,6 +549,7 @@ class RAGRetriever:
                         abstract=snippet[:500] if snippet else None,
                         url=url,
                         venue=None,  # Serper doesn't provide venue info
+                        provider="serper",
                     )
                     source_docs.append(source_doc)
 
@@ -550,7 +596,14 @@ class RAGRetriever:
         positions.sort(key=lambda p: p[0])
         return " ".join(w for _, w in positions).strip() or None
 
-    async def search_crossref(self, query: str, limit: int = 10) -> list[SourceDoc]:
+    async def search_crossref(
+        self,
+        query: str,
+        limit: int = 10,
+        *,
+        page: int = 1,
+        raise_on_error: bool = False,
+    ) -> list[SourceDoc]:
         """Search Crossref for academic works (free, no API key)."""
         base = getattr(settings, "CROSSREF_API_URL", "https://api.crossref.org").rstrip(
             "/"
@@ -558,7 +611,8 @@ class RAGRetriever:
         params = {
             "query": query,
             "rows": limit,
-            "select": "title,author,issued,DOI,abstract,container-title,URL,"
+            "offset": max(0, page - 1) * limit,
+            "select": "title,author,issued,DOI,abstract,container-title,URL,type,"
             "is-referenced-by-count",
             "mailto": self._POLITE_MAILTO,
         }
@@ -600,6 +654,8 @@ class RAGRetriever:
                         url=item.get("URL")
                         or (f"https://doi.org/{doi}" if doi else None),
                         doi=doi,
+                        provider="crossref",
+                        source_type=item.get("type"),
                     )
                 )
 
@@ -610,12 +666,23 @@ class RAGRetriever:
 
         except httpx.HTTPError as e:
             logger.warning(f"HTTP error retrieving from Crossref: {e}")
+            if raise_on_error:
+                raise
             return []
         except Exception as e:
             logger.warning(f"Error retrieving from Crossref: {e}")
+            if raise_on_error:
+                raise
             return []
 
-    async def search_openalex(self, query: str, limit: int = 10) -> list[SourceDoc]:
+    async def search_openalex(
+        self,
+        query: str,
+        limit: int = 10,
+        *,
+        page: int = 1,
+        raise_on_error: bool = False,
+    ) -> list[SourceDoc]:
         """Search OpenAlex for academic works (free, no API key)."""
         base = getattr(settings, "OPENALEX_API_URL", "https://api.openalex.org").rstrip(
             "/"
@@ -623,6 +690,7 @@ class RAGRetriever:
         params = {
             "search": query,
             "per_page": limit,
+            "page": max(1, page),
             "mailto": self._POLITE_MAILTO,
         }
         try:
@@ -664,6 +732,8 @@ class RAGRetriever:
                         citation_count=w.get("cited_by_count"),
                         url=w.get("doi") or w.get("id"),
                         doi=doi,
+                        provider="openalex",
+                        source_type=w.get("type"),
                     )
                 )
 
@@ -674,9 +744,13 @@ class RAGRetriever:
 
         except httpx.HTTPError as e:
             logger.warning(f"HTTP error retrieving from OpenAlex: {e}")
+            if raise_on_error:
+                raise
             return []
         except Exception as e:
             logger.warning(f"Error retrieving from OpenAlex: {e}")
+            if raise_on_error:
+                raise
             return []
 
     async def retrieve_sources(self, query: str, limit: int = 20) -> list[SourceDoc]:
@@ -760,25 +834,79 @@ class RAGRetriever:
         Returns:
             Deduplicated list of SourceDoc instances
         """
-        seen: set[str] = set()
         deduplicated: list[SourceDoc] = []
 
         for source in sources:
-            # Create unique key from title, URL, or DOI
-            if source.doi:
-                key = f"doi:{source.doi.lower()}"
-            elif source.url:
-                # Normalize URL
-                key = f"url:{source.url.lower().rstrip('/')}"
-            else:
-                # Use title as key
-                key = f"title:{source.title.lower().strip()}"
-
-            if key not in seen:
-                seen.add(key)
+            duplicate_index = next(
+                (
+                    index
+                    for index, existing in enumerate(deduplicated)
+                    if self._retrieval_records_equivalent(existing, source)
+                ),
+                None,
+            )
+            if duplicate_index is None:
                 deduplicated.append(source)
+                continue
+            deduplicated[duplicate_index] = self._merge_source_docs(
+                deduplicated[duplicate_index], source
+            )
 
         return deduplicated
+
+    @staticmethod
+    def _retrieval_records_equivalent(left: SourceDoc, right: SourceDoc) -> bool:
+        if sources_equivalent(left, right):
+            return True
+        left_doi = normalize_doi(left.doi)
+        right_doi = normalize_doi(right.doi)
+        if left_doi and right_doi and left_doi != right_doi:
+            return False
+        left_url = str(left.url or "").strip().casefold().rstrip("/")
+        right_url = str(right.url or "").strip().casefold().rstrip("/")
+        if left_url and left_url == right_url:
+            return True
+        # Exact sparse provider records can lack authors entirely. Preserve the
+        # old exact-title dedupe only for that narrow case; rich records use the
+        # stricter shared title/year/author identity contract.
+        return bool(
+            not left.authors
+            and not right.authors
+            and left.year == right.year
+            and normalize_title(left.title) == normalize_title(right.title)
+        )
+
+    @staticmethod
+    def _merge_source_docs(left: SourceDoc, right: SourceDoc) -> SourceDoc:
+        """Keep the richest metadata for two records of the same publication."""
+
+        def longer(first: str | None, second: str | None) -> str | None:
+            values = [value for value in (first, second) if value]
+            return max(values, key=len) if values else None
+
+        authors = list(left.authors or [])
+        seen_authors = {author.casefold() for author in authors}
+        for author in right.authors or []:
+            if author.casefold() not in seen_authors:
+                authors.append(author)
+                seen_authors.add(author.casefold())
+        years = [year for year in (left.year, right.year) if year]
+        return SourceDoc(
+            title=longer(left.title, right.title) or left.title,
+            authors=authors,
+            year=min(years) if years else 0,
+            abstract=longer(left.abstract, right.abstract),
+            paper_id=left.paper_id or right.paper_id,
+            venue=longer(left.venue, right.venue),
+            citation_count=max(
+                left.citation_count or 0,
+                right.citation_count or 0,
+            ),
+            url=left.url or right.url,
+            doi=left.doi or right.doi,
+            provider=left.provider or right.provider,
+            source_type=left.source_type or right.source_type,
+        )
 
     @staticmethod
     def _extract_year_from_content(content: str) -> int:
