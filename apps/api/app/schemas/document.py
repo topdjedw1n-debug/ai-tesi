@@ -55,6 +55,9 @@ class DocumentBase(BaseModel):
         default=50, ge=3, le=1000
     )  # CRITICAL: Minimum 3 pages as per business rules
     citation_style: str = Field(default="apa", max_length=50)
+    # Mandatory core of the task contract; None -> assumed default that the
+    # manager must confirm for no-methodology works.
+    work_type: str | None = Field(default=None, max_length=50)
 
     @staticmethod
     def _sanitize(text: str) -> str:
@@ -101,12 +104,32 @@ class DocumentCreate(DocumentBase):
 
     @field_validator("citation_style")
     @classmethod
-    def require_apa_for_mvp(cls, v: str) -> str:
-        # The first production contour is deliberately APA-only. Other styles
-        # need citation rules that the current generator cannot yet guarantee.
-        if v != "apa":
-            raise ValueError("citation_style must be apa for the current MVP")
-        return v
+    def require_supported_style(cls, v: str) -> str:
+        # A per-document contract value (course decision 2026-07-11): any
+        # style the citation formatter can actually render is accepted.
+        from app.services.task_contract import SUPPORTED_CITATION_STYLES
+
+        style = (v or "").strip().lower()
+        if style not in SUPPORTED_CITATION_STYLES:
+            raise ValueError(
+                "citation_style must be one of: "
+                + ", ".join(sorted(SUPPORTED_CITATION_STYLES))
+            )
+        return style
+
+    @field_validator("work_type")
+    @classmethod
+    def validate_work_type(cls, v: str | None) -> str | None:
+        if v is None or not str(v).strip():
+            return None
+        from app.services.task_contract import WORK_TYPE_STRUCTURES
+
+        work_type = str(v).strip().lower()
+        if work_type not in WORK_TYPE_STRUCTURES:
+            raise ValueError(
+                "work_type must be one of: " + ", ".join(sorted(WORK_TYPE_STRUCTURES))
+            )
+        return work_type
 
     @field_validator("ai_provider", mode="before")
     @classmethod

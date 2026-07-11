@@ -471,7 +471,9 @@ async def test_worker_quarantines_invalid_contract_and_revokes_release(db_sessio
     )
     document_id = int(document.id)
     job_id = int(job.id)
-    document.citation_style = "chicago"
+    # vancouver is not renderable by the citation formatter -> the worker
+    # must refuse the row at the trust boundary (universal contract, 2026-07-11)
+    document.citation_style = "vancouver"
     production_case = ProductionCase(
         document_id=document_id,
         client_user_id=job.user_id,
@@ -498,7 +500,7 @@ async def test_worker_quarantines_invalid_contract_and_revokes_release(db_sessio
     assert quarantined_job.status == "failed"
     assert quarantined_job.lease_owner is None
     assert quarantined_job.lease_token is None
-    assert "citation style must be APA" in quarantined_job.error_message
+    assert "unsupported citation style" in quarantined_job.error_message
     assert quarantined_document.status == "failed"
     assert quarantined_case.generation_status == "failed"
     assert quarantined_case.delivery_status == "not_ready"

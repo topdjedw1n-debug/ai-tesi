@@ -28,7 +28,10 @@ from app.models.auth import User
 from app.models.document import AIGenerationJob, Document, ProductionCase
 from app.services.admin_service import AdminService
 from app.services.document_service import DocumentService
-from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_contract import (
+    generation_contract_error,
+    generation_contract_sha256,
+)
 from app.services.storage_service import StorageService
 from app.services.uploaded_sources import uploaded_sources_digest
 
@@ -539,20 +542,12 @@ async def retry_document_generation(
                 error_code="DOCUMENT_NOT_RETRYABLE",
             )
 
-        if (
-            not bool(document.requirements_file_processed)
-            or not str(document.additional_requirements or "").strip()
-        ):
+        contract_error = generation_contract_error(document)
+        if contract_error is not None:
             raise APIException(
-                detail="A processed methodology file is required before retry",
+                detail=f"Task contract is not ready for retry: {contract_error}",
                 status_code=409,
-                error_code="METHODOLOGY_REQUIRED",
-            )
-        if str(document.citation_style or "").strip().lower() != "apa":
-            raise APIException(
-                detail="The current Italian MVP supports APA citations only",
-                status_code=409,
-                error_code="UNSUPPORTED_CITATION_STYLE",
+                error_code="TASK_CONTRACT_NOT_READY",
             )
 
         try:

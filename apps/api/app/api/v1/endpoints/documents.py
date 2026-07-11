@@ -55,6 +55,7 @@ from app.services.production_case_service import (
     revoke_release,
 )
 from app.services.storage_service import StorageService
+from app.services.task_contract import build_task_contract
 
 logger = logging.getLogger(__name__)
 
@@ -228,6 +229,7 @@ async def create_document(
             ai_model=document.ai_model or "claude-opus-4-8",
             additional_requirements=document.additional_requirements,
             citation_style=document.citation_style,
+            work_type=document.work_type,
         )
         return result
     except ValidationError as e:
@@ -1184,13 +1186,19 @@ async def update_source_metadata(
         if source_file is None:
             raise NotFoundError("Source file not found")
 
-        allowed = {"title", "authors", "year"}
+        allowed = {"title", "authors", "year", "mandatory"}
         unknown = set(payload) - allowed
         if unknown:
             raise ValidationError(
                 f"Unknown fields: {', '.join(sorted(unknown))}; "
-                f"editable fields are title, authors, year"
+                f"editable fields are title, authors, year, mandatory"
             )
+        if "mandatory" in payload:
+            # Supplementary by default; mandatory is an explicit manager
+            # decision (course correction 2026-07-11) and gates generation.
+            source_file_mandatory = payload["mandatory"]
+            if not isinstance(source_file_mandatory, bool):
+                raise ValidationError("mandatory must be true or false")
         if "title" in payload:
             title = str(payload["title"] or "").strip()
             if not 3 <= len(title) <= 500:
@@ -1212,6 +1220,8 @@ async def update_source_metadata(
                 raise ValidationError("year must be between 1900 and 2049")
             source_file.year = year
 
+        if "mandatory" in payload:
+            source_file.mandatory = bool(payload["mandatory"])
         source_file.metadata_incomplete = not (
             str(source_file.authors or "").strip() and source_file.year
         )
@@ -1223,6 +1233,7 @@ async def update_source_metadata(
             "title": source_file.title,
             "authors": source_file.authors,
             "year": source_file.year,
+            "mandatory": bool(source_file.mandatory),
             "metadata_incomplete": bool(source_file.metadata_incomplete),
         }
     except NotFoundError as e:
@@ -1239,4 +1250,98 @@ async def update_source_metadata(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to update source metadata",
+        ) from e
+
+
+@router.get("/{document_id}/task-contract")
+async def get_task_contract(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """The task contract: every rule with its value, source, and flag.
+
+    This is what the manager reviews before a no-methodology generation:
+    which rules are explicit, which the system assumed, and what basis the
+    delivered evidence will honestly claim.
+    """
+    try:
+        document_service = DocumentService(db)
+        document = await document_service.check_document_ownership(
+            document_id, int(current_user.id)
+        )
+        uploaded_files = (
+            (
+                await db.execute(
+                    select(DocumentSourceFile)
+                    .where(DocumentSourceFile.document_id == document_id)
+                    .order_by(DocumentSourceFile.id.asc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        contract = build_task_contract(document, uploaded_files=uploaded_files)
+        contract["confirmed"] = (
+            str(document.contract_confirmed_sha256 or "") == contract["sha256"]
+        )
+        contract["confirmed_at"] = (
+            document.contract_confirmed_at.isoformat()
+            if document.contract_confirmed_at
+            else None
+        )
+        return contract
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+
+
+@router.post("/{document_id}/task-contract/confirm")
+async def confirm_task_contract(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Manager confirms the assumed rules of the CURRENT contract.
+
+    Confirmation binds to the exact contract fingerprint: any later change
+    of topic, volume, style, work type or methodology shifts the sha and
+    the confirmation stops covering the new state.
+    """
+    try:
+        document, _production_case = await _lock_document_for_source_change(
+            db, document_id, int(current_user.id)
+        )
+        contract = build_task_contract(document)
+        document.contract_confirmed_sha256 = contract["sha256"]
+        document.contract_confirmed_at = datetime.utcnow()
+        db.add(
+            DocumentProvenance(
+                document_id=document_id,
+                stage="intake",
+                event_type="task_contract_confirmed",
+                payload={
+                    "sha256": contract["sha256"],
+                    "basis": contract["basis"],
+                    "assumptions": contract["assumptions"],
+                    "confirmed_by_user_id": int(current_user.id),
+                },
+            )
+        )
+        await db.commit()
+        return {
+            "confirmed": True,
+            "sha256": contract["sha256"],
+            "basis": contract["basis"],
+            "assumptions": contract["assumptions"],
+        }
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Contract confirmation failed for document {document_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to confirm task contract",
         ) from e

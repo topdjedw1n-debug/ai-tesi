@@ -92,6 +92,10 @@ from app.services.source_verification_stage import (
     run_citation_verification_stage,
 )
 from app.services.storage_service import StorageService
+from app.services.task_contract import (
+    build_task_contract,
+    structure_directive,
+)
 from app.services.uploaded_sources import (
     build_uploaded_source_pack,
     uploaded_sources_blockers,
@@ -855,6 +859,42 @@ async def _translate_pack_terms(
         return None, None
 
 
+def _merge_source_packs(uploaded_pack, api_pack):
+    """Uploaded sources first and immutable; API sources fill the rest.
+
+    Key collisions resolve in favour of the uploaded file (its key is the
+    one cited in text); the API source gets a suffixed key or is skipped.
+    """
+    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
+
+    taken = {ps.citation_key.lower() for ps in uploaded_pack.sources}
+    merged = list(uploaded_pack.sources)
+    for packed in getattr(api_pack, "sources", None) or []:
+        if len(merged) >= settings.SOURCE_PACK_TARGET_SIZE:
+            break
+        key = packed.citation_key
+        if key.lower() in taken:
+            for suffix in "bcdefghijklmnopqrstuvwxyz":
+                candidate = f"{key}{suffix}"
+                if candidate.lower() not in taken:
+                    key = candidate
+                    break
+            else:
+                continue
+            packed = PackedSource(packed.source, key, packed.on_topic_score)
+        taken.add(key.lower())
+        merged.append(packed)
+    pack = SourcePack(
+        document_id=uploaded_pack.document_id,
+        topic=uploaded_pack.topic,
+        sources=merged,
+        underfilled=bool(getattr(api_pack, "underfilled", False)),
+        bilingual=bool(getattr(api_pack, "bilingual", False)),
+    )
+    pack.passages = uploaded_pack.passages
+    return pack
+
+
 async def _build_source_pack(
     db: AsyncSession,
     document: Document,
@@ -1098,6 +1138,32 @@ class BackgroundJobService:
                     additional_requirements,
                 )
 
+                # Task contract: works without a methodology follow the
+                # neutral academic structure for their work type, and the
+                # run's evidence records the honest basis (course decision
+                # 2026-07-11).
+                contract_directive = structure_directive(document)
+                if contract_directive:
+                    additional_requirements = (
+                        f"{additional_requirements}\n\n{contract_directive}"
+                        if additional_requirements
+                        else contract_directive
+                    )
+                if settings.PROVENANCE_LEDGER_ENABLED:
+                    task_contract_snapshot = build_task_contract(document)
+                    await _record_provenance(
+                        db,
+                        document_id,
+                        stage="intake",
+                        event_type="task_contract",
+                        payload={
+                            "basis": task_contract_snapshot["basis"],
+                            "basis_label": task_contract_snapshot["basis_label"],
+                            "rules": task_contract_snapshot["rules"],
+                            "sha256": task_contract_snapshot["sha256"],
+                        },
+                    )
+
                 document_citation_style = _resolve_citation_style(
                     document.citation_style
                 )
@@ -1128,11 +1194,13 @@ class BackgroundJobService:
                 # pipeline follows the legacy per-section retrieval path.
                 source_pack = None
                 if settings.SOURCE_GROUNDING_ENABLED:
-                    # Mandatory sources are mandatory: a scan without a text
-                    # layer or unconfirmed authors/year stops the run with an
-                    # explicit message instead of silently degrading to API
-                    # sources (GPT review 2026-07-11).
-                    source_blockers = await uploaded_sources_blockers(db, document_id)
+                    # Files the manager marked MANDATORY gate the run with an
+                    # explicit message; unusable supplementary files are only
+                    # excluded, with a visible warning (course correction
+                    # 2026-07-11: uploaded PDFs are supplementary by default).
+                    source_blockers, source_warnings = await uploaded_sources_blockers(
+                        db, document_id
+                    )
                     if source_blockers:
                         raise CitationIntegrityError(
                             detail=(
@@ -1140,14 +1208,34 @@ class BackgroundJobService:
                                 + "; ".join(source_blockers)
                             )
                         )
-                    # Manager-uploaded PDFs take precedence over API retrieval:
-                    # they are the mandated bibliography and carry full-text
-                    # page-anchored passages. Rebuilt deterministically on
-                    # every (re)run, so resume gets the identical pack.
-                    source_pack = await build_uploaded_source_pack(
+                    if source_warnings and settings.PROVENANCE_LEDGER_ENABLED:
+                        await _record_provenance(
+                            db,
+                            document_id,
+                            stage="retrieval",
+                            event_type="source_files_excluded",
+                            payload={"warnings": source_warnings[:20]},
+                        )
+                    # Uploaded PDFs join the pack first (chosen readings,
+                    # full-text passages); API retrieval SUPPLEMENTS them up
+                    # to the target size instead of being replaced. Rebuilt
+                    # deterministically on every (re)run.
+                    uploaded_pack = await build_uploaded_source_pack(
                         db, document_id, str(document.topic or "")
                     )
-                    if source_pack is not None:
+                    if uploaded_pack is not None:
+                        if (
+                            len(uploaded_pack.sources)
+                            < settings.SOURCE_PACK_TARGET_SIZE
+                        ):
+                            api_pack = await _build_source_pack(
+                                db,
+                                document,
+                                ai_service=AIService(db, usage_tracker=usage),
+                            )
+                            source_pack = _merge_source_packs(uploaded_pack, api_pack)
+                        else:
+                            source_pack = uploaded_pack
                         await fence_next_mutation(db)
                         await _persist_source_pack(db, document_id, source_pack)
                         if settings.PROVENANCE_LEDGER_ENABLED:
@@ -1157,7 +1245,8 @@ class BackgroundJobService:
                                 stage="retrieval",
                                 event_type="source_pack_built",
                                 payload={
-                                    "origin": "uploaded_files",
+                                    "origin": "uploaded_plus_auto",
+                                    "uploaded": len(uploaded_pack.sources),
                                     "pack_size": len(source_pack.sources),
                                     "passages": len(source_pack.passages or []),
                                 },

@@ -388,7 +388,8 @@ async def test_build_uploaded_pack_mandate_scores(db_session):
     assert pack.sources[0].source.paper_id.startswith("uploaded:")
     assert pack.passages, "full-text passages must ride on the pack"
 
-    # A metadata-incomplete file makes the build refuse, never invent.
+    # A metadata-incomplete SUPPLEMENTARY file is excluded, never invented
+    # around and never blocking (course correction 2026-07-11).
     await _seed_parsed_file(
         db_session,
         int(document.id),
@@ -396,10 +397,10 @@ async def test_build_uploaded_pack_mandate_scores(db_session):
         filename="Dispensa_corso.pdf",
         pages=[long_page2],  # no authors/year on purpose
     )
-    with pytest.raises(ValueError, match="unconfirmed"):
-        await build_uploaded_source_pack(
-            db_session, int(document.id), "AI nelle PMI italiane"
-        )
+    pack_after = await build_uploaded_source_pack(
+        db_session, int(document.id), "AI nelle PMI italiane"
+    )
+    assert pack_after.keys() == ["Rossi2021"], "unusable file must be excluded"
 
     # No uploads -> no pack (API path takes over).
     _, empty_doc = await _seed_document(db_session, "pack-empty@example.com")
@@ -582,7 +583,7 @@ async def test_blockers_name_scans_and_incomplete_metadata(db_session):
     from app.services.uploaded_sources import uploaded_sources_blockers
 
     user, document = await _seed_document(db_session, "blockers@example.com")
-    assert await uploaded_sources_blockers(db_session, int(document.id)) == []
+    assert await uploaded_sources_blockers(db_session, int(document.id)) == ([], [])
 
     scan = DocumentSourceFile(
         document_id=int(document.id),
@@ -605,10 +606,19 @@ async def test_blockers_name_scans_and_incomplete_metadata(db_session):
     db_session.add_all([scan, incomplete])
     await db_session.commit()
 
-    blockers = await uploaded_sources_blockers(db_session, int(document.id))
-    assert len(blockers) == 2
-    assert "scansione.pdf" in blockers[0] and "text layer" in blockers[0]
-    assert "dispensa.pdf" in blockers[1] and "authors/year" in blockers[1]
+    # Supplementary by default: problems are warnings, not blockers.
+    blockers, warnings = await uploaded_sources_blockers(db_session, int(document.id))
+    assert blockers == []
+    assert len(warnings) == 2
+    assert "scansione.pdf" in warnings[0] and "text layer" in warnings[0]
+    assert "dispensa.pdf" in warnings[1] and "authors/year" in warnings[1]
+
+    # An explicitly mandatory file DOES block generation.
+    scan.mandatory = True
+    await db_session.commit()
+    blockers, warnings = await uploaded_sources_blockers(db_session, int(document.id))
+    assert len(blockers) == 1 and "[mandatory]" in blockers[0]
+    assert len(warnings) == 1
 
 
 @pytest.mark.asyncio
@@ -631,7 +641,8 @@ async def test_metadata_patch_unblocks_generation(db_session):
 
     from app.services.uploaded_sources import uploaded_sources_blockers
 
-    assert await uploaded_sources_blockers(db_session, int(document.id))
+    _, warnings_before = await uploaded_sources_blockers(db_session, int(document.id))
+    assert warnings_before, "incomplete metadata must at least warn"
 
     patch_handler = getattr(
         documents_endpoint.update_source_metadata,
@@ -646,7 +657,10 @@ async def test_metadata_patch_unblocks_generation(db_session):
         db=db_session,
     )
     assert result["metadata_incomplete"] is False
-    assert await uploaded_sources_blockers(db_session, int(document.id)) == []
+    assert await uploaded_sources_blockers(db_session, int(document.id)) == (
+        [],
+        [],
+    )
 
     with pytest.raises(HTTPException) as exc_info:
         await patch_handler(

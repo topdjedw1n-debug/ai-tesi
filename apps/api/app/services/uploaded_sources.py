@@ -18,6 +18,7 @@ import logging
 import re
 import unicodedata
 from dataclasses import dataclass
+from typing import Any
 
 from pypdf import PdfReader
 from sqlalchemy import select
@@ -349,13 +350,32 @@ async def uploaded_sources_digest(db: AsyncSession, document_id: int) -> str | N
     return hashlib.sha256(material.encode("utf-8")).hexdigest()
 
 
-async def uploaded_sources_blockers(db: AsyncSession, document_id: int) -> list[str]:
-    """Human-readable reasons why generation must NOT start yet.
+def _file_issue(source_file: Any) -> str | None:
+    """Why one uploaded file cannot ground text, or None when usable."""
+    name = str(source_file.filename)
+    if source_file.status != "parsed":
+        return (
+            f"'{name}': scanned PDF without a text layer — replace it "
+            f"with a text-based PDF (OCR is not supported)"
+        )
+    if source_file.metadata_incomplete:
+        return (
+            f"'{name}': authors/year not confirmed — edit the source "
+            f"metadata before generation"
+        )
+    return None
 
-    Mandatory sources are mandatory: a scanned PDF without a text layer or
-    a file with unconfirmed authors/year must stop the run with a clear
-    message, never silently degrade to API sources or invented
-    bibliography fields (GPT review 2026-07-11).
+
+async def uploaded_sources_blockers(
+    db: AsyncSession, document_id: int
+) -> tuple[list[str], list[str]]:
+    """(blockers, warnings) for a document's uploaded sources.
+
+    Course correction 2026-07-11: uploaded PDFs are SUPPLEMENTARY by
+    default. Only files the manager explicitly marked mandatory may stop
+    generation; an unusable supplementary file is excluded with a visible
+    warning instead. Nothing is ever silently invented or silently
+    dropped — warnings land in provenance and the contract view.
     """
     files = (
         (
@@ -369,33 +389,28 @@ async def uploaded_sources_blockers(db: AsyncSession, document_id: int) -> list[
         .all()
     )
     blockers: list[str] = []
+    warnings: list[str] = []
     for source_file in files:
-        name = str(source_file.filename)
-        if source_file.status != "parsed":
-            blockers.append(
-                f"'{name}': scanned PDF without a text layer — replace it "
-                f"with a text-based PDF (OCR is not supported)"
-            )
-        elif source_file.metadata_incomplete:
-            blockers.append(
-                f"'{name}': authors/year not confirmed — edit the source "
-                f"metadata before generation"
-            )
-    return blockers
+        issue = _file_issue(source_file)
+        if issue is None:
+            continue
+        if getattr(source_file, "mandatory", False):
+            blockers.append(f"[mandatory] {issue}")
+        else:
+            warnings.append(f"[excluded from grounding] {issue}")
+    return blockers, warnings
 
 
 async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: str):
     """Build the grounding pack FROM manager-uploaded PDFs, or None.
 
-    When uploads exist they replace API retrieval entirely: the manager
-    chose these readings, so every file enters the pack with
-    on_topic_score 1.0 (the score exists to filter API junk, not to
-    second-guess a mandated bibliography). Deterministic — a resumed run
-    rebuilds the identical pack, passages included.
-
-    Callers gate on uploaded_sources_blockers() first; this function
-    refuses (raises) rather than invent authors or years — invented
-    metadata in a delivered bibliography is worse than a stopped run.
+    Uploaded files enter the pack with on_topic_score 1.0 (the score
+    exists to filter API junk, not to second-guess chosen readings) and
+    are SUPPLEMENTED by API retrieval up to the target pack size — they
+    never replace it outright (course correction 2026-07-11). Only usable
+    files participate (parsed text layer + confirmed metadata); exclusions
+    are surfaced by uploaded_sources_blockers(). Deterministic: a resumed
+    run rebuilds the identical uploaded part, passages included.
     """
     from app.services.ai_pipeline.rag_retriever import SourceDoc
     from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
@@ -404,10 +419,7 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
         (
             await db.execute(
                 select(DocumentSourceFile)
-                .where(
-                    DocumentSourceFile.document_id == document_id,
-                    DocumentSourceFile.status == "parsed",
-                )
+                .where(DocumentSourceFile.document_id == document_id)
                 .order_by(DocumentSourceFile.id.asc())
             )
         )
@@ -420,6 +432,11 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
     all_passages: list[SourcePassage] = []
     packed: list[PackedSource] = []
     for source_file in files:
+        if _file_issue(source_file) is not None:
+            # Unusable file: excluded here, surfaced as a warning (or a
+            # blocker when mandatory) by uploaded_sources_blockers — never
+            # invented around.
+            continue
         rows = (
             (
                 await db.execute(
@@ -442,12 +459,6 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
         authors = [
             a.strip() for a in str(source_file.authors or "").split(";") if a.strip()
         ]
-        if not authors or not source_file.year:
-            raise ValueError(
-                f"Uploaded source '{source_file.filename}' has unconfirmed "
-                f"authors/year; generation must be blocked upstream "
-                f"(uploaded_sources_blockers)"
-            )
         year = int(source_file.year)
         abstract = passages[0].text[:1000] if passages else None
         packed.append(
@@ -467,6 +478,8 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
             )
         )
 
+    if not packed:
+        return None
     pack = SourcePack(document_id=document_id, topic=topic, sources=packed)
     pack.passages = all_passages
     logger.info(

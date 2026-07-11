@@ -534,9 +534,11 @@ async def test_admin_retry_rejects_account_with_pending_gdpr_deletion(db_session
 @pytest.mark.parametrize(
     ("requirements_file_processed", "requirements", "citation_style", "error_code"),
     [
-        (False, "Parsed methodology", "apa", "METHODOLOGY_REQUIRED"),
-        (True, "", "apa", "METHODOLOGY_REQUIRED"),
-        (True, "Parsed methodology", "mla", "UNSUPPORTED_CITATION_STYLE"),
+        # Universal task contract (2026-07-11): no methodology AND no
+        # confirmed assumptions -> not ready; unsupported style -> not ready.
+        (False, "Parsed methodology", "apa", "TASK_CONTRACT_NOT_READY"),
+        (True, "", "apa", "TASK_CONTRACT_NOT_READY"),
+        (True, "Parsed methodology", "vancouver", "TASK_CONTRACT_NOT_READY"),
     ],
 )
 async def test_admin_retry_rejects_job_the_worker_would_quarantine(

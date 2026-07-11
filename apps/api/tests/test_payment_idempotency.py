@@ -102,6 +102,11 @@ async def test_document(db_session: AsyncSession, test_user: User):
         language="en",
         target_pages=10,
         status="draft",
+        # Satisfy the universal task-contract gate; these tests exercise
+        # payment mechanics, not the contract.
+        additional_requirements="Parsed methodology for payment tests",
+        requirements_file_processed=True,
+        citation_style="apa",
     )
     db_session.add(doc)
     await db_session.commit()

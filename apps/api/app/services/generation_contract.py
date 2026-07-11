@@ -56,6 +56,13 @@ def generation_contract_payload(
     }
     if uploaded_sources_sha is not None:
         payload["uploaded_sources_sha256"] = str(uploaded_sources_sha)
+    work_type = str(getattr(document, "work_type", "") or "").strip().lower()
+    if work_type:
+        payload["work_type"] = work_type
+    contract_confirmed = str(getattr(document, "contract_confirmed_sha256", "") or "")
+    if contract_confirmed:
+        # A no-methodology run is bound to the exact confirmed assumptions.
+        payload["contract_confirmed_sha256"] = contract_confirmed
     return payload
 
 
@@ -78,11 +85,19 @@ def generation_contract_sha256(
 
 
 def generation_contract_error(document: Any) -> str | None:
-    """Return why the narrow Italian generation contract is incomplete."""
-    if not bool(document.requirements_file_processed):
-        return "methodology file was not processed"
-    if not str(document.additional_requirements or "").strip():
-        return "processed methodology text is missing"
-    if str(document.citation_style or "").strip().lower() != "apa":
-        return "citation style must be APA"
-    return None
+    """Return why the task contract is not ready for generation.
+
+    Universal semantics (course decision 2026-07-11): the requirements
+    basis is EITHER an uploaded methodology OR a manager-confirmed set of
+    assumed rules — never nothing, never a silent default. The citation
+    style must be one the formatter can actually render.
+    """
+    from app.services.task_contract import (
+        SUPPORTED_CITATION_STYLES,
+        contract_confirmation_error,
+    )
+
+    style = str(document.citation_style or "").strip().lower()
+    if style not in SUPPORTED_CITATION_STYLES:
+        return f"unsupported citation style '{style}'"
+    return contract_confirmation_error(document)

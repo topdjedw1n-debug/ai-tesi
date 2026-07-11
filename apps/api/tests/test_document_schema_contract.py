@@ -17,12 +17,38 @@ from app.services.custom_requirements_service import (
 )
 
 
-def test_new_document_rejects_non_apa_style():
-    with pytest.raises(PydanticValidationError, match="citation_style must be apa"):
+def test_new_document_accepts_supported_styles_only():
+    # Universal task contract (2026-07-11): any style the formatter renders
+    # is a valid per-document value; unknown styles are still rejected.
+    accepted = DocumentCreate(
+        title="Chicago style thesis",
+        topic="A sufficiently long academic research topic",
+        citation_style="chicago",
+    )
+    assert accepted.citation_style == "chicago"
+
+    with pytest.raises(PydanticValidationError, match="citation_style must be one of"):
         DocumentCreate(
-            title="Legacy style thesis",
+            title="Unknown style thesis",
             topic="A sufficiently long academic research topic",
-            citation_style="chicago",
+            citation_style="vancouver",
+        )
+
+
+def test_new_document_validates_work_type():
+    assert (
+        DocumentCreate(
+            title="Typed thesis",
+            topic="A sufficiently long academic research topic",
+            work_type="tesi_magistrale",
+        ).work_type
+        == "tesi_magistrale"
+    )
+    with pytest.raises(PydanticValidationError, match="work_type must be one of"):
+        DocumentCreate(
+            title="Bad type thesis",
+            topic="A sufficiently long academic research topic",
+            work_type="poem",
         )
 
 

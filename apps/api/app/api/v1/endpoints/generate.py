@@ -54,6 +54,11 @@ from app.services.generation_worker import (
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.storage_service import StorageService
+from app.services.task_contract import (
+    SUPPORTED_CITATION_STYLES,
+    build_task_contract,
+    contract_confirmation_error,
+)
 from app.services.uploaded_sources import (
     uploaded_sources_blockers,
     uploaded_sources_digest,
@@ -345,6 +350,9 @@ async def _enforce_generation_gate(
     when generation is allowed.
     """
     if settings.METHODOLOGY_REQUIRED_FOR_GENERATION:
+        # Narrow-pilot mode (kept as an explicit opt-in): methodology is a
+        # hard prerequisite. The universal task contract below is the
+        # default (course decision 2026-07-11).
         if not document.requirements_file_processed:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -353,14 +361,29 @@ async def _enforce_generation_gate(
                     "processed before generation can start."
                 ),
             )
-        if str(document.citation_style or "apa").lower() != "apa":
+    else:
+        confirmation_error = contract_confirmation_error(document)
+        if confirmation_error is not None:
+            contract = build_task_contract(document)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=(
-                    "The current Italian MVP supports APA citations only. "
-                    "Create an APA document before generation."
+                    f"Task contract is not confirmed: {confirmation_error}. "
+                    "Assumed rules: "
+                    + "; ".join(
+                        f"{r['key']} = {r['value']}" for r in contract["assumptions"]
+                    )
                 ),
             )
+    style = str(document.citation_style or "apa").strip().lower()
+    if style not in SUPPORTED_CITATION_STYLES:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=(
+                f"Citation style '{style}' is not supported; choose one of: "
+                + ", ".join(sorted(SUPPORTED_CITATION_STYLES))
+            ),
+        )
 
     if not settings.MVP_FREE_GENERATION_ENABLED:
         payment_result = await db.execute(
@@ -693,12 +716,21 @@ async def generate_full_document(
             )
             if production_case.citation_style:
                 case_style = str(production_case.citation_style).strip().lower()
-                if case_style not in {"apa", "apa-7"}:
+                if (
+                    case_style not in SUPPORTED_CITATION_STYLES
+                    and case_style != "apa-7"
+                ):
                     raise HTTPException(
                         status_code=status.HTTP_409_CONFLICT,
-                        detail="The current Italian MVP supports APA citations only.",
+                        detail=(
+                            f"Citation style '{case_style}' is not supported; "
+                            "choose one of: "
+                            + ", ".join(sorted(SUPPORTED_CITATION_STYLES))
+                        ),
                     )
-                document.citation_style = "apa"
+                # The case style is authoritative for the run; apa-7 is the
+                # same formatter as apa.
+                document.citation_style = "apa" if case_style == "apa-7" else case_style
 
         # 4. Validate document is ready for generation
         if document.status == "generating":
@@ -719,7 +751,9 @@ async def generate_full_document(
         # Mandatory uploaded sources must be generation-ready: scans and
         # unconfirmed metadata stop the run HERE with the exact reasons,
         # never silently degrade to API sources (GPT review 2026-07-11).
-        source_blockers = await uploaded_sources_blockers(db, req_data.document_id)
+        source_blockers, _source_warnings = await uploaded_sources_blockers(
+            db, req_data.document_id
+        )
         if source_blockers:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,

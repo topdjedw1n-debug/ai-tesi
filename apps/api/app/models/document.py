@@ -40,6 +40,13 @@ class Document(Base):
     language = Column(String(10), default="en")
     target_pages = Column(Integer, default=10)
     additional_requirements = Column(Text, nullable=True)
+    # Universal task contract (2026-07-11): the mandatory core includes the
+    # work type; structure defaults derive from it when no methodology exists.
+    work_type = Column(String(50), nullable=True)
+    # Manager confirmation of assumed contract rules, bound to the exact
+    # contract fingerprint so any later input change invalidates it.
+    contract_confirmed_sha256 = Column(String(64), nullable=True)
+    contract_confirmed_at = Column(DateTime(timezone=True), nullable=True)
     citation_style = Column(String(50), default="apa", nullable=False)
     requirements_file_processed = Column(Boolean, default=False, nullable=False)
 
@@ -654,6 +661,10 @@ class DocumentSourceFile(Base):
     text_chars = Column(Integer, nullable=False, default=0)
     status = Column(String(30), nullable=False, default="parsed")
     metadata_incomplete = Column(Boolean, nullable=False, default=False)
+    # Supplementary by default; mandatory only by explicit manager decision
+    # (course correction 2026-07-11) — mandatory files gate generation,
+    # supplementary ones are excluded with a warning when unusable.
+    mandatory = Column(Boolean, nullable=False, default=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     pages = relationship(

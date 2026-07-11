@@ -128,6 +128,11 @@ async def _make_document(
             status="draft",
             target_pages=target_pages,
             created_at=created_at,
+            # These tests exercise the payment/quota gates; satisfy the
+            # task-contract gate with a processed methodology.
+            additional_requirements="Parsed methodology for gate tests",
+            requirements_file_processed=True,
+            citation_style="apa",
         )
         session.add(document)
         await session.commit()

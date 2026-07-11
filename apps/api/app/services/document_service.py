@@ -83,6 +83,7 @@ class DocumentService:
         ai_model: str = "claude-opus-4-8",
         additional_requirements: str | None = None,
         citation_style: str = "apa",
+        work_type: str | None = None,
     ) -> dict[str, Any]:
         """Create a new document"""
         try:
@@ -97,6 +98,7 @@ class DocumentService:
                 ai_model=ai_model,
                 additional_requirements=additional_requirements,
                 citation_style=citation_style,
+                work_type=work_type,
                 status="draft",
             )
 
