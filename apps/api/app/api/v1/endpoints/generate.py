@@ -54,7 +54,10 @@ from app.services.generation_worker import (
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.storage_service import StorageService
-from app.services.uploaded_sources import uploaded_sources_digest
+from app.services.uploaded_sources import (
+    uploaded_sources_blockers,
+    uploaded_sources_digest,
+)
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -712,6 +715,19 @@ async def generate_full_document(
 
         # 5. Enforce the MVP free-generation / payment gate before any job exists
         await _enforce_generation_gate(db, document, int(current_user.id))
+
+        # Mandatory uploaded sources must be generation-ready: scans and
+        # unconfirmed metadata stop the run HERE with the exact reasons,
+        # never silently degrade to API sources (GPT review 2026-07-11).
+        source_blockers = await uploaded_sources_blockers(db, req_data.document_id)
+        if source_blockers:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "Uploaded sources are not generation-ready: "
+                    + "; ".join(source_blockers)
+                ),
+            )
 
         # A new run invalidates every prior release and citation association.
         # Otherwise a regenerated file could inherit the previous review, or

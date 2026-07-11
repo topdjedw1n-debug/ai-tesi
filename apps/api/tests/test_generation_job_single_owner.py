@@ -332,6 +332,7 @@ async def test_generation_race_returns_competing_active_job(monkeypatch):
             _ScalarResult(document),
             _ScalarResult(production_case),
             _ScalarResult(None),
+            _ScalarsResult([]),  # uploaded-sources blockers (no uploads)
             _ScalarsResult([]),  # uploaded-sources digest (no uploads)
             _ScalarResult(competing_job),
         ]
@@ -406,6 +407,7 @@ async def test_generation_locks_shared_user_budget_then_rereads_case(monkeypatch
             _ScalarResult(document),
             _ScalarResult(production_case),
             _ScalarResult(None),
+            _ScalarsResult([]),  # uploaded-sources blockers (no uploads)
             _ScalarsResult([]),  # uploaded-sources digest (no uploads)
         ]
     )

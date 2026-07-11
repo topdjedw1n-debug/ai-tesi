@@ -1152,3 +1152,91 @@ async def delete_source_file(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to delete source file",
         ) from e
+
+
+@router.patch("/{document_id}/sources/files/{file_id}")
+async def update_source_metadata(
+    document_id: int,
+    file_id: int,
+    payload: dict[str, Any],
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Correct the citation metadata of an uploaded source.
+
+    Honest bibliography needs real authors/year — the system never invents
+    them, so incomplete files block generation until fixed here. Metadata
+    is part of the generation contract: an edit invalidates any generated
+    state exactly like swapping the file would.
+    """
+    try:
+        document, production_case = await _lock_document_for_source_change(
+            db, document_id, int(current_user.id)
+        )
+        source_file = (
+            await db.execute(
+                select(DocumentSourceFile).where(
+                    DocumentSourceFile.id == file_id,
+                    DocumentSourceFile.document_id == document_id,
+                )
+            )
+        ).scalar_one_or_none()
+        if source_file is None:
+            raise NotFoundError("Source file not found")
+
+        allowed = {"title", "authors", "year"}
+        unknown = set(payload) - allowed
+        if unknown:
+            raise ValidationError(
+                f"Unknown fields: {', '.join(sorted(unknown))}; "
+                f"editable fields are title, authors, year"
+            )
+        if "title" in payload:
+            title = str(payload["title"] or "").strip()
+            if not 3 <= len(title) <= 500:
+                raise ValidationError("title must be 3-500 characters")
+            source_file.title = title
+        if "authors" in payload:
+            authors = str(payload["authors"] or "").strip()
+            if not 3 <= len(authors) <= 500:
+                raise ValidationError(
+                    "authors must be 3-500 characters ('; '-separated)"
+                )
+            source_file.authors = authors
+        if "year" in payload:
+            try:
+                year = int(payload["year"])
+            except (TypeError, ValueError) as exc:
+                raise ValidationError("year must be an integer") from exc
+            if not 1900 <= year <= 2049:
+                raise ValidationError("year must be between 1900 and 2049")
+            source_file.year = year
+
+        source_file.metadata_incomplete = not (
+            str(source_file.authors or "").strip() and source_file.year
+        )
+        _reset_document_after_input_change(document, production_case)
+        await db.commit()
+        return {
+            "id": int(source_file.id),
+            "citation_key": source_file.citation_key,
+            "title": source_file.title,
+            "authors": source_file.authors,
+            "year": source_file.year,
+            "metadata_incomplete": bool(source_file.metadata_incomplete),
+        }
+    except NotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
+    except ValidationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(e)
+        ) from e
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        logger.error(f"Source metadata update failed for document {document_id}: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to update source metadata",
+        ) from e

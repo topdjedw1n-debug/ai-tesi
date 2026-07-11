@@ -37,6 +37,7 @@ from app.services.generation_contract import (
 )
 from app.services.provenance_service import derive_quality_gate_status
 from app.services.storage_service import StorageService
+from app.services.uploaded_sources import uploaded_sources_digest
 
 DETECTOR_GATE_KEYS = {"plagiarism_proxy", "ai_detection_proxy"}
 DETECTOR_ARTIFACT_FORMATS = ("docx", "pdf")
@@ -497,6 +498,11 @@ class ProductionCaseService:
             )
         ).scalar_one_or_none()
 
+        # The uploaded-sources digest is part of the generation contract:
+        # swapping or re-editing the mandated PDFs after generation must
+        # flip the contract gate exactly like a methodology change.
+        sources_sha = await uploaded_sources_digest(self.db, int(document.id))
+
         gates = []
         for gate_key, config in RELEASE_GATE_CONFIG.items():
             computed = self._compute_gate(
@@ -508,6 +514,7 @@ class ProductionCaseService:
                 tasks,
                 sections,
                 latest_job,
+                uploaded_sources_sha=sources_sha,
             )
             stored = persisted.get(gate_key)
             if stored and gate_key in DETECTOR_GATE_KEYS:
@@ -892,6 +899,8 @@ class ProductionCaseService:
         tasks: list[EditorTask],
         sections: list[DocumentSection],
         latest_job: AIGenerationJob | None,
+        *,
+        uploaded_sources_sha: str | None = None,
     ) -> dict[str, Any]:
         status_value = "no_data"
         summary = "No evidence recorded yet."
@@ -916,6 +925,7 @@ class ProductionCaseService:
                     document,
                     case,
                     job_payload.get("additional_requirements"),
+                    uploaded_sources_sha,
                 )
                 completion_matches = _same_instant(
                     latest_job.completed_at,

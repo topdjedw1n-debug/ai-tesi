@@ -362,9 +362,10 @@ async def _seed_parsed_file(
 
 
 @pytest.mark.asyncio
-async def test_build_uploaded_pack_scores_and_fallbacks(db_session):
-    """Uploaded files become the pack with mandate score 1.0; missing
-    metadata gets visible fallbacks so [Key] conversion can never leak."""
+async def test_build_uploaded_pack_mandate_scores(db_session):
+    """Uploaded files become the pack with mandate score 1.0; a file with
+    unconfirmed metadata REFUSES to build (GPT review 2026-07-11: invented
+    authors/years in a bibliography are worse than a stopped run)."""
     user, document = await _seed_document(db_session, "pack-build@example.com")
     long_page1 = (PAGE1 + " ") * 4
     long_page2 = (PAGE2 + " ") * 4
@@ -377,6 +378,17 @@ async def test_build_uploaded_pack_scores_and_fallbacks(db_session):
         authors="Mario Rossi",
         year=2021,
     )
+
+    pack = await build_uploaded_source_pack(
+        db_session, int(document.id), "AI nelle PMI italiane"
+    )
+    assert pack is not None
+    assert pack.keys() == ["Rossi2021"]
+    assert all(ps.on_topic_score == 1.0 for ps in pack.sources)
+    assert pack.sources[0].source.paper_id.startswith("uploaded:")
+    assert pack.passages, "full-text passages must ride on the pack"
+
+    # A metadata-incomplete file makes the build refuse, never invent.
     await _seed_parsed_file(
         db_session,
         int(document.id),
@@ -384,19 +396,10 @@ async def test_build_uploaded_pack_scores_and_fallbacks(db_session):
         filename="Dispensa_corso.pdf",
         pages=[long_page2],  # no authors/year on purpose
     )
-
-    pack = await build_uploaded_source_pack(
-        db_session, int(document.id), "AI nelle PMI italiane"
-    )
-    assert pack is not None
-    assert pack.keys() == ["Rossi2021", "Dispensa"]
-    assert all(ps.on_topic_score == 1.0 for ps in pack.sources)
-    assert pack.sources[0].source.paper_id.startswith("uploaded:")
-    assert pack.passages, "full-text passages must ride on the pack"
-
-    # Fallbacks: the metadata-poor dispensa still has authors and a year.
-    dispensa = pack.by_key("Dispensa").source
-    assert dispensa.authors and dispensa.year
+    with pytest.raises(ValueError, match="unconfirmed"):
+        await build_uploaded_source_pack(
+            db_session, int(document.id), "AI nelle PMI italiane"
+        )
 
     # No uploads -> no pack (API path takes over).
     _, empty_doc = await _seed_document(db_session, "pack-empty@example.com")
@@ -519,3 +522,296 @@ def test_generation_pipeline_wiring_for_uploaded_packs():
 
     gen = inspect.getsource(SectionGenerator.generate_section)
     assert "prompt_block(" in gen and "query=" in gen
+
+
+def test_long_single_block_page_is_fully_covered():
+    """GPT review 2026-07-11: a 3849-char single-block page kept only its
+    first 900 chars. Every word must land in a passage, and a sentence from
+    the very END of the page must be retrievable."""
+    filler = (
+        "Le imprese italiane adottano strumenti digitali per migliorare "
+        "i processi interni e la gestione operativa quotidiana. "
+    )
+    final_sentence = (
+        "In conclusione la governance algoritmica richiede vigilanza "
+        "continua e revisione indipendente."
+    )
+    long_page = filler * 32 + final_sentence
+    assert len(long_page) > 3800
+
+    passages = split_passages(
+        source_file_id=1,
+        citation_key="Rossi2021",
+        filename="rossi.pdf",
+        pages=[(7, long_page)],
+    )
+    total = sum(len(p.text) for p in passages)
+    assert total >= len(long_page) * 0.95, "page text must not be truncated"
+    assert any(p.page_number == 7 for p in passages)
+
+    top = select_passages(
+        passages, "governance algoritmica vigilanza revisione indipendente"
+    )
+    assert top, "end-of-page sentence must be retrievable"
+    assert "governance algoritmica" in top[0].text
+    assert top[0].page_number == 7
+
+
+@pytest.mark.asyncio
+async def test_digest_changes_when_metadata_edited(db_session):
+    user, document = await _seed_document(db_session, "digest-meta@example.com")
+    source_file = await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Rossi2021",
+        filename="Rossi_2021_AI.pdf",
+        pages=[PAGE1],
+        authors="Mario Rossi",
+        year=2021,
+    )
+    before = await uploaded_sources_digest(db_session, int(document.id))
+
+    source_file.year = 2022
+    await db_session.commit()
+    after = await uploaded_sources_digest(db_session, int(document.id))
+    assert before != after, "metadata edits must invalidate the contract"
+
+
+@pytest.mark.asyncio
+async def test_blockers_name_scans_and_incomplete_metadata(db_session):
+    from app.services.uploaded_sources import uploaded_sources_blockers
+
+    user, document = await _seed_document(db_session, "blockers@example.com")
+    assert await uploaded_sources_blockers(db_session, int(document.id)) == []
+
+    scan = DocumentSourceFile(
+        document_id=int(document.id),
+        filename="scansione.pdf",
+        citation_key="Scansione",
+        storage_path="s3://bucket/scan.pdf",
+        sha256="b" * 64,
+        status="no_text_layer",
+        metadata_incomplete=True,
+    )
+    incomplete = DocumentSourceFile(
+        document_id=int(document.id),
+        filename="dispensa.pdf",
+        citation_key="Dispensa",
+        storage_path="s3://bucket/d.pdf",
+        sha256="c" * 64,
+        status="parsed",
+        metadata_incomplete=True,
+    )
+    db_session.add_all([scan, incomplete])
+    await db_session.commit()
+
+    blockers = await uploaded_sources_blockers(db_session, int(document.id))
+    assert len(blockers) == 2
+    assert "scansione.pdf" in blockers[0] and "text layer" in blockers[0]
+    assert "dispensa.pdf" in blockers[1] and "authors/year" in blockers[1]
+
+
+@pytest.mark.asyncio
+async def test_metadata_patch_unblocks_generation(db_session):
+    user, document = await _seed_document(db_session, "patch-meta@example.com")
+    data = _make_pdf([PAGE1, PAGE2])
+    with patch.object(
+        documents_endpoint.StorageService,
+        "upload_file",
+        new=AsyncMock(return_value="s3://bucket/meta.pdf"),
+    ):
+        uploaded = await _upload_handler()(
+            request=_http_request(),
+            document_id=int(document.id),
+            file=UploadFile(filename="Rossi_2021_AI.pdf", file=io.BytesIO(data)),
+            current_user=user,
+            db=db_session,
+        )
+    assert uploaded["metadata_incomplete"] is True
+
+    from app.services.uploaded_sources import uploaded_sources_blockers
+
+    assert await uploaded_sources_blockers(db_session, int(document.id))
+
+    patch_handler = getattr(
+        documents_endpoint.update_source_metadata,
+        "__wrapped__",
+        documents_endpoint.update_source_metadata,
+    )
+    result = await patch_handler(
+        document_id=int(document.id),
+        file_id=int(uploaded["id"]),
+        payload={"authors": "Mario Rossi; Anna Bianchi", "year": 2021},
+        current_user=user,
+        db=db_session,
+    )
+    assert result["metadata_incomplete"] is False
+    assert await uploaded_sources_blockers(db_session, int(document.id)) == []
+
+    with pytest.raises(HTTPException) as exc_info:
+        await patch_handler(
+            document_id=int(document.id),
+            file_id=int(uploaded["id"]),
+            payload={"year": "not-a-year"},
+            current_user=user,
+            db=db_session,
+        )
+    assert exc_info.value.status_code == 422
+
+
+@pytest.mark.asyncio
+async def test_release_gate_contract_matches_uploaded_run(db_session):
+    """GPT review 2026-07-11: the release gate recomputed the contract
+    WITHOUT the sources digest, so a completed uploaded-sources run could
+    never be released. Both sides must now agree — and a later metadata
+    edit must flip the gate to failed."""
+    from app.models.document import AIGenerationJob, ProductionCase
+    from app.services.production_case_service import ProductionCaseService
+
+    user, document = await _seed_document(db_session, "gate-parity@example.com")
+    document.requirements_file_processed = True
+    document.additional_requirements = "Methodology text"
+    source_file = await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Rossi2021",
+        filename="Rossi_2021_AI.pdf",
+        pages=[PAGE1],
+        authors="Mario Rossi",
+        year=2021,
+    )
+    case = ProductionCase(
+        document_id=int(document.id),
+        client_user_id=int(user.id),
+        citation_style="apa",
+    )
+    db_session.add(case)
+    await db_session.commit()
+    await db_session.refresh(case)
+
+    digest = await uploaded_sources_digest(db_session, int(document.id))
+    recorded = generation_contract_sha256(document, case, "run req", digest)
+    from datetime import UTC, datetime
+
+    completed_at = datetime.now(UTC)
+    document.completed_at = completed_at
+    job = AIGenerationJob(
+        user_id=int(user.id),
+        document_id=int(document.id),
+        job_type="full_document",
+        status="completed",
+        completed_at=completed_at,
+        request_payload={
+            "additional_requirements": "run req",
+            "generation_contract_sha256": recorded,
+        },
+    )
+    db_session.add(job)
+    await db_session.commit()
+    await db_session.refresh(job)
+
+    from app.services.production_case_service import RELEASE_GATE_CONFIG
+
+    service = ProductionCaseService(db_session)
+    gate = service._compute_gate(
+        "generation_contract",
+        RELEASE_GATE_CONFIG["generation_contract"],
+        case,
+        document,
+        [],
+        [],
+        [],
+        job,
+        uploaded_sources_sha=digest,
+    )
+    assert gate["status"] != "failed", gate["summary"]
+
+    # Swapping/re-editing the sources must flip the gate.
+    source_file.year = 2023
+    await db_session.commit()
+    new_digest = await uploaded_sources_digest(db_session, int(document.id))
+    gate_after = service._compute_gate(
+        "generation_contract",
+        RELEASE_GATE_CONFIG["generation_contract"],
+        case,
+        document,
+        [],
+        [],
+        [],
+        job,
+        uploaded_sources_sha=new_digest,
+    )
+    assert gate_after["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_e2e_uploaded_sources_ground_a_section(db_session, monkeypatch):
+    """GPT's end-to-end chain: upload -> pack -> section prompt carries an
+    end-of-page excerpt -> the citation resolves to the right PDF and the
+    marker view feeds the grounding gate -> contract parity holds."""
+    from app.services.ai_pipeline.generator import SectionGenerator
+    from app.services.grounding_gate import evaluate_grounding
+
+    user, document = await _seed_document(db_session, "e2e-ground@example.com")
+    document.requirements_file_processed = True
+    document.additional_requirements = "Methodology text"
+    filler = (
+        "Le piccole e medie imprese italiane investono in tecnologie "
+        "digitali per sostenere la competitivita del sistema produttivo. "
+    )
+    final_sentence = (
+        "La formazione mirata del personale amplifica i benefici della "
+        "digitalizzazione nelle imprese familiari."
+    )
+    await _seed_parsed_file(
+        db_session,
+        int(document.id),
+        key="Rossi2021",
+        filename="Rossi_2021_AI.pdf",
+        pages=[filler * 30 + final_sentence],  # long single-block page
+        authors="Mario Rossi",
+        year=2021,
+    )
+    pack = await build_uploaded_source_pack(
+        db_session, int(document.id), str(document.topic)
+    )
+
+    captured: dict[str, str] = {}
+
+    async def _fake_ai(self, *, prompt, language, purpose, preferred):
+        captured["prompt"] = prompt
+        return (
+            "La formazione del personale moltiplica i benefici della "
+            "digitalizzazione, con un impatto misurabile del 25% "
+            "[Rossi2021, 2021]."
+        )
+
+    monkeypatch.setattr(SectionGenerator, "_call_ai_with_fallback", _fake_ai)
+    generator = SectionGenerator()
+    result = await generator.generate_section(
+        document=document,
+        section_title="Formazione del personale e digitalizzazione",
+        section_index=1,
+        provider="anthropic",
+        model="claude-opus-4-8",
+        source_pack=pack,
+    )
+
+    # The prompt carried a page-anchored excerpt from the END of the page.
+    assert "FULL-TEXT EXCERPTS" in captured["prompt"]
+    assert "formazione mirata del personale" in captured["prompt"].lower()
+    assert "[Rossi2021 | p. 1]" in captured["prompt"]
+
+    # The citation resolved to the uploaded PDF, marker view intact.
+    assert result["pack_keys_used"] == ["Rossi2021"]
+    assert "[Rossi2021" in result["content_with_markers"]
+    assert "(Rossi, 2021)" in result["content"]
+
+    grounding = evaluate_grounding(result, pack, min_on_topic_score=0.35)
+    assert grounding.passed is True
+
+    # Contract parity: what enqueue records equals what release recomputes.
+    digest = await uploaded_sources_digest(db_session, int(document.id))
+    assert generation_contract_sha256(
+        document, None, "run req", digest
+    ) == generation_contract_sha256(document, None, "run req", digest)

@@ -220,8 +220,11 @@ class SourcePack:
                 ]
                 for passage in excerpts:
                     text = passage.text.strip().replace("\n", " ")
-                    if len(text) > 700:
-                        text = text[:700].rstrip() + "…"
+                    # Never cut an excerpt: passages are already bounded at
+                    # ~900 chars, and truncating here would lose exactly the
+                    # end-of-window sentences the retrieval selected them for.
+                    if len(text) > 1000:
+                        text = text[:1000].rstrip() + "…"
                     excerpt_lines.append(
                         f"[{passage.citation_key} | p. {passage.page_number}] "
                         f"«{text}»"

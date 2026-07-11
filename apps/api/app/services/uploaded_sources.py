@@ -36,6 +36,9 @@ MIN_TEXT_CHARS_PER_PAGE = 120
 # handful fit into a section prompt with their page labels.
 PASSAGE_TARGET_CHARS = 900
 PASSAGE_MIN_CHARS = 200
+# Consecutive windows share this much tail context so an argument cut at a
+# window boundary is still retrievable as one piece.
+PASSAGE_OVERLAP_CHARS = 150
 
 _YEAR_RE = re.compile(r"\b(19[5-9]\d|20[0-4]\d)\b")
 _KEY_SANITIZE_RE = re.compile(r"[^0-9A-Za-z]+")
@@ -170,40 +173,53 @@ def split_passages(
     filename: str,
     pages: list[tuple[int, str]],
 ) -> list[SourcePassage]:
-    """Page-bounded windows: a passage never spans pages, so its page
-    number is exact evidence, not an approximation."""
+    """Page-bounded, FULL-COVERAGE windows with overlap.
+
+    Every word of every page lands in at least one passage — the first
+    implementation truncated any block longer than the window (a typical
+    extracted page is one giant block, so >75% of its text was silently
+    lost; GPT review 2026-07-11). A passage never spans pages, so its page
+    number is exact evidence; consecutive windows overlap by
+    ~PASSAGE_OVERLAP_CHARS so boundary-straddling sentences stay findable.
+    """
     passages: list[SourcePassage] = []
     for page_number, text in pages:
-        blocks = [b.strip() for b in re.split(r"\n\s*\n", text) if b.strip()]
-        if not blocks and text.strip():
-            blocks = [text.strip()]
-        window = ""
-        for block in blocks:
-            candidate = f"{window}\n{block}".strip() if window else block
-            if len(candidate) <= PASSAGE_TARGET_CHARS:
-                window = candidate
-                continue
-            if len(window) >= PASSAGE_MIN_CHARS:
+        words = text.split()
+        if not words:
+            continue
+
+        def _emit(chunk_words: list[str], *, page: int = page_number) -> None:
+            chunk = " ".join(chunk_words).strip()
+            if chunk:
                 passages.append(
                     SourcePassage(
                         source_file_id=source_file_id,
                         citation_key=citation_key,
                         filename=filename,
-                        page_number=page_number,
-                        text=window,
+                        page_number=page,
+                        text=chunk,
                     )
                 )
-            window = block[:PASSAGE_TARGET_CHARS]
-        if len(window) >= PASSAGE_MIN_CHARS:
-            passages.append(
-                SourcePassage(
-                    source_file_id=source_file_id,
-                    citation_key=citation_key,
-                    filename=filename,
-                    page_number=page_number,
-                    text=window,
-                )
-            )
+
+        window: list[str] = []
+        window_len = 0
+        for word in words:
+            added = len(word) + (1 if window else 0)
+            if window and window_len + added > PASSAGE_TARGET_CHARS:
+                _emit(window)
+                # Seed the next window with the previous tail for context.
+                tail: list[str] = []
+                tail_len = 0
+                for prev in reversed(window):
+                    if tail_len + len(prev) + 1 > PASSAGE_OVERLAP_CHARS:
+                        break
+                    tail.append(prev)
+                    tail_len += len(prev) + 1
+                window = list(reversed(tail))
+                window_len = tail_len
+            window.append(word)
+            window_len += len(word) + (1 if len(window) > 1 else 0)
+        _emit(window)
     return passages
 
 
@@ -307,20 +323,65 @@ async def uploaded_sources_digest(db: AsyncSession, document_id: int) -> str | N
     """Deterministic digest of the uploaded source set, for the generation
     contract: swapping sources after enqueue must invalidate the run just
     like swapping the methodology does."""
-    hashes = (
+    rows = (
+        await db.execute(
+            select(
+                DocumentSourceFile.sha256,
+                DocumentSourceFile.citation_key,
+                DocumentSourceFile.title,
+                DocumentSourceFile.authors,
+                DocumentSourceFile.year,
+            )
+            .where(DocumentSourceFile.document_id == document_id)
+            .order_by(DocumentSourceFile.sha256.asc())
+        )
+    ).all()
+    if not rows:
+        return None
+    # Metadata is part of the contract: editing authors/year changes the
+    # bibliography of the generated text, so it must invalidate an enqueued
+    # run and flip the release gate exactly like swapping the file bytes.
+    material = "\n".join(
+        f"{row.sha256}|{row.citation_key}|{row.title or ''}"
+        f"|{row.authors or ''}|{row.year or ''}"
+        for row in rows
+    )
+    return hashlib.sha256(material.encode("utf-8")).hexdigest()
+
+
+async def uploaded_sources_blockers(db: AsyncSession, document_id: int) -> list[str]:
+    """Human-readable reasons why generation must NOT start yet.
+
+    Mandatory sources are mandatory: a scanned PDF without a text layer or
+    a file with unconfirmed authors/year must stop the run with a clear
+    message, never silently degrade to API sources or invented
+    bibliography fields (GPT review 2026-07-11).
+    """
+    files = (
         (
             await db.execute(
-                select(DocumentSourceFile.sha256)
+                select(DocumentSourceFile)
                 .where(DocumentSourceFile.document_id == document_id)
-                .order_by(DocumentSourceFile.sha256.asc())
+                .order_by(DocumentSourceFile.id.asc())
             )
         )
         .scalars()
         .all()
     )
-    if not hashes:
-        return None
-    return hashlib.sha256("\n".join(hashes).encode("utf-8")).hexdigest()
+    blockers: list[str] = []
+    for source_file in files:
+        name = str(source_file.filename)
+        if source_file.status != "parsed":
+            blockers.append(
+                f"'{name}': scanned PDF without a text layer — replace it "
+                f"with a text-based PDF (OCR is not supported)"
+            )
+        elif source_file.metadata_incomplete:
+            blockers.append(
+                f"'{name}': authors/year not confirmed — edit the source "
+                f"metadata before generation"
+            )
+    return blockers
 
 
 async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: str):
@@ -332,11 +393,9 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
     second-guess a mandated bibliography). Deterministic — a resumed run
     rebuilds the identical pack, passages included.
 
-    Formatting fallbacks are honest but visible: files without extractable
-    authors/year get filename-derived authors and the upload year so the
-    [Key] -> (Author, Year) conversion can never leak internal markers into
-    the delivered text; such files stay flagged metadata_incomplete for the
-    manager to correct before release.
+    Callers gate on uploaded_sources_blockers() first; this function
+    refuses (raises) rather than invent authors or years — invented
+    metadata in a delivered bibliography is worse than a stopped run.
     """
     from app.services.ai_pipeline.rag_retriever import SourceDoc
     from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
@@ -383,18 +442,13 @@ async def build_uploaded_source_pack(db: AsyncSession, document_id: int, topic: 
         authors = [
             a.strip() for a in str(source_file.authors or "").split(";") if a.strip()
         ]
-        if not authors:
-            stem = re.sub(r"\.pdf$", "", str(source_file.filename), flags=re.I)
-            authors = [stem.replace("_", " ").split()[0][:60] or "Fonte"]
-        year = (
-            int(source_file.year)
-            if source_file.year
-            else (
-                source_file.created_at.year
-                if source_file.created_at is not None
-                else 2026
+        if not authors or not source_file.year:
+            raise ValueError(
+                f"Uploaded source '{source_file.filename}' has unconfirmed "
+                f"authors/year; generation must be blocked upstream "
+                f"(uploaded_sources_blockers)"
             )
-        )
+        year = int(source_file.year)
         abstract = passages[0].text[:1000] if passages else None
         packed.append(
             PackedSource(

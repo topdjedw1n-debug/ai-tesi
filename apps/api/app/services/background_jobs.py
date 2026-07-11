@@ -92,7 +92,10 @@ from app.services.source_verification_stage import (
     run_citation_verification_stage,
 )
 from app.services.storage_service import StorageService
-from app.services.uploaded_sources import build_uploaded_source_pack
+from app.services.uploaded_sources import (
+    build_uploaded_source_pack,
+    uploaded_sources_blockers,
+)
 from app.services.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -1125,6 +1128,18 @@ class BackgroundJobService:
                 # pipeline follows the legacy per-section retrieval path.
                 source_pack = None
                 if settings.SOURCE_GROUNDING_ENABLED:
+                    # Mandatory sources are mandatory: a scan without a text
+                    # layer or unconfirmed authors/year stops the run with an
+                    # explicit message instead of silently degrading to API
+                    # sources (GPT review 2026-07-11).
+                    source_blockers = await uploaded_sources_blockers(db, document_id)
+                    if source_blockers:
+                        raise CitationIntegrityError(
+                            detail=(
+                                "Uploaded sources are not generation-ready: "
+                                + "; ".join(source_blockers)
+                            )
+                        )
                     # Manager-uploaded PDFs take precedence over API retrieval:
                     # they are the mandated bibliography and carry full-text
                     # page-anchored passages. Rebuilt deterministically on
@@ -1310,6 +1325,11 @@ class BackgroundJobService:
                     settings.SOURCE_GROUNDING_ENABLED
                     and source_pack is not None
                     and start_section_index == 0
+                    # Uploaded packs are the mandated bibliography: the API
+                    # rebuild must never displace them (GPT review
+                    # 2026-07-11). Their per-section relevance is handled by
+                    # prompt_block(query=...) at generation time instead.
+                    and not getattr(source_pack, "passages", None)
                 ):
                     titles = [s.get("title") for s in sections if s.get("title")]
                     if titles:
