@@ -104,4 +104,5 @@ else
 	echo "         docker tag ai-thesis-web:rollback-$STAMP ai-thesis-web && \\"
 	echo "         docker compose -f $COMPOSE_FILE up -d api web"
 	echo "База:    docker exec -i ai-thesis-postgres sh -c 'psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\"' < $BACKUP"
+	exit 1
 fi
