@@ -1,0 +1,21 @@
+graph TD
+    CONTRACT["Контракт роботи<br/>вимоги · методичка · формат"] --> INPUTS["Вхідні джерела<br/>завантажені PDF + академічний пошук"]
+    INPUTS --> RETRIEVE["Пошук і відбір<br/>релевантних праць"]
+    RETRIEVE --> PREFLIGHT["Попередня перевірка джерел<br/>якщо режим увімкнений"]
+    PREFLIGHT --> FREEZE["Заморожений source pack<br/>стабільний набір для всієї роботи"]
+    FREEZE --> OUTLINE["План роботи<br/>розділи та обсяг"]
+    OUTLINE --> WRITE["Писар генерує розділ<br/>Claude / OpenAI fallback"]
+    WRITE --> GROUND["Grounding gate<br/>цитати лише з дозволених джерел"]
+    GROUND -->|провал: переписати| WRITE
+    GROUND -->|пройдено| HUMAN["Humanizer<br/>опційний; у production вимкнений"]
+    HUMAN --> PANEL["Панель рецензентів<br/>структура · стиль · критичні ризики"]
+    PANEL -->|провал: повторна спроба| WRITE
+    PANEL --> CLAIMS["Перевірка тверджень<br/>чи справді джерело їх підтримує"]
+    CLAIMS --> ASSEMBLE["Збір усіх розділів<br/>і єдиної бібліографії"]
+    ASSEMBLE --> CITE["Фінальна перевірка цитат<br/>перед експортом"]
+    CITE -->|строгий провал: стоп| WRITE
+    CITE --> EXPORT["Експорт DOCX<br/>і збереження у MinIO"]
+    CONTRACT -.-> LEDGER["Журнал доказів<br/>provenance · витрати · контрольні точки"]
+    WRITE -.-> LEDGER
+    CLAIMS -.-> LEDGER
+    EXPORT -.-> LEDGER

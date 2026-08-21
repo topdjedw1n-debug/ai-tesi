@@ -1,5 +1,8 @@
 # CLAUDE.md
 
+## Current brief
+Always read `docs/AGENT_SYNC.md` before product, quality, generation, or roadmap work. It is the founder lock: internal-first, shippable draft (no rewrite), pass = quality + similarity ≤10% + AI ≤10% on Compilatio, no detector-evasion. If it conflicts with older status docs, `docs/AGENT_SYNC.md` wins.
+
 ## Design System
 Always read `DESIGN.md` before making any visual or UI decisions.
 All font choices, colors, spacing, and aesthetic direction are defined there.

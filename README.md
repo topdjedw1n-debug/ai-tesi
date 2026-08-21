@@ -6,6 +6,7 @@ Thesica is a QA-first academic production platform. The product direction is int
 
 | Need | Document |
 |---|---|
+| **Agent brief (read first)** | [docs/AGENT_SYNC.md](./docs/AGENT_SYNC.md) |
 | Product strategy and phase gates | [THESICA-PLAN.md](./THESICA-PLAN.md) |
 | Design system and visual rules | [DESIGN.md](./DESIGN.md) |
 | Rendered design proof | [thesica-brandbook.html](./thesica-brandbook.html) |

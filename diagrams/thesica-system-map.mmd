@@ -1,0 +1,17 @@
+graph LR
+    U["Люди<br/>менеджер · редактор · адміністратор"] -->|працюють у браузері| WEB["Вебзастосунок<br/>Next.js"]
+    WEB -->|HTTPS-запити| API["API та захист<br/>FastAPI"]
+    API --> AUTH["Доступ і ролі<br/>JWT · права · ліміти"]
+    API --> DB["PostgreSQL<br/>користувачі · роботи · кейси · докази"]
+    API --> JOB["Фоновий worker<br/>стійка черга генерації"]
+    JOB --> PIPE["AI-конвеєр<br/>джерела · план · розділи"]
+    PIPE --> QA["Двигун якості<br/>цитати · твердження · рецензенти"]
+    QA --> RELEASE["Release gate<br/>рішення перед видачею"]
+    RELEASE -->|статус і готовий файл| WEB
+    API --> REDIS["Redis<br/>прогрес · кеш · ліміти"]
+    API --> STORE["MinIO<br/>методички · джерела · DOCX/PDF"]
+    PIPE --> LLM["AI-провайдери<br/>Anthropic · OpenAI"]
+    PIPE --> SOURCES["Академічні сервіси<br/>Crossref · OpenAlex · S2 · arXiv"]
+    API --> EXT["Зовнішні сервіси<br/>Stripe · email · моніторинг"]
+    JOB -->|живий прогрес| WS["WebSocket<br/>оновлення без перезавантаження"]
+    WS --> WEB
