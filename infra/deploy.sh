@@ -29,8 +29,12 @@ say "1/6 Резервна копія бази"
 mkdir -p "$BACKUP_DIR"
 docker exec ai-thesis-postgres sh -c 'pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB"' > "$BACKUP"
 BACKUP_BYTES=$(wc -c < "$BACKUP")
-if [ "$BACKUP_BYTES" -lt 100000 ]; then
-	echo "СТОП: дамп підозріло малий ($BACKUP_BYTES байт). Деплой не продовжено."
+# A fresh pilot database can have a complete SQL dump below 100 KB. Validate
+# that pg_dump produced a non-trivial file and wrote its completion marker
+# instead of guessing validity from a production-size threshold.
+if [ "$BACKUP_BYTES" -lt 10000 ] || \
+	! grep -q '^-- PostgreSQL database dump complete$' "$BACKUP"; then
+	echo "СТОП: дамп неповний або підозріло малий ($BACKUP_BYTES байт). Деплой не продовжено."
 	exit 1
 fi
 echo "OK: $BACKUP ($BACKUP_BYTES байт)"
