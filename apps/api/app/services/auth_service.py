@@ -42,6 +42,23 @@ class AuthService:
             user = result.scalar_one_or_none()
 
             if not user:
+                if not settings.PUBLIC_REGISTRATION_ENABLED:
+                    # Registration is closed: do not create the account and do
+                    # not issue a link. The response is identical to the success
+                    # path so this endpoint cannot be used to discover which
+                    # emails have accounts.
+                    logger.info(
+                        "Magic link requested for an unknown email; "
+                        "self-registration is closed"
+                    )
+                    return {
+                        "message": "Magic link sent successfully",
+                        "email": email,
+                        "expires_in": 900,
+                        "expires_in_minutes": 15,
+                        "magic_link": None,
+                    }
+
                 # Create new user
                 user = User(email=email, is_verified=False)
                 self.db.add(user)
@@ -80,9 +97,12 @@ class AuthService:
                 "email": email,
                 "expires_in": 900,  # 15 minutes in seconds
                 "expires_in_minutes": 15,
+                # Only ever echoed in local development. Without SMTP
+                # configured this field is a working login link, so returning it
+                # from a deployed API would let anyone sign in as any account.
                 "magic_link": magic_link
-                if not email_sent
-                else None,  # Only return in dev mode
+                if (settings.DEBUG and not email_sent)
+                else None,
             }
 
         except Exception as e:

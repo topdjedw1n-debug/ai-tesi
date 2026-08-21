@@ -39,6 +39,12 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Self-signup. Closed by default (founder decision 2026-08-21): the
+    # magic-link flow creates an account for any unknown email, which left the
+    # internal pilot open to anyone who knew the URL. Managers sign in with a
+    # password, so closing this does not lock the team out.
+    PUBLIC_REGISTRATION_ENABLED: bool = False
+
     # CORS - CRITICAL: Must be explicitly set from ENV (CORS_ALLOWED_ORIGINS)
     # Defaults only for development
     CORS_ALLOWED_ORIGINS: str | None = None  # Comma-separated list from ENV

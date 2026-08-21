@@ -5,7 +5,7 @@ const tiers = [
   {
     name: 'Free',
     id: 'tier-free',
-    href: '/auth/register',
+    href: '/auth/login',
     priceMonthly: '$0',
     description: 'Perfect for trying out our platform and small projects.',
     features: [
@@ -20,7 +20,7 @@ const tiers = [
   {
     name: 'Student',
     id: 'tier-student',
-    href: '/auth/register',
+    href: '/auth/login',
     priceMonthly: '$9',
     description: 'Ideal for students working on their thesis or dissertation.',
     features: [
@@ -37,7 +37,7 @@ const tiers = [
   {
     name: 'Academic',
     id: 'tier-academic',
-    href: '/auth/register',
+    href: '/auth/login',
     priceMonthly: '$29',
     description: 'For researchers and academic institutions.',
     features: [

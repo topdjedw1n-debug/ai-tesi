@@ -37,7 +37,7 @@ export function Hero() {
           </p>
           <div className="mt-10 flex items-center justify-center gap-x-6">
             <Button size="lg" asChild>
-              <Link href="/auth/register">
+              <Link href="/auth/login">
                 Get started for free
                 <ArrowRightIcon className="ml-2 h-4 w-4" />
               </Link>

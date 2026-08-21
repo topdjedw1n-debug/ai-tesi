@@ -11,8 +11,15 @@ from app.services.auth_service import AuthService
 
 
 @pytest.mark.asyncio
-async def test_send_magic_link_new_user(db_session):
-    """Test sending magic link to new user (creates user)"""
+async def test_send_magic_link_new_user(db_session, monkeypatch):
+    """Test sending magic link to new user (creates user).
+
+    Account creation is an explicit opt-in since self-signup was closed
+    (2026-08-21); see tests/test_public_registration_closed.py.
+    """
+    from app.core.config import settings
+
+    monkeypatch.setattr(settings, "PUBLIC_REGISTRATION_ENABLED", True)
     service = AuthService(db_session)
 
     result = await service.send_magic_link("newuser@example.com")
@@ -22,6 +29,7 @@ async def test_send_magic_link_new_user(db_session):
 
     # Verify user was created
     from sqlalchemy import select
+
     user_result = await db_session.execute(
         select(User).where(User.email == "newuser@example.com")
     )
@@ -67,10 +75,7 @@ async def test_verify_magic_link_success(db_session):
     token = "test-magic-token-12345"
     expires_at = datetime.utcnow() + timedelta(minutes=15)
     magic_token = MagicLinkToken(
-        token=token,
-        email=user.email,
-        expires_at=expires_at,
-        is_used=False
+        token=token, email=user.email, expires_at=expires_at, is_used=False
     )
     db_session.add(magic_token)
     await db_session.commit()
@@ -103,10 +108,7 @@ async def test_verify_magic_link_expired_token(db_session):
     token = "expired-token-12345"
     expires_at = datetime.utcnow() - timedelta(minutes=1)  # Expired
     magic_token = MagicLinkToken(
-        token=token,
-        email="test@example.com",
-        expires_at=expires_at,
-        is_used=False
+        token=token, email="test@example.com", expires_at=expires_at, is_used=False
     )
     db_session.add(magic_token)
     await db_session.commit()
@@ -128,7 +130,7 @@ async def test_verify_magic_link_already_used(db_session):
         email="test@example.com",
         expires_at=expires_at,
         is_used=True,
-        used_at=datetime.utcnow()
+        used_at=datetime.utcnow(),
     )
     db_session.add(magic_token)
     await db_session.commit()
@@ -178,7 +180,9 @@ async def test_get_current_user_user_not_found(db_session):
 async def test_get_current_user_inactive(db_session):
     """Test getting current user when user is inactive"""
     # Create inactive user
-    user = User(email="inactive@example.com", full_name="Inactive User", is_active=False)
+    user = User(
+        email="inactive@example.com", full_name="Inactive User", is_active=False
+    )
     db_session.add(user)
     await db_session.commit()
     await db_session.refresh(user)
@@ -204,4 +208,3 @@ async def test_get_current_user_inactive(db_session):
 
     with pytest.raises(AuthenticationError, match="User not found or inactive"):
         await service.get_current_user(token)
-

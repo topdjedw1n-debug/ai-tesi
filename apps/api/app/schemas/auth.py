@@ -20,7 +20,7 @@ class MagicLinkResponse(BaseModel):
     email: str
     expires_in: int
     expires_in_minutes: int
-    magic_link: str
+    magic_link: str | None = None
 
 
 class MagicLinkVerify(BaseModel):

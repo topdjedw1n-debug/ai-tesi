@@ -103,7 +103,7 @@ export default function VerifyMagicLinkPage() {
               {error}
             </p>
             <button
-              onClick={() => router.push('/auth/register')}
+              onClick={() => router.push('/auth/login')}
               className="w-full px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
             >
               Try Again
