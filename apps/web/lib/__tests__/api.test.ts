@@ -40,8 +40,8 @@ describe('API Client - Sanity Check', () => {
   })
 
   it('should have correct endpoint structure for DOCUMENTS', () => {
-    expect(API_ENDPOINTS.DOCUMENTS.LIST).toBe('/api/v1/documents')
-    expect(API_ENDPOINTS.DOCUMENTS.CREATE).toBe('/api/v1/documents')
+    expect(API_ENDPOINTS.DOCUMENTS.LIST).toBe('/api/v1/documents/')
+    expect(API_ENDPOINTS.DOCUMENTS.CREATE).toBe('/api/v1/documents/')
     expect(API_ENDPOINTS.DOCUMENTS.STATS).toBe('/api/v1/documents/stats')
     expect(API_ENDPOINTS.DOCUMENTS.ACTIVITY).toBe('/api/v1/documents/activity')
 

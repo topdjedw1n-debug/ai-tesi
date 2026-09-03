@@ -1,6 +1,6 @@
 /**
  * E2E Tests: Document Creation Flow
- * 
+ *
  * TODO: Tests need more work - complex component interactions
  * See /docs/MVP_PLAN.md → "ТИМЧАСОВІ РІШЕННЯ" → #1 E2E Tests
  */
@@ -24,7 +24,7 @@ jest.mock('@/lib/api', () => ({
   },
   API_ENDPOINTS: {
     DOCUMENTS: {
-      BASE: '/api/v1/documents',
+      BASE: '/api/v1/documents/',
       ACTIVITY: '/api/v1/documents/activity',
     },
   },

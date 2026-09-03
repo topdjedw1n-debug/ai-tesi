@@ -129,7 +129,7 @@ services:
       - SEMANTIC_SCHOLAR_API_KEY=${SEMANTIC_SCHOLAR_API_KEY:-}
       - OPENALEX_API_KEY=${OPENALEX_API_KEY:-}
     ports:
-      - "8000:8000"
+      - "127.0.0.1:8000:8000"
     depends_on:
       postgres:
         condition: service_healthy
@@ -161,7 +161,7 @@ services:
       - NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=${NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW:-false}
       - NODE_ENV=production
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       api:
         condition: service_healthy

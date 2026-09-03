@@ -31,7 +31,7 @@ jest.mock('@/lib/api', () => ({
   getAccessToken: jest.fn(() => 'test-token'),
   API_ENDPOINTS: {
     DOCUMENTS: {
-      CREATE: '/api/v1/documents',
+      CREATE: '/api/v1/documents/',
       UPLOAD_REQUIREMENTS: (id: number) =>
         `/api/v1/documents/${id}/custom-requirements/upload`,
       DELETE: (id: number) => `/api/v1/documents/${id}`,
@@ -97,7 +97,7 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
 
     await waitFor(() => {
       expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/documents',
+        '/api/v1/documents/',
         expect.objectContaining({
           target_pages: 45,
           citation_style: 'apa',

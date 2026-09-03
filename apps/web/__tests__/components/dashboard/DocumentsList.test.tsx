@@ -15,7 +15,7 @@ jest.mock('@/lib/api', () => ({
   },
   API_ENDPOINTS: {
     DOCUMENTS: {
-      LIST: '/api/v1/documents',
+      LIST: '/api/v1/documents/',
       EXPORT: (id: number) => `/api/v1/documents/${id}/export`,
     },
   },
@@ -214,7 +214,7 @@ describe('DocumentsList Component', () => {
       render(<DocumentsList />);
 
       await waitFor(() => {
-        expect(apiClient.get).toHaveBeenCalledWith('/api/v1/documents');
+        expect(apiClient.get).toHaveBeenCalledWith('/api/v1/documents/');
       });
     });
 

@@ -99,6 +99,28 @@ else
 	fail=1
 fi
 
+code=$(curl -sS -o /dev/null -w '%{http_code}' -m 15 -X POST \
+	-H 'Authorization: Bearer x' \
+	https://app.thesica.co/api/v1/documents/)
+if [ "$code" = "401" ]; then
+	printf '  OK   %-38s %s\n' "створення роботи доходить до API" "$code"
+else
+	printf '  ФЕЙЛ %-38s %s (очікували 401)\n' "створення роботи доходить до API" "$code"
+	fail=1
+fi
+
+redirect_result=$(curl -sS -o /dev/null -w '%{http_code} %{redirect_url}' -m 15 -X POST \
+	-H 'Authorization: Bearer x' \
+	https://app.thesica.co/api/v1/documents)
+read -r code location <<< "$redirect_result"
+if [ "$code" = "307" ] && [[ "$location" == https://app.thesica.co/* ]]; then
+	printf '  OK   %-38s %s %s\n' "редирект створення лишається HTTPS" "$code" "$location"
+else
+	printf '  ФЕЙЛ %-38s %s %s (очікували 307 і https://app.thesica.co/...)\n' \
+		"редирект створення лишається HTTPS" "$code" "$location"
+	fail=1
+fi
+
 echo
 if [ "$fail" = 0 ]; then
 	echo "ДЕПЛОЙ УСПІШНИЙ. Бекап: $BACKUP"

@@ -319,8 +319,8 @@ export const API_ENDPOINTS = {
    */
   DOCUMENTS: {
     BASE: '/api/v1/documents',
-    CREATE: '/api/v1/documents',
-    LIST: '/api/v1/documents',
+    CREATE: '/api/v1/documents/',
+    LIST: '/api/v1/documents/',
     STATS: '/api/v1/documents/stats',
     ACTIVITY: '/api/v1/documents/activity',
     GET: (id: number) => `/api/v1/documents/${id}`,
