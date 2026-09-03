@@ -56,6 +56,15 @@ echo "OK: схема оновлена"
 say "4/6 Збірка образів"
 docker compose -f "$COMPOSE_FILE" build api web
 
+echo "-> перевірка SDK у щойно зібраному API-образі"
+if ! docker compose -f "$COMPOSE_FILE" run --rm --no-deps --entrypoint python api -c \
+	"from anthropic import AsyncAnthropic; import inspect, openai; from openai.resources.chat.completions import AsyncCompletions; assert hasattr(AsyncAnthropic(api_key='x'), 'messages'); assert 'max_completion_tokens' in inspect.signature(AsyncCompletions.create).parameters; print('sdk ok', openai.__version__)"; then
+	echo "СТОП: новий API-образ не підтримує потрібний контракт Anthropic/OpenAI."
+	echo "Чинні контейнери не перезапускались і продовжують працювати."
+	exit 1
+fi
+echo "OK: SDK контракт"
+
 say "5/6 Перезапуск"
 docker compose -f "$COMPOSE_FILE" up -d api web
 for i in $(seq 1 30); do
