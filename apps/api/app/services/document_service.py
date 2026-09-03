@@ -895,6 +895,9 @@ class DocumentService:
                 docx.core_properties.author = ""
                 docx.core_properties.last_modified_by = ""
                 docx.core_properties.comments = ""
+                exported_at = datetime.utcnow()
+                docx.core_properties.created = exported_at
+                docx.core_properties.modified = exported_at
 
                 # Add title
                 docx.add_heading(document.title, 0)

@@ -13,6 +13,7 @@ the exported DOCX/PDF.
 import io
 import zipfile
 from contextlib import ExitStack
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -359,6 +360,8 @@ async def test_export_docx_renders_bibliografia_heading(db_session):
     assert "Export Test Thesis" in core_xml
     assert "python-docx" not in core_xml
     assert "Word Document" not in core_xml
+    assert docx.core_properties.created.year == datetime.utcnow().year
+    assert docx.core_properties.modified.year == datetime.utcnow().year
 
 
 @pytest.mark.asyncio
