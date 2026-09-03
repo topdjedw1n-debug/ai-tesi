@@ -520,7 +520,9 @@ class AdminLoginRequest(BaseModel):
 
 
 @router.post("/admin-login")
+@rate_limit("5/minute")
 async def admin_simple_login(
+    request: Request,
     login_data: AdminLoginRequest,
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
@@ -530,7 +532,33 @@ async def admin_simple_login(
     Use: POST /api/v1/auth/admin-login
     Body: {"email": "admin@thesica.ai", "password": "admin123"}
     """
-    # Get admin user
+    correlation_id = request.headers.get("X-Request-ID", "unknown")
+    ip = request.client.host if request.client else "unknown"
+    identifier = get_user_id_or_ip(request)
+
+    lockout = await check_auth_lockout(identifier)
+    if lockout:
+        log_security_audit_event(
+            event_type="auth_attempt",
+            correlation_id=correlation_id,
+            ip=ip,
+            endpoint="/api/v1/auth/admin-login",
+            resource="auth",
+            action="admin_password_login",
+            outcome="denied",
+            details={
+                "reason": "account_locked",
+                "lockout_minutes": int(lockout.total_seconds() / 60),
+            },
+        )
+        raise RateLimitError(
+            "Account temporarily locked due to multiple failed authentication "
+            f"attempts. Please try again in "
+            f"{int(lockout.total_seconds() / 60)} minutes."
+        )
+
+    # Get admin user. Every credential failure uses the same response so this
+    # endpoint cannot reveal whether an admin account or password exists.
     result = await db.execute(
         select(User).where(
             User.email == login_data.email,
@@ -540,23 +568,39 @@ async def admin_simple_login(
     )
     user = result.scalar_one_or_none()
 
-    if not user:
-        raise AuthenticationError("Invalid credentials or not an admin")
-
-    # Check password using bcrypt
-    if not user.password_hash:
-        raise AuthenticationError(
-            "Admin password not set. Use scripts/set-admin-password.py to set a secure password."
+    if (
+        user is None
+        or not user.password_hash
+        or not AuthService.verify_password(login_data.password, user.password_hash)
+    ):
+        await record_auth_failure(identifier)
+        log_security_audit_event(
+            event_type="auth_failure",
+            correlation_id=correlation_id,
+            ip=ip,
+            endpoint="/api/v1/auth/admin-login",
+            resource="auth",
+            action="admin_password_login",
+            outcome="failure",
+            details={"reason": "invalid_credentials"},
         )
-
-    # Verify password with bcrypt
-    from app.services.auth_service import AuthService
-
-    if not AuthService.verify_password(login_data.password, user.password_hash):
         raise AuthenticationError("Invalid credentials")
+
+    await clear_auth_failures(identifier)
 
     # Create token
     access_token = create_access_token(int(user.id))
+
+    log_security_audit_event(
+        event_type="auth_success",
+        correlation_id=correlation_id,
+        user_id=int(user.id),
+        ip=ip,
+        endpoint="/api/v1/auth/admin-login",
+        resource="auth",
+        action="admin_password_login",
+        outcome="success",
+    )
 
     return {
         "access_token": access_token,

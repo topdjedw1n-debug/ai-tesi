@@ -1,7 +1,9 @@
 """
 Extended tests for AuthService to improve coverage
 """
+
 from datetime import datetime, timedelta
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -51,6 +53,27 @@ async def test_send_magic_link_existing_user(db_session):
 
     assert "message" in result
     assert result["email"] == "existing@example.com"
+
+
+@pytest.mark.asyncio
+async def test_unsent_magic_link_is_not_written_to_logs(
+    db_session, monkeypatch, caplog
+):
+    from app.services.notification_service import notification_service
+
+    user = User(email="no-link-in-log@example.com", full_name="Existing User")
+    db_session.add(user)
+    await db_session.commit()
+    monkeypatch.setattr(
+        notification_service, "send_magic_link", AsyncMock(return_value=False)
+    )
+
+    with caplog.at_level("WARNING", logger="app.services.auth_service"):
+        await AuthService(db_session).send_magic_link(user.email)
+
+    assert "email not sent" in caplog.text
+    assert "/auth/verify?token=" not in caplog.text
+    assert "Link:" not in caplog.text
 
 
 @pytest.mark.asyncio

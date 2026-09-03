@@ -7,10 +7,12 @@ from sqlalchemy import select
 
 from app.core.exceptions import CitationIntegrityError
 from app.models.document import AIGenerationJob, Document, DocumentProvenance
-from app.services.ai_pipeline.source_pack import SourcePack
+from app.services.ai_pipeline.rag_retriever import SourceDoc
+from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.background_jobs import BackgroundJobService
 from app.services.citation_verifier import VerificationResult, VerificationStatus
 from app.services.source_verification_stage import load_source_pack, persist_source_pack
+from tests.release_profile import RELEASE_PROFILE
 from tests.test_source_pack_rebuild import (
     fake_pack,
     make_settings,
@@ -69,6 +71,43 @@ def _verified_result(pack: SourcePack) -> VerificationResult:
         provider="crossref",
         match_score=1.0,
     )
+
+
+def _release_pack(document_id: int) -> SourcePack:
+    pack = fake_pack(document_id)
+    pack.sources[0].source.source_type = "journal-article"
+    for index in range(1, 24):
+        pack.sources.append(
+            PackedSource(
+                SourceDoc(
+                    title=f"Verified academic source {index}",
+                    authors=[f"Author {index}"],
+                    year=2020 + (index % 6),
+                    abstract=f"Evidence for the document topic {index}",
+                    doi=f"10.1000/release-{index}",
+                    source_type="journal-article",
+                ),
+                f"Author{index}2020",
+                0.9 - index / 1000,
+            )
+        )
+    return pack
+
+
+def _verified_inputs(inputs) -> list[VerificationResult]:
+    return [
+        VerificationResult(
+            status=VerificationStatus.VERIFIED,
+            title=item.title,
+            authors=item.authors,
+            year=item.year,
+            doi=item.doi,
+            abstract="Verified evidence",
+            provider="crossref",
+            match_score=1.0,
+        )
+        for item in inputs
+    ]
 
 
 @pytest.mark.asyncio
@@ -134,6 +173,92 @@ async def test_preflight_event_precedes_writer_and_writer_gets_verified_pack(
 
 
 @pytest.mark.asyncio
+async def test_complete_release_profile_runs_preflight_before_writer(
+    db_session, monkeypatch
+):
+    runtime = make_settings(**RELEASE_PROFILE)
+    monkeypatch.setattr("app.services.background_jobs.settings", runtime)
+    user, document = await seed_document(
+        db_session,
+        "release-profile-pipeline@example.com",
+        sections=["Introduzione"],
+    )
+    pack = _release_pack(int(document.id))
+
+    with ExitStack() as stack:
+        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(return_value=pack),
+            )
+        )
+        verifier = MagicMock()
+        verifier.verify_sources = AsyncMock(side_effect=_verified_inputs)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs.CitationVerifier",
+                return_value=verifier,
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._check_panel_quality",
+                AsyncMock(
+                    return_value={
+                        "overall_score": 90.0,
+                        "passed": True,
+                        "critical_override": False,
+                        "reviews": [],
+                    }
+                ),
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._run_citation_verification_stage",
+                AsyncMock(),
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._load_source_pack",
+                AsyncMock(side_effect=load_source_pack),
+            )
+        )
+
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+        assert mocks["generate_section"].call_count == 1
+        writer_pack = mocks["generate_section"].call_args.kwargs["source_pack"]
+        assert len(writer_pack.sources) == 24
+        assert all(
+            item.source.verification_status == "verified"
+            for item in writer_pack.sources
+        )
+
+    event_types = [
+        event.event_type
+        for event in (
+            (
+                await db_session.execute(
+                    select(DocumentProvenance)
+                    .where(DocumentProvenance.document_id == int(document.id))
+                    .order_by(DocumentProvenance.id)
+                )
+            )
+            .scalars()
+            .all()
+        )
+    ]
+    assert event_types.index("source_pack_preflight") < event_types.index(
+        "section_writer"
+    )
+
+
+@pytest.mark.asyncio
 async def test_insufficient_preflight_blocks_before_writer(db_session, monkeypatch):
     monkeypatch.setattr("app.services.background_jobs.settings", _preflight_settings())
     user, document = await seed_document(
@@ -171,6 +296,119 @@ async def test_insufficient_preflight_blocks_before_writer(db_session, monkeypat
 
     refreshed = await db_session.get(Document, int(document.id))
     assert refreshed.status == "failed_quality"
+
+
+@pytest.mark.asyncio
+async def test_underfilled_relaxed_pack_stops_before_writer_or_preflight(
+    db_session, monkeypatch
+):
+    monkeypatch.setattr("app.services.background_jobs.settings", _preflight_settings())
+    user, document = await seed_document(
+        db_session,
+        "underfilled-before-writing@example.com",
+        sections=["Introduzione"],
+    )
+    weak = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[],
+        underfilled=True,
+        context_sources=[
+            PackedSource(
+                SourceDoc(
+                    title=f"Weak context {index}",
+                    authors=[f"Author {index}"],
+                    year=2020,
+                    abstract="Tangential context",
+                ),
+                "",
+                0.2,
+            )
+            for index in range(24)
+        ],
+    )
+
+    with ExitStack() as stack:
+        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(return_value=weak),
+            )
+        )
+        verifier_class = stack.enter_context(
+            patch("app.services.background_jobs.CitationVerifier")
+        )
+
+        with pytest.raises(CitationIntegrityError, match="Upload relevant PDF"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["generate_section"].called is False
+        verifier_class.assert_not_called()
+
+    refreshed = await db_session.get(Document, int(document.id))
+    assert refreshed.status == "failed_quality"
+    event = (
+        await db_session.execute(
+            select(DocumentProvenance).where(
+                DocumentProvenance.document_id == int(document.id),
+                DocumentProvenance.event_type == "source_pack_insufficient",
+            )
+        )
+    ).scalar_one()
+    assert event.payload["citable_sources"] == 0
+    assert event.payload["context_sources"] == 24
+
+
+@pytest.mark.asyncio
+async def test_underfilled_pack_with_provider_outage_remains_retryable(
+    db_session, monkeypatch
+):
+    monkeypatch.setattr("app.services.background_jobs.settings", _preflight_settings())
+    user, document = await seed_document(
+        db_session,
+        "underfilled-provider-outage@example.com",
+        sections=["Introduzione"],
+    )
+    unavailable = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[],
+        underfilled=True,
+        provider_errors=["crossref: temporary outage"],
+    )
+
+    with ExitStack() as stack:
+        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(return_value=unavailable),
+            )
+        )
+        verifier_class = stack.enter_context(
+            patch("app.services.background_jobs.CitationVerifier")
+        )
+
+        with pytest.raises(RuntimeError, match="providers were unavailable"):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id), user_id=int(user.id)
+            )
+
+        assert mocks["generate_section"].called is False
+        verifier_class.assert_not_called()
+
+    insufficient_events = (
+        await db_session.execute(
+            select(DocumentProvenance).where(
+                DocumentProvenance.document_id == int(document.id),
+                DocumentProvenance.event_type == "source_pack_insufficient",
+            )
+        )
+    ).scalars()
+    assert list(insufficient_events) == []
 
 
 @pytest.mark.asyncio

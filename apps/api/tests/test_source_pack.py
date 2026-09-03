@@ -121,6 +121,7 @@ async def test_build_underfill_relaxes_threshold(monkeypatch):
     )
     builder.rag.search_crossref = AsyncMock(return_value=[weak])
     builder.rag.search_openalex = AsyncMock(return_value=[])
+    monkeypatch.setattr(builder, "_on_topic_score", lambda *args: 0.5)
 
     pack = await builder.build(
         topic="AI in education",
@@ -130,6 +131,71 @@ async def test_build_underfill_relaxes_threshold(monkeypatch):
         min_on_topic_score=0.9,  # nothing clears this
     )
     assert pack.underfilled is True
+    assert pack.sources == []
+    assert len(pack.context_sources) == 1
+    assert pack.context_sources[0].citation_key == ""
+    assert "BACKGROUND CONTEXT ONLY" in pack.prompt_block()
+
+
+@pytest.mark.asyncio
+async def test_relaxed_sources_never_receive_citation_keys(monkeypatch):
+    builder = SourcePackBuilder()
+    candidates = [
+        _edu_source(
+            f"Weak source {index}",
+            authors=[f"Author {index}"],
+            year=2020 + index % 5,
+            abstract="weak context",
+        )
+        for index in range(24)
+    ]
+    builder.rag.search_crossref = AsyncMock(return_value=candidates)
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+    monkeypatch.setattr(builder, "_on_topic_score", lambda *args: 0.2)
+
+    pack = await builder.build(
+        topic="AI in education",
+        language="en",
+        document_id=1,
+        target_size=24,
+        min_on_topic_score=0.35,
+    )
+
+    assert pack.sources == []
+    assert len(pack.context_sources) == 24
+    assert pack.keys() == []
+    prompt = pack.prompt_block()
+    assert "BACKGROUND CONTEXT ONLY" in prompt
+    assert "[" not in prompt
+
+
+@pytest.mark.asyncio
+async def test_sources_above_gate_threshold_remain_citable(monkeypatch):
+    builder = SourcePackBuilder()
+    candidates = [
+        _edu_source(
+            f"Strong source {index}",
+            authors=[f"Author {index}"],
+            year=2020 + index % 5,
+            abstract="strong evidence",
+        )
+        for index in range(24)
+    ]
+    builder.rag.search_crossref = AsyncMock(return_value=candidates)
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+    monkeypatch.setattr(builder, "_on_topic_score", lambda *args: 0.45)
+
+    pack = await builder.build(
+        topic="AI in education",
+        language="en",
+        document_id=1,
+        target_size=24,
+        min_on_topic_score=0.35,
+    )
+
+    assert len(pack.sources) == 24
+    assert pack.context_sources == []
+    assert all(item.citation_key for item in pack.sources)
 
 
 @pytest.mark.asyncio

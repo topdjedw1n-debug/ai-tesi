@@ -161,7 +161,7 @@ async def persist_source_pack(
     ⚠️ Non-critical: never raises. Failures are logged and rolled back so the
     shared session stays usable for the rest of the pipeline.
     """
-    if pack is None or not getattr(pack, "sources", None):
+    if pack is None or not pack.all_sources():
         return
 
     try:
@@ -207,7 +207,10 @@ async def apply_source_pack_rows(
     incoming: list[Any] = []
     inserted = updated = 0
 
-    for packed in pack.canonical_sources():
+    pack_entries = [(packed, True) for packed in pack.canonical_sources()] + [
+        (packed, False) for packed in pack.canonical_context_sources()
+    ]
+    for packed, is_citable in pack_entries:
         src = packed.source
         title = (src.title or "").strip()
         if not title:
@@ -257,7 +260,7 @@ async def apply_source_pack_rows(
             "source_type": getattr(src, "source_type", None),
             "verification_status": getattr(src, "verification_status", "unverified"),
             "canonical_metadata": getattr(src, "canonical_metadata", None),
-            "citation_key": packed.citation_key,
+            "citation_key": packed.citation_key if is_citable else None,
             "on_topic_score": packed.on_topic_score,
             "is_in_upfront_pack": True,
         }
@@ -312,8 +315,10 @@ async def load_source_pack(
         if not rows:
             return None
 
-        packed = [
-            PackedSource(
+        citable: list[PackedSource] = []
+        context: list[PackedSource] = []
+        for row in rows:
+            packed = PackedSource(
                 source=SourceDoc(
                     title=row.title,
                     authors=list(row.authors or []),
@@ -334,10 +339,19 @@ async def load_source_pack(
                     row.on_topic_score if row.on_topic_score is not None else 0.0
                 ),
             )
-            for row in rows
-        ]
-        packed.sort(key=SourcePack._canonical_source_sort_key)
-        return SourcePack(document_id=document_id, topic=topic, sources=packed)
+            if row.citation_key:
+                citable.append(packed)
+            else:
+                context.append(packed)
+        citable.sort(key=SourcePack._canonical_source_sort_key)
+        context.sort(key=SourcePack._canonical_source_sort_key)
+        return SourcePack(
+            document_id=document_id,
+            topic=topic,
+            sources=citable,
+            underfilled=bool(context),
+            context_sources=context,
+        )
     except Exception as e:
         logger.warning(f"⚠️ Failed to load source pack for document {document_id}: {e}")
         return None

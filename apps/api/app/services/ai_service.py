@@ -7,7 +7,7 @@ import json
 import logging
 import time
 from collections.abc import Awaitable, Callable
-from datetime import date, datetime
+from datetime import datetime
 from typing import TYPE_CHECKING, Any
 
 from sqlalchemy import func, select, update
@@ -19,7 +19,12 @@ if TYPE_CHECKING:
 from app.core.config import settings
 from app.core.exceptions import AIProviderError, NotFoundError
 from app.models.auth import User
-from app.models.document import Document, DocumentOutline, DocumentSection
+from app.models.document import (
+    AIGenerationJob,
+    Document,
+    DocumentOutline,
+    DocumentSection,
+)
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
@@ -83,28 +88,32 @@ class AIService:
         )
 
     async def _check_daily_token_limit(self) -> None:
-        """Check if daily token limit is exceeded (optional)"""
-        if settings.DAILY_TOKEN_LIMIT is None:
+        """Emit a secondary warning when the global hard ceiling is reached."""
+        if settings.GLOBAL_DAILY_TOKEN_LIMIT is None:
             return  # Daily limit disabled
 
         try:
-            # Get start of today
-            today_start = datetime.combine(date.today(), datetime.min.time())
+            # Job timestamps and the blocking endpoint guard both use UTC.
+            today_start = datetime.combine(
+                datetime.utcnow().date(), datetime.min.time()
+            )
 
             # Calculate total tokens used today
             today_tokens_result = await self.db.execute(
-                select(func.sum(Document.tokens_used)).where(
-                    Document.created_at >= today_start
+                select(func.sum(AIGenerationJob.total_tokens)).where(
+                    AIGenerationJob.started_at >= today_start
                 )
             )
             today_tokens = today_tokens_result.scalar() or 0
 
-            if today_tokens >= settings.DAILY_TOKEN_LIMIT:
+            if today_tokens >= settings.GLOBAL_DAILY_TOKEN_LIMIT:
                 logger.warning(
-                    f"Daily token limit exceeded: {today_tokens}/{settings.DAILY_TOKEN_LIMIT}"
+                    "Global daily token limit reached: "
+                    f"{today_tokens}/{settings.GLOBAL_DAILY_TOKEN_LIMIT}"
                 )
-                # Note: According to task, we can continue or raise error
-                # For now, just log a warning and continue
+                # The request boundary is authoritative and blocking. Calls
+                # already owned by a durable job only warn here so a section is
+                # not interrupted mid-write after its budget was reserved.
         except Exception as e:
             logger.error(f"Error checking daily token limit: {e}")
             # Don't fail the request if limit check fails

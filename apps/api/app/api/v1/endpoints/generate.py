@@ -67,6 +67,11 @@ from app.services.uploaded_sources import (
 logger = logging.getLogger(__name__)
 router = APIRouter()
 
+# PostgreSQL transaction-scoped advisory lock used only while deciding and
+# persisting a new system-wide token reservation. A stable literal keeps the
+# lock shared by every API process and deploy revision.
+_GLOBAL_GENERATION_BUDGET_LOCK_ID = 23_709_198_609_219_393
+
 
 def _require_legacy_generation_enabled() -> None:
     if not settings.LEGACY_GENERATION_ENDPOINTS_ENABLED:
@@ -88,6 +93,69 @@ async def _get_active_generation_job(
         )
     )
     return result.scalar_one_or_none()
+
+
+async def _lock_global_generation_budget(db: AsyncSession) -> None:
+    """Serialize cross-user budget decisions on PostgreSQL.
+
+    Per-user row locks cannot prevent two different managers from both seeing
+    the same remaining global budget. SQLite is used only by tests/local work
+    and serializes writes itself, so the production advisory lock is skipped
+    there.
+    """
+    bind = db.get_bind()
+    if bind.dialect.name == "postgresql":
+        await db.execute(
+            select(func.pg_advisory_xact_lock(_GLOBAL_GENERATION_BUDGET_LOCK_ID))
+        )
+
+
+async def _daily_token_commitment(
+    db: AsyncSession,
+    *,
+    today_start: datetime,
+    user_id: int | None = None,
+) -> int:
+    """Return actual usage plus the unspent part of active job reservations."""
+    total_query = select(
+        func.coalesce(func.sum(AIGenerationJob.total_tokens), 0)
+    ).where(AIGenerationJob.started_at >= today_start)
+    if user_id is not None:
+        total_query = total_query.where(AIGenerationJob.user_id == user_id)
+    tokens_today = int((await db.execute(total_query)).scalar() or 0)
+
+    active_query = (
+        select(
+            Document.target_pages,
+            func.coalesce(AIGenerationJob.total_tokens, 0),
+            AIGenerationJob.started_at,
+        )
+        .select_from(AIGenerationJob)
+        .join(Document, AIGenerationJob.document_id == Document.id)
+        .where(
+            AIGenerationJob.status.in_(["queued", "running"]),
+        )
+    )
+    if user_id is not None:
+        active_query = active_query.where(AIGenerationJob.user_id == user_id)
+    active_rows = (await db.execute(active_query)).all()
+
+    # Today's active-job usage is already included above, so reserve its
+    # projected remainder. A job carried across midnight keeps its whole
+    # projection reserved: this schema cannot split its accumulated token
+    # counter by day, and conservative accounting must not open a budget hole.
+    active_remaining_tokens = sum(
+        (
+            int(target_pages or 0) * TOKENS_PER_PAGE
+            if started_at is None or started_at.replace(tzinfo=None) < today_start
+            else max(
+                int(target_pages or 0) * TOKENS_PER_PAGE - int(tokens_used or 0),
+                0,
+            )
+        )
+        for target_pages, tokens_used, started_at in active_rows
+    )
+    return tokens_today + active_remaining_tokens
 
 
 def _active_job_response(job: AIGenerationJob) -> AsyncGenerationResponse:
@@ -385,6 +453,46 @@ async def _enforce_generation_gate(
             ),
         )
 
+    target_pages = int(document.target_pages or 0)
+    projected_tokens = target_pages * TOKENS_PER_PAGE
+
+    # Validate the manager-controlled document size before budget accounting,
+    # so an oversized free job receives the actionable page-limit message.
+    if (
+        settings.MVP_FREE_GENERATION_ENABLED
+        and target_pages > settings.MVP_FREE_GENERATION_MAX_PAGES
+    ):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=(
+                f"Free generation is limited to "
+                f"{settings.MVP_FREE_GENERATION_MAX_PAGES} pages "
+                f"(document requests {target_pages})."
+            ),
+        )
+
+    # This ceiling applies to every generation mode and every manager. The
+    # shared gate is used by manager start, admin retry and the legacy paid
+    # webhook. Its transaction holds the advisory lock through the job insert,
+    # so no enqueue path can race this decision and oversubscribe the cap.
+    if settings.GLOBAL_DAILY_TOKEN_LIMIT is not None:
+        await _lock_global_generation_budget(db)
+        global_committed_tokens = await _daily_token_commitment(
+            db,
+            today_start=datetime.combine(datetime.utcnow().date(), datetime.min.time()),
+        )
+        if (
+            global_committed_tokens + projected_tokens
+            > settings.GLOBAL_DAILY_TOKEN_LIMIT
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail=(
+                    "The system-wide daily generation budget is exhausted; "
+                    "please try again tomorrow."
+                ),
+            )
+
     if not settings.MVP_FREE_GENERATION_ENABLED:
         payment_result = await db.execute(
             select(Payment.id).where(
@@ -398,17 +506,6 @@ async def _enforce_generation_gate(
                 detail="Payment required before generation can start.",
             )
         return
-
-    target_pages = document.target_pages or 0
-    if target_pages > settings.MVP_FREE_GENERATION_MAX_PAGES:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"Free generation is limited to "
-                f"{settings.MVP_FREE_GENERATION_MAX_PAGES} pages "
-                f"(document requests {target_pages})."
-            ),
-        )
 
     # UTC day boundary: started_at is written with utcnow(), so "today" must
     # be the UTC date too. date.today() (local) silently reset the daily
@@ -433,44 +530,12 @@ async def _enforce_generation_gate(
         )
 
     if settings.DAILY_TOKEN_LIMIT is not None:
-        tokens_today_result = await db.execute(
-            select(func.coalesce(func.sum(AIGenerationJob.total_tokens), 0)).where(
-                AIGenerationJob.user_id == user_id,
-                AIGenerationJob.started_at >= today_start,
-            )
+        user_committed_tokens = await _daily_token_commitment(
+            db,
+            today_start=today_start,
+            user_id=user_id,
         )
-        tokens_today = tokens_today_result.scalar() or 0
-
-        active_reservations_result = await db.execute(
-            select(
-                Document.target_pages,
-                func.coalesce(AIGenerationJob.total_tokens, 0),
-            )
-            .select_from(AIGenerationJob)
-            .join(Document, AIGenerationJob.document_id == Document.id)
-            .where(
-                AIGenerationJob.user_id == user_id,
-                AIGenerationJob.started_at >= today_start,
-                AIGenerationJob.status.in_(["queued", "running"]),
-            )
-        )
-        # Actual usage is already included in tokens_today. Keep reserving the
-        # unspent remainder of every active job; otherwise its reservation
-        # vanished after the first token write and parallel documents could
-        # oversubscribe the daily budget.
-        active_remaining_tokens = sum(
-            max(
-                int(target_pages or 0) * TOKENS_PER_PAGE - int(tokens_used or 0),
-                0,
-            )
-            for target_pages, tokens_used in active_reservations_result.all()
-        )
-
-        projected_tokens = target_pages * TOKENS_PER_PAGE
-        if (
-            tokens_today + active_remaining_tokens + projected_tokens
-            > settings.DAILY_TOKEN_LIMIT
-        ):
+        if user_committed_tokens + projected_tokens > settings.DAILY_TOKEN_LIMIT:
             raise HTTPException(
                 status_code=status.HTTP_429_TOO_MANY_REQUESTS,
                 detail="Daily token budget exhausted; try again tomorrow.",
@@ -631,10 +696,9 @@ async def generate_full_document(
         )
 
         # 2. Serialize every daily-quota decision for this user, including jobs
-        # for different documents. The lock is held through the gate check,
-        # job insert, and commit, so the queued job becomes the reservation
-        # observed by the next request. User is the first row in the global
-        # lock order: user -> document -> production case -> generation job.
+        # for different documents. The shared generation gate later takes the
+        # system-wide budget lock. Both are held through the job insert and
+        # commit, so the queued job becomes the next request's reservation.
         user_lock_result = await db.execute(
             select(User)
             .where(User.id == int(current_user.id))

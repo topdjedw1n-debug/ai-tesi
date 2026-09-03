@@ -1096,30 +1096,57 @@ class ProductionCaseService:
                 status_value = "warning"
                 summary = "Document completed but no stored delivery path is recorded."
         elif gate_key == "source_availability":
-            # The rebuilt pack (post-outline) is what sections actually cite;
-            # fall back to the initial build for runs that never rebuilt.
-            # No event -> default no_data (blocks until an audited override),
-            # consistent with the other gates; gates are only computed at
-            # release time, so old cases are not retroactively touched.
-            event = _latest_event(events, "source_pack_rebuilt") or _latest_event(
-                events, "source_pack_built"
+            # Prefer the newest authoritative source decision. Strict-profile
+            # runs publish a preflight verdict (or an earlier insufficiency
+            # stop); legacy runs fall back to the pack-build events.
+            source_events = {
+                "source_pack_insufficient",
+                "source_pack_preflight",
+                "source_pack_rebuilt",
+                "source_pack_built",
+            }
+            event = next(
+                (item for item in reversed(events) if item.event_type in source_events),
+                None,
             )
             if event:
                 payload = _event_payload(event)
-                pack_size = int(payload.get("pack_size") or 0)
-                if pack_size == 0:
+                if event.event_type == "source_pack_insufficient":
                     status_value = "failed"
-                    summary = "Source pack is empty — generation ran closed-book."
-                elif payload.get("underfilled") is True:
-                    status_value = "warning"
-                    summary = (
-                        "Source base is thin; the topic-relevance threshold "
-                        f"was relaxed to fill the pack ({pack_size} sources) — "
-                        "review the sources before release."
+                    summary = str(
+                        payload.get("message")
+                        or "Too few relevant sources; upload source PDFs."
                     )
+                elif event.event_type == "source_pack_preflight":
+                    verified = int(payload.get("verified") or 0)
+                    minimum = int(payload.get("min_required") or 0)
+                    if payload.get("status") == "passed" and verified >= minimum:
+                        status_value = "passed"
+                        summary = (
+                            f"Source preflight passed: {verified} verified "
+                            "source(s)."
+                        )
+                    else:
+                        status_value = "failed"
+                        summary = (
+                            "Source preflight failed: "
+                            f"{verified}/{minimum} required source(s) verified."
+                        )
                 else:
-                    status_value = "passed"
-                    summary = f"{pack_size} on-topic sources in the pack."
+                    pack_size = int(payload.get("pack_size") or 0)
+                    if pack_size == 0:
+                        status_value = "failed"
+                        summary = "Source pack is empty — generation ran closed-book."
+                    elif payload.get("underfilled") is True:
+                        status_value = "warning"
+                        summary = (
+                            "Source base is thin; the topic-relevance threshold "
+                            f"was relaxed to fill the pack ({pack_size} sources) — "
+                            "review the sources before release."
+                        )
+                    else:
+                        status_value = "passed"
+                        summary = f"{pack_size} on-topic sources in the pack."
                 evidence = payload
 
         return {

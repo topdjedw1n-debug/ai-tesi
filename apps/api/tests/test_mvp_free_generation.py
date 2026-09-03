@@ -11,6 +11,7 @@ Covers the two modes added in Stage 0:
 The background generation task is patched to a no-op so the endpoint is
 exercised without triggering real AI calls.
 """
+
 import os
 from datetime import datetime, timedelta
 from unittest.mock import AsyncMock
@@ -156,6 +157,20 @@ async def _document_status(document_id: int) -> str:
             select(Document.status).where(Document.id == document_id)
         )
         return str(result.scalar_one())
+
+
+async def _make_user(email: str) -> int:
+    async with AsyncSessionLocal() as session:
+        user = User(
+            email=email,
+            full_name="Another Manager",
+            is_active=True,
+            is_verified=True,
+        )
+        session.add(user)
+        await session.commit()
+        await session.refresh(user)
+        return int(user.id)
 
 
 # --------------------------------------------------------------------------
@@ -407,3 +422,126 @@ async def test_active_job_keeps_remaining_token_reservation_after_partial_usage(
     assert response.status_code == 429
     assert await _job_count(document_id) == 0
     assert await _document_status(document_id) == "draft"
+
+
+@pytest.mark.asyncio
+async def test_global_daily_budget_counts_other_users_completed_usage(
+    client, test_user, auth_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_ENABLED", True)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_MAX_PAGES", 20)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_DAILY_USER_LIMIT", 5)
+    monkeypatch.setattr(settings, "DAILY_TOKEN_LIMIT", None)
+    monkeypatch.setattr(settings, "GLOBAL_DAILY_TOKEN_LIMIT", 1_200)
+
+    other_user_id = await _make_user("other-global-completed@example.com")
+    other_document_id = await _make_document(other_user_id, target_pages=1)
+    async with AsyncSessionLocal() as session:
+        session.add(
+            AIGenerationJob(
+                user_id=other_user_id,
+                document_id=other_document_id,
+                job_type="full_document",
+                status="completed",
+                progress=100,
+                total_tokens=400,
+            )
+        )
+        await session.commit()
+
+    document_id = await _make_document(test_user.id, target_pages=1)
+    response = await client.post(
+        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+    )
+
+    assert response.status_code == 429
+    assert "system-wide daily generation budget" in response.json()["detail"]
+    assert await _job_count(document_id) == 0
+
+
+@pytest.mark.asyncio
+async def test_global_daily_budget_counts_other_users_active_reservations(
+    client, test_user, auth_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_ENABLED", True)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_MAX_PAGES", 20)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_DAILY_USER_LIMIT", 5)
+    monkeypatch.setattr(settings, "DAILY_TOKEN_LIMIT", None)
+    monkeypatch.setattr(settings, "GLOBAL_DAILY_TOKEN_LIMIT", 2_500)
+
+    other_user_id = await _make_user("other-global-active@example.com")
+    other_document_id = await _make_document(other_user_id, target_pages=2)
+    async with AsyncSessionLocal() as session:
+        session.add(
+            AIGenerationJob(
+                user_id=other_user_id,
+                document_id=other_document_id,
+                job_type="full_document",
+                status="running",
+                progress=50,
+                total_tokens=400,
+            )
+        )
+        await session.commit()
+
+    document_id = await _make_document(test_user.id, target_pages=1)
+    response = await client.post(
+        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+    )
+
+    assert response.status_code == 429
+    assert await _job_count(document_id) == 0
+
+
+@pytest.mark.asyncio
+async def test_global_daily_budget_keeps_cross_midnight_active_reservations(
+    client, test_user, auth_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_ENABLED", True)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_MAX_PAGES", 20)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_DAILY_USER_LIMIT", 5)
+    monkeypatch.setattr(settings, "DAILY_TOKEN_LIMIT", None)
+    monkeypatch.setattr(settings, "GLOBAL_DAILY_TOKEN_LIMIT", 2_500)
+
+    other_user_id = await _make_user("other-global-overnight@example.com")
+    other_document_id = await _make_document(other_user_id, target_pages=2)
+    async with AsyncSessionLocal() as session:
+        session.add(
+            AIGenerationJob(
+                user_id=other_user_id,
+                document_id=other_document_id,
+                job_type="full_document",
+                status="running",
+                progress=50,
+                total_tokens=400,
+                started_at=datetime.utcnow() - timedelta(days=1),
+            )
+        )
+        await session.commit()
+
+    document_id = await _make_document(test_user.id, target_pages=1)
+    response = await client.post(
+        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+    )
+
+    assert response.status_code == 429
+    assert await _job_count(document_id) == 0
+
+
+@pytest.mark.asyncio
+async def test_global_daily_budget_allows_generation_below_ceiling(
+    client, test_user, auth_headers, monkeypatch
+):
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_ENABLED", True)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_MAX_PAGES", 20)
+    monkeypatch.setattr(settings, "MVP_FREE_GENERATION_DAILY_USER_LIMIT", 5)
+    monkeypatch.setattr(settings, "DAILY_TOKEN_LIMIT", None)
+    monkeypatch.setattr(settings, "GLOBAL_DAILY_TOKEN_LIMIT", 1_001)
+
+    document_id = await _make_document(test_user.id, target_pages=1)
+    response = await client.post(
+        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+    )
+
+    assert response.status_code == 200
+    assert await _job_count(document_id) == 1

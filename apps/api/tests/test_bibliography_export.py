@@ -11,6 +11,7 @@ the exported DOCX/PDF.
 """
 
 import io
+import zipfile
 from contextlib import ExitStack
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -285,6 +286,7 @@ async def _seed_completed_document(db_session, *, content=None, sections=()):
         topic="AI in Education",
         status="completed",
         language="it",
+        work_type="tesi_magistrale",
         content=content,
     )
     db_session.add(document)
@@ -344,9 +346,19 @@ async def test_export_docx_renders_bibliografia_heading(db_session):
     headings = [p.text for p in docx.paragraphs if p.style.name.startswith("Heading")]
     assert "Introduzione" in headings
     assert "Bibliografia" in headings
+    assert "Sitografia" in headings
     body_text = "\n".join(p.text for p in docx.paragraphs)
+    assert "Topic:" not in body_text
+    assert "Language:" not in body_text
+    assert "Created:" not in body_text
     assert "https://doi.org/10.5555/3295222" in body_text
     assert "https://doi.org/10.18653/v1/N19-1423" in body_text
+
+    with zipfile.ZipFile(io.BytesIO(uploads["data"])) as archive:
+        core_xml = archive.read("docProps/core.xml").decode("utf-8")
+    assert "Export Test Thesis" in core_xml
+    assert "python-docx" not in core_xml
+    assert "Word Document" not in core_xml
 
 
 @pytest.mark.asyncio

@@ -8,6 +8,9 @@ from pathlib import Path
 import pytest
 import yaml
 
+from app.core.config import Settings
+from tests.release_profile import RELEASE_PROFILE, release_profile_env
+
 REPO_ROOT = Path(__file__).resolve().parents[3]
 PROD_COMPOSE = REPO_ROOT / "infra" / "docker" / "docker-compose.prod.yml"
 DEV_COMPOSE = REPO_ROOT / "infra" / "docker" / "docker-compose.yml"
@@ -106,20 +109,16 @@ def test_generated_files_are_not_exposed_by_anonymous_bucket_policy() -> None:
 def test_prod_academic_quality_contract_is_explicit_and_fail_closed() -> None:
     environment = _api_environment()
 
-    assert environment["MVP_FREE_GENERATION_MAX_PAGES"] == (
-        "${MVP_FREE_GENERATION_MAX_PAGES:-50}"
-    )
-    assert environment["QUALITY_GATES_ENABLED"] == "true"
-    assert environment["PARTIAL_COMPLETION_ENABLED"] == "false"
-    assert environment["SOURCE_GROUNDING_ENABLED"] == "true"
-    assert environment["GROUNDING_GATE_ENABLED"] == "true"
-    assert environment["GROUNDING_GATE_POLICY"] == "strict"
-    assert environment["CITATION_VERIFICATION_ENABLED"] == "true"
-    assert environment["CITATION_VERIFICATION_POLICY"] == "strict"
-    assert environment["CLAIM_VERIFICATION_ENABLED"] == "true"
-    assert environment["QUALITY_PANEL_ENABLED"] == "true"
-    assert environment["HUMANIZER_ENABLED"] == "false"
+    for name, expected in release_profile_env().items():
+        assert environment[name] == expected
     assert environment["RELEASE_PRIMARY_DETECTOR_NAME"] == "Compilatio"
+
+
+def test_release_profile_is_a_valid_settings_combination() -> None:
+    runtime = Settings(_env_file=None, **RELEASE_PROFILE)
+
+    for name, expected in RELEASE_PROFILE.items():
+        assert getattr(runtime, name) == expected
 
 
 def test_deploy_only_uses_an_exact_revision_that_passed_ci() -> None:

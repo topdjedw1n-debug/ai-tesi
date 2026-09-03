@@ -1212,6 +1212,64 @@ async def test_source_availability_gate_prefers_rebuilt_event_and_blocks_release
 
 
 @pytest.mark.asyncio
+async def test_source_availability_gate_uses_latest_preflight_verdict(client):
+    admin = await _create_user(
+        email="prod-admin-src-preflight@example.com",
+        is_admin=True,
+        is_super_admin=True,
+    )
+    customer = await _create_user(email="prod-client-src-preflight@example.com")
+    document = await _create_document(int(customer.id), completed=True)
+
+    await _add_event(
+        int(document.id),
+        "retrieval",
+        "source_pack_built",
+        {"pack_size": 24, "underfilled": False},
+    )
+    await _add_event(
+        int(document.id),
+        "verification",
+        "source_pack_preflight",
+        {"status": "failed", "verified": 11, "min_required": 18},
+    )
+    case = await _create_case(client, admin, document)
+
+    gate = await _get_gate(client, admin, case["id"], "source_availability")
+    assert gate["status"] == "failed"
+    assert "11/18" in gate["summary"]
+    assert gate["evidence"]["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_source_availability_gate_uses_insufficient_source_event(client):
+    admin = await _create_user(
+        email="prod-admin-src-insufficient@example.com",
+        is_admin=True,
+        is_super_admin=True,
+    )
+    customer = await _create_user(email="prod-client-src-insufficient@example.com")
+    document = await _create_document(int(customer.id), completed=True)
+    message = "Too few relevant sources; upload relevant PDF sources."
+    await _add_event(
+        int(document.id),
+        "verification",
+        "source_pack_insufficient",
+        {
+            "status": "failed",
+            "citable_sources": 3,
+            "minimum_required": 6,
+            "message": message,
+        },
+    )
+    case = await _create_case(client, admin, document)
+
+    gate = await _get_gate(client, admin, case["id"], "source_availability")
+    assert gate["status"] == "failed"
+    assert gate["summary"] == message
+
+
+@pytest.mark.asyncio
 async def test_source_availability_gate_no_data_blocks_release(client):
     """No source-pack event (grounding off / legacy document) -> no_data, which
     blocks release until an audited override — consistent with the other gates."""

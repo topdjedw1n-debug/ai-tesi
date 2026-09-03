@@ -88,8 +88,7 @@ class AuthService:
                 logger.info(f"✅ Magic link email sent to {email}")
             else:
                 logger.warning(
-                    f"⚠️ Magic link email not sent to {email} (SMTP not configured). "
-                    f"Link: {magic_link}"
+                    f"⚠️ Magic link email not sent to {email} (SMTP not configured)."
                 )
 
             return {
@@ -100,9 +99,9 @@ class AuthService:
                 # Only ever echoed in local development. Without SMTP
                 # configured this field is a working login link, so returning it
                 # from a deployed API would let anyone sign in as any account.
-                "magic_link": magic_link
-                if (settings.DEBUG and not email_sent)
-                else None,
+                "magic_link": (
+                    magic_link if (settings.DEBUG and not email_sent) else None
+                ),
             }
 
         except Exception as e:

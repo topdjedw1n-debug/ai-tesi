@@ -89,6 +89,47 @@ async def test_persist_and_load_round_trip(db_session):
 
 
 @pytest.mark.asyncio
+async def test_non_citable_context_round_trips_without_a_key(db_session):
+    document = await _seed_document(db_session, "pack-context@example.com")
+    pack = _pack(document.id)
+    pack.context_sources = [
+        PackedSource(
+            SourceDoc(
+                title="Tangential background record",
+                authors=["Verdi"],
+                year=2019,
+                abstract="Background only",
+                doi="10.1/context",
+            ),
+            "",
+            0.2,
+        )
+    ]
+    pack.underfilled = True
+
+    await persist_source_pack(db_session, document.id, pack)
+    loaded = await load_source_pack(db_session, document.id)
+
+    assert loaded is not None
+    assert loaded.keys() == ["Rossi2021", "Bianchi2020"]
+    assert len(loaded.context_sources) == 1
+    assert loaded.context_sources[0].citation_key == ""
+    assert loaded.context_sources[0].source.title == "Tangential background record"
+    assert loaded.sha256() == pack.sha256()
+
+    context_row = (
+        await db_session.execute(
+            select(DocumentSource).where(
+                DocumentSource.document_id == document.id,
+                DocumentSource.title == "Tangential background record",
+            )
+        )
+    ).scalar_one()
+    assert context_row.is_in_upfront_pack is True
+    assert context_row.citation_key is None
+
+
+@pytest.mark.asyncio
 async def test_persist_is_idempotent_upsert(db_session):
     document = await _seed_document(db_session, "pack-idempotent@example.com")
     pack = _pack(document.id)

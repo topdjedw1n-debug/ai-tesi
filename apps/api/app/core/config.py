@@ -77,7 +77,7 @@ class Settings(BaseSettings):
     AI_RETRY_DELAYS: str = (
         "2,4,8"  # Comma-separated delays in seconds (exponential backoff)
     )
-    AI_ENABLE_FALLBACK: bool = True  # Enable fallback to other providers
+    AI_ENABLE_FALLBACK: bool = False  # Fail honestly instead of changing writer
     # Fallback chain: Try providers in order until one succeeds
     # Format: "provider:model,provider:model,..."
     # NOTE: claude-3-5-sonnet-20241022 was RETIRED by Anthropic (404) — the
@@ -117,7 +117,7 @@ class Settings(BaseSettings):
     # Master switch for the humanization step. False = sections keep the raw
     # writer output (no single-pass rewrite, no multi-pass rescue) — used to
     # measure a writer's UNrescued Compilatio score (experiment Block 1).
-    HUMANIZER_ENABLED: bool = True
+    HUMANIZER_ENABLED: bool = False
 
     # Cost accounting (Stage B3): AIGenerationJob.cost_cents is stored in
     # USD cents (pricing tables are USD); the € shown in the manager UI is a
@@ -362,8 +362,11 @@ class Settings(BaseSettings):
         None  # Comma-separated list of IPs allowed during maintenance
     )
 
-    # Token usage limits (optional - set to None to disable)
+    # Token usage limits (optional - set to None to disable). The per-user
+    # limit protects one account; the global limit is the system-wide hard
+    # reservation ceiling enforced before a generation job is queued.
     DAILY_TOKEN_LIMIT: int | None = 2_000_000
+    GLOBAL_DAILY_TOKEN_LIMIT: int | None = 6_000_000
 
     # MVP free-generation mode (Stage 0: "fix MVP scope & disable sales").
     # When ON, draft generation runs without a Stripe payment but is bounded by
@@ -373,9 +376,9 @@ class Settings(BaseSettings):
     MVP_FREE_GENERATION_ENABLED: bool = True
     MVP_FREE_GENERATION_MAX_PAGES: int = 20
     MVP_FREE_GENERATION_DAILY_USER_LIMIT: int = 2
-    # Narrow Italian production contour: generation must not start until a
-    # university methodology file has been successfully parsed and persisted.
-    METHODOLOGY_REQUIRED_FOR_GENERATION: bool = True
+    # Methodology is optional. Works without it use a visible task contract
+    # whose assumptions the manager must confirm before generation.
+    METHODOLOGY_REQUIRED_FOR_GENERATION: bool = False
     LEGACY_GENERATION_ENDPOINTS_ENABLED: bool = False
     # Only the agreed primary external checker may authorize delivery for the
     # narrow Italian contour. Other detector scores remain diagnostic.

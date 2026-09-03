@@ -1,6 +1,5 @@
 """Universal task contract: rules with sources, confirmation, honest basis."""
 
-
 import pytest
 from fastapi import HTTPException
 from sqlalchemy import select
@@ -8,6 +7,8 @@ from sqlalchemy import select
 from app.api.v1.endpoints import documents as documents_endpoint
 from app.models.auth import User
 from app.models.document import Document, DocumentProvenance
+from app.schemas.document import DocumentCreate
+from app.services.document_service import DocumentService
 from app.services.generation_contract import generation_contract_error
 from app.services.task_contract import (
     build_task_contract,
@@ -95,6 +96,54 @@ async def test_structure_directive_follows_work_type(db_session):
     assert directive is not None
     assert "essay" in directive
     assert "standard academic structure" in directive
+
+
+@pytest.mark.asyncio
+async def test_created_bachelors_thesis_keeps_explicit_work_type(db_session):
+    user = User(
+        email="contract-create-work-type@example.com",
+        full_name="Contract Create",
+        is_active=True,
+    )
+    db_session.add(user)
+    await db_session.commit()
+    await db_session.refresh(user)
+    payload = DocumentCreate(
+        title="Tesi triennale esplicita",
+        topic="L'economia circolare nelle imprese italiane",
+        language="it",
+        target_pages=20,
+        citation_style="apa",
+        work_type="tesi_triennale",
+    )
+
+    created = await DocumentService(db_session).create_document(
+        user_id=int(user.id),
+        title=payload.title,
+        topic=payload.topic,
+        language=payload.language,
+        target_pages=payload.target_pages,
+        ai_provider=payload.ai_provider.value,
+        ai_model=payload.ai_model,
+        citation_style=payload.citation_style,
+        work_type=payload.work_type,
+    )
+    document = await db_session.get(Document, int(created["id"]))
+    contract = build_task_contract(document)
+
+    work_type_rule = next(
+        rule for rule in contract["rules"] if rule["key"] == "work_type"
+    )
+    assert created["work_type"] == "tesi_triennale"
+    assert work_type_rule == {
+        "key": "work_type",
+        "value": "tesi_triennale",
+        "source": "intake",
+        "status": "explicit",
+    }
+    assert not any(
+        "master's thesis" in str(rule.get("note", "")) for rule in contract["rules"]
+    )
 
 
 @pytest.mark.asyncio

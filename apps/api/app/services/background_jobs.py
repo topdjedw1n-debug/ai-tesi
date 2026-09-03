@@ -44,7 +44,10 @@ from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_identity import sources_equivalent
-from app.services.ai_pipeline.source_pack import SourcePackBuilder
+from app.services.ai_pipeline.source_pack import (
+    MIN_CITABLE_SOURCES,
+    SourcePackBuilder,
+)
 from app.services.ai_pipeline.source_pack_preflight import (
     invalid_preverified_source_keys,
     preverify_source_pack,
@@ -906,6 +909,11 @@ def _merge_source_packs(uploaded_pack, api_pack, *, limit: int | None = None):
             packed = PackedSource(packed.source, key, packed.on_topic_score)
         taken.add(key.lower())
         merged.append(packed)
+    context_capacity = max(resolved_limit - len(merged), 0)
+    merged_context = [
+        *list(getattr(uploaded_pack, "context_sources", None) or []),
+        *list(getattr(api_pack, "context_sources", None) or []),
+    ][:context_capacity]
     pack = SourcePack(
         document_id=uploaded_pack.document_id,
         topic=uploaded_pack.topic,
@@ -916,6 +924,7 @@ def _merge_source_packs(uploaded_pack, api_pack, *, limit: int | None = None):
             *list(getattr(uploaded_pack, "provider_errors", []) or []),
             *list(getattr(api_pack, "provider_errors", []) or []),
         ],
+        context_sources=merged_context,
     )
     pack.passages = uploaded_pack.passages
     return pack
@@ -1414,7 +1423,7 @@ class BackgroundJobService:
                                 source_pack = uploaded_pack
                         if source_pack is None:
                             source_pack = await _load_source_pack(db, document_id)
-                        if source_pack is None or not source_pack.sources:
+                        if source_pack is None or not source_pack.all_sources():
                             source_pack = await _build_source_pack(
                                 db,
                                 document,
@@ -1444,6 +1453,9 @@ class BackgroundJobService:
                                             else 0
                                         ),
                                         "pack_size": len(source_pack.sources),
+                                        "context_size": len(
+                                            source_pack.context_sources
+                                        ),
                                         "mean_on_topic_score": (
                                             round(sum(scores) / len(scores), 3)
                                             if scores
@@ -1454,6 +1466,70 @@ class BackgroundJobService:
                                         "passages": len(source_pack.passages or []),
                                     },
                                 )
+
+                            citable_count = len(source_pack.sources)
+                            uploaded_count = (
+                                len(uploaded_pack.sources)
+                                if uploaded_pack is not None
+                                else 0
+                            )
+                            insufficient_automatic_pack = (
+                                source_pack.underfilled
+                                and citable_count < MIN_CITABLE_SOURCES
+                                and uploaded_count == 0
+                            )
+                            if (
+                                insufficient_automatic_pack
+                                and source_pack.provider_errors
+                            ):
+                                # An outage is not evidence that the topic has
+                                # too few sources. Keep this retryable and stop
+                                # before paying for an outline or any section.
+                                raise RuntimeError(
+                                    "Source retrieval providers were unavailable "
+                                    "before writing; retry the generation later"
+                                )
+                            if insufficient_automatic_pack:
+                                detail = (
+                                    "Too few relevant sources to start writing "
+                                    f"({citable_count}/{MIN_CITABLE_SOURCES}). "
+                                    "Upload relevant PDF "
+                                    "sources and try again."
+                                )
+                                if settings.PROVENANCE_LEDGER_ENABLED:
+                                    await _record_provenance(
+                                        db,
+                                        document_id,
+                                        stage="verification",
+                                        event_type="source_pack_insufficient",
+                                        payload={
+                                            "status": "failed",
+                                            "citable_sources": citable_count,
+                                            "context_sources": len(
+                                                source_pack.context_sources
+                                            ),
+                                            "minimum_required": (MIN_CITABLE_SOURCES),
+                                            "uploaded_sources": uploaded_count,
+                                            "message": detail,
+                                        },
+                                    )
+                                if fenced_execution:
+                                    await update_generation_document(
+                                        db,
+                                        job_id=job_id,
+                                        worker_id=lease_owner,
+                                        lease_token=lease_token,
+                                        document_id=document_id,
+                                        values={"status": "failed_quality"},
+                                    )
+                                else:
+                                    await db.execute(
+                                        update(Document)
+                                        .where(Document.id == document_id)
+                                        .values(status="failed_quality")
+                                    )
+                                    await db.commit()
+                                raise CitationIntegrityError(detail=detail)
 
                 # Step 1: Generate outline if not exists
                 if not document.outline:

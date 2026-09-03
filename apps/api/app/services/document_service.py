@@ -26,8 +26,16 @@ from app.services.ai_pipeline.citation_formatter import (
     merge_bibliographies,
 )
 from app.services.ai_pipeline.citation_keys import internal_marker_keys
+from app.services.task_contract import DEFAULT_WORK_TYPE
 
 logger = logging.getLogger(__name__)
+
+
+def _requires_sitography(document: Document) -> bool:
+    """The neutral Italian master's-thesis contract promises this section."""
+    language = str(document.language or "").strip().lower()
+    work_type = str(document.work_type or DEFAULT_WORK_TYPE).strip().lower()
+    return language.startswith("it") and work_type == "tesi_magistrale"
 
 
 class DocumentService:
@@ -135,6 +143,7 @@ class DocumentService:
                 "language": document.language,
                 "target_pages": document.target_pages,
                 "citation_style": document.citation_style,
+                "work_type": document.work_type,
                 "requirements_file_processed": document.requirements_file_processed,
                 "release_status": "not_ready",
                 "status": document.status,
@@ -145,12 +154,12 @@ class DocumentService:
                 "tokens_used": document.tokens_used,
                 "generation_time_seconds": document.generation_time_seconds,
                 "created_at": document.created_at.isoformat(),
-                "updated_at": document.updated_at.isoformat()
-                if document.updated_at
-                else None,
-                "completed_at": document.completed_at.isoformat()
-                if document.completed_at
-                else None,
+                "updated_at": (
+                    document.updated_at.isoformat() if document.updated_at else None
+                ),
+                "completed_at": (
+                    document.completed_at.isoformat() if document.completed_at else None
+                ),
                 "is_archived": document.is_archived,
                 "word_count": word_count,
                 "estimated_reading_time": estimated_reading_time,
@@ -202,6 +211,7 @@ class DocumentService:
                 "language": document.language,
                 "target_pages": document.target_pages,
                 "citation_style": document.citation_style,
+                "work_type": document.work_type,
                 "requirements_file_processed": document.requirements_file_processed,
                 "release_status": release_status,
                 "status": document.status,
@@ -214,9 +224,9 @@ class DocumentService:
                 "generation_time_seconds": document.generation_time_seconds,
                 "created_at": document.created_at.isoformat(),
                 "updated_at": document.updated_at.isoformat(),
-                "completed_at": document.completed_at.isoformat()
-                if document.completed_at
-                else None,
+                "completed_at": (
+                    document.completed_at.isoformat() if document.completed_at else None
+                ),
                 "word_count": word_count,
                 "estimated_reading_time": estimated_reading_time,
                 "sections": [
@@ -231,9 +241,11 @@ class DocumentService:
                         "tokens_used": section.tokens_used,
                         "generation_time_seconds": section.generation_time_seconds,
                         "created_at": section.created_at.isoformat(),
-                        "completed_at": section.completed_at.isoformat()
-                        if section.completed_at
-                        else None,
+                        "completed_at": (
+                            section.completed_at.isoformat()
+                            if section.completed_at
+                            else None
+                        ),
                     }
                     for section in document.sections
                 ],
@@ -303,6 +315,7 @@ class DocumentService:
                         "language": doc.language,
                         "target_pages": doc.target_pages,
                         "citation_style": doc.citation_style,
+                        "work_type": doc.work_type,
                         "requirements_file_processed": doc.requirements_file_processed,
                         "release_status": release_statuses.get(
                             int(doc.id), "not_ready"
@@ -316,9 +329,9 @@ class DocumentService:
                         "tokens_used": doc.tokens_used,
                         "generation_time_seconds": doc.generation_time_seconds,
                         "created_at": doc.created_at.isoformat(),
-                        "updated_at": doc.updated_at.isoformat()
-                        if doc.updated_at
-                        else None,
+                        "updated_at": (
+                            doc.updated_at.isoformat() if doc.updated_at else None
+                        ),
                         "word_count": word_count,
                         "estimated_reading_time": estimated_reading_time,
                         "sections": [],
@@ -482,9 +495,11 @@ class DocumentService:
                             "type": activity_type,
                             "title": doc.title or f"Document {doc.id}",
                             "description": description,
-                            "timestamp": doc.updated_at.isoformat()
-                            if doc.updated_at
-                            else doc.created_at.isoformat(),
+                            "timestamp": (
+                                doc.updated_at.isoformat()
+                                if doc.updated_at
+                                else doc.created_at.isoformat()
+                            ),
                             "status": activity_status,
                             "document_id": doc.id,
                         }
@@ -668,9 +683,11 @@ class DocumentService:
                     "tokens_used": section.tokens_used,
                     "generation_time_seconds": section.generation_time_seconds,
                     "created_at": section.created_at.isoformat(),
-                    "completed_at": section.completed_at.isoformat()
-                    if section.completed_at
-                    else None,
+                    "completed_at": (
+                        section.completed_at.isoformat()
+                        if section.completed_at
+                        else None
+                    ),
                 }
                 for section in sections
             ]
@@ -872,16 +889,15 @@ class DocumentService:
                 # Create DOCX document
                 docx = DocxDocument()
 
+                # Neutral file metadata: the deliverable describes the work,
+                # never the library that assembled it.
+                docx.core_properties.title = str(document.title or "")
+                docx.core_properties.author = ""
+                docx.core_properties.last_modified_by = ""
+                docx.core_properties.comments = ""
+
                 # Add title
                 docx.add_heading(document.title, 0)
-
-                # Add metadata
-                docx.add_paragraph(f"Topic: {document.topic}")
-                docx.add_paragraph(f"Language: {document.language}")
-                docx.add_paragraph(
-                    f"Created: {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}"
-                )
-                docx.add_paragraph("")  # Empty line
 
                 # Add content if available
                 if document.content:
@@ -917,6 +933,12 @@ class DocumentService:
                         )
                         for reference in section_bibliography:
                             docx.add_paragraph(reference)
+
+                if _requires_sitography(document) and not any(
+                    paragraph.text.strip().casefold() == "sitografia"
+                    for paragraph in docx.paragraphs
+                ):
+                    docx.add_heading("Sitografia", 1)
 
                 # Save to BytesIO
                 file_stream = io.BytesIO()
@@ -985,15 +1007,6 @@ class DocumentService:
 
                 # Add title
                 elements.append(Paragraph(document.title, title_style))
-                elements.append(Spacer(1, 0.2 * inch))
-
-                # Add metadata
-                metadata = f"""
-                <b>Topic:</b> {document.topic}<br/>
-                <b>Language:</b> {document.language}<br/>
-                <b>Created:</b> {document.created_at.strftime('%Y-%m-%d %H:%M:%S')}
-                """
-                elements.append(Paragraph(metadata, body_style))
                 elements.append(Spacer(1, 0.3 * inch))
 
                 def escape_pdf_text(text: str) -> str:
@@ -1059,6 +1072,17 @@ class DocumentService:
                             elements.append(
                                 Paragraph(escape_pdf_text(reference), body_style)
                             )
+
+                content_headings = {
+                    block.strip()[2:].strip().casefold()
+                    for block in str(document.content or "").split("\n\n")
+                    if block.strip().startswith("# ")
+                }
+                if (
+                    _requires_sitography(document)
+                    and "sitografia" not in content_headings
+                ):
+                    elements.append(Paragraph("Sitografia", heading_style))
 
                 # Build PDF
                 logger.info(f"Generating PDF document for doc_id={document_id}")

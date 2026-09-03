@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 # Minimum sources we want before declaring the pack usable; below this we relax
 # the topic threshold once rather than shipping an (almost) empty pack.
-_UNDERFILL_FLOOR = 6
+MIN_CITABLE_SOURCES = 6
 
 # Max alt (translated) section titles turned into queries in the bilingual
 # pass. Keeps the HTTP volume bounded: ≤11 primary + ≤7 alt = ≤18 queries
@@ -195,6 +195,10 @@ class SourcePack:
     # underfilled pack with provider errors is retryable, not proof that too
     # few valid sources exist.
     provider_errors: list[str] = field(default_factory=list)
+    # Weak records admitted only by the one-time underfill relaxation. They
+    # may help the outline understand the landscape, but have no citation key
+    # and are never part of the writer's citable universe or grounding gate.
+    context_sources: list[PackedSource] = field(default_factory=list)
 
     def keys(self) -> list[str]:
         return [ps.citation_key for ps in self.sources]
@@ -227,6 +231,14 @@ class SourcePack:
     def canonical_sources(self) -> list[PackedSource]:
         """Return the exact deterministic source order shown to the writer."""
         return sorted(self.sources, key=self._canonical_source_sort_key)
+
+    def canonical_context_sources(self) -> list[PackedSource]:
+        """Return deterministic, explicitly non-citable background records."""
+        return sorted(self.context_sources, key=self._canonical_source_sort_key)
+
+    def all_sources(self) -> list[PackedSource]:
+        """Return every persisted pack record, citable records first."""
+        return [*self.canonical_sources(), *self.canonical_context_sources()]
 
     @staticmethod
     def _canonical_passage_sort_key(passage: Any) -> tuple[Any, ...]:
@@ -274,6 +286,27 @@ class SourcePack:
                     ).hexdigest(),
                 }
             )
+        context_rows: list[dict[str, Any]] = []
+        for position, packed in enumerate(self.canonical_context_sources()):
+            source = packed.source
+            abstract = str(source.abstract or "")
+            context_rows.append(
+                {
+                    "position": position,
+                    "on_topic_score": round(float(packed.on_topic_score), 6),
+                    "title": str(source.title or "").strip(),
+                    "authors": [str(author).strip() for author in source.authors or []],
+                    "year": source.year,
+                    "doi": normalize_doi(source.doi),
+                    "venue": str(source.venue or "").strip() or None,
+                    "paper_id": source.paper_id,
+                    "provider": getattr(source, "provider", None),
+                    "source_type": getattr(source, "source_type", None),
+                    "abstract_sha256": hashlib.sha256(
+                        abstract.encode("utf-8")
+                    ).hexdigest(),
+                }
+            )
         passage_rows: list[dict[str, Any]] = []
         for position, passage in enumerate(self.canonical_passages()):
             passage_rows.append(
@@ -288,8 +321,16 @@ class SourcePack:
                     ).hexdigest(),
                 }
             )
+        digest_payload: dict[str, Any] = {
+            "sources": rows,
+            "passages": passage_rows,
+        }
+        # Keep the digest byte-for-byte compatible with previously frozen
+        # strict packs. Only relaxed packs add the new prompt-significant key.
+        if context_rows:
+            digest_payload["context_sources"] = context_rows
         canonical = json.dumps(
-            {"sources": rows, "passages": passage_rows},
+            digest_payload,
             sort_keys=True,
             ensure_ascii=False,
             separators=(",", ":"),
@@ -312,9 +353,14 @@ class SourcePack:
         """
         ordered_sources = self.canonical_sources()
         rows = ordered_sources if limit is None else ordered_sources[:limit]
-        if not rows:
+        ordered_context = self.canonical_context_sources()
+        remaining = None if limit is None else max(limit - len(rows), 0)
+        context_rows = (
+            ordered_context if remaining is None else ordered_context[:remaining]
+        )
+        if not rows and not context_rows:
             return ""
-        lines = []
+        lines: list[str] = []
         for ps in rows:
             src = ps.source
             authors = ", ".join(src.authors[:3]) if src.authors else "n.a."
@@ -329,6 +375,23 @@ class SourcePack:
             lines.append(
                 f"[{ps.citation_key}] {src.title} ({authors}, {year}).{venue}{snippet}"
             )
+        if context_rows:
+            lines.extend(
+                [
+                    "",
+                    "BACKGROUND CONTEXT ONLY — these records are below the "
+                    "citation relevance threshold. They have no citation key; "
+                    "never cite them or use them as evidence:",
+                ]
+            )
+            for ps in context_rows:
+                src = ps.source
+                authors = ", ".join(src.authors[:3]) if src.authors else "n.a."
+                if src.authors and len(src.authors) > 3:
+                    authors += " et al."
+                year = src.year or "n.d."
+                venue = f" {src.venue}." if src.venue else ""
+                lines.append(f"- {src.title} ({authors}, {year}).{venue}")
         block = "\n".join(lines)
 
         if query and self.passages:
@@ -531,30 +594,44 @@ class SourcePackBuilder:
         ]
 
         underfilled = False
-        kept = [(s, src) for s, src in scored if s >= min_on_topic_score]
-        if len(kept) < _UNDERFILL_FLOOR and allow_threshold_relaxation:
-            # Relax the threshold once rather than ship an (almost) empty pack.
+        citable = [(s, src) for s, src in scored if s >= min_on_topic_score]
+        context: list[tuple[float, SourceDoc]] = []
+        if len(citable) < MIN_CITABLE_SOURCES and allow_threshold_relaxation:
+            # The relaxed records remain useful context, but they must never
+            # receive keys: the grounding gate uses the strict threshold too.
             relaxed = max(0.0, min_on_topic_score / 2)
-            kept = [(s, src) for s, src in scored if s >= relaxed]
+            context = [
+                (s, src) for s, src in scored if relaxed <= s < min_on_topic_score
+            ]
             underfilled = True
             logger.warning(
                 f"Source pack underfilled for document {document_id}: "
-                f"{len(kept)} sources at relaxed threshold {relaxed:.2f} "
-                f"(wanted >= {_UNDERFILL_FLOOR})"
+                f"{len(citable)} citable source(s) at threshold "
+                f"{min_on_topic_score:.2f}; keeping {len(context)} additional "
+                f"record(s) as non-citable context at relaxed threshold "
+                f"{relaxed:.2f} (wanted >= {MIN_CITABLE_SOURCES} citable)"
             )
 
         # Rank for selection: relevance, then impact, then recency, then title.
-        kept.sort(
-            key=lambda item: (
+        def rank_key(item: tuple[float, SourceDoc]) -> tuple[Any, ...]:
+            return (
                 -item[0],
                 -(item[1].citation_count or 0),
                 -(item[1].year or 0),
                 (item[1].title or "").lower(),
             )
-        )
-        selected = kept[:target_size]
+
+        citable.sort(key=rank_key)
+        context.sort(key=rank_key)
+        selected = citable[:target_size]
+        context_capacity = max(target_size - len(selected), 0)
+        selected_context = context[:context_capacity]
 
         packed = self._assign_keys(selected)
+        context_packed = [
+            PackedSource(source=src, citation_key="", on_topic_score=score)
+            for score, src in selected_context
+        ]
         pack = SourcePack(
             document_id=document_id,
             topic=topic,
@@ -562,10 +639,12 @@ class SourcePackBuilder:
             underfilled=underfilled or len(packed) < target_size,
             bilingual=bool(alt_terms),
             provider_errors=provider_errors,
+            context_sources=context_packed,
         )
         logger.info(
-            f"Built source pack for document {document_id}: {len(packed)} sources "
-            f"from {len(deduped)} candidates (domain={domain or 'generic'}, "
+            f"Built source pack for document {document_id}: {len(packed)} citable "
+            f"source(s), {len(context_packed)} context record(s) from "
+            f"{len(deduped)} candidates (domain={domain or 'generic'}, "
             f"bilingual={pack.bilingual})"
         )
         return pack
