@@ -158,6 +158,10 @@ describe('provenance quality evidence helpers', () => {
       packSize: 18,
       underfilled: false,
       bilingual: true,
+      eventType: 'source_pack_built',
+      verified: null,
+      minimumRequired: null,
+      message: null,
     })
 
     const thin = summarizeQualityEvidence([
@@ -200,6 +204,84 @@ describe('provenance quality evidence helpers', () => {
     ])
     expect(summary.sourcePack.status).toBe('warning')
     expect(summary.sourcePack.packSize).toBe(4)
+  })
+
+  it('uses the newest preflight or insufficiency decision for source availability', () => {
+    const passed = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_rebuilt',
+        { pack_size: 24, underfilled: false, bilingual: true },
+        'retrieval'
+      ),
+      event(
+        2,
+        'source_pack_preflight',
+        {
+          status: 'passed',
+          verified: 18,
+          final_size: 18,
+          target: 24,
+          min_required: 18,
+        },
+        'verification'
+      ),
+    ])
+    expect(passed.sourcePack).toEqual({
+      status: 'passed',
+      packSize: 18,
+      underfilled: true,
+      bilingual: true,
+      eventType: 'source_pack_preflight',
+      verified: 18,
+      minimumRequired: 18,
+      message: null,
+    })
+
+    const insufficient = summarizeQualityEvidence([
+      event(
+        1,
+        'source_pack_built',
+        { pack_size: 3, underfilled: true, bilingual: false },
+        'retrieval'
+      ),
+      event(
+        2,
+        'source_pack_insufficient',
+        {
+          status: 'failed',
+          citable_sources: 3,
+          minimum_required: 5,
+          message: 'Too few relevant sources.',
+        },
+        'verification'
+      ),
+    ])
+    expect(insufficient.sourcePack.status).toBe('failed')
+    expect(insufficient.sourcePack.eventType).toBe('source_pack_insufficient')
+    expect(insufficient.sourcePack.verified).toBe(3)
+    expect(insufficient.sourcePack.minimumRequired).toBe(5)
+  })
+
+  it('derives the actual writer for a failed run from section_writer evidence', () => {
+    const summary = summarizeQualityEvidence([
+      event(
+        1,
+        'section_writer',
+        {
+          section_index: 0,
+          planned: 'anthropic/claude-opus-4-8',
+          actual: 'anthropic/claude-opus-4-8',
+          fallback_used: false,
+        },
+        'generation'
+      ),
+      event(2, 'panel_gate_failed', { passed: false }, 'quality'),
+    ])
+
+    expect(summary.generation.sectionsGenerated).toBe(0)
+    expect(summary.generation.providers).toEqual(['anthropic'])
+    expect(summary.generation.models).toEqual(['claude-opus-4-8'])
   })
 
   it('surfaces unchecked checks from new-format events (GPTZero off case)', () => {

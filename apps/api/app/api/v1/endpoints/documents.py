@@ -1042,6 +1042,7 @@ async def upload_source_file(
             "year": source_file.year,
             "page_count": len(pages),
             "status": source_file.status,
+            "mandatory": bool(source_file.mandatory),
             "metadata_incomplete": bool(source_file.metadata_incomplete),
             "warning": (
                 None
@@ -1100,6 +1101,7 @@ async def list_source_files(
                     "year": row.year,
                     "page_count": int(row.page_count or 0),
                     "status": row.status,
+                    "mandatory": bool(row.mandatory),
                     "metadata_incomplete": bool(row.metadata_incomplete),
                 }
                 for row in rows

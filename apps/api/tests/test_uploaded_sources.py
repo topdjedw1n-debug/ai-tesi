@@ -185,6 +185,7 @@ async def test_upload_flow_persists_pages_and_digest(db_session):
     assert response["citation_key"] == "Rossi2021"
     assert response["page_count"] == 2
     assert response["status"] == "parsed"
+    assert response["mandatory"] is False
     assert response["metadata_incomplete"] is True
 
     pages = (
@@ -657,10 +658,32 @@ async def test_metadata_patch_unblocks_generation(db_session):
         db=db_session,
     )
     assert result["metadata_incomplete"] is False
+    assert result["mandatory"] is False
     assert await uploaded_sources_blockers(db_session, int(document.id)) == (
         [],
         [],
     )
+
+    mandatory_result = await patch_handler(
+        document_id=int(document.id),
+        file_id=int(uploaded["id"]),
+        payload={"mandatory": True},
+        current_user=user,
+        db=db_session,
+    )
+    assert mandatory_result["mandatory"] is True
+
+    list_handler = getattr(
+        documents_endpoint.list_source_files,
+        "__wrapped__",
+        documents_endpoint.list_source_files,
+    )
+    listed = await list_handler(
+        document_id=int(document.id),
+        current_user=user,
+        db=db_session,
+    )
+    assert listed["files"][0]["mandatory"] is True
 
     with pytest.raises(HTTPException) as exc_info:
         await patch_handler(

@@ -24,7 +24,7 @@ export default function NewDocumentPage() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Нова робота</h1>
           <p className="mt-1 text-sm text-gray-500">
-            Тема, обсяг і вимоги — цього достатньо, щоб запустити генерацію
+            Тема, обсяг і вимоги — спочатку створимо чернетку для перевірки
           </p>
         </div>
         <CreateDocumentForm />

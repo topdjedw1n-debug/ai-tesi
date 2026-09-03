@@ -37,6 +37,7 @@ export default function ProductionCaseDetailPage() {
   const [gates, setGates] = useState<ReleaseGate[]>([])
   const [loading, setLoading] = useState(true)
   const [isReleasing, setIsReleasing] = useState(false)
+  const [isDownloadingReview, setIsDownloadingReview] = useState(false)
   const [savingDetector, setSavingDetector] = useState<string | null>(null)
   const [detectorForms, setDetectorForms] = useState<Record<string, DetectorForm>>({})
 
@@ -83,6 +84,25 @@ export default function ProductionCaseDetailPage() {
       toast.error(error?.message || 'Release blocked')
     } finally {
       setIsReleasing(false)
+    }
+  }
+
+  const handleInternalReviewDownload = async () => {
+    const documentId = productionCase?.document?.id
+    if (!documentId || !productionCase?.document?.docx_path) return
+    try {
+      setIsDownloadingReview(true)
+      const response = await adminApiClient.getInternalReviewDownload(documentId)
+      if (!response.download_url) {
+        throw new Error('Download link is missing')
+      }
+      const apiOrigin = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+      const downloadUrl = new URL(response.download_url, apiOrigin).toString()
+      window.open(downloadUrl, '_blank', 'noopener')
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to download the review DOCX')
+    } finally {
+      setIsDownloadingReview(false)
     }
   }
 
@@ -175,9 +195,25 @@ export default function ProductionCaseDetailPage() {
             {productionCase.document?.title || `Document ${productionCase.document_id}`}
           </p>
         </div>
-        <Button onClick={handleRelease} disabled={isReleasing || blockers.length > 0}>
-          {isReleasing ? 'Releasing...' : 'Approve release'}
-        </Button>
+        <div className="flex flex-wrap justify-end gap-2">
+          <Button
+            variant="secondary"
+            onClick={handleInternalReviewDownload}
+            disabled={
+              isDownloadingReview ||
+              !productionCase.document?.docx_path ||
+              !productionCase.document?.artifact_bindings?.docx
+            }
+            data-testid="internal-review-download"
+          >
+            {isDownloadingReview
+              ? 'Готуємо DOCX…'
+              : 'DOCX для Compilatio (pre-release)'}
+          </Button>
+          <Button onClick={handleRelease} disabled={isReleasing || blockers.length > 0}>
+            {isReleasing ? 'Releasing...' : 'Approve release'}
+          </Button>
+        </div>
       </div>
 
       {blockers.length > 0 && (
@@ -185,6 +221,22 @@ export default function ProductionCaseDetailPage() {
           Release blocked by {blockers.map((gate) => gate.gate_key).join(', ')}.
         </div>
       )}
+
+      <section className="rounded-lg border border-gray-700 bg-gray-800 p-4">
+        <h2 className="text-sm font-semibold text-white">Compilatio artifact</h2>
+        {productionCase.document?.artifact_bindings?.docx ? (
+          <div className="mt-2 text-xs text-gray-300">
+            <p>Перевіряй саме DOCX, прив’язаний до цього кейсу.</p>
+            <p className="mt-2 break-all font-mono" data-testid="docx-fingerprint">
+              SHA-256: {productionCase.document.artifact_bindings.docx.fingerprint_sha256}
+            </p>
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-amber-300">
+            Зафіксований DOCX ще не готовий.
+          </p>
+        )}
+      </section>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         {[

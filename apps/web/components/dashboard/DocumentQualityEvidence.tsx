@@ -99,6 +99,14 @@ function sourcePackDetail(sourcePack: QualityEvidenceSummary['sourcePack']): str
   if (sourcePack.status === 'missing') {
     return 'Пак джерел для цього прогону не записано (grounding вимкнено або стара робота).'
   }
+  if (sourcePack.eventType === 'source_pack_insufficient') {
+    return `Знайдено лише ${sourcePack.verified ?? 0} релевантних джерел із потрібних ${sourcePack.minimumRequired ?? 0}. Генерацію зупинено до написання тексту — додай PDF або уточни тему.`
+  }
+  if (sourcePack.eventType === 'source_pack_preflight') {
+    return sourcePack.status === 'passed'
+      ? `Перед стартом перевірено ${sourcePack.verified ?? 0} джерел; мінімум ${sourcePack.minimumRequired ?? 0} виконано.`
+      : `Перед стартом підтверджено ${sourcePack.verified ?? 0} джерел із потрібних ${sourcePack.minimumRequired ?? 0}. Текст не можна видавати.`
+  }
   if (sourcePack.status === 'failed') {
     return 'Пак джерел порожній — генерація йшла без опори на джерела.'
   }

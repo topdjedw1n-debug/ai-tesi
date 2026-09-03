@@ -16,11 +16,13 @@ describe('API Client - Sanity Check', () => {
     expect(apiClient.get).toBeDefined()
     expect(apiClient.post).toBeDefined()
     expect(apiClient.put).toBeDefined()
+    expect(apiClient.patch).toBeDefined()
     expect(apiClient.delete).toBeDefined()
 
     expect(typeof apiClient.get).toBe('function')
     expect(typeof apiClient.post).toBe('function')
     expect(typeof apiClient.put).toBe('function')
+    expect(typeof apiClient.patch).toBe('function')
     expect(typeof apiClient.delete).toBe('function')
   })
 
@@ -57,5 +59,32 @@ describe('API Client - Sanity Check', () => {
 
     expect(typeof API_ENDPOINTS.DOCUMENTS.EXPORT).toBe('function')
     expect(API_ENDPOINTS.DOCUMENTS.EXPORT(101)).toBe('/api/v1/documents/101/export')
+    expect(API_ENDPOINTS.DOCUMENTS.SOURCE_UPLOAD(101)).toBe(
+      '/api/v1/documents/101/sources/upload'
+    )
+    expect(API_ENDPOINTS.DOCUMENTS.SOURCE_FILES(101)).toBe(
+      '/api/v1/documents/101/sources/files'
+    )
+    expect(API_ENDPOINTS.DOCUMENTS.SOURCE_FILE(101, 7)).toBe(
+      '/api/v1/documents/101/sources/files/7'
+    )
+    expect(API_ENDPOINTS.DOCUMENTS.TASK_CONTRACT(101)).toBe(
+      '/api/v1/documents/101/task-contract'
+    )
+    expect(API_ENDPOINTS.DOCUMENTS.CONFIRM_TASK_CONTRACT(101)).toBe(
+      '/api/v1/documents/101/task-contract/confirm'
+    )
+  })
+
+  it('builds the generation estimate query from the actual document writer', () => {
+    expect(
+      API_ENDPOINTS.GENERATE.ESTIMATE_COST({
+        provider: 'anthropic',
+        model: 'claude-opus-4-8',
+        targetPages: 45,
+      })
+    ).toBe(
+      '/api/v1/generate/estimate-cost?provider=anthropic&model=claude-opus-4-8&target_pages=45&include_rag=true&include_humanization=false'
+    )
   })
 })

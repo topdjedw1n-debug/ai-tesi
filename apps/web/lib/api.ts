@@ -329,6 +329,13 @@ export const API_ENDPOINTS = {
     EXPORT: (id: number) => `/api/v1/documents/${id}/export`,
     UPLOAD_REQUIREMENTS: (id: number) =>
       `/api/v1/documents/${id}/custom-requirements/upload`,
+    SOURCE_UPLOAD: (id: number) => `/api/v1/documents/${id}/sources/upload`,
+    SOURCE_FILES: (id: number) => `/api/v1/documents/${id}/sources/files`,
+    SOURCE_FILE: (id: number, fileId: number) =>
+      `/api/v1/documents/${id}/sources/files/${fileId}`,
+    TASK_CONTRACT: (id: number) => `/api/v1/documents/${id}/task-contract`,
+    CONFIRM_TASK_CONTRACT: (id: number) =>
+      `/api/v1/documents/${id}/task-contract/confirm`,
     PROVENANCE: (id: number) => `/api/v1/documents/${id}/provenance`,
     FEEDBACK: (id: number) => `/api/v1/documents/${id}/feedback`,
   },
@@ -344,6 +351,28 @@ export const API_ENDPOINTS = {
       `/api/v1/generate/full-document/${documentId}/cancel`,
     MODELS: '/api/v1/generate/models',
     USAGE: (userId: number) => `/api/v1/generate/usage/${userId}`,
+    ESTIMATE_COST: ({
+      provider,
+      model,
+      targetPages,
+      includeRag = true,
+      includeHumanization = false,
+    }: {
+      provider: string
+      model: string
+      targetPages: number
+      includeRag?: boolean
+      includeHumanization?: boolean
+    }) => {
+      const params = new URLSearchParams({
+        provider,
+        model,
+        target_pages: String(targetPages),
+        include_rag: String(includeRag),
+        include_humanization: String(includeHumanization),
+      })
+      return `/api/v1/generate/estimate-cost?${params.toString()}`
+    },
   },
 
   /**

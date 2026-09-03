@@ -66,7 +66,7 @@ function IntakeInput({
       {field.type === 'select' && (
         <select {...common} className={inputClass}>
           {(field.options ?? []).map((option) => (
-            <option key={option.value} value={option.value}>
+            <option key={option.label} value={option.value}>
               {option.label}
             </option>
           ))}
@@ -116,11 +116,6 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
       return
     }
 
-    if (!methodologyFile) {
-      toast.error('Додай методичку університету — без неї генерація не стартує.')
-      return
-    }
-
     const token = getAccessToken()
     if (!token) {
       toast.error('Увійдіть, щоб створити роботу')
@@ -136,54 +131,40 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
 
       setCreatedDocumentId(document.id)
 
-      const formData = new FormData()
-      formData.append('file', methodologyFile)
-      try {
-        await apiClient.post(
-          API_ENDPOINTS.DOCUMENTS.UPLOAD_REQUIREMENTS(document.id),
-          formData,
-          { headers: { Authorization: `Bearer ${token}` } }
-        )
-      } catch (uploadError: any) {
-        let draftRemoved = false
+      if (methodologyFile) {
+        const formData = new FormData()
+        formData.append('file', methodologyFile)
         try {
-          await apiClient.delete(API_ENDPOINTS.DOCUMENTS.DELETE(document.id), {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          draftRemoved = true
-        } catch (cleanupError) {
-          console.error('Failed to remove draft after methodology upload error:', cleanupError)
+          await apiClient.post(
+            API_ENDPOINTS.DOCUMENTS.UPLOAD_REQUIREMENTS(document.id),
+            formData,
+            { headers: { Authorization: `Bearer ${token}` } }
+          )
+        } catch (uploadError: any) {
+          let draftRemoved = false
+          try {
+            await apiClient.delete(API_ENDPOINTS.DOCUMENTS.DELETE(document.id), {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            draftRemoved = true
+          } catch (cleanupError) {
+            console.error('Failed to remove draft after methodology upload error:', cleanupError)
+          }
+          setCreatedDocumentId(null)
+          toast.error(
+            uploadError?.message ||
+              (draftRemoved
+                ? 'Методичку не завантажено. Чернетку прибрано — перевір файл і спробуй ще раз.'
+                : 'Методичку не завантажено, генерацію не запущено. Спробуй ще раз або прибери чернетку вручну.')
+          )
+          return
         }
-        setCreatedDocumentId(null)
-        toast.error(
-          uploadError?.message ||
-            (draftRemoved
-              ? 'Методичку не завантажено. Чернетку прибрано — перевір файл і спробуй ще раз.'
-              : 'Методичку не завантажено, генерацію не запущено. Спробуй ще раз або прибери чернетку вручну.')
-        )
-        return
       }
 
       if (!isUserPaymentFlowEnabled) {
-        // Internal MVP: one action for the manager — create the draft and
-        // immediately kick off generation, then land on the document page
-        // where live progress is shown.
-        try {
-          await apiClient.post(
-            API_ENDPOINTS.GENERATE.FULL,
-            { document_id: document.id },
-            { headers: { Authorization: `Bearer ${token}` } }
-          )
-          toast.success('Роботу створено — генерація пішла')
-        } catch (genError: any) {
-          // The draft was created but generation didn't start (e.g. daily
-          // limit or page cap). Surface the reason; the document page has a
-          // "Generate" button to retry.
-          toast.error(
-            genError?.message ||
-              'Роботу створено, але генерація не стартувала. Відкрий роботу і спробуй ще раз.'
-          )
-        }
+        // The manager reviews sources, assumptions and the estimate on the
+        // document page before the explicit confirm-and-start action.
+        toast.success('Чернетку створено — перевір контракт перед запуском')
         onSuccess?.(document.id)
         router.push(`/dashboard/documents/${document.id}`)
         return
@@ -228,8 +209,8 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           Нова робота
         </h2>
         <p className="mt-1 text-sm text-gray-500">
-          Заповни вимоги так, як їх прислав клієнт, і натисни «Згенерувати» — далі
-          система все зробить сама.
+          Заповни вимоги так, як їх прислав клієнт. Спочатку створимо чернетку,
+          а перед генерацією ти перевіриш контракт і джерела.
         </p>
       </div>
 
@@ -255,13 +236,12 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           >
             Методичка
             <span className="font-normal text-gray-500">
-              {' '}— PDF, DOCX або TXT, до 10 МБ
+              {' '}— опційно, PDF, DOCX або TXT, до 10 МБ
             </span>
           </label>
           <input
             id="methodology"
             type="file"
-            required
             accept=".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
             data-testid="document-methodology-input"
             onChange={(event) => setMethodologyFile(event.target.files?.[0] ?? null)}
@@ -270,6 +250,9 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
           {methodologyFile && (
             <p className="mt-1 text-sm text-gray-500">{methodologyFile.name}</p>
           )}
+          <p className="mt-1 text-sm text-amber-700">
+            Без методички контракт буде на припущеннях — їх потрібно підтвердити перед запуском.
+          </p>
         </div>
 
         <div className="sm:col-span-2 flex justify-end">
@@ -280,7 +263,7 @@ export function CreateDocumentForm({ onSuccess }: CreateDocumentFormProps) {
                 Створюємо…
               </>
             ) : (
-              'Згенерувати роботу'
+              'Створити чернетку'
             )}
           </Button>
         </div>

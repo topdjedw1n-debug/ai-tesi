@@ -100,15 +100,18 @@ export interface QualityEvidenceSummary {
     criticalOverrides: number
   }
   /**
-   * Source base of the upfront pack (source_pack_built / source_pack_rebuilt).
-   * 'failed' = empty pack (generation ran closed-book); 'warning' = the
-   * topic-relevance threshold was relaxed to fill the pack (underfilled).
+   * Latest authoritative source decision. Strict runs expose preflight or an
+   * early insufficiency stop; legacy runs expose pack build/rebuild events.
    */
   sourcePack: {
     status: GateStatus
     packSize: number
     underfilled: boolean
     bilingual: boolean
+    eventType: string | null
+    verified: number | null
+    minimumRequired: number | null
+    message: string | null
   }
   generation: {
     sectionsGenerated: number
@@ -158,6 +161,16 @@ const latestEventOfType = (
 ): ProvenanceEvent | undefined => {
   for (let i = events.length - 1; i >= 0; i--) {
     if (events[i].event_type === eventType) return events[i]
+  }
+  return undefined
+}
+
+const latestEventOfTypes = (
+  events: ProvenanceEvent[],
+  eventTypes: Set<string>
+): ProvenanceEvent | undefined => {
+  for (let i = events.length - 1; i >= 0; i--) {
+    if (eventTypes.has(events[i].event_type)) return events[i]
   }
   return undefined
 }
@@ -339,23 +352,73 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
   ).length
   const criticalOverrides = panelEvents.filter((event) => event.payload?.critical_override === true).length
 
-  // The rebuilt pack (post-outline) is what sections actually cite; fall back
-  // to the initial build for runs that never rebuilt.
-  const sourcePackEvent =
-    latestEventOfType(events, 'source_pack_rebuilt') ??
-    latestEventOfType(events, 'source_pack_built')
+  // Use the newest authoritative source decision, matching the release gate.
+  // Strict runs end in preflight (or an early insufficiency stop); older runs
+  // expose only pack build/rebuild events.
+  const sourcePackEvent = latestEventOfTypes(
+    events,
+    new Set([
+      'source_pack_insufficient',
+      'source_pack_preflight',
+      'source_pack_rebuilt',
+      'source_pack_built',
+    ])
+  )
   const sourcePackPayload = sourcePackEvent?.payload ?? null
-  const sourcePackSize = numberOrZero(sourcePackPayload?.pack_size)
-  const sourcePackUnderfilled = sourcePackPayload?.underfilled === true
+  const sourcePackEventType = sourcePackEvent?.event_type ?? null
+  const sourceBuildEvent = latestEventOfTypes(
+    events,
+    new Set(['source_pack_rebuilt', 'source_pack_built'])
+  )
+  const sourceBuildPayload = sourceBuildEvent?.payload ?? null
+  const isPreflight = sourcePackEventType === 'source_pack_preflight'
+  const isInsufficient = sourcePackEventType === 'source_pack_insufficient'
+  const sourcePackVerified = isPreflight
+    ? numberOrZero(sourcePackPayload?.verified)
+    : isInsufficient
+      ? numberOrZero(sourcePackPayload?.citable_sources)
+      : null
+  const sourcePackMinimum = isPreflight
+    ? numberOrZero(sourcePackPayload?.min_required)
+    : isInsufficient
+      ? numberOrZero(sourcePackPayload?.minimum_required)
+      : null
+  const sourcePackSize = isPreflight
+    ? numberOrZero(sourcePackPayload?.final_size)
+    : isInsufficient
+      ? numberOrZero(sourcePackPayload?.citable_sources)
+      : numberOrZero(sourcePackPayload?.pack_size)
+  const sourcePackUnderfilled = isPreflight
+    ? sourcePackSize < numberOrZero(sourcePackPayload?.target)
+    : isInsufficient || sourcePackPayload?.underfilled === true
   const sourcePackStatus: GateStatus = !sourcePackEvent
     ? 'missing'
-    : sourcePackSize === 0
+    : isInsufficient
       ? 'failed'
-      : sourcePackUnderfilled
-        ? 'warning'
-        : 'passed'
+      : isPreflight
+        ? sourcePackPayload?.status === 'passed' &&
+          sourcePackVerified !== null &&
+          sourcePackMinimum !== null &&
+          sourcePackVerified >= sourcePackMinimum
+          ? 'passed'
+          : 'failed'
+        : sourcePackSize === 0
+          ? 'failed'
+          : sourcePackUnderfilled
+            ? 'warning'
+            : 'passed'
 
   const sectionEvents = events.filter((event) => event.event_type === 'section_generated')
+  const writerEvents = events.filter((event) => event.event_type === 'section_writer')
+  const writerIdentities = writerEvents
+    .map((event) => event.payload?.actual ?? event.payload?.planned)
+    .filter((value): value is string => typeof value === 'string')
+    .map((value) => {
+      const separator = value.indexOf('/')
+      return separator > 0
+        ? { provider: value.slice(0, separator), model: value.slice(separator + 1) }
+        : { provider: '', model: value }
+    })
   const tokensUsed = sectionEvents.reduce(
     (total, event) => total + numberOrZero(event.payload?.tokens_used),
     0
@@ -430,14 +493,28 @@ export function summarizeQualityEvidence(events: ProvenanceEvent[]): QualityEvid
       status: sourcePackStatus,
       packSize: sourcePackSize,
       underfilled: sourcePackUnderfilled,
-      bilingual: sourcePackPayload?.bilingual === true,
+      bilingual:
+        sourcePackPayload?.bilingual === true || sourceBuildPayload?.bilingual === true,
+      eventType: sourcePackEventType,
+      verified: sourcePackVerified,
+      minimumRequired: sourcePackMinimum,
+      message:
+        typeof sourcePackPayload?.message === 'string'
+          ? sourcePackPayload.message
+          : null,
     },
     generation: {
       sectionsGenerated: sectionEvents.length,
       tokensUsed,
       wordsGenerated,
-      providers: uniqueStrings(sectionEvents.map((event) => event.payload?.provider)),
-      models: uniqueStrings(sectionEvents.map((event) => event.payload?.model)),
+      providers: uniqueStrings([
+        ...sectionEvents.map((event) => event.payload?.provider),
+        ...writerIdentities.map((writer) => writer.provider),
+      ]),
+      models: uniqueStrings([
+        ...sectionEvents.map((event) => event.payload?.model),
+        ...writerIdentities.map((writer) => writer.model),
+      ]),
     },
   }
 }

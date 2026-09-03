@@ -7,6 +7,8 @@ import { GenerationProgress } from '@/components/GenerationProgress'
 import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
 import { DocumentSources } from '@/components/dashboard/DocumentSources'
 import { DocumentFeedback } from '@/components/dashboard/DocumentFeedback'
+import { DocumentSourceFiles } from '@/components/dashboard/DocumentSourceFiles'
+import { TaskContractPanel } from '@/components/dashboard/TaskContractPanel'
 import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
 import { documentStatus } from '@/lib/document-status'
 import { downloadDocumentDocx } from '@/lib/download'
@@ -28,6 +30,10 @@ interface Document {
   content: string | null
   outline: any
   word_count: number
+  target_pages: number
+  ai_provider: string
+  ai_model: string
+  work_type: string | null
   created_at: string
   updated_at: string
   sections: Array<{
@@ -48,9 +54,9 @@ export default function DocumentDetailPage() {
   const [document, setDocument] = useState<Document | null>(null)
   const [isLoading, setIsLoading] = useState(true)
   const [isGenerating, setIsGenerating] = useState(false)
-  const [isStarting, setIsStarting] = useState(false)
   const [isDownloading, setIsDownloading] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
+  const [draftRevision, setDraftRevision] = useState(0)
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -95,23 +101,6 @@ export default function DocumentDetailPage() {
     setIsGenerating(false)
     toast.error(`Генерація не вдалася: ${error}`)
     fetchDocument() // Refresh to get updated status
-  }
-
-  const handleStartGeneration = async () => {
-    setIsStarting(true)
-    try {
-      await apiClient.post(API_ENDPOINTS.GENERATE.FULL, { document_id: documentId })
-      toast.success('Генерація пішла')
-      setIsGenerating(true)
-      // Optimistically flip status so the progress panel replaces the empty state.
-      setDocument((prev) => (prev ? { ...prev, status: 'generating' } : prev))
-    } catch (error: any) {
-      // The backend returns a human-readable detail for 400/402/429
-      // (page cap, payment required, daily limits) — surface it directly.
-      toast.error(error?.message || 'Не вдалося запустити генерацію')
-    } finally {
-      setIsStarting(false)
-    }
   }
 
   const handleCancelGeneration = async () => {
@@ -298,31 +287,27 @@ export default function DocumentDetailPage() {
           </div>
         )}
 
-        {/* Empty State */}
+        {/* Draft review: contract, uploaded sources, estimate, explicit start */}
         {document.status === 'draft' && !document.content && (
-          <div className="bg-white shadow rounded-lg p-12 text-center">
-            <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-            <h3 className="mt-2 text-sm font-medium text-gray-900">Роботу ще не згенеровано</h3>
-            <p className="mt-1 text-sm text-gray-500">
-              Це поки чернетка. Натисни «Згенерувати», щоб запустити процес.
-            </p>
-            <div className="mt-6">
-              <Button
-                onClick={handleStartGeneration}
-                disabled={isStarting}
-                data-testid="start-generation-button"
-              >
-                {isStarting ? (
-                  <>
-                    <LoadingSpinner className="h-4 w-4 mr-2" />
-                    Запускаємо…
-                  </>
-                ) : (
-                  'Згенерувати'
-                )}
-              </Button>
-            </div>
-          </div>
+          <TaskContractPanel
+            documentId={documentId}
+            targetPages={document.target_pages}
+            provider={document.ai_provider || 'anthropic'}
+            model={document.ai_model || 'claude-opus-4-8'}
+            refreshKey={draftRevision}
+            onGenerationStarted={() => {
+              setIsGenerating(true)
+              setDocument((current) =>
+                current ? { ...current, status: 'generating' } : current
+              )
+            }}
+          >
+            <DocumentSourceFiles
+              documentId={documentId}
+              editable
+              onChanged={() => setDraftRevision((current) => current + 1)}
+            />
+          </TaskContractPanel>
         )}
       </div>
     </DashboardLayout>

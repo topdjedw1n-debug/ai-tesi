@@ -3,7 +3,8 @@
  *
  * With the user payment flow off, the form must not fetch or show pricing,
  * must not enter the payment step, and must route straight to the document
- * detail page after creating the draft (kicking generation off on the way).
+ * detail page after creating the draft. Generation may start only after the
+ * manager reviews and confirms the task contract there.
  *
  * The form is config-driven: fields come from lib/intake-fields.ts and
  * non-core fields are serialized into additional_requirements.
@@ -71,11 +72,11 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
       screen.queryByRole('button', { name: /оплат/i })
     ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /згенерувати роботу/i })
+      screen.getByRole('button', { name: /створити чернетку/i })
     ).toBeInTheDocument()
   })
 
-  it('creates the draft, starts generation and routes to the document page', async () => {
+  it('creates without a methodology, does not start generation, and routes to review', async () => {
     render(<CreateDocumentForm />)
 
     fireEvent.change(screen.getByTestId('document-topic-input'), {
@@ -87,12 +88,6 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     fireEvent.change(screen.getByTestId('document-requirements-input'), {
       target: { value: 'Use the university methodology template.' },
     })
-    const methodology = new File(['university rules'], 'linee-guida.pdf', {
-      type: 'application/pdf',
-    })
-    fireEvent.change(screen.getByTestId('document-methodology-input'), {
-      target: { files: [methodology] },
-    })
     fireEvent.submit(screen.getByTestId('create-document-form'))
 
     await waitFor(() => {
@@ -101,6 +96,7 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
         expect.objectContaining({
           target_pages: 45,
           citation_style: 'apa',
+          work_type: 'tesi_magistrale',
           additional_requirements: expect.stringContaining('Deadline: 2026-07-15'),
         }),
         expect.any(Object)
@@ -108,24 +104,21 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     })
     const payload = (apiClient.post as jest.Mock).mock.calls[0][1]
     expect(payload.title).toContain('artificial intelligence')
-    expect(payload.additional_requirements).toContain('Тип роботи: Магістерська')
+    expect(payload.additional_requirements).not.toContain('Тип роботи:')
     expect(payload.additional_requirements).toContain('Citation style: APA')
     expect(payload.additional_requirements).toContain('Use the university methodology template.')
 
-    // Free MVP mode: generation is kicked off right after the draft.
-    await waitFor(() => {
-      expect(apiClient.post).toHaveBeenCalledWith(
-        '/api/v1/generate/full-document',
-        { document_id: 123 },
-        expect.any(Object)
-      )
-    })
+    expect(apiClient.post).not.toHaveBeenCalledWith(
+      '/api/v1/generate/full-document',
+      expect.anything(),
+      expect.anything()
+    )
     expect(mockRouter.push).toHaveBeenCalledWith('/dashboard/documents/123')
     // Never enters the payment step.
     expect(screen.queryByText(/потрібна оплата/i)).not.toBeInTheDocument()
   })
 
-  it('uploads the selected university methodology before generation starts', async () => {
+  it('uploads an optional methodology before routing, without starting generation', async () => {
     render(<CreateDocumentForm />)
 
     fireEvent.change(screen.getByTestId('document-topic-input'), {
@@ -151,11 +144,29 @@ describe('CreateDocumentForm — sales disabled (Stage 0)', () => {
     const uploadIndex = calls.findIndex(
       ([url]) => url === '/api/v1/documents/123/custom-requirements/upload'
     )
-    const generationIndex = calls.findIndex(
-      ([url]) => url === '/api/v1/generate/full-document'
-    )
     expect(uploadIndex).toBeGreaterThan(-1)
-    expect(generationIndex).toBeGreaterThan(uploadIndex)
+    expect(calls.some(([url]) => url === '/api/v1/generate/full-document')).toBe(false)
+    expect(mockRouter.push).toHaveBeenCalledWith('/dashboard/documents/123')
+  })
+
+  it('maps the selected UI work type to the backend contract field', async () => {
+    render(<CreateDocumentForm />)
+
+    fireEvent.change(screen.getByTestId('document-topic-input'), {
+      target: { value: 'Digital governance in Italian public universities' },
+    })
+    fireEvent.change(screen.getByTestId('document-workType-input'), {
+      target: { value: 'tesi_triennale' },
+    })
+    fireEvent.submit(screen.getByTestId('create-document-form'))
+
+    await waitFor(() => {
+      expect(apiClient.post).toHaveBeenCalledWith(
+        '/api/v1/documents/',
+        expect.objectContaining({ work_type: 'tesi_triennale' }),
+        expect.any(Object)
+      )
+    })
   })
 
   it('shows a validation error when the topic is missing', async () => {

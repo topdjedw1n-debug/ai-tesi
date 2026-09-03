@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { CheckCircleIcon, ExclamationTriangleIcon, ClockIcon } from '@heroicons/react/24/outline'
 
@@ -11,7 +11,7 @@ interface GenerationProgressProps {
 }
 
 interface ProgressState {
-  status: 'queued' | 'running' | 'completed' | 'failed'
+  status: 'queued' | 'running' | 'retrying' | 'completed' | 'failed'
   progress: number
   currentSection?: string
   estimatedTime?: string
@@ -24,7 +24,7 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
     progress: 0,
   })
 
-  const { isConnected, isConnecting, error: wsError, lastMessage } = useWebSocket({
+  const { isConnected, isConnecting, error: wsError } = useWebSocket({
     documentId,
     enabled: true,
     onMessage: (message) => {
@@ -50,6 +50,14 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
           error: errorMsg,
         })
         onError?.(errorMsg)
+      } else if (message.type === 'job_retrying') {
+        setProgressState((current) => ({
+          ...current,
+          status: 'retrying',
+          currentSection: undefined,
+          estimatedTime: undefined,
+          error: undefined,
+        }))
       } else if (message.type === 'progress_update') {
         setProgressState({
           status: 'running',
@@ -78,6 +86,8 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
         return 'bg-red-500'
       case 'running':
         return 'bg-primary-500'
+      case 'retrying':
+        return 'bg-amber-500'
       default:
         return 'bg-gray-400'
     }
@@ -91,6 +101,8 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
         return <ExclamationTriangleIcon className="h-5 w-5 text-red-500" />
       case 'running':
         return <ClockIcon className="h-5 w-5 text-primary-500 animate-spin" />
+      case 'retrying':
+        return <ClockIcon className="h-5 w-5 text-amber-500" />
       default:
         return <ClockIcon className="h-5 w-5 text-gray-400" />
     }
@@ -102,6 +114,8 @@ export function GenerationProgress({ documentId, onComplete, onError }: Generati
         return 'В черзі'
       case 'running':
         return 'Генерується…'
+      case 'retrying':
+        return 'Повторна спроба'
       case 'completed':
         return 'Готово'
       case 'failed':

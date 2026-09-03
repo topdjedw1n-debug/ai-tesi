@@ -14,6 +14,7 @@ jest.mock('@/lib/api/admin', () => ({
     recordDetectorResult: jest.fn(),
     releaseProductionCase: jest.fn(),
     overrideReleaseGate: jest.fn(),
+    getInternalReviewDownload: jest.fn(),
   },
 }))
 
@@ -96,6 +97,13 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       ...aiDetectorGate,
       status: 'passed',
     })
+    ;(adminApiClient.getInternalReviewDownload as jest.Mock).mockResolvedValue({
+      document_id: 123,
+      title: 'Italy thesis',
+      content: null,
+      download_url: '/api/v1/documents/download/file?token=review-token',
+    })
+    window.open = jest.fn()
   })
 
   it('shows consolidated QA evidence and records structured detector results', async () => {
@@ -138,5 +146,25 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       .calls[0][2]
     expect(submittedPayload).not.toHaveProperty('artifact_identifier')
     expect(submittedPayload).not.toHaveProperty('artifact_fingerprint_sha256')
+  })
+
+  it('downloads the bound pre-release DOCX and shows its sha256', async () => {
+    render(<ProductionCaseDetailPage />)
+
+    expect(await screen.findByTestId('docx-fingerprint')).toHaveTextContent(
+      productionCase.document.artifact_bindings.docx.fingerprint_sha256
+    )
+    fireEvent.click(
+      screen.getByRole('button', { name: 'DOCX для Compilatio (pre-release)' })
+    )
+
+    await waitFor(() => {
+      expect(adminApiClient.getInternalReviewDownload).toHaveBeenCalledWith(123)
+    })
+    expect(window.open).toHaveBeenCalledWith(
+      'http://localhost:8000/api/v1/documents/download/file?token=review-token',
+      '_blank',
+      'noopener'
+    )
   })
 })

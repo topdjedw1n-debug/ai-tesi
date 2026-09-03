@@ -21,7 +21,7 @@ export interface IntakeField {
   placeholder?: string
   options?: Array<{ value: string; label: string }>
   /** Maps to a Document API column instead of additional_requirements */
-  core?: 'title' | 'topic' | 'language' | 'pages'
+  core?: 'title' | 'topic' | 'language' | 'pages' | 'work_type'
   /** Line label used when serializing into additional_requirements */
   requirementsLabel?: string
   defaultValue?: string | number
@@ -76,14 +76,15 @@ export const INTAKE_FIELDS: IntakeField[] = [
     key: 'workType',
     label: 'Тип роботи',
     type: 'select',
-    requirementsLabel: 'Тип роботи',
-    defaultValue: 'Магістерська',
+    required: true,
+    core: 'work_type',
+    defaultValue: 'tesi_magistrale',
     options: [
-      { value: 'Дипломна (бакалавр)', label: 'Дипломна (бакалавр)' },
-      { value: 'Магістерська', label: 'Магістерська' },
-      { value: 'Курсова', label: 'Курсова' },
-      { value: 'Реферат', label: 'Реферат' },
-      { value: 'Есе', label: 'Есе' },
+      { value: 'tesi_triennale', label: 'Дипломна (бакалавр)' },
+      { value: 'tesi_magistrale', label: 'Магістерська' },
+      { value: 'report', label: 'Курсова' },
+      { value: 'essay', label: 'Реферат' },
+      { value: 'essay', label: 'Есе' },
     ],
     half: true,
   },
@@ -138,6 +139,7 @@ export function buildDocumentPayload(values: IntakeFormValues): {
   language: string
   target_pages: number
   citation_style: string
+  work_type: string
   additional_requirements: string
 } {
   const topic = String(values.topic ?? '').trim()
@@ -160,6 +162,7 @@ export function buildDocumentPayload(values: IntakeFormValues): {
     language: String(values.language || 'it'),
     target_pages: Number(values.pages) || 0,
     citation_style: 'apa',
+    work_type: String(values.workType || 'tesi_magistrale'),
     additional_requirements: lines.join('\n'),
   }
 }

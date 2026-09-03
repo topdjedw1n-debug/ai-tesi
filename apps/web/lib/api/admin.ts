@@ -121,6 +121,13 @@ export interface ProductionCaseListResponse {
   total_pages: number
 }
 
+export interface InternalReviewDownload {
+  document_id: number
+  title: string
+  content: string | null
+  download_url: string
+}
+
 export interface ReleaseGate {
   id: number | null
   production_case_id: number
@@ -664,6 +671,15 @@ export const adminApiClient = {
 
   async getProductionCase(id: number): Promise<ProductionCase> {
     const response = await apiClient.get(`/api/v1/admin/production-cases/${id}`)
+    return unwrapResponse(response)
+  },
+
+  async getInternalReviewDownload(
+    documentId: number
+  ): Promise<InternalReviewDownload> {
+    const response = await apiClient.post(
+      `/api/v1/admin/documents/${documentId}/download`
+    )
     return unwrapResponse(response)
   },
 
