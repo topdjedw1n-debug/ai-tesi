@@ -1,7 +1,8 @@
 # Thesica Telegram operator assistant
 
-Status: RELEASE AUTHORIZED on 2026-09-05. The founder explicitly requested commit,
-push and deployment. Live activation evidence is recorded separately after release.
+Status: DEPLOYED on 2026-09-05 (Europe/Kyiv), healthy, awaiting Tanya's Telegram ID.
+The founder explicitly authorized commit, push and deployment. See
+[release evidence](../evidence/TELEGRAM-BOT-RELEASE-2026-09-05.md).
 The bot is a separate assistant; it does not share the founder's
 Codex account, personal memory, live conversation or deployment credentials.
 
@@ -49,7 +50,7 @@ non-exempt users retain their configured count/token quotas.
 6. The assistant uses Anthropic Messages with tool use and image input. Model is
    separately configurable; this does not change the document-writing model.
    Initial setup uses `claude-sonnet-5`; the production provider's model listing
-   confirmed this ID on 2026-09-05. An actual response still needs a live check.
+   confirmed this ID on 2026-09-05, and a live text response succeeded.
 
 The LLM cannot choose a Telegram recipient, change its mapped identity, issue
 arbitrary HTTP requests, run commands, confirm a run or deploy. The transport
@@ -67,7 +68,8 @@ from before this journal version is not retroactively reconstructed.
 The journal is never included in model context or exposed through a bot tool.
 `/forget`, queue cleanup and account rebinding do not erase it; each event retains
 the Thesica user ID at recording time. Start explains owner-visible logging.
-No production activation has occurred, so no real operator transcript exists yet.
+The worker is active with an empty Telegram mapping. No operator transcript exists
+yet; the founder deferred Tanya's enrollment until a convenient time.
 
 ## Owner transcript access
 
@@ -237,8 +239,10 @@ Local checks on 2026-09-04:
   emitted unrelated maintenance-setting warnings because that middleware retained
   its separate empty SQLite connection; gateway/enqueue transactions used PostgreSQL.
 
-Live Telegram, model response and production activation are not yet verified.
-No actual paid document was started by these tests; no production data changed.
+The above are development checks. Production deployment, Telegram credentials,
+worker heartbeat, assistant response and owner export were subsequently verified
+in the linked release record. The additive schema was applied. No actual paid
+document was started; Tanya's enrollment and first real conversation remain pending.
 
 Sources: [Telegram Bot API](https://core.telegram.org/bots/api),
 [Anthropic tool use](https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview),
