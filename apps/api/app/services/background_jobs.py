@@ -46,6 +46,8 @@ from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_identity import sources_equivalent
 from app.services.ai_pipeline.source_pack import (
     MIN_CITABLE_SOURCES,
+    PackedSource,
+    SourcePack,
     SourcePackBuilder,
 )
 from app.services.ai_pipeline.source_pack_preflight import (
@@ -883,14 +885,17 @@ async def _translate_pack_terms(
         return None, None
 
 
-def _merge_source_packs(uploaded_pack, api_pack, *, limit: int | None = None):
+def _merge_source_packs(
+    uploaded_pack: SourcePack,
+    api_pack: SourcePack,
+    *,
+    limit: int | None = None,
+) -> SourcePack:
     """Uploaded sources first and immutable; API sources fill the rest.
 
     Key collisions resolve in favour of the uploaded file (its key is the
     one cited in text); the API source gets a suffixed key or is skipped.
     """
-    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
-
     resolved_limit = limit or settings.SOURCE_PACK_TARGET_SIZE
     taken = {ps.citation_key.lower() for ps in uploaded_pack.sources}
     merged = list(uploaded_pack.sources)
@@ -1514,6 +1519,9 @@ class BackgroundJobService:
                                         },
                                     )
                                 if fenced_execution:
+                                    assert job_id is not None
+                                    assert lease_owner is not None
+                                    assert lease_token is not None
                                     await update_generation_document(
                                         db,
                                         job_id=job_id,

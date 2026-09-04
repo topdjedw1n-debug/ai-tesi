@@ -859,8 +859,8 @@ def _reset_document_after_input_change(
 ) -> None:
     """Changed grounding inputs invalidate any generated/released state —
     identical semantics to a methodology change."""
-    document.contract_confirmed_sha256 = None
-    document.contract_confirmed_at = None
+    document.contract_confirmed_sha256 = None  # type: ignore[assignment]
+    document.contract_confirmed_at = None  # type: ignore[assignment]
     if document.status not in {"draft", "payment_pending", "payment_failed"}:
         document.status = "draft"
         document.completed_at = None

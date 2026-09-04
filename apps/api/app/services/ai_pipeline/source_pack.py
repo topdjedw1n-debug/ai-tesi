@@ -550,13 +550,13 @@ class SourcePackBuilder:
         # validates both in __post_init__): an uncitable source in the pack
         # crashes section generation mid-run (doc-9 failure: an authorless
         # Crossref row). Drop them here, before scoring.
-        citable = [src for src in deduped if src.authors and src.year]
-        if len(citable) < len(deduped):
+        metadata_complete = [src for src in deduped if src.authors and src.year]
+        if len(metadata_complete) < len(deduped):
             logger.info(
-                f"Source pack dropped {len(deduped) - len(citable)} uncitable "
+                f"Source pack dropped {len(deduped) - len(metadata_complete)} uncitable "
                 f"candidate(s) (missing author/year) for document {document_id}"
             )
-        deduped = citable
+        deduped = metadata_complete
 
         # Apply suitability before the candidate-reserve cut. Otherwise a page
         # full of high-ranked dissertations can consume every reserve slot and
