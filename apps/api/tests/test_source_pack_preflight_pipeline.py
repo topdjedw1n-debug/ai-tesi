@@ -46,18 +46,19 @@ def _stub_claim_judge(monkeypatch):
 
 
 def _preflight_settings(**overrides):
-    return make_settings(
-        SOURCE_PACK_PREFLIGHT_ENABLED=True,
-        CITATION_VERIFICATION_ENABLED=True,
-        CITATION_VERIFICATION_POLICY="strict",
-        CLAIM_VERIFICATION_ENABLED=True,
-        CLAIM_VERIFICATION_BLOCKING=True,
-        SOURCE_PACK_TARGET_SIZE=1,
-        SOURCE_PACK_MIN_VERIFIED=1,
-        SOURCE_PACK_CANDIDATE_RESERVE_SIZE=2,
-        PROVENANCE_LEDGER_ENABLED=True,
-        **overrides,
-    )
+    values = {
+        "SOURCE_PACK_PREFLIGHT_ENABLED": True,
+        "CITATION_VERIFICATION_ENABLED": True,
+        "CITATION_VERIFICATION_POLICY": "strict",
+        "CLAIM_VERIFICATION_ENABLED": True,
+        "CLAIM_VERIFICATION_BLOCKING": True,
+        "SOURCE_PACK_TARGET_SIZE": 1,
+        "SOURCE_PACK_MIN_VERIFIED": 1,
+        "SOURCE_PACK_CANDIDATE_RESERVE_SIZE": 2,
+        "PROVENANCE_LEDGER_ENABLED": True,
+    }
+    values.update(overrides)
+    return make_settings(**values)
 
 
 def _verified_result(pack: SourcePack) -> VerificationResult:
@@ -170,6 +171,94 @@ async def test_preflight_event_precedes_writer_and_writer_gets_verified_pack(
     assert event_types.index("source_pack_preflight") < event_types.index(
         "section_writer"
     )
+
+
+@pytest.mark.asyncio
+async def test_preflight_keeps_initial_topic_sources_when_adding_section_candidates(
+    db_session, monkeypatch
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        _preflight_settings(
+            SOURCE_PACK_TARGET_SIZE=24,
+            SOURCE_PACK_MIN_VERIFIED=18,
+            SOURCE_PACK_CANDIDATE_RESERVE_SIZE=48,
+        ),
+    )
+    user, document = await seed_document(
+        db_session,
+        "preflight-merge@example.com",
+        sections=["Introduzione"],
+    )
+    initial = _release_pack(int(document.id))
+    initial.sources = initial.sources[:18]
+    initial.bilingual = True
+    section_specific = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[
+            PackedSource(
+                SourceDoc(
+                    title="Section-specific verified evidence",
+                    authors=["Bianchi"],
+                    year=2023,
+                    abstract="Evidence for the promised section",
+                    doi="10.1000/section-specific",
+                    source_type="journal-article",
+                ),
+                "Bianchi2023",
+                0.8,
+            )
+        ],
+    )
+    empty_top_up = SourcePack(
+        document_id=int(document.id),
+        topic=str(document.topic),
+        sources=[],
+    )
+
+    with ExitStack() as stack:
+        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
+        mocks["generate_section"].return_value = {
+            "section_title": "Introduzione",
+            "section_index": 1,
+            "content": "Testo (Bianchi, 2023) con il 30% di dati.",
+            "content_with_markers": "Testo [Bianchi2023] con il 30% di dati.",
+            "pack_keys_used": ["Bianchi2023"],
+            "citations": [],
+            "bibliography": [],
+            "sources_used": 1,
+            "humanized": False,
+        }
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(side_effect=[initial, section_specific, empty_top_up]),
+            )
+        )
+        verifier = MagicMock()
+        verifier.verify_sources = AsyncMock(side_effect=_verified_inputs)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs.CitationVerifier", return_value=verifier
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._load_source_pack",
+                AsyncMock(side_effect=load_source_pack),
+            )
+        )
+
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+        writer_pack = mocks["generate_section"].call_args.kwargs["source_pack"]
+        writer_titles = {item.source.title for item in writer_pack.sources}
+        assert {item.source.title for item in initial.sources} <= writer_titles
+        assert section_specific.sources[0].source.title in writer_titles
+        assert writer_pack.bilingual is True
 
 
 @pytest.mark.asyncio

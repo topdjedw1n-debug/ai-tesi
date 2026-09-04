@@ -492,16 +492,28 @@ class SourcePackBuilder:
 
         # Domain first: anchored queries need it, and scoring reuses it.
         topic_terms = content_tokens(topic)
-        for t in section_titles or []:
-            topic_terms |= content_tokens(t)
+        primary_scopes: list[set[str]] = []
+        if topic_terms:
+            primary_scopes.append(topic_terms)
+        for title in section_titles or []:
+            scope = topic_terms | content_tokens(title)
+            if scope and scope not in primary_scopes:
+                primary_scopes.append(scope)
 
-        alt_terms: set[str] = set()
-        if alt_topic:
-            alt_terms = content_tokens(alt_topic)
-            for t in alt_section_titles or []:
-                alt_terms |= content_tokens(t)
+        alt_terms = content_tokens(alt_topic) if alt_topic else set()
+        alt_scopes: list[set[str]] = []
+        if alt_terms:
+            alt_scopes.append(alt_terms)
+        for title in alt_section_titles or []:
+            scope = alt_terms | content_tokens(title)
+            if scope and scope not in alt_scopes:
+                alt_scopes.append(scope)
 
-        domain = self._detect_domain(topic_terms | alt_terms)
+        scoring_scopes = [*primary_scopes, *alt_scopes]
+        domain_terms: set[str] = set()
+        for scope in scoring_scopes:
+            domain_terms |= scope
+        domain = self._detect_domain(domain_terms)
 
         queries = self._build_queries(topic, section_titles, language, domain)
         if alt_topic:
@@ -571,22 +583,19 @@ class SourcePackBuilder:
             )
         deduped = eligible
 
-        # Bilingual scoring: max() of the two passes, so a good EN source is
-        # not killed by comparison against Italian tokens (and max only ever
-        # RAISES scores, so existing monolingual packs cannot degrade). The
-        # anchor gate and off_topic penalties apply in both passes. A short
-        # alt topic would inflate coverage via a small denominator — mitigated
-        # by folding the alt section titles into alt_terms (mirrors
-        # topic_terms).
+        # Score the document topic and every topic+section scope independently.
+        # A focused paper should support one promised section; it should not
+        # need to contain vocabulary from every chapter in the outline.  The
+        # bilingual scopes use the same rule, and max() means a valid source in
+        # either language survives without weakening the shared threshold.
         scored: list[tuple[float, SourceDoc]] = [
             (
                 max(
-                    self._on_topic_score(src, topic_terms, domain),
                     (
-                        self._on_topic_score(src, alt_terms, domain)
-                        if alt_terms
-                        else 0.0
+                        self._on_topic_score(src, scope, domain)
+                        for scope in scoring_scopes
                     ),
+                    default=0.0,
                 ),
                 src,
             )

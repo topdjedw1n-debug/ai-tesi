@@ -886,22 +886,28 @@ async def _translate_pack_terms(
 
 
 def _merge_source_packs(
-    uploaded_pack: SourcePack,
-    api_pack: SourcePack,
+    base_pack: SourcePack,
+    additional_pack: SourcePack,
     *,
     limit: int | None = None,
 ) -> SourcePack:
-    """Uploaded sources first and immutable; API sources fill the rest.
+    """Preserve the base pack first; new candidates fill the remaining slots.
 
-    Key collisions resolve in favour of the uploaded file (its key is the
-    one cited in text); the API source gets a suffixed key or is skipped.
+    Equivalent sources are kept once. Key collisions resolve in favour of the
+    base pack; the additional source gets a suffixed key or is skipped. This
+    keeps uploaded sources immutable and also lets preflight retain the
+    already-selected topic pack while adding section-specific candidates.
     """
     resolved_limit = limit or settings.SOURCE_PACK_TARGET_SIZE
-    taken = {ps.citation_key.lower() for ps in uploaded_pack.sources}
-    merged = list(uploaded_pack.sources)
-    for packed in getattr(api_pack, "sources", None) or []:
+    taken = {ps.citation_key.lower() for ps in base_pack.sources}
+    merged = list(base_pack.sources)
+    for packed in getattr(additional_pack, "sources", None) or []:
         if len(merged) >= resolved_limit:
             break
+        if any(
+            sources_equivalent(existing.source, packed.source) for existing in merged
+        ):
+            continue
         key = packed.citation_key
         if key.lower() in taken:
             for suffix in "bcdefghijklmnopqrstuvwxyz":
@@ -916,22 +922,25 @@ def _merge_source_packs(
         merged.append(packed)
     context_capacity = max(resolved_limit - len(merged), 0)
     merged_context = [
-        *list(getattr(uploaded_pack, "context_sources", None) or []),
-        *list(getattr(api_pack, "context_sources", None) or []),
+        *list(getattr(base_pack, "context_sources", None) or []),
+        *list(getattr(additional_pack, "context_sources", None) or []),
     ][:context_capacity]
     pack = SourcePack(
-        document_id=uploaded_pack.document_id,
-        topic=uploaded_pack.topic,
+        document_id=base_pack.document_id,
+        topic=base_pack.topic,
         sources=merged,
-        underfilled=bool(getattr(api_pack, "underfilled", False)),
-        bilingual=bool(getattr(api_pack, "bilingual", False)),
+        underfilled=len(merged) < resolved_limit,
+        bilingual=bool(
+            getattr(base_pack, "bilingual", False)
+            or getattr(additional_pack, "bilingual", False)
+        ),
         provider_errors=[
-            *list(getattr(uploaded_pack, "provider_errors", []) or []),
-            *list(getattr(api_pack, "provider_errors", []) or []),
+            *list(getattr(base_pack, "provider_errors", []) or []),
+            *list(getattr(additional_pack, "provider_errors", []) or []),
         ],
         context_sources=merged_context,
     )
-    pack.passages = uploaded_pack.passages
+    pack.passages = base_pack.passages
     return pack
 
 
@@ -1675,13 +1684,19 @@ class BackgroundJobService:
                             retrieval_page=1,
                             raise_on_provider_error=True,
                         )
+                        # The initial topic pack already passed the same strict
+                        # relevance floor and may contain valid broad sources
+                        # that a later provider response does not repeat. Keep
+                        # it, then add section-specific candidates before the
+                        # one verification pass. Uploaded sources are already
+                        # part of source_pack, so this covers both paths.
                         candidate_pack = (
                             _merge_source_packs(
-                                uploaded_pack,
+                                source_pack,
                                 api_candidates,
                                 limit=settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE,
                             )
-                            if uploaded_pack is not None
+                            if source_pack is not None
                             else api_candidates
                         )
                         verifier = CitationVerifier()

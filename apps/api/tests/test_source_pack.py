@@ -222,6 +222,49 @@ async def test_preflight_candidate_build_never_relaxes_relevance_threshold():
 
 
 @pytest.mark.asyncio
+async def test_post_outline_scoring_keeps_source_relevant_to_one_section():
+    """A paper must not need to cover every chapter to remain citable.
+
+    Post-outline retrieval adds every chapter title as a search query.  The
+    relevance gate must score those chapter scopes independently; merging all
+    chapter terms into one denominator makes a focused, on-topic paper look
+    irrelevant as the outline grows.
+    """
+    builder = SourcePackBuilder()
+    focused = SourceDoc(
+        title="Artificial intelligence in education",
+        authors=["Researcher"],
+        year=2024,
+        abstract="personalized student learning in education",
+        source_type="journal-article",
+    )
+    builder.rag.search_crossref = AsyncMock(return_value=[focused])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic="artificial intelligence education",
+        language="en",
+        document_id=1,
+        section_titles=[
+            "historical foundations and theoretical frameworks",
+            "international regulation institutional governance compliance",
+            "teacher professional development classroom implementation",
+            "student assessment academic integrity evaluation",
+            "privacy surveillance data protection cybersecurity",
+            "accessibility inclusion socioeconomic inequality barriers",
+            "labour market competencies employment transformation",
+            "ethical accountability transparency discrimination risks",
+        ],
+        target_size=10,
+        min_on_topic_score=0.35,
+        allow_threshold_relaxation=False,
+    )
+
+    assert [item.source.title for item in pack.sources] == [focused.title]
+    assert pack.sources[0].on_topic_score >= 0.35
+
+
+@pytest.mark.asyncio
 async def test_student_works_do_not_consume_candidate_reserve_slots():
     builder = SourcePackBuilder()
     blocked = [
