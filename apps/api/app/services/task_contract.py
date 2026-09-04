@@ -183,8 +183,9 @@ def task_contract_sha256(document: Any) -> str:
     """Fingerprint of the contract-relevant document inputs.
 
     Confirmation binds to this sha: uploading a methodology, editing the
-    intake or changing sources shifts it, so a stale confirmation never
-    lets a changed task through.
+    intake or changing requirements shifts it. Uploaded-source mutations
+    explicitly clear the stored confirmation in the source endpoints, so a
+    stale confirmation never lets a changed task through.
     """
     payload = {
         "version": 1,

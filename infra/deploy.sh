@@ -8,10 +8,9 @@
 # database is dumped first and the current images are tagged, so a failed
 # deploy can be rolled back with the commands printed at the end.
 #
-# Scope of this deploy: the code that is already on the server after rsync.
-# It deliberately does NOT change generation behaviour — METHODOLOGY_REQUIRED,
-# free-generation limits and the source-pack preflight profile stay exactly as
-# they are and are handled as a separate, verified step (docs/AGENT_SYNC.md §13).
+# Scope of this deploy: the code and literal release profile already copied to
+# the server after rsync. The compose contract owns the manager-generation
+# limits and quality gates, so server .env drift cannot silently change them.
 set -euo pipefail
 
 ROOT=/opt/thesica

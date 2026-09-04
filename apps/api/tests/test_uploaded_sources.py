@@ -1,6 +1,7 @@
 """Uploaded scientific PDFs: parsing, metadata, passages, endpoint flow."""
 
 import io
+from datetime import UTC, datetime
 from unittest.mock import AsyncMock, patch
 
 import pytest
@@ -219,6 +220,36 @@ async def test_upload_flow_persists_pages_and_digest(db_session):
                 db=db_session,
             )
     assert exc_info.value.status_code == 409
+
+
+@pytest.mark.asyncio
+async def test_source_upload_invalidates_task_contract_confirmation(db_session):
+    user, document = await _seed_document(
+        db_session, "sources-contract-reset@example.com"
+    )
+    document.contract_confirmed_sha256 = "a" * 64
+    document.contract_confirmed_at = datetime.now(UTC)
+    await db_session.commit()
+
+    with patch.object(
+        documents_endpoint.StorageService,
+        "upload_file",
+        new=AsyncMock(return_value="s3://bucket/contract-reset.pdf"),
+    ):
+        await _upload_handler()(
+            request=_http_request(),
+            document_id=int(document.id),
+            file=UploadFile(
+                filename="Rossi_2021_AI_PMI.pdf",
+                file=io.BytesIO(_make_pdf([PAGE1, PAGE2])),
+            ),
+            current_user=user,
+            db=db_session,
+        )
+
+    await db_session.refresh(document)
+    assert document.contract_confirmed_sha256 is None
+    assert document.contract_confirmed_at is None
 
 
 @pytest.mark.asyncio
