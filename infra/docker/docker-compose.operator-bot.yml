@@ -1,0 +1,61 @@
+# Optional overlay. Deploy only after the founder approves this exact release.
+# docker compose -f docker-compose.prod.yml -f docker-compose.operator-bot.yml ...
+services:
+  # Keep the worker's backing services available after a server reboot.
+  postgres:
+    restart: unless-stopped
+  redis:
+    restart: unless-stopped
+  minio:
+    restart: unless-stopped
+  web:
+    restart: unless-stopped
+  api:
+    restart: unless-stopped
+    env_file:
+      - /etc/thesica/operator-bot/api.env
+    networks:
+      - ai-thesis-network
+      - operator-bot-network
+
+  operator-bot:
+    build:
+      context: ../..
+      dockerfile: apps/operator-bot/Dockerfile
+    image: thesica-operator-bot
+    restart: unless-stopped
+    init: true
+    read_only: true
+    user: "10001:10001"
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 128
+    mem_limit: 512m
+    cpus: 1.0
+    env_file:
+      - /etc/thesica/operator-bot/bot.env
+    environment:
+      THESICA_API_URL: http://api:8000
+      BOT_STATE_DIR: /state
+    volumes:
+      - operator_bot_state:/state
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    networks:
+      - operator-bot-network
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: [CMD, python, -c, "import os,time; assert time.time()-os.stat('/state/heartbeat').st_mtime < 1200"]
+      interval: 60s
+      timeout: 5s
+      start_period: 90s
+      retries: 3
+
+networks:
+  operator-bot-network:
+    driver: bridge
+
+volumes:
+  operator_bot_state:

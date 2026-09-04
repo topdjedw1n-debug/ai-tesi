@@ -24,6 +24,7 @@ from app.api.v1.endpoints import (
     editor_tasks,
     generate,
     jobs,
+    operator_bot,
     payment,
     pricing,
     production_cases,
@@ -187,6 +188,9 @@ app.include_router(auth.router, prefix="/api/v1/auth", tags=["authentication"])
 app.include_router(user_endpoints.router, prefix="/api/v1/user", tags=["user"])
 app.include_router(generate.router, prefix="/api/v1/generate", tags=["generation"])
 app.include_router(jobs.router, prefix="/api/v1/jobs", tags=["jobs"])
+app.include_router(
+    operator_bot.router, prefix="/api/v1/operator-bot", tags=["operator-bot"]
+)
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["documents"])
 app.include_router(admin.router, prefix="/api/v1/admin", tags=["admin"])
 app.include_router(

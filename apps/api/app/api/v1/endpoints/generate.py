@@ -3,6 +3,7 @@ AI generation endpoints
 """
 
 import logging
+from collections.abc import Callable
 from datetime import datetime
 from typing import Any
 
@@ -471,7 +472,13 @@ async def _enforce_generation_gate(
             ),
         )
 
-    # This ceiling applies to every generation mode and every manager. The
+    # Explicit founder authorization (2026-09-04) for internal operators.
+    # Keep input/readiness checks above; this bypasses spending/count quotas
+    # and customer payment only, never quality or delivery requirements.
+    if user_id in settings.UNLIMITED_GENERATION_USER_IDS:
+        return
+
+    # This ceiling applies to non-exempt managers. The
     # shared gate is used by manager start, admin retry and the legacy paid
     # webhook. Its transaction holds the advisory lock through the job insert,
     # so no enqueue path can race this decision and oversubscribe the cap.
@@ -663,6 +670,16 @@ async def generate_full_document(
     background_tasks: BackgroundTasks,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
+) -> AsyncGenerationResponse:
+    return await enqueue_full_document(req_data, current_user, db)
+
+
+async def enqueue_full_document(
+    req_data: AsyncGenerationRequest,
+    current_user: User,
+    db: AsyncSession,
+    *,
+    on_enqueued: Callable[[AIGenerationJob], None] | None = None,
 ) -> AsyncGenerationResponse:
     """
     Generate complete document with RAG (Retrieval-Augmented Generation)
@@ -881,6 +898,8 @@ async def generate_full_document(
         document.status = "generating"
 
         # 8. Commit transaction before starting background task
+        if on_enqueued is not None:
+            on_enqueued(job)
         await db.commit()
 
         # The new job and release revocation are now durable. Blob cleanup can

@@ -368,6 +368,14 @@ class Settings(BaseSettings):
     DAILY_TOKEN_LIMIT: int | None = 2_000_000
     GLOBAL_DAILY_TOKEN_LIMIT: int | None = 6_000_000
 
+    # Owner-authorized internal operators bypass quantity/cost quotas only.
+    # Input, ownership, active-job, source and release gates still apply.
+    UNLIMITED_GENERATION_USER_IDS: list[int] = Field(default_factory=list)
+    # A separate credential that is NOT accepted by normal/admin API routes.
+    OPERATOR_BOT_SECRET: str | None = None
+    # Telegram numeric user ID -> existing Thesica user ID. No self-enrollment.
+    OPERATOR_BOT_USERS: dict[str, int] = Field(default_factory=dict)
+
     # MVP free-generation mode (Stage 0: "fix MVP scope & disable sales").
     # When ON, draft generation runs without a Stripe payment but is bounded by
     # a page cap, a per-user daily generation quota, and DAILY_TOKEN_LIMIT.
