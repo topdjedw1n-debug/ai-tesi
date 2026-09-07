@@ -185,7 +185,13 @@ class AIService:
                 .where(Document.id == document_id)
                 .values(
                     outline=outline_data,
-                    status="outline_generated",
+                    # An outline is an intermediate checkpoint of a full run.
+                    # Keep progress/cancel available after the browser reopens.
+                    status=(
+                        "generating"
+                        if document.status == "generating"
+                        else "outline_generated"
+                    ),
                     tokens_used=Document.tokens_used + tokens_used,
                     generation_time_seconds=Document.generation_time_seconds
                     + generation_time,
