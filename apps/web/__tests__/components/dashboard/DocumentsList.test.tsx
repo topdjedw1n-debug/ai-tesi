@@ -198,9 +198,9 @@ describe('DocumentsList Component', () => {
 
       render(<DocumentsList />);
 
-      // Should show empty state after error
+      // A failed request must not claim the account contains no documents.
       await waitFor(() => {
-        expect(screen.getByTestId('empty-documents-message')).toBeInTheDocument();
+        expect(screen.getByRole('alert')).toHaveTextContent('Не вдалося завантажити роботи');
       });
     });
   });

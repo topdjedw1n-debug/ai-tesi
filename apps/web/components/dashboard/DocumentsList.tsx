@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { apiClient, API_ENDPOINTS } from '@/lib/api'
@@ -28,12 +28,13 @@ interface Document {
 export function DocumentsList() {
   const [documents, setDocuments] = useState<Document[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [loadError, setLoadError] = useState(false)
   const [downloadingId, setDownloadingId] = useState<number | null>(null)
 
-  useEffect(() => {
-    const fetchDocuments = async () => {
+  const fetchDocuments = useCallback(async () => {
       try {
         setIsLoading(true)
+        setLoadError(false)
         const response = await apiClient.get(API_ENDPOINTS.DOCUMENTS.LIST)
 
         // Transform API response to component format
@@ -51,15 +52,15 @@ export function DocumentsList() {
         setDocuments(documents)
       } catch (error) {
         console.error('Failed to fetch documents:', error)
-        // Don't show error toast - auth check will redirect
-        setDocuments([])
+        setLoadError(true)
       } finally {
         setIsLoading(false)
       }
-    }
-
-    fetchDocuments()
   }, [])
+
+  useEffect(() => {
+    fetchDocuments()
+  }, [fetchDocuments])
 
   const handleDownload = async (documentId: number) => {
     setDownloadingId(documentId)
@@ -110,7 +111,12 @@ export function DocumentsList() {
           </Button>
         </div>
 
-        {documents.length === 0 ? (
+        {loadError ? (
+          <div role="alert" className="py-6 space-y-3">
+            <p className="text-sm text-red-700">Не вдалося завантажити роботи. Перевір з’єднання та спробуй ще раз.</p>
+            <Button variant="outline" onClick={fetchDocuments}>Спробувати ще раз</Button>
+          </div>
+        ) : documents.length === 0 ? (
           <div className="text-center py-12" data-testid="empty-documents-message">
             <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
             <h3 className="mt-2 text-sm font-medium text-gray-900">Поки що порожньо</h3>
