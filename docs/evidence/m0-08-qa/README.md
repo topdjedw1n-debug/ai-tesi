@@ -39,7 +39,7 @@ completed fixture before replay. The individual scripts preserve the recorded
 test steps; they are not a one-command environment installer.
 
 Permanent regressions are committed under `apps/api/tests` and
-`apps/web/**/__tests__` with ISSUE-001 through ISSUE-008 in their comments. Run
+`apps/web/**/__tests__` with ISSUE-001 through ISSUE-009 in their comments. Run
 the API suite from the repository checkout with `pytest -o asyncio_mode=auto`;
 container mounts must preserve the repository depth for runtime-contract tests.
 Real PostgreSQL lock tests additionally require an isolated

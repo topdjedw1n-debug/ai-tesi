@@ -1,0 +1,57 @@
+api-final-reviewed.log
+tests/integration/test_admin_e2e_flows.py ....                           [ 97%]
+tests/integration/test_error_handling.py ............                    [ 98%]
+tests/integration/test_full_user_journey.py sss                          [ 98%]
+tests/integration/test_performance.py .......                            [ 98%]
+tests/integration/test_security_suite.py ..........s.                    [100%]
+
+=========== 1166 passed, 10 skipped, 6 warnings in 230.36s (0:03:50) ===========
+
+web-display-tests.log
+PASS lib/__tests__/feature-flags.test.ts
+
+Test Suites: 30 passed, 30 total
+Tests:       1 skipped, 204 passed, 205 total
+Snapshots:   0 total
+Time:        4.337 s
+Ran all test suites.
+
+web-display-types.log
+
+> ai-thesis-platform-web@1.0.0 type-check
+> tsc --noEmit
+
+
+web-display-lint.log
+
+> ai-thesis-platform-web@1.0.0 lint
+> next lint
+
+✔ No ESLint warnings or errors
+
+ruff-final.log
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `pyproject.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+  - 'isort' -> 'lint.isort'
+  - 'per-file-ignores' -> 'lint.per-file-ignores'
+All checks passed!
+
+postgres-lock-tests.log
+------------------------------------------------------------------------------------------------
+TOTAL                                               14534  10498   3818    133  22.96%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+
+======================== 2 passed, 5 warnings in 9.81s =========================
+
+production-image-tests.log
+........................................................................ [ 58%]
+...................................................                      [100%]
+123 passed, 7 warnings in 39.58s
+
+Production live assertions
+20 API checks passed; 4 browser routes passed; all 26 table fingerprints unchanged after browser.
+Code b8b3315986eea9c247363949be73c7a6fdf0ce9b; API image unchanged from the tested 915cb09 payload.
+No real generation or Compilatio acceptance performed by this QA run.
