@@ -2668,7 +2668,7 @@ class BackgroundJobService:
 
                             elif (
                                 attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS
-                                and not claim_budget_exhausted
+                                and not (claim_budget_exhausted and claim_gate_failed)
                             ):
                                 # GATES FAILED but ATTEMPTS REMAIN → REGENERATE
                                 logger.warning(
