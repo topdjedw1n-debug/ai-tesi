@@ -132,4 +132,21 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
     expect(await screen.findByTestId('document-quality-evidence')).toBeInTheDocument()
     expect(screen.getByTestId('document-sources')).toBeInTheDocument()
   })
+
+  // ISSUE-009: production job5 kept five sections but showed the brief's 22 words.
+  it('shows saved section words after a failed attempt without changing the final count', async () => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({
+      ...draftDocument,
+      status: 'failed',
+      word_count: 22,
+      sections: [
+        { id: 1, title: 'Introduction', status: 'completed', word_count: 535 },
+        { id: 2, title: 'Review', status: 'completed', word_count: 1291 },
+      ],
+    })
+    render(<DocumentDetailPage />)
+    expect(await screen.findByText(/1\s826 слів у збережених розділах/)).toBeInTheDocument()
+    expect(screen.queryByText('22 слів')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('download-docx-button')).not.toBeInTheDocument()
+  })
 })

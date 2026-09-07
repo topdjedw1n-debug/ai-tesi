@@ -166,6 +166,12 @@ export default function DocumentDetailPage() {
   const isGeneratingStatus = document.status === 'generating' || document.status === 'payment_pending'
   const status = documentStatus(document.status, document.release_status)
   const failed = ['failed', 'failed_quality'].includes(document.status)
+  // Until assembly, document.word_count can still describe the original brief.
+  const partialWordCount = document.sections.reduce((total, section) => (
+    section.status === 'completed' ? total + section.word_count : total
+  ), 0)
+  const showPartialCount = (failed || isGeneratingStatus) && partialWordCount > 0
+  const displayedWordCount = showPartialCount ? partialWordCount : document.word_count
 
   return (
     <DashboardLayout>
@@ -204,9 +210,9 @@ export default function DocumentDetailPage() {
           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.badgeClass}`}>
             {status.label}
           </span>
-          {document.word_count > 0 && (
+          {displayedWordCount > 0 && (
             <span className="text-sm text-gray-500">
-              {document.word_count.toLocaleString('uk-UA')} слів
+              {displayedWordCount.toLocaleString('uk-UA')} слів{showPartialCount ? ' у збережених розділах' : ''}
             </span>
           )}
         </div>

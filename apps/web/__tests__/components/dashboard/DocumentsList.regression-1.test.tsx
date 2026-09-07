@@ -30,3 +30,14 @@ it('offers recovery from a failed list request without reporting an empty accoun
     consoleSpy.mockRestore()
   }
 })
+
+// ISSUE-009: a failed job's document word count can still describe the brief.
+it('does not show the brief word count as the size of failed work', async () => {
+  ;(apiClient.get as jest.Mock).mockResolvedValue({ documents: [{
+    id: 5, title: 'Interrupted nursing review', topic: 'Nursing', status: 'failed',
+    created_at: '2026-09-07T10:00:00Z', word_count: 22,
+  }] })
+  render(<DocumentsList />)
+  expect(await screen.findByText('Interrupted nursing review')).toBeInTheDocument()
+  expect(screen.queryByText('22 слів')).not.toBeInTheDocument()
+})

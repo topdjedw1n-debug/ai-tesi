@@ -260,25 +260,27 @@ export function GenerationProgress({
         )}
       </div>
 
-      {/* Progress Bar */}
-      <div className="mb-4">
-        <div className="h-2.5 w-full rounded-full bg-gray-200">
-          <div
-            className={`h-2.5 rounded-full transition-all duration-300 ${getStatusColor()}`}
-            style={{ width: `${progressState.progress}%` }}
-          />
-        </div>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-sm text-gray-600">
-            {progressState.progress}%
-          </span>
-          {progressState.estimatedTime && (
-            <span className="text-sm text-gray-500">
-              Орієнтовно лишилось: {progressState.estimatedTime}
+      {/* A terminal failure has no meaningful completion percentage. */}
+      {progressState.status !== 'failed' && progressState.status !== 'cancelled' && (
+        <div className="mb-4">
+          <div className="h-2.5 w-full rounded-full bg-gray-200">
+            <div
+              className={`h-2.5 rounded-full transition-all duration-300 ${getStatusColor()}`}
+              style={{ width: `${progressState.progress}%` }}
+            />
+          </div>
+          <div className="mt-2 flex items-center justify-between">
+            <span className="text-sm text-gray-600">
+              {progressState.progress}%
             </span>
-          )}
+            {progressState.estimatedTime && (
+              <span className="text-sm text-gray-500">
+                Орієнтовно лишилось: {progressState.estimatedTime}
+              </span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Current Section */}
       {progressState.currentSection && (

@@ -125,4 +125,14 @@ describe('GenerationProgress', () => {
     act(() => onMessage({ type: 'job_failed', document_id: 123, error: 'Too few citable sources' }))
     await waitFor(() => expect(onError).toHaveBeenCalledTimes(1))
   })
+
+  // ISSUE-009: a persisted terminal job can have progress=0 despite saved sections.
+  it.each(['failed', 'cancelled'])('does not present a false completion percentage for %s', async (status) => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({
+      document_id: 123, status, progress: 0, error_message: 'Generation stopped',
+    })
+    render(<GenerationProgress documentId={123} active={false} />)
+    expect(await screen.findByText('Generation stopped')).toBeInTheDocument()
+    expect(screen.queryByText('0%')).not.toBeInTheDocument()
+  })
 })

@@ -149,7 +149,7 @@ export function DocumentsList() {
                       </p>
                       <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                         <span>Створено {formatDate(document.created_at)}</span>
-                        {document.word_count > 0 && (
+                        {document.status === 'completed' && document.word_count > 0 && (
                           <>
                             <span>•</span>
                             <span>{document.word_count.toLocaleString('uk-UA')} слів</span>
