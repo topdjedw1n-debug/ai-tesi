@@ -8,7 +8,18 @@ def section_output_budget(prompt: str, model: str) -> int:
     """Reserve enough output for the writer's existing per-section word target."""
     match = re.search(r"Section Length: write approximately (\d+) words", prompt)
     base = 8000 if model.startswith("gpt-5") else 4000
-    return min(16000, max(base, int(match.group(1)) * 4)) if match else base
+    ceiling = model_output_ceiling(model)
+    return (
+        min(ceiling, max(base, int(match.group(1)) * 4))
+        if match
+        else min(base, ceiling)
+    )
+
+
+def model_output_ceiling(model: str) -> int:
+    # Older selectable Claude models retain the pre-existing request limit.
+    # The larger budget is for the current generation models.
+    return 4000 if model.startswith("claude-3") else 16000
 
 
 class IncompleteModelResponse(ValueError):
@@ -18,6 +29,7 @@ class IncompleteModelResponse(ValueError):
 @dataclass
 class ModelResponseRecovery:
     max_tokens: int = 4000
+    output_ceiling: int = 16000
 
     @property
     def timeout_seconds(self) -> float:
@@ -29,7 +41,7 @@ class ModelResponseRecovery:
         if stop_reason in ("max_tokens", "length"):
             # Reissue the same task and model with room for a complete answer;
             # never concatenate partial JSON or duplicate section paragraphs.
-            self.max_tokens = min(self.max_tokens * 2, 16000)
+            self.max_tokens = min(self.max_tokens * 2, self.output_ceiling)
             raise IncompleteModelResponse("Model output reached its token limit")
         if not isinstance(content, str) or not content.strip():
             raise IncompleteModelResponse("Model returned empty text")

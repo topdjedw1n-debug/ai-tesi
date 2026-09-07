@@ -54,6 +54,7 @@ from app.services.ai_pipeline.source_pack_preflight import (
     invalid_preverified_source_keys,
     preverify_source_pack,
 )
+from app.services.ai_pipeline.text_utils import contains_concrete_evidence
 from app.services.ai_service import AIService
 from app.services.citation_verifier import (
     CitationVerifier,
@@ -1522,7 +1523,12 @@ class BackgroundJobService:
                                     allow_threshold_relaxation=False,
                                 )
                                 source_pack = _merge_source_packs(
-                                    source_pack, more_sources
+                                    source_pack,
+                                    more_sources,
+                                    limit=max(
+                                        settings.SOURCE_PACK_TARGET_SIZE,
+                                        len(source_pack.all_sources()),
+                                    ),
                                 )
                             await fence_next_mutation(db)
                             await _persist_source_pack(db, document_id, source_pack)
@@ -2641,8 +2647,27 @@ class BackgroundJobService:
                                 incomplete_count = len(
                                     technical_uncertain_claims(attempt_claim_summary)
                                 )
+                                # A qualitative section may replace the numeric
+                                # heuristic only with an ACTUAL semantic check,
+                                # not merely enabled settings. Sources without
+                                # abstracts cannot supply this evidence.
+                                missing_qualitative_evidence = (
+                                    source_pack is not None
+                                    and settings.GROUNDING_GATE_ENABLED
+                                    and settings.GROUNDING_REQUIRE_EVIDENCE
+                                    and not contains_concrete_evidence(
+                                        canonical_claim_content or humanized_content
+                                    )
+                                    and int(
+                                        (attempt_claim_summary or {}).get("checked")
+                                        or 0
+                                    )
+                                    == 0
+                                )
                                 if (
-                                    unsupported_count > 0 or incomplete_count > 0
+                                    unsupported_count > 0
+                                    or incomplete_count > 0
+                                    or missing_qualitative_evidence
                                 ) and settings.CLAIM_VERIFICATION_BLOCKING:
                                     claim_gate_failed = True
                                     claim_feedback_summary = attempt_claim_summary
@@ -2651,6 +2676,11 @@ class BackgroundJobService:
                                         f"{incomplete_count} technically unchecked "
                                         "cited claim(s)"
                                     )
+                                    if missing_qualitative_evidence:
+                                        attempt_errors.append(
+                                            "Qualitative evidence needs at least one cited claim "
+                                            "checked against an available source abstract"
+                                        )
 
                             # GATE 4: Reviewer Panel (flag-gated: 4 LLM calls
                             # per run, unlike gates 1-3 it does NOT always

@@ -30,7 +30,10 @@ from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
 from app.services.cost_estimator import CostEstimator, UsageTracker
 from app.services.custom_requirements_service import combine_generation_requirements
-from app.services.model_response_recovery import ModelResponseRecovery
+from app.services.model_response_recovery import (
+    ModelResponseRecovery,
+    model_output_ceiling,
+)
 from app.services.outline_validation import validate_outline
 from app.services.retry_strategy import RetryStrategy
 
@@ -597,7 +600,7 @@ class AIService:
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
 
-        recovery = ModelResponseRecovery()
+        recovery = ModelResponseRecovery(output_ceiling=model_output_ceiling(model))
         total_tokens = 0
 
         async def _make_request() -> dict[str, Any]:

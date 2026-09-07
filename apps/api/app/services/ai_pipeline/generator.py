@@ -24,6 +24,7 @@ from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.model_response_recovery import (
     IncompleteModelResponse,
     ModelResponseRecovery,
+    model_output_ceiling,
     section_output_budget,
 )
 from app.services.training_data_collector import TrainingDataCollector
@@ -673,7 +674,9 @@ class SectionGenerator:
             client = openai.AsyncOpenAI(
                 api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
             )
-            recovery = ModelResponseRecovery(section_output_budget(prompt, model))
+            recovery = ModelResponseRecovery(
+                section_output_budget(prompt, model), model_output_ceiling(model)
+            )
 
             # Get language-specific system prompt
             system_prompt = PromptBuilder.get_system_prompt(language)

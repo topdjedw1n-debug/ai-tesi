@@ -111,3 +111,35 @@ def test_writer_output_budget_matches_long_section_without_paid_truncation():
         )
         == 16000
     )
+
+
+def test_budget_reads_real_italian_prompt_and_preserves_legacy_cap():
+    from app.models.document import Document
+    from app.services.ai_pipeline.prompt_builder import PromptBuilder
+    from app.services.model_response_recovery import (
+        IncompleteModelResponse,
+        ModelResponseRecovery,
+        model_output_ceiling,
+        section_output_budget,
+    )
+
+    document = Document(
+        title="Didattica",
+        topic="Intelligenza artificiale nella scuola secondaria",
+        language="it",
+        target_pages=18,
+    )
+    prompt = PromptBuilder.build_section_prompt(
+        document=document,
+        section_title="Didattica",
+        section_index=2,
+        target_word_count=1750,
+    )
+    assert section_output_budget(prompt, "claude-opus-4-8") == 7000
+    assert section_output_budget(prompt, "claude-3-opus-20240229") == 4000
+    recovery = ModelResponseRecovery(
+        4000, model_output_ceiling("claude-3-opus-20240229")
+    )
+    with pytest.raises(IncompleteModelResponse):
+        recovery.validate("partial", "max_tokens")
+    assert recovery.max_tokens == 4000

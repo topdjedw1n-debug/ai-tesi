@@ -137,3 +137,76 @@ async def test_advisory_claim_budget_does_not_cancel_a_panel_repair(
         assert panel.await_count == 2
         assert mocks["generate_section"].await_count == 2
         assert mocks["export_document"].await_count == 1
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "budget,has_abstract,completes",
+    [(0, True, False), (100, False, False), (100, True, True)],
+)
+async def test_qualitative_grounding_requires_actual_semantic_check(
+    db_session, mock_redis, monkeypatch, budget, has_abstract, completes
+):
+    from app.core.exceptions import CitationIntegrityError
+    from app.services.ai_pipeline.rag_retriever import SourceDoc
+    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
+    from app.services.grounding_gate import evaluate_grounding
+
+    user, document = await claim_fixtures.seed_document(db_session)
+    source = {
+        **claim_fixtures.SOURCE_A,
+        "abstract": claim_fixtures.ABSTRACT if has_abstract else None,
+    }
+    pack = SourcePack(
+        document_id=document.id,
+        topic=document.topic,
+        sources=[PackedSource(SourceDoc(**source), "Vaswani2017", 0.9)],
+    )
+    content = "L'attenzione sostituisce la ricorrenza [Vaswani2017]."
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        claim_fixtures.make_settings(
+            SOURCE_GROUNDING_ENABLED=True,
+            SOURCE_PACK_PREFLIGHT_ENABLED=False,
+            GROUNDING_GATE_ENABLED=True,
+            GROUNDING_REQUIRE_EVIDENCE=True,
+            CLAIM_VERIFICATION_BLOCKING=True,
+            CLAIM_VERIFICATION_MAX_CHECKS=budget,
+            UNLIMITED_GENERATION_USER_IDS=[],
+        ),
+    )
+    with ExitStack() as stack:
+        mocks = claim_fixtures.pipeline_harness(
+            stack,
+            db_session,
+            mock_redis,
+            claim_llm_response=claim_fixtures.llm_verdicts(("supported", "Supported.")),
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(return_value=pack),
+            )
+        )
+        response = {
+            **mocks["generate_section"].return_value,
+            "content": content,
+            "content_with_markers": content,
+            "pack_keys_used": ["Vaswani2017"],
+            "cited_sources": [source],
+        }
+        mocks["generate_section"].return_value = response
+        assert not evaluate_grounding(response, pack).passed
+        if completes:
+            await BackgroundJobService.generate_full_document(
+                document_id=document.id, user_id=user.id
+            )
+            assert mocks["export_document"].await_count == 1
+            assert mocks["ai_service"].call_with_fallback.await_count == 1
+        else:
+            with pytest.raises(CitationIntegrityError):
+                await BackgroundJobService.generate_full_document(
+                    document_id=document.id, user_id=user.id
+                )
+            assert mocks["export_document"].await_count == 0
+            assert mocks["ai_service"].call_with_fallback.await_count == 0

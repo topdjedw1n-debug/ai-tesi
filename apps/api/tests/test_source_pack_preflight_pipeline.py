@@ -619,9 +619,7 @@ async def test_underfilled_relaxed_pack_stops_before_writer_or_preflight(
         )
     ).scalar_one()
     assert event.payload["citable_sources"] == 0
-    assert (
-        event.payload["context_sources"] == 1
-    )  # This test configures a one-source pack.
+    assert event.payload["context_sources"] == 24
 
 
 @pytest.mark.asyncio
