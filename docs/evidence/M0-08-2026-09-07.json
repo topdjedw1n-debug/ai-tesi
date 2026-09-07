@@ -1,0 +1,2014 @@
+{
+  "date": "2026-09-07",
+  "status": "DEPLOYED_VERIFIED_TECHNICAL",
+  "environment": "isolated real API/PostgreSQL/Redis/MinIO/browser; synthetic external scholarly/AI/grammar/detector responses",
+  "base_commit": "817e181da9afa7fe1ca2c0ba7b9f618bf14dae31",
+  "code_commit": "b8b3315986eea9c247363949be73c7a6fdf0ce9b",
+  "paid_provider_calls_started_by_agent": 0,
+  "production_order_retried_by_agent": false,
+  "tests": {
+    "api": {
+      "passed": 1166,
+      "skipped": 10,
+      "seconds": 230.36,
+      "api_unchanged_in_final_web_commits": true
+    },
+    "web": {
+      "passed": 204,
+      "skipped": 1,
+      "suites": 30
+    },
+    "postgres_lock_tests": {
+      "passed": 2
+    },
+    "amd64_api_image": {
+      "passed": 123,
+      "seconds": 39.58,
+      "network": "none"
+    },
+    "ruff": "passed",
+    "web_typecheck": "passed",
+    "web_lint": "passed",
+    "mypy": {
+      "baseline_summary": "Found 354 errors in 46 files (checked 109 source files)",
+      "current_summary": "Found 354 errors in 46 files (checked 109 source files)",
+      "new_errors": []
+    },
+    "independent_reviews": 4
+  },
+  "qa": {
+    "browser-core": [
+      {
+        "name": "running_worker",
+        "status": "passed",
+        "evidence": {
+          "job_id": 2,
+          "status": "running",
+          "progress": 0,
+          "document_id": 1,
+          "error_message": null,
+          "attempt_count": 1
+        }
+      },
+      {
+        "name": "reload_same_job",
+        "status": "passed",
+        "evidence": {
+          "job_id": 2
+        }
+      },
+      {
+        "name": "offline_reconnect_same_job",
+        "status": "passed",
+        "evidence": {
+          "job_id": 2
+        }
+      },
+      {
+        "name": "browser_closed_reopened_same_job",
+        "status": "passed",
+        "evidence": {
+          "job_id": 2
+        }
+      },
+      {
+        "name": "concurrent_start_deduplicated",
+        "status": "passed",
+        "evidence": [
+          {
+            "status": 200,
+            "data": {
+              "job_id": 2,
+              "status": "running",
+              "check_url": "/api/v1/jobs/2/status"
+            }
+          },
+          {
+            "status": 200,
+            "data": {
+              "job_id": 2,
+              "status": "running",
+              "check_url": "/api/v1/jobs/2/status"
+            }
+          }
+        ]
+      },
+      {
+        "name": "cancel_running_stale_executor_fenced",
+        "status": "passed",
+        "evidence": {
+          "job_id": 2,
+          "status": "cancelled"
+        }
+      },
+      {
+        "name": "cancel_reload_requires_explicit_retry",
+        "status": "passed",
+        "evidence": {}
+      }
+    ],
+    "input-validation": [
+      {
+        "override": {
+          "target_pages": -1
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "target_pages": 0
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "target_pages": 1.5
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "target_pages": 1001
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "topic": "short"
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "work_type": "invalid"
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "citation_style": "invalid"
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "ai_provider": "invalid"
+        },
+        "status": 422
+      },
+      {
+        "override": {
+          "ai_provider": "anthropic",
+          "ai_model": "invalid"
+        },
+        "status": 422
+      },
+      {
+        "case": "unknown document",
+        "status": 404
+      }
+    ],
+    "invalid-topic-api": {
+      "bad": {
+        "status": 500,
+        "data": {
+          "error_code": "INTERNAL_SERVER_ERROR",
+          "detail": "Internal server error",
+          "status_code": 500,
+          "timestamp": "2026-09-07T14:34:40.649555"
+        }
+      },
+      "list": {
+        "status": 500,
+        "data": {
+          "error_code": "INTERNAL_SERVER_ERROR",
+          "detail": "Internal server error",
+          "status_code": 500,
+          "timestamp": "2026-09-07T14:34:40.661618"
+        }
+      }
+    },
+    "invalid-topic-fixed": [
+      {
+        "id": 3,
+        "delete": {
+          "status": 200,
+          "data": {
+            "message": "Document deleted successfully"
+          }
+        }
+      },
+      {
+        "id": 4,
+        "delete": {
+          "status": 200,
+          "data": {
+            "message": "Document deleted successfully"
+          }
+        }
+      },
+      {
+        "invalid": {
+          "status": 422,
+          "data": {
+            "detail": [
+              {
+                "type": "value_error",
+                "loc": [
+                  "body",
+                  "title"
+                ],
+                "msg": "Value error, title must contain text after removing markup",
+                "input": "<div></div>",
+                "ctx": {
+                  "error": {}
+                },
+                "url": "https://errors.pydantic.dev/2.12/v/value_error"
+              },
+              {
+                "type": "value_error",
+                "loc": [
+                  "body",
+                  "topic"
+                ],
+                "msg": "Value error, topic must contain at least 10 characters after removing markup",
+                "input": "<div></div>",
+                "ctx": {
+                  "error": {}
+                },
+                "url": "https://errors.pydantic.dev/2.12/v/value_error"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "invalid": {
+          "status": 422,
+          "data": {
+            "detail": [
+              {
+                "type": "value_error",
+                "loc": [
+                  "body",
+                  "title"
+                ],
+                "msg": "Value error, title must contain text after removing markup",
+                "input": " ",
+                "ctx": {
+                  "error": {}
+                },
+                "url": "https://errors.pydantic.dev/2.12/v/value_error"
+              },
+              {
+                "type": "value_error",
+                "loc": [
+                  "body",
+                  "topic"
+                ],
+                "msg": "Value error, topic must contain at least 10 characters after removing markup",
+                "input": "                  ",
+                "ctx": {
+                  "error": {}
+                },
+                "url": "https://errors.pydantic.dev/2.12/v/value_error"
+              }
+            ]
+          }
+        }
+      },
+      {
+        "list": {
+          "status": 200,
+          "data": {
+            "documents": [
+              {
+                "title": "QA complete",
+                "topic": "QA assistenza infermieristica perinatale complete",
+                "language": "it",
+                "target_pages": 18,
+                "citation_style": "apa",
+                "work_type": "tesi_triennale",
+                "id": 2,
+                "user_id": 1,
+                "status": "failed",
+                "is_archived": false,
+                "created_at": "2026-09-07T14:33:24.499231Z",
+                "updated_at": "2026-09-07T14:33:31.352654Z",
+                "word_count": 5748,
+                "estimated_reading_time": 28,
+                "requirements_file_processed": false,
+                "production_case_id": null,
+                "release_status": "blocked",
+                "outline": {
+                  "sections": [
+                    {
+                      "title": "Introduzione",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Assistenza infermieristica",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Valutazione perinatale",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Conclusioni",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    }
+                  ]
+                },
+                "sections": []
+              },
+              {
+                "title": "QA resilienza: assistenza infermieristica perinatale",
+                "topic": "QA resilienza: assistenza infermieristica perinatale",
+                "language": "it",
+                "target_pages": 18,
+                "citation_style": "apa",
+                "work_type": "tesi_triennale",
+                "id": 1,
+                "user_id": 1,
+                "status": "failed",
+                "is_archived": false,
+                "created_at": "2026-09-07T14:22:58.519298Z",
+                "updated_at": "2026-09-07T14:32:17.622996Z",
+                "word_count": 10,
+                "estimated_reading_time": 1,
+                "requirements_file_processed": false,
+                "production_case_id": null,
+                "release_status": "blocked",
+                "outline": {
+                  "sections": [
+                    {
+                      "title": "Introduzione",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Assistenza infermieristica",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Valutazione perinatale",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    },
+                    {
+                      "title": "Conclusioni",
+                      "estimated_words": 1350,
+                      "description": "Technical QA fixture"
+                    }
+                  ]
+                },
+                "sections": []
+              }
+            ],
+            "total": 2,
+            "page": 1,
+            "per_page": 20,
+            "total_pages": 1
+          }
+        }
+      }
+    ],
+    "browser-input-before": [
+      {
+        "attempt": 1,
+        "status": 422,
+        "topic": "<div></div>",
+        "text": "Thesica\nГоловна\nМої роботи\nПеревірка та видача\nПрофіль\nНалаштування\nqa-manager\nНова робота\n\nТема, обсяг і вимоги — спочатку створимо чернетку для перевірки\n\nНова робота\n\nЗаповни вимоги так, як їх прислав клієнт. Спочатку створимо чернетку, а перед генерацією ти перевіриш контракт і джерела.\n\nТема роботи *\nОбсяг * — сторінок\nМова роботи *\nІталійська\nУкраїнська\nАнглійська\nНімецька\nФранцузька\nІспанська\nТип роботи *\nДипломна (бакалавр)\nМагістерська\nКурсова\nРеферат\nЕсе\nСтиль цитування\nAPA\nДедлайн — опційно\nВимоги — встав як є — з листа клієнта чи методички\nМетодичка — опційно, PDF, DOCX або TXT, до 10 МБ\n\nБез методички контракт буде на припущеннях — їх потрібно підтвердити перед запуском.\n\nСтворити чернетку\n[object Object],[object Object]"
+      },
+      {
+        "attempt": 2,
+        "status": 422,
+        "topic": "<div></div>",
+        "text": "Thesica\nГоловна\nМої роботи\nПеревірка та видача\nПрофіль\nНалаштування\nqa-manager\nНова робота\n\nТема, обсяг і вимоги — спочатку створимо чернетку для перевірки\n\nНова робота\n\nЗаповни вимоги так, як їх прислав клієнт. Спочатку створимо чернетку, а перед генерацією ти перевіриш контракт і джерела.\n\nТема роботи *\nОбсяг * — сторінок\nМова роботи *\nІталійська\nУкраїнська\nАнглійська\nНімецька\nФранцузька\nІспанська\nТип роботи *\nДипломна (бакалавр)\nМагістерська\nКурсова\nРеферат\nЕсе\nСтиль цитування\nAPA\nДедлайн — опційно\nВимоги — встав як є — з листа клієнта чи методички\nМетодичка — опційно, PDF, DOCX або TXT, до 10 МБ\n\nБез методички контракт буде на припущеннях — їх потрібно підтвердити перед запуском.\n\nСтворити чернетку\n[object Object],[object Object]\n[object Object],[object Object]"
+      }
+    ],
+    "browser-input-after": [
+      {
+        "attempt": 1,
+        "status": 422,
+        "topic": "<div></div>",
+        "text": "Thesica\nГоловна\nМої роботи\nПеревірка та видача\nПрофіль\nНалаштування\nqa-manager\nНова робота\n\nТема, обсяг і вимоги — спочатку створимо чернетку для перевірки\n\nНова робота\n\nЗаповни вимоги так, як їх прислав клієнт. Спочатку створимо чернетку, а перед генерацією ти перевіриш контракт і джерела.\n\nТема роботи *\nОбсяг * — сторінок\nМова роботи *\nІталійська\nУкраїнська\nАнглійська\nНімецька\nФранцузька\nІспанська\nТип роботи *\nДипломна (бакалавр)\nМагістерська\nКурсова\nРеферат\nЕсе\nСтиль цитування\nAPA\nДедлайн — опційно\nВимоги — встав як є — з листа клієнта чи методички\nМетодичка — опційно, PDF, DOCX або TXT, до 10 МБ\n\nБез методички контракт буде на припущеннях — їх потрібно підтвердити перед запуском.\n\nСтворити чернетку\nПеревір введені дані (назва, тема) та спробуй ще раз."
+      },
+      {
+        "attempt": 2,
+        "status": 422,
+        "topic": "<div></div>",
+        "text": "Thesica\nГоловна\nМої роботи\nПеревірка та видача\nПрофіль\nНалаштування\nqa-manager\nНова робота\n\nТема, обсяг і вимоги — спочатку створимо чернетку для перевірки\n\nНова робота\n\nЗаповни вимоги так, як їх прислав клієнт. Спочатку створимо чернетку, а перед генерацією ти перевіриш контракт і джерела.\n\nТема роботи *\nОбсяг * — сторінок\nМова роботи *\nІталійська\nУкраїнська\nАнглійська\nНімецька\nФранцузька\nІспанська\nТип роботи *\nДипломна (бакалавр)\nМагістерська\nКурсова\nРеферат\nЕсе\nСтиль цитування\nAPA\nДедлайн — опційно\nВимоги — встав як є — з листа клієнта чи методички\nМетодичка — опційно, PDF, DOCX або TXT, до 10 МБ\n\nБез методички контракт буде на припущеннях — їх потрібно підтвердити перед запуском.\n\nСтворити чернетку\nПеревір введені дані (назва, тема) та спробуй ще раз.\nПеревір введені дані (назва, тема) та спробуй ще раз."
+      }
+    ],
+    "matrix-providers": [
+      {
+        "name": "source_insufficient",
+        "status": "passed",
+        "evidence": {
+          "id": 8,
+          "job": 7,
+          "state": {
+            "job_id": 7,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 8,
+            "error_message": "Too few relevant sources to start writing (1/6). Automatic source selection needs review before retrying. PDF sources are optional.",
+            "attempt_count": 2
+          },
+          "document": {
+            "id": 8,
+            "status": "failed_quality",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      },
+      {
+        "name": "source_outage",
+        "status": "passed",
+        "evidence": {
+          "id": 9,
+          "job": 8,
+          "state": {
+            "job_id": 8,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 9,
+            "error_message": "Source preflight found only 0 verified source(s); minimum is 18; bibliographic providers were unavailable",
+            "attempt_count": 3
+          },
+          "document": {
+            "id": 9,
+            "status": "failed",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      },
+      {
+        "name": "writer_timeout",
+        "status": "passed",
+        "evidence": {
+          "id": 10,
+          "job": 9,
+          "state": {
+            "job_id": 9,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 10,
+            "error_message": "Synthetic upstream timeout",
+            "attempt_count": 3
+          },
+          "document": {
+            "id": 10,
+            "status": "failed",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      },
+      {
+        "name": "writer_429",
+        "status": "passed",
+        "evidence": {
+          "id": 11,
+          "job": 10,
+          "state": {
+            "job_id": 10,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 11,
+            "error_message": "Synthetic upstream 429",
+            "attempt_count": 3
+          },
+          "document": {
+            "id": 11,
+            "status": "failed",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      },
+      {
+        "name": "malformed_outline",
+        "status": "passed",
+        "evidence": {
+          "id": 12,
+          "job": 11,
+          "state": {
+            "job_id": 11,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 12,
+            "error_message": "Generated outline contains no sections",
+            "attempt_count": 3
+          },
+          "document": {
+            "id": 12,
+            "status": "failed",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      },
+      {
+        "name": "malformed_writer",
+        "status": "passed",
+        "evidence": {
+          "id": 13,
+          "job": 12,
+          "state": {
+            "job_id": 12,
+            "status": "failed",
+            "progress": 0,
+            "document_id": 13,
+            "error_message": "Section 1 failed the grounding gate after 3 attempts: no grounded citation in section",
+            "attempt_count": 1
+          },
+          "document": {
+            "id": 13,
+            "status": "failed",
+            "has_docx": false,
+            "sections": 0,
+            "words": null
+          }
+        }
+      }
+    ],
+    "matrix-recovery": [
+      {
+        "name": "restart_resume_without_rewriting",
+        "status": "passed",
+        "evidence": {
+          "id": 6,
+          "job": 5,
+          "state": {
+            "job_id": 5,
+            "status": "completed",
+            "progress": 100,
+            "document_id": 6,
+            "error_message": null,
+            "attempt_count": 1
+          },
+          "firstSection": {
+            "id": 9,
+            "index": 1,
+            "hash": "99cb4371ec61a3dfe266618fc11ccbd4"
+          },
+          "document": {
+            "id": 6,
+            "status": "completed",
+            "has_docx": true,
+            "sections": 4,
+            "words": 5424
+          }
+        }
+      },
+      {
+        "name": "kill_resume_without_rewriting",
+        "status": "passed",
+        "evidence": {
+          "id": 7,
+          "job": 6,
+          "state": {
+            "job_id": 6,
+            "status": "completed",
+            "progress": 100,
+            "document_id": 7,
+            "error_message": null,
+            "attempt_count": 2
+          },
+          "firstSection": {
+            "id": 13,
+            "index": 1,
+            "hash": "99cb4371ec61a3dfe266618fc11ccbd4"
+          },
+          "document": {
+            "id": 7,
+            "status": "completed",
+            "has_docx": true,
+            "sections": 4,
+            "words": 5424
+          }
+        }
+      }
+    ],
+    "matrix-redis": [
+      {
+        "name": "redis_unavailable_uses_postgres",
+        "status": "passed",
+        "evidence": {
+          "id": 14,
+          "job": 13,
+          "state": {
+            "job_id": 13,
+            "status": "completed",
+            "progress": 100,
+            "document_id": 14,
+            "error_message": null,
+            "attempt_count": 1
+          },
+          "document": {
+            "id": 14,
+            "status": "completed",
+            "has_docx": true,
+            "sections": 4,
+            "words": 5424
+          }
+        }
+      }
+    ],
+    "matrix-storage": [
+      {
+        "name": "storage_recovery",
+        "status": "passed",
+        "evidence": {
+          "id": 17,
+          "job": 16,
+          "health": {
+            "status": 200,
+            "ms": 4
+          },
+          "state": {
+            "job_id": 16,
+            "status": "completed",
+            "progress": 100,
+            "document_id": 17,
+            "error_message": null,
+            "attempt_count": 2
+          },
+          "document": {
+            "id": 17,
+            "status": "completed",
+            "has_docx": true,
+            "sections": 4,
+            "words": 5424
+          }
+        }
+      }
+    ],
+    "matrix-database": [
+      {
+        "name": "database_restart_resume",
+        "status": "passed",
+        "evidence": {
+          "id": 18,
+          "job": 17,
+          "state": {
+            "job_id": 17,
+            "status": "completed",
+            "progress": 100,
+            "document_id": 18,
+            "error_message": null,
+            "attempt_count": 2
+          },
+          "document": {
+            "id": 18,
+            "status": "completed",
+            "has_docx": true,
+            "sections": 4,
+            "words": 5424
+          }
+        }
+      }
+    ],
+    "cancel-upload": {
+      "id": 20,
+      "job": 19,
+      "cancelled": {
+        "job_id": 19,
+        "status": "cancelled",
+        "document_status": "failed"
+      },
+      "terminal": {
+        "job_id": 19,
+        "status": "cancelled",
+        "progress": 0,
+        "document_id": 20,
+        "error_message": "Cancelled by user:1",
+        "attempt_count": 1
+      },
+      "document_status": "failed",
+      "docx_path": null,
+      "uploaded_object": "documents/1/20/20-2d0df3532e018a27.docx",
+      "remaining_objects": [],
+      "health": 200
+    },
+    "docx-download": {
+      "document_id": 5,
+      "downloadStatus": 200,
+      "bytes": 37474,
+      "fingerprint": "7356046977c89b0ac44c8c87bfeff12241186fa3e66226fd90a0b6724bfca742",
+      "stored": "7356046977c89b0ac44c8c87bfeff12241186fa3e66226fd90a0b6724bfca742"
+    },
+    "docx-structure": {
+      "zip_integrity": true,
+      "has_document_xml": true,
+      "required_headings": {
+        "Introduzione": true,
+        "Assistenza infermieristica": true,
+        "Valutazione perinatale": true,
+        "Conclusioni": true
+      },
+      "words": 5747,
+      "contains_qa_label": true
+    },
+    "release-cycle": [
+      {
+        "name": "missing_evidence_blocks_release",
+        "caseId": 5,
+        "document": 7,
+        "status": 409
+      },
+      {
+        "name": "invalid_and_wrong_file_reports_rejected",
+        "invalid": 415,
+        "stale": 409
+      },
+      {
+        "name": "over_ten_blocks_release",
+        "status": 409,
+        "similarity": 22,
+        "ai": 10
+      },
+      {
+        "name": "ten_ten_without_content_review_blocked",
+        "status": 409
+      },
+      {
+        "name": "complete_synthetic_evidence_releases_exact_docx",
+        "status": 200,
+        "bytes": 37466,
+        "sha256": "38f6240fcbabf6380a79124408adc9432fccd96edd80e072ce6492082b965798"
+      },
+      {
+        "name": "rewrite_revokes_existing_link_and_cannot_be_erased",
+        "old_link_status": 409,
+        "release_status": 409,
+        "reaccept_status": 409
+      }
+    ],
+    "browser-release": {
+      "document_id": 14,
+      "case_id": 12,
+      "report_uploaded": true,
+      "both_results_saved": true,
+      "content_review_saved": true,
+      "reloaded": true,
+      "released_via_ui": true,
+      "synthetic": true
+    },
+    "browser-upload-failure": {
+      "responses": [
+        {
+          "method": "POST",
+          "path": "/api/v1/documents/",
+          "status": 200
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/documents/24/custom-requirements/upload",
+          "status": 422
+        },
+        {
+          "method": "DELETE",
+          "path": "/api/v1/documents/24",
+          "status": 200
+        }
+      ],
+      "topic_preserved": true,
+      "requirements_preserved": true,
+      "generation_started": false
+    },
+    "many-claims-before": {
+      "id": 21,
+      "job": 20,
+      "terminal": {
+        "job_id": 20,
+        "status": "failed",
+        "progress": 0,
+        "document_id": 21,
+        "error_message": "greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)",
+        "attempt_count": 3
+      }
+    },
+    "many-claims-bounded": {
+      "id": 22,
+      "job": 21,
+      "terminal": {
+        "job_id": 21,
+        "status": "failed",
+        "progress": 0,
+        "document_id": 22,
+        "error_message": "Вичерпано ліміт перевірок тверджень. Новий текст не усуне цю причину; потрібно збільшити доступний ліміт перед новою спробою.",
+        "attempt_count": 1
+      },
+      "document": {
+        "status": "failed_quality",
+        "docx_path": null
+      }
+    },
+    "many-claims-complete": {
+      "id": 23,
+      "job": 22,
+      "terminal": {
+        "job_id": 22,
+        "status": "completed",
+        "progress": 100,
+        "document_id": 23,
+        "error_message": null,
+        "attempt_count": 1
+      },
+      "details": {
+        "sections": 6,
+        "reserved": 54,
+        "docx_exists": true
+      }
+    }
+  },
+  "production_observation": {
+    "before_release": {
+      "active_jobs": 0,
+      "invalid_documents": [],
+      "first_order": {
+        "id": 5,
+        "status": "failed",
+        "jobs": 1
+      },
+      "counts": {
+        "users": 5,
+        "documents": 5,
+        "ai_generation_jobs": 5,
+        "document_sections": 5,
+        "production_cases": 5
+      },
+      "operator_allowlist": [
+        1
+      ],
+      "unlimited_users": [
+        1
+      ],
+      "humanizer": false,
+      "ai_detection_blocking": false
+    },
+    "first_run": {
+      "jobs": [
+        {
+          "id": 5,
+          "document_id": 5,
+          "status": "failed",
+          "attempt_count": 3,
+          "error_message": "greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)",
+          "total_tokens": 188248,
+          "cost_cents": 131,
+          "started_at": "2026-09-07 14:06:34.898473+00:00",
+          "completed_at": "2026-09-07 14:16:46.697078+00:00"
+        }
+      ],
+      "sections": [
+        {
+          "section_index": 1,
+          "status": "completed",
+          "word_count": 535
+        },
+        {
+          "section_index": 2,
+          "status": "completed",
+          "word_count": 1291
+        },
+        {
+          "section_index": 3,
+          "status": "completed",
+          "word_count": 1294
+        },
+        {
+          "section_index": 4,
+          "status": "completed",
+          "word_count": 1402
+        },
+        {
+          "section_index": 5,
+          "status": "completed",
+          "word_count": 1289
+        }
+      ]
+    },
+    "backup_restored_counts": {
+      "users": 5,
+      "documents": 5,
+      "jobs": 5,
+      "sections": 5,
+      "cases": 5
+    }
+  },
+  "api_code_commit": "915cb092fe65f91240ae5ed4fd81779773a73b5d",
+  "defects_fixed": 9,
+  "deployment": {
+    "candidate": {
+      "profile_passed": 30,
+      "api_source_matches": 109,
+      "web": {
+        "build_id": "eXvk56ZqU122a4YKZafSs",
+        "production_api_chunks": 17,
+        "wrong_local_urls": [],
+        "private_env_files": []
+      },
+      "api_image": "sha256:ca8addb4bc169bda0eb206833a9a85fcd4cf104459ea80ce6f5cc9f68867cf3a",
+      "web_image": "sha256:73b7ddeda48ed121e90850bf362a1fa5db30fe8f31468f4ed7f7b2e9ebb03562"
+    },
+    "services": {
+      "services": [
+        {
+          "name": "ai-thesis-api",
+          "image": "sha256:ca8addb4bc169bda0eb206833a9a85fcd4cf104459ea80ce6f5cc9f68867cf3a",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-09-07T15:51:38.793977607Z",
+          "ports": {
+            "8000/tcp": [
+              {
+                "HostIp": "127.0.0.1",
+                "HostPort": "8000"
+              }
+            ]
+          }
+        },
+        {
+          "name": "ai-thesis-web",
+          "image": "sha256:73b7ddeda48ed121e90850bf362a1fa5db30fe8f31468f4ed7f7b2e9ebb03562",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-09-07T16:04:01.3295742Z",
+          "ports": {
+            "3000/tcp": [
+              {
+                "HostIp": "127.0.0.1",
+                "HostPort": "3000"
+              }
+            ]
+          }
+        },
+        {
+          "name": "docker-operator-bot-1",
+          "image": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-09-04T21:10:41.898686217Z",
+          "ports": {}
+        },
+        {
+          "name": "ai-thesis-postgres",
+          "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-08-21T16:01:51.221148093Z",
+          "ports": {
+            "5432/tcp": null
+          }
+        },
+        {
+          "name": "ai-thesis-redis",
+          "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-08-21T16:01:51.226283539Z",
+          "ports": {
+            "6379/tcp": null
+          }
+        },
+        {
+          "name": "ai-thesis-minio",
+          "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "health": "healthy",
+          "restart_count": 0,
+          "restart_policy": "unless-stopped",
+          "started_at": "2026-08-21T16:01:51.223365055Z",
+          "ports": {
+            "9000/tcp": null
+          }
+        }
+      ],
+      "web_build": {
+        "build_id": "eXvk56ZqU122a4YKZafSs",
+        "production_api_chunks": 17,
+        "wrong_local_urls": [],
+        "private_env_files": []
+      },
+      "bot_gateway": {
+        "project": "Thesica",
+        "user_id": 1,
+        "unlimited_generation": true,
+        "deploy_allowed": false
+      },
+      "image_architecture": {
+        "ai-thesis-api": "amd64",
+        "ai-thesis-web": "amd64"
+      }
+    },
+    "activation_api": {
+      "before": {
+        "ai-thesis-api": {
+          "id": "5681b4d10b7f5993e42e24511c450162911e06173276c7a33ccd7b89ca409f7d",
+          "image": "sha256:6f8a3e9e68fb1cea70b1e8fcb36a715497dc21b7dc2a17ef7e21bb959bd10f89",
+          "health": "healthy",
+          "started_at": "2026-09-07T13:28:04.302962421Z"
+        },
+        "ai-thesis-web": {
+          "id": "c27be89e8682426ddc94d760edd479f89fc6a48696b48d7ae466d9ec769d07ff",
+          "image": "sha256:da62fa901b5b5443ccf13b746a3c2fcfe28d9a61c42e39537c6ef9748854d17f",
+          "health": "healthy",
+          "started_at": "2026-09-07T13:28:10.092743349Z"
+        },
+        "docker-operator-bot-1": {
+          "id": "e17a33961867a257ae7f9ce896610660f5cf3b6d79e33e2c94a873b6516576cd",
+          "image": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b",
+          "health": "healthy",
+          "started_at": "2026-09-04T21:10:41.898686217Z"
+        },
+        "ai-thesis-postgres": {
+          "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+          "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.221148093Z"
+        },
+        "ai-thesis-redis": {
+          "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+          "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.226283539Z"
+        },
+        "ai-thesis-minio": {
+          "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+          "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.223365055Z"
+        }
+      },
+      "after": {
+        "ai-thesis-api": {
+          "id": "9c30c8dd77ff15b07b74455dcde56711f5588f5dcfca5ae5487028b6ce825f4b",
+          "image": "sha256:ca8addb4bc169bda0eb206833a9a85fcd4cf104459ea80ce6f5cc9f68867cf3a",
+          "health": "healthy",
+          "started_at": "2026-09-07T15:51:38.793977607Z"
+        },
+        "ai-thesis-web": {
+          "id": "d3aebe4cf13dc52bd8e55b12c26d0f99dd7281c6a1cece5f5d267b6eeb19d1f4",
+          "image": "sha256:521620245250f1eef756cecee5730f51d7ba68e74683ff28e5b333cb462ff365",
+          "health": "healthy",
+          "started_at": "2026-09-07T15:51:44.5920453Z"
+        },
+        "docker-operator-bot-1": {
+          "id": "e17a33961867a257ae7f9ce896610660f5cf3b6d79e33e2c94a873b6516576cd",
+          "image": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b",
+          "health": "healthy",
+          "started_at": "2026-09-04T21:10:41.898686217Z"
+        },
+        "ai-thesis-postgres": {
+          "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+          "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.221148093Z"
+        },
+        "ai-thesis-redis": {
+          "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+          "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.226283539Z"
+        },
+        "ai-thesis-minio": {
+          "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+          "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.223365055Z"
+        }
+      },
+      "preflight": {
+        "active_jobs": 0,
+        "invalid_documents": [],
+        "first_order": {
+          "id": 5,
+          "status": "failed",
+          "jobs": 1
+        },
+        "counts": {
+          "users": 5,
+          "documents": 5,
+          "ai_generation_jobs": 5,
+          "document_sections": 5,
+          "production_cases": 5
+        },
+        "operator_allowlist": [
+          1
+        ],
+        "unlimited_users": [
+          1
+        ],
+        "humanizer": false,
+        "ai_detection_blocking": false
+      },
+      "payload_files": 450,
+      "generation_started": false,
+      "database_migrations": false,
+      "unchanged_dependencies": [
+        "docker-operator-bot-1",
+        "ai-thesis-postgres",
+        "ai-thesis-redis",
+        "ai-thesis-minio"
+      ],
+      "markers_pending_live_verification": true
+    },
+    "activation_display": {
+      "code_commit": "b8b3315986eea9c247363949be73c7a6fdf0ce9b",
+      "before": {
+        "ai-thesis-api": {
+          "id": "9c30c8dd77ff15b07b74455dcde56711f5588f5dcfca5ae5487028b6ce825f4b",
+          "image": "sha256:ca8addb4bc169bda0eb206833a9a85fcd4cf104459ea80ce6f5cc9f68867cf3a",
+          "health": "healthy",
+          "started_at": "2026-09-07T15:51:38.793977607Z"
+        },
+        "ai-thesis-web": {
+          "id": "d3aebe4cf13dc52bd8e55b12c26d0f99dd7281c6a1cece5f5d267b6eeb19d1f4",
+          "image": "sha256:521620245250f1eef756cecee5730f51d7ba68e74683ff28e5b333cb462ff365",
+          "health": "healthy",
+          "started_at": "2026-09-07T15:51:44.5920453Z"
+        },
+        "docker-operator-bot-1": {
+          "id": "e17a33961867a257ae7f9ce896610660f5cf3b6d79e33e2c94a873b6516576cd",
+          "image": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b",
+          "health": "healthy",
+          "started_at": "2026-09-04T21:10:41.898686217Z"
+        },
+        "ai-thesis-postgres": {
+          "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+          "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.221148093Z"
+        },
+        "ai-thesis-redis": {
+          "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+          "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.226283539Z"
+        },
+        "ai-thesis-minio": {
+          "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+          "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.223365055Z"
+        }
+      },
+      "after": {
+        "ai-thesis-api": {
+          "id": "9c30c8dd77ff15b07b74455dcde56711f5588f5dcfca5ae5487028b6ce825f4b",
+          "image": "sha256:ca8addb4bc169bda0eb206833a9a85fcd4cf104459ea80ce6f5cc9f68867cf3a",
+          "health": "healthy",
+          "started_at": "2026-09-07T15:51:38.793977607Z"
+        },
+        "ai-thesis-web": {
+          "id": "db0d3504014d14e0bc02e84e2e8b2d558ab463704c2fa1a5aec0bcde3544d4d9",
+          "image": "sha256:73b7ddeda48ed121e90850bf362a1fa5db30fe8f31468f4ed7f7b2e9ebb03562",
+          "health": "healthy",
+          "started_at": "2026-09-07T16:04:01.3295742Z"
+        },
+        "docker-operator-bot-1": {
+          "id": "e17a33961867a257ae7f9ce896610660f5cf3b6d79e33e2c94a873b6516576cd",
+          "image": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b",
+          "health": "healthy",
+          "started_at": "2026-09-04T21:10:41.898686217Z"
+        },
+        "ai-thesis-postgres": {
+          "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+          "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.221148093Z"
+        },
+        "ai-thesis-redis": {
+          "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+          "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.226283539Z"
+        },
+        "ai-thesis-minio": {
+          "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+          "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+          "health": "healthy",
+          "started_at": "2026-08-21T16:01:51.223365055Z"
+        }
+      },
+      "only_web_recreated": true,
+      "payload_files": 450,
+      "generation_started": false
+    },
+    "runtime": {
+      "bot_mapping_user_1": true,
+      "document_5": {
+        "citation_style": "apa",
+        "has_docx": false,
+        "id": 5,
+        "jobs": 1,
+        "language": "it",
+        "requirements_file_processed": true,
+        "status": "failed",
+        "target_pages": 18,
+        "user_id": 1,
+        "work_type": "tesi_triennale"
+      },
+      "jobs": [
+        {
+          "count": 5,
+          "status": "failed"
+        }
+      ],
+      "manager_1": {
+        "expected_username": true,
+        "id": 1,
+        "is_active": true,
+        "is_admin": false
+      },
+      "manager_unlimited": true,
+      "operator_allowed": [
+        1
+      ],
+      "primary_detector": "Compilatio",
+      "profile_count": 30,
+      "profile_mismatches": {},
+      "row_counts": {
+        "ai_generation_jobs": 5,
+        "document_provenance": 70,
+        "documents": 5,
+        "production_cases": 5,
+        "release_gate_results": 0,
+        "users": 5
+      },
+      "runtime_app_sha256": {
+        "app/__init__.py": "88073dbcd47a215f40875bd5d99ab506ae789e644915a1d1f3a9c5e22484647d",
+        "app/api/v1/endpoints/__init__.py": "fdadf676089333906f75b6a5fbe84c6fab52c95e7ccf70ab2ef6148edb7668d1",
+        "app/api/v1/endpoints/admin.py": "e81b2040a528cb1e7c7b19a530f64ad1069c4ce00c40a1d5e7de465017155233",
+        "app/api/v1/endpoints/admin_auth.py": "c4f8218d9e52d6d85218b37536b9246c2a67850e9b38b1b44503ec31c0bb8e2d",
+        "app/api/v1/endpoints/admin_dashboard.py": "4a17c98048522824922778afbb45b0ae8cec1932b2e6e95f0949e1b604297534",
+        "app/api/v1/endpoints/admin_documents.py": "524a3e7bde44f0e083565f6aee3907dc2e582c62cd397c92eb58df34cdcd113b",
+        "app/api/v1/endpoints/admin_payments.py": "fab506347c8a40e44e9e8d15d54350d8c60274fc121c791f851933442cb7b234",
+        "app/api/v1/endpoints/admin_simple_auth.py": "e7bce5c2afdea6f781e0cca69aeace9be711cfc381a6122b4a7f6a88bfd8bd39",
+        "app/api/v1/endpoints/auth.py": "579005e69958902063c15c4b53988e5ca7b785581fd4ea76d6efa3de73b2edb4",
+        "app/api/v1/endpoints/documents.py": "01381b78fb0f30416d4a39e947a8dc3493dba04856a3ec5746eb146c95ff9978",
+        "app/api/v1/endpoints/editor_tasks.py": "26f35c6f5d8fdde0ba953c0dbdd57f3a63dd76c670aa15ff12ede421f7976528",
+        "app/api/v1/endpoints/generate.py": "02dedbb7d05e0fcd0001c9d419e5128464a078b4e58f0983699926f5c592b921",
+        "app/api/v1/endpoints/jobs.py": "985de0cc65fbf02097b67c9b8f013cb8680b23f51497413cf0029d8bf447ca88",
+        "app/api/v1/endpoints/operator_bot.py": "b65bbce25a7917755625e07bba230d9c6e5e863360c9bacd0412955367976100",
+        "app/api/v1/endpoints/payment.py": "56d194ae72f05c551ff915acdf9217956d1ffec53c79b7adfa9bd29dd30d02dd",
+        "app/api/v1/endpoints/pricing.py": "8446ee7f912c990f4dffa258977dd04dd532f7d3fc0712446e3426c45cb1958d",
+        "app/api/v1/endpoints/production_cases.py": "8fb014255781b2934539cce26e2af6d0aa0f3a957bdfe62b412824ffece5c811",
+        "app/api/v1/endpoints/refunds.py": "4a2366826a150ee65cb4b7988fae652758d42c57f657f7f4d017857c8e93a977",
+        "app/api/v1/endpoints/settings.py": "1c5bc0d8992cf6c56c6f1317d4ee4ca807716403d3a9c775c59921984e36062c",
+        "app/api/v1/endpoints/user.py": "38eb86081a43e5170c880e5ee9c055179c0b6057d37bc99514628ccae1de2cb9",
+        "app/core/__init__.py": "67006c8ce64e7cb9f62f8c91225db75ba40159a8858fa67016bfe3ca105b0f1b",
+        "app/core/config.py": "b6064845a3212af5a0ae28bc3d1aa7e4acdfe2adedbb68d654d8e8e2043ee21f",
+        "app/core/database.py": "21529449dc532bd06fd1bcb789e297f8cb1f2bfcb810f4acb0f709b6dd4bf0b8",
+        "app/core/dependencies.py": "c578b41b10e3d4fd91c3f9c48f42b1485c4b7b30a53c31dfe51b7a439b991dbc",
+        "app/core/exceptions.py": "2047b38665f49709912fd5b4ea2901c3915d12bf68fea14b2b9a49f8da6a4347",
+        "app/core/logging.py": "94a8aab705de1bed1b022e0a7b9b55f000ea4242c48160d3dc8626fdeb329e04",
+        "app/core/monitoring.py": "8384764be0bbad9656adf6abfde4f58829028beef05c46c2ebcb476c306cdeb8",
+        "app/core/permissions.py": "6b4af64dc6d5bdcab63f8c6845c3ae24cc3abfc1b6bd99824f2fbda17cd26980",
+        "app/core/production_access.py": "4ef6fba544c6bb611e71c97b70a6b313caf1711addd65c7fa1065c58b1f224cc",
+        "app/core/security.py": "dab9242186ed0379083c5321ae03bba7fc2afe2ae6c9a493e832ce3623497a51",
+        "app/middleware/admin_ip_check.py": "0cc52730f0d07cc193522ce26712a80480501287ddfc2b34d2ba7574733155d2",
+        "app/middleware/csrf.py": "42dbc8811193fd782b752ce4788487e3b0b8b1aa0f6d034bcd85b6ec9fef2537",
+        "app/middleware/maintenance.py": "ff7486fe9d5c06886d068f85fd73eb8bdb2765a70ce40cdf54a33fb3a7c8d4eb",
+        "app/middleware/rate_limit.py": "1a8af8871e17446b8589f22ff0f74eafdfbded961aec2a7ff2cb960f4bdd893a",
+        "app/models/__init__.py": "8a0c03105f51cfb2c72ce4f1c957eb77e2f1de02c8cff09f26c1655b6e1c752e",
+        "app/models/admin.py": "cf032c3bab70a3c3494a33cd8b01c01499b4d92d580591523f987ca2f9df00c0",
+        "app/models/auth.py": "83ddee545530c5898f46a01eda37ef273ffa7ecaf8471f8363c375fd2d369964",
+        "app/models/document.py": "fcae8a4754a30a49548c1bcf69dfd28bacaf174d04d4058b52b92545ac2bb06b",
+        "app/models/operator_bot.py": "2955a3e1d41e1526680bab0b39677cc1fb7a5da8e7f79bb3b3a355b5d910f53e",
+        "app/models/payment.py": "6d54b876fad8ad01329e7753e6c8f02e86819dc4274625bba3b21299da3310f8",
+        "app/models/refund.py": "721a58c59c2195dc3fbda85a3085adfc8c271f9a2f51fc7ccdf1e93541ed0402",
+        "app/models/user.py": "37a351432ad7951e822d706854c8d49b77a2af1962f7305cb8210174e91a7cb9",
+        "app/schemas/__init__.py": "e9b1359b1ce244466abb5b6a82e73264b53a6469fb9afa6e7a6b5df5f0f3b111",
+        "app/schemas/admin_user.py": "e26ae5ed11f6ab7af7a2f19e517f6a8d78488755c4bbe6e75854e846c28abc64",
+        "app/schemas/auth.py": "d7907e78f7c6ae697b7b060ea1740a1081ffa9a1b3762ed437479ea9e7e10392",
+        "app/schemas/document.py": "5522eb38fd536a03f5701d79ec4807658ef96c6569e3d1078723da6ce7bfc6e5",
+        "app/schemas/payment.py": "94a9bddd19b7202668d52b5ead6c9c2b144a512d7ce280189629a67ab0ea0003",
+        "app/schemas/production.py": "dea32468111dec972c1b0208ea2bc00b3ad08f3d9670a988f4fd752570d88387",
+        "app/schemas/provenance.py": "d072bc541a1e7842f365a0ffdc3ef0fdaf7e23684f99aeac95758f3d47856a8c",
+        "app/schemas/refund.py": "2f05dce11502eb47e0e0b1a90bbe3ab6466cac52652f72f2eee046b91791d8c7",
+        "app/schemas/settings.py": "6588a4051628ec226d202fab3de48449b3e9e8fa0ea690eaaebe3286629c94f6",
+        "app/schemas/user.py": "dd0fa5e2439d422cec1c5cd3ec4a51fca28853cd436ba15812488dc4995ca99c",
+        "app/services/__init__.py": "9b4ac5db094a2331df6a8f916e8369204444c779633907c73aae9353d0a7e370",
+        "app/services/admin_auth_service.py": "bd2e0019e9cdbda09b5c752cf29308cd9eef6c0f2906ff525d56df554985ce38",
+        "app/services/admin_service.py": "02873d44448de13d80923723b86a97f9c57e76361ddfe186fcd76118527fd00b",
+        "app/services/ai_detection_checker.py": "72d4d4c59c04c9415bce4fa484fa97d5857dd8feb44df90bf3b44257b0a7546c",
+        "app/services/ai_pipeline/__init__.py": "a2ac61645695ee0fe1036bf68591c46f78fb5a3dbe6233cd97943a328084eecb",
+        "app/services/ai_pipeline/citation_formatter.py": "8b9febfd1f72e7d0437a5c4503435623abf1c7e6a14bbfbad20d9f4df391d323",
+        "app/services/ai_pipeline/citation_freezer.py": "5201f2314425615f02dac2203e297172b81be7ef53931ec94100684078b488ed",
+        "app/services/ai_pipeline/citation_keys.py": "b439535995dcd207df4dda1b886b83571e2e47eeff21e44686e40c5824e089a9",
+        "app/services/ai_pipeline/generator.py": "895dac95003e68e1945e556a29a4174e38b4ef934dabfaf2b6f56cf8872e0ad6",
+        "app/services/ai_pipeline/humanizer.py": "e01f2f221a04c6a6cb76a72a41c3906b3afdddf51135207fa829e7f86b0e1a73",
+        "app/services/ai_pipeline/prompt_builder.py": "66b8ebc8006f49e4d6155ac51c88b782d425fbea169dd74f48cd396ed7cfe4e6",
+        "app/services/ai_pipeline/rag_retriever.py": "ca68166aebf9482e20b02352b32ba9e5f58f190a9c5c70325c85bf0601efb3f1",
+        "app/services/ai_pipeline/source_identity.py": "72e03122d1e5133b158d3e4a1e09ad6ad801c2b2586db1e714516609782a833f",
+        "app/services/ai_pipeline/source_pack.py": "6504f8d6895704f633a7c027539776e6c0f6a26978040c4909e6604e7d8c4b93",
+        "app/services/ai_pipeline/source_pack_preflight.py": "6cb168162818196268d0768962bf7379f894e696122ac3f170f565d3c5634cfa",
+        "app/services/ai_pipeline/stylometrics.py": "4df296255f45d1b5f36b4156a1ab1a26b42b214156fb92c22c031aa2980521af",
+        "app/services/ai_pipeline/text_utils.py": "b91e9039df827a931850a24bb07c5d6061ec9228825c064cec50cbdac8287398",
+        "app/services/ai_service.py": "2fee6c247ccff7c522978e89a45b34a6648fa95d35a7618678f68c815a82509d",
+        "app/services/auth_service.py": "d2a20533ae0839382cfed834bd0a1d83140d18937c016fffb73816612e7d6b6a",
+        "app/services/background_jobs.py": "01baaad81a41635c407d5ade6bf51cf86efdb6c6c339dbcb7424f243d9711430",
+        "app/services/circuit_breaker.py": "720d6b7aabeac45ed461575ca1eda0455ae4a6bd42bc4278a0b3cb6b655dfbf3",
+        "app/services/citation_verifier.py": "6c5fb2fdf244351334a1e706a044815ad986bd2992a8bfdb675a1db97184ad9c",
+        "app/services/claim_verification_stage.py": "b986f83ceaeb771a3ce551f3eefc4eba0e5fe16349fe0f5bbd6c94bc19c91b1b",
+        "app/services/claim_verifier.py": "951c183316b41f379d4695c6f59b1f911a6e98c4bed8708f89dde929d1709efc",
+        "app/services/cost_estimator.py": "884c7305cc951f6b146655a0e844b40949d2eb5fa3e0c39b99b454dad1a86d0f",
+        "app/services/custom_requirements_service.py": "9864633600dd0818da834586178ce7a008b5c7fd8408e43ba458122881d190c0",
+        "app/services/db_helpers.py": "7ef0783611625caf94edb3242f9fd8fc937f48e34354af4f595685789e7bc620",
+        "app/services/document_service.py": "7e28c2feb463d6dd14c43e8e05bbfa7518372991671a53e3b6d9373826bbe2bf",
+        "app/services/draft_service.py": "d9a950466672594e31abde43ee906ab227faec2dc305be548ac3833c93553b26",
+        "app/services/file_validator.py": "ac56f3c476a1decc18f2aa779b40b7042a2d97c4d961929107d9cd964724ef2b",
+        "app/services/gdpr_service.py": "a7a8237c6f20e03f9b7bcba21e489a66c54327bfa9f9be86c0d032ef23207bfa",
+        "app/services/generation_contract.py": "a3fa83ceb38135100a1240022725aa56302c3482a565d8028de743231873dcc4",
+        "app/services/generation_worker.py": "c2e6b15832e8439d93ea085d9cf525a15ff260c05ff016138f82cd3a0239a55f",
+        "app/services/grammar_checker.py": "7457eebf519f6ec2369c8b043ef492ed338dc03d9f7d73bc69faedd375c8ca12",
+        "app/services/grounding_gate.py": "5fdcbd8a55ce885233b5f1fc0653961c862377d112b8f4155080a57dcf333c83",
+        "app/services/notification_service.py": "68b706557c25946e74620ddd6eac9f0b4507d8ff89bbcf62d7e16eb3a6eba39d",
+        "app/services/payment_service.py": "81e9058446dcd76b0134cd0d14442aed97d19ccad66aa07e0558532b378ef5f5",
+        "app/services/permission_service.py": "4cb0a463250fdf5f880a5caaa179b02a5155d236243171e938889cc84493aac2",
+        "app/services/plagiarism_checker.py": "9f4c41930302cbf2ce83312eb11cf449cfa35060b678a25ca06b6e30a8d338b5",
+        "app/services/pricing_service.py": "95ead902597531b7967d74670ee0c50615cf8aa441e00362ce3924fdb1104d69",
+        "app/services/production_case_service.py": "f853f4e33b063fdf4d106e9c5beabe6dae1dcc06b5f11eb5ee43e266118f3f6e",
+        "app/services/provenance_service.py": "8064402370dd75fb2cde8c508dac67e265759ac7b54a01ae8d0f13b0eea8fe6d",
+        "app/services/quality_metrics.py": "b0d0a3d353a069e5f780d7934a5189929534bd1db1f61a4bd5b418350f12cd4b",
+        "app/services/quality_validator.py": "af44ad8e1cf0d185d7e1cc3f05fe969cb6b5df115d3e5fd938a196c9f7f6cb44",
+        "app/services/refund_service.py": "f26743e697c7a1c1b18e1cd95d032b16b29f9dc5f1458acd1d4b7008fc3e9b0e",
+        "app/services/release_policy.py": "dcc0025765740f6a79db9f849a7db88fe4e0a6ff36bb6b0a66ec9e6a373aa8f3",
+        "app/services/retry_strategy.py": "0372c36f06907658b8ff9b9f0af1a3de43d29512e439e442172eff117592c39c",
+        "app/services/settings_service.py": "853e80021b4b163096aaa35cbe28dc3228762c62728482d9563376683956accf",
+        "app/services/source_verification_stage.py": "10426c22c99d2f820b4645f077d6722fb723c5516eb578614bedd190d9892800",
+        "app/services/storage_service.py": "528ce94f7dd9e133e4e2d50ba0ffc5ba2acb78547c11b82a8060b4bde54078e4",
+        "app/services/streaming_generator.py": "d5c24f5a9b28f1e1eea8b704757564fc02e6b6c292eef68d8cf7c3ec7b856c0d",
+        "app/services/task_contract.py": "f989fa019588f57e5c8c9432d8f7ff9c6944c5c98710c358a2d64e35b95e94aa",
+        "app/services/training_data_collector.py": "2c0c59ecbc2806cc8df9cfca0b82c912077c41965e17109fd34ffa3ba6c46d8f",
+        "app/services/uploaded_sources.py": "ce1eabec9c7f250a8956794124d5e0b8024513b5111ffcfb6eb0e29cdd511662",
+        "app/services/websocket_manager.py": "143c416fc77a7c72d65cb70b7a33437bfd5f468c28b96c82e80d657721f1c110",
+        "app/utils/anthropic_helpers.py": "82d167d8322472c855d545dc26436b345aba8e2dad42158cb38ede57eff6c7f0",
+        "app/utils/jwt_helpers.py": "1f850d8fad29085f29fcba331f96574400a1924bfda78ef0f4c029798d95bad6"
+      },
+      "schema": {
+        "missing": [],
+        "model_columns": 341,
+        "model_tables": 26
+      },
+      "sdk": {
+        "anthropic_messages": true,
+        "openai_max_completion_tokens": true
+      },
+      "versions": {
+        "SQLAlchemy": "2.0.23",
+        "anthropic": "0.76.0",
+        "asyncpg": "0.29.0",
+        "fastapi": "0.104.1",
+        "openai": "2.15.0"
+      }
+    },
+    "api_canary": {
+      "after": {
+        "admin_audit_logs": {
+          "count": 2,
+          "sha256": "7609613d2807e8015c7282c6113e3e8edd3ec42fa5102057d412e010f1160a4a"
+        },
+        "admin_permissions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "admin_sessions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ai_generation_jobs": {
+          "count": 5,
+          "sha256": "828a7906ee800eb3e4c439c5037a54af1fce75e27faa0476c6ee00c51f5a2394"
+        },
+        "artifact_deletion_outbox": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_drafts": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_outlines": {
+          "count": 4,
+          "sha256": "41de357e44a175c9a74e6df62c7d36624062327b9fc1c3d4f461a205eeb7bdc2"
+        },
+        "document_provenance": {
+          "count": 70,
+          "sha256": "531f607924d723ad260f1cf2bab3eb5920f614f0b32a5989f9d209f82668b671"
+        },
+        "document_sections": {
+          "count": 5,
+          "sha256": "7bd133cef3de2096ed646f5fe2057abc7f34bc7f491309ac80040e079eb150a4"
+        },
+        "document_source_files": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_sources": {
+          "count": 114,
+          "sha256": "d33a038c93bff7a317f70fe760ef2db116f7edafb5171080ffd1b972d16fdf50"
+        },
+        "documents": {
+          "count": 5,
+          "sha256": "fb7b57ed18820bd13f8103e1643e4dee4b7e31b67451c19f8d17f6be4f19ba3c"
+        },
+        "editor_tasks": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "email_templates": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "magic_link_tokens": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_bot_actions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_support_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "payments": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "production_cases": {
+          "count": 5,
+          "sha256": "0d2701471f0df33a02a3e214714f2ab00d4e5bd2555904f81f204a153dfde2a0"
+        },
+        "refund_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "release_gate_results": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "source_file_pages": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "system_settings": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_consents": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_sessions": {
+          "count": 6,
+          "sha256": "e9912d5d1ffbf5bfd2bc88dcf7f09828e83a84ed45c5a4856845021ee0b19ac6"
+        },
+        "users": {
+          "count": 5,
+          "sha256": "0526c62f3dd7c65fe6bde29b80608334019d3aa0e741c3bcdb38ad4e7ebbcb5b"
+        }
+      },
+      "application_table_fingerprints_unchanged_except": [
+        "admin_audit_logs"
+      ],
+      "audit_rows_added": 1,
+      "auth_method": "10-minute diagnostic JWT",
+      "before": {
+        "admin_audit_logs": {
+          "count": 1,
+          "sha256": "247746359860411bfae87d988bffb26443d146bc92b5d5ccf4a33d2fb94d3487"
+        },
+        "admin_permissions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "admin_sessions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ai_generation_jobs": {
+          "count": 5,
+          "sha256": "828a7906ee800eb3e4c439c5037a54af1fce75e27faa0476c6ee00c51f5a2394"
+        },
+        "artifact_deletion_outbox": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_drafts": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_outlines": {
+          "count": 4,
+          "sha256": "41de357e44a175c9a74e6df62c7d36624062327b9fc1c3d4f461a205eeb7bdc2"
+        },
+        "document_provenance": {
+          "count": 70,
+          "sha256": "531f607924d723ad260f1cf2bab3eb5920f614f0b32a5989f9d209f82668b671"
+        },
+        "document_sections": {
+          "count": 5,
+          "sha256": "7bd133cef3de2096ed646f5fe2057abc7f34bc7f491309ac80040e079eb150a4"
+        },
+        "document_source_files": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_sources": {
+          "count": 114,
+          "sha256": "d33a038c93bff7a317f70fe760ef2db116f7edafb5171080ffd1b972d16fdf50"
+        },
+        "documents": {
+          "count": 5,
+          "sha256": "fb7b57ed18820bd13f8103e1643e4dee4b7e31b67451c19f8d17f6be4f19ba3c"
+        },
+        "editor_tasks": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "email_templates": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "magic_link_tokens": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_bot_actions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_support_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "payments": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "production_cases": {
+          "count": 5,
+          "sha256": "0d2701471f0df33a02a3e214714f2ab00d4e5bd2555904f81f204a153dfde2a0"
+        },
+        "refund_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "release_gate_results": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "source_file_pages": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "system_settings": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_consents": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_sessions": {
+          "count": 6,
+          "sha256": "e9912d5d1ffbf5bfd2bc88dcf7f09828e83a84ed45c5a4856845021ee0b19ac6"
+        },
+        "users": {
+          "count": 5,
+          "sha256": "0526c62f3dd7c65fe6bde29b80608334019d3aa0e741c3bcdb38ad4e7ebbcb5b"
+        }
+      },
+      "checks": [
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/auth/me",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/documents/?limit=100",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/documents/5",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases?per_page=100",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/1",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/2",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/3",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/4",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/7",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/1/release-gates",
+          "status": 200
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/1/detector-reports",
+          "status": 200
+        },
+        {
+          "expected": 403,
+          "method": "PATCH",
+          "path": "/api/v1/admin/production-cases/1",
+          "status": 403
+        },
+        {
+          "expected": 403,
+          "method": "PATCH",
+          "path": "/api/v1/admin/production-cases/1",
+          "status": 403
+        },
+        {
+          "expected": 409,
+          "method": "POST",
+          "path": "/api/v1/admin/production-cases/1/release",
+          "status": 409
+        },
+        {
+          "expected": 409,
+          "method": "POST",
+          "path": "/api/v1/admin/documents/5/download",
+          "status": 409
+        },
+        {
+          "expected": 403,
+          "method": "GET",
+          "path": "/api/v1/admin/users",
+          "status": 403
+        },
+        {
+          "expected": 404,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases/2147483647",
+          "status": 404
+        },
+        {
+          "expected": 200,
+          "method": "GET",
+          "path": "/api/v1/auth/me",
+          "status": 200
+        },
+        {
+          "expected": 403,
+          "method": "GET",
+          "path": "/api/v1/admin/production-cases",
+          "status": 403
+        },
+        {
+          "expected": 404,
+          "method": "GET",
+          "path": "/api/v1/documents/5",
+          "status": 404
+        }
+      ],
+      "foreign_documents_available": 0,
+      "generation_started": false,
+      "passed": 20,
+      "production_fixture_created": false,
+      "tanya_password_login": false
+    },
+    "browser": {
+      "routes": [
+        {
+          "path": "/dashboard",
+          "status": 200,
+          "bodyCharacters": 2405,
+          "productionNavigationVisible": true,
+          "browserAuthenticated": true
+        },
+        {
+          "path": "/dashboard/documents/5",
+          "status": 200,
+          "bodyCharacters": 6378,
+          "productionNavigationVisible": true,
+          "browserAuthenticated": true
+        },
+        {
+          "path": "/dashboard/production-cases",
+          "status": 200,
+          "bodyCharacters": 1096,
+          "productionNavigationVisible": true,
+          "browserAuthenticated": true
+        },
+        {
+          "path": "/dashboard/production-cases/7",
+          "status": 200,
+          "bodyCharacters": 2001,
+          "productionNavigationVisible": true,
+          "browserAuthenticated": true
+        }
+      ],
+      "errors": [],
+      "failedRequests": [],
+      "blockedMutations": [],
+      "generationStarted": false,
+      "authMethod": "Short-lived diagnostic JWT; no password entry or Tanya acceptance",
+      "screenshotsKeptLocally": true,
+      "issue_009": {
+        "saved_section_words": 5811,
+        "brief_count_hidden": true,
+        "terminal_percentage_hidden": true
+      }
+    },
+    "after_browser_snapshot": {
+      "tables": {
+        "admin_audit_logs": {
+          "count": 2,
+          "sha256": "7609613d2807e8015c7282c6113e3e8edd3ec42fa5102057d412e010f1160a4a"
+        },
+        "admin_permissions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "admin_sessions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "ai_generation_jobs": {
+          "count": 5,
+          "sha256": "828a7906ee800eb3e4c439c5037a54af1fce75e27faa0476c6ee00c51f5a2394"
+        },
+        "artifact_deletion_outbox": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_drafts": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_outlines": {
+          "count": 4,
+          "sha256": "41de357e44a175c9a74e6df62c7d36624062327b9fc1c3d4f461a205eeb7bdc2"
+        },
+        "document_provenance": {
+          "count": 70,
+          "sha256": "531f607924d723ad260f1cf2bab3eb5920f614f0b32a5989f9d209f82668b671"
+        },
+        "document_sections": {
+          "count": 5,
+          "sha256": "7bd133cef3de2096ed646f5fe2057abc7f34bc7f491309ac80040e079eb150a4"
+        },
+        "document_source_files": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "document_sources": {
+          "count": 114,
+          "sha256": "d33a038c93bff7a317f70fe760ef2db116f7edafb5171080ffd1b972d16fdf50"
+        },
+        "documents": {
+          "count": 5,
+          "sha256": "fb7b57ed18820bd13f8103e1643e4dee4b7e31b67451c19f8d17f6be4f19ba3c"
+        },
+        "editor_tasks": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "email_templates": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "magic_link_tokens": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_bot_actions": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "operator_support_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "payments": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "production_cases": {
+          "count": 5,
+          "sha256": "0d2701471f0df33a02a3e214714f2ab00d4e5bd2555904f81f204a153dfde2a0"
+        },
+        "refund_requests": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "release_gate_results": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "source_file_pages": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "system_settings": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_consents": {
+          "count": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "user_sessions": {
+          "count": 6,
+          "sha256": "e9912d5d1ffbf5bfd2bc88dcf7f09828e83a84ed45c5a4856845021ee0b19ac6"
+        },
+        "users": {
+          "count": 5,
+          "sha256": "0526c62f3dd7c65fe6bde29b80608334019d3aa0e741c3bcdb38ad4e7ebbcb5b"
+        }
+      },
+      "document_5": [
+        {
+          "id": 5,
+          "user_id": 1,
+          "status": "failed"
+        }
+      ]
+    },
+    "final_preflight": {
+      "active_jobs": 0,
+      "invalid_documents": [],
+      "first_order": {
+        "id": 5,
+        "status": "failed",
+        "jobs": 1
+      },
+      "counts": {
+        "users": 5,
+        "documents": 5,
+        "ai_generation_jobs": 5,
+        "document_sections": 5,
+        "production_cases": 5
+      },
+      "operator_allowlist": [
+        1
+      ],
+      "unlimited_users": [
+        1
+      ],
+      "humanizer": false,
+      "ai_detection_blocking": false
+    },
+    "backup": {
+      "created_utc": "2026-09-07T15:23:46.006564+00:00",
+      "path": "/opt/thesica/backups/m0-08-20260907-release",
+      "files": {
+        "bot-files.tar.gz": {
+          "bytes": 1031,
+          "sha256": "7c4be618fda8cbd8257ddd479eabf799d2b9d461093953252b8e240dafd0aa14"
+        },
+        "bot.sqlite3": {
+          "bytes": 53248,
+          "sha256": "fac444bbc35d6d39262999d6278834f877148c26a5b04f7b7bd33aee029da468"
+        },
+        "minio.tar.gz": {
+          "bytes": 7510,
+          "sha256": "7241c098889d740c2f98b5e0912d1199c9cb0142dd37b6defe647296fa0d050c"
+        },
+        "postgres.dump": {
+          "bytes": 245807,
+          "sha256": "8f47cb53e3dffc80810dcb0402a19a65262d42d5806c0eaa4609c52cead05acd"
+        },
+        "previous-images.txt": {
+          "bytes": 314,
+          "sha256": "3b70e4f93eeef15154f1e44b79bd5fef0e0891e355361eaa997e29043ac01233"
+        },
+        "private-config.tar.gz": {
+          "bytes": 5357,
+          "sha256": "1aa611b6e6da1462fdc8e5427dbf8dea876ef687c9a2daac980fa613b23d2cae"
+        },
+        "source.tar.gz": {
+          "bytes": 1848620,
+          "sha256": "3dcaccdb58a1eaf0b629b443e598e76a20f183b2f30eeddabe925df661883f21"
+        }
+      },
+      "bot_sqlite_integrity": "ok",
+      "bot_journal_rows": 0,
+      "postgres_restore": "pending isolated restore"
+    },
+    "backup_restore": {
+      "users": 5,
+      "documents": 5,
+      "jobs": 5,
+      "sections": 5,
+      "cases": 5
+    },
+    "verified_at_utc": "2026-09-07T16:07:02.835673+00:00",
+    "release_markers_updated": true
+  },
+  "academic_acceptance": {
+    "m1_pass": false,
+    "real_compilatio_received": false,
+    "final_production_docx": false,
+    "tanya_personal_acceptance": false
+  },
+  "workspace_preservation": {
+    "root_head_unchanged": "19e36fc42611675f25149efaae6ed2985c68323c",
+    "root_index_sha256_before": "bba38ed01f1079e4d630a2a1edb08f3cbfc74d324014d07bb7feb73f2e3e6ea3",
+    "root_index_sha256_after": "bba38ed01f1079e4d630a2a1edb08f3cbfc74d324014d07bb7feb73f2e3e6ea3",
+    "unrelated_preexisting_files_changed": [],
+    "preexisting_files_checked": 625,
+    "changed_preexisting_paths": [
+      "THESICA-PLAN.md",
+      "apps/api/app/schemas/document.py",
+      "apps/api/app/services/ai_service.py",
+      "apps/api/app/services/background_jobs.py",
+      "apps/api/app/services/generation_worker.py",
+      "apps/api/app/services/production_case_service.py",
+      "apps/api/app/services/release_policy.py",
+      "apps/api/app/services/storage_service.py",
+      "apps/api/tests/release_profile.py",
+      "apps/api/tests/test_claim_verifier.py",
+      "apps/api/tests/test_production_cases.py",
+      "apps/api/tests/test_provenance_ledger.py",
+      "apps/web/__tests__/app/dashboard/documents/[id]/page.test.tsx",
+      "apps/web/__tests__/components/GenerationProgress.test.tsx",
+      "apps/web/__tests__/components/dashboard/DocumentsList.test.tsx",
+      "apps/web/app/auth/login/page.tsx",
+      "apps/web/app/dashboard/documents/[id]/page.tsx",
+      "apps/web/components/GenerationProgress.tsx",
+      "apps/web/components/dashboard/DocumentsList.tsx",
+      "apps/web/lib/api.ts",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/phase1-runs/SHORT-001.md",
+      "docs/setup/TANYA_FIRST_RUN.md",
+      "infra/docker/docker-compose.prod.yml"
+    ],
+    "code_paths_matching_release": 28,
+    "code_mismatches": [],
+    "canonical_docs_updated_in_root": [
+      "THESICA-PLAN.md",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/phase1-runs/SHORT-001.md",
+      "docs/setup/TANYA_FIRST_RUN.md"
+    ]
+  }
+}
