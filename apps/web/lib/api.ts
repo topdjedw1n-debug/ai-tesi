@@ -211,10 +211,10 @@ const createHeaders = async (customHeaders?: HeadersInit): Promise<Record<string
 /**
  * Обробити API відповідь
  */
-const handleResponse = async <T>(response: Response): Promise<T> => {
+const handleResponse = async <T>(response: Response, refreshOnUnauthorized = true): Promise<T> => {
   if (!response.ok) {
     // Спроба автоматичного refresh на 401
-    if (response.status === 401) {
+    if (response.status === 401 && refreshOnUnauthorized) {
       const newToken = await refreshAccessToken();
       if (!newToken) {
         // Redirect на login якщо refresh не вдався
@@ -269,7 +269,8 @@ export const apiClient: HttpMethod = {
       headers,
       body: isFormData ? data : JSON.stringify(data),
     });
-    return handleResponse<T>(response);
+    // Invalid credentials are a form error, not an expired user session.
+    return handleResponse<T>(response, url !== '/api/v1/auth/login');
   },
 
   put: async <T = any>(url: string, data?: any, config?: RequestInit): Promise<T> => {

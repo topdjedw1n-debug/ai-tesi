@@ -49,7 +49,9 @@ export default function LoginPage() {
       // we are logged out and bounces back here.
       window.location.assign(data.user?.is_admin ? '/admin/dashboard' : '/dashboard')
     } catch (error: any) {
-      toast.error(error.message || 'Невірний логін або пароль')
+      toast.error(error.message === 'Invalid credentials'
+        ? 'Невірний логін або пароль'
+        : error.message || 'Не вдалося увійти. Спробуй ще раз.')
     } finally {
       setIsLoading(false)
     }
