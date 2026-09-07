@@ -2302,6 +2302,7 @@ class BackgroundJobService:
                             gates_passed = True
                             attempt_errors = []
                             claim_gate_failed = False
+                            claim_budget_exhausted = False
                             claim_feedback_summary: dict[str, Any] | None = None
                             attempt_claim_summary: dict[str, Any] | None = None
                             # Reset per attempt: stale remarks about an older
@@ -2533,6 +2534,9 @@ class BackgroundJobService:
                                         citation_style=document_citation_style,
                                         claims=attempt_claims,
                                     )
+                                    claim_budget_exhausted = (
+                                        claim_attempt_budget < requested_claim_checks
+                                    )
                                     if not fenced_execution:
                                         claim_budget_remaining = max(
                                             0,
@@ -2662,7 +2666,10 @@ class BackgroundJobService:
                                 )
                                 break  # Exit regeneration loop, save section
 
-                            elif attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS:
+                            elif (
+                                attempt < settings.QUALITY_MAX_REGENERATE_ATTEMPTS
+                                and not claim_budget_exhausted
+                            ):
                                 # GATES FAILED but ATTEMPTS REMAIN → REGENERATE
                                 logger.warning(
                                     f"⚠️ Section {section_index} attempt {attempt_num} failed quality gates: "
@@ -2760,11 +2767,18 @@ class BackgroundJobService:
                                         )
                                     raise CitationIntegrityError(
                                         detail=(
-                                            f"{unsupported} cited claim(s) remain "
-                                            "unsupported and "
-                                            f"{incomplete} cited claim(s) remain "
-                                            "technically unchecked after all repair "
-                                            "attempts"
+                                            "Вичерпано ліміт перевірок тверджень. "
+                                            "Новий текст не усуне цю причину; "
+                                            "потрібно збільшити доступний ліміт "
+                                            "перед новою спробою."
+                                            if claim_budget_exhausted
+                                            else (
+                                                f"{unsupported} cited claim(s) remain "
+                                                "unsupported and "
+                                                f"{incomplete} cited claim(s) remain "
+                                                "technically unchecked after all repair "
+                                                "attempts"
+                                            )
                                         )
                                     )
                                 error_detail = f"Section {section_index} quality validation failed after {settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1} attempts: {', '.join(attempt_errors)}"

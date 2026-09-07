@@ -998,7 +998,9 @@ async def test_rejected_draft_consumes_document_budget_and_cannot_fail_open(
             claim_llm_response=llm_verdicts(("unsupported", "Not supported.")),
         )
 
-        with pytest.raises(CitationIntegrityError, match="technically unchecked"):
+        with pytest.raises(
+            CitationIntegrityError, match="Вичерпано ліміт перевірок тверджень"
+        ):
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id), user_id=int(user.id)
             )
@@ -1064,7 +1066,9 @@ async def test_blocking_final_candidate_over_claim_limit_blocks_export(
         ] = "First supported claim [Vaswani, 2017]. Second claim [Vaswani, 2017]."
         mocks["generate_section"].return_value = result
 
-        with pytest.raises(CitationIntegrityError, match="technically unchecked"):
+        with pytest.raises(
+            CitationIntegrityError, match="Вичерпано ліміт перевірок тверджень"
+        ):
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id), user_id=int(user.id)
             )

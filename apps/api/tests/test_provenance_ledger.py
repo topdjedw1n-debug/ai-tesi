@@ -366,7 +366,12 @@ async def test_pipeline_writes_events_for_all_stages(
     assert gate.payload["quality_score"] == 85.0
     checks = gate.payload["checks"]
     assert checks["grammar"] == {"status": "passed", "score": 95.0, "reason": None}
-    assert checks["plagiarism"] == {"status": "passed", "score": 5.0, "reason": None}
+    assert checks["plagiarism"] == {
+        "status": "passed",
+        "score": 5.0,
+        "reason": None,
+        "blocking": False,
+    }
     assert checks["ai_detection"] == {
         "status": "passed",
         "score": 20.0,

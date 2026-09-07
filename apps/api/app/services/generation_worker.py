@@ -614,9 +614,9 @@ async def reserve_generation_claim_checks(
     reserved = min(max(0, int(requested)), available)
     if reserved:
         lease.claim_checks_used = current + reserved
-        await db.commit()
-    else:
-        await db.rollback()
+    # An empty reservation is successful: release its row lock without
+    # expiring the caller's loaded Document before the next section attempt.
+    await db.commit()
     return reserved, current + reserved
 
 
