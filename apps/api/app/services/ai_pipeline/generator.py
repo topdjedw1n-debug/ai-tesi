@@ -21,6 +21,11 @@ from app.services.ai_pipeline.citation_keys import (
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+from app.services.model_response_recovery import (
+    IncompleteModelResponse,
+    ModelResponseRecovery,
+    section_output_budget,
+)
 from app.services.training_data_collector import TrainingDataCollector
 
 if TYPE_CHECKING:
@@ -665,7 +670,10 @@ class SectionGenerator:
             if not settings.OPENAI_API_KEY:
                 raise ValueError("OpenAI API key not configured")
 
-            client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            client = openai.AsyncOpenAI(
+                api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
+            )
+            recovery = ModelResponseRecovery(section_output_budget(prompt, model))
 
             # Get language-specific system prompt
             system_prompt = PromptBuilder.get_system_prompt(language)
@@ -676,12 +684,14 @@ class SectionGenerator:
                 openai.RateLimitError,
                 openai.APIConnectionError,
                 openai.APIError,
+                IncompleteModelResponse,
             )
 
             # Inner function for retry wrapper
             async def _make_openai_call() -> str:
                 request_kwargs: dict[str, Any] = {
                     "model": model,
+                    "timeout": recovery.timeout_seconds,
                     "messages": [
                         {
                             "role": "system",
@@ -694,9 +704,9 @@ class SectionGenerator:
                     # gpt-5 family: max_tokens is rejected (400) — use
                     # max_completion_tokens (covers reasoning tokens too, hence
                     # the higher cap); temperature is not supported.
-                    request_kwargs["max_completion_tokens"] = 8000
+                    request_kwargs["max_completion_tokens"] = recovery.max_tokens
                 else:
-                    request_kwargs["max_tokens"] = 4000
+                    request_kwargs["max_tokens"] = recovery.max_tokens
                     request_kwargs["temperature"] = 0.7
 
                 response = await client.chat.completions.create(**request_kwargs)
@@ -708,16 +718,22 @@ class SectionGenerator:
                         response.usage.completion_tokens or 0,
                         purpose="section_generation",
                     )
-                return response.choices[0].message.content or ""
+                return recovery.validate(
+                    response.choices[0].message.content,
+                    getattr(response.choices[0], "finish_reason", None),
+                )
 
             # Use retry mechanism with exponential backoff
-            return await retry_with_backoff(
-                func=_make_openai_call,
-                max_retries=settings.AI_MAX_RETRIES,
-                delays=settings.AI_RETRY_DELAYS_LIST,
-                exceptions=retryable_exceptions,
-                operation_name=f"OpenAI {model}",
-            )
+            try:
+                return await retry_with_backoff(
+                    func=_make_openai_call,
+                    max_retries=settings.AI_MAX_RETRIES,
+                    delays=settings.AI_RETRY_DELAYS_LIST,
+                    exceptions=retryable_exceptions,
+                    operation_name=f"OpenAI {model}",
+                )
+            finally:
+                await client.close()
 
         except Exception as e:
             logger.error(f"OpenAI API error (all retries exhausted): {e}")
@@ -743,7 +759,10 @@ class SectionGenerator:
             if not settings.ANTHROPIC_API_KEY:
                 raise ValueError("Anthropic API key not configured")
 
-            client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+            client = anthropic.AsyncAnthropic(
+                api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
+            )
+            recovery = ModelResponseRecovery(section_output_budget(prompt, model))
 
             # Get language-specific system prompt
             system_prompt = PromptBuilder.get_system_prompt(language)
@@ -754,13 +773,15 @@ class SectionGenerator:
                 anthropic.RateLimitError,
                 anthropic.APIConnectionError,
                 anthropic.APIError,
+                IncompleteModelResponse,
             )
 
             # Inner function for retry wrapper
             async def _make_anthropic_call() -> str:
                 request_kwargs: dict[str, Any] = {
                     "model": model,
-                    "max_tokens": 4000,
+                    "timeout": recovery.timeout_seconds,
+                    "max_tokens": recovery.max_tokens,
                     "system": system_prompt,
                     "messages": [{"role": "user", "content": prompt}],
                 }
@@ -782,16 +803,21 @@ class SectionGenerator:
                     )
                 from app.utils.anthropic_helpers import response_text
 
-                return response_text(response)
+                return recovery.validate(
+                    response_text(response), getattr(response, "stop_reason", None)
+                )
 
             # Use retry mechanism with exponential backoff
-            return await retry_with_backoff(
-                func=_make_anthropic_call,
-                max_retries=settings.AI_MAX_RETRIES,
-                delays=settings.AI_RETRY_DELAYS_LIST,
-                exceptions=retryable_exceptions,
-                operation_name=f"Anthropic {model}",
-            )
+            try:
+                return await retry_with_backoff(
+                    func=_make_anthropic_call,
+                    max_retries=settings.AI_MAX_RETRIES,
+                    delays=settings.AI_RETRY_DELAYS_LIST,
+                    exceptions=retryable_exceptions,
+                    operation_name=f"Anthropic {model}",
+                )
+            finally:
+                await client.close()
 
         except Exception as e:
             logger.error(f"Anthropic API error (all retries exhausted): {e}")

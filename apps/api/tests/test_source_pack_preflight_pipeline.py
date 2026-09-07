@@ -399,7 +399,9 @@ async def test_preflight_keeps_initial_topic_sources_when_adding_section_candida
         stack.enter_context(
             patch(
                 "app.services.background_jobs._build_source_pack",
-                AsyncMock(side_effect=[initial, section_specific, empty_top_up]),
+                AsyncMock(
+                    side_effect=[initial, section_specific, empty_top_up, empty_top_up]
+                ),
             )
         )
         verifier = MagicMock()
@@ -617,7 +619,9 @@ async def test_underfilled_relaxed_pack_stops_before_writer_or_preflight(
         )
     ).scalar_one()
     assert event.payload["citable_sources"] == 0
-    assert event.payload["context_sources"] == 24
+    assert (
+        event.payload["context_sources"] == 1
+    )  # This test configures a one-source pack.
 
 
 @pytest.mark.asyncio

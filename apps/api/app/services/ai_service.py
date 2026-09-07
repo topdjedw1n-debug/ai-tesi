@@ -30,6 +30,8 @@ from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
 from app.services.cost_estimator import CostEstimator, UsageTracker
 from app.services.custom_requirements_service import combine_generation_requirements
+from app.services.model_response_recovery import ModelResponseRecovery
+from app.services.outline_validation import validate_outline
 from app.services.retry_strategy import RetryStrategy
 
 logger = logging.getLogger(__name__)
@@ -150,13 +152,32 @@ class AIService:
 
             # Generate outline using AI
             start_time = time.time()
-            outline_data = await self._call_ai_provider(
-                provider=str(document.ai_provider),
-                model=str(document.ai_model),
-                prompt=self._build_outline_prompt(
-                    document, additional_requirements, source_pack=source_pack
-                ),
+            outline_prompt = self._build_outline_prompt(
+                document, additional_requirements, source_pack=source_pack
             )
+            repair_note = ""
+            outline_tokens = 0
+            for attempt in range(3):
+                response = await self._call_ai_provider(
+                    provider=str(document.ai_provider),
+                    model=str(document.ai_model),
+                    prompt=outline_prompt + repair_note,
+                )
+                outline_tokens += int(response.get("tokens_used") or 0)
+                try:
+                    outline_data = validate_outline(response, generated=True)
+                    outline_data["tokens_used"] = outline_tokens
+                    break
+                except ValueError as exc:
+                    if attempt == 2:
+                        raise
+                    logger.warning("Repairing malformed generated outline: %s", exc)
+                    repair_note = (
+                        "\n\nYour previous response could not be used: "
+                        + str(exc)
+                        + ". Return the complete corrected JSON object. "
+                        "Every section needs a title and an integer estimated_words."
+                    )
 
             generation_time = int(time.time() - start_time)
 
@@ -509,16 +530,23 @@ class AIService:
     async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
         """Call OpenAI API with circuit breaker and retry"""
 
+        recovery = ModelResponseRecovery(8000 if model.startswith("gpt-5") else 4000)
+        total_tokens = 0
+
         async def _make_request() -> dict[str, Any]:
+            nonlocal total_tokens
             import openai
 
             if not settings.OPENAI_API_KEY:
                 raise AIProviderError("OpenAI API key not configured")
 
-            client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            client = openai.AsyncOpenAI(
+                api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
+            )
 
             request_kwargs: dict[str, Any] = {
                 "model": model,
+                "timeout": recovery.timeout_seconds,
                 "messages": [
                     {
                         "role": "system",
@@ -531,12 +559,15 @@ class AIService:
                 # gpt-5 family: max_tokens is rejected (400) — use
                 # max_completion_tokens, which also covers internal reasoning
                 # tokens (hence the higher cap); temperature is not supported.
-                request_kwargs["max_completion_tokens"] = 8000
+                request_kwargs["max_completion_tokens"] = recovery.max_tokens
             else:
-                request_kwargs["max_tokens"] = 4000
+                request_kwargs["max_tokens"] = recovery.max_tokens
                 request_kwargs["temperature"] = 0.7
 
-            response = await client.chat.completions.create(**request_kwargs)
+            try:
+                response = await client.chat.completions.create(**request_kwargs)
+            finally:
+                await client.close()
 
             content = response.choices[0].message.content
             tokens_used = response.usage.total_tokens if response.usage else 0
@@ -549,11 +580,16 @@ class AIService:
                     purpose="ai_service",
                 )
 
+            total_tokens += tokens_used
+            content = recovery.validate(
+                content, getattr(response.choices[0], "finish_reason", None)
+            )
+
             # Parse JSON from content string (tolerating markdown fences).
             parsed_content = _loads_lenient(content)
             if parsed_content is not None:
-                return {**parsed_content, "tokens_used": tokens_used}
-            return {"content": content, "tokens_used": tokens_used}
+                return {**parsed_content, "tokens_used": total_tokens}
+            return {"content": content, "tokens_used": total_tokens}
 
         # Call with retry strategy and circuit breaker
         return await self._openai_retry.execute_with_retry(_make_request)
@@ -561,17 +597,24 @@ class AIService:
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
 
+        recovery = ModelResponseRecovery()
+        total_tokens = 0
+
         async def _make_request() -> dict[str, Any]:
+            nonlocal total_tokens
             import anthropic
 
             if not settings.ANTHROPIC_API_KEY:
                 raise AIProviderError("Anthropic API key not configured")
 
-            client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+            client = anthropic.AsyncAnthropic(
+                api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
+            )
 
             request_kwargs: dict[str, Any] = {
                 "model": model,
-                "max_tokens": 4000,
+                "timeout": recovery.timeout_seconds,
+                "max_tokens": recovery.max_tokens,
                 "system": "You are an expert academic writer specializing in thesis and research paper generation.",
                 "messages": [{"role": "user", "content": prompt}],
             }
@@ -580,9 +623,10 @@ class AIService:
             if model.startswith("claude-3"):
                 request_kwargs["temperature"] = 0.7
 
-            response = await client.messages.create(  # type: ignore[attr-defined]
-                **request_kwargs
-            )
+            try:
+                response = await client.messages.create(**request_kwargs)
+            finally:
+                await client.close()
 
             from app.utils.anthropic_helpers import response_text
 
@@ -597,16 +641,14 @@ class AIService:
                     purpose="ai_service",
                 )
 
+            total_tokens += tokens_used
+            content = recovery.validate(content, getattr(response, "stop_reason", None))
+
             # Parse JSON from content string (tolerating markdown fences).
             parsed_lenient = _loads_lenient(content)
             if parsed_lenient is not None:
-                return {**parsed_lenient, "tokens_used": tokens_used}
-            try:
-                parsed_content = json.loads(content)
-                return {**parsed_content, "tokens_used": tokens_used}
-            except json.JSONDecodeError:
-                # If not valid JSON, return as-is
-                return {"content": content, "tokens_used": tokens_used}
+                return {**parsed_lenient, "tokens_used": total_tokens}
+            return {"content": content, "tokens_used": total_tokens}
 
         # Call with retry strategy and circuit breaker
         return await self._anthropic_retry.execute_with_retry(_make_request)
@@ -636,7 +678,7 @@ Topic: {document.topic}
 Language: {document.language}
 Target Pages: {document.target_pages}
 
-Additional Requirements: {additional_requirements or 'None specified'}
+Additional Requirements: {additional_requirements or "None specified"}
 
 CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
 {{
@@ -686,7 +728,8 @@ CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
   ]
 }}
 
-Generate {max(3, min(10, document.target_pages // 10))} main sections appropriate for this topic.
+Start with {max(3, min(10, document.target_pages // 10))} main sections appropriate for this topic.
+No section may exceed 3000 estimated_words. Split longer chapters into more sections while preserving the total requested length.
 Respond with ONLY the JSON object, no additional text or markdown formatting.
 """
         return prompt.strip()
@@ -711,7 +754,7 @@ Topic: {document.topic}
 Language: {document.language}
 Target Pages: {document.target_pages}
 
-Additional Requirements: {additional_requirements or 'None specified'}
+Additional Requirements: {additional_requirements or "None specified"}
 
 AVAILABLE SOURCES (plan the outline so every section can be supported by these):
 {sources_block}
@@ -737,11 +780,13 @@ CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
 }}
 
 Requirements:
-- Generate exactly {n_sections} main sections appropriate for this topic and
+- Start with {n_sections} main sections appropriate for this topic and
   grounded in the AVAILABLE SOURCES above (do not plan sections the sources
   cannot support).
 - Set "estimated_words" per section so the totals sum to approximately
   {target_words} words (Target Pages × ~250 words/page).
+- No section may exceed 3000 estimated_words. Split longer chapters into more
+  sections when needed, preserving the total requested length.
 - Each section must be distinct — do not repeat the same idea across sections.
 
 Respond with ONLY the JSON object, no additional text or markdown formatting.

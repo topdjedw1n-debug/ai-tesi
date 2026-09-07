@@ -72,6 +72,26 @@ def test_no_citations_fails_evidence_requirement():
     assert result.total_citations == 0
 
 
+def test_qualitative_evidence_can_proceed_to_blocking_semantic_verifier():
+    result = evaluate_grounding(
+        {"content": "La formazione dei docenti resta necessaria [Rossi2021]."},
+        _pack(_ps("Rossi2021", 0.9)),
+        require_concrete_detail=False,
+    )
+    assert result.passed
+    assert result.grounded_citations == 1
+
+
+def test_semantic_evidence_does_not_allow_missing_or_invented_sources():
+    for text in ("Conclusioni senza fonti.", "Conclusioni [Ghost2020]."):
+        result = evaluate_grounding(
+            {"content": text},
+            _pack(_ps("Rossi2021", 0.9)),
+            require_concrete_detail=False,
+        )
+        assert not result.passed
+
+
 def test_partial_grounding_below_rate_fails():
     pack = _pack(_ps("Rossi2021", 0.9))
     # 1 grounded of 2 -> rate 0.5 < 0.8

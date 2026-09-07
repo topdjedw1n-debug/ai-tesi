@@ -1,6 +1,7 @@
 """
 Extended tests for AIService to improve coverage
 """
+
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -50,9 +51,7 @@ async def test_generate_outline_success_mock(db_session):
     service = AIService(db_session)
 
     # Mock AI response
-    mock_response = {
-        "content": "1. Introduction\n2. Literature Review\n3. Methodology\n4. Results\n5. Conclusion"
-    }
+    mock_response = {"sections": [{"title": "Introduction", "estimated_words": 500}]}
 
     with patch.object(
         service, "_call_ai_provider", new_callable=AsyncMock
@@ -202,6 +201,7 @@ async def test_call_openai_success_mock(db_session):
 
     # Create mock client
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.chat.completions.create = AsyncMock(return_value=mock_response)
 
     # Create mock openai module with AsyncOpenAI class
@@ -250,6 +250,7 @@ async def test_call_anthropic_success_mock(db_session):
 
     # Create mock client
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.messages.create = AsyncMock(return_value=mock_response)
 
     # Create mock anthropic module with AsyncAnthropic class

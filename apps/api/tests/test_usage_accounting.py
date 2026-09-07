@@ -94,6 +94,7 @@ async def test_section_generator_records_real_usage(monkeypatch):
     generator = SectionGenerator(usage_tracker=tracker)
 
     fake_client = MagicMock()
+    fake_client.close = AsyncMock()
     fake_client.chat.completions.create = AsyncMock(
         return_value=_openai_response(1000, 500)
     )
@@ -114,6 +115,7 @@ async def test_ai_service_call_with_fallback_records_usage(monkeypatch):
     service = AIService(MagicMock(), usage_tracker=tracker)
 
     fake_client = MagicMock()
+    fake_client.close = AsyncMock()
     fake_client.chat.completions.create = AsyncMock(
         return_value=_openai_response(800, 200, content='{"score": 80}')
     )
@@ -135,6 +137,7 @@ async def test_humanizer_records_real_usage(monkeypatch):
     humanizer = Humanizer(usage_tracker=tracker)
 
     fake_client = MagicMock()
+    fake_client.close = AsyncMock()
     fake_client.chat.completions.create = AsyncMock(
         return_value=_openai_response(700, 300, content="humanized")
     )

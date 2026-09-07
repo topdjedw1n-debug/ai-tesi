@@ -1505,6 +1505,25 @@ class BackgroundJobService:
                                 ai_service=AIService(db, usage_tracker=usage),
                             )
                         if source_pack is not None:
+                            # Sparse first pages are a search problem, not a
+                            # reason to ask the manager for mandatory PDFs.
+                            for retrieval_page in (2, 3):
+                                if (
+                                    not settings.SOURCE_PACK_PREFLIGHT_ENABLED
+                                    or not source_pack.underfilled
+                                    or len(source_pack.sources) >= MIN_CITABLE_SOURCES
+                                ):
+                                    break
+                                more_sources = await _build_source_pack(
+                                    db,
+                                    document,
+                                    ai_service=AIService(db, usage_tracker=usage),
+                                    retrieval_page=retrieval_page,
+                                    allow_threshold_relaxation=False,
+                                )
+                                source_pack = _merge_source_packs(
+                                    source_pack, more_sources
+                                )
                             await fence_next_mutation(db)
                             await _persist_source_pack(db, document_id, source_pack)
                             if settings.PROVENANCE_LEDGER_ENABLED:
@@ -1609,8 +1628,22 @@ class BackgroundJobService:
                                     await db.commit()
                                 raise CitationIntegrityError(detail=detail)
 
-                # Step 1: Generate outline if not exists
-                if not document.outline:
+                # Repair a malformed legacy checkpoint only before writing.
+                # Completed sections must retain their original plan identity.
+                from app.services.outline_validation import validate_outline
+
+                valid_outline = False
+                if document.outline:
+                    try:
+                        validate_outline(document.outline)
+                        valid_outline = True
+                    except ValueError:
+                        if durable_completed_indices:
+                            raise CitationIntegrityError(
+                                detail="Completed sections have an invalid outline checkpoint"
+                            ) from None
+                # Step 1: Generate or repair the plan before persisting it.
+                if not valid_outline:
                     logger.info(f"Generating outline for document {document_id}")
                     ai_service = AIService(db, usage_tracker=usage)
                     try:
@@ -1674,7 +1707,7 @@ class BackgroundJobService:
                     raise RuntimeError("Generated outline contains no sections")
 
                 # Step 2: Generate all sections
-                sections = document.outline.get("sections", [])
+                sections = validate_outline(document.outline)["sections"]
                 section_generator = SectionGenerator(usage_tracker=usage)
                 humanizer = Humanizer(usage_tracker=usage)
 
@@ -1768,7 +1801,9 @@ class BackgroundJobService:
                             minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
                         )
                         top_up_attempted = False
-                        if preflight.needs_top_up:
+                        for retrieval_page in (2, 3):
+                            if not preflight.needs_top_up:
+                                break
                             top_up_attempted = True
                             top_up = await _build_source_pack(
                                 db,
@@ -1779,16 +1814,19 @@ class BackgroundJobService:
                                     settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE
                                 ),
                                 allow_threshold_relaxation=False,
-                                retrieval_page=2,
+                                retrieval_page=retrieval_page,
                                 raise_on_provider_error=True,
                             )
-                            combined_candidates = _merge_source_packs(
+                            candidate_pack = _merge_source_packs(
                                 candidate_pack,
                                 top_up,
-                                limit=(settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE * 2),
+                                limit=(
+                                    settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE
+                                    * retrieval_page
+                                ),
                             )
                             preflight = await preverify_source_pack(
-                                combined_candidates,
+                                candidate_pack,
                                 verifier,
                                 target_size=settings.SOURCE_PACK_TARGET_SIZE,
                                 minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
@@ -1892,6 +1930,13 @@ class BackgroundJobService:
 
                 claim_verifier: ClaimVerifier | None = None
                 claim_sources: list[Any] = []
+                # The founder's unlimited internal accounts must not hit a
+                # hidden claim quota after paying for most of a document.
+                # All claims are still checked and counted; retry bounds and
+                # release gates remain in force.
+                unlimited_claim_checks = user_id in getattr(
+                    settings, "UNLIMITED_GENERATION_USER_IDS", []
+                )
                 claim_budget_remaining = max(0, settings.CLAIM_VERIFICATION_MAX_CHECKS)
                 if settings.CLAIM_VERIFICATION_ENABLED:
                     claim_sources_result = await db.execute(
@@ -2158,6 +2203,14 @@ class BackgroundJobService:
                                         min_grounding_rate=settings.GROUNDING_MIN_RATE,
                                         require_evidence=(
                                             settings.GROUNDING_REQUIRE_EVIDENCE
+                                        ),
+                                        # Numeric-pattern detection cannot
+                                        # validate qualitative findings. The
+                                        # mandatory claim verifier below checks
+                                        # cited statements against the sources.
+                                        require_concrete_detail=not (
+                                            settings.CLAIM_VERIFICATION_ENABLED
+                                            and settings.CLAIM_VERIFICATION_BLOCKING
                                         ),
                                         min_on_topic_score=(
                                             settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
@@ -2495,9 +2548,13 @@ class BackgroundJobService:
                                         )
                                         and claim.abstract
                                     )
-                                    claim_attempt_budget = min(
-                                        requested_claim_checks,
-                                        claim_budget_remaining,
+                                    claim_attempt_budget = (
+                                        requested_claim_checks
+                                        if unlimited_claim_checks
+                                        else min(
+                                            requested_claim_checks,
+                                            claim_budget_remaining,
+                                        )
                                     )
                                     if fenced_execution and requested_claim_checks:
                                         (
@@ -2511,7 +2568,9 @@ class BackgroundJobService:
                                             document_id=document_id,
                                             requested=requested_claim_checks,
                                             max_checks=(
-                                                settings.CLAIM_VERIFICATION_MAX_CHECKS
+                                                None
+                                                if unlimited_claim_checks
+                                                else settings.CLAIM_VERIFICATION_MAX_CHECKS
                                             ),
                                         )
                                         claim_budget_remaining = max(

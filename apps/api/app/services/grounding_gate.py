@@ -65,6 +65,7 @@ def evaluate_grounding(
     *,
     min_grounding_rate: float = 0.8,
     require_evidence: bool = True,
+    require_concrete_detail: bool = True,
     min_on_topic_score: float = 0.35,
 ) -> GroundingResult:
     """
@@ -80,7 +81,10 @@ def evaluate_grounding(
     citation AND a concrete detail in the prose: a numeric fact (percentages,
     decimals, multi-digit numbers — citation years and section numbering
     excluded) OR a named system/technology/case (see
-    text_utils.contains_concrete_evidence). The reason string distinguishes the
+    text_utils.contains_concrete_evidence). When a later blocking semantic claim
+    verifier checks the actual cited evidence, require_concrete_detail may be
+    false: qualitative findings and conclusions do not require invented numbers.
+    At least one grounded citation is still required. The reason distinguishes the
     failure modes so regeneration feedback can be targeted.
 
     The gate scores `content_with_markers` (the canonical marker view) when
@@ -123,7 +127,7 @@ def evaluate_grounding(
         if grounded < 1:
             passed = False
             reason = "no grounded citation in section"
-        elif not contains_concrete_evidence(content):
+        elif require_concrete_detail and not contains_concrete_evidence(content):
             passed = False
             reason = (
                 "no concrete evidence in section (no statistic, numeric "

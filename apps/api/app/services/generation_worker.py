@@ -588,13 +588,15 @@ async def reserve_generation_claim_checks(
     lease_token: str,
     document_id: int,
     requested: int,
-    max_checks: int,
+    max_checks: int | None,
     now: datetime | None = None,
 ) -> tuple[int, int]:
     """Atomically reserve document-wide claim-check capacity before an LLM call.
 
     Returns ``(reserved_now, total_reserved_for_job)``.  Reserving before the
     external call makes the ceiling survive worker crashes and lease handoffs.
+    ``None`` retains accounting without a quota for founder-authorized unlimited
+    internal accounts. Zero still means zero for all other callers.
     """
     lease = await _lock_generation_lease(
         db,
@@ -609,8 +611,11 @@ async def reserve_generation_claim_checks(
         raise _lease_lost(job_id)
 
     current = max(0, int(lease.claim_checks_used or 0))
-    ceiling = max(0, int(max_checks))
-    available = max(0, ceiling - current)
+    available = (
+        max(0, int(requested))
+        if max_checks is None
+        else max(0, int(max_checks) - current)
+    )
     reserved = min(max(0, int(requested)), available)
     if reserved:
         lease.claim_checks_used = current + reserved

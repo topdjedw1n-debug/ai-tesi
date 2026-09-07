@@ -155,6 +155,7 @@ async def test_humanize_basic(
     """Test basic humanization with OpenAI"""
     # Setup mock
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.chat = MagicMock()
     mock_client.chat.completions = MagicMock()
     mock_client.chat.completions.create = AsyncMock(return_value=mock_openai_response)
@@ -212,6 +213,7 @@ async def test_humanize_preserve_citations(
 
     # Setup mock - return text with ALL 3 citations preserved (100%)
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_response = MagicMock()
     mock_choice = MagicMock()
     mock_message = MagicMock()
@@ -256,6 +258,7 @@ async def test_humanize_citations_lost_returns_original(
 
     # Setup mock - return text WITHOUT citations (0% preserved)
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_response = MagicMock()
     mock_choice = MagicMock()
     mock_message = MagicMock()
@@ -291,6 +294,7 @@ async def test_humanize_anthropic(
     """Test humanization with Anthropic"""
     # Setup mock
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.messages = MagicMock()
     mock_client.messages.create = AsyncMock(return_value=mock_anthropic_response)
     mock_anthropic_class.return_value = mock_client
@@ -323,6 +327,7 @@ async def test_humanize_error_returns_original(mock_openai_class, humanizer_inst
     """Test that errors return original text"""
     # Setup mock to raise exception
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.chat.completions.create = AsyncMock(
         side_effect=Exception("API timeout")
     )
@@ -350,6 +355,7 @@ async def test_humanize_cross_model_override(
     """HUMANIZER_PROVIDER/MODEL redirect humanization away from the writer's
     model (doc-10: same-model paraphrase raises detector scores)"""
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_client.messages = MagicMock()
     mock_client.messages.create = AsyncMock(return_value=mock_anthropic_response)
     mock_anthropic_class.return_value = mock_client
@@ -435,6 +441,7 @@ async def test_generate_section_with_rag(
     """Test full section generation with RAG sources"""
     # Setup mock AI response
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_response = MagicMock()
     mock_choice = MagicMock()
     mock_message = MagicMock()
@@ -478,6 +485,7 @@ async def test_generate_section_with_context(
     """Test section generation uses context from previous sections"""
     # Setup mock
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_response = MagicMock()
     mock_response.usage = MagicMock(
         total_tokens=150, prompt_tokens=100, completion_tokens=50
@@ -521,6 +529,7 @@ async def test_generate_section_with_humanization(
     """Test section generation with humanization enabled"""
     # Setup mock for BOTH generation AND humanization
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
 
     # First call: generation
     mock_gen_response = MagicMock()
@@ -1038,6 +1047,7 @@ async def test_full_pipeline_rag_to_citations(
 
     # Mock AI response with citations
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
     mock_response = MagicMock()
     mock_response.usage = MagicMock(
         total_tokens=250, prompt_tokens=180, completion_tokens=70
@@ -1091,6 +1101,7 @@ async def test_full_pipeline_with_humanization(
 
     # Mock AI responses (generation + humanization)
     mock_client = MagicMock()
+    mock_client.close = AsyncMock()
 
     # First call: generation
     mock_gen_response = MagicMock()

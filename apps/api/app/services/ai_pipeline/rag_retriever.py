@@ -4,6 +4,7 @@ Retrieves relevant academic papers and sources for context in generation
 Supports: Semantic Scholar, Perplexity, Tavily
 """
 
+import asyncio
 import json
 import logging
 import os
@@ -574,6 +575,36 @@ class RAGRetriever:
     _POLITE_MAILTO = "research@thesica.ai"
 
     @staticmethod
+    async def _scholarly_json(
+        url: str, params: dict, *, headers: dict[str, str] | None = None
+    ) -> dict:
+        """Retry a brief outage within retrieval, before discarding candidates.
+
+        SDK-style retry multiplication is avoided: three HTTP attempts total,
+        only for connection errors, rate limits and server errors. Credentials
+        are sent in headers, never in URLs that may appear in error logs.
+        """
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            for attempt in range(3):
+                try:
+                    response = await client.get(url, params=params, headers=headers)
+                    response.raise_for_status()
+                    payload = response.json()
+                    if not isinstance(payload, dict):
+                        raise ValueError("Invalid scholarly response envelope")
+                    return payload
+                except (httpx.TransportError, httpx.HTTPStatusError) as exc:
+                    if isinstance(exc, httpx.HTTPStatusError) and (
+                        exc.response.status_code != 429
+                        and exc.response.status_code < 500
+                    ):
+                        raise
+                    if attempt == 2:
+                        raise
+                    await asyncio.sleep(2 ** (attempt + 1))
+        raise RuntimeError("Scholarly request did not complete")
+
+    @staticmethod
     def _clean_abstract(text: str | None) -> str | None:
         """Strip JATS/HTML tags Crossref embeds in abstracts."""
         if not text:
@@ -617,47 +648,51 @@ class RAGRetriever:
             "mailto": self._POLITE_MAILTO,
         }
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(f"{base}/works", params=params)
-                response.raise_for_status()
-                items = response.json().get("message", {}).get("items", [])
+            payload = await self._scholarly_json(f"{base}/works", params)
+            items = payload.get("message", {}).get("items", [])
 
             source_docs: list[SourceDoc] = []
             for item in items:
-                title_list = item.get("title") or []
-                title = title_list[0] if title_list else ""
-                if not title:
-                    continue
+                try:
+                    title_list = item.get("title") or []
+                    title = title_list[0] if title_list else ""
+                    if not title:
+                        continue
 
-                authors = []
-                for a in item.get("author", []) or []:
-                    name = f"{a.get('given', '')} {a.get('family', '')}".strip()
-                    if name:
-                        authors.append(name)
+                    authors = []
+                    for a in item.get("author", []) or []:
+                        name = (
+                            f"{a.get('given', '')} {a.get('family', '')}".strip()
+                            or a.get("name")
+                        )
+                        if name:
+                            authors.append(name)
 
-                year = 0
-                date_parts = (item.get("issued") or {}).get("date-parts") or []
-                if date_parts and date_parts[0]:
-                    year = date_parts[0][0] or 0
+                    year = 0
+                    date_parts = (item.get("issued") or {}).get("date-parts") or []
+                    if date_parts and date_parts[0]:
+                        year = date_parts[0][0] or 0
 
-                venue_list = item.get("container-title") or []
-                doi = item.get("DOI")
-                source_docs.append(
-                    SourceDoc(
-                        title=title,
-                        authors=authors,
-                        year=year,
-                        abstract=self._clean_abstract(item.get("abstract")),
-                        paper_id=doi,
-                        venue=venue_list[0] if venue_list else None,
-                        citation_count=item.get("is-referenced-by-count"),
-                        url=item.get("URL")
-                        or (f"https://doi.org/{doi}" if doi else None),
-                        doi=doi,
-                        provider="crossref",
-                        source_type=item.get("type"),
+                    venue_list = item.get("container-title") or []
+                    doi = item.get("DOI")
+                    source_docs.append(
+                        SourceDoc(
+                            title=title,
+                            authors=authors,
+                            year=year,
+                            abstract=self._clean_abstract(item.get("abstract")),
+                            paper_id=doi,
+                            venue=venue_list[0] if venue_list else None,
+                            citation_count=item.get("is-referenced-by-count"),
+                            url=item.get("URL")
+                            or (f"https://doi.org/{doi}" if doi else None),
+                            doi=doi,
+                            provider="crossref",
+                            source_type=item.get("type"),
+                        )
                     )
-                )
+                except (AttributeError, TypeError, ValueError, IndexError):
+                    logger.warning("Skipping malformed Crossref record")
 
             logger.info(
                 f"Retrieved {len(source_docs)} sources from Crossref for query: {query}"
@@ -683,7 +718,7 @@ class RAGRetriever:
         page: int = 1,
         raise_on_error: bool = False,
     ) -> list[SourceDoc]:
-        """Search OpenAlex for academic works (free, no API key)."""
+        """Search OpenAlex; use the configured key for the allocated quota."""
         base = getattr(settings, "OPENALEX_API_URL", "https://api.openalex.org").rstrip(
             "/"
         )
@@ -694,48 +729,56 @@ class RAGRetriever:
             "mailto": self._POLITE_MAILTO,
         }
         try:
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.get(f"{base}/works", params=params)
-                response.raise_for_status()
-                works = response.json().get("results", [])
+            headers = (
+                {"Authorization": f"Bearer {settings.OPENALEX_API_KEY}"}
+                if settings.OPENALEX_API_KEY
+                else None
+            )
+            payload = await self._scholarly_json(
+                f"{base}/works", params, headers=headers
+            )
+            works = payload.get("results", [])
 
             source_docs: list[SourceDoc] = []
             for w in works:
-                title = w.get("title") or w.get("display_name") or ""
-                if not title:
-                    continue
+                try:
+                    title = w.get("title") or w.get("display_name") or ""
+                    if not title:
+                        continue
 
-                authors = []
-                for a in w.get("authorships", []) or []:
-                    name = (a.get("author") or {}).get("display_name")
-                    if name:
-                        authors.append(name)
+                    authors = []
+                    for a in w.get("authorships", []) or []:
+                        name = (a.get("author") or {}).get("display_name")
+                        if name:
+                            authors.append(name)
 
-                doi = w.get("doi")
-                if doi and doi.startswith("https://doi.org/"):
-                    doi = doi[len("https://doi.org/") :]
+                    doi = w.get("doi")
+                    if doi and doi.startswith("https://doi.org/"):
+                        doi = doi[len("https://doi.org/") :]
 
-                venue = ((w.get("primary_location") or {}).get("source") or {}).get(
-                    "display_name"
-                )
-
-                source_docs.append(
-                    SourceDoc(
-                        title=title,
-                        authors=authors,
-                        year=w.get("publication_year") or 0,
-                        abstract=self._reconstruct_openalex_abstract(
-                            w.get("abstract_inverted_index")
-                        ),
-                        paper_id=w.get("id"),
-                        venue=venue,
-                        citation_count=w.get("cited_by_count"),
-                        url=w.get("doi") or w.get("id"),
-                        doi=doi,
-                        provider="openalex",
-                        source_type=w.get("type"),
+                    venue = ((w.get("primary_location") or {}).get("source") or {}).get(
+                        "display_name"
                     )
-                )
+
+                    source_docs.append(
+                        SourceDoc(
+                            title=title,
+                            authors=authors,
+                            year=w.get("publication_year") or 0,
+                            abstract=self._reconstruct_openalex_abstract(
+                                w.get("abstract_inverted_index")
+                            ),
+                            paper_id=w.get("id"),
+                            venue=venue,
+                            citation_count=w.get("cited_by_count"),
+                            url=w.get("doi") or w.get("id"),
+                            doi=doi,
+                            provider="openalex",
+                            source_type=w.get("type"),
+                        )
+                    )
+                except (AttributeError, TypeError, ValueError, IndexError):
+                    logger.warning("Skipping malformed OpenAlex record")
 
             logger.info(
                 f"Retrieved {len(source_docs)} sources from OpenAlex for query: {query}"
