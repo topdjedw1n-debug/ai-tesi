@@ -1,5 +1,14 @@
 # Thesica Documentation
 
+Операційне оновлення 07.09.2026: **M0-09 VERIFIED**, `db9f887` встановлено.
+Пріоритет фаундера — спочатку справна технічна генерація для агенції,
+потім якість тексту, AI та плагіат. Три DOCX зі справжніми провайдерами
+в ізольованому стеку, 9/9 відновлень, 1194 API-тести й живі перевірки
+підтверджені. №5 має історичний FAIL, нового production-прогону не було.
+Наступна дія — один штатний прогін №5, потім якість того самого DOCX.
+Тестові завершення не є M1 PASS; менеджери не тестують технічні дефекти.
+[Звіт і докази M0-09](evidence/M0-09-2026-09-07.md).
+
 This folder contains the maintained operational docs. The current founder brief for AI agents is [AGENT_SYNC.md](./AGENT_SYNC.md). Product strategy lives at the repository root in [THESICA-PLAN.md](../THESICA-PLAN.md); design rules live in [DESIGN.md](../DESIGN.md).
 
 ## Quick Navigation
