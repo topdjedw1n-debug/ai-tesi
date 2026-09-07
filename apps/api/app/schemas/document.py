@@ -69,12 +69,20 @@ class DocumentBase(BaseModel):
     @field_validator("title")
     @classmethod
     def validate_title(cls, v: str) -> str:
-        return cls._sanitize(v)
+        value = cls._sanitize(v)
+        if not value:
+            raise ValueError("title must contain text after removing markup")
+        return value
 
     @field_validator("topic")
     @classmethod
     def validate_topic(cls, v: str) -> str:
-        return cls._sanitize(v)
+        value = cls._sanitize(v)
+        if len(value) < 10:
+            raise ValueError(
+                "topic must contain at least 10 characters after removing markup"
+            )
+        return value
 
     @field_validator("citation_style", mode="before")
     @classmethod
@@ -224,6 +232,16 @@ class DocumentUpdate(BaseModel):
     target_pages: int | None = Field(
         None, ge=3, le=1000
     )  # CRITICAL: Minimum 3 pages as per business rules
+
+    @field_validator("title")
+    @classmethod
+    def validate_title(cls, v: str | None) -> str | None:
+        return DocumentBase.validate_title(v) if v is not None else None
+
+    @field_validator("topic")
+    @classmethod
+    def validate_topic(cls, v: str | None) -> str | None:
+        return DocumentBase.validate_topic(v) if v is not None else None
 
 
 class DocumentResponse(DocumentBase):
