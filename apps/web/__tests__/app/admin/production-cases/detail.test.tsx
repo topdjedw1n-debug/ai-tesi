@@ -1,10 +1,11 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { useParams } from 'next/navigation'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
+import { useParams, usePathname } from 'next/navigation'
 import ProductionCaseDetailPage from '@/app/admin/production-cases/[id]/page'
 import { adminApiClient } from '@/lib/api/admin'
 
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
+  usePathname: jest.fn(() => '/admin/production-cases/77'),
 }))
 
 jest.mock('@/lib/api/admin', () => ({
@@ -15,6 +16,10 @@ jest.mock('@/lib/api/admin', () => ({
     releaseProductionCase: jest.fn(),
     overrideReleaseGate: jest.fn(),
     getInternalReviewDownload: jest.fn(),
+    listDetectorReports: jest.fn(),
+    uploadDetectorReport: jest.fn(),
+    downloadDetectorReport: jest.fn(),
+    recordContentReview: jest.fn(),
   },
 }))
 
@@ -90,6 +95,7 @@ const aiDetectorGate = {
 describe('ProductionCaseDetailPage QA evidence', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    ;(usePathname as jest.Mock).mockReturnValue('/admin/production-cases/77')
     ;(useParams as jest.Mock).mockReturnValue({ id: '77' })
     ;(adminApiClient.getProductionCase as jest.Mock).mockResolvedValue(productionCase)
     ;(adminApiClient.getReleaseGates as jest.Mock).mockResolvedValue([aiDetectorGate])
@@ -103,49 +109,32 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       content: null,
       download_url: '/api/v1/documents/download/file?token=review-token',
     })
+    ;(adminApiClient.listDetectorReports as jest.Mock).mockResolvedValue([])
     window.open = jest.fn()
   })
 
-  it('shows consolidated QA evidence and records structured detector results', async () => {
+  it('keeps manual quality overrides out of the manager workspace', async () => {
+    ;(usePathname as jest.Mock).mockReturnValue('/dashboard/production-cases/77')
+    ;(adminApiClient.getReleaseGates as jest.Mock).mockResolvedValue([{
+      ...aiDetectorGate, gate_key: 'section_quality', override_allowed: true,
+    }])
     render(<ProductionCaseDetailPage />)
+    expect(await screen.findByText('Результати перевірок')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /Адміністративний виняток/i })).not.toBeInTheDocument()
+    expect(screen.getByTestId('internal-review-download')).toBeInTheDocument()
+    expect(screen.queryByText('Витрати на підготовку')).not.toBeInTheDocument()
+  })
 
-    expect(await screen.findByText('QA Evidence')).toBeInTheDocument()
-    expect(screen.getByText('ai_detection_proxy')).toBeInTheDocument()
-
-    fireEvent.change(screen.getByLabelText('Result %'), {
-      target: { value: '24' },
-    })
-    fireEvent.change(screen.getByLabelText('Release decision'), {
-      target: { value: 'passed' },
-    })
-    fireEvent.change(screen.getByLabelText('Release-manager rationale'), {
-      target: { value: 'Phase 1 proof run detector evidence.' },
-    })
-
-    expect(
-      screen.getByText(/Server artifact ID: document-123-docx-a1b2c3d4e5f60708/)
-    ).toBeInTheDocument()
-
-    fireEvent.click(screen.getByRole('button', { name: 'Record release decision' }))
-
-    await waitFor(() => {
-      expect(adminApiClient.recordDetectorResult).toHaveBeenCalledWith(
-        77,
-        'ai_detection_proxy',
-        expect.objectContaining({
-          detector_name: 'Compilatio',
-          result_percent: 24,
-          decision: 'passed',
-          artifact_format: 'docx',
-          report_ref: 'docs/phase1-runs/RUN-001.md',
-          reason: 'Phase 1 proof run detector evidence.',
-        })
-      )
-    })
-    const submittedPayload = (adminApiClient.recordDetectorResult as jest.Mock).mock
-      .calls[0][2]
-    expect(submittedPayload).not.toHaveProperty('artifact_identifier')
-    expect(submittedPayload).not.toHaveProperty('artifact_fingerprint_sha256')
+  it('requires stored reports and removes manual pass and run-template controls', async () => {
+    render(<ProductionCaseDetailPage />)
+    expect(await screen.findByText('Результати перевірок')).toBeInTheDocument()
+    expect(screen.getByText('Звіти Compilatio')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Release decision')).not.toBeInTheDocument()
+    expect(screen.queryByLabelText('Run report reference')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Дозволити видачу' })).toBeDisabled()
+    expect(screen.getByRole('button', { name: 'Зберегти огляд' })).toBeDisabled()
+    expect(screen.getAllByRole('button', { name: 'Зберегти результат' })).toHaveLength(2)
+    screen.getAllByRole('button', { name: 'Зберегти результат' }).forEach((button) => expect(button).toBeDisabled())
   })
 
   it('downloads the bound pre-release DOCX and shows its sha256', async () => {
@@ -155,7 +144,7 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       productionCase.document.artifact_bindings.docx.fingerprint_sha256
     )
     fireEvent.click(
-      screen.getByRole('button', { name: 'DOCX для Compilatio (pre-release)' })
+      screen.getByRole('button', { name: 'DOCX для Compilatio' })
     )
 
     await waitFor(() => {
@@ -166,5 +155,36 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       '_blank',
       'noopener'
     )
+  })
+
+  it.each([false, true])('retains unsaved evidence only for the same DOCX (replaced=%s)', async (replaced) => {
+    const fingerprint = productionCase.document.artifact_bindings.docx.fingerprint_sha256
+    ;(adminApiClient.listDetectorReports as jest.Mock).mockResolvedValue([
+      { id: 8, filename: 'Compilatio.pdf', artifact_fingerprint_sha256: fingerprint },
+    ])
+    render(<ProductionCaseDetailPage />)
+    const similarity = await screen.findByRole('form', { name: 'Збіги тексту (similarity)' })
+    const ai = screen.getByRole('form', { name: 'Показник AI' })
+    await within(similarity).findByRole('option', { name: 'Compilatio.pdf' })
+    fireEvent.change(within(ai).getByLabelText('Результат, %'), { target: { value: '7' } })
+    fireEvent.change(within(ai).getByLabelText('Збережений звіт Compilatio'), { target: { value: '8' } })
+    fireEvent.change(within(similarity).getByLabelText('Результат, %'), { target: { value: '9' } })
+    fireEvent.change(within(similarity).getByLabelText('Збережений звіт Compilatio'), { target: { value: '8' } })
+    fireEvent.click(within(similarity).getByLabelText(/Звіт і відсоток стосуються саме DOCX/))
+    let resolveReload: (value: unknown) => void = () => {}
+    ;(adminApiClient.getProductionCase as jest.Mock).mockReturnValueOnce(new Promise((resolve) => { resolveReload = resolve }))
+    const refreshedCase = replaced ? {
+        ...productionCase,
+        document: { ...productionCase.document, artifact_bindings: { docx: { ...productionCase.document.artifact_bindings.docx, fingerprint_sha256: 'b'.repeat(64) } } },
+      } : productionCase
+    fireEvent.click(within(similarity).getByRole('button', { name: 'Зберегти результат' }))
+    await waitFor(() => expect(adminApiClient.getProductionCase).toHaveBeenCalledTimes(2))
+    expect(within(screen.getByRole('form', { name: 'Показник AI' })).getByLabelText('Результат, %')).toHaveValue(7)
+    await act(async () => resolveReload(refreshedCase))
+    await waitFor(() => {
+      const current = screen.getByRole('form', { name: 'Показник AI' })
+      expect(within(current).getByLabelText('Результат, %')).toHaveValue(replaced ? null : 7)
+      expect(within(current).getByLabelText('Збережений звіт Compilatio')).toHaveValue(replaced ? '' : '8')
+    })
   })
 })

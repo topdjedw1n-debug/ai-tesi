@@ -6,8 +6,29 @@
  */
 
 import { apiClient, API_ENDPOINTS } from '../api'
+import { adminApiClient } from '../api/admin'
 
 describe('API Client - Sanity Check', () => {
+  it('uploads an actual detector FormData body without a JSON content type', async () => {
+    const originalFetch = global.fetch
+    const fetchSpy = jest.fn().mockResolvedValue({
+      ok: true, status: 201, json: async () => ({ id: 8 }),
+    } as Response)
+    global.fetch = fetchSpy
+    const report = new File(['%PDF-1.7 synthetic report'], 'Compilatio.pdf', { type: 'application/pdf' })
+    try {
+      await adminApiClient.uploadDetectorReport(77, 'a'.repeat(64), report)
+      const [url, options] = fetchSpy.mock.calls[0]
+      expect(url).toContain('/api/v1/admin/production-cases/77/detector-reports')
+      expect(options?.body).toBeInstanceOf(FormData)
+      expect((options?.body as FormData).get('file')).toBe(report)
+      expect((options?.body as FormData).get('artifact_fingerprint_sha256')).toBe('a'.repeat(64))
+      expect(options?.headers).not.toHaveProperty('Content-Type')
+    } finally {
+      global.fetch = originalFetch
+    }
+  })
+
   it('should import apiClient successfully', () => {
     expect(apiClient).toBeDefined()
   })

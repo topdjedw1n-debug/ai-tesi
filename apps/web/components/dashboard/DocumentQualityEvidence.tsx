@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { apiClient, API_ENDPOINTS } from '@/lib/api'
+import { adminApiClient, ReleaseGate } from '@/lib/api/admin'
+import { gateDetail, gateLabel } from '@/lib/production-status'
 import {
   DocumentProvenance,
   GateStatus,
@@ -17,6 +19,7 @@ import {
 
 interface DocumentQualityEvidenceProps {
   documentId: number
+  productionCaseId?: number | null
 }
 
 const STATUS_CONFIG: Record<
@@ -100,7 +103,7 @@ function sourcePackDetail(sourcePack: QualityEvidenceSummary['sourcePack']): str
     return 'Пак джерел для цього прогону не записано (grounding вимкнено або стара робота).'
   }
   if (sourcePack.eventType === 'source_pack_insufficient') {
-    return `Знайдено лише ${sourcePack.verified ?? 0} релевантних джерел із потрібних ${sourcePack.minimumRequired ?? 0}. Генерацію зупинено до написання тексту — додай PDF або уточни тему.`
+    return `Знайдено лише ${sourcePack.verified ?? 0} релевантних джерел із потрібних ${sourcePack.minimumRequired ?? 0}. Потрібно виправити автоматичний добір перед новою спробою. PDF необов’язкові.`
   }
   if (sourcePack.eventType === 'source_pack_preflight') {
     return sourcePack.status === 'passed'
@@ -117,7 +120,7 @@ function sourcePackDetail(sourcePack: QualityEvidenceSummary['sourcePack']): str
   return `${sourcePack.packSize} джерел за темою у паку${bilingual}`
 }
 
-function buildRows(summary: QualityEvidenceSummary) {
+function buildRows(summary: QualityEvidenceSummary, gates: ReleaseGate[], hasCase: boolean, detectorLoadFailed: boolean) {
   return [
     {
       title: 'Наявність джерел',
@@ -171,30 +174,44 @@ function buildRows(summary: QualityEvidenceSummary) {
           ? 'Панель рецензентів недоступна або вимкнена для цього прогону.'
           : `${summary.reviewerPanel.passed}/${summary.reviewerPanel.total} пройдено · ${summary.reviewerPanel.failed} провалено · ${summary.reviewerPanel.criticalOverrides} критичних override`,
     },
-    {
-      title: 'Зовнішні детектори',
-      status: 'missing' as GateStatus,
-      detail: 'Результати зовнішніх перевірок (плагіат, AI-ризик) фіксуються у звіті прогону перед видачею.',
-    },
+    ...['plagiarism_proxy', 'ai_detection_proxy'].map((key) => {
+      const gate = gates.find((item) => item.gate_key === key)
+      return {
+        title: gateLabel(key),
+        status: (gate?.status === 'passed' ? 'passed' : gate?.status === 'failed' ? 'failed' : 'unchecked') as GateStatus,
+        detail: detectorLoadFailed ? 'Не вдалося завантажити актуальну перевірку. Оновіть сторінку перед видачею.'
+          : gate ? gateDetail(gate)
+          : hasCase ? 'Результат ще не збережений. Перейдіть до перевірки та видачі.'
+          : 'Результат Compilatio для цього файла ще не підтверджений.',
+      }
+    }),
   ]
 }
 
 /**
  * Manager-facing QA evidence card for the Phase 1 internal proof loop.
  * It intentionally summarizes existing provenance data instead of creating a
- * second QA contract. Manual detector outcomes stay in the run report until an
- * automated provider is wired into the pipeline.
+ * second QA contract. External results come from the same current-artifact
+ * gates used by the release endpoint.
  */
-export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceProps) {
+export function DocumentQualityEvidence({ documentId, productionCaseId }: DocumentQualityEvidenceProps) {
   const [summary, setSummary] = useState<QualityEvidenceSummary | null>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [gates, setGates] = useState<ReleaseGate[]>([])
+  const [detectorLoadFailed, setDetectorLoadFailed] = useState(false)
 
   const fetchProvenance = useCallback(async () => {
     try {
       setIsLoading(true)
-      const data = await apiClient.get<DocumentProvenance>(
-        API_ENDPOINTS.DOCUMENTS.PROVENANCE(documentId)
-      )
+      setDetectorLoadFailed(false)
+      const [data, gateData] = await Promise.all([
+        apiClient.get<DocumentProvenance>(API_ENDPOINTS.DOCUMENTS.PROVENANCE(documentId)),
+        productionCaseId ? adminApiClient.getReleaseGates(productionCaseId).catch(() => {
+          setDetectorLoadFailed(true)
+          return []
+        }) : Promise.resolve([]),
+      ])
+      setGates(gateData)
       setSummary(summarizeQualityEvidence(data?.events ?? []))
     } catch (error) {
       console.error('Failed to fetch quality evidence:', error)
@@ -202,7 +219,7 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
     } finally {
       setIsLoading(false)
     }
-  }, [documentId])
+  }, [documentId, productionCaseId])
 
   useEffect(() => {
     fetchProvenance()
@@ -221,7 +238,7 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
     )
   }
 
-  if (!summary) return null
+  if (!summary) return <p role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-4">Не вдалося завантажити докази якості. Оновіть сторінку перед видачею.</p>
 
   const models = summary.generation.models.length > 0 ? summary.generation.models.join(', ') : 'невідома модель'
   const providers =
@@ -265,7 +282,7 @@ export function DocumentQualityEvidence({ documentId }: DocumentQualityEvidenceP
       </p>
 
       <ul className="mt-3 divide-y divide-gray-100">
-        {buildRows(summary).map((row) => (
+        {buildRows(summary, gates, Boolean(productionCaseId), detectorLoadFailed).map((row) => (
           <EvidenceRow key={row.title} {...row} />
         ))}
       </ul>

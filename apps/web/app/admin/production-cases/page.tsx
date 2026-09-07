@@ -2,24 +2,32 @@
 
 import { FormEvent, useCallback, useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { adminApiClient, ProductionCase } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import { productionStatus } from '@/lib/production-status'
 
 function statusClass(status: string) {
-  if (['released', 'passed', 'completed', 'delivered'].includes(status)) {
-    return 'bg-green-900/40 text-green-200 border-green-700'
+  if (['released', 'passed', 'completed', 'ready', 'delivered'].includes(status)) {
+    return 'bg-green-50 text-green-800 border-green-200'
   }
   if (['blocked', 'failed', 'failed_quality'].includes(status)) {
-    return 'bg-red-900/40 text-red-200 border-red-700'
+    return 'bg-red-50 text-red-700 border-red-200'
   }
   if (['needs_review', 'warning', 'no_data'].includes(status)) {
-    return 'bg-yellow-900/40 text-yellow-100 border-yellow-700'
+    return 'bg-amber-50 text-amber-800 border-amber-200'
   }
-  return 'bg-gray-800 text-gray-200 border-gray-700'
+  return 'bg-white text-gray-700 border-gray-200'
 }
 
 export default function ProductionCasesPage() {
+  const pathname = usePathname()
+  const caseBasePath = pathname?.startsWith('/dashboard/')
+    ? '/dashboard/production-cases'
+    : '/admin/production-cases'
+  const operatorView = pathname?.startsWith('/dashboard/')
+  const [loadError, setLoadError] = useState(false)
   const [cases, setCases] = useState<ProductionCase[]>([])
   const [loading, setLoading] = useState(true)
   const [creating, setCreating] = useState(false)
@@ -34,12 +42,14 @@ export default function ProductionCasesPage() {
   const loadCases = useCallback(async () => {
     try {
       setLoading(true)
+      setLoadError(false)
       const data = await adminApiClient.getProductionCases({ per_page: 50 })
       setCases(data.cases)
       setTotal(data.total)
     } catch (error) {
       console.error('Failed to load production cases:', error)
-      toast.error('Failed to load production cases')
+      setLoadError(true)
+      toast.error('Не вдалося завантажити роботи для перевірки')
     } finally {
       setLoading(false)
     }
@@ -53,7 +63,7 @@ export default function ProductionCasesPage() {
     event.preventDefault()
     const documentId = Number(form.document_id)
     if (!Number.isFinite(documentId) || documentId <= 0) {
-      toast.error('Enter a valid document ID')
+      toast.error('Вкажіть правильний номер роботи')
       return
     }
     try {
@@ -64,7 +74,7 @@ export default function ProductionCasesPage() {
         citation_style: form.citation_style || undefined,
         requirements_text: form.requirements_text || undefined,
       })
-      toast.success('Production case created')
+      toast.success('Роботу додано до перевірки')
       setForm({
         document_id: '',
         deadline_at: '',
@@ -73,7 +83,7 @@ export default function ProductionCasesPage() {
       })
       await loadCases()
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to create production case')
+      toast.error(error?.message || 'Не вдалося додати роботу до перевірки')
     } finally {
       setCreating(false)
     }
@@ -82,52 +92,57 @@ export default function ProductionCasesPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Production Cases</h1>
-        <p className="mt-1 text-sm text-gray-400">
-          Internal QA-first control surface for manager release decisions.
+        <h1 className="text-2xl font-bold text-gray-900">Перевірка та видача</h1>
+        <p className="mt-1 text-sm text-gray-500">
+          Тут зберігаються перевірки кожної роботи й дозвіл отримати фінальний файл.
         </p>
       </div>
 
-      <form
+      {operatorView ? (
+        <p className="rounded-lg border border-gray-200 bg-white p-4 text-sm text-gray-600">
+          Справа створюється автоматично під час першого запуску написання.
+          <Link href="/dashboard" className="ml-1 text-primary-700 underline">Відкрити мої роботи</Link>
+        </p>
+      ) : <form
         onSubmit={handleCreate}
-        className="rounded-lg border border-gray-700 bg-gray-800 p-4"
+        className="rounded-lg border border-gray-200 bg-white p-4"
         data-testid="create-production-case-form"
       >
-        <h2 className="text-lg font-semibold text-white">Create production case</h2>
+        <h2 className="text-lg font-semibold text-gray-900">Додати наявну роботу до перевірки</h2>
         <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-          <label className="text-sm text-gray-300">
-            Document ID
+          <label className="text-sm text-gray-600">
+            Номер роботи
             <input
               value={form.document_id}
               onChange={(event) => setForm({ ...form, document_id: event.target.value })}
-              className="mt-1 w-full rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white"
+              className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900"
               inputMode="numeric"
               required
             />
           </label>
-          <label className="text-sm text-gray-300">
-            Deadline
+          <label className="text-sm text-gray-600">
+            Дедлайн
             <input
               type="datetime-local"
               value={form.deadline_at}
               onChange={(event) => setForm({ ...form, deadline_at: event.target.value })}
-              className="mt-1 w-full rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white"
+              className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900"
             />
           </label>
-          <label className="text-sm text-gray-300">
-            Citation style
+          <label className="text-sm text-gray-600">
+            Стиль цитування
             <input
               value={form.citation_style}
               onChange={(event) => setForm({ ...form, citation_style: event.target.value })}
-              className="mt-1 w-full rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white"
+              className="mt-1 w-full rounded border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900"
             />
           </label>
-          <label className="text-sm text-gray-300 md:col-span-4">
-            Requirements
+          <label className="text-sm text-gray-600 md:col-span-4">
+            Вимоги
             <textarea
               value={form.requirements_text}
               onChange={(event) => setForm({ ...form, requirements_text: event.target.value })}
-              className="mt-1 h-24 w-full rounded border border-gray-600 bg-gray-900 px-3 py-2 text-white"
+              className="mt-1 h-24 w-full rounded border border-gray-300 bg-gray-50 px-3 py-2 text-gray-900"
             />
           </label>
         </div>
@@ -136,51 +151,56 @@ export default function ProductionCasesPage() {
           disabled={creating}
           className="mt-4 rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-500 disabled:opacity-50"
         >
-          {creating ? 'Creating...' : 'Create case'}
+          {creating ? 'Додаємо…' : 'Додати роботу'}
         </button>
-      </form>
+      </form>}
 
       {loading ? (
         <div className="flex h-64 items-center justify-center">
           <LoadingSpinner />
         </div>
+      ) : loadError ? (
+        <div role="alert" className="rounded border border-amber-200 p-4">
+          <p>Список не завантажився. Збережені роботи не змінено.</p>
+          <button onClick={loadCases} className="mt-2 text-primary-700 underline">Оновити список</button>
+        </div>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-gray-700 bg-gray-800">
-          <div className="border-b border-gray-700 px-4 py-3 text-sm text-gray-300">
-            {total.toLocaleString()} case(s)
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
+          <div className="border-b border-gray-200 px-4 py-3 text-sm text-gray-600">
+            {total.toLocaleString()} робіт
           </div>
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead className="bg-gray-900">
+          <table className="min-w-full divide-y divide-gray-200">
+            <thead className="bg-gray-50">
               <tr>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                  Case
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                  Робота
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                  QA
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                  Перевірки
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                  Editorial
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                  Огляд змісту
                 </th>
-                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-400">
-                  Release
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500">
+                  Видача
                 </th>
-                <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-400">
-                  Human minutes
-                </th>
+                {!operatorView && <th className="px-4 py-3 text-right text-xs font-medium uppercase text-gray-500">
+                  Хвилини огляду
+                </th>}
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-700">
+            <tbody className="divide-y divide-gray-200">
               {cases.map((item) => (
-                <tr key={item.id} className="hover:bg-gray-700/50">
+                <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-4 py-3">
                     <Link
-                      href={`/admin/production-cases/${item.id}`}
-                      className="font-medium text-white hover:text-primary-300"
+                      href={`${caseBasePath}/${item.id}`}
+                      className="font-medium text-gray-900 hover:text-primary-700"
                     >
-                      #{item.id} · {item.document?.title || `Document ${item.document_id}`}
+                      #{item.id} · {item.document?.title || `Робота ${item.document_id}`}
                     </Link>
-                    <p className="mt-1 text-xs text-gray-400">
-                      {item.client_email || `Client ${item.client_user_id}`}
+                    <p className="mt-1 text-xs text-gray-500">
+                      {item.client_email || `Обліковий запис ${item.client_user_id}`}
                     </p>
                   </td>
                   {[
@@ -190,19 +210,19 @@ export default function ProductionCasesPage() {
                   ].map(([key, status]) => (
                     <td key={key} className="px-4 py-3">
                       <span className={`inline-flex rounded border px-2 py-1 text-xs ${statusClass(status)}`}>
-                        {status}
+                        {productionStatus(status)}
                       </span>
                     </td>
                   ))}
-                  <td className="px-4 py-3 text-right text-sm text-gray-200">
+                  {!operatorView && <td className="px-4 py-3 text-right text-sm text-gray-700">
                     {item.human_minutes_used.toLocaleString()}
-                  </td>
+                  </td>}
                 </tr>
               ))}
               {cases.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-gray-400">
-                    No production cases yet. Create one from an existing document above.
+                  <td colSpan={operatorView ? 4 : 5} className="px-4 py-10 text-center text-sm text-gray-500">
+                    Список поки порожній. Робота з’явиться тут після підтвердження умов і запуску написання.
                   </td>
                 </tr>
               )}

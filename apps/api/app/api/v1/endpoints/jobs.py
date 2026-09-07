@@ -1,6 +1,7 @@
 """
 Job status and async generation endpoints
 """
+
 import logging
 
 from fastapi import (
@@ -20,6 +21,7 @@ from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_current_user_ws
 from app.core.exceptions import NotFoundError
 from app.models.auth import User
+from app.models.document import AIGenerationJob
 from app.schemas.document import (
     AsyncGenerationRequest,
     AsyncGenerationResponse,
@@ -94,6 +96,43 @@ async def generate_document_async(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to start document generation: {str(e)}",
         ) from e
+
+
+@router.get("/document/{document_id}/status", response_model=JobStatusResponse | None)
+async def get_document_job_status(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> JobStatusResponse | None:
+    """Restore the latest full-document state after reload or a dropped socket."""
+    try:
+        await DocumentService(db).check_document_ownership(
+            document_id, int(current_user.id)
+        )
+    except NotFoundError as error:
+        raise HTTPException(status_code=404, detail="Document not found") from error
+    job = (
+        await db.execute(
+            select(AIGenerationJob)
+            .where(
+                AIGenerationJob.document_id == document_id,
+                AIGenerationJob.user_id == int(current_user.id),
+                AIGenerationJob.job_type == "full_document",
+            )
+            .order_by(AIGenerationJob.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if job is None:
+        return None
+    return JobStatusResponse(
+        job_id=int(job.id),
+        document_id=document_id,
+        status=str(job.status),
+        progress=int(job.progress or 0),
+        error_message=str(job.error_message) if job.error_message else None,
+        attempt_count=int(job.attempt_count or 0),
+    )
 
 
 @router.get("/{job_id}/status", response_model=JobStatusResponse)

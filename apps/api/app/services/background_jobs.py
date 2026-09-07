@@ -953,7 +953,7 @@ async def _build_source_pack(
     target_size: int | None = None,
     allow_threshold_relaxation: bool = True,
     retrieval_page: int = 1,
-    raise_on_provider_error: bool = False,
+    raise_on_provider_error: bool = True,
 ) -> Any:
     """
     Thin wrapper around SourcePackBuilder.build for the upfront source pack.
@@ -963,6 +963,8 @@ async def _build_source_pack(
     wrappers. Returns a SourcePack (never raises — builder degrades gracefully).
     section_titles is set on the post-outline rebuild so queries cover every
     promised section, not just the bare topic.
+    Provider exceptions are retained in the returned pack by default so an
+    initial outage cannot be mistaken for a definitive lack of sources.
 
     When ai_service is provided, the bilingual flag is on and the document is
     not in English, topic + titles are first translated to English so the pack
@@ -1435,8 +1437,16 @@ class BackgroundJobService:
                                 )
                             else:
                                 source_pack = uploaded_pack
-                        if source_pack is None:
+                        if (
+                            source_pack is None
+                            and not settings.SOURCE_PACK_PREFLIGHT_ENABLED
+                        ):
+                            # Preserve the legacy flag-off resume behavior.
                             source_pack = await _load_source_pack(db, document_id)
+                        # With preflight enabled, only the frozen branch above
+                        # may reuse rows. Provisional rows can be incomplete and
+                        # lose provider errors across a DB round-trip; search
+                        # again before the outline on an unfrozen attempt.
                         if source_pack is None or not source_pack.all_sources():
                             source_pack = await _build_source_pack(
                                 db,
@@ -1507,8 +1517,8 @@ class BackgroundJobService:
                                 detail = (
                                     "Too few relevant sources to start writing "
                                     f"({citable_count}/{MIN_CITABLE_SOURCES}). "
-                                    "Upload relevant PDF "
-                                    "sources and try again."
+                                    "Automatic source selection needs review "
+                                    "before retrying. PDF sources are optional."
                                 )
                                 if settings.PROVENANCE_LEDGER_ENABLED:
                                     await _record_provenance(

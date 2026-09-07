@@ -27,6 +27,7 @@ interface ApiResponse<T = any> {
 
 interface HttpMethod {
   get: <T = any>(url: string, config?: RequestInit) => Promise<T>;
+  getBlob: (url: string) => Promise<Blob>;
   post: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
   put: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
   patch: <T = any>(url: string, data?: any, config?: RequestInit) => Promise<T>;
@@ -237,6 +238,14 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
  * Централізований API client з автоматичним refresh
  */
 export const apiClient: HttpMethod = {
+  getBlob: async (url: string): Promise<Blob> => {
+    const response = await fetch(`${BASE_URL}${url}`, {
+      headers: await createHeaders(),
+      cache: 'no-store',
+    });
+    if (!response.ok) await handleResponse(response);
+    return response.blob();
+  },
   get: async <T = any>(url: string, config?: RequestInit): Promise<T> => {
     const headers = await createHeaders(config?.headers);
     const response = await fetch(`${BASE_URL}${url}`, {
@@ -399,6 +408,7 @@ export const API_ENDPOINTS = {
    * Job status endpoints
    */
   JOBS: {
+    FOR_DOCUMENT: (id: number) => `/api/v1/jobs/document/${id}/status`,
     STATUS: (id: number) => `/api/v1/jobs/${id}/status`,
     CANCEL: (id: number) => `/api/v1/jobs/${id}/cancel`,
   },

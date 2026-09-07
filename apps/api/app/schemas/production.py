@@ -3,7 +3,7 @@
 from datetime import datetime
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 CASE_STATUS_VALUES = {
     "draft",
@@ -170,12 +170,46 @@ class ManualDetectorResultRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     detector_name: str = Field(min_length=2, max_length=200)
-    result_percent: float = Field(ge=0, le=100)
+    result_percent: float = Field(ge=0, le=100, allow_inf_nan=False, strict=True)
     decision: Literal["passed", "failed"]
-    artifact_format: Literal["docx", "pdf"]
+    artifact_format: Literal["docx"]
+    artifact_fingerprint_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
     checked_at: datetime
-    report_ref: str = Field(min_length=3, max_length=500)
+    report_id: int = Field(gt=0)
+    report_matches_artifact: Literal[True]
     reason: str = Field(min_length=10, max_length=2000)
+
+
+class DetectorReportResponse(BaseModel):
+    id: int
+    filename: str
+    content_type: str
+    size_bytes: int
+    report_sha256: str
+    artifact_fingerprint_sha256: str
+    uploaded_by_id: int
+    uploaded_at: str
+
+
+class ContentReviewRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    artifact_fingerprint_sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    decision: Literal["accepted", "rejected", "rewritten"]
+    reason: str = Field(default="", max_length=2000)
+    # Required when accepting; a rejected/rewritten result may stop before pagination.
+    reviewed_page_count: int | None = Field(default=None, gt=0, le=1000)
+
+    @model_validator(mode="after")
+    def require_rejection_reason(self) -> "ContentReviewRequest":
+        self.reason = self.reason.strip()
+        if self.decision == "accepted" and self.reviewed_page_count is None:
+            raise ValueError("Вкажіть фактичну кількість сторінок у готовому DOCX")
+        if self.decision != "accepted" and len(self.reason) < 10:
+            raise ValueError(
+                "Explain the rejected or rewritten result in at least 10 characters"
+            )
+        return self
 
 
 class ReleaseRequest(BaseModel):

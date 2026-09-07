@@ -238,6 +238,7 @@ class DocumentResponse(DocumentBase):
     word_count: int
     estimated_reading_time: int
     requirements_file_processed: bool = False
+    production_case_id: int | None = None
     release_status: str = "not_ready"
     outline: dict[str, Any] | None = None
     sections: list[dict[str, Any]] | None = None
@@ -432,6 +433,7 @@ class JobStatusResponse(BaseModel):
     progress: int
     document_id: int | None = None
     error_message: str | None = None
+    attempt_count: int = 0
 
 
 class ActivityItem(BaseModel):

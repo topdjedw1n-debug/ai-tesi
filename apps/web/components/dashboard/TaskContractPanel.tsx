@@ -43,6 +43,7 @@ interface TaskContractPanelProps {
   provider: string
   model: string
   refreshKey?: number
+  retry?: boolean
   onGenerationStarted?: () => void
   children?: ReactNode
 }
@@ -135,6 +136,7 @@ export function TaskContractPanel({
   provider,
   model,
   refreshKey = 0,
+  retry = false,
   onGenerationStarted,
   children,
 }: TaskContractPanelProps) {
@@ -143,12 +145,14 @@ export function TaskContractPanel({
   const [isLoading, setIsLoading] = useState(true)
   const [loadFailed, setLoadFailed] = useState(false)
   const [acknowledged, setAcknowledged] = useState(false)
+  const [causeResolved, setCauseResolved] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
 
   const loadContract = useCallback(async () => {
     setIsLoading(true)
     setLoadFailed(false)
     setAcknowledged(false)
+    setCauseResolved(false)
     try {
       const [contractResponse, costResponse] = await Promise.all([
         apiClient.get<TaskContract>(
@@ -186,7 +190,7 @@ export function TaskContractPanel({
   }, [loadContract, refreshKey])
 
   const handleConfirmAndStart = async () => {
-    if (!contract || !acknowledged) return
+    if (!contract || !acknowledged || isStarting || (retry && !causeResolved)) return
     setIsStarting(true)
     let confirmed = contract.confirmed
     try {
@@ -202,15 +206,17 @@ export function TaskContractPanel({
       await apiClient.post(API_ENDPOINTS.GENERATE.FULL, {
         document_id: documentId,
       })
-      toast.success('Контракт підтверджено — генерація пішла')
+      toast.success('Умови підтверджено — написання почалось')
       onGenerationStarted?.()
     } catch (error: any) {
       toast.error(
         error?.message ||
           (confirmed
-            ? 'Контракт підтверджено, але генерація не стартувала. Спробуй ще раз.'
-            : 'Не вдалося підтвердити контракт')
+            ? 'Умови підтверджено, але початок написання не підтверджений. Оновіть сторінку й перевірте стан перед новим запуском.'
+            : 'Не вдалося підтвердити умови роботи')
       )
+      setAcknowledged(false)
+      setCauseResolved(false)
     } finally {
       setIsStarting(false)
     }
@@ -299,8 +305,17 @@ export function TaskContractPanel({
 
       <section className="rounded-lg bg-white p-6 shadow" aria-labelledby="generation-start-heading">
         <h2 id="generation-start-heading" className="text-lg font-semibold text-gray-900">
-          Перевірка перед запуском
+          {retry ? 'Нова спроба після усунення причини' : 'Перевірка перед запуском'}
         </h2>
+
+        {retry ? (
+          <label className="mt-4 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+            <input type="checkbox" checked={causeResolved} onChange={(event) => setCauseResolved(event.target.checked)} className="mt-1" />
+            <span>Причину попередньої зупинки з’ясовано й усунуто. Я запускаю нову платну спробу: вона замінить попередні частини та перевірки. Автоматичне відновлення тимчасового збою виконує сама система.</span>
+          </label>
+        ) : (
+          <p className="mt-3 text-sm text-gray-600">До натискання кнопки нижче написання не починається. Справа для перевірок створиться автоматично разом із першим запуском.</p>
+        )}
 
         <div className="mt-4 rounded-lg bg-gray-50 p-4">
           <p className="text-sm font-medium text-gray-700">Орієнтовна вартість генерації</p>
@@ -345,11 +360,11 @@ export function TaskContractPanel({
         <div className="mt-5 flex justify-end">
           <Button
             onClick={handleConfirmAndStart}
-            disabled={!acknowledged || isStarting}
+            disabled={!acknowledged || isStarting || (retry && !causeResolved)}
             data-testid="confirm-and-start-button"
           >
             {isStarting && <LoadingSpinner size="sm" className="mr-2" />}
-            {isStarting ? 'Запускаємо…' : 'Підтвердити і запустити'}
+            {isStarting ? 'Запускаємо…' : retry ? 'Підтвердити нову спробу' : 'Підтвердити і запустити'}
           </Button>
         </div>
       </section>

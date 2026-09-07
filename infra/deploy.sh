@@ -16,6 +16,15 @@ set -euo pipefail
 ROOT=/opt/thesica
 COMPOSE_DIR="$ROOT/infra/docker"
 COMPOSE_FILE=docker-compose.prod.yml
+COMPOSE_ARGS=(-p docker -f "$COMPOSE_FILE")
+# The installed operator gateway gets its credentials and private network from
+# this overlay. Recreating API with the base file alone disconnects Tanya's bot.
+if [ -f /etc/thesica/operator-bot/api.env ]; then
+	COMPOSE_ARGS+=(-f docker-compose.operator-bot.yml)
+elif docker inspect docker-operator-bot-1 >/dev/null 2>&1; then
+	echo "СТОП: бот встановлено, але його API-конфігурація відсутня."
+	exit 1
+fi
 STAMP=$(date +%Y%m%d-%H%M%S)
 BACKUP_DIR="$ROOT/backups"
 BACKUP="$BACKUP_DIR/pre-deploy-$STAMP.sql"
@@ -23,6 +32,7 @@ BACKUP="$BACKUP_DIR/pre-deploy-$STAMP.sql"
 say() { printf '\n=== %s ===\n' "$1"; }
 
 cd "$COMPOSE_DIR"
+docker compose "${COMPOSE_ARGS[@]}" config --quiet
 
 say "1/6 Резервна копія бази"
 mkdir -p "$BACKUP_DIR"
@@ -53,10 +63,10 @@ done
 echo "OK: схема оновлена"
 
 say "4/6 Збірка образів"
-docker compose -f "$COMPOSE_FILE" build api web
+docker compose "${COMPOSE_ARGS[@]}" build api web
 
 echo "-> перевірка SDK у щойно зібраному API-образі"
-if ! docker compose -f "$COMPOSE_FILE" run --rm --no-deps --entrypoint python api -c \
+if ! docker compose "${COMPOSE_ARGS[@]}" run --rm --no-deps --entrypoint python api -c \
 	"from anthropic import AsyncAnthropic; import inspect, openai; from openai.resources.chat.completions import AsyncCompletions; assert hasattr(AsyncAnthropic(api_key='x'), 'messages'); assert 'max_completion_tokens' in inspect.signature(AsyncCompletions.create).parameters; print('sdk ok', openai.__version__)"; then
 	echo "СТОП: новий API-образ не підтримує потрібний контракт Anthropic/OpenAI."
 	echo "Чинні контейнери не перезапускались і продовжують працювати."
@@ -65,7 +75,7 @@ fi
 echo "OK: SDK контракт"
 
 say "5/6 Перезапуск"
-docker compose -f "$COMPOSE_FILE" up -d api web
+docker compose "${COMPOSE_ARGS[@]}" up -d --no-deps api web
 for i in $(seq 1 30); do
 	sleep 3
 	if curl -fsS -o /dev/null http://127.0.0.1:8000/health; then
@@ -77,7 +87,7 @@ for i in $(seq 1 30); do
 		echo "Логи:    docker logs ai-thesis-api --tail 50"
 		echo "Відкат:  docker tag ai-thesis-api:rollback-$STAMP ai-thesis-api && \\"
 		echo "         docker tag ai-thesis-web:rollback-$STAMP ai-thesis-web && \\"
-		echo "         docker compose -f $COMPOSE_FILE up -d api web"
+		echo "         docker compose ${COMPOSE_ARGS[*]} up -d --no-deps api web"
 		exit 1
 	fi
 done
@@ -136,7 +146,7 @@ else
 	echo "ДЕПЛОЙ ЗАВЕРШЕНО З ЗАУВАЖЕННЯМИ — перевір рядки ФЕЙЛ вище."
 	echo "Відкат:  docker tag ai-thesis-api:rollback-$STAMP ai-thesis-api && \\"
 	echo "         docker tag ai-thesis-web:rollback-$STAMP ai-thesis-web && \\"
-	echo "         docker compose -f $COMPOSE_FILE up -d api web"
+	echo "         docker compose ${COMPOSE_ARGS[*]} up -d --no-deps api web"
 	echo "База:    docker exec -i ai-thesis-postgres sh -c 'psql -U \"\$POSTGRES_USER\" -d \"\$POSTGRES_DB\"' < $BACKUP"
 	exit 1
 fi

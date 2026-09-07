@@ -1,5 +1,6 @@
 """Phase 2 production case and release gate API coverage."""
 
+import hashlib
 from datetime import datetime, timedelta
 
 import pytest
@@ -25,11 +26,25 @@ TEST_ARTIFACT_SHA256 = "a" * 64
 @pytest.fixture(autouse=True)
 def _stable_artifact_storage(monkeypatch):
     """Production-case tests use a deterministic stored artifact, not MinIO."""
+    reports = {}
 
     async def _get_file_sha256(_self, _path):
+        if "/detector-reports/" in _path:
+            return hashlib.sha256(reports[_path]).hexdigest()
         return TEST_ARTIFACT_SHA256
 
+    async def _upload_file(_self, object_name, data, content_type):
+        path = "s3://tests/" + object_name
+        reports[path] = data
+        return path
+
+    async def _download_file(_self, path):
+        return reports[path]
+
     monkeypatch.setattr(StorageService, "get_file_sha256", _get_file_sha256)
+    monkeypatch.setattr(StorageService, "upload_file", _upload_file)
+    monkeypatch.setattr(StorageService, "download_file", _download_file)
+    return reports
 
 
 @pytest.fixture
@@ -224,6 +239,44 @@ async def _create_case(client: AsyncClient, admin: User, document: Document) -> 
     return body
 
 
+async def _report_payload(client, admin, case):
+    fingerprint = case["document"]["artifact_bindings"]["docx"]["fingerprint_sha256"]
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/detector-reports",
+        data={"artifact_fingerprint_sha256": fingerprint},
+        files={
+            "file": (
+                "Compilatio.pdf",
+                b"%PDF-1.7\nTest report\n%%EOF",
+                "application/pdf",
+            )
+        },
+        headers=_auth_headers(admin),
+    )
+    assert response.status_code == 201, response.text
+    return {
+        "report_id": response.json()["id"],
+        "artifact_fingerprint_sha256": fingerprint,
+        "report_matches_artifact": True,
+    }
+
+
+async def _accept_review(client, admin, case):
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/content-review",
+        json={
+            "artifact_fingerprint_sha256": case["document"]["artifact_bindings"][
+                "docx"
+            ]["fingerprint_sha256"],
+            "decision": "accepted",
+            "reviewed_page_count": 18,
+        },
+        headers=_auth_headers(admin),
+    )
+    assert response.status_code == 200, response.text
+    return response.json()
+
+
 @pytest.mark.asyncio
 async def test_case_creation_is_rejected_after_generation_wins_document_lock(client):
     """A racing case must not be saved after a job that omitted its requirements."""
@@ -359,9 +412,9 @@ async def test_override_rules_are_enforced_and_audited(client):
         json={"reason": "Manual citation review passed."},
         headers=_auth_headers(admin),
     )
-    assert (
-        citation_override_response.status_code == 200
-    ), citation_override_response.text
+    assert citation_override_response.status_code == 200, (
+        citation_override_response.text
+    )
     assert citation_override_response.json()["status"] == "overridden"
 
     detector_override_response = await client.post(
@@ -403,8 +456,7 @@ async def test_new_editor_task_invalidates_old_editorial_override(client):
         json={"reason": "Earlier manual editorial review was accepted."},
         headers=_auth_headers(admin),
     )
-    assert override.status_code == 200, override.text
-    assert override.json()["status"] == "overridden"
+    assert override.status_code == 400, override.text
 
     task = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/editor-tasks",
@@ -501,7 +553,7 @@ async def test_detector_results_are_structured_and_block_release_when_failed(cli
             "decision": "failed",
             "artifact_format": "docx",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-001.md",
+            **await _report_payload(client, admin, case),
             "reason": "External plagiarism proxy report for the Phase 1 run.",
         },
         headers=_auth_headers(admin),
@@ -517,7 +569,7 @@ async def test_detector_results_are_structured_and_block_release_when_failed(cli
     )
     assert len(failed_gate["evidence"]["artifact_fingerprint_sha256"]) == 64
     assert failed_gate["evidence"]["binding_status"] == "current"
-    assert "threshold_percent" not in failed_gate["evidence"]
+    assert failed_gate["evidence"]["threshold_percent"] == 10
 
     release_response = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/release",
@@ -547,11 +599,11 @@ async def test_detector_decision_is_bound_to_current_server_artifact(client):
         "ai_detection_proxy/detector-result",
         json={
             "detector_name": "Compilatio",
-            "result_percent": 99.0,
+            "result_percent": 8.0,
             "decision": "passed",
             "artifact_format": "docx",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-ARTIFACT.md",
+            **await _report_payload(client, admin, case),
             "reason": "Release manager reviewed the report and accepted this artifact.",
         },
         headers=_auth_headers(admin),
@@ -588,6 +640,8 @@ async def test_detector_rejects_file_replaced_under_same_path(client, monkeypatc
     document = await _create_document(int(customer.id), completed=True)
     case = await _create_case(client, admin, document)
 
+    report_payload = await _report_payload(client, admin, case)
+
     async def _mutated_sha256(_self, _path):
         return "f" * 64
 
@@ -601,13 +655,13 @@ async def test_detector_rejects_file_replaced_under_same_path(client, monkeypatc
             "decision": "passed",
             "artifact_format": "docx",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-MUTATED.md",
+            **report_payload,
             "reason": "Release manager reviewed the external report.",
         },
         headers=_auth_headers(admin),
     )
     assert response.status_code == 409
-    assert "stored artifact bytes" in response.json()["detail"]
+    assert "Байти DOCX змінилися" in response.json()["detail"]
 
 
 @pytest.mark.asyncio
@@ -630,7 +684,7 @@ async def test_detector_contract_rejects_caller_controlled_threshold(client):
             "decision": "passed",
             "artifact_format": "docx",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-DIAGNOSTIC.md",
+            **await _report_payload(client, admin, case),
             "reason": "Diagnostic score must not authorize an Italian release.",
         },
         headers=_auth_headers(admin),
@@ -648,7 +702,7 @@ async def test_detector_contract_rejects_caller_controlled_threshold(client):
             "decision": "passed",
             "artifact_format": "docx",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-THRESHOLD.md",
+            **await _report_payload(client, admin, case),
             "reason": "Release manager explicitly reviewed the detector report.",
         },
         headers=_auth_headers(admin),
@@ -664,12 +718,12 @@ async def test_detector_contract_rejects_caller_controlled_threshold(client):
             "decision": "passed",
             "artifact_format": "pdf",
             "checked_at": datetime.utcnow().isoformat(),
-            "report_ref": "docs/phase1-runs/RUN-NO-PDF.md",
+            **await _report_payload(client, admin, case),
             "reason": "Release manager explicitly reviewed the detector report.",
         },
         headers=_auth_headers(admin),
     )
-    assert missing_artifact_response.status_code == 409
+    assert missing_artifact_response.status_code == 422
 
 
 @pytest.mark.asyncio
@@ -715,7 +769,7 @@ async def test_release_requires_evidence_and_structured_detector_passes(client):
         },
         "ai_detection_proxy": {
             "detector_name": "Compilatio",
-            "result_percent": 22.0,
+            "result_percent": 9.0,
             "decision": "passed",
             "artifact_format": "docx",
         },
@@ -727,13 +781,15 @@ async def test_release_requires_evidence_and_structured_detector_passes(client):
             json={
                 **detector_payload,
                 "checked_at": datetime.utcnow().isoformat(),
-                "report_ref": "docs/phase1-runs/RUN-001.md",
+                **await _report_payload(client, admin, case),
                 "reason": "External detector proxy report is attached to the run report.",
             },
             headers=_auth_headers(admin),
         )
         assert detector_response.status_code == 200, detector_response.text
         assert detector_response.json()["status"] == "passed"
+
+    await _accept_review(client, admin, case)
 
     release_response = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/release",
@@ -743,7 +799,7 @@ async def test_release_requires_evidence_and_structured_detector_passes(client):
     assert release_response.status_code == 200, release_response.text
     released_case = release_response.json()
     assert released_case["release_status"] == "released"
-    assert released_case["delivery_status"] == "delivered"
+    assert released_case["delivery_status"] == "ready"
 
 
 @pytest.mark.asyncio
@@ -764,13 +820,7 @@ async def test_release_requires_both_detector_decisions_on_same_artifact(client)
     await _add_provenance(int(document.id))
     case = await _create_case(client, admin, document)
 
-    editorial_override = await client.post(
-        f"/api/v1/admin/production-cases/{case['id']}/release-gates/"
-        "editorial_review/override",
-        json={"reason": "Final editorial review was completed and recorded."},
-        headers=_auth_headers(admin),
-    )
-    assert editorial_override.status_code == 200, editorial_override.text
+    await _accept_review(client, admin, case)
 
     for gate_key, artifact_format in (
         ("plagiarism_proxy", "docx"),
@@ -785,12 +835,14 @@ async def test_release_requires_both_detector_decisions_on_same_artifact(client)
                 "decision": "passed",
                 "artifact_format": artifact_format,
                 "checked_at": datetime.utcnow().isoformat(),
-                "report_ref": "docs/phase1-runs/RUN-ONE-ARTIFACT.md",
+                **await _report_payload(client, admin, case),
                 "reason": "External report is bound to this exact artifact.",
             },
             headers=_auth_headers(admin),
         )
-        assert response.status_code == 200, response.text
+        assert response.status_code == (200 if artifact_format == "docx" else 422), (
+            response.text
+        )
 
     release_response = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/release",
@@ -798,7 +850,7 @@ async def test_release_requires_both_detector_decisions_on_same_artifact(client)
         headers=_auth_headers(admin),
     )
     assert release_response.status_code == 409
-    assert "same delivery artifact" in release_response.json()["detail"]
+    assert "ai_detection_proxy" in release_response.json()["detail"]["blockers"]
 
 
 async def _add_event(document_id: int, stage: str, event_type: str, payload: dict):
@@ -821,6 +873,48 @@ async def _get_gate(client: AsyncClient, admin: User, case_id: int, gate_key: st
     )
     assert response.status_code == 200
     return next(g for g in response.json() if g["gate_key"] == gate_key)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("gate_key", ["plagiarism_proxy", "ai_detection_proxy"])
+async def test_m0_03_manual_pass_cannot_accept_22_percent(client, gate_key):
+    admin = await _create_user(
+        email=f"m003-{gate_key}@example.com", is_admin=True, is_super_admin=True
+    )
+    document = await _create_document(int(admin.id), completed=True)
+    case = await _create_case(client, admin, document)
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/release-gates/"
+        f"{gate_key}/detector-result",
+        json={
+            "detector_name": "Compilatio",
+            "result_percent": 22,
+            "decision": "passed",
+            "artifact_format": "docx",
+            "checked_at": datetime.utcnow().isoformat(),
+            **await _report_payload(client, admin, case),
+            "reason": "Manager attempted to accept an over-threshold result.",
+        },
+        headers=_auth_headers(admin),
+    )
+    assert response.status_code == 200, response.text
+    assert response.json()["status"] == "failed"
+
+
+@pytest.mark.asyncio
+async def test_m0_03_editorial_override_cannot_replace_no_rewrite(client):
+    admin = await _create_user(
+        email="m003-no-rewrite@example.com", is_admin=True, is_super_admin=True
+    )
+    document = await _create_document(int(admin.id), completed=True)
+    case = await _create_case(client, admin, document)
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/release-gates/"
+        "editorial_review/override",
+        json={"reason": "Attempt to release without confirming no content rewrite."},
+        headers=_auth_headers(admin),
+    )
+    assert response.status_code == 400
 
 
 @pytest.mark.asyncio
@@ -1068,12 +1162,14 @@ async def test_release_blocked_by_unchecked_and_warning_until_override(client):
                 "decision": "passed",
                 "artifact_format": "docx",
                 "checked_at": datetime.utcnow().isoformat(),
-                "report_ref": "docs/phase1-runs/RUN-001.md",
+                **await _report_payload(client, admin, case),
                 "reason": "External detector proxy report attached.",
             },
             headers=_auth_headers(admin),
         )
         assert detector_response.status_code == 200
+
+    await _accept_review(client, admin, case)
 
     release_response = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/release",

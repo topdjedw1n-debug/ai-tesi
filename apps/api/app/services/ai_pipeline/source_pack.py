@@ -63,6 +63,27 @@ _STUDENT_WORK_TEXT_RE = re.compile(
     r")\b"
 )
 
+# Nursing practice defaults to human care. Only explicit study-population
+# signals in a source title exclude it; an ingredient such as emu oil or a
+# passing animal reference in an abstract must not discard a clinical paper.
+_NURSING_SCOPE_RE = re.compile(
+    r"\b(?:nurs(?:e|es|ing)|infermier\w*|midwi(?:fe|ves|fery)|ostetric\w*)\b"
+)
+_ANIMAL_SCOPE_RE = re.compile(
+    r"\b(?:animal\w*|veterinar\w*|rats?|ratti|mice|mouse|topi|murine|"
+    r"rodent\w*|roditor\w*|foals?|horses?|equine|cavall\w*|puledr\w*|"
+    r"piglets?|lambs?|calves|bovine|ovine|domestic\s+mammals)\b"
+)
+_ANIMAL_POPULATION_TITLE_RE = re.compile(
+    r"\b(?:in|of|between|among|nei|negli|sui|tra)\s+"
+    r"(?:(?:healthy|neonatal|newborn|preterm|premature|pregnant|laboratory|"
+    r"domestic|young|adult)\s+){0,4}"
+    r"(?:rats?|mice|rodents?|foals?|horses?|piglets?|lambs?|calves|mammals|"
+    r"ratti|topi|roditori|puledri|cavalli)\b|"
+    r"\b(?:rat|mouse|murine|rodent|equine|bovine|ovine|animal)\s+"
+    r"(?:models?|studies|study|experiments?)\b"
+)
+
 # Coarse domain detection → anchor terms (reward) + off-topic markers (penalize).
 # Small, curated constants (YAGNI); make configurable later only if needed. The
 # "education" entry is what rejects corporate-training sources for school/uni
@@ -416,8 +437,7 @@ class SourcePack:
                     if len(text) > 1000:
                         text = text[:1000].rstrip() + "…"
                     excerpt_lines.append(
-                        f"[{passage.citation_key} | p. {passage.page_number}] "
-                        f"«{text}»"
+                        f"[{passage.citation_key} | p. {passage.page_number}] «{text}»"
                     )
                 block = block + "\n".join(excerpt_lines)
         return block
@@ -582,6 +602,30 @@ class SourcePackBuilder:
                 document_id,
             )
         deduped = eligible
+
+        scope_text = ascii_fold(
+            " ".join(
+                [topic, alt_topic, *(section_titles or []), *(alt_section_titles or [])]
+            )
+        ).casefold()
+        if _NURSING_SCOPE_RE.search(scope_text) and not _ANIMAL_SCOPE_RE.search(
+            scope_text
+        ):
+            eligible = [
+                src
+                for src in deduped
+                if not _ANIMAL_POPULATION_TITLE_RE.search(
+                    ascii_fold(src.title).casefold()
+                )
+            ]
+            if len(eligible) < len(deduped):
+                logger.info(
+                    "Source pack dropped %s animal-population candidate(s) "
+                    "outside the nursing scope for document %s",
+                    len(deduped) - len(eligible),
+                    document_id,
+                )
+            deduped = eligible
 
         # Score the document topic and every topic+section scope independently.
         # A focused paper should support one promised section; it should not

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useAuth } from '@/components/providers/AuthProvider'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
 import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
@@ -27,6 +29,7 @@ interface Document {
   topic: string
   status: string
   release_status: string
+  production_case_id: number | null
   content: string | null
   outline: any
   word_count: number
@@ -49,6 +52,7 @@ interface Document {
 export default function DocumentDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { user } = useAuth()
   const documentId = parseInt(params.id as string, 10)
 
   const [document, setDocument] = useState<Document | null>(null)
@@ -97,14 +101,14 @@ export default function DocumentDetailPage() {
     fetchDocument() // Refresh document data
   }
 
-  const handleGenerationError = (error: string) => {
+  const handleGenerationError = () => {
     setIsGenerating(false)
-    toast.error(`Генерація не вдалася: ${error}`)
+    toast.error('Написання зупинилося. Причина та подальші дії збережені у роботі.')
     fetchDocument() // Refresh to get updated status
   }
 
   const handleCancelGeneration = async () => {
-    if (!window.confirm('Скасувати генерацію? Прогрес буде втрачено, роботу можна буде перезапустити.')) {
+    if (!window.confirm('Зупинити поточну спробу? Нова спроба написання потребуватиме окремого підтвердження.')) {
       return
     }
     setIsCancelling(true)
@@ -161,6 +165,7 @@ export default function DocumentDetailPage() {
 
   const isGeneratingStatus = document.status === 'generating' || document.status === 'payment_pending'
   const status = documentStatus(document.status, document.release_status)
+  const failed = ['failed', 'failed_quality'].includes(document.status)
 
   return (
     <DashboardLayout>
@@ -206,13 +211,20 @@ export default function DocumentDetailPage() {
           )}
         </div>
 
-        {/* Generation Progress - Show when document is generating or payment pending */}
-        {(document.status === 'generating' || document.status === 'payment_pending' || isGenerating) && (
+        {user?.can_access_production && document.production_case_id && (
+          <Link href={`/dashboard/production-cases/${document.production_case_id}`} className="inline-flex rounded-md border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-medium text-primary-800">
+            Перевірка та видача цієї роботи →
+          </Link>
+        )}
+
+        {/* Persisted progress is also readable after a failed attempt or refresh. */}
+        {(isGeneratingStatus || isGenerating || failed) && (
           <>
             <GenerationProgress
               documentId={documentId}
-              onComplete={handleGenerationComplete}
-              onError={handleGenerationError}
+              active={!failed}
+              onComplete={failed ? undefined : handleGenerationComplete}
+              onError={failed ? undefined : handleGenerationError}
             />
             {(document.status === 'generating' || isGenerating) && (
               <div className="flex justify-end">
@@ -232,7 +244,7 @@ export default function DocumentDetailPage() {
         {/* Sources certificate: cited sources with verification statuses */}
         {!isGeneratingStatus && document.status !== 'draft' && (
           <>
-            <DocumentQualityEvidence documentId={documentId} />
+            <DocumentQualityEvidence documentId={documentId} productionCaseId={user?.can_access_production ? document.production_case_id : undefined} />
             <DocumentSources documentId={documentId} />
           </>
         )}
@@ -288,18 +300,17 @@ export default function DocumentDetailPage() {
         )}
 
         {/* Draft review: contract, uploaded sources, estimate, explicit start */}
-        {document.status === 'draft' && !document.content && (
+        {((document.status === 'draft' && !document.content) || failed) && (
           <TaskContractPanel
             documentId={documentId}
             targetPages={document.target_pages}
             provider={document.ai_provider || 'anthropic'}
             model={document.ai_model || 'claude-opus-4-8'}
             refreshKey={draftRevision}
+            retry={failed}
             onGenerationStarted={() => {
               setIsGenerating(true)
-              setDocument((current) =>
-                current ? { ...current, status: 'generating' } : current
-              )
+              fetchDocument()
             }}
           >
             <DocumentSourceFiles

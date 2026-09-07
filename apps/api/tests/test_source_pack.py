@@ -60,6 +60,87 @@ def test_citation_key_stability_and_collision_suffix():
     assert sorted(p.citation_key for p in packed2) == keys
 
 
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "topic, section_titles",
+    [
+        ("Perinatal nursing care and neonatal transition to extrauterine life", []),
+        (
+            "Il ruolo dell'infermiere nell'area perinatale",
+            ["Transizione extrauterina del neonato"],
+        ),
+    ],
+)
+async def test_nursing_pack_excludes_animal_populations_before_reserve_cut(
+    topic, section_titles
+):
+    # Real off-topic titles observed in the public-metadata canary. Existence
+    # verification alone accepted them because they are genuine publications.
+    animal_titles = [
+        "Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis",
+        "Role of mother-young interactions in the survival of offspring in domestic mammals",
+        "Transition to extrauterine life and the modeling of perinatal asphyxia in rats",
+    ]
+    human_titles = [
+        "The Successful Immediate Neonatal Transition to Extrauterine Life",
+        "The Role of the Perinatal-Neonatal Nurse Navigator in a Tertiary Care Center",
+        "Emu oil-based lotion effects on neonatal skin barrier during transition from intrauterine to extrauterine life",
+        "Nursing care for patients with rat bite fever",
+    ]
+    sources = [
+        _edu_source(title, authors=[f"Author {index}"], abstract=topic)
+        for index, title in enumerate([*animal_titles, *human_titles])
+    ]
+    builder = SourcePackBuilder()
+    builder.rag.search_crossref = AsyncMock(return_value=sources)
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic=topic,
+        language="it",
+        section_titles=section_titles,
+        document_id=1,
+        target_size=4,
+        min_on_topic_score=0.35,
+    )
+
+    selected = {item.source.title for item in pack.all_sources()}
+    assert selected.isdisjoint(animal_titles)
+    assert set(human_titles) == selected
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "topic, section_titles",
+    [
+        ("Veterinary nursing and perinatal asphyxia in rats", []),
+        ("Assistenza infermieristica e modelli animali di asfissia perinatale", []),
+        ("Perinatal nursing care", ["Animal models of neonatal transition"]),
+        ("Neonatal transition to extrauterine life", []),
+    ],
+)
+async def test_animal_sources_remain_eligible_when_scope_calls_for_them(
+    topic, section_titles
+):
+    source = _edu_source(
+        "Transition to extrauterine life and the modeling of perinatal asphyxia in rats",
+        abstract=topic,
+    )
+    builder = SourcePackBuilder()
+    builder.rag.search_crossref = AsyncMock(return_value=[source])
+    builder.rag.search_openalex = AsyncMock(return_value=[])
+
+    pack = await builder.build(
+        topic=topic,
+        language="en",
+        section_titles=section_titles,
+        document_id=1,
+        target_size=6,
+    )
+
+    assert [item.source.title for item in pack.sources] == [source.title]
+
+
 def test_citation_key_uses_surname_for_comma_form_author():
     source = _edu_source(
         "Italian higher education study",
@@ -435,8 +516,7 @@ def test_gate_counts_venue_as_anchor_signal():
 def test_anchored_but_tainted_stays_below_threshold():
     # Yesterday's corporate-training case: anchored (formazione) but off-topic.
     src = SourceDoc(
-        title="L'impatto dell'IA nella formazione aziendale: tra etica e "
-        "adattamento",
+        title="L'impatto dell'IA nella formazione aziendale: tra etica e adattamento",
         authors=["Vittori"],
         year=2026,
         abstract="formazione aziendale con IA per dipendenti",

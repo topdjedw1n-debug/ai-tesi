@@ -371,6 +371,9 @@ class Settings(BaseSettings):
     # Owner-authorized internal operators bypass quantity/cost quotas only.
     # Input, ownership, active-job, source and release gates still apply.
     UNLIMITED_GENERATION_USER_IDS: list[int] = Field(default_factory=list)
+    # Internal production access to the operator's own documents only. This
+    # does not grant admin rights or bypass artifact/release quality gates.
+    PRODUCTION_OPERATOR_USER_IDS: list[int] = Field(default_factory=list)
     # A separate credential that is NOT accepted by normal/admin API routes.
     OPERATOR_BOT_SECRET: str | None = None
     # Telegram numeric user ID -> existing Thesica user ID. No self-enrollment.

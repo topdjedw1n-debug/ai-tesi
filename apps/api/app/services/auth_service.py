@@ -354,6 +354,9 @@ class AuthService:
                 "timezone": user.timezone or "UTC",
                 "total_tokens_used": user.total_tokens_used or 0,
                 "total_documents_created": user.total_documents_created,
+                "can_access_production": (
+                    int(user.id) in settings.PRODUCTION_OPERATOR_USER_IDS
+                ),
                 "created_at": user.created_at.isoformat(),
                 "updated_at": user.updated_at.isoformat() if user.updated_at else None,
                 "last_login": user.last_login.isoformat() if user.last_login else None,

@@ -9,6 +9,8 @@ import { useParams, useRouter } from 'next/navigation'
 import DocumentDetailPage from '@/app/dashboard/documents/[id]/page'
 import { apiClient } from '@/lib/api'
 
+jest.mock('@/components/providers/AuthProvider', () => ({ useAuth: () => ({ user: { can_access_production: true } }) }))
+
 jest.mock('next/navigation', () => ({
   useParams: jest.fn(),
   useRouter: jest.fn(),
@@ -114,10 +116,12 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
     render(<DocumentDetailPage />)
 
     const button = await screen.findByTestId('mock-confirm-and-start')
+    ;(apiClient.get as jest.Mock).mockResolvedValue({ ...draftDocument, status: 'generating', production_case_id: 77 })
     fireEvent.click(button)
 
     expect(await screen.findByTestId('generation-progress')).toBeInTheDocument()
     expect(screen.queryByTestId('task-contract-panel')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /Перевірка та видача цієї роботи/ })).toHaveAttribute('href', '/dashboard/production-cases/77')
   })
 
   it('renders Phase 1 QA evidence on completed documents', async () => {

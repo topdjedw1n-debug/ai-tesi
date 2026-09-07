@@ -2,10 +2,13 @@
 Document management endpoints
 """
 
+import hashlib
 import hmac
+import io
 import logging
 from datetime import datetime, timedelta
 from typing import Any
+from urllib.parse import quote
 
 from fastapi import (
     APIRouter,
@@ -105,9 +108,10 @@ async def _require_released_production_case(
         and gate["status"] in {"failed", "no_data", "unchecked", "warning"}
         and gate.get("override_reason") is None
     ]
-    if blockers:
-        revoke_release(production_case)
-        await db.commit()
+    if blockers or production_case.release_status != "released":
+        if production_case.release_status == "released":
+            revoke_release(production_case)
+            await db.commit()
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Document release evidence is no longer current",
@@ -120,6 +124,10 @@ async def _require_released_artifact(
     document: Document,
     file_format: str,
 ) -> tuple[str, ProductionCase]:
+    if file_format != "docx":
+        raise HTTPException(
+            409, "Дозвіл на видачу поширюється лише на перевірений DOCX."
+        )
     production_case = await _require_released_production_case(db, int(document.id))
     if document.status != "completed":
         revoke_release(production_case)
@@ -831,14 +839,26 @@ async def download_document_secure(
             f"file_path={file_path}"
         )
 
-        # Stream file from MinIO using StorageService
-        file_stream = storage_service.download_file_stream(file_path)
+        # Verify the bytes actually sent. A second stream opened after hashing
+        # a mutable storage path could otherwise serve a different object.
+        content = await storage_service.download_file(file_path)
+        if not hmac.compare_digest(
+            hashlib.sha256(content).hexdigest(), expected_sha256
+        ):
+            if token_scope == "client_delivery":
+                revoke_release(production_case)
+                await db.commit()
+            raise HTTPException(
+                409, "Файл змінився під час завантаження. Дозвіл не чинний."
+            )
+        file_stream = io.BytesIO(content)
 
         return StreamingResponse(
             file_stream,
             media_type=media_type,
             headers={
-                "Content-Disposition": f'attachment; filename="{document.title}{file_extension}"',
+                "Content-Disposition": "attachment; filename*=UTF-8''"
+                + quote(f"{document.title}{file_extension}", safe=""),
                 "Cache-Control": "private, no-store",
                 "Pragma": "no-cache",
             },
@@ -990,8 +1010,7 @@ async def upload_source_file(
 
         storage = StorageService()
         object_name = (
-            f"documents/{int(current_user.id)}/{document_id}/sources/"
-            f"{digest[:16]}.pdf"
+            f"documents/{int(current_user.id)}/{document_id}/sources/{digest[:16]}.pdf"
         )
         storage_path = await storage.upload_file(
             object_name, data, content_type="application/pdf"

@@ -1,7 +1,9 @@
 from contextlib import ExitStack
 from datetime import UTC, datetime, timedelta
+from functools import partial
 from unittest.mock import AsyncMock, MagicMock, patch
 
+import httpx
 import pytest
 from sqlalchemy import select
 
@@ -9,7 +11,7 @@ from app.core.exceptions import CitationIntegrityError
 from app.models.document import AIGenerationJob, Document, DocumentProvenance
 from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
-from app.services.background_jobs import BackgroundJobService
+from app.services.background_jobs import BackgroundJobService, _build_source_pack
 from app.services.citation_verifier import VerificationResult, VerificationStatus
 from app.services.source_verification_stage import load_source_pack, persist_source_pack
 from tests.release_profile import RELEASE_PROFILE
@@ -109,6 +111,170 @@ def _verified_inputs(inputs) -> list[VerificationResult]:
         )
         for item in inputs
     ]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("crossref_status", [200, 503])
+async def test_initial_retrieval_distinguishes_empty_results_from_http_outage(
+    db_session, monkeypatch, crossref_status
+):
+    monkeypatch.setattr("app.services.background_jobs.settings", _preflight_settings())
+    _, document = await seed_document(
+        db_session,
+        f"retrieval-http-{crossref_status}@example.com",
+        sections=["Introduzione"],
+    )
+    requests = []
+
+    def respond(request):
+        requests.append(request)
+        if request.url.host == "api.crossref.org":
+            return httpx.Response(crossref_status, json={"message": {"items": []}})
+        assert request.url.host == "api.openalex.org"
+        return httpx.Response(200, json={"results": []})
+
+    monkeypatch.setattr(
+        "app.services.ai_pipeline.rag_retriever.httpx.AsyncClient",
+        partial(httpx.AsyncClient, transport=httpx.MockTransport(respond)),
+    )
+
+    pack = await _build_source_pack(db_session, document)
+
+    assert {request.url.host for request in requests} == {
+        "api.crossref.org",
+        "api.openalex.org",
+    }
+    assert pack.sources == []
+    assert pack.underfilled is True
+    assert bool(pack.provider_errors) is (crossref_status == 503)
+    assert all("503" in error for error in pack.provider_errors)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("context_only", [True, False])
+async def test_retry_refreshes_unfrozen_persisted_pack_before_writing(
+    db_session, monkeypatch, context_only
+):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        _preflight_settings(
+            SOURCE_PACK_TARGET_SIZE=24,
+            SOURCE_PACK_MIN_VERIFIED=18,
+            SOURCE_PACK_CANDIDATE_RESERVE_SIZE=48,
+        ),
+    )
+    user, document = await seed_document(
+        db_session,
+        f"retry-provisional-{context_only}@example.com",
+        sections=["Introduzione"],
+    )
+    incomplete = fake_pack(int(document.id))
+    incomplete.underfilled = True
+    incomplete.provider_errors = ["crossref: temporary outage"]
+    if context_only:
+        incomplete.context_sources = incomplete.sources
+        incomplete.sources = []
+        incomplete.context_sources[0].citation_key = ""
+    await persist_source_pack(db_session, int(document.id), incomplete)
+    persisted = await load_source_pack(db_session, int(document.id))
+    assert persisted is not None
+    assert len(persisted.all_sources()) == 1
+
+    recovered = _release_pack(int(document.id))
+    with ExitStack() as stack:
+        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
+        build = stack.enter_context(
+            patch(
+                "app.services.background_jobs._build_source_pack",
+                AsyncMock(return_value=recovered),
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._load_source_pack",
+                AsyncMock(side_effect=load_source_pack),
+            )
+        )
+        verifier = MagicMock()
+        verifier.verify_sources = AsyncMock(side_effect=_verified_inputs)
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs.CitationVerifier", return_value=verifier
+            )
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._run_citation_verification_stage",
+                AsyncMock(),
+            )
+        )
+
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+        assert build.await_count == 2
+        assert build.await_args_list[0].kwargs.get("section_titles") is None
+        assert build.await_args_list[1].kwargs["section_titles"] == ["Introduzione"]
+        writer_pack = mocks["generate_section"].call_args.kwargs["source_pack"]
+        assert len(writer_pack.sources) == 24
+        assert all(
+            item.source.verification_status == "verified"
+            for item in writer_pack.sources
+        )
+        mocks["export_document"].assert_awaited_once()
+
+    events = (
+        (
+            await db_session.execute(
+                select(DocumentProvenance)
+                .where(DocumentProvenance.document_id == int(document.id))
+                .order_by(DocumentProvenance.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    event_types = [event.event_type for event in events]
+    assert "source_pack_insufficient" not in event_types
+    assert event_types.index("source_pack_preflight") < event_types.index(
+        "section_writer"
+    )
+
+
+@pytest.mark.asyncio
+async def test_legacy_resume_still_reuses_persisted_keys(db_session, monkeypatch):
+    monkeypatch.setattr(
+        "app.services.background_jobs.settings",
+        make_settings(SOURCE_PACK_PREFLIGHT_ENABLED=False),
+    )
+    user, document = await seed_document(
+        db_session,
+        "legacy-persisted-resume@example.com",
+        sections=["Introduzione", "Futuro"],
+        completed=1,
+    )
+    pack = fake_pack(int(document.id))
+    await persist_source_pack(db_session, int(document.id), pack)
+
+    with ExitStack() as stack:
+        mocks = rebuild_harness(
+            stack, db_session, redis_checkpoint='{"last_completed_section_index": 1}'
+        )
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs._load_source_pack",
+                AsyncMock(side_effect=load_source_pack),
+            )
+        )
+        await BackgroundJobService.generate_full_document(
+            document_id=int(document.id), user_id=int(user.id)
+        )
+
+        mocks["build_pack"].assert_not_awaited()
+        mocks["generate_section"].assert_awaited_once()
+        writer_pack = mocks["generate_section"].call_args.kwargs["source_pack"]
+        assert writer_pack.keys() == pack.keys()
 
 
 @pytest.mark.asyncio
@@ -429,13 +595,16 @@ async def test_underfilled_relaxed_pack_stops_before_writer_or_preflight(
             patch("app.services.background_jobs.CitationVerifier")
         )
 
-        with pytest.raises(CitationIntegrityError, match="Upload relevant PDF"):
+        with pytest.raises(
+            CitationIntegrityError, match="Automatic source selection needs review"
+        ) as stopped:
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id), user_id=int(user.id)
             )
 
         assert mocks["generate_section"].called is False
         verifier_class.assert_not_called()
+        assert "PDF sources are optional" in str(stopped.value)
 
     refreshed = await db_session.get(Document, int(document.id))
     assert refreshed.status == "failed_quality"

@@ -12,6 +12,8 @@ import { apiClient, API_ENDPOINTS, setTokens, clearTokens, getAccessToken } from
 interface User {
   /** Unique user identifier */
   id: number
+  /** Server-confirmed access to this user's production cases. */
+  can_access_production?: boolean
   /** User's email address */
   email: string
   /** Email verification status */

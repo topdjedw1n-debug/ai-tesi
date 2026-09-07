@@ -96,6 +96,17 @@ describe('TaskContractPanel', () => {
     ;(apiClient.post as jest.Mock).mockResolvedValue({ confirmed: true })
   })
 
+  it('requires resolution of the failed attempt before an explicit new paid start', async () => {
+    render(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry />)
+    const start = await screen.findByRole('button', { name: 'Підтвердити нову спробу' })
+    fireEvent.click(screen.getByTestId('task-contract-confirmation'))
+    expect(start).toBeDisabled()
+    expect(apiClient.post).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByLabelText(/Причину попередньої зупинки з’ясовано/))
+    fireEvent.click(start)
+    await waitFor(() => expect(apiClient.post).toHaveBeenCalledTimes(2))
+  })
+
   it('shows explicit and assumed rules plus the estimate', async () => {
     render(
       <TaskContractPanel

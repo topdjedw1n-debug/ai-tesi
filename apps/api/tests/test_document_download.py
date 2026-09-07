@@ -1,5 +1,6 @@
 """Regression tests for truthful, content-bound document delivery."""
 
+import hashlib
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
@@ -18,7 +19,7 @@ from app.models.document import Document, ProductionCase
 from app.schemas.document import ExportRequest
 from app.services.production_case_service import ProductionCaseService
 
-ARTIFACT_SHA256 = "a" * 64
+ARTIFACT_SHA256 = hashlib.sha256(b"reviewed bytes").hexdigest()
 
 
 def _result(value):
@@ -258,6 +259,7 @@ async def test_valid_secure_download_is_private_and_not_cached():
         yield b"reviewed bytes"
 
     storage.download_file_stream.return_value = _stream()
+    storage.download_file = AsyncMock(return_value=b"reviewed bytes")
     payload = {
         "document_id": 42,
         "user_id": 7,

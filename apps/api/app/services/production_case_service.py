@@ -5,11 +5,14 @@ import hmac
 import json
 from datetime import UTC, datetime
 from math import ceil
-from typing import Any
+from pathlib import PurePath
+from typing import Any, cast
+from uuid import uuid4
 
 from fastapi import HTTPException, status
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.config import settings
 from app.models.admin import AdminAuditLog
@@ -24,6 +27,7 @@ from app.models.document import (
     ReleaseGateResult,
 )
 from app.schemas.production import (
+    ContentReviewRequest,
     EditorTaskCreate,
     EditorTaskResolveRequest,
     EditorTaskUpdate,
@@ -36,6 +40,15 @@ from app.services.generation_contract import (
     generation_contract_sha256,
 )
 from app.services.provenance_service import derive_quality_gate_status
+from app.services.release_policy import (
+    DETECTOR_NAME,
+    DETECTOR_THRESHOLD_PERCENT,
+    MAX_REPORT_BYTES,
+    RELEASE_POLICY_VERSION,
+    REPORT_EVENT,
+    REVIEW_EVENT,
+    detector_verdict,
+)
 from app.services.storage_service import StorageService
 from app.services.uploaded_sources import uploaded_sources_digest
 
@@ -125,6 +138,8 @@ def _detector_binding_is_current(
 def revoke_release(case: ProductionCase) -> None:
     """Invalidate a prior release whenever its artifact or evidence changes."""
     if case.release_status == "released":
+        # Legacy Column annotations describe descriptors; instances store strings.
+        cast(Any, case).qa_status = "needs_review"
         case.release_status = "blocked"
     case.delivery_status = "not_ready"
     case.released_at = None
@@ -162,17 +177,17 @@ RELEASE_GATE_CONFIG: dict[str, dict[str, Any]] = {
     "plagiarism_proxy": {
         "blocking": True,
         "override_allowed": False,
-        "source": "phase1_run_report",
+        "source": "compilatio_report",
     },
     "ai_detection_proxy": {
         "blocking": True,
         "override_allowed": False,
-        "source": "phase1_run_report",
+        "source": "compilatio_report",
     },
     "editorial_review": {
         "blocking": True,
-        "override_allowed": True,
-        "source": "editor_tasks",
+        "override_allowed": False,
+        "source": "manager_review",
     },
     "delivery_package": {
         "blocking": True,
@@ -322,10 +337,17 @@ class ProductionCaseService:
         release_status: str | None = None,
         manager_id: int | None = None,
         editor_id: int | None = None,
+        owner_user_id: int | None = None,
     ) -> dict[str, Any]:
         query = select(ProductionCase).order_by(ProductionCase.created_at.desc())
         count_query = select(func.count(ProductionCase.id))
-        filters = []
+        filters: list[ColumnElement[bool]] = []
+        if owner_user_id is not None:
+            filters.append(
+                ProductionCase.document_id.in_(
+                    select(Document.id).where(Document.user_id == owner_user_id)
+                )
+            )
         if release_status:
             filters.append(ProductionCase.release_status == release_status)
         if manager_id:
@@ -441,7 +463,7 @@ class ProductionCaseService:
         return case
 
     async def get_release_gates(self, case_id: int) -> list[dict[str, Any]]:
-        case = await self.get_case_for_update(case_id)
+        case, document = await self.get_case_and_document_for_update(case_id)
         persisted_result = await self.db.execute(
             select(ReleaseGateResult).where(
                 ReleaseGateResult.production_case_id == case_id
@@ -467,7 +489,6 @@ class ProductionCaseService:
         if latest_run_start >= 0:
             current_run_started_at = events[latest_run_start].created_at
             events = events[latest_run_start + 1 :]
-        document = await self._get_document(case.document_id)
 
         sections_result = await self.db.execute(
             select(DocumentSection).where(
@@ -532,11 +553,12 @@ class ProductionCaseService:
                 computed.update(
                     {
                         "id": stored.id,
-                        "status": stored.status,
-                        "summary": stored.summary,
                         "evidence": stored_evidence,
                         "last_checked_at": stored.last_checked_at,
                     }
+                )
+                computed["status"], computed["summary"] = detector_verdict(
+                    stored_evidence
                 )
                 if not binding_current:
                     computed["status"] = "no_data"
@@ -545,7 +567,21 @@ class ProductionCaseService:
                         "generated artifact. Re-run the detector and record a new "
                         "release-manager decision."
                     )
-            elif stored and stored.override_reason:
+                else:
+                    try:
+                        report = await self._checked_report(
+                            case, document, stored_evidence.get("report_id")
+                        )
+                        if report["report_sha256"] != stored_evidence.get(
+                            "report_sha256"
+                        ):
+                            raise HTTPException(
+                                409, "Доказ не відповідає збереженому звіту."
+                            )
+                    except HTTPException as error:
+                        computed["status"] = "no_data"
+                        computed["summary"] = str(error.detail)
+            elif stored and stored.override_reason and config["override_allowed"]:
                 computed.update(
                     {
                         "id": stored.id,
@@ -599,6 +635,235 @@ class ProductionCaseService:
             list(RELEASE_GATE_CONFIG.keys()).index(gate_key)
         ]
 
+    async def _current_review_artifact(
+        self, case_id: int, expected_fingerprint: str
+    ) -> tuple[ProductionCase, Document, dict[str, str | None]]:
+        case, document = await self.get_case_and_document_for_update(case_id)
+        binding = _artifact_binding(document, "docx")
+        if binding is None:
+            raise HTTPException(409, "Фінальний DOCX ще не готовий до перевірки.")
+        if not hmac.compare_digest(
+            expected_fingerprint, str(binding["fingerprint_sha256"])
+        ):
+            raise HTTPException(
+                409, "DOCX змінився. Оновіть сторінку та перевірте новий файл."
+            )
+        try:
+            actual = await StorageService().get_file_sha256(str(document.docx_path))
+        except Exception as error:
+            raise HTTPException(409, "DOCX недоступний у сховищі.") from error
+        if not hmac.compare_digest(actual, str(binding["artifact_sha256"])):
+            raise HTTPException(409, "Байти DOCX змінилися. Потрібна нова перевірка.")
+        return case, document, binding
+
+    @staticmethod
+    def _evidence_binding(binding: dict[str, str | None]) -> dict[str, Any]:
+        return {
+            "policy_version": RELEASE_POLICY_VERSION,
+            "artifact_format": "docx",
+            "artifact_identifier": binding["identifier"],
+            "artifact_fingerprint_sha256": binding["fingerprint_sha256"],
+            "artifact_sha256": binding["artifact_sha256"],
+            "artifact_completed_at": binding["document_completed_at"],
+        }
+
+    async def upload_detector_report(
+        self,
+        case_id: int,
+        expected_fingerprint: str,
+        filename: str,
+        content: bytes,
+        actor_id: int,
+    ) -> dict[str, Any]:
+        if not content or len(content) > MAX_REPORT_BYTES:
+            raise HTTPException(413, "Звіт має бути непорожнім і не більшим за 20 МБ.")
+        file_types = (
+            (b"%PDF-", "application/pdf", ".pdf"),
+            (b"\x89PNG\r\n\x1a\n", "image/png", ".png"),
+            (b"\xff\xd8\xff", "image/jpeg", ".jpg"),
+        )
+        file_type = next(
+            (item for item in file_types if content.startswith(item[0])), None
+        )
+        if file_type is None:
+            raise HTTPException(415, "Прикріпіть звіт Compilatio у PDF, PNG або JPEG.")
+        _, content_type, suffix = file_type
+        case, document, binding = await self._current_review_artifact(
+            case_id, expected_fingerprint
+        )
+        storage = StorageService()
+        path = await storage.upload_file(
+            f"documents/{document.user_id}/{document.id}/detector-reports/{uuid4().hex}{suffix}",
+            content,
+            content_type,
+        )
+        event = DocumentProvenance(
+            document_id=document.id,
+            stage="release_review",
+            event_type=REPORT_EVENT,
+            payload={
+                **self._evidence_binding(binding),
+                "production_case_id": int(case.id),
+                "filename": PurePath(filename).name[:200] or f"Compilatio{suffix}",
+                "content_type": content_type,
+                "storage_path": path,
+                "size_bytes": len(content),
+                "report_sha256": hashlib.sha256(content).hexdigest(),
+                "uploaded_by_id": actor_id,
+                "uploaded_at": datetime.now(UTC).isoformat(),
+            },
+        )
+        try:
+            self.db.add(event)
+            await self.db.commit()
+            await self.db.refresh(event)
+        except Exception:
+            await self.db.rollback()
+            await storage.delete_file(path, silent=True)
+            raise
+        return {"id": event.id, **_event_payload(event)}
+
+    async def list_detector_reports(self, case_id: int) -> list[dict[str, Any]]:
+        case = await self.get_case(case_id)
+        document = await self._get_document(int(case.document_id))
+        events = (
+            (
+                await self.db.execute(
+                    select(DocumentProvenance)
+                    .where(
+                        DocumentProvenance.document_id == case.document_id,
+                        DocumentProvenance.event_type == REPORT_EVENT,
+                    )
+                    .order_by(DocumentProvenance.id.desc())
+                )
+            )
+            .scalars()
+            .all()
+        )
+        return [
+            {"id": event.id, **_event_payload(event)}
+            for event in events
+            if _event_payload(event).get("production_case_id") == case.id
+            and _detector_binding_is_current(document, _event_payload(event))[0]
+        ]
+
+    async def _checked_report(
+        self,
+        case: ProductionCase,
+        document: Document,
+        report_id: Any,
+    ) -> dict[str, Any]:
+        if (
+            not isinstance(report_id, int)
+            or isinstance(report_id, bool)
+            or report_id < 1
+        ):
+            raise HTTPException(409, "Прикріпіть збережений звіт Compilatio.")
+        event = (
+            await self.db.execute(
+                select(DocumentProvenance).where(
+                    DocumentProvenance.id == report_id,
+                    DocumentProvenance.document_id == document.id,
+                    DocumentProvenance.event_type == REPORT_EVENT,
+                )
+            )
+        ).scalar_one_or_none()
+        evidence = _event_payload(event)
+        if evidence.get("production_case_id") != case.id:
+            raise HTTPException(409, "Звіт відсутній або належить іншій роботі.")
+        if (
+            evidence.get("policy_version") != RELEASE_POLICY_VERSION
+            or evidence.get("artifact_format") != "docx"
+            or not _detector_binding_is_current(document, evidence)[0]
+        ):
+            raise HTTPException(409, "Звіт стосується попередньої версії DOCX.")
+        try:
+            actual = await StorageService().get_file_sha256(
+                str(evidence["storage_path"])
+            )
+        except Exception as error:
+            raise HTTPException(
+                409, "Збережений звіт Compilatio недоступний."
+            ) from error
+        if not hmac.compare_digest(actual, str(evidence.get("report_sha256", ""))):
+            raise HTTPException(409, "Збережений звіт Compilatio змінився.")
+        return evidence
+
+    async def download_detector_report(
+        self,
+        case_id: int,
+        report_id: int,
+    ) -> tuple[dict[str, Any], bytes]:
+        case, document = await self.get_case_and_document_for_update(case_id)
+        evidence = await self._checked_report(case, document, report_id)
+        content = await StorageService().download_file(evidence["storage_path"])
+        if not hmac.compare_digest(
+            hashlib.sha256(content).hexdigest(), evidence["report_sha256"]
+        ):
+            raise HTTPException(409, "Збережений звіт Compilatio змінився.")
+        return evidence, content
+
+    async def record_content_review(
+        self,
+        case_id: int,
+        data: ContentReviewRequest,
+        actor_id: int,
+    ) -> dict[str, Any]:
+        case, document, binding = await self._current_review_artifact(
+            case_id, data.artifact_fingerprint_sha256
+        )
+        events = (
+            (
+                await self.db.execute(
+                    select(DocumentProvenance).where(
+                        DocumentProvenance.document_id == document.id,
+                        DocumentProvenance.event_type == REVIEW_EVENT,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        if any(
+            _event_payload(event).get("decision") == "rewritten"
+            and _event_payload(event).get("artifact_completed_at")
+            == binding["document_completed_at"]
+            for event in events
+        ):
+            raise HTTPException(
+                409,
+                "Для цього результату вже зафіксовано переписування. Це провал генерації.",
+            )
+        revoke_release(case)
+        self.db.add(
+            DocumentProvenance(
+                document_id=document.id,
+                stage="release_review",
+                event_type=REVIEW_EVENT,
+                payload={
+                    **self._evidence_binding(binding),
+                    "production_case_id": int(case.id),
+                    "decision": data.decision,
+                    "content_approved": data.decision == "accepted",
+                    "no_rewrite_confirmed": data.decision == "accepted",
+                    "reviewed_page_count": data.reviewed_page_count,
+                    "reason": data.reason,
+                    "reviewed_by_id": actor_id,
+                    "reviewed_at": datetime.now(UTC).isoformat(),
+                },
+            )
+        )
+        # Legacy SQLAlchemy models annotate descriptors rather than instance values.
+        cast(Any, case).editorial_status = (
+            "completed" if data.decision == "accepted" else "failed"
+        )
+        await self.db.commit()
+        return next(
+            gate
+            for gate in await self.get_release_gates(case_id)
+            if gate["gate_key"] == "editorial_review"
+        )
+
     async def record_detector_result(
         self,
         case_id: int,
@@ -612,7 +877,7 @@ class ProductionCaseService:
                 detail="Manual detector decisions are allowed only for detector gates.",
             )
 
-        expected_detector = settings.RELEASE_PRIMARY_DETECTOR_NAME.strip()
+        expected_detector = DETECTOR_NAME
         if data.detector_name.strip().casefold() != expected_detector.casefold():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
@@ -624,60 +889,43 @@ class ProductionCaseService:
             )
 
         config = RELEASE_GATE_CONFIG[gate_key]
-        case, document = await self.get_case_and_document_for_update(case_id)
-        artifact_binding = _artifact_binding(document, data.artifact_format)
-        if artifact_binding is None:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    f"Detector evidence cannot be recorded: the current "
-                    f"{data.artifact_format.upper()} artifact is unavailable or "
-                    "generation is not completed."
-                ),
-            )
-        artifact_path = (
-            document.docx_path if data.artifact_format == "docx" else document.pdf_path
+        case, document, artifact_binding = await self._current_review_artifact(
+            case_id, data.artifact_fingerprint_sha256
         )
-        storage = StorageService()
-        try:
-            stored_sha256 = await storage.get_file_sha256(str(artifact_path))
-        except Exception as error:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="Detector evidence cannot be recorded: stored artifact is unavailable.",
-            ) from error
-        if not hmac.compare_digest(
-            stored_sha256, str(artifact_binding["artifact_sha256"])
-        ):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "Detector evidence cannot be recorded: stored artifact bytes "
-                    "do not match the generated artifact fingerprint."
-                ),
-            )
+        report = await self._checked_report(case, document, data.report_id)
         revoke_release(case)
         gate = await self._get_or_create_gate(case_id, gate_key, config)
-        gate.status = data.decision
-        gate.summary = (
-            f"{data.detector_name} reported {data.result_percent:.2f}%. "
-            f"Release manager decision: {data.decision}."
-        )
-        gate.evidence = {
+        evidence = {
+            **self._evidence_binding(artifact_binding),
             "detector_name": data.detector_name,
             "result_percent": data.result_percent,
             "decision": data.decision,
             "checked_at": data.checked_at.isoformat(),
-            "report_ref": data.report_ref,
+            "report_id": data.report_id,
+            "report_sha256": report["report_sha256"],
+            "report_matches_artifact": data.report_matches_artifact,
+            "threshold_percent": DETECTOR_THRESHOLD_PERCENT,
             "reason": data.reason,
             "decision_by_id": actor_id,
-            "artifact_format": data.artifact_format,
-            "artifact_identifier": artifact_binding["identifier"],
-            "artifact_fingerprint_sha256": artifact_binding["fingerprint_sha256"],
-            "artifact_sha256": artifact_binding["artifact_sha256"],
-            "artifact_completed_at": artifact_binding["document_completed_at"],
             "binding_status": "current",
         }
+        gate_status, gate_summary = detector_verdict(evidence)
+        cast(Any, gate).evidence = evidence
+        cast(Any, gate).status = gate_status
+        cast(Any, gate).summary = gate_summary
+        self.db.add(
+            DocumentProvenance(
+                document_id=document.id,
+                stage="release_review",
+                event_type="detector_result_recorded",
+                payload={
+                    **evidence,
+                    "production_case_id": case_id,
+                    "gate_key": gate_key,
+                    "status": gate.status,
+                },
+            )
+        )
         gate.override_reason = None
         gate.overridden_by_id = None
         gate.overridden_at = None
@@ -693,7 +941,7 @@ class ProductionCaseService:
                 "detector_name": data.detector_name,
                 "result_percent": data.result_percent,
                 "decision": data.decision,
-                "report_ref": data.report_ref,
+                "report_id": data.report_id,
                 "artifact_format": data.artifact_format,
                 "artifact_identifier": artifact_binding["identifier"],
                 "artifact_fingerprint_sha256": artifact_binding["fingerprint_sha256"],
@@ -745,12 +993,12 @@ class ProductionCaseService:
             if gate["gate_key"] in DETECTOR_GATE_KEYS and gate["status"] == "passed"
         }
         approved_formats = set(detector_formats.values()) - {""}
-        if set(detector_formats) != DETECTOR_GATE_KEYS or len(approved_formats) != 1:
+        if set(detector_formats) != DETECTOR_GATE_KEYS or approved_formats != {"docx"}:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail=(
                     "Release blocked: plagiarism and AI detector decisions must "
-                    "both be bound to the same delivery artifact."
+                    "both be bound to the same final DOCX delivery artifact."
                 ),
             )
         approved_format = approved_formats.pop()
@@ -791,7 +1039,8 @@ class ProductionCaseService:
             )
 
         case.release_status = "released"
-        case.delivery_status = "delivered"
+        cast(Any, case).qa_status = "passed"
+        case.delivery_status = "ready"
         case.release_notes = notes
         case.released_docx_path = released_docx_path
         case.released_pdf_path = released_pdf_path
@@ -871,8 +1120,8 @@ class ProductionCaseService:
         document = await self._get_document(case.document_id)
         case.generation_status = _document_generation_status(document)
         if document.status == "failed_quality":
-            case.qa_status = "failed"
             revoke_release(case)
+            case.qa_status = "failed"
         elif document.status == "completed" and case.qa_status == "no_data":
             case.qa_status = "needs_review"
 
@@ -1034,9 +1283,9 @@ class ProductionCaseService:
                         if event.event_type != "panel_review":
                             continue
                         panel_payload = _event_payload(event)
-                        latest_panel_by_section[
-                            panel_payload.get("section_index")
-                        ] = event
+                        latest_panel_by_section[panel_payload.get("section_index")] = (
+                            event
+                        )
                     for section_key in statuses:
                         panel_event = latest_panel_by_section.get(section_key)
                         panel_status = (
@@ -1077,15 +1326,61 @@ class ProductionCaseService:
                 "release-manager decision before release."
             )
         elif gate_key == "editorial_review":
-            if tasks:
-                open_count = sum(
-                    1 for task in tasks if task.status in {"open", "in_progress"}
+            summary = (
+                "Потрібен огляд менеджером і підтвердження відсутності переписування."
+            )
+            binding = _artifact_binding(document, "docx")
+            reviews = [
+                _event_payload(event)
+                for event in events
+                if event.event_type == REVIEW_EVENT
+                and _event_payload(event).get("production_case_id") == case.id
+            ]
+            rewritten = next(
+                (
+                    review
+                    for review in reversed(reviews)
+                    if binding
+                    and review.get("decision") == "rewritten"
+                    and review.get("artifact_completed_at")
+                    == binding["document_completed_at"]
+                ),
+                None,
+            )
+            current = next(
+                (
+                    review
+                    for review in reversed(reviews)
+                    if _detector_binding_is_current(document, review)[0]
+                ),
+                None,
+            )
+            if rewritten:
+                status_value = "failed"
+                summary = (
+                    "Знадобилося переписування змісту. Цей результат не можна видати."
                 )
-                status_value = "failed" if open_count else "passed"
-                summary = f"{open_count} open editor task(s)."
-                evidence = {"total": len(tasks), "open": open_count}
+                evidence = rewritten
+            elif current and current.get("policy_version") == RELEASE_POLICY_VERSION:
+                evidence = current
+                accepted = (
+                    current.get("decision") == "accepted"
+                    and current.get("content_approved") is True
+                    and current.get("no_rewrite_confirmed") is True
+                )
+                status_value = "passed" if accepted else "failed"
+                summary = (
+                    "Менеджер прийняв роботу без переписування змісту."
+                    if accepted
+                    else "Менеджер відхилив результат: "
+                    + str(current.get("reason", ""))
+                )
+            open_count = sum(task.status in {"open", "in_progress"} for task in tasks)
+            if open_count:
+                status_value = "failed"
+                summary = f"Залишилося невирішених зауважень: {open_count}."
         elif gate_key == "delivery_package":
-            if document.docx_path or document.pdf_path:
+            if _artifact_binding(document, "docx"):
                 status_value = "passed"
                 summary = "Delivery package is available."
                 evidence = {
@@ -1123,8 +1418,7 @@ class ProductionCaseService:
                     if payload.get("status") == "passed" and verified >= minimum:
                         status_value = "passed"
                         summary = (
-                            f"Source preflight passed: {verified} verified "
-                            "source(s)."
+                            f"Source preflight passed: {verified} verified source(s)."
                         )
                     else:
                         status_value = "failed"

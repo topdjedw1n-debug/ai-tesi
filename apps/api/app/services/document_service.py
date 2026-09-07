@@ -17,6 +17,7 @@ from app.models.auth import User
 from app.models.document import (
     AIGenerationJob,
     Document,
+    DocumentProvenance,
     DocumentSection,
     ProductionCase,
 )
@@ -26,6 +27,7 @@ from app.services.ai_pipeline.citation_formatter import (
     merge_bibliographies,
 )
 from app.services.ai_pipeline.citation_keys import internal_marker_keys
+from app.services.release_policy import REPORT_EVENT
 from app.services.task_contract import DEFAULT_WORK_TYPE
 
 logger = logging.getLogger(__name__)
@@ -195,13 +197,13 @@ class DocumentService:
             estimated_reading_time = max(
                 1, word_count // 200
             )  # Assume 200 WPM reading speed
-            release_status = (
+            production_case = (
                 await self.db.execute(
-                    select(ProductionCase.release_status).where(
+                    select(ProductionCase).where(
                         ProductionCase.document_id == document_id
                     )
                 )
-            ).scalar_one_or_none() or "not_ready"
+            ).scalar_one_or_none()
 
             return {
                 "id": document.id,
@@ -213,7 +215,10 @@ class DocumentService:
                 "citation_style": document.citation_style,
                 "work_type": document.work_type,
                 "requirements_file_processed": document.requirements_file_processed,
-                "release_status": release_status,
+                "production_case_id": production_case.id if production_case else None,
+                "release_status": (
+                    production_case.release_status if production_case else "not_ready"
+                ),
                 "status": document.status,
                 "is_archived": document.is_archived,
                 "ai_provider": document.ai_provider,
@@ -621,11 +626,33 @@ class DocumentService:
             from app.services.storage_service import StorageService
 
             storage_service = StorageService()
-            file_paths = (
-                document.docx_path,
-                document.pdf_path,
-                document.custom_requirements_file_path,
+            file_paths = [
+                str(path)
+                for path in (
+                    document.docx_path,
+                    document.pdf_path,
+                    document.custom_requirements_file_path,
+                )
+                if path
+            ]
+            reports = (
+                (
+                    await self.db.execute(
+                        select(DocumentProvenance).where(
+                            DocumentProvenance.document_id == document_id,
+                            DocumentProvenance.event_type == REPORT_EVENT,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
             )
+            for event in reports:
+                report_payload: Any = event.payload
+                if isinstance(report_payload, dict) and report_payload.get(
+                    "storage_path"
+                ):
+                    file_paths.append(str(report_payload["storage_path"]))
             for file_path in file_paths:
                 if not file_path:
                     continue
@@ -880,8 +907,7 @@ class DocumentService:
             if unresolved_markers:
                 preview = ", ".join(dict.fromkeys(unresolved_markers[:10]))
                 raise ValidationError(
-                    "Document contains unresolved internal citation markers: "
-                    f"{preview}"
+                    f"Document contains unresolved internal citation markers: {preview}"
                 )
 
             # Generate file based on format

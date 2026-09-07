@@ -14,10 +14,12 @@ from app.models.auth import MagicLinkToken, User, UserConsent, UserSession
 from app.models.document import (
     AIGenerationJob,
     Document,
+    DocumentProvenance,
     DocumentSection,
     ProductionCase,
 )
 from app.models.payment import Payment
+from app.services.release_policy import REPORT_EVENT
 
 logger = logging.getLogger(__name__)
 
@@ -309,6 +311,25 @@ class GDPRService:
                     referenced_paths.extend(
                         str(path) for path in superseded_paths if path
                     )
+
+            reports = (
+                (
+                    await self.db.execute(
+                        select(DocumentProvenance).where(
+                            DocumentProvenance.document_id.in_(document_ids),
+                            DocumentProvenance.event_type == REPORT_EVENT,
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            for event in reports:
+                report_payload: Any = event.payload
+                if isinstance(report_payload, dict) and report_payload.get(
+                    "storage_path"
+                ):
+                    referenced_paths.append(str(report_payload["storage_path"]))
 
             deleted_files: list[str] = []
             for path in dict.fromkeys(referenced_paths):

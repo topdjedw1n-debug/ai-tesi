@@ -38,6 +38,7 @@ class UserResponse(UserBase):
     id: int
     is_active: bool
     is_verified: bool
+    can_access_production: bool = False
     created_at: datetime
     updated_at: datetime | None
     last_login: datetime | None

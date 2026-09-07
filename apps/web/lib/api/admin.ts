@@ -149,10 +149,30 @@ export interface ManualDetectorResultPayload {
   detector_name: string
   result_percent: number
   decision: 'passed' | 'failed'
-  artifact_format: 'docx' | 'pdf'
+  artifact_format: 'docx'
+  artifact_fingerprint_sha256: string
   checked_at: string
-  report_ref: string
+  report_id: number
+  report_matches_artifact: true
   reason: string
+}
+
+export interface DetectorReport {
+  id: number
+  filename: string
+  content_type: string
+  size_bytes: number
+  report_sha256: string
+  artifact_fingerprint_sha256: string
+  uploaded_by_id: number
+  uploaded_at: string
+}
+
+export interface ContentReviewPayload {
+  artifact_fingerprint_sha256: string
+  decision: 'accepted' | 'rejected' | 'rewritten'
+  reason: string
+  reviewed_page_count?: number
 }
 
 export interface EditorTask {
@@ -723,6 +743,25 @@ export const adminApiClient = {
       payload
     )
     return unwrapResponse(response)
+  },
+
+  async listDetectorReports(caseId: number): Promise<DetectorReport[]> {
+    return unwrapResponse(await apiClient.get(`/api/v1/admin/production-cases/${caseId}/detector-reports`))
+  },
+
+  async uploadDetectorReport(caseId: number, fingerprint: string, file: File): Promise<DetectorReport> {
+    const form = new FormData()
+    form.append('artifact_fingerprint_sha256', fingerprint)
+    form.append('file', file)
+    return unwrapResponse(await apiClient.post(`/api/v1/admin/production-cases/${caseId}/detector-reports`, form))
+  },
+
+  async downloadDetectorReport(caseId: number, reportId: number): Promise<Blob> {
+    return apiClient.getBlob(`/api/v1/admin/production-cases/${caseId}/detector-reports/${reportId}/file`)
+  },
+
+  async recordContentReview(caseId: number, payload: ContentReviewPayload): Promise<ReleaseGate> {
+    return unwrapResponse(await apiClient.post(`/api/v1/admin/production-cases/${caseId}/content-review`, payload))
   },
 
   async releaseProductionCase(caseId: number, notes?: string): Promise<ProductionCase> {

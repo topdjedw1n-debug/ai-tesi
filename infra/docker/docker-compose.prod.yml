@@ -79,6 +79,7 @@ services:
     container_name: ai-thesis-api
     environment:
       - ENVIRONMENT=${ENVIRONMENT:-production}
+      - PRODUCTION_OPERATOR_USER_IDS=${PRODUCTION_OPERATOR_USER_IDS:-[]}
       - DEBUG=false
       - DATABASE_URL=${DATABASE_URL}
       - REDIS_URL=${REDIS_URL}

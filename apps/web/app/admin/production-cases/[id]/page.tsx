@@ -1,7 +1,8 @@
 'use client'
 
-import { FormEvent, useEffect, useMemo, useState } from 'react'
-import { useParams } from 'next/navigation'
+import { useEffect, useMemo, useState } from 'react'
+import { useParams, usePathname } from 'next/navigation'
+import Link from 'next/link'
 import {
   adminApiClient,
   ProductionCase,
@@ -9,37 +10,29 @@ import {
 } from '@/lib/api/admin'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import { Button } from '@/components/ui/Button'
+import { ReleaseEvidenceForms } from '@/components/production/ReleaseEvidenceForms'
 import toast from 'react-hot-toast'
+import { gateDetail, gateLabel, productionStatus } from '@/lib/production-status'
+import { downloadDocumentDocx } from '@/lib/download'
 
 function gateTone(gate: ReleaseGate) {
-  if (gate.status === 'passed' || gate.status === 'overridden') return 'border-green-700 bg-green-950/30'
-  if (gate.status === 'failed') return 'border-red-700 bg-red-950/30'
-  if (gate.status === 'warning' || gate.status === 'unchecked') return 'border-yellow-700 bg-yellow-950/30'
-  return 'border-gray-700 bg-gray-800'
-}
-
-const DETECTOR_GATES = new Set(['plagiarism_proxy', 'ai_detection_proxy'])
-
-type DetectorForm = {
-  detector_name: string
-  result_percent: string
-  decision: '' | 'passed' | 'failed'
-  artifact_format: '' | 'docx' | 'pdf'
-  checked_at: string
-  report_ref: string
-  reason: string
+  if (gate.status === 'passed' || gate.status === 'overridden') return 'border-green-200 bg-green-50'
+  if (gate.status === 'failed') return 'border-red-200 bg-red-50'
+  if (gate.status === 'warning' || gate.status === 'unchecked') return 'border-amber-200 bg-amber-50'
+  return 'border-gray-200 bg-white'
 }
 
 export default function ProductionCaseDetailPage() {
   const params = useParams()
+  const operatorView = usePathname()?.startsWith('/dashboard/')
   const caseId = Number(params.id)
   const [productionCase, setProductionCase] = useState<ProductionCase | null>(null)
   const [gates, setGates] = useState<ReleaseGate[]>([])
   const [loading, setLoading] = useState(true)
   const [isReleasing, setIsReleasing] = useState(false)
   const [isDownloadingReview, setIsDownloadingReview] = useState(false)
-  const [savingDetector, setSavingDetector] = useState<string | null>(null)
-  const [detectorForms, setDetectorForms] = useState<Record<string, DetectorForm>>({})
+  const [isDownloadingFinal, setIsDownloadingFinal] = useState(false)
+  const [loadError, setLoadError] = useState(false)
 
   const blockers = useMemo(
     () =>
@@ -55,15 +48,16 @@ export default function ProductionCaseDetailPage() {
   const load = async () => {
     try {
       setLoading(true)
-      const [caseData, gateData] = await Promise.all([
-        adminApiClient.getProductionCase(caseId),
-        adminApiClient.getReleaseGates(caseId),
-      ])
+      setLoadError(false)
+      // Show current gate decisions before reading the saved case status.
+      const gateData = await adminApiClient.getReleaseGates(caseId)
+      const caseData = await adminApiClient.getProductionCase(caseId)
       setProductionCase(caseData)
       setGates(gateData)
     } catch (error) {
       console.error('Failed to load production case:', error)
-      toast.error('Failed to load production case')
+      setLoadError(true)
+      toast.error('Не вдалося завантажити перевірки роботи')
     } finally {
       setLoading(false)
     }
@@ -77,11 +71,11 @@ export default function ProductionCaseDetailPage() {
   const handleRelease = async () => {
     try {
       setIsReleasing(true)
-      await adminApiClient.releaseProductionCase(caseId, 'Approved from manager console')
-      toast.success('Production case released')
+      await adminApiClient.releaseProductionCase(caseId, 'Approved from manager console after reviewing the bound DOCX evidence')
+      toast.success('Файл готовий менеджеру')
       await load()
     } catch (error: any) {
-      toast.error(error?.message || 'Release blocked')
+      toast.error(error?.message || 'Видачу заблоковано')
     } finally {
       setIsReleasing(false)
     }
@@ -94,89 +88,44 @@ export default function ProductionCaseDetailPage() {
       setIsDownloadingReview(true)
       const response = await adminApiClient.getInternalReviewDownload(documentId)
       if (!response.download_url) {
-        throw new Error('Download link is missing')
+        throw new Error('Посилання на DOCX ще не готове')
       }
       const apiOrigin = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
       const downloadUrl = new URL(response.download_url, apiOrigin).toString()
       window.open(downloadUrl, '_blank', 'noopener')
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to download the review DOCX')
+      toast.error(error?.message || 'Не вдалося отримати DOCX для перевірки')
     } finally {
       setIsDownloadingReview(false)
     }
   }
 
+  const handleFinalDownload = async () => {
+    if (!productionCase?.document) return
+    setIsDownloadingFinal(true)
+    try {
+      await downloadDocumentDocx(productionCase.document.id)
+    } catch (error: any) {
+      toast.error(error?.message || 'Не вдалося отримати перевірений DOCX')
+      await load()
+    } finally {
+      setIsDownloadingFinal(false)
+    }
+  }
+
   const handleOverride = async (gate: ReleaseGate) => {
-    const reason = window.prompt(`Override ${gate.gate_key}. Enter reason:`)
+    const reason = window.prompt(`${gateLabel(gate.gate_key)}. Поясніть адміністративний виняток:`)
     if (!reason) return
     try {
       await adminApiClient.overrideReleaseGate(caseId, gate.gate_key, reason)
-      toast.success('Gate overridden')
+      toast.success('Виняток збережено')
       await load()
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to override gate')
+      toast.error(error?.message || 'Не вдалося зберегти виняток')
     }
   }
 
-  const detectorFormFor = (gateKey: string): DetectorForm => {
-    const artifactBindings = productionCase?.document?.artifact_bindings
-    const defaultArtifactFormat: DetectorForm['artifact_format'] = artifactBindings?.docx
-      ? 'docx'
-      : artifactBindings?.pdf
-        ? 'pdf'
-        : ''
-    return detectorForms[gateKey] || {
-      detector_name: 'Compilatio',
-      result_percent: '',
-      decision: '',
-      artifact_format: defaultArtifactFormat,
-      checked_at: new Date().toISOString().slice(0, 16),
-      report_ref: 'docs/phase1-runs/RUN-001.md',
-      reason: '',
-    }
-  }
-
-  const updateDetectorForm = (
-    gateKey: string,
-    patch: Partial<ReturnType<typeof detectorFormFor>>
-  ) => {
-    setDetectorForms((current) => ({
-      ...current,
-      [gateKey]: { ...detectorFormFor(gateKey), ...patch },
-    }))
-  }
-
-  const handleDetectorSubmit = async (
-    event: FormEvent<HTMLFormElement>,
-    gate: ReleaseGate
-  ) => {
-    event.preventDefault()
-    const form = detectorFormFor(gate.gate_key)
-    if (!form.decision || !form.artifact_format) {
-      toast.error('Choose a release decision and the exact artifact that was checked')
-      return
-    }
-    try {
-      setSavingDetector(gate.gate_key)
-      await adminApiClient.recordDetectorResult(caseId, gate.gate_key, {
-        detector_name: form.detector_name,
-        result_percent: Number(form.result_percent),
-        decision: form.decision,
-        artifact_format: form.artifact_format,
-        checked_at: new Date(form.checked_at).toISOString(),
-        report_ref: form.report_ref,
-        reason: form.reason,
-      })
-      toast.success('Detector result recorded')
-      await load()
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to record release decision')
-    } finally {
-      setSavingDetector(null)
-    }
-  }
-
-  if (loading || !productionCase) {
+  if (loading && !productionCase) {
     return (
       <div className="flex h-64 items-center justify-center">
         <LoadingSpinner />
@@ -184,15 +133,25 @@ export default function ProductionCaseDetailPage() {
     )
   }
 
+  if (loadError || !productionCase) return (
+    <div role="alert" className="rounded-lg border border-amber-200 bg-amber-50 p-4">
+      <p>Перевірки не завантажились. Збережені дані роботи не змінено.</p>
+      <Button onClick={load} className="mt-3">Оновити перевірки</Button>
+    </div>
+  )
+
   return (
     <div className="space-y-6">
+      <Link href={operatorView ? `/dashboard/documents/${productionCase.document_id}` : '/admin/production-cases'} className="text-sm text-primary-700 underline">
+        {operatorView ? '← До роботи та стану генерації' : '← До списку перевірок'}
+      </Link>
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-white">
-            Production Case #{productionCase.id}
+          <h1 className="text-2xl font-bold font-serif text-gray-900">
+            Перевірка та видача · №{productionCase.document_id}
           </h1>
-          <p className="mt-1 text-sm text-gray-400">
-            {productionCase.document?.title || `Document ${productionCase.document_id}`}
+          <p className="mt-1 text-sm text-gray-500">
+            {productionCase.document?.title || `Робота ${productionCase.document_id}`}
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
@@ -208,81 +167,95 @@ export default function ProductionCaseDetailPage() {
           >
             {isDownloadingReview
               ? 'Готуємо DOCX…'
-              : 'DOCX для Compilatio (pre-release)'}
+              : 'DOCX для Compilatio'}
           </Button>
-          <Button onClick={handleRelease} disabled={isReleasing || blockers.length > 0}>
-            {isReleasing ? 'Releasing...' : 'Approve release'}
-          </Button>
+          {productionCase.release_status === 'released' && !blockers.length ? (
+            <Button onClick={handleFinalDownload} disabled={isDownloadingFinal}>
+              {isDownloadingFinal ? 'Готуємо файл…' : 'Завантажити перевірений DOCX'}
+            </Button>
+          ) : (
+            <Button onClick={handleRelease} disabled={isReleasing || !gates.length || blockers.length > 0}>
+              {isReleasing ? 'Перевіряємо…' : 'Дозволити видачу'}
+            </Button>
+          )}
         </div>
       </div>
 
       {blockers.length > 0 && (
-        <div className="rounded-lg border border-red-700 bg-red-950/30 p-4 text-sm text-red-100">
-          Release blocked by {blockers.map((gate) => gate.gate_key).join(', ')}.
+        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+          Видача поки недоступна: {blockers.map((gate) => gateLabel(gate.gate_key)).join(', ')}.
         </div>
       )}
 
-      <section className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-        <h2 className="text-sm font-semibold text-white">Compilatio artifact</h2>
+      <section className="rounded-lg border border-gray-200 bg-white p-4">
+        <h2 className="text-sm font-semibold text-gray-900">Один файл для перевірки та видачі</h2>
         {productionCase.document?.artifact_bindings?.docx ? (
-          <div className="mt-2 text-xs text-gray-300">
-            <p>Перевіряй саме DOCX, прив’язаний до цього кейсу.</p>
-            <p className="mt-2 break-all font-mono" data-testid="docx-fingerprint">
-              SHA-256: {productionCase.document.artifact_bindings.docx.fingerprint_sha256}
-            </p>
+          <div className="mt-2 text-xs text-gray-600">
+            <p className="text-sm">Спочатку завантажте DOCX для Compilatio. Після перевірок можна отримати той самий файл для видачі. Відправлення клієнту залишається у звичайному процесі агенції.</p>
+            <details className="mt-3">
+              <summary className="cursor-pointer">Технічний відбиток файла</summary>
+              <p className="mt-2 break-all font-mono" data-testid="docx-fingerprint">
+                SHA-256: {productionCase.document.artifact_bindings.docx.fingerprint_sha256}
+              </p>
+            </details>
           </div>
         ) : (
-          <p className="mt-2 text-sm text-amber-300">
+          <p className="mt-2 text-sm text-amber-800">
             Зафіксований DOCX ще не готовий.
           </p>
         )}
       </section>
 
+      {productionCase.document?.artifact_bindings?.docx && (
+        <ReleaseEvidenceForms
+          key={productionCase.document.artifact_bindings.docx.fingerprint_sha256}
+          caseId={caseId}
+          fingerprint={productionCase.document.artifact_bindings.docx.fingerprint_sha256}
+          gates={gates}
+          targetPages={productionCase.document.target_pages}
+          onSaved={load}
+        />
+      )}
+
       <div className="grid grid-cols-1 gap-4 md:grid-cols-4">
         {[
-          ['Generation', productionCase.generation_status],
-          ['QA', productionCase.qa_status],
-          ['Editorial', productionCase.editorial_status],
-          ['Delivery', productionCase.delivery_status],
+          ['Написання', productionCase.generation_status],
+          ['Перевірки', gates.length && !blockers.length ? 'passed' : blockers.some((gate) => gate.status === 'failed') ? 'failed' : 'needs_review'],
+          ['Огляд змісту', productionCase.editorial_status],
+          ['Видача', blockers.length ? 'blocked' : productionCase.release_status === 'released' ? 'ready' : productionCase.release_status],
         ].map(([label, value]) => (
-          <div key={label} className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-            <p className="text-xs uppercase text-gray-400">{label}</p>
-            <p className="mt-2 text-lg font-semibold text-white">{value}</p>
+          <div key={label} className="rounded-lg border border-gray-200 bg-white p-4">
+            <p className="text-xs uppercase text-gray-500">{label}</p>
+            <p className="mt-2 text-lg font-semibold text-gray-900">{productionStatus(value)}</p>
           </div>
         ))}
       </div>
 
       <section className="space-y-3">
         <div>
-          <h2 className="text-lg font-semibold text-white">QA Evidence</h2>
-          <p className="mt-1 text-sm text-gray-400">
-            Consolidated manager view for release blockers, provenance, detector proxies,
-            human minutes, and delivery package readiness.
+          <h2 className="text-lg font-semibold text-gray-900">Результати перевірок</h2>
+          <p className="mt-1 text-sm text-gray-500">
+            Усі обов’язкові перевірки мають бути пройдені для поточного DOCX. Зміна файла потребує нових доказів.
           </p>
         </div>
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
           {gates.map((gate) => {
-            const form = detectorFormFor(gate.gate_key)
-            const isDetectorGate = DETECTOR_GATES.has(gate.gate_key)
-            const selectedArtifactBinding = form.artifact_format
-              ? productionCase.document?.artifact_bindings?.[form.artifact_format]
-              : undefined
             return (
               <div key={gate.gate_key} className={`rounded-lg border p-4 ${gateTone(gate)}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="font-medium text-white">{gate.gate_key}</h3>
-                    <p className="mt-1 text-sm text-gray-300">{gate.summary}</p>
+                    <h3 className="font-medium text-gray-900">{gateLabel(gate.gate_key)}</h3>
+                    <p className="mt-1 text-sm text-gray-600">{gateDetail(gate)}</p>
                   </div>
-                  <span className="rounded bg-gray-900 px-2 py-1 text-xs text-gray-200">
-                    {gate.status}
+                  <span className="rounded bg-gray-50 px-2 py-1 text-xs text-gray-700">
+                    {productionStatus(gate.status)}
                   </span>
                 </div>
-                <p className="mt-3 text-xs text-gray-400">
-                  {gate.blocking ? 'Blocking' : 'Advisory'} · {gate.source}
+                <p className="mt-3 text-xs text-gray-500">
+                  {gate.blocking ? 'Обов’язкова перевірка' : 'Інформація для огляду'}
                 </p>
-                {gate.evidence && Object.keys(gate.evidence).length > 0 && (
-                  <dl className="mt-3 grid grid-cols-1 gap-2 text-xs text-gray-300 sm:grid-cols-2">
+                {!operatorView && gate.evidence && Object.keys(gate.evidence).length > 0 && (
+                  <dl className="mt-3 grid grid-cols-1 gap-2 text-xs text-gray-600 sm:grid-cols-2">
                     {Object.entries(gate.evidence)
                       .filter(([key]) =>
                         [
@@ -290,7 +263,9 @@ export default function ProductionCaseDetailPage() {
                           'result_percent',
                           'decision',
                           'checked_at',
-                          'report_ref',
+                          'report_id',
+                          'threshold_percent',
+                          'no_rewrite_confirmed',
                           'artifact_format',
                           'artifact_identifier',
                           'binding_status',
@@ -299,157 +274,23 @@ export default function ProductionCaseDetailPage() {
                       .map(([key, value]) => (
                         <div key={key}>
                           <dt className="text-gray-500">{key}</dt>
-                          <dd className="break-words text-gray-200">{String(value)}</dd>
+                          <dd className="break-words text-gray-700">{String(value)}</dd>
                         </div>
                       ))}
                   </dl>
                 )}
                 {gate.override_reason && (
-                  <p className="mt-2 text-xs text-green-200">
-                    Override: {gate.override_reason}
+                  <p className="mt-2 text-xs text-green-800">
+                    Пояснення винятку: {gate.override_reason}
                   </p>
                 )}
-                {isDetectorGate && (
-                  <form
-                    onSubmit={(event) => handleDetectorSubmit(event, gate)}
-                    className="mt-4 space-y-3 border-t border-gray-700 pt-4"
-                  >
-                    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                      <label className="text-xs text-gray-300">
-                        Release detector
-                        <input
-                          value={form.detector_name}
-                          readOnly
-                          className="mt-1 w-full rounded border border-gray-600 bg-gray-900 px-2 py-1.5 text-sm text-gray-300"
-                          required
-                        />
-                        <span className="mt-1 block text-gray-500">
-                          GPTZero is diagnostic only and cannot authorize release.
-                        </span>
-                      </label>
-                      <label className="text-xs text-gray-300">
-                        Checked at
-                        <input
-                          type="datetime-local"
-                          value={form.checked_at}
-                          onChange={(event) =>
-                            updateDetectorForm(gate.gate_key, {
-                              checked_at: event.target.value,
-                            })
-                          }
-                          className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                          required
-                        />
-                      </label>
-                      <label className="text-xs text-gray-300">
-                        Result %
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step="0.01"
-                          value={form.result_percent}
-                          onChange={(event) =>
-                            updateDetectorForm(gate.gate_key, {
-                              result_percent: event.target.value,
-                            })
-                          }
-                          className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                          required
-                        />
-                      </label>
-                      <label className="text-xs text-gray-300">
-                        Release decision
-                        <select
-                          value={form.decision}
-                          onChange={(event) =>
-                            updateDetectorForm(gate.gate_key, {
-                              decision: event.target.value as DetectorForm['decision'],
-                            })
-                          }
-                          className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                          required
-                        >
-                          <option value="">Choose passed or failed</option>
-                          <option value="passed">Passed</option>
-                          <option value="failed">Failed</option>
-                        </select>
-                      </label>
-                    </div>
-                    <label className="block text-xs text-gray-300">
-                      Checked artifact
-                      <select
-                        value={form.artifact_format}
-                        onChange={(event) =>
-                          updateDetectorForm(gate.gate_key, {
-                            artifact_format: event.target.value as DetectorForm['artifact_format'],
-                          })
-                        }
-                        className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                        required
-                      >
-                        <option value="">Choose the generated file you checked</option>
-                        {(['docx', 'pdf'] as const).map((artifactFormat) => {
-                          const binding = productionCase.document?.artifact_bindings?.[artifactFormat]
-                          return binding ? (
-                            <option key={artifactFormat} value={artifactFormat}>
-                              {artifactFormat.toUpperCase()} · {binding.identifier}
-                            </option>
-                          ) : null
-                        })}
-                      </select>
-                      <span className="mt-1 block text-gray-500">
-                        Plagiarism and AI decisions must both use this same final file.
-                      </span>
-                    </label>
-                    {selectedArtifactBinding && (
-                      <p className="rounded border border-gray-700 bg-gray-950 p-2 text-xs text-gray-300">
-                        Server artifact ID: {selectedArtifactBinding.identifier}. This ID is attached
-                        automatically and cannot be supplied by the browser.
-                      </p>
-                    )}
-                    <label className="block text-xs text-gray-300">
-                      Run report reference
-                      <input
-                        value={form.report_ref}
-                        onChange={(event) =>
-                          updateDetectorForm(gate.gate_key, {
-                            report_ref: event.target.value,
-                          })
-                        }
-                        className="mt-1 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                        required
-                      />
-                    </label>
-                    <label className="block text-xs text-gray-300">
-                      Release-manager rationale
-                      <textarea
-                        value={form.reason}
-                        onChange={(event) =>
-                          updateDetectorForm(gate.gate_key, {
-                            reason: event.target.value,
-                          })
-                        }
-                        className="mt-1 h-20 w-full rounded border border-gray-600 bg-gray-950 px-2 py-1.5 text-sm text-white"
-                        required
-                      />
-                    </label>
-                    <button
-                      type="submit"
-                      disabled={savingDetector === gate.gate_key}
-                      className="rounded bg-primary-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-primary-500 disabled:opacity-50"
-                    >
-                      {savingDetector === gate.gate_key ? 'Saving...' : 'Record release decision'}
-                    </button>
-                  </form>
-                )}
-                {gate.override_allowed && gate.status !== 'overridden' && (
+                {!operatorView && gate.override_allowed && gate.status !== 'overridden' && (
                   <button
                     type="button"
                     onClick={() => handleOverride(gate)}
-                    className="mt-3 text-sm text-primary-300 hover:text-primary-200"
+                    className="mt-3 text-sm text-primary-700 hover:text-primary-800"
                   >
-                    Override with reason
+                    Адміністративний виняток з поясненням
                   </button>
                 )}
               </div>
@@ -458,32 +299,32 @@ export default function ProductionCaseDetailPage() {
         </div>
       </section>
 
-      <section className="rounded-lg border border-gray-700 bg-gray-800 p-4">
-        <h2 className="text-lg font-semibold text-white">Production Economics</h2>
+      {!operatorView && <section className="rounded-lg border border-gray-200 bg-white p-4">
+        <h2 className="text-lg font-semibold text-gray-900">Витрати на підготовку</h2>
         <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-4">
           <div>
-            <p className="text-xs uppercase text-gray-400">Human minutes</p>
-            <p className="mt-1 text-white">{productionCase.human_minutes_used}</p>
+            <p className="text-xs uppercase text-gray-500">Хвилини огляду</p>
+            <p className="mt-1 text-gray-900">{productionCase.human_minutes_used}</p>
           </div>
           <div>
-            <p className="text-xs uppercase text-gray-400">Cost</p>
-            <p className="mt-1 text-white">€{(productionCase.cost_cents / 100).toFixed(2)}</p>
+            <p className="text-xs uppercase text-gray-500">Вартість</p>
+            <p className="mt-1 text-gray-900">€{(productionCase.cost_cents / 100).toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-xs uppercase text-gray-400">AI cost</p>
-            <p className="mt-1 text-white">
+            <p className="text-xs uppercase text-gray-500">Витрати AI</p>
+            <p className="mt-1 text-gray-900">
               €{((productionCase.ai_cost_eur_cents ?? 0) / 100).toFixed(2)}
             </p>
-            <p className="text-xs text-gray-400">
-              {(productionCase.ai_total_tokens ?? 0).toLocaleString()} tokens
+            <p className="text-xs text-gray-500">
+              {(productionCase.ai_total_tokens ?? 0).toLocaleString()} токенів
             </p>
           </div>
           <div>
-            <p className="text-xs uppercase text-gray-400">Client</p>
-            <p className="mt-1 text-white">{productionCase.client_email || 'Unknown'}</p>
+            <p className="text-xs uppercase text-gray-500">Обліковий запис</p>
+            <p className="mt-1 text-gray-900">{productionCase.client_email || 'Не вказано'}</p>
           </div>
         </div>
-      </section>
+      </section>}
     </div>
   )
 }

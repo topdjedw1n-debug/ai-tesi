@@ -16,7 +16,7 @@ import {
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
 
-const navigation = [
+const baseNavigation = [
   { name: 'Головна', href: '/dashboard', icon: HomeIcon },
   { name: 'Мої роботи', href: '/dashboard/documents', icon: DocumentTextIcon },
   { name: 'Профіль', href: '/dashboard/profile', icon: UserCircleIcon },
@@ -32,6 +32,13 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { user, isLoading } = useAuth()
+  const navigation = [
+    ...baseNavigation.slice(0, 2),
+    ...(user?.can_access_production
+      ? [{ name: 'Перевірка та видача', href: '/dashboard/production-cases', icon: DocumentTextIcon }]
+      : []),
+    ...baseNavigation.slice(2),
+  ]
 
   // Redirect to login if not authenticated
   useEffect(() => {

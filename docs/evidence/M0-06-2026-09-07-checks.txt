@@ -1,0 +1,125 @@
+M0-06 verification log index — 2026-09-07
+These are local release-preparation checks, not production acceptance.
+
+api-final-suite.log
+sha256: a4c5d86b4c023347273c83beb88e27d1c4c7446ac11c79a6f4014dbe7a3b7633
+app/utils/anthropic_helpers.py                          4      0      0      0 100.00%
+app/utils/jwt_helpers.py                               12      0      4      0 100.00%
+------------------------------------------------------------------------------------------------
+TOTAL                                               14470   3724   3798    660  71.64%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+=========== 1122 passed, 10 skipped, 6 warnings in 334.56s (0:05:34) ===========
+
+api-image-tests.log
+sha256: c111b1bd974b53e330fbd970c0fdec526a8aceb804e30398e49d4d6b2a2a9538
+app/services/websocket_manager.py                      51     34     14      0  26.15%   34-48, 58-68, 78-93, 102-104, 113
+app/utils/jwt_helpers.py                               12      4      4      2  62.50%   24, 29, 31-32
+------------------------------------------------------------------------------------------------
+TOTAL                                               14466  10122   3798    153  25.21%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+======================= 63 passed, 5 warnings in 18.87s ========================
+
+postgres-concurrency.log
+sha256: 6431ad1b65ba1a1d1059173b6b193a15125df4cd4902b587ee9ca277abcc00ad
+app/services/websocket_manager.py                      51     34     14      0  26.15%   34-48, 58-68, 78-93, 102-104, 113
+app/utils/jwt_helpers.py                               12      4      4      2  62.50%   24, 29, 31-32
+------------------------------------------------------------------------------------------------
+TOTAL                                               14466  10440   3798    131  23.00%
+Coverage HTML written to dir htmlcov
+Coverage XML written to file coverage.xml
+
+======================== 2 passed, 5 warnings in 9.02s =========================
+
+web-verified-suite.log
+sha256: 241f3db919450552112ab55b01d14e04980cc5ce411fab16165ea2bb43b50fa3
+PASS lib/__tests__/api-contract-smoke.test.ts
+PASS lib/__tests__/feature-flags.test.ts
+
+Test Suites: 27 passed, 27 total
+Tests:       1 skipped, 192 passed, 193 total
+Snapshots:   0 total
+Time:        14.062 s
+Ran all test suites.
+
+web-final-lint.log
+sha256: 5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37
+
+> ai-thesis-platform-web@1.0.0 lint
+> next lint
+
+✔ No ESLint warnings or errors
+
+web-verified-types.log
+sha256: 359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb
+
+> ai-thesis-platform-web@1.0.0 type-check
+> tsc --noEmit
+
+
+web-verified-build.log
+sha256: f68c29cd6490be0e5ef3564748bcdef202631ea8828cf7aeaba79060b31c5996
+  └ chunks/webpack-3891b7c934a403ea.js   1.92 kB
+
+
+ƒ Middleware                             40.5 kB
+
+○  (Static)   prerendered as static content
+λ  (Dynamic)  server-rendered on demand using Node.js
+
+
+ruff-final.log
+sha256: d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e
+warning: The top-level linter settings are deprecated in favour of their counterparts in the `lint` section. Please update the following options in `pyproject.toml`:
+  - 'ignore' -> 'lint.ignore'
+  - 'select' -> 'lint.select'
+  - 'isort' -> 'lint.isort'
+  - 'per-file-ignores' -> 'lint.per-file-ignores'
+All checks passed!
+
+infra-final.log
+sha256: 1bac335f5554c48c7221fc4b2a84f04e42c38c85dec969612950b1fea5fc6fb6
+test_installed_bot_overlay_is_kept_for_every_compose_action (test_deploy.DeployOrchestrationTest.test_installed_bot_overlay_is_kept_for_every_compose_action) ... ok
+test_invalid_compose_stops_before_backup_migrations_or_build (test_deploy.DeployOrchestrationTest.test_invalid_compose_stops_before_backup_migrations_or_build) ... ok
+test_missing_installed_bot_configuration_stops_before_mutations (test_deploy.DeployOrchestrationTest.test_missing_installed_bot_configuration_stops_before_mutations) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.973s
+
+OK
+
+mypy-final-reviewed.log
+sha256: 553838e342550c0e5e6a5a89c9e8978d61f00d62328870eaa0633012439ae17e
+app/api/v1/endpoints/documents.py:1229: error: Incompatible types in assignment (expression has type "str", variable has type "Column[str]")  [assignment]
+app/api/v1/endpoints/documents.py:1236: error: Incompatible types in assignment (expression has type "str", variable has type "Column[str]")  [assignment]
+app/api/v1/endpoints/documents.py:1244: error: Incompatible types in assignment (expression has type "int", variable has type "Column[int]")  [assignment]
+app/api/v1/endpoints/documents.py:1247: error: Incompatible types in assignment (expression has type "bool", variable has type "Column[bool]")  [assignment]
+app/api/v1/endpoints/documents.py:1248: error: Incompatible types in assignment (expression has type "bool", variable has type "Column[bool]")  [assignment]
+app/api/v1/endpoints/documents.py:1307: error: Argument "uploaded_files" to "build_task_contract" has incompatible type "Sequence[DocumentSourceFile]"; expected "list[Any] | None"  [arg-type]
+app/api/v1/endpoints/documents.py:1339: error: Incompatible types in assignment (expression has type "datetime", variable has type "Column[datetime]")  [assignment]
+Found 354 errors in 46 files (checked 109 source files)
+
+api-image-verified-build.log
+sha256: d7c17660a17a8df1429c4aff9e8193cb81bf823ab3031c731282f825ff390767
+#12 exporting manifest sha256:088f2495fcac2cc065761d86daadd67083d6a7a61ac5bbbdde49761694b54b54 done
+#12 exporting config sha256:77c251d013c6fa7f91f4cf9b0f2b18ccb982b147016daad5074abf3bf838546d done
+#12 exporting attestation manifest sha256:f1536013caf1868bd49c03f140729204fd78da58c2c7b8136a25fdc37b1cabde done
+#12 exporting manifest list sha256:13d98335856f4aab9ee9c5773d6a457504e4a7dd096a96d32fca147786136e51
+#12 exporting manifest list sha256:13d98335856f4aab9ee9c5773d6a457504e4a7dd096a96d32fca147786136e51 done
+#12 naming to docker.io/library/thesica-api:m0-06-candidate-20260907 done
+#12 unpacking to docker.io/library/thesica-api:m0-06-candidate-20260907 0.0s done
+#12 DONE 0.2s
+
+web-image-build.log
+sha256: 14b208c0f93a0cb9d50972405a92d1ea70f05138bb375b14cac09a59931900f1
+#21 exporting manifest sha256:e79cdcee98a96f2a004f4306ddb36e120bbf0e3c5c83a3e29da807bce2ef06fd
+#21 exporting manifest sha256:e79cdcee98a96f2a004f4306ddb36e120bbf0e3c5c83a3e29da807bce2ef06fd done
+#21 exporting config sha256:089281e1e7eb275bbd4cd4b60124e3147a646d9d22684a5a84514f53c2eb3aa9 done
+#21 exporting attestation manifest sha256:af19236910af712f19469c5136a9abf97ff6804cddbf62d8059494306eaf4479 done
+#21 exporting manifest list sha256:726e2ee454b0510c53668fb7c2797e5b16e0db94ee5c43e46ffa7cd17c5436f9 done
+#21 naming to docker.io/library/thesica-web:m0-06-candidate-20260907 done
+#21 unpacking to docker.io/library/thesica-web:m0-06-candidate-20260907 0.1s done
+#21 DONE 0.5s

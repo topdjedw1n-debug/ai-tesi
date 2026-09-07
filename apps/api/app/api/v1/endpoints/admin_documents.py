@@ -23,6 +23,7 @@ from app.core.dependencies import require_permission
 from app.core.exceptions import APIException, ValidationError
 from app.core.logging import log_security_audit_event
 from app.core.permissions import AdminPermissions
+from app.core.production_access import require_production_permission
 from app.core.security import create_download_token
 from app.models.auth import User
 from app.models.document import AIGenerationJob, Document, ProductionCase
@@ -662,10 +663,12 @@ async def retry_document_generation(
 async def download_document(
     document_id: int,
     request: Request,
-    current_user: User = Depends(require_permission(AdminPermissions.VIEW_DOCUMENTS)),
+    current_user: User = Depends(
+        require_production_permission(AdminPermissions.VIEW_DOCUMENTS)
+    ),
     db: AsyncSession = Depends(get_db),
 ) -> dict[str, Any]:
-    """Get download link or content for a document (admin only)"""
+    """Issue an audited internal-review link for admins or the configured owner."""
     correlation_id = request.headers.get("X-Request-ID", "unknown")
     ip = request.client.host if request.client else "unknown"
 
