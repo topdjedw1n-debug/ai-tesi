@@ -199,12 +199,43 @@ async def _export_document_with_fence(
     lease_token: str,
 ) -> dict[str, Any]:
     """Upload then atomically bind an artifact, deleting any unbound blob."""
-    export_result = await document_service.export_document(
-        document_id=document_id,
-        format="docx",
-        user_id=user_id,
-        persist_pointer=False,
+    export_task = asyncio.create_task(
+        document_service.export_document(
+            document_id=document_id,
+            format="docx",
+            user_id=user_id,
+            persist_pointer=False,
+        )
     )
+    try:
+        export_result = await asyncio.shield(export_task)
+    except asyncio.CancelledError:
+        # A synchronous SDK upload continues in its thread after cancellation.
+        # Wait for its bounded result so an uploaded, unbound object is cleaned
+        # before the executor exits. It must never acquire a document pointer.
+        async def clean_up_cancelled_export() -> None:
+            try:
+                cancelled_result = await export_task
+            except Exception:
+                logger.exception("Export failed while cancelling job %s", job_id)
+            else:
+                cancelled_path = str(cancelled_result["storage_path"])
+                try:
+                    if not await StorageService().delete_file(cancelled_path):
+                        raise RuntimeError("storage did not confirm deletion")
+                except Exception:
+                    await _enqueue_deletion_outbox_best_effort(
+                        cancelled_path, "unbound"
+                    )
+
+        cleanup_task = asyncio.create_task(clean_up_cancelled_export())
+        while not cleanup_task.done():
+            try:
+                await asyncio.shield(cleanup_task)
+            except asyncio.CancelledError:
+                continue
+        cleanup_task.result()
+        raise
     uploaded_path = str(export_result["storage_path"])
     storage = StorageService()
     try:

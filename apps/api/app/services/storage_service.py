@@ -17,6 +17,7 @@ Created: 2025-11-29
 Related to: Storage Service implementation (MVP_PLAN.md)
 """
 
+import asyncio
 import hashlib
 import logging
 from collections.abc import AsyncGenerator
@@ -26,6 +27,7 @@ from io import BytesIO
 from fastapi import HTTPException
 from minio import Minio
 from minio.error import S3Error
+from urllib3 import PoolManager, Retry, Timeout
 
 from app.core.config import settings
 
@@ -53,6 +55,10 @@ class StorageService:
                 access_key=settings.MINIO_ACCESS_KEY,
                 secret_key=settings.MINIO_SECRET_KEY,
                 secure=settings.MINIO_SECURE,
+                http_client=PoolManager(
+                    timeout=Timeout(connect=3, read=15),
+                    retries=Retry(total=1, backoff_factor=0.2),
+                ),
             )
             logger.info(f"MinIO client initialized: {settings.MINIO_ENDPOINT}")
         return self._client
@@ -111,7 +117,8 @@ class StorageService:
 
             logger.info(f"Uploading file: {object_name} ({file_size} bytes)")
 
-            self.client.put_object(
+            await asyncio.to_thread(
+                self.client.put_object,
                 settings.MINIO_BUCKET,
                 object_name,
                 file_stream,
@@ -147,10 +154,15 @@ class StorageService:
 
             logger.info(f"Downloading file: {object_name}")
 
-            response = self.client.get_object(bucket_name, object_name)
-            data = response.read()
-            response.close()
-            response.release_conn()
+            def read_object() -> bytes:
+                response = self.client.get_object(bucket_name, object_name)
+                try:
+                    return bytes(response.read())
+                finally:
+                    response.close()
+                    response.release_conn()
+
+            data = await asyncio.to_thread(read_object)
 
             logger.info(f"✅ Downloaded from MinIO: {object_name} ({len(data)} bytes)")
             return bytes(data)  # Explicit cast to bytes
@@ -183,15 +195,18 @@ class StorageService:
 
             logger.info(f"Streaming file: {object_name}")
 
-            response = self.client.get_object(bucket_name, object_name)
+            response = await asyncio.to_thread(
+                self.client.get_object, bucket_name, object_name
+            )
 
             # Stream in chunks
             chunk_size = 8192  # 8KB chunks
-            for chunk in response.stream(chunk_size):
-                yield chunk
-
-            response.close()
-            response.release_conn()
+            try:
+                while chunk := await asyncio.to_thread(response.read, chunk_size):
+                    yield chunk
+            finally:
+                response.close()
+                response.release_conn()
             logger.info(f"✅ Streamed from MinIO: {object_name}")
 
         except S3Error as e:
@@ -223,7 +238,7 @@ class StorageService:
 
             logger.info(f"Deleting file: {object_name}")
 
-            self.client.remove_object(bucket_name, object_name)
+            await asyncio.to_thread(self.client.remove_object, bucket_name, object_name)
             logger.info(f"✅ Deleted from MinIO: {object_name}")
             return True
 
@@ -256,7 +271,7 @@ class StorageService:
         """
         try:
             bucket_name, object_name = self._parse_path(file_path)
-            self.client.stat_object(bucket_name, object_name)
+            await asyncio.to_thread(self.client.stat_object, bucket_name, object_name)
             return True
         except S3Error:
             return False
@@ -264,21 +279,27 @@ class StorageService:
     async def get_file_size(self, file_path: str) -> int:
         """Return stored object size, raising if storage cannot confirm it."""
         bucket_name, object_name = self._parse_path(file_path)
-        stat = self.client.stat_object(bucket_name, object_name)
+        stat = await asyncio.to_thread(
+            self.client.stat_object, bucket_name, object_name
+        )
         return int(stat.size)
 
     async def get_file_sha256(self, file_path: str) -> str:
         """Hash the exact stored bytes so review cannot bind to a mutable path."""
         bucket_name, object_name = self._parse_path(file_path)
-        response = self.client.get_object(bucket_name, object_name)
-        digest = hashlib.sha256()
-        try:
-            for chunk in response.stream(1024 * 1024):
-                digest.update(chunk)
-        finally:
-            response.close()
-            response.release_conn()
-        return digest.hexdigest()
+
+        def hash_object() -> str:
+            response = self.client.get_object(bucket_name, object_name)
+            digest = hashlib.sha256()
+            try:
+                for chunk in response.stream(1024 * 1024):
+                    digest.update(chunk)
+            finally:
+                response.close()
+                response.release_conn()
+            return digest.hexdigest()
+
+        return await asyncio.to_thread(hash_object)
 
     async def get_presigned_url(
         self, file_path: str, expiry_seconds: int = 3600
@@ -299,8 +320,11 @@ class StorageService:
         try:
             bucket_name, object_name = self._parse_path(file_path)
 
-            url = self.client.presigned_get_object(
-                bucket_name, object_name, expires=timedelta(seconds=expiry_seconds)
+            url = await asyncio.to_thread(
+                self.client.presigned_get_object,
+                bucket_name,
+                object_name,
+                expires=timedelta(seconds=expiry_seconds),
             )
 
             logger.info(
