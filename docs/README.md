@@ -51,3 +51,15 @@ docs/
 ## Maintenance Rule
 
 Keep docs current, narrow, and tied to decisions or repeatable operations. One-off smoke reports, stale release checklists, and old self-serve-first plans belong in git history, not in active navigation.
+
+## Internal release — 07.09.2026
+
+[Verified M0-06 release](evidence/M0-06-RELEASE-2026-09-07.md): code 585a415
+was committed, pushed and installed with founder approval. manager1 production
+access is active; API/web, bot connectivity and release restrictions are verified.
+The same record contains exact runtime hashes, backups, rollback and test limits.
+
+[SHORT-001](phase1-runs/SHORT-001.md) records the existing document 5 for the
+first short M1 run. It is READY / PENDING REAL RUN DATA; Tanya has not started
+generation or accepted an academic result. Real Compilatio and no-rewrite proof
+remain required on the final DOCX.
