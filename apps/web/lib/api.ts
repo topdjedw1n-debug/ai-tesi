@@ -227,7 +227,22 @@ const handleResponse = async <T>(response: Response, refreshOnUnauthorized = tru
     }
 
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
+    if (response.status === 422 && Array.isArray(errorData.detail)) {
+      const labels: Record<string, string> = {
+        title: 'назва', topic: 'тема', target_pages: 'кількість сторінок',
+        language: 'мова', work_type: 'тип роботи', citation_style: 'стиль цитування',
+      };
+      const fields = Array.from(new Set(errorData.detail.flatMap((item: unknown) => {
+        if (!item || typeof item !== 'object' || !('loc' in item) || !Array.isArray(item.loc)) return [];
+        const key = item.loc[item.loc.length - 1];
+        return typeof key === 'string' && labels[key] ? [labels[key]] : [];
+      })));
+      throw new Error(fields.length
+        ? `Перевір введені дані (${fields.join(', ')}) та спробуй ще раз.`
+        : 'Перевір введені дані у формі та спробуй ще раз.');
+    }
+    const message = typeof errorData.detail === 'string' ? errorData.detail : errorData.message;
+    throw new Error(typeof message === 'string' && message ? message : `HTTP ${response.status}`);
   }
 
   const data = await response.json();
