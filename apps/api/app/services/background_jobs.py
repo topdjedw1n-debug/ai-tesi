@@ -238,8 +238,8 @@ async def _export_document_with_fence(
         raise
     uploaded_path = str(export_result["storage_path"])
     storage = StorageService()
-    try:
-        previous_path = await persist_generation_artifact(
+    binding_task = asyncio.create_task(
+        persist_generation_artifact(
             db,
             job_id=job_id,
             worker_id=lease_owner,
@@ -249,6 +249,26 @@ async def _export_document_with_fence(
             storage_path=uploaded_path,
             artifact_sha256=str(export_result["artifact_sha256"]),
         )
+    )
+    try:
+        previous_path = await asyncio.shield(binding_task)
+    except asyncio.CancelledError:
+        # A commit can win the race with cancellation. Resolve its outcome
+        # before deciding whether the uploaded object is still unbound.
+        while not binding_task.done():
+            try:
+                await asyncio.shield(binding_task)
+            except asyncio.CancelledError:
+                continue
+            except Exception:
+                break
+        if binding_task.exception() is not None:
+            try:
+                if not await storage.delete_file(uploaded_path):
+                    raise RuntimeError("storage did not confirm deletion")
+            except Exception:
+                await _enqueue_deletion_outbox_best_effort(uploaded_path, "unbound")
+        raise
     except BaseException:
         try:
             if not await storage.delete_file(uploaded_path):
@@ -2320,7 +2340,8 @@ class BackgroundJobService:
                                     f"✅ Grammar gate: {grammar_errors} errors (status={grammar_status})"
                                 )
 
-                            # GATE 2: Plagiarism Check (ALWAYS RUN)
+                            # Diagnostic only; Compilatio on the final DOCX is
+                            # the release authority (AGENT_SYNC §4).
                             (
                                 plagiarism_score,
                                 uniqueness,
@@ -2332,14 +2353,9 @@ class BackgroundJobService:
                             )
                             final_plagiarism_score = plagiarism_score  # Save for DB
 
-                            if (
-                                plagiarism_status == CheckStatus.FAILED
-                                and settings.QUALITY_GATES_ENABLED
-                            ):
-                                gates_passed = False
-                                attempt_errors.append(plagiarism_reason)
+                            if plagiarism_status == CheckStatus.FAILED:
                                 logger.warning(
-                                    f"❌ Plagiarism gate FAILED: {plagiarism_reason}"
+                                    f"⚠️ Plagiarism diagnostic FAILED: {plagiarism_reason}"
                                 )
                             elif plagiarism_status == CheckStatus.UNCHECKED:
                                 logger.warning(
@@ -2436,6 +2452,7 @@ class BackgroundJobService:
                                     "status": str(plagiarism_status),
                                     "score": final_plagiarism_score,
                                     "reason": plagiarism_reason,
+                                    "blocking": False,
                                 },
                                 "ai_detection": {
                                     "status": str(ai_status),

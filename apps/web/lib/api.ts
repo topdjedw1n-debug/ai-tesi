@@ -285,7 +285,7 @@ export const apiClient: HttpMethod = {
       body: isFormData ? data : JSON.stringify(data),
     });
     // Invalid credentials are a form error, not an expired user session.
-    return handleResponse<T>(response, url !== '/api/v1/auth/login');
+    return handleResponse<T>(response, url !== API_ENDPOINTS.AUTH.LOGIN);
   },
 
   put: async <T = any>(url: string, data?: any, config?: RequestInit): Promise<T> => {

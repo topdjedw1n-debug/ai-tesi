@@ -57,7 +57,12 @@ class StorageService:
                 secure=settings.MINIO_SECURE,
                 http_client=PoolManager(
                     timeout=Timeout(connect=3, read=15),
-                    retries=Retry(total=1, backoff_factor=0.2),
+                    maxsize=10,
+                    retries=Retry(
+                        total=1,
+                        backoff_factor=0.2,
+                        status_forcelist=[500, 502, 503, 504],
+                    ),
                 ),
             )
             logger.info(f"MinIO client initialized: {settings.MINIO_ENDPOINT}")

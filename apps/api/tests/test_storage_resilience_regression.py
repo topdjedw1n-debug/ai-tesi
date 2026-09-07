@@ -176,3 +176,44 @@ async def test_stream_read_is_nonblocking_and_closes_connection():
     await stream.aclose()
     response.close.assert_called_once()
     response.release_conn.assert_called_once()
+
+
+@pytest.mark.asyncio
+async def test_cancellation_during_commit_never_deletes_a_bound_artifact(monkeypatch):
+    committed, returning = asyncio.Event(), asyncio.Event()
+
+    async def persist(*_args, **_kwargs):
+        committed.set()
+        await returning.wait()
+        return None
+
+    delete = AsyncMock(return_value=True)
+    monkeypatch.setattr(StorageService, "delete_file", delete)
+    monkeypatch.setattr(background_jobs, "persist_generation_artifact", persist)
+    service = SimpleNamespace(
+        export_document=AsyncMock(
+            return_value={
+                "storage_path": "s3://qa/bound.docx",
+                "artifact_sha256": "a" * 64,
+            }
+        )
+    )
+    task = asyncio.create_task(
+        background_jobs._export_document_with_fence(
+            MagicMock(),
+            document_service=service,
+            document_id=1,
+            user_id=1,
+            job_id=1,
+            lease_owner="worker",
+            lease_token="lease",
+        )
+    )
+    await committed.wait()
+    task.cancel()
+    await asyncio.sleep(0)
+    assert not task.done()
+    returning.set()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+    delete.assert_not_awaited()

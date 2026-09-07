@@ -412,9 +412,9 @@ async def test_override_rules_are_enforced_and_audited(client):
         json={"reason": "Manual citation review passed."},
         headers=_auth_headers(admin),
     )
-    assert citation_override_response.status_code == 200, (
-        citation_override_response.text
-    )
+    assert (
+        citation_override_response.status_code == 200
+    ), citation_override_response.text
     assert citation_override_response.json()["status"] == "overridden"
 
     detector_override_response = await client.post(
@@ -840,9 +840,9 @@ async def test_release_requires_both_detector_decisions_on_same_artifact(client)
             },
             headers=_auth_headers(admin),
         )
-        assert response.status_code == (200 if artifact_format == "docx" else 422), (
-            response.text
-        )
+        assert response.status_code == (
+            200 if artifact_format == "docx" else 422
+        ), response.text
 
     release_response = await client.post(
         f"/api/v1/admin/production-cases/{case['id']}/release",
@@ -918,9 +918,8 @@ async def test_m0_03_editorial_override_cannot_replace_no_rewrite(client):
 
 
 @pytest.mark.asyncio
-async def test_section_quality_gate_unchecked_from_new_event(client):
-    """A quality_gate event with status='unchecked' surfaces as an unchecked
-    gate — not passed, not no_data."""
+async def test_section_quality_uses_grammar_and_separate_compilatio_gates(client):
+    """A missing diagnostic detector does not duplicate final-DOCX Compilatio."""
     admin = await _create_user(
         email="prod-admin-b1a@example.com", is_admin=True, is_super_admin=True
     )
@@ -949,9 +948,12 @@ async def test_section_quality_gate_unchecked_from_new_event(client):
     case = await _create_case(client, admin, document)
 
     gate = await _get_gate(client, admin, case["id"], "section_quality")
-    assert gate["status"] == "unchecked"
-    assert gate["evidence"]["unchecked"] == 1
-    assert "unchecked" in gate["summary"]
+    assert gate["status"] == "passed"
+    assert gate["evidence"]["unchecked"] == 0
+    for detector in ("plagiarism_proxy", "ai_detection_proxy"):
+        assert (await _get_gate(client, admin, case["id"], detector))[
+            "status"
+        ] != "passed"
 
 
 @pytest.mark.asyncio

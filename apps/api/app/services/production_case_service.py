@@ -39,7 +39,6 @@ from app.services.generation_contract import (
     generation_contract_error,
     generation_contract_sha256,
 )
-from app.services.provenance_service import derive_quality_gate_status
 from app.services.release_policy import (
     DETECTOR_NAME,
     DETECTOR_THRESHOLD_PERCENT,
@@ -48,6 +47,7 @@ from app.services.release_policy import (
     REPORT_EVENT,
     REVIEW_EVENT,
     detector_verdict,
+    section_release_status,
 )
 from app.services.storage_service import StorageService
 from app.services.uploaded_sources import uploaded_sources_digest
@@ -1274,7 +1274,7 @@ class ProductionCaseService:
                 statuses = dict.fromkeys(section_keys, "unchecked")
                 for section_key, event in latest_by_section.items():
                     if section_key in statuses:
-                        statuses[section_key] = derive_quality_gate_status(
+                        statuses[section_key] = section_release_status(
                             _event_payload(event)
                         )
                 if settings.QUALITY_PANEL_ENABLED:
@@ -1283,9 +1283,9 @@ class ProductionCaseService:
                         if event.event_type != "panel_review":
                             continue
                         panel_payload = _event_payload(event)
-                        latest_panel_by_section[panel_payload.get("section_index")] = (
-                            event
-                        )
+                        latest_panel_by_section[
+                            panel_payload.get("section_index")
+                        ] = event
                     for section_key in statuses:
                         panel_event = latest_panel_by_section.get(section_key)
                         panel_status = (
