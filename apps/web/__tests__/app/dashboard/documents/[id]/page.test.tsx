@@ -131,6 +131,7 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
 
     expect(await screen.findByTestId('document-quality-evidence')).toBeInTheDocument()
     expect(screen.getByTestId('document-sources')).toBeInTheDocument()
+    expect(screen.getByText(/1\s200 слів/)).toBeInTheDocument()
   })
 
   // ISSUE-009: production job5 kept five sections but showed the brief's 22 words.
@@ -148,5 +149,12 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
     expect(await screen.findByText(/1\s826 слів у збережених розділах/)).toBeInTheDocument()
     expect(screen.queryByText('22 слів')).not.toBeInTheDocument()
     expect(screen.queryByTestId('download-docx-button')).not.toBeInTheDocument()
+  })
+
+  it.each(['draft', 'generating', 'failed'])('omits the brief count before any saved section (%s)', async (status) => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({ ...draftDocument, status, word_count: 22 })
+    render(<DocumentDetailPage />)
+    await screen.findByText('Test Thesis')
+    expect(screen.queryByText('22 слів')).not.toBeInTheDocument()
   })
 })

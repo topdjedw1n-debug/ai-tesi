@@ -170,8 +170,8 @@ export default function DocumentDetailPage() {
   const partialWordCount = document.sections.reduce((total, section) => (
     section.status === 'completed' ? total + section.word_count : total
   ), 0)
-  const showPartialCount = (failed || isGeneratingStatus) && partialWordCount > 0
-  const displayedWordCount = showPartialCount ? partialWordCount : document.word_count
+  const showPartialCount = document.status !== 'completed' && partialWordCount > 0
+  const displayedWordCount = document.status === 'completed' ? document.word_count : partialWordCount
 
   return (
     <DashboardLayout>
