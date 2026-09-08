@@ -5,9 +5,9 @@
     "M1-Q01"
   ],
   "status": {
-    "implementation": "DELIVERED_VERIFIED",
+    "implementation": "DELIVERED_CONTROL_BLOCKER_FOUND",
     "M0_12_formatting": "VERIFIED",
-    "M1_Q01_new_thesis_acceptance": "PENDING_CONTROL_RUN",
+    "M1_Q01_new_thesis_acceptance": "CONTROL_FAILED_BEFORE_WRITING",
     "M0_overall": "OPEN",
     "M1_overall": "OPEN",
     "M1_Q02": "SEPARATE_PENDING_SCOPE"
@@ -342,7 +342,8 @@
     "database_inputs_verified": true,
     "new_job_count": 0,
     "uploaded_source_file_count": 0,
-    "case_requirements_identical": true
+    "case_requirements_identical": true,
+    "snapshot_scope": "Historical preparation snapshot before explicit founder-authorized launch; current outcome is control_run"
   },
   "preservation_before_our_docs": {
     "main_head_unchanged": true,
@@ -413,8 +414,8 @@
     "checked_at_utc": "2026-09-08T15:26:19.484157+00:00",
     "goal_complete": false,
     "previous_goal_turn": "PROGRESS: implementation, review, release, live verification and new draft completed",
-    "this_goal_turn": "PROGRESS: independently verified full artifact text preservation and mapped completion evidence",
-    "remaining_blocker": "Explicit confirmation for paid work 8 generation; thereafter same-artifact manager/Compilatio acceptance",
+    "this_goal_turn": "Founder-authorized job8 ran once and failed before writing; live state and Fable diagnosis recorded",
+    "remaining_blocker": "Repair provisional outline/final source-pack bindings and conflict classification; no new artifact exists for acceptance",
     "items": [
       {
         "item": "1",
@@ -551,32 +552,32 @@
       {
         "item": "7.prepare",
         "requirement": "New exact-input control draft without mutating work 7",
-        "status": "VERIFIED",
-        "evidence": "work 8/case 10; same contract hash; API+DB equality; current job_count=0 and status=draft"
+        "status": "VERIFIED_BEFORE_LAUNCH",
+        "evidence": "Exact-input draft verification is historical; current run job8 terminal failed."
       },
       {
         "item": "7.start",
         "requirement": "Explicit production-start confirmation for work 8",
-        "status": "AWAITING_USER_CONFIRMATION",
-        "evidence": "No start approval received; normal confirmation button visible; no active job handle exists"
+        "status": "VERIFIED",
+        "evidence": "Founder explicitly said Запускай; one POST accepted job8."
       },
       {
         "item": "7.generate",
         "requirement": "Completed new job and exact final DOCX with model/version/attempts/cost",
-        "status": "NOT_STARTED",
-        "evidence": "Current database: work 8 draft; zero jobs; no DOCX"
+        "status": "FAILED_BEFORE_WRITING",
+        "evidence": "Job8 failed_quality before sections; 1 attempt, 27140 tokens, 31 cents, no DOCX."
       },
       {
         "item": "7.compare",
         "requirement": "Agent audit of new full DOCX against work 7 using same quality rubric",
-        "status": "PENDING_NEW_ARTIFACT",
-        "evidence": "No new generated artifact exists"
+        "status": "UNAVAILABLE_NO_ARTIFACT",
+        "evidence": "Same-rubric comparison records no text/DOCX; no improvement asserted."
       },
       {
         "item": "7.accept",
         "requirement": "Compilatio similarity <=10%, AI <=10%, human content/pages/no-rewrite on same final DOCX",
-        "status": "PENDING_NEW_ARTIFACT_AND_MANAGER",
-        "evidence": "Historical work 7 results 3%/47% cannot satisfy acceptance of work 8"
+        "status": "UNAVAILABLE_NO_ARTIFACT",
+        "evidence": "No Compilatio/content/pages/no-rewrite acceptance possible for work8."
       },
       {
         "item": "8.1",
@@ -608,6 +609,21 @@
         "status": "VERIFIED",
         "evidence": "Prior final report and explicit request to start work 8; this continuation adds artifact-content evidence"
       }
-    ]
+    ],
+    "control_update_at_utc": "2026-09-08T15:51:39.789406+00:00"
+  },
+  "control_run": {
+    "evidence": "WORK-008-CONTROL-2026-09-08.json",
+    "document_id": 8,
+    "case_id": 10,
+    "job_id": 8,
+    "status": "failed",
+    "sections": 0,
+    "docx_sha256": null,
+    "cost_cents": 31,
+    "tokens": 27140,
+    "attempt_count": 1,
+    "semantic_reviewer_called": false,
+    "next_action": "Repair final-pack outline binding and conflict classification before another authorized run"
   }
 }

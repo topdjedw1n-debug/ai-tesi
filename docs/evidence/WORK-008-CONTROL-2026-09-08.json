@@ -1,0 +1,175 @@
+{
+  "recorded_at_utc": "2026-09-08T15:49:47.229320+00:00",
+  "status": "FAILED_BEFORE_WRITING",
+  "authorization": "Founder explicitly replied Запускай for document8/case10; one normal POST /api/v1/generate/full-document",
+  "document_id": 8,
+  "case_id": 10,
+  "job_id": 8,
+  "baseline_document_id": 7,
+  "runtime": {
+    "commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "images": [
+      "sha256:8efb8f707187126a3dda085995e83f9e51bd9cb9a7fbf43253ae669865959d22",
+      "sha256:f2eda8ffa63063a65e59e8e45023138d55a3a7f09e6c7354a0f10e0dc461da71"
+    ],
+    "healthy": true
+  },
+  "same_input_fields_verified": true,
+  "task_contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+  "request": {
+    "document_id": 8
+  },
+  "started_at": "2026-09-08T15:41:16.184441+00:00",
+  "completed_at": "2026-09-08T15:44:52.371806+00:00",
+  "document_status": "failed_quality",
+  "job_status": "failed",
+  "attempt_count": 1,
+  "provider": "anthropic",
+  "model": "claude-opus-4-8",
+  "app_cost_cents": 31,
+  "app_total_tokens": 27140,
+  "provider_invoice_reconciled": false,
+  "section_count": 0,
+  "docx_sha256": null,
+  "claim_checks_used": 0,
+  "preflight": {
+    "sha256": "f029968eb68d01e4d4bb50998920bb731fb06724922f96a52bfc948c9784fc37",
+    "status": "passed",
+    "target": 24,
+    "verified": 24,
+    "candidates": 76,
+    "final_size": 24,
+    "min_required": 18,
+    "transient_count": 0,
+    "top_up_attempted": true,
+    "rejected_by_reason": {
+      "metadata_mismatch": 1,
+      "no_readable_evidence": 35
+    },
+    "unknown_type_count": 0
+  },
+  "retrieval_trace_count": 88,
+  "academic_outline_review": {
+    "kind": "outline",
+    "reason": "La traccia universitaria richiede una tesi ampiamente clinica basata su framework NANDA/NOC/NIC, ma le fonti disponibili sono in prevalenza articoli su ruoli professionali infermieristici (nurse practitioner, navigator, risk management) e pochi studi clinici (bCPAP, ecocardiografia transizionale, termoregolazione, skin-to-skin). Pertanto alcune etichette diagnostiche specifiche (es. NANDA precise) non trovano supporto diretto nelle fonti e verranno trattate come cornice metodologica dichiarata, non come dato empirico. Il brief richiede review_method con metodo di ricerca reale: essendo assenti descrizioni di una ricerca sistematica, il lavoro sarà dichiarato come analisi narrativa della letteratura fornita, senza inventare PRISMA o database. Il numero limitato e l'eterogeneità delle fonti (molte datate e su contesti non italiani) impongono di dichiarare esplicitamente i limiti di trasferibilità in più sezioni. Розділ 1: немає прив'язки до доступних доказів. Розділ 2: немає прив'язки до доступних доказів. Розділ 3: немає прив'язки до доступних доказів. Розділ 5: немає прив'язки до доступних доказів.",
+    "status": "failed",
+    "binding": {
+      "job_id": 8,
+      "text_sha256": null,
+      "outline_sha256": "0855e08d98e045d88973ea0933cdfd0008bd67553d1388762399679a501226f4",
+      "policy_version": "academic-quality-v1",
+      "source_pack_sha256": "f029968eb68d01e4d4bb50998920bb731fb06724922f96a52bfc948c9784fc37",
+      "task_contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+      "generation_contract_sha256": "9ffb52d16026665d373e83442c9b2495c33a659e9e28a57b2158956823f97dc2"
+    }
+  },
+  "missing_outline_evidence_keys": [
+    {
+      "section_index": 1,
+      "missing_keys": [
+        "Divoll1987",
+        "Kowalski1995",
+        "Rice2012"
+      ]
+    },
+    {
+      "section_index": 2,
+      "missing_keys": [
+        "Divoll1987",
+        "Kowalski1995",
+        "Rice2012"
+      ]
+    },
+    {
+      "section_index": 3,
+      "missing_keys": [
+        "Divoll1987"
+      ]
+    },
+    {
+      "section_index": 4,
+      "missing_keys": []
+    },
+    {
+      "section_index": 5,
+      "missing_keys": [
+        "Rice2012"
+      ]
+    },
+    {
+      "section_index": 6,
+      "missing_keys": []
+    }
+  ],
+  "semantic_outline_reviewer_called": false,
+  "whole_work_reviewer_called": false,
+  "runtime_changes_during_run": false,
+  "new_job_retry_started": false,
+  "humanize_executed": false,
+  "browser": {
+    "checked_at_utc": "2026-09-08T15:46:58.757Z",
+    "errors": [],
+    "api_errors": [],
+    "blocked_mutations": [],
+    "routes": [
+      {
+        "path": "/dashboard/documents/8",
+        "status": 200
+      },
+      {
+        "path": "/dashboard/production-cases/10",
+        "status": 200
+      }
+    ],
+    "retry_requires_confirmation": true,
+    "no_docx_download": true,
+    "academic_gate": {
+      "status": "no_data",
+      "blocking": true,
+      "override_allowed": false
+    },
+    "passed": true
+  },
+  "historical_5_6_7_unchanged": {
+    "document": true,
+    "jobs": true,
+    "sections": true,
+    "cases": true,
+    "provenance": true
+  },
+  "active_jobs_after_run": [],
+  "compilatio": "NOT_RUN_NO_ARTIFACT",
+  "human_acceptance": "NOT_RUN_NO_ARTIFACT",
+  "Fable_failure_consultation": {
+    "status": "DIAGNOSIS_CONFIRMED_WITH_CORRECTIONS",
+    "model": "claude-fable-5-1",
+    "session_id": "94be8ca2-61c9-42f8-a2c9-136bc41552c5",
+    "raw_output_sha256": "b0a8b259ee9f6d3c733a55ce6a6faebc19d07987c98c4bcda2b6f8cf38686a14",
+    "confirmed": [
+      "stale provisional outline evidence bindings",
+      "plain narrative limitations automatically treated as conflicts",
+      "semantic reviewer never called"
+    ],
+    "corrected_inferences": [
+      "Introduction loses all three evidence keys, contrary to Fable statement that every failed section retains at least one",
+      "Removed sources cannot be repaired by identity renaming alone",
+      "One worker attempt is not one total provider call; incomplete-response and translation calls are recorded separately"
+    ]
+  },
+  "private_evidence_hashes": {
+    "control-launch.json": "1a6d59132010a9cae1fcb7c214c2b168f29b27bfa45b06c0203981c9369755f7",
+    "control-latest.json": "227509cfc257f75d25f5bb01ad5cd6ea5fea1d67fd23b1a01c7601508be441b4",
+    "control-final-sources.json": "93df953ea3ae06a434b501aa77bf281935e7f4a8a784a09f59bd018b58d2a94f",
+    "historical-after-control.json": "3edba172759c86dadd1a443570dc17b3161f9e6fc1ae171e60637e9bb84d85c8",
+    "control-failed-browser.json": "4b9456f08ffbf02aff7a6687faad10c8d4c90787a62153c7418773ade8d3ac45"
+  },
+  "workspace_preservation": {
+    "checked_at_utc": "2026-09-08T15:53:15.873068+00:00",
+    "main_head_unchanged": true,
+    "main_index_unchanged": true,
+    "baseline_files_checked": 680,
+    "unexpected_changed_files": [],
+    "tracked_canon_changes_only_within_own_status_block": true,
+    "parallel_model_and_humanization_docs_preserved": true
+  }
+}
