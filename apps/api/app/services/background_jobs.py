@@ -32,7 +32,11 @@ from app.models.document import (
     DocumentSource,
 )
 from app.services.academic_context import academic_context
-from app.services.academic_review import append_review_event, run_academic_review
+from app.services.academic_review import (
+    append_review_event,
+    review_binding,
+    run_academic_review,
+)
 from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import (
     CitationStyle,
@@ -78,6 +82,13 @@ from app.services.db_helpers import (
 )
 from app.services.document_service import DocumentService
 from app.services.docx_export import assemble_section
+from app.services.generation_operations import journal_usage
+from app.services.generation_outcomes import (
+    TEMPORARY_REASONS,
+    GenerationQualityError,
+    GenerationStageError,
+    failure_reason,
+)
 from app.services.generation_worker import (
     GenerationLeaseLostError,
     claim_generation_job_by_id,
@@ -101,6 +112,7 @@ from app.services.grammar_checker import GrammarChecker
 from app.services.grounding_gate import GroundingResult, evaluate_grounding
 from app.services.model_response_recovery import is_permanent_provider_error
 from app.services.plagiarism_checker import PlagiarismChecker
+from app.services.plan_preparation import prepare_final_plan
 from app.services.provenance_service import record_event as _raw_record_provenance
 from app.services.quality_validator import QualityValidator
 from app.services.source_verification_stage import (
@@ -1195,6 +1207,7 @@ class BackgroundJobService:
         usage = UsageTracker()
         usage_baseline_tokens = 0
         usage_baseline_cost_cents = 0
+        usage_baseline_journal = UsageTracker()
         fenced_execution = (
             job_id is not None and lease_owner is not None and lease_token is not None
         )
@@ -1248,7 +1261,10 @@ class BackgroundJobService:
                 await db.execute(
                     statement.values(
                         total_tokens=usage_baseline_tokens + usage.total_tokens,
-                        cost_cents=(usage_baseline_cost_cents + usage.cost_usd_cents()),
+                        cost_cents=(
+                            usage_baseline_cost_cents
+                            + usage.cost_usd_cents(usage_baseline_journal)
+                        ),
                     )
                 )
                 await db.commit()
@@ -1274,7 +1290,10 @@ class BackgroundJobService:
                     db,
                     job_id=job_id,
                     total_tokens=usage_baseline_tokens + usage.total_tokens,
-                    cost_cents=(usage_baseline_cost_cents + usage.cost_usd_cents()),
+                    cost_cents=(
+                        usage_baseline_cost_cents
+                        + usage.cost_usd_cents(usage_baseline_journal)
+                    ),
                 )
             except Exception as usage_error:
                 logger.warning(
@@ -1311,6 +1330,7 @@ class BackgroundJobService:
                     usage_statement = select(
                         AIGenerationJob.total_tokens,
                         AIGenerationJob.cost_cents,
+                        AIGenerationJob.attempt_count,
                     ).where(AIGenerationJob.id == job_id)
                     if fenced_execution:
                         usage_statement = usage_statement.where(
@@ -1326,6 +1346,22 @@ class BackgroundJobService:
                     if usage_row is not None:
                         usage_baseline_tokens = int(usage_row.total_tokens or 0)
                         usage_baseline_cost_cents = int(usage_row.cost_cents or 0)
+                        journal, _unknown = await journal_usage(db, document_id, job_id)
+                        usage_baseline_tokens = max(
+                            usage_baseline_tokens, journal.total_tokens
+                        )
+                        # Preserve any pre-journal legacy spend, then round
+                        # all journaled attempts together rather than each
+                        # attempt separately (which loses/adds fractional cents).
+                        usage_baseline_cost_cents = max(
+                            0, usage_baseline_cost_cents - journal.cost_usd_cents()
+                        )
+                        usage_baseline_journal = journal
+                        usage.generation_context = {
+                            "document_id": document_id,
+                            "job_id": job_id,
+                            "worker_attempt": usage_row.attempt_count,
+                        }
 
                 # Creation-time intake and the parsed methodology are durable
                 # requirements. A per-run request may add context, but can
@@ -1413,11 +1449,13 @@ class BackgroundJobService:
                         db, document_id
                     )
                     if source_blockers:
-                        raise CitationIntegrityError(
-                            detail=(
-                                "Uploaded sources are not generation-ready: "
-                                + "; ".join(source_blockers)
-                            )
+                        # Unusable mandatory uploads are an unmet brief input,
+                        # not an academic verdict about written content.
+                        raise GenerationStageError(
+                            "plan_requirements_unmet",
+                            "Uploaded sources are not generation-ready: "
+                            + "; ".join(source_blockers),
+                            stage="intake",
                         )
                     if source_warnings and settings.PROVENANCE_LEDGER_ENABLED:
                         await _record_provenance(
@@ -1436,36 +1474,44 @@ class BackgroundJobService:
                     ):
                         source_pack = await _load_source_pack(db, document_id)
                         if source_pack is None or not source_pack.sources:
-                            raise CitationIntegrityError(
+                            raise GenerationStageError(
+                                "checkpoint_integrity_error",
+                                stage="checkpoint",
                                 detail=(
                                     "This generation already froze a source pack, "
                                     "but its persisted rows are missing"
-                                )
+                                ),
                             )
                         if uploaded_pack is not None:
                             source_pack.passages = uploaded_pack.passages
                         invalid_keys = invalid_preverified_source_keys(source_pack)
                         if invalid_keys:
-                            raise CitationIntegrityError(
+                            raise GenerationStageError(
+                                "checkpoint_integrity_error",
+                                stage="checkpoint",
                                 detail=(
                                     "Frozen source pack has no valid preflight proof "
                                     "for key(s): " + ", ".join(invalid_keys[:20])
-                                )
+                                ),
                             )
                         actual_digest = source_pack.sha256()
                         if fenced_execution and not expected_source_pack_sha:
-                            raise CitationIntegrityError(
+                            raise GenerationStageError(
+                                "checkpoint_integrity_error",
+                                stage="checkpoint",
                                 detail=(
                                     "Completed sections exist without a frozen "
                                     "source-pack digest"
-                                )
+                                ),
                             )
                         if (
                             expected_source_pack_sha
                             and actual_digest != expected_source_pack_sha
                         ):
-                            raise CitationIntegrityError(
-                                detail="Frozen source pack changed after section writing"
+                            raise GenerationStageError(
+                                "checkpoint_integrity_error",
+                                stage="checkpoint",
+                                detail="Frozen source pack changed after section writing",
                             )
                         if expected_source_pack_sha is None:
                             expected_source_pack_sha = actual_digest
@@ -1593,9 +1639,11 @@ class BackgroundJobService:
                                 # An outage is not evidence that the topic has
                                 # too few sources. Keep this retryable and stop
                                 # before paying for an outline or any section.
-                                raise RuntimeError(
+                                raise GenerationStageError(
+                                    "provider_temporarily_unavailable",
                                     "Source retrieval providers were unavailable "
-                                    "before writing; retry the generation later"
+                                    "before writing; retry the generation later",
+                                    stage="retrieval",
                                 )
                             if insufficient_automatic_pack:
                                 detail = (
@@ -1653,8 +1701,12 @@ class BackgroundJobService:
                         valid_outline = True
                     except ValueError:
                         if durable_completed_indices:
-                            raise CitationIntegrityError(
-                                detail="Completed sections have an invalid outline checkpoint"
+                            # Lost/corrupted checkpoint evidence, never an
+                            # academic rejection of the saved sections.
+                            raise GenerationStageError(
+                                "checkpoint_integrity_error",
+                                "Completed sections have an invalid outline checkpoint",
+                                stage="checkpoint",
                             ) from None
                 # Step 1: Generate or repair the plan before persisting it.
                 if not valid_outline:
@@ -1867,9 +1919,11 @@ class BackgroundJobService:
                                 f"minimum is {settings.SOURCE_PACK_MIN_VERIFIED}"
                             )
                             if preflight.transient_count:
-                                raise RuntimeError(
+                                raise GenerationStageError(
+                                    "provider_temporarily_unavailable",
                                     detail
-                                    + "; bibliographic providers were unavailable"
+                                    + "; bibliographic providers were unavailable",
+                                    stage="retrieval",
                                 )
                             if fenced_execution:
                                 await update_generation_document(
@@ -2012,6 +2066,14 @@ class BackgroundJobService:
                             lease_token=lease_token,
                             document_id=document_id,
                         ):
+                            await prepare_final_plan(
+                                db,
+                                document,
+                                academic_job,
+                                source_pack,
+                                usage_tracker=usage,
+                            )
+                            sections = validate_outline(document.outline)["sections"]
                             outline_review = await run_academic_review(
                                 db,
                                 document,
@@ -2019,6 +2081,12 @@ class BackgroundJobService:
                                 source_pack,
                                 kind="outline",
                                 usage_tracker=usage,
+                            )
+                        if outline_review["status"] == "unchecked":
+                            raise GenerationStageError(
+                                outline_review["reason_code"],
+                                outline_review.get("reason") or "Перевірка недоступна.",
+                                stage="review",
                             )
                         if outline_review["status"] != "passed":
                             await update_generation_document(
@@ -2029,9 +2097,11 @@ class BackgroundJobService:
                                 document_id=document_id,
                                 values={"status": "failed_quality"},
                             )
-                            raise QualityThresholdNotMetError(
+                            raise GenerationQualityError(
+                                reason_code=outline_review.get("reason_code")
+                                or "academic_content_rejected",
                                 detail=outline_review.get("reason")
-                                or "Академічний план або покриття джерелами не пройшли перевірку. Перегляньте зауваження до плану."
+                                or "Академічний план або покриття джерелами не пройшли перевірку. Перегляньте зауваження до плану.",
                             )
                     finally:
                         await write_job_usage(db)
@@ -3568,30 +3638,38 @@ class BackgroundJobService:
                     )
                     await db.commit()
 
-                # Step 4.7: Citation verification + integrity gate
-                # (Academic Quality Engine). Strict policy raises
-                # CitationIntegrityError here, before export. Strict mode is
-                # fail-closed if the verifier cannot complete; mark_only keeps
-                # failures visible without blocking.
-                if settings.CITATION_VERIFICATION_ENABLED:
-                    if fenced_execution:
-                        async with hold_generation_job_lease(
-                            job_id=job_id,
-                            worker_id=lease_owner,
-                            lease_token=lease_token,
-                            document_id=document_id,
-                        ):
-                            await _run_citation_verification_stage(
-                                db, document_id, user_id
+                final_checks_reused = False
+                final_checks_binding = None
+                if fenced_execution:
+                    await db.refresh(document)
+                    final_checks_binding = review_binding(
+                        document, academic_job, expected_source_pack_sha, kind="whole"
+                    )
+                    checks = (
+                        (
+                            await db.execute(
+                                select(DocumentProvenance).where(
+                                    DocumentProvenance.document_id == document_id,
+                                    DocumentProvenance.event_type
+                                    == "generation_final_checks",
+                                )
                             )
-                    else:
-                        await _run_citation_verification_stage(db, document_id, user_id)
-
-                # Step 4.8: Claim faithfulness audit (advisory by default;
-                # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
-                # claims raise CitationIntegrityError here, before export)
-                try:
-                    if settings.CLAIM_VERIFICATION_ENABLED:
+                        )
+                        .scalars()
+                        .all()
+                    )
+                    final_checks_reused = any(
+                        (e.payload or {}).get("binding") == final_checks_binding
+                        and (e.payload or {}).get("status") == "passed"
+                        for e in checks
+                    )
+                if not final_checks_reused:
+                    # Step 4.7: Citation verification + integrity gate
+                    # (Academic Quality Engine). Strict policy raises
+                    # CitationIntegrityError here, before export. Strict mode is
+                    # fail-closed if the verifier cannot complete; mark_only keeps
+                    # failures visible without blocking.
+                    if settings.CITATION_VERIFICATION_ENABLED:
                         if fenced_execution:
                             async with hold_generation_job_lease(
                                 job_id=job_id,
@@ -3599,6 +3677,34 @@ class BackgroundJobService:
                                 lease_token=lease_token,
                                 document_id=document_id,
                             ):
+                                await _run_citation_verification_stage(
+                                    db, document_id, user_id
+                                )
+                        else:
+                            await _run_citation_verification_stage(
+                                db, document_id, user_id
+                            )
+
+                    # Step 4.8: Claim faithfulness audit (advisory by default;
+                    # when CLAIM_VERIFICATION_BLOCKING is set, unsupported cited
+                    # claims raise CitationIntegrityError here, before export)
+                    try:
+                        if settings.CLAIM_VERIFICATION_ENABLED:
+                            if fenced_execution:
+                                async with hold_generation_job_lease(
+                                    job_id=job_id,
+                                    worker_id=lease_owner,
+                                    lease_token=lease_token,
+                                    document_id=document_id,
+                                ):
+                                    await _run_claim_verification_stage(
+                                        db,
+                                        document_id,
+                                        user_id,
+                                        usage_tracker=usage,
+                                        job_id=job_id,
+                                    )
+                            else:
                                 await _run_claim_verification_stage(
                                     db,
                                     document_id,
@@ -3606,19 +3712,30 @@ class BackgroundJobService:
                                     usage_tracker=usage,
                                     job_id=job_id,
                                 )
-                        else:
-                            await _run_claim_verification_stage(
+                    finally:
+                        # Post-section LLM spend (claim verifier) included —
+                        # also on the blocking path (CitationIntegrityError),
+                        # where the verifier's spend is already in the tracker.
+                        await write_job_usage(db)
+
+                    if fenced_execution:
+                        assert (
+                            job_id is not None
+                            and lease_owner is not None
+                            and lease_token is not None
+                        )
+                        async with hold_generation_job_lease(
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                        ):
+                            await append_review_event(
                                 db,
                                 document_id,
-                                user_id,
-                                usage_tracker=usage,
-                                job_id=job_id,
+                                "generation_final_checks",
+                                {"binding": final_checks_binding, "status": "passed"},
                             )
-                finally:
-                    # Post-section LLM spend (claim verifier) included —
-                    # also on the blocking path (CitationIntegrityError),
-                    # where the verifier's spend is already in the tracker.
-                    await write_job_usage(db)
 
                 # Whole-work failure is internal review evidence, not lost text.
                 # Persist once before export; release remains blocked unless current PASS.
@@ -3644,6 +3761,13 @@ class BackgroundJobService:
                                 source_pack,
                                 kind="whole",
                                 usage_tracker=usage,
+                            )
+                        if academic_review_result["status"] == "unchecked":
+                            raise GenerationStageError(
+                                academic_review_result["reason_code"],
+                                academic_review_result.get("reason")
+                                or "Перевірка недоступна.",
+                                stage="review",
                             )
                     finally:
                         await write_job_usage(db)
@@ -3719,6 +3843,13 @@ class BackgroundJobService:
                         )
                 except Exception as e:
                     logger.error(f"Failed to export document {document_id}: {e}")
+                    reason = failure_reason(e, stage="export")
+                    if reason != "unknown_failure":
+                        raise GenerationStageError(
+                            reason,
+                            "Не вдалося сформувати або зберегти файл. Текст збережений.",
+                            stage="export",
+                        ) from e
                     # A completed document must have a real downloadable file.
                     # Let the outer failure handler mark both document and job failed.
                     raise
@@ -3962,6 +4093,8 @@ class BackgroundJobService:
                 terminal = isinstance(
                     error, CitationIntegrityError | QualityThresholdNotMetError
                 ) or is_permanent_provider_error(error)
+                if isinstance(error, GenerationStageError):
+                    terminal = error.reason_code not in TEMPORARY_REASONS
                 decision = await reschedule_or_fail_generation_job(
                     db,
                     job_id=job_id,

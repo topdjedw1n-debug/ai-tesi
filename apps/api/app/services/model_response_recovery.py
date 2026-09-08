@@ -9,10 +9,17 @@ from openai import APIStatusError as OpenAIStatusError
 
 def is_permanent_provider_error(error: Exception) -> bool:
     """Follow explicit causes retained by AIService's outline error wrapper."""
+    from app.services.generation_outcomes import TEMPORARY_REASONS, GenerationStageError
+
     cause: BaseException | None = error
     seen: set[int] = set()
     while cause is not None and id(cause) not in seen:
         seen.add(id(cause))
+        if (
+            isinstance(cause, GenerationStageError)
+            and cause.reason_code not in TEMPORARY_REASONS
+        ):
+            return True
         if isinstance(cause, AnthropicStatusError | OpenAIStatusError):
             status = cause.status_code
             if 400 <= status < 500 and status not in {408, 409, 429}:

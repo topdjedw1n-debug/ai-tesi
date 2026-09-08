@@ -1,0 +1,40 @@
+{
+  "id": 6,
+  "final": {
+    "job_id": 6,
+    "status": "completed",
+    "progress": 100,
+    "document_id": 6,
+    "error_message": null,
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "8be560d6cfe967123c679bffcec38f6f26824bbf3db71e0b9d05fb718ec6dbb7",
+      "attempt_id": "657f2ea1-a852-4ac4-93c8-8ee534661c04",
+      "output_reference": "657f2ea1-a852-4ac4-93c8-8ee534661c04",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "2aefd3f8078cfbd0f4eee8bcad0ddd21596c6a44030c0478694e7526963c6cfc",
+      "usage": {
+        "confirmed_tokens": 5800,
+        "recorded_cost_cents": 4,
+        "unknown_provider_attempts": 0
+      }
+    }
+  },
+  "artifact": {
+    "bytes": 37566,
+    "sha256": "675d2274e44a1e77c6970f7915c1f6c011bf7c2bfc20daed5920c35963b2a5b6"
+  },
+  "ui_start": {
+    "id": 6,
+    "starts": 1,
+    "reload_paid_calls": 0
+  },
+  "synthetic": true
+}

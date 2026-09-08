@@ -10,6 +10,7 @@ jest.mock('@/lib/api', () => ({
       CONFIRM_TASK_CONTRACT: (id: number) =>
         `/api/v1/documents/${id}/task-contract/confirm`,
     },
+    JOBS: { FOR_DOCUMENT: (id: number) => `/api/v1/jobs/document/${id}/status` },
     GENERATE: {
       FULL: '/api/v1/generate/full-document',
       ESTIMATE_COST: ({
@@ -87,6 +88,7 @@ describe('TaskContractPanel', () => {
     jest.clearAllMocks()
     ;(apiClient.get as jest.Mock).mockImplementation((url: string) => {
       if (url.includes('/task-contract')) return Promise.resolve(contract)
+      if (url.endsWith('/recovery')) return Promise.resolve({ reason_code: 'academic_content_rejected', allowed_actions: ['new_version'], expected_fingerprint: 'b'.repeat(64) })
       return Promise.resolve({
         estimated_cost_usd: 12.3456,
         estimated_total_tokens: 85000,
@@ -98,13 +100,36 @@ describe('TaskContractPanel', () => {
 
   it('requires resolution of the failed attempt before an explicit new paid start', async () => {
     render(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry />)
-    const start = await screen.findByRole('button', { name: 'Підтвердити нову спробу' })
+    const start = await screen.findByRole('button', { name: 'Почати заново' })
     fireEvent.click(screen.getByTestId('task-contract-confirmation'))
     expect(start).toBeDisabled()
     expect(apiClient.post).not.toHaveBeenCalled()
-    fireEvent.click(screen.getByLabelText(/Причину попередньої зупинки з’ясовано/))
+    fireEvent.click(screen.getByLabelText(/Причину зупинки усунуто/))
+    expect(start).toBeDisabled()
+    fireEvent.change(screen.getByLabelText('Причина нового запуску'), { target: { value: 'Виправлено вказану вимогу' } })
     fireEvent.click(start)
     await waitFor(() => expect(apiClient.post).toHaveBeenCalledTimes(2))
+  })
+
+  it('resumes the saved job without reconfirming or replacing its contract and reuses an uncertain intent', async () => {
+    const originalGet = (apiClient.get as jest.Mock).getMockImplementation()!
+    ;(apiClient.get as jest.Mock).mockImplementation((url: string) => url.endsWith('/recovery') ? Promise.resolve({ reason_code: 'artifact_temporarily_unavailable', allowed_actions: ['resume'], expected_fingerprint: 'b'.repeat(64) }) : originalGet(url))
+    ;(apiClient.post as jest.Mock).mockRejectedValueOnce(new Error('Connection interrupted')).mockResolvedValueOnce({job_id: 77, status:'queued'})
+    render(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry />)
+    const button = await screen.findByRole('button', { name: 'Підтвердити продовження' })
+    expect(apiClient.post).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByTestId('task-contract-confirmation'))
+    fireEvent.click(screen.getByLabelText(/Причину зупинки усунуто/))
+    fireEvent.click(button)
+    await waitFor(() => expect(screen.getByTestId("task-contract-confirmation")).not.toBeChecked())
+    fireEvent.click(screen.getByTestId("task-contract-confirmation"))
+    fireEvent.click(screen.getByLabelText(/Причину зупинки усунуто/))
+    fireEvent.click(button)
+    await waitFor(() => expect(apiClient.post).toHaveBeenCalledTimes(2))
+    const calls = (apiClient.post as jest.Mock).mock.calls
+    expect(calls[0][0]).toBe('/api/v1/generate/full-document/123/resume')
+    expect(calls[1]).toEqual(calls[0])
+    expect(calls[0][1]).toEqual({intent_id: expect.any(String), expected_fingerprint: 'b'.repeat(64), confirm_paid: true, confirm_access_restored: true})
   })
 
   it('shows explicit and assumed rules plus the estimate', async () => {
@@ -156,7 +181,7 @@ describe('TaskContractPanel', () => {
     expect(apiClient.post).toHaveBeenNthCalledWith(
       2,
       '/api/v1/generate/full-document',
-      { document_id: 123 }
+      { document_id: 123, intent_id: expect.any(String) }
     )
     expect(onGenerationStarted).toHaveBeenCalledTimes(1)
   })
@@ -185,7 +210,7 @@ describe('TaskContractPanel', () => {
     await waitFor(() => expect(apiClient.post).toHaveBeenCalledTimes(1))
     expect(apiClient.post).toHaveBeenCalledWith(
       '/api/v1/generate/full-document',
-      { document_id: 123 }
+      { document_id: 123, intent_id: expect.any(String) }
     )
   })
 })

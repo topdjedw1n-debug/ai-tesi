@@ -34,11 +34,13 @@ from app.models.payment import Payment
 from app.schemas.document import (
     AsyncGenerationRequest,
     AsyncGenerationResponse,
+    GenerationResumeRequest,
     OutlineRequest,
     OutlineResponse,
     SectionRequest,
     SectionResponse,
 )
+from app.services.academic_context import digest
 from app.services.ai_service import AIService
 from app.services.background_jobs import (  # noqa: F401 - legacy patch surface
     BackgroundJobService,
@@ -47,6 +49,16 @@ from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
 from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.document_service import DocumentService
 from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_pause import require_generation_open
+from app.services.generation_profile import generation_profile_sha256
+from app.services.generation_recovery import (
+    intent_receipt,
+    latest_job_for_update,
+    orphan_result_state,
+    record_intent,
+    recovery_state,
+    resume_generation,
+)
 from app.services.generation_worker import (
     cancel_active_generation_job,
     clear_artifact_deletion_entries,
@@ -662,6 +674,43 @@ async def _delete_superseded_artifacts(paths: list[str]) -> None:
             logger.exception("Failed to clear deletion outbox entries")
 
 
+@router.get("/full-document/{document_id}/recovery")
+async def get_generation_recovery(
+    document_id: int,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any] | None:
+    document = await DocumentService(db).check_document_ownership(
+        document_id, int(current_user.id)
+    )
+    job = (
+        await db.execute(
+            select(AIGenerationJob)
+            .where(
+                AIGenerationJob.document_id == document_id,
+                AIGenerationJob.job_type == "full_document",
+            )
+            .order_by(AIGenerationJob.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    if job is None:
+        return (
+            orphan_result_state(document)
+            if document.content
+            or document.docx_path
+            or document.pdf_path
+            or (document.outline and document.status in {"failed", "failed_quality"})
+            else None
+        )
+    case = (
+        await db.execute(
+            select(ProductionCase).where(ProductionCase.document_id == document_id)
+        )
+    ).scalar_one_or_none()
+    return await recovery_state(db, document, job, case)
+
+
 @router.post("/full-document", response_model=AsyncGenerationResponse)
 @rate_limit("5/hour")  # Stricter limit for full document generation
 async def generate_full_document(
@@ -680,6 +729,7 @@ async def enqueue_full_document(
     db: AsyncSession,
     *,
     on_enqueued: Callable[[AIGenerationJob], None] | None = None,
+    actor_id: int | None = None,
 ) -> AsyncGenerationResponse:
     """
     Generate complete document with RAG (Retrieval-Augmented Generation)
@@ -705,7 +755,9 @@ async def enqueue_full_document(
         403: User doesn't own document
         400: Document not ready (not paid, already generating, etc.)
     """
+    actor_id = actor_id if actor_id is not None else int(current_user.id)
     try:
+        await require_generation_open(db)
         # 1. Check document exists and user owns it
         doc_service = DocumentService(db)
         await doc_service.check_document_ownership(
@@ -728,6 +780,8 @@ async def enqueue_full_document(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="User account no longer exists.",
             )
+        if not locked_user.is_active:
+            raise HTTPException(409, "User account is inactive.")
         # GDPR deletion and generation share this user lock. Once deletion is
         # requested, no new durable work may be queued behind it.
         if getattr(locked_user, "deletion_requested_at", None) is not None:
@@ -736,6 +790,22 @@ async def enqueue_full_document(
                 detail="Generation cannot start while account deletion is pending.",
             )
 
+        previous_job = await latest_job_for_update(db, req_data.document_id)
+        receipt = await intent_receipt(
+            db, req_data.document_id, actor_id, req_data.intent_id
+        )
+        if receipt:
+            if (
+                receipt["action"] != req_data.mode
+                or receipt["expected_fingerprint"] != req_data.expected_fingerprint
+            ):
+                raise HTTPException(409, {"reason_code": "intent_conflict"})
+            received_job = await db.get(AIGenerationJob, receipt["job_id"])
+            if received_job is None:
+                raise HTTPException(409, {"reason_code": "checkpoint_integrity_error"})
+            await db.commit()
+            return _active_job_response(received_job)
+        # Lock order: pause -> User -> Job -> Document -> Case.
         # Lock the document before looking up its optional production case.
         # The document row always exists, so it serializes generation against
         # case creation even when no case row exists yet. Case creation uses
@@ -773,7 +843,54 @@ async def enqueue_full_document(
             logger.info(
                 f"Returning existing job {existing_job.id} for document {req_data.document_id}"
             )
+            record_intent(
+                db,
+                req_data.document_id,
+                actor_id,
+                req_data.intent_id,
+                int(existing_job.id),
+                req_data.mode,
+                req_data.expected_fingerprint,
+            )
+            await db.commit()
             return _active_job_response(existing_job)
+
+        has_previous_result = previous_job is not None or bool(
+            document.content
+            or (document.outline and document.status in {"failed", "failed_quality"})
+            or document.docx_path
+            or document.pdf_path
+        )
+        if has_previous_result:
+            state = (
+                await recovery_state(db, document, previous_job, production_case)
+                if previous_job is not None
+                else orphan_result_state(document)
+            )
+            if req_data.mode != "new_version":
+                raise HTTPException(
+                    409,
+                    {
+                        **state,
+                        "reason_code": "resumable_job_exists"
+                        if "resume" in state["allowed_actions"]
+                        else state["reason_code"],
+                    },
+                )
+            if "new_version" not in state["allowed_actions"]:
+                raise HTTPException(409, state)
+            if (
+                not req_data.confirm_replace
+                or not req_data.intent_id
+                or not req_data.replacement_reason
+            ):
+                raise HTTPException(
+                    409, {"reason_code": "replacement_confirmation_required"}
+                )
+            if req_data.expected_fingerprint != state["expected_fingerprint"]:
+                raise HTTPException(409, {"reason_code": "terminal_state_changed"})
+        elif req_data.mode != "start":
+            raise HTTPException(409, {"reason_code": "no_result_to_replace"})
 
         if production_case is None:
             # Every new deliverable run needs a case that predates its artifact.
@@ -820,7 +937,7 @@ async def enqueue_full_document(
                 detail="Document is already being generated",
             )
 
-        if document.status == "completed":
+        if document.status == "completed" and req_data.mode != "new_version":
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Document already completed. Create new document for regeneration.",
@@ -853,6 +970,37 @@ async def enqueue_full_document(
             generation_requirements,
             await uploaded_sources_digest(db, req_data.document_id),
         )
+        if has_previous_result:
+            db.add(
+                DocumentProvenance(
+                    document_id=req_data.document_id,
+                    stage="generation",
+                    event_type="generation_replacement",
+                    payload={
+                        "actor_id": actor_id,
+                        "intent_id": req_data.intent_id,
+                        "reason": req_data.replacement_reason,
+                        "previous_job_id": previous_job.id
+                        if previous_job is not None
+                        else None,
+                        "previous_status": previous_job.status
+                        if previous_job is not None
+                        else document.status,
+                        "expected_fingerprint": req_data.expected_fingerprint,
+                        "source_pack_sha256": previous_job.source_pack_sha256
+                        if previous_job is not None
+                        else None,
+                        "docx_sha256": document.docx_sha256,
+                        "outline_sha256": digest(document.outline),
+                        "total_tokens": previous_job.total_tokens
+                        if previous_job is not None
+                        else document.tokens_used,
+                        "cost_cents": previous_job.cost_cents
+                        if previous_job is not None
+                        else None,
+                    },
+                )
+            )
         superseded_paths = await _invalidate_previous_generation_evidence(
             db,
             req_data.document_id,
@@ -869,6 +1017,9 @@ async def enqueue_full_document(
             status="queued",
             progress=0,
             request_payload={
+                "profile_sha256": generation_profile_sha256(
+                    document, int(current_user.id)
+                ),
                 "additional_requirements": generation_requirements,
                 "generation_contract_sha256": contract_sha256,
                 "superseded_artifact_paths": superseded_paths,
@@ -893,6 +1044,17 @@ async def enqueue_full_document(
                 req_data.document_id,
             )
             return _active_job_response(existing_job)
+
+        record_intent(
+            db,
+            req_data.document_id,
+            actor_id,
+            req_data.intent_id,
+            int(job.id),
+            req_data.mode,
+            req_data.expected_fingerprint,
+            granted=True,
+        )
 
         # 7. Update document status
         document.status = "generating"
@@ -934,6 +1096,23 @@ async def enqueue_full_document(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to start document generation",
         ) from e
+
+
+@router.post(
+    "/full-document/{document_id}/resume", response_model=AsyncGenerationResponse
+)
+async def resume_full_document(
+    document_id: int,
+    req_data: GenerationResumeRequest,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> AsyncGenerationResponse:
+    try:
+        job = await resume_generation(db, document_id, current_user, req_data)
+        return _active_job_response(job)
+    except Exception:
+        await db.rollback()
+        raise
 
 
 @router.post("/full-document/{document_id}/cancel")

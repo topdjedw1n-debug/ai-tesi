@@ -26,6 +26,7 @@ from app.services.background_jobs import (
     _export_document_with_fence,
 )
 from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_profile import generation_profile_sha256
 from app.services.generation_worker import (
     GenerationLeaseLostError,
     GenerationWorker,
@@ -77,6 +78,7 @@ async def _seed_job(
         lease_owner=lease_owner,
         lease_expires_at=lease_expires_at,
         request_payload={
+            "profile_sha256": generation_profile_sha256(document, int(user.id)),
             "additional_requirements": run_requirements,
             "generation_contract_sha256": generation_contract_sha256(
                 document, None, run_requirements

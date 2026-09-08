@@ -1,0 +1,22 @@
+{
+  "result": "**Висновок: APPROVED_FOR_S4_PREPARATION для exact `review/final-manifest.json`.** Підтверджених невиправлених багів у межах S0–S3 не знайшов. Це локальне приймання поведінки, не готовність релізу й не академічний PASS.\n\n**Дельта витрат (перевірено окремо)**\n- `UsageTracker.cost_usd_cents(previous)` (`cost_estimator.py:256-277`) зливає per-model buckets і округлює один раз. Worker: baseline токенів = max(job, журнал); `usage_baseline_cost_cents` = лише offset «дожурнальних» витрат (`background_jobs.py:1356-1359`, дефолти `:1208-1210`), запис = offset + round(журнал + поточна спроба) (`:1263-1267`, `:1292-1296`). Для кандидатських job offset = 0, отже cost = один round над усім журналом. Крах між `received`-receipt і записом лічильників: baseline бере журнал, offset обрізається до 0, новий запис ≥ старого. Дублювання немає: журнал захоплюється до першого виклику спроби, `usage` починається з нуля; кожен `usage.add` має receipt із тими ж числами (перевірено `ai_service`, `generator`, `humanizer`). Скасування йде тим самим виразом через upward-only `write_generation_usage_monotonic`. Retry whole-review (`academic_review_retry.py:254-259, 372-379`) — той самий принцип, абсолютний cost, інкрементні токени; паралельний retry виключений `RETRY_STARTED`. `outcome_unknown` не рахується як нуль: не входить у confirmed і показаний окремо (`unknown_provider_attempts: 1` у job 11). Регресії round-up/round-down і «receipt до запису лічильників» присутні (`test_stability_operations.py:138-217`).\n\n**Докази проти критеріїв**\n- api-reviewed.txt: 1373 passed, 8 skipped; `test_stability_postgres` 11 і `test_release_evidence_postgres` 2 виконані реально. mypy 351→348, нуль нових, не green CI.\n- T01 positive-final (UI старт, reload без платних викликів), T02/T03 pruned-reviewer-timeout-reviewed (одне узгодження, timeout→passed з ідентичним binding, 2 source builds, 4 writer), T04 partial-recovery-reviewed (0/3 секції, той самий job/pack, claims не скинуті, 6000/5 = журнал), T05/T10 PG-гонки включно з deletion-marker vs resume, T08 export-recovery-final (три невдалі upload → 4/6 completed, той самий content/sections, sha DOCX = БД). T09 підтверджено web-тестами і скриншотами.\n\n**Зауваження без блокування (не баги коду)**\n- Файл `evidence/usage-reconciliation-reviewed.json`, на який посилається брифінг, у каталозі відсутній; рівність 6000/5/1 unknown видно лише в pruned-reviewer-timeout-reviewed.json. Додайте фактичний вихід `check-usage` для reviewed-стану, інакше цей пункт доказу не заповнений.\n- `export-recovery-reviewed.json` ще не з'явився; до його появи T08 на поточній cost-дельті спирається на export-recovery-final (до правки округлення) плюс код.\n- Залишкові відомі межі: legacy-offset може зменшитися при краху до запису (стосується лише дожурнальних витрат, яких у кандидатських job нема); `OperationalError` без SQLSTATE трактується як тимчасовий (SQLite у тестах, на PostgreSQL вирішує SQLSTATE); хеш цілих файлів у профілі робить будь-який деплой цих модулів `contract_or_profile_mismatch` для зупинених задач, що треба врахувати в процедурі S4 (нуль queued/running перед перемиканням).",
+  "session_id": "8ebda4d8-f26f-4bc0-a595-740165cda9d6",
+  "modelUsage": {
+    "claude-fable-5-1": {
+      "inputTokens": 130,
+      "outputTokens": 13378,
+      "cacheReadInputTokens": 1409342,
+      "cacheCreationInputTokens": 340938,
+      "webSearchRequests": 0,
+      "costUSD": 7.841295500000001,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 7786,
+      "canonicalModel": "claude-fable-5-1",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "duration_ms": 201485
+}

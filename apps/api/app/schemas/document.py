@@ -5,7 +5,7 @@ Document schemas for API requests and responses
 import re
 from datetime import datetime
 from enum import Enum
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
@@ -425,6 +425,11 @@ class AsyncGenerationRequest(BaseModel):
     """Schema for async document generation request"""
 
     document_id: int
+    mode: Literal["start", "new_version"] = "start"
+    intent_id: str | None = Field(default=None, min_length=8, max_length=100)
+    confirm_replace: bool = False
+    expected_fingerprint: str | None = Field(default=None, min_length=64, max_length=64)
+    replacement_reason: str | None = Field(default=None, min_length=3, max_length=500)
     # Informational only — generation follows document.ai_model; a hardcoded
     # default here would just misreport the writer.
     model: str | None = Field(default=None)
@@ -433,6 +438,13 @@ class AsyncGenerationRequest(BaseModel):
         max_length=5000,
         description="Optional additions for this run; durable intake is always retained",
     )
+
+
+class GenerationResumeRequest(BaseModel):
+    intent_id: str = Field(min_length=8, max_length=100)
+    expected_fingerprint: str = Field(min_length=64, max_length=64)
+    confirm_paid: bool
+    confirm_access_restored: bool = False
 
 
 class AsyncGenerationResponse(BaseModel):
@@ -452,6 +464,8 @@ class JobStatusResponse(BaseModel):
     document_id: int | None = None
     error_message: str | None = None
     attempt_count: int = 0
+    max_attempts: int = 0
+    recovery: dict[str, Any] | None = None
 
 
 class ActivityItem(BaseModel):

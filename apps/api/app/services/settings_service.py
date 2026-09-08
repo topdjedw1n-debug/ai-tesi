@@ -111,6 +111,12 @@ class SettingsService:
             Updated SystemSetting
         """
         try:
+            from app.services.generation_pause import PAUSE_KEY, lock_generation_pause
+
+            if key == PAUSE_KEY:
+                if not isinstance(value, bool):
+                    raise ValueError("generation.paused must be boolean")
+                await lock_generation_pause(self.db)
             # Check if setting exists
             existing = await self.get_setting(key)
 
@@ -172,6 +178,17 @@ class SettingsService:
             dict: {key: SystemSetting, ...} of updated settings
         """
         try:
+            from app.services.generation_pause import PAUSE_KEY, lock_generation_pause
+
+            # Take the exclusive pause barrier before any row in this batch is
+            # written. Otherwise an earlier key's flush would hold row locks
+            # (settings row, users FK key-share) while waiting behind
+            # in-flight enqueues, and the barrier order would no longer be
+            # "pause lock first".
+            if PAUSE_KEY in settings:
+                if not isinstance(settings[PAUSE_KEY], bool):
+                    raise ValueError("generation.paused must be boolean")
+                await lock_generation_pause(self.db)
             updated: dict[str, SystemSetting] = {}
             for key, value in settings.items():
                 setting = await self.update_setting(key, value, category, updated_by)

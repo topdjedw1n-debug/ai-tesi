@@ -13,6 +13,12 @@ from typing import TYPE_CHECKING, Any
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.services.generation_operations import (
+    operation_purpose,
+    recorded_provider_call,
+)
+from app.services.generation_outcomes import GenerationStageError
+
 if TYPE_CHECKING:
     from app.services.ai_pipeline.source_pack import SourcePack
 
@@ -515,20 +521,26 @@ class AIService:
             chain = chain[:1]
 
         last_error: Exception | None = None
-        for provider, model in chain:
-            try:
-                return await self._call_ai_provider(provider, model, prompt)
-            except Exception as e:
-                last_error = e
-                logger.warning(
-                    f"❌ Failed {provider}/{model} for {purpose}: "
-                    f"{type(e).__name__}: {str(e)[:200]}"
-                )
+        # The provider receipts of this call carry the caller's purpose
+        # (plan preparation, outline/whole review, claim check...).
+        purpose_token = operation_purpose.set(purpose)
+        try:
+            for provider, model in chain:
+                try:
+                    return await self._call_ai_provider(provider, model, prompt)
+                except Exception as e:
+                    last_error = e
+                    logger.warning(
+                        f"❌ Failed {provider}/{model} for {purpose}: "
+                        f"{type(e).__name__}: {str(e)[:200]}"
+                    )
+        finally:
+            operation_purpose.reset(purpose_token)
 
         raise AllProvidersFailedError(
             f"All AI providers failed for {purpose}. Tried {len(chain)} provider(s). "
             f"Last error: {type(last_error).__name__ if last_error else 'unknown'}"
-        )
+        ) from last_error
 
     async def _call_ai_provider(
         self, provider: str, model: str, prompt: str
@@ -552,7 +564,11 @@ class AIService:
             import openai
 
             if not settings.OPENAI_API_KEY:
-                raise AIProviderError("OpenAI API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "OpenAI API key not configured",
+                    stage="provider",
+                )
 
             client = openai.AsyncOpenAI(
                 api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
@@ -579,7 +595,14 @@ class AIService:
                 request_kwargs["temperature"] = 0.7
 
             try:
-                response = await client.chat.completions.create(**request_kwargs)
+                response = await recorded_provider_call(
+                    client.chat.completions.create,
+                    provider="openai",
+                    model=model,
+                    request=request_kwargs,
+                    usage_tracker=self.usage_tracker,
+                    purpose="ai_service",
+                )
             finally:
                 await client.close()
 
@@ -619,7 +642,11 @@ class AIService:
             import anthropic
 
             if not settings.ANTHROPIC_API_KEY:
-                raise AIProviderError("Anthropic API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "Anthropic API key not configured",
+                    stage="provider",
+                )
 
             client = anthropic.AsyncAnthropic(
                 api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
@@ -638,7 +665,14 @@ class AIService:
                 request_kwargs["temperature"] = 0.7
 
             try:
-                response = await client.messages.create(**request_kwargs)
+                response = await recorded_provider_call(
+                    client.messages.create,
+                    provider="anthropic",
+                    model=model,
+                    request=request_kwargs,
+                    usage_tracker=self.usage_tracker,
+                    purpose="ai_service",
+                )
             finally:
                 await client.close()
 

@@ -1,3 +1,5 @@
+from app.services.generation_profile import generation_profile_sha256
+
 """Regression tests for persisted uploaded university requirements."""
 
 import io
@@ -97,6 +99,7 @@ async def test_worker_accepts_contract_created_by_real_methodology_upload(db_ses
         status="queued",
         request_payload={
             "additional_requirements": None,
+            "profile_sha256": generation_profile_sha256(document, user.id),
             "generation_contract_sha256": generation_contract_sha256(
                 document, None, None
             ),

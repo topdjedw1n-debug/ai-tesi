@@ -1,0 +1,30 @@
+{
+  "web-tests-final.txt": {
+    "raw_sha256": "68f8905ec60a908df10a6715b9d5476f7dd12ea98286a84003c07b9ec3daed91",
+    "normalized_sha256": "68f8905ec60a908df10a6715b9d5476f7dd12ea98286a84003c07b9ec3daed91"
+  },
+  "web-lint-final.txt": {
+    "raw_sha256": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37",
+    "normalized_sha256": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37"
+  },
+  "api-reviewed.txt": {
+    "raw_sha256": "560fe62ea4249a451259f018fc94da49b36c925923b5a013981e7a003d77dd61",
+    "normalized_sha256": "6a99403262bd154418bc800f281054ac850dce0b5ccddb337de6e8ebf5549b5c"
+  },
+  "fable-targeted-final.txt": {
+    "raw_sha256": "701d0100f3d3e28ba3b65a5dfffee93f813c69bfca8524816eb657a7d52f77af",
+    "normalized_sha256": "6302df4972ca7b4424b66e932dc1ded4d71e40668bc6c632a6ee1eb9afbb6aeb"
+  },
+  "usage-fix-tests.txt": {
+    "raw_sha256": "c3bb8ec71de774771e00527e5a23afd95b423d05539d564ed4ba634c536e8760",
+    "normalized_sha256": "097c2ca6df0482e865d4160a3aa00ea25e085395abd54d18d6ad9fed0b0ab165"
+  },
+  "web-build-final.txt": {
+    "raw_sha256": "9fa8219f1a3b67b2c0c9870a6ef464d04848b352eb04fda78ab929694821a2f0",
+    "normalized_sha256": "46a03d1906e7ddcd3e60e3d37c2135905d3fa8fd38ac1be04cf470199f9b7608"
+  },
+  "web-types-final.txt": {
+    "raw_sha256": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb",
+    "normalized_sha256": "aa01f9ca6bc7f6594175baec06950379959a9ac9c70c6accf3c864bd6d56b7aa"
+  }
+}

@@ -1,25 +1,24 @@
-export function generationStopGuidance(error: string): string {
-  if (/credit balance.*too low/i.test(error)) {
-    return 'Anthropic повідомив про недостатній баланс для написання. Власнику потрібно поповнити баланс Anthropic API. Після відновлення доступу підтвердьте нову спробу в цій роботі.';
-  }
-  if (/insufficient_quota/i.test(error)) {
-    return 'AI-сервіс вичерпав оплачений ліміт. Власнику потрібно перевірити баланс і ліміти API перед новою спробою.';
-  }
-  if (/cancelled|canceled/i.test(error)) {
-    return 'Запуск скасовано. Нова спроба потребує повторного перегляду умов.';
-  }
-  if (
-    /unavailable|timeout|timed out|connection|temporar|rate limit|429/i.test(
-      error
-    )
-  ) {
-    return 'Сервіс тимчасово недоступний. Дочекайтеся відновлення доступу перед новою спробою.';
-  }
-  if (/too few|source preflight|source_pack_insufficient/i.test(error)) {
-    return 'Не вистачило перевірених джерел. Потрібно виправити автоматичний добір для цієї теми; PDF необов’язкові.';
-  }
-  if (/citation|grounding|claim|quality|source pack|source-pack/i.test(error)) {
-    return 'Перевірка якості або джерел зупинила роботу. Передайте причину помилки відповідальному за систему; повторюйте після виправлення.';
-  }
-  return 'Роботу зупинено. Передайте номер роботи й причину помилки відповідальному за систему. Нова спроба має сенс після усунення причини.';
+export interface GenerationRecovery {
+  reason_code?: string
+  allowed_actions: Array<'resume' | 'new_version'>
+  expected_fingerprint: string
+}
+
+const REASON_GUIDANCE: Record<string, string> = {
+  provider_temporarily_unavailable: 'Зовнішній сервіс тимчасово недоступний. Збережені джерела й завершені розділи можна використати при продовженні.',
+  review_temporarily_unavailable: 'Рецензент тимчасово недоступний. Потрібно повторити перевірку; завершений текст збережено.',
+  provider_access_required: 'Потрібно відновити доступ або поповнити баланс AI-сервісу, а потім підтвердити продовження.',
+  review_input_invalid: 'Вхід перевірки відсутній або перевищує її місткість. Потрібне виправлення причини перед новим запуском.',
+  source_coverage_gap: 'Джерела не покривають потрібну вимогу. Перегляньте записану прогалину перед новим запуском.',
+  plan_requirements_unmet: 'План не виконує погоджені вимоги. Потрібно виправити вказану причину.',
+  academic_content_rejected: 'Робота не пройшла змістовну перевірку. Зауваження збережені; автоматичного переписування немає.',
+  artifact_temporarily_unavailable: 'Файл не вдалося сформувати або зберегти. Продовження повторить експорт зі збереженого тексту.',
+  contract_or_profile_mismatch: 'Змінилися вимоги або версія генератора. Збережений результат потребує окремого рішення.',
+  checkpoint_integrity_error: 'Цілісність збережених матеріалів не підтверджена. Потрібна технічна перевірка.',
+  cancelled_by_user: 'Запуск скасовано. Продовження потребує нового підтвердження платної дії.',
+  legacy_unknown: 'Стара спроба не має підтвердженої сумісності для продовження. Її історію збережено.',
+}
+
+export function generationStopGuidance(reasonCode?: string): string {
+  return REASON_GUIDANCE[reasonCode || ''] || 'Роботу зупинено. Причина потребує діагностики; доступні дії визначає система.'
 }

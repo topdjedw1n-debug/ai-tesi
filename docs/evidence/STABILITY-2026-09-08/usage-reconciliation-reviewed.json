@@ -1,0 +1,34 @@
+[
+  {
+    "job_id": 11,
+    "recorded_tokens": 6000,
+    "journal_tokens": 6000,
+    "recorded_cost_cents": 5,
+    "journal_cost_cents": 5,
+    "unknown_calls": 1
+  },
+  {
+    "job_id": 12,
+    "recorded_tokens": 6000,
+    "journal_tokens": 6000,
+    "recorded_cost_cents": 5,
+    "journal_cost_cents": 5,
+    "unknown_calls": 0
+  },
+  {
+    "job_id": 13,
+    "recorded_tokens": 6000,
+    "journal_tokens": 6000,
+    "recorded_cost_cents": 5,
+    "journal_cost_cents": 5,
+    "unknown_calls": 0
+  },
+  {
+    "job_id": 14,
+    "recorded_tokens": 5800,
+    "journal_tokens": 5800,
+    "recorded_cost_cents": 4,
+    "journal_cost_cents": 4,
+    "unknown_calls": 0
+  }
+]

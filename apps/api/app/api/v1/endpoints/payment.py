@@ -116,6 +116,15 @@ async def stripe_webhook(
             from app.models.auth import User
             from app.models.document import AIGenerationJob, Document, ProductionCase
             from app.services.generation_contract import generation_contract_sha256
+            from app.services.generation_pause import require_generation_open
+            from app.services.generation_profile import generation_profile_sha256
+            from app.services.generation_recovery import latest_job_for_update
+
+            try:
+                await require_generation_open(db)
+            except HTTPException:
+                await db.rollback()
+                return {"status": "payment_recorded", "generation": "paused"}
 
             owner = (
                 await db.execute(
@@ -128,6 +137,7 @@ async def stripe_webhook(
             if owner is None or owner.deletion_requested_at is not None:
                 return {"status": "payment_recorded", "generation": "blocked"}
 
+            await latest_job_for_update(db, int(payment.document_id))
             document = (
                 await db.execute(
                     select(Document)
@@ -164,6 +174,16 @@ async def stripe_webhook(
                     "status": "payment_recorded",
                     "generation": "already_triggered",
                     "job_id": int(prior_job.id),
+                }
+            if document.content or document.docx_path or document.pdf_path:
+                # Same guard as every other supported start: a saved result
+                # without a job is replaced only by an explicit, receipted
+                # new-version intent, never by an automatic payment hook.
+                await db.rollback()
+                return {
+                    "status": "payment_recorded",
+                    "generation": "manual_start_required",
+                    "reason_code": "legacy_unknown",
                 }
 
             if production_case is None:
@@ -213,6 +233,9 @@ async def stripe_webhook(
                     status="queued",
                     progress=0,
                     request_payload={
+                        "profile_sha256": generation_profile_sha256(
+                            document, int(payment.user_id)
+                        ),
                         "additional_requirements": run_requirements,
                         "generation_contract_sha256": contract_sha256,
                         "superseded_artifact_paths": superseded_paths,

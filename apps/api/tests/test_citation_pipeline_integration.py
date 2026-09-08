@@ -1,3 +1,5 @@
+from app.services.generation_profile import generation_profile_sha256
+
 """
 Integration tests for citation verification in the generation pipeline.
 
@@ -940,6 +942,7 @@ async def test_strict_block_survives_async_wrapper(db_session, mock_redis, monke
         progress=0,
         request_payload={
             "additional_requirements": None,
+            "profile_sha256": generation_profile_sha256(document, user.id),
             "generation_contract_sha256": generation_contract_sha256(
                 document, None, None
             ),
@@ -958,6 +961,9 @@ async def test_strict_block_survives_async_wrapper(db_session, mock_redis, monke
                 "app.services.background_jobs.run_academic_review",
                 AsyncMock(return_value={"status": "passed"}),
             )
+        )
+        stack.enter_context(
+            patch("app.services.background_jobs.prepare_final_plan", AsyncMock())
         )
         mocks = pipeline_harness(
             stack,

@@ -357,3 +357,74 @@ async def test_operator_can_retry_only_own_work_and_only_while_configured(
     monkeypatch.setattr(settings, "PRODUCTION_OPERATOR_USER_IDS", [])
     assert (await request(own_case)).status_code == 403
     assert call.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_changed_reviewer_profile_blocks_a_new_paid_retry(client, monkeypatch):
+    admin, doc, case, original = await seed(client)
+    call = AsyncMock(return_value=verdict())
+    monkeypatch.setattr(
+        "app.services.academic_review_retry.AIService.call_with_fallback", call
+    )
+    # The judge changed after this work was generated: no silent paid review
+    # under a profile the job never recorded.
+    monkeypatch.setattr(
+        "app.services.generation_profile.settings.QUALITY_JUDGE_MODEL",
+        "different-reviewer",
+    )
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/academic-review/retry",
+        json={"attempt_id": str(uuid4())},
+        headers=fixtures._auth_headers(admin),
+    )
+    assert response.status_code == 409, response.text
+    assert "політики перевірки змінилася" in response.json()["detail"]
+    call.assert_not_called()
+    async with AsyncSessionLocal() as db:
+        current = await db.get(Document, doc.id)
+        assert (current.content, current.docx_path, current.docx_sha256) == original
+        started = (
+            (
+                await db.execute(
+                    select(DocumentProvenance).where(
+                        DocumentProvenance.document_id == doc.id,
+                        DocumentProvenance.event_type == RETRY_STARTED,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        assert started == []
+
+
+@pytest.mark.asyncio
+async def test_retry_provider_calls_are_journaled_on_the_same_job(client, monkeypatch):
+    admin, doc, case, _ = await seed(client)
+    trackers = []
+
+    class Reviewer:
+        def __init__(self, db, usage_tracker, **kwargs):
+            trackers.append(usage_tracker)
+
+        async def call_with_fallback(self, *args, **kwargs):
+            return verdict()
+
+    monkeypatch.setattr("app.services.academic_review_retry.AIService", Reviewer)
+    request_id = str(uuid4())
+    response = await client.post(
+        f"/api/v1/admin/production-cases/{case['id']}/academic-review/retry",
+        json={"attempt_id": request_id},
+        headers=fixtures._auth_headers(admin),
+    )
+    assert response.status_code == 200, response.text
+    async with AsyncSessionLocal() as db:
+        job = (
+            await db.execute(
+                select(AIGenerationJob).where(AIGenerationJob.document_id == doc.id)
+            )
+        ).scalar_one()
+    assert len(trackers) == 1
+    context = trackers[0].generation_context
+    assert context["job_id"] == job.id and context["document_id"] == doc.id
+    assert context["review_retry_attempt_id"] == request_id

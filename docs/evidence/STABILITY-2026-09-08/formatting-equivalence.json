@@ -1,0 +1,81 @@
+{
+  "changes": {
+    "apps/api/app/api/v1/endpoints/payment.py": {
+      "reviewed_sha256": "7ac99a56fcc5d6e0916d9c95cd73c6c7e59d00f17f4b5a4f9b53a28609259d9d",
+      "formatted_sha256": "ced1219a3e1a0cfea35c0fdf3db7b754986aa414e2e46cd8fce93456cb03f6d3",
+      "ast_equal": true
+    },
+    "apps/api/app/services/ai_pipeline/generator.py": {
+      "reviewed_sha256": "fc6b81601a0c237ef4a2753c0e228a5f263e1d3c21302b2c70b3f4b75a570d27",
+      "formatted_sha256": "caebc1d15afb53bbbe365ae3785ff0172e1c25d61c06204e7a67c2591652754e",
+      "ast_equal": true
+    },
+    "apps/api/app/services/ai_pipeline/humanizer.py": {
+      "reviewed_sha256": "9d606daedc0992f9e9b44c2033ff383ad2f27f25d6be1bd389d847fbcee216e0",
+      "formatted_sha256": "caccefa7b41b67a82c919c1d9e97b85f583a5be1d9f301c9f28a6da70837e5da",
+      "ast_equal": true
+    },
+    "apps/api/app/services/ai_service.py": {
+      "reviewed_sha256": "1616a74de26d40248784bf5492b63959606543668c65282aa63a97377b91d53d",
+      "formatted_sha256": "856bbf8110c65a4e67a69819bc8152d960e829fd741e444799087edae704ffe7",
+      "ast_equal": true
+    },
+    "apps/api/app/services/background_jobs.py": {
+      "reviewed_sha256": "8944289bfc0b9252faa7bc1d4f7a6783bf532b0892752f850711a0892b8fd0f4",
+      "formatted_sha256": "e1f100bdd46ec0364a384bce3ee264fe72853b7c02e50b8cfdbcd128295fd88e",
+      "ast_equal": true
+    },
+    "apps/api/app/services/generation_pause.py": {
+      "reviewed_sha256": "5fc1ddfbd440c362679b5f2139d2bb1b85872f20d2d3743e98938d7a58ad3ee4",
+      "formatted_sha256": "e6fe7673714f4a502feadc8278e55cc24b9eca14da6ad3fff91ddb98f2955973",
+      "ast_equal": true
+    },
+    "apps/api/app/services/settings_service.py": {
+      "reviewed_sha256": "f1c2cff74326cf5b93ae69c4ceaa07d66d3aecf1033a40141c2e0c3088d5a01f",
+      "formatted_sha256": "7ac8a599b0e266b481030b0dfda85f1668cb52af04b0f23c09e1ac4beb0b13f1",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_academic_review_retry.py": {
+      "reviewed_sha256": "14085b1daf5ba5dc42c24e84c17f8423995f3ce03ecef12ce49d1c09f4d3a1c9",
+      "formatted_sha256": "430a48d70dad560b59526f57c7240060a4ef9803f80411f524831a51aa2547dc",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_ai_service.py": {
+      "reviewed_sha256": "5f50b77bd7705b6759d9d8621ceacd4fc0317337f506fdf1617ffe06d3e88895",
+      "formatted_sha256": "a56fb8ab70afd6aa64b72a9faa064046e0681adc63e57090c06e887ce49cb58a",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_citation_pipeline_integration.py": {
+      "reviewed_sha256": "97a3d7d50c77d3fb6039df690fd30fbc0c80e823d387490ba88376e4679850ef",
+      "formatted_sha256": "7cc3b55477371e75674fd661a31948b9b6c3b653101081b64c333b4f0980a27a",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_generation_job_single_owner.py": {
+      "reviewed_sha256": "ad9c54be0955bdcf1a7df5445c8a9d27a378374670bde5079f4ea4d4d388524a",
+      "formatted_sha256": "c4e007806612350e2d20e43dc3fe7982c905d8e2a0c68ed3aabcb7bb5591913c",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_mvp_free_generation.py": {
+      "reviewed_sha256": "4de2817ef868a6c0543dad89ba747a423a49a57d68eed1ae25e2dab0c19971fd",
+      "formatted_sha256": "e02666b60d96b382f2363f3fea43f9dd6c6a6bd02a61d24f1a9f17df959c1d4d",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_source_pack_preflight_pipeline.py": {
+      "reviewed_sha256": "af84bd19c424a201308733f5ac6eba51d922ade995da081a60db0c31ca491078",
+      "formatted_sha256": "9a4d97a35096405b093d9b47d7d624e1066ee3694c74ef8e20560d7b609870ea",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_stability_outcomes.py": {
+      "reviewed_sha256": "1e4dbd4a100c51a55bd4bb887bec1f388a509bf98f56a96fcf42c0f107530184",
+      "formatted_sha256": "79df870a81d692dbb29b484bec9a44cb46ffb7f20494cd7a12f972cbbb052888",
+      "ast_equal": true
+    },
+    "apps/api/tests/test_stability_postgres.py": {
+      "reviewed_sha256": "d6e74e574c2ae3413080100984c54e9223d9502cca6ec522d116ed5f81208c0a",
+      "formatted_sha256": "5807b9cb7b7864d243548c37b858b10961f9af8175d5ae924e0efb874910be02",
+      "ast_equal": true
+    }
+  },
+  "all_changes_from_black_hook": true,
+  "behavioral_ast_unchanged": true
+}

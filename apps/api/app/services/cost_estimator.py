@@ -222,6 +222,7 @@ class UsageTracker:
     def __init__(self) -> None:
         # (provider, model) -> {"input_tokens": int, "output_tokens": int}
         self._by_model: dict[tuple[str, str], dict[str, int]] = {}
+        self.generation_context: dict[str, Any] | None = None
 
     def add(
         self,
@@ -252,10 +253,18 @@ class UsageTracker:
         """Current total, for computing per-section deltas."""
         return self.total_tokens
 
-    def cost_usd_cents(self) -> int:
-        """Real cost in USD cents from the per-model input/output split."""
+    def cost_usd_cents(self, previous: "UsageTracker | None" = None) -> int:
+        """Round the cumulative per-model cost once, including earlier attempts."""
         total_usd = 0.0
-        for (provider, model), bucket in self._by_model.items():
+        buckets = {key: dict(value) for key, value in self._by_model.items()}
+        if previous is not None:
+            for key, value in previous._by_model.items():
+                bucket = buckets.setdefault(
+                    key, {"input_tokens": 0, "output_tokens": 0}
+                )
+                for token_kind in ("input_tokens", "output_tokens"):
+                    bucket[token_kind] += value[token_kind]
+        for (provider, model), bucket in buckets.items():
             input_price = PRICING_INPUT.get(provider, {}).get(model)
             output_price = PRICING_OUTPUT.get(provider, {}).get(model)
             if input_price is None or output_price is None:

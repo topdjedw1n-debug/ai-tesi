@@ -8,16 +8,10 @@ from datetime import datetime
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, Request
+from pydantic import ValidationError as RequestValidationError
 from sqlalchemy import func, select
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.endpoints.generate import (
-    _delete_superseded_artifacts,
-    _enforce_generation_gate,
-    _invalidate_previous_generation_evidence,
-)
-from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import require_permission
 from app.core.exceptions import APIException, ValidationError
@@ -26,15 +20,10 @@ from app.core.permissions import AdminPermissions
 from app.core.production_access import require_production_permission
 from app.core.security import create_download_token
 from app.models.auth import User
-from app.models.document import AIGenerationJob, Document, ProductionCase
+from app.models.document import AIGenerationJob, Document
 from app.services.admin_service import AdminService
 from app.services.document_service import DocumentService
-from app.services.generation_contract import (
-    generation_contract_error,
-    generation_contract_sha256,
-)
 from app.services.storage_service import StorageService
-from app.services.uploaded_sources import uploaded_sources_digest
 
 logger = logging.getLogger(__name__)
 router = APIRouter()
@@ -448,215 +437,41 @@ async def retry_document_generation(
     request: Request,
     current_user: User = Depends(require_permission(AdminPermissions.RETRY_DOCUMENTS)),
     db: AsyncSession = Depends(get_db),
+    retry_request: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
-    """Retry document generation (admin only)"""
-    correlation_id = request.headers.get("X-Request-ID", "unknown")
-    ip = request.client.host if request.client else "unknown"
+    """Admin starts use the same pause, contract, replacement and receipt gates."""
+    from app.api.v1.endpoints.generate import enqueue_full_document
+    from app.schemas.document import AsyncGenerationRequest
 
-    try:
-        # Discover the owner without locking, then use the shared lock order:
-        # User -> Document -> ProductionCase -> active generation job.
-        owner_id = (
-            await db.execute(select(Document.user_id).where(Document.id == document_id))
-        ).scalar_one_or_none()
-        if owner_id is None:
-            raise APIException(
-                detail="Document not found",
-                status_code=404,
-                error_code="NOT_FOUND",
-            )
-
-        owner_result = await db.execute(
+    owner = (
+        await db.execute(
             select(User)
-            .where(User.id == owner_id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
-        )
-        owner = owner_result.scalar_one_or_none()
-        if owner is None:
-            raise APIException(
-                detail="Document owner not found",
-                status_code=409,
-                error_code="DOCUMENT_OWNER_MISSING",
-            )
-        if owner.deletion_requested_at is not None:
-            raise APIException(
-                detail="Account deletion is pending; generation cannot be retried",
-                status_code=409,
-                error_code="ACCOUNT_DELETION_PENDING",
-            )
-
-        result = await db.execute(
-            select(Document)
+            .join(Document, Document.user_id == User.id)
             .where(Document.id == document_id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
         )
-        document = result.scalar_one_or_none()
-
-        if not document:
-            raise APIException(
-                detail="Document not found",
-                status_code=404,
-                error_code="NOT_FOUND",
-            )
-
-        case_result = await db.execute(
-            select(ProductionCase)
-            .where(ProductionCase.document_id == document_id)
-            .with_for_update()
-            .execution_options(populate_existing=True)
+    ).scalar_one_or_none()
+    if owner is None:
+        raise APIException(
+            detail="Document not found", status_code=404, error_code="NOT_FOUND"
         )
-        production_case = case_result.scalar_one_or_none()
-        if production_case is None:
-            production_case = ProductionCase(
-                document_id=int(document.id),
-                client_user_id=int(document.user_id),
-                citation_style=str(document.citation_style or "apa"),
-                generation_status="not_started",
-                payment_status="not_required",
-            )
-            db.add(production_case)
-            await db.flush()
-
-        active_job = (
-            await db.execute(
-                select(AIGenerationJob).where(
-                    AIGenerationJob.document_id == document_id,
-                    AIGenerationJob.job_type == "full_document",
-                    AIGenerationJob.status.in_(["queued", "running"]),
-                )
-            )
-        ).scalar_one_or_none()
-        if active_job is not None:
-            raise APIException(
-                detail=f"Generation job {active_job.id} is already active",
-                status_code=409,
-                error_code="GENERATION_ALREADY_ACTIVE",
-            )
-
-        old_status = str(document.status)
-        if old_status not in {"completed", "failed", "failed_quality"}:
-            raise APIException(
-                detail=f"Document in status '{old_status}' cannot be retried",
-                status_code=409,
-                error_code="DOCUMENT_NOT_RETRYABLE",
-            )
-
-        contract_error = generation_contract_error(document)
-        if contract_error is not None:
-            raise APIException(
-                detail=f"Task contract is not ready for retry: {contract_error}",
-                status_code=409,
-                error_code="TASK_CONTRACT_NOT_READY",
-            )
-
-        try:
-            # Admin retry is still a generation start. It reserves the same
-            # page, daily-run, token, and payment budgets as the user endpoint.
-            await _enforce_generation_gate(db, document, int(document.user_id))
-        except HTTPException as gate_error:
-            raise APIException(
-                detail=str(gate_error.detail),
-                status_code=gate_error.status_code,
-                error_code="GENERATION_GATE_BLOCKED",
-            ) from gate_error
-
-        # The worker always prepends Document.additional_requirements. The job
-        # payload carries only case/run additions so methodology is not doubled.
-        run_requirements = (
-            str(production_case.requirements_text)
-            if production_case is not None and production_case.requirements_text
-            else None
+    try:
+        payload = AsyncGenerationRequest.model_validate(
+            {**(retry_request or {}), "document_id": document_id}
         )
-        contract_sha256 = generation_contract_sha256(
-            document,
-            production_case,
-            run_requirements,
-            await uploaded_sources_digest(db, document_id),
+        result = await enqueue_full_document(
+            payload, owner, db, actor_id=int(current_user.id)
         )
-        superseded_paths = await _invalidate_previous_generation_evidence(
-            db,
-            document_id,
-            contract_sha256=contract_sha256,
-        )
-        job = AIGenerationJob(
-            user_id=int(document.user_id),
-            document_id=document_id,
-            job_type="full_document",
-            ai_provider=document.ai_provider,
-            ai_model=document.ai_model,
-            status="queued",
-            progress=0,
-            request_payload={
-                "additional_requirements": run_requirements,
-                "generation_contract_sha256": contract_sha256,
-                "superseded_artifact_paths": superseded_paths,
-            },
-            max_attempts=settings.GENERATION_JOB_MAX_ATTEMPTS,
-        )
-        db.add(job)
-        try:
-            # Reserve the single active-job slot before deleting old blobs or
-            # evidence. Any competing retry fails without invalidating anything.
-            await db.flush()
-        except IntegrityError as error:
-            await db.rollback()
-            raise APIException(
-                detail="A generation retry became active concurrently",
-                status_code=409,
-                error_code="GENERATION_ALREADY_ACTIVE",
-            ) from error
-
-        document.status = "generating"
-        document.completed_at = None
-        await db.commit()
-        job_id = int(job.id)
-        await _delete_superseded_artifacts(superseded_paths)
-
-        # Log admin action
-        admin_service = AdminService(db)
-        await admin_service.log_admin_action(
-            admin_id=int(current_user.id),
-            action="retry_document_generation",
-            target_type="document",
-            target_id=document_id,
-            old_value={"status": old_status},
-            new_value={"status": "generating", "job_id": job_id},
-            ip_address=ip,
-            user_agent=request.headers.get("user-agent"),
-            correlation_id=correlation_id,
-        )
-
-        log_security_audit_event(
-            event_type="admin_action",
-            correlation_id=correlation_id,
-            user_id=int(current_user.id),
-            ip=ip,
-            endpoint=f"/api/v1/admin/documents/{document_id}/retry",
-            resource="document",
-            action="retry",
-            outcome="success",
-        )
-
         return {
-            "message": "Document generation retry queued",
+            "message": "Document generation request handled",
             "document_id": document_id,
-            "job_id": job_id,
-            "status": "queued",
-            "check_url": f"/api/v1/jobs/{job_id}/status",
+            **result.model_dump(),
         }
-    except APIException:
+    except RequestValidationError as error:
+        await db.rollback()
+        raise HTTPException(422, "Invalid generation recovery request") from error
+    except HTTPException:
         await db.rollback()
         raise
-    except Exception as e:
-        await db.rollback()
-        logger.error(f"Error retrying document generation: {e}")
-        raise APIException(
-            detail="Failed to retry document generation",
-            status_code=500,
-            error_code="INTERNAL_SERVER_ERROR",
-        ) from e
 
 
 @router.post("/{document_id}/download")

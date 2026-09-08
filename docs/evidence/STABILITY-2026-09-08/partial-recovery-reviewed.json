@@ -1,0 +1,167 @@
+[
+  {
+    "count": 0,
+    "id": 12,
+    "before": {
+      "job_id": 12,
+      "status": "cancelled",
+      "attempts": 1,
+      "max_attempts": 3,
+      "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+      "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+      "tokens": 1000,
+      "cost_cents": 2,
+      "claims": 0,
+      "section_hashes": []
+    },
+    "after": {
+      "job_id": 12,
+      "status": "completed",
+      "attempts": 2,
+      "max_attempts": 4,
+      "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+      "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+      "tokens": 6000,
+      "cost_cents": 5,
+      "claims": 24,
+      "section_hashes": [
+        {
+          "index": 1,
+          "sha256": "cbeb77c3898cc1fc6d08bd574f090d74a04c84d85a03e295324639677ea29441"
+        },
+        {
+          "index": 2,
+          "sha256": "36fa3ebfe5b9789201cfab0ee6f8460599d3a52d2604614c6b7f28ed0560488a"
+        },
+        {
+          "index": 3,
+          "sha256": "738ff309e3bf28a748ba208753d6a98dd5b16764e95b370a3b471cb751bc69eb"
+        },
+        {
+          "index": 4,
+          "sha256": "df6355ba8ed03ecc3f7f020f0eac2eb4a079b8788da5033693279f0eba9b51ab"
+        }
+      ]
+    },
+    "usage": {
+      "confirmed_tokens": 6000,
+      "received": 30
+    },
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "14b516d6a0f407ac318f292279eea9c452f2e821436f48003de78a1a52b233aa",
+      "attempt_id": "adce21ba-fbd5-4970-bc88-5a9820b0aa2f",
+      "output_reference": "adce21ba-fbd5-4970-bc88-5a9820b0aa2f",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "381bedb25cb5bd5290377fb9dd1ba9b23208e420aedd7dd15d816138170fc30b",
+      "usage": {
+        "confirmed_tokens": 6000,
+        "recorded_cost_cents": 5,
+        "unknown_provider_attempts": 0
+      }
+    },
+    "external_writer_indices": [
+      1,
+      1,
+      2,
+      3,
+      4
+    ],
+    "source_builds": 2,
+    "synthetic": true
+  },
+  {
+    "count": 3,
+    "id": 13,
+    "before": {
+      "job_id": 13,
+      "status": "cancelled",
+      "attempts": 1,
+      "max_attempts": 3,
+      "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+      "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+      "tokens": 4600,
+      "cost_cents": 4,
+      "claims": 18,
+      "section_hashes": [
+        {
+          "index": 1,
+          "sha256": "cbeb77c3898cc1fc6d08bd574f090d74a04c84d85a03e295324639677ea29441"
+        },
+        {
+          "index": 2,
+          "sha256": "36fa3ebfe5b9789201cfab0ee6f8460599d3a52d2604614c6b7f28ed0560488a"
+        },
+        {
+          "index": 3,
+          "sha256": "738ff309e3bf28a748ba208753d6a98dd5b16764e95b370a3b471cb751bc69eb"
+        }
+      ]
+    },
+    "after": {
+      "job_id": 13,
+      "status": "completed",
+      "attempts": 2,
+      "max_attempts": 4,
+      "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+      "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+      "tokens": 6000,
+      "cost_cents": 5,
+      "claims": 24,
+      "section_hashes": [
+        {
+          "index": 1,
+          "sha256": "cbeb77c3898cc1fc6d08bd574f090d74a04c84d85a03e295324639677ea29441"
+        },
+        {
+          "index": 2,
+          "sha256": "36fa3ebfe5b9789201cfab0ee6f8460599d3a52d2604614c6b7f28ed0560488a"
+        },
+        {
+          "index": 3,
+          "sha256": "738ff309e3bf28a748ba208753d6a98dd5b16764e95b370a3b471cb751bc69eb"
+        },
+        {
+          "index": 4,
+          "sha256": "df6355ba8ed03ecc3f7f020f0eac2eb4a079b8788da5033693279f0eba9b51ab"
+        }
+      ]
+    },
+    "usage": {
+      "confirmed_tokens": 6000,
+      "received": 30
+    },
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "8206add1a31ce460d193283ad0df31c234aec7102356a0d909eda94cc92e06a8",
+      "attempt_id": "16785c08-08d8-42f3-9576-8ad42e834a73",
+      "output_reference": "16785c08-08d8-42f3-9576-8ad42e834a73",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "f4cd22384d2de2b7c11e4930864aa9317e06e599bcfffd37d31ba3033606f1c4",
+      "usage": {
+        "confirmed_tokens": 6000,
+        "recorded_cost_cents": 5,
+        "unknown_provider_attempts": 0
+      }
+    },
+    "external_writer_indices": [
+      1,
+      2,
+      3,
+      4,
+      4
+    ],
+    "source_builds": 2,
+    "synthetic": true
+  }
+]

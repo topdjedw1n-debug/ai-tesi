@@ -207,7 +207,11 @@ def _generation_handler():
 async def test_generation_rejects_user_with_pending_deletion_before_document_lock(
     monkeypatch,
 ):
-    current_user = User(id=7, email="deleting@example.com")
+    monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
+    monkeypatch.setattr(
+        generate_endpoint, "latest_job_for_update", AsyncMock(return_value=None)
+    )
+    current_user = User(id=7, email="deleting@example.com", is_active=True)
     current_user.deletion_requested_at = datetime.utcnow()
     document = Document(
         id=15,
@@ -246,6 +250,10 @@ async def test_generation_rejects_user_with_pending_deletion_before_document_loc
 async def test_repeated_request_returns_active_job_when_document_is_generating(
     monkeypatch,
 ):
+    monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
+    monkeypatch.setattr(
+        generate_endpoint, "latest_job_for_update", AsyncMock(return_value=None)
+    )
     document = Document(
         id=16,
         user_id=7,
@@ -260,7 +268,7 @@ async def test_repeated_request_returns_active_job_when_document_is_generating(
         job_type="full_document",
         status="queued",
     )
-    current_user = User(id=7, email="repeat@example.com")
+    current_user = User(id=7, email="repeat@example.com", is_active=True)
 
     db = MagicMock()
     db.execute = AsyncMock(
@@ -295,11 +303,15 @@ async def test_repeated_request_returns_active_job_when_document_is_generating(
     assert response.status == "queued"
     generation_gate.assert_not_awaited()
     db.flush.assert_not_awaited()
-    db.commit.assert_not_awaited()
+    db.commit.assert_awaited_once()
 
 
 @pytest.mark.asyncio
 async def test_generation_race_returns_competing_active_job(monkeypatch):
+    monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
+    monkeypatch.setattr(
+        generate_endpoint, "latest_job_for_update", AsyncMock(return_value=None)
+    )
     document = Document(
         id=17,
         user_id=7,
@@ -323,7 +335,7 @@ async def test_generation_race_returns_competing_active_job(monkeypatch):
         client_user_id=7,
         citation_style="apa",
     )
-    current_user = User(id=7, email="race@example.com")
+    current_user = User(id=7, email="race@example.com", is_active=True)
 
     db = MagicMock()
     db.execute = AsyncMock(
@@ -380,6 +392,10 @@ async def test_generation_race_returns_competing_active_job(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_generation_locks_shared_user_budget_then_rereads_case(monkeypatch):
+    monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
+    monkeypatch.setattr(
+        generate_endpoint, "latest_job_for_update", AsyncMock(return_value=None)
+    )
     """Different documents share the user lock; case requirements cannot race it."""
     document = Document(
         id=18,
@@ -398,7 +414,7 @@ async def test_generation_locks_shared_user_budget_then_rereads_case(monkeypatch
         citation_style="apa",
         requirements_text="Follow the locked university methodology.",
     )
-    current_user = User(id=7, email="quota-lock@example.com")
+    current_user = User(id=7, email="quota-lock@example.com", is_active=True)
 
     db = MagicMock()
     db.execute = AsyncMock(

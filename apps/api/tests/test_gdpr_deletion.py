@@ -5,6 +5,7 @@ from pathlib import Path
 from unittest.mock import AsyncMock, call, patch
 
 import pytest
+from fastapi import HTTPException
 from httpx import AsyncClient
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -12,7 +13,7 @@ from starlette.requests import Request
 
 from app.api.v1.endpoints.admin_documents import retry_document_generation
 from app.core.database import AsyncSessionLocal
-from app.core.exceptions import APIException, ValidationError
+from app.core.exceptions import ValidationError
 from app.models.auth import User
 from app.models.document import (
     AIGenerationJob,
@@ -24,6 +25,7 @@ from app.models.document import (
     ReleaseGateResult,
 )
 from app.services.gdpr_service import GDPRService
+from app.services.generation_recovery import orphan_result_state
 from main import app
 
 
@@ -386,6 +388,15 @@ async def test_admin_retry_invalidates_evidence_and_enqueues_real_job_atomically
             request=_admin_request(document_id),
             current_user=admin,
             db=db_session,
+            retry_request={
+                "mode": "new_version",
+                "intent_id": "admin-replace-once",
+                "expected_fingerprint": orphan_result_state(document)[
+                    "expected_fingerprint"
+                ],
+                "confirm_replace": True,
+                "replacement_reason": "Correct the recorded requirements",
+            },
         )
 
     assert result["status"] == "queued"
@@ -437,7 +448,7 @@ async def test_admin_retry_invalidates_evidence_and_enqueues_real_job_atomically
 
 
 @pytest.mark.asyncio
-async def test_admin_retry_rejects_active_job_without_invalidating_artifacts(
+async def test_admin_retry_joins_active_job_without_invalidating_artifacts(
     db_session,
 ):
     admin, owner = await _create_admin_and_owner(db_session, suffix="active")
@@ -466,16 +477,15 @@ async def test_admin_retry_rejects_active_job_without_invalidating_artifacts(
         new_callable=AsyncMock,
         return_value=True,
     ) as delete_file:
-        with pytest.raises(APIException) as error:
-            await retry_document_generation(
-                document_id=document_id,
-                request=_admin_request(document_id),
-                current_user=admin,
-                db=db_session,
-            )
+        result = await retry_document_generation(
+            document_id=document_id,
+            request=_admin_request(document_id),
+            current_user=admin,
+            db=db_session,
+        )
 
-    assert error.value.status_code == 409
-    assert error.value.error_code == "GENERATION_ALREADY_ACTIVE"
+    assert result["job_id"] == active_job_id
+    assert result["status"] == "queued"
     delete_file.assert_not_awaited()
     db_session.expire_all()
     persisted_document = await db_session.get(Document, document_id)
@@ -510,7 +520,7 @@ async def test_admin_retry_rejects_account_with_pending_gdpr_deletion(db_session
     await db_session.commit()
     document_id = int(document.id)
 
-    with pytest.raises(APIException) as error:
+    with pytest.raises(HTTPException) as error:
         await retry_document_generation(
             document_id=document_id,
             request=_admin_request(document_id),
@@ -519,7 +529,7 @@ async def test_admin_retry_rejects_account_with_pending_gdpr_deletion(db_session
         )
 
     assert error.value.status_code == 409
-    assert error.value.error_code == "ACCOUNT_DELETION_PENDING"
+    assert "deletion is pending" in error.value.detail
     job_count = (
         await db_session.execute(
             select(func.count(AIGenerationJob.id)).where(
@@ -564,7 +574,7 @@ async def test_admin_retry_rejects_job_the_worker_would_quarantine(
     await db_session.commit()
     document_id = int(document.id)
 
-    with pytest.raises(APIException) as error:
+    with pytest.raises(HTTPException) as error:
         await retry_document_generation(
             document_id=document_id,
             request=_admin_request(document_id),
@@ -573,7 +583,9 @@ async def test_admin_retry_rejects_job_the_worker_would_quarantine(
         )
 
     assert error.value.status_code == 409
-    assert error.value.error_code == error_code
+    assert (
+        "not confirmed" in error.value.detail or "not supported" in error.value.detail
+    )
     job_count = (
         await db_session.execute(
             select(func.count(AIGenerationJob.id)).where(
@@ -601,7 +613,7 @@ async def test_admin_retry_obeys_generation_page_budget(db_session):
     await db_session.commit()
     document_id = int(document.id)
 
-    with pytest.raises(APIException) as error:
+    with pytest.raises(HTTPException) as error:
         await retry_document_generation(
             document_id=document_id,
             request=_admin_request(document_id),
@@ -610,7 +622,7 @@ async def test_admin_retry_obeys_generation_page_budget(db_session):
         )
 
     assert error.value.status_code == 400
-    assert error.value.error_code == "GENERATION_GATE_BLOCKED"
+    assert "Free generation is limited" in error.value.detail
     job_count = (
         await db_session.execute(
             select(func.count(AIGenerationJob.id)).where(
@@ -660,6 +672,15 @@ async def test_admin_retry_keeps_committed_job_when_deferred_cleanup_fails(
             request=_admin_request(document_id),
             current_user=admin,
             db=db_session,
+            retry_request={
+                "mode": "new_version",
+                "intent_id": "admin-replace-once",
+                "expected_fingerprint": orphan_result_state(document)[
+                    "expected_fingerprint"
+                ],
+                "confirm_replace": True,
+                "replacement_reason": "Correct the recorded requirements",
+            },
         )
 
     assert result["status"] == "queued"

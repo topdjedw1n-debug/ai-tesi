@@ -4,10 +4,10 @@ import { generationStopGuidance } from '@/lib/generation-status'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { apiClient } from '@/lib/api'
 
-it('explains a historical provider balance rejection before generic outage guidance', () => {
+it('uses the API reason code instead of interpreting provider error text', () => {
   const reason = 'Error code: 400 - Your credit balance is too low to access the Anthropic API.'
-  expect(generationStopGuidance(reason)).toContain('баланс')
-  expect(generationStopGuidance(reason)).toContain('Anthropic')
+  expect(generationStopGuidance('provider_access_required')).toContain('баланс')
+  expect(generationStopGuidance(reason)).toContain('діагностики')
 })
 jest.mock('@/lib/api', () => ({
   apiClient: { get: jest.fn() },
@@ -124,10 +124,10 @@ describe('GenerationProgress', () => {
 
   it('restores a terminal reason once and explains what must be fixed', async () => {
     const onError = jest.fn()
-    ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, status: 'failed', progress: 12, error_message: 'Too few citable sources' })
+    ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, status: 'failed', progress: 12, error_message: 'Too few citable sources', recovery: { reason_code: 'source_coverage_gap' } })
     render(<GenerationProgress documentId={123} active={false} onError={onError} />)
     expect(await screen.findByText('Too few citable sources')).toBeInTheDocument()
-    expect(screen.getByText(/PDF/)).toBeInTheDocument()
+    expect(screen.getByText(/Джерела не покривають/)).toBeInTheDocument()
     act(() => onMessage({ type: 'job_failed', document_id: 123, error: 'Too few citable sources' }))
     await waitFor(() => expect(onError).toHaveBeenCalledTimes(1))
   })

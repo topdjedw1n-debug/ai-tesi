@@ -1,0 +1,7 @@
+{
+  "baseline_diagnostics": 351,
+  "candidate_diagnostics": 348,
+  "new": [],
+  "green_ci": false,
+  "comparison": "path plus exact message with multiplicities, ignoring line shifts"
+}

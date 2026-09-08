@@ -1,0 +1,49 @@
+{
+  "base_sha": "27f80da9101d4faa3c71122105ed6d387cd65655",
+  "original_input_sha256": "18f8ce68f293087fbae62b321b692fa51ecf7da8a623fb344d4e2590ef2fe9c1",
+  "final_sources_sha256": "93df953ea3ae06a434b501aa77bf281935e7f4a8a784a09f59bd018b58d2a94f",
+  "source_rows": 31,
+  "frozen_keys": 24,
+  "pruned_outline_references": [
+    {
+      "section": 1,
+      "keys": [
+        "Divoll1987",
+        "Kowalski1995",
+        "Rice2012"
+      ]
+    },
+    {
+      "section": 2,
+      "keys": [
+        "Divoll1987",
+        "Kowalski1995",
+        "Rice2012"
+      ]
+    },
+    {
+      "section": 3,
+      "keys": [
+        "Divoll1987"
+      ]
+    },
+    {
+      "section": 5,
+      "keys": [
+        "Rice2012"
+      ]
+    }
+  ],
+  "baseline_precheck_problems": [
+    "La traccia universitaria richiede una tesi ampiamente clinica basata su framework NANDA/NOC/NIC, ma le fonti disponibili sono in prevalenza articoli su ruoli professionali infermieristici (nurse practitioner, navigator, risk management) e pochi studi clinici (bCPAP, ecocardiografia transizionale, termoregolazione, skin-to-skin). Pertanto alcune etichette diagnostiche specifiche (es. NANDA precise) non trovano supporto diretto nelle fonti e verranno trattate come cornice metodologica dichiarata, non come dato empirico.",
+    "Il brief richiede review_method con metodo di ricerca reale: essendo assenti descrizioni di una ricerca sistematica, il lavoro sarà dichiarato come analisi narrativa della letteratura fornita, senza inventare PRISMA o database.",
+    "Il numero limitato e l'eterogeneità delle fonti (molte datate e su contesti non italiani) impongono di dichiarare esplicitamente i limiti di trasferibilità in più sezioni.",
+    "Розділ 1: немає прив'язки до доступних доказів.",
+    "Розділ 2: немає прив'язки до доступних доказів.",
+    "Розділ 3: немає прив'язки до доступних доказів.",
+    "Розділ 5: немає прив'язки до доступних доказів."
+  ],
+  "historical_status": "failed",
+  "external_calls": 0,
+  "production_mutations": 0
+}

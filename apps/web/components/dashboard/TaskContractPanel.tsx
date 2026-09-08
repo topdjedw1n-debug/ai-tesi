@@ -1,6 +1,6 @@
 'use client'
 
-import { ReactNode, useCallback, useEffect, useState } from 'react'
+import { ReactNode, useCallback, useEffect, useState, useRef } from 'react'
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
@@ -9,6 +9,7 @@ import { apiClient, API_ENDPOINTS } from '@/lib/api'
 import { Button } from '@/components/ui/Button'
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
 import toast from 'react-hot-toast'
+import { GenerationRecovery, generationStopGuidance } from '@/lib/generation-status'
 
 interface TaskContractRule {
   key: string
@@ -147,6 +148,12 @@ export function TaskContractPanel({
   const [acknowledged, setAcknowledged] = useState(false)
   const [causeResolved, setCauseResolved] = useState(false)
   const [isStarting, setIsStarting] = useState(false)
+  const [recovery, setRecovery] = useState<GenerationRecovery | null>(null)
+  const [replacementReason, setReplacementReason] = useState('')
+  const intent = useRef<{ fingerprint: string; id: string } | null>(null)
+  const resuming = retry && !!recovery?.allowed_actions.includes('resume')
+  const replacing = retry && !!recovery?.allowed_actions.includes('new_version')
+  const recoveryReady = !retry || !!recovery && (resuming || replacing) && (!replacing || replacementReason.trim().length >= 3)
 
   const loadContract = useCallback(async () => {
     setIsLoading(true)
@@ -154,7 +161,7 @@ export function TaskContractPanel({
     setAcknowledged(false)
     setCauseResolved(false)
     try {
-      const [contractResponse, costResponse] = await Promise.all([
+      const [contractResponse, costResponse, jobResponse] = await Promise.all([
         apiClient.get<TaskContract>(
           API_ENDPOINTS.DOCUMENTS.TASK_CONTRACT(documentId)
         ),
@@ -172,7 +179,9 @@ export function TaskContractPanel({
             console.error('Failed to load cost estimate:', error)
             return null
           }),
+        retry ? apiClient.get<GenerationRecovery | null>(`${API_ENDPOINTS.GENERATE.FULL}/${documentId}/recovery`) : Promise.resolve(null),
       ])
+      setRecovery(jobResponse || null)
       setContract(contractResponse)
       setCost(costResponse)
     } catch (error) {
@@ -183,18 +192,18 @@ export function TaskContractPanel({
     } finally {
       setIsLoading(false)
     }
-  }, [documentId, model, provider, targetPages])
+  }, [documentId, model, provider, targetPages, retry])
 
   useEffect(() => {
     loadContract()
   }, [loadContract, refreshKey])
 
   const handleConfirmAndStart = async () => {
-    if (!contract || !acknowledged || isStarting || (retry && !causeResolved)) return
+    if (!contract || !acknowledged || isStarting || !recoveryReady || (retry && !causeResolved)) return
     setIsStarting(true)
     let confirmed = contract.confirmed
     try {
-      if (!confirmed) {
+      if (!confirmed && !resuming) {
         await apiClient.post(
           API_ENDPOINTS.DOCUMENTS.CONFIRM_TASK_CONTRACT(documentId)
         )
@@ -203,10 +212,30 @@ export function TaskContractPanel({
           current ? { ...current, confirmed: true } : current
         )
       }
-      await apiClient.post(API_ENDPOINTS.GENERATE.FULL, {
-        document_id: documentId,
-      })
-      toast.success('Умови підтверджено — написання почалось')
+      const fingerprint = recovery?.expected_fingerprint || 'initial'
+      if (!intent.current || intent.current.fingerprint !== fingerprint) {
+        intent.current = { fingerprint, id: crypto.randomUUID() }
+      }
+      if (resuming && recovery) {
+        await apiClient.post(API_ENDPOINTS.GENERATE.FULL + '/' + documentId + '/resume', {
+          intent_id: intent.current.id,
+          expected_fingerprint: recovery.expected_fingerprint,
+          confirm_paid: true,
+          confirm_access_restored: causeResolved,
+        })
+      } else {
+        await apiClient.post(API_ENDPOINTS.GENERATE.FULL, {
+          document_id: documentId,
+          intent_id: intent.current.id,
+          ...(replacing && recovery ? {
+            mode: 'new_version',
+            confirm_replace: true,
+            expected_fingerprint: recovery.expected_fingerprint,
+            replacement_reason: replacementReason.trim(),
+          } : {}),
+        })
+      }
+      toast.success(resuming ? 'Продовження підтверджено — збережені матеріали використає система' : 'Умови підтверджено — написання почалось')
       onGenerationStarted?.()
     } catch (error: any) {
       toast.error(
@@ -305,20 +334,29 @@ export function TaskContractPanel({
 
       <section className="rounded-lg bg-white p-6 shadow" aria-labelledby="generation-start-heading">
         <h2 id="generation-start-heading" className="text-lg font-semibold text-gray-900">
-          {retry ? 'Нова спроба після усунення причини' : 'Перевірка перед запуском'}
+          {resuming ? 'Продовжити з місця зупинки' : retry ? 'Почати заново після виправлення причини' : 'Перевірка перед запуском'}
         </h2>
 
         {retry ? (
           <label className="mt-4 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <input type="checkbox" checked={causeResolved} onChange={(event) => setCauseResolved(event.target.checked)} className="mt-1" />
-            <span>Причину попередньої зупинки з’ясовано й усунуто. Я запускаю нову платну спробу: вона замінить попередні частини та перевірки. Автоматичне відновлення тимчасового збою виконує сама система.</span>
+            <span>{resuming ? 'Причину зупинки усунуто. Я підтверджую платне продовження зі збереженими джерелами й завершеними розділами.' : 'Причину зупинки усунуто. Я підтверджую нову платну генерацію із заміною попередніх робочих матеріалів і перевірок. Історія спроб і витрат збережеться.'}</span>
           </label>
         ) : (
           <p className="mt-3 text-sm text-gray-600">До натискання кнопки нижче написання не починається. Справа для перевірок створиться автоматично разом із першим запуском.</p>
         )}
 
+        {retry && <p className="mt-3 text-sm text-gray-700">{generationStopGuidance(recovery?.reason_code)}</p>}
+        {retry && !recovery && <p className="mt-3 text-sm text-amber-700">Не вдалося підтвердити доступні дії. Оновіть стан перед запуском.</p>}
+        {replacing && (
+          <label className="mt-4 block text-sm text-gray-700">
+            Причина нового запуску
+            <textarea value={replacementReason} onChange={(event) => setReplacementReason(event.target.value)} maxLength={500} className="mt-1 block w-full rounded-md border border-gray-300 p-2" />
+          </label>
+        )}
+        {resuming && <p className="mt-3 text-sm text-gray-600">Продовження використовує готові частини. Сума нижче — оцінка повного написання; остаточні витрати залежать від фактичних звернень до сервісів.</p>}
         <div className="mt-4 rounded-lg bg-gray-50 p-4">
-          <p className="text-sm font-medium text-gray-700">Орієнтовна вартість генерації</p>
+          <p className="text-sm font-medium text-gray-700">Орієнтовна вартість повної генерації</p>
           {cost ? (
             <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
               <span className="text-2xl font-semibold text-gray-900">
@@ -360,11 +398,11 @@ export function TaskContractPanel({
         <div className="mt-5 flex justify-end">
           <Button
             onClick={handleConfirmAndStart}
-            disabled={!acknowledged || isStarting || (retry && !causeResolved)}
+            disabled={!acknowledged || isStarting || !recoveryReady || (retry && !causeResolved)}
             data-testid="confirm-and-start-button"
           >
             {isStarting && <LoadingSpinner size="sm" className="mr-2" />}
-            {isStarting ? 'Запускаємо…' : retry ? 'Підтвердити нову спробу' : 'Підтвердити і запустити'}
+            {isStarting ? 'Запускаємо…' : resuming ? 'Підтвердити продовження' : retry ? 'Почати заново' : 'Підтвердити і запустити'}
           </Button>
         </div>
       </section>

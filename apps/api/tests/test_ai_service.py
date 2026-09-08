@@ -8,6 +8,7 @@ from app.core.exceptions import AIProviderError
 from app.models.auth import User
 from app.models.document import Document
 from app.services.ai_service import AIService
+from app.services.generation_outcomes import GenerationStageError
 
 
 @pytest.mark.asyncio
@@ -196,7 +197,7 @@ async def test_call_openai_missing_api_key(db_session):
 
     try:
         # Try to call OpenAI
-        with pytest.raises(AIProviderError, match="OpenAI API key not configured"):
+        with pytest.raises(GenerationStageError, match="OpenAI API key not configured"):
             await service._call_openai(model="gpt-4", prompt="Test prompt")
     finally:
         # Restore original key
@@ -219,7 +220,9 @@ async def test_call_anthropic_missing_api_key(db_session):
 
     try:
         # Try to call Anthropic
-        with pytest.raises(AIProviderError, match="Anthropic API key not configured"):
+        with pytest.raises(
+            GenerationStageError, match="Anthropic API key not configured"
+        ):
             await service._call_anthropic(model="claude-3-opus", prompt="Test prompt")
     finally:
         # Restore original key

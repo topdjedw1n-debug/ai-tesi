@@ -1,0 +1,58 @@
+{
+  "result": "**Висновок: CHANGES_REQUIRED.** Архітектура відповідає плану: той самий job, receipts усіх намірів, жодного неявного wipe, пауза fail-closed, журнал зовнішніх викликів. Але є три дефекти, які порушують заявлені інваріанти (тимчасовий збій не має вести до втрати оплачених матеріалів; API каже правду про причину). Примітка: каталоги `review/` та `evidence/` мені недоступні (відмова доступу), тому я читав код безпосередньо у worktree, а факти про докази беру з вашого брифу.\n\n## Дефекти за пріоритетом\n\n**P1-1. Тимчасові інфраструктурні збої класифікуються як `unknown_failure` і роблять задачу непоновлюваною.**\n`generation_outcomes.py:41-101` знає лише SDK-помилки, `TimeoutError`/`ConnectionError`/httpx. Не покриті: `CircuitBreakerOpenError` (`services/circuit_breaker.py:149`, кидається з `retry_strategy.py:79-88`), `redis.exceptions.ConnectionError` (не нащадок builtin `ConnectionError`), `sqlalchemy.exc.OperationalError`, `S3Error`/`OSError` поза стадією export.\nСценарій: провайдер дав кілька 5xx → breaker відкрився → рецензент отримує `CircuitBreakerOpenError` → `academic_review.py:410-422` записує `unchecked/unknown_failure` → `background_jobs.py:2064-2069` кидає `GenerationStageError(unknown_failure)` → `background_jobs.py:4069-4070` terminal → `recovery_state` дає лише `new_version`. Менеджер може тільки стерти пакет і розділи через тимчасову причину. Те саме для Redis-чекпоінта під час письма після вичерпання спроб.\nМінімальний фікс: у `failure_reason` додати гілку для `CircuitBreakerOpenError`, `redis.exceptions.ConnectionError|TimeoutError`, `sqlalchemy.exc.OperationalError|DBAPIError(connection_invalidated)`, а `OSError|S3Error(не access-коди)` класифікувати незалежно від stage → `review_temporarily_unavailable` для review, інакше `provider_temporarily_unavailable`. Ці типи вже імпортовані або є в залежностях.\n\n**P1-2. Застарілий `last_outcome` живе після resume і після успіху: API повертає неправдиву причину.**\n`generation_recovery.py:141-151` бере `reason_code` з `request_payload.last_outcome` і для `queued/running` повертає його як є; для `completed` (`:237-249`) віддає старий код або `legacy_unknown`. `complete_generation_job` (`generation_worker.py:854-891`) і `resume_generation` (`generation_recovery.py:373-383`) поле не чистять.\nСценарій: збій `provider_temporarily_unavailable` → resume → DOCX готовий → `GET /jobs/document/{id}/status` та `/recovery` показують `reason_code=provider_temporarily_unavailable`, `allowed_actions=[\"new_version\"]`.\nФікс: у `complete_generation_job` записати `request_payload.last_outcome = {\"stage\":\"export\",\"outcome\":\"completed\",\"reason_code\":None}`; у `resume_generation` перенести старий outcome у `previous_outcome` і зняти `reason_code`; у `recovery_state` для `queued/running/completed` не повертати `reason_code` з попереднього збою.\n\n**P1-3. Хибні мітки причин, що видають технічну помилку за академічний вердикт.**\n- `generation_outcomes.py:82-86`: будь-який 4xx провайдера поза review (404 моделі, 400 невалідного параметра писаря) → `plan_requirements_unmet`. UI покаже «план не виконує вимоги». Фікс: повертати `unknown_failure` (термінальність уже забезпечує `is_permanent_provider_error`).\n- `generation_worker.py:1203-1204`: будь-який `CitationIntegrityError` → `academic_content_rejected`, зокрема «Completed sections have an invalid outline checkpoint» (`background_jobs.py:1689`) і «Uploaded sources are not generation-ready» (`:1441`). Фікс: у `:1689` кидати `GenerationStageError(\"checkpoint_integrity_error\", stage=\"checkpoint\")`; у `:1441` — `GenerationStageError(\"plan_requirements_unmet\", stage=\"intake\")` або окремий код; або додати `reason_code` до цих винятків.\n\n**P2-1. Платіжний вебхук оминає guard заміни для «сирітського» результату.**\n`payment.py:161-177` не створює job лише за наявності `prior_job`; якщо job немає, а `document.content/docx_path` є (legacy), `:212-216` виконує `_invalidate_previous_generation_evidence` без receipt і без `generation_replacement`. Шлях зараз вимкнений режимом free-gen, але план вимагає той самий guard для всіх стартів. Фікс: перед `:212` перевірити `orphan_result_state`-умову (`content or docx_path or pdf_path`) і повернути `{\"generation\": \"manual_start_required\"}`.\n\n**P2-2. Журнал провайдера не розрізняє стадії.**\n`ai_service.py:591,657` передає `purpose=\"ai_service\"` для всіх викликів через `call_with_fallback`, тому receipts узгодження/рецензії/claim-перевірок нерозрізнювані, а `failure_reason(...stage=...)` у `generation_operations.py:66-68` для рецензента дає provider-, а не review-код. Фікс: додати параметр `purpose` у `_call_openai/_call_anthropic` і прокинути з `call_with_fallback(purpose=...)`.\n\n**P3. Уточнення, не блокери.**\n- Негативний whole-review (`failed`) не зупиняє задачу: `background_jobs.py:3738-3744` обробляє лише `unchecked`, далі експорт і `completed`, реліз заблоковано verdict'ом. Це успадкована поведінка M0-12 і не суперечить збереженню тексту, але після P1-2 варто записувати `last_outcome.reason_code=academic_content_rejected` для такого completed-job, щоб кабінет не казав лише «DOCX готовий».\n- `generation_profile.py:53-61` хешує цілі файли модулів: будь-який коміт у `ai_service.py` робить усі зупинені задачі `contract_or_profile_mismatch`. Fail-closed і відповідає плану, але це операційне обмеження, яке треба записати в S4-процедуру (перемикання лише за нуля queued/running).\n\n## Що перевірено читанням коду і виглядає коректно\n\n- Порядок блокувань єдиний на всіх шляхах: pause(shared advisory) → User → Job → Document → Case у `generate.py:760-836`, `generation_recovery.py:255-292`, `payment.py:123-159`; Job → Document → Case у claim/cancel/reschedule; User → Jobs → Docs → Cases у GDPR. `hold_generation_job_lease` тримає лише Job в окремій сесії, основна сесія під ним не бере FOR UPDATE, тож самоблокування немає. Пауза: exclusive xact-lock у setter'і чекає завершення всіх in-flight enqueue, потім нові читають paused; читання стану при помилці дає 503.\n- Receipts: дубль наміру повертає стан без grant навіть після нової невдачі; два одночасні наміри → один grant, два receipts; старий fingerprint після зміни terminal-стану → 409. Це покрито `test_stability_recovery.py:59-106` і PostgreSQL-тестами.\n- Дефолтний POST і admin retry при наявному результаті повертають 409 без invalidation; `new_version` вимагає `confirm_replace + intent_id + replacement_reason + fingerprint` і пише `generation_replacement` до wipe.\n- Узгодження плану змінює лише дозволені поля, структуру не чіпає, викликає модель максимум раз на worker-attempt, rejected-результат термінальний, кеш reuse прив'язаний до `output_sha256`.\n- Облік: baseline = max(job.total_tokens, журнал підтверджених receipts) до першого виклику спроби; поточна спроба додається один раз. Крах між receipt і `write_job_usage` не втрачає витрати. `outcome_unknown` не рахується як нуль.\n- UI бере дії лише з `allowed_actions` API; кнопка заблокована без `recovery`; `intent_id` стабільний на повторному кліку.\n\n## Бракує вирішальних тестів\n\n1. Класифікація `CircuitBreakerOpenError`, Redis- і DB-помилок у `failure_reason` (P1-1) з перевіркою, що `recovery_state` дає `resume`.\n2. Після resume → успіх: `recovery_state` і `/jobs/document/{id}/status` без старого `reason_code` (P1-2).\n3. Крах worker після `received`-receipt без `write_job_usage` → наступна спроба стартує з baseline із журналу (monotonic across crash) на рівні `generate_full_document_async`, не лише `journal_usage`.\n4. Писар отримує 404/400 → `reason_code=unknown_failure`, не `plan_requirements_unmet` (P1-3).\n5. PostgreSQL: GDPR-видалення проти resume на одному власнику (обидва починають з User lock; resume має відхилити `deletion_requested_at`).\n6. Платіжний вебхук на документі з content і без job не викликає invalidation (P2-1).\n\nНе позначаю VERIFIED: T04 (0/3 секції), T10 у повному обсязі, фінальний повний прогін API/web, S4, Compilatio та M1–M3. Синтетичний PASS рецензента доводить лише маршрутизацію.",
+  "session_id": "8ebda4d8-f26f-4bc0-a595-740165cda9d6",
+  "modelUsage": {
+    "claude-haiku-4-5-20251001": {
+      "inputTokens": 1862,
+      "outputTokens": 16,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.001942,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "thinkingTokens": 0,
+      "canonicalModel": "claude-haiku-4-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-fable-5-1": {
+      "inputTokens": 322,
+      "outputTokens": 42223,
+      "cacheReadInputTokens": 1096840,
+      "cacheCreationInputTokens": 232267,
+      "webSearchRequests": 0,
+      "costUSD": 7.033919999999999,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 28471,
+      "canonicalModel": "claude-fable-5-1",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [
+    {
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01179cov3sN9EH78J4Z4qnsQ",
+      "tool_input": {
+        "file_path": "/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/review/manifest.json"
+      }
+    },
+    {
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01XyET4YTEgrzsLgs1RnEGLQ",
+      "tool_input": {
+        "file_path": "/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/review/manifest.json"
+      }
+    },
+    {
+      "tool_name": "Read",
+      "tool_use_id": "toolu_01Vu9jDrx1jp6jtzvmdniEsE",
+      "tool_input": {
+        "file_path": "/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/review/diff.patch"
+      }
+    }
+  ],
+  "duration_ms": 613591
+}

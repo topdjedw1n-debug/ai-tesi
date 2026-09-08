@@ -1,0 +1,40 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-7.4.3, pluggy-1.6.0
+rootdir: /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree
+configfile: pytest.ini
+plugins: anyio-4.12.1, cov-4.1.0, asyncio-0.21.1, Faker-38.2.0
+asyncio: mode=Mode.AUTO
+collected 28 items
+
+tests/test_stability_operations.py .......                               [ 25%]
+tests/test_academic_review_retry.py .........                            [ 57%]
+tests/test_usage_accounting.py ............                              [100%]
+
+=============================== warnings summary ===============================
+../../../../../apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../../apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+app/api/v1/endpoints/admin.py:82
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:82: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    period: str = Query("week", regex="^(day|week|month|year)$"),
+
+app/api/v1/endpoints/admin.py:128
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:128: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    type: str = Query("recent", regex="^(recent|payments|registrations|errors)$"),
+
+app/api/v1/endpoints/admin.py:958
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:958: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    group_by: str = Query("day", regex="^(day|week|month)$"),
+
+apps/api/tests/test_stability_operations.py::test_worker_restores_received_usage_before_crashed_job_total_write
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/fastapi_mail/schemas.py:91: PydanticDeprecatedSince212: Using `@model_validator` with mode='after' on a classmethod is deprecated. Instead, use an instance method. See the documentation at https://docs.pydantic.dev/2.12/concepts/validators/#model-after-validator. Deprecated in Pydantic V2.12 to be removed in V3.0.
+    @model_validator(mode="after")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 28 passed, 6 warnings in 2.67s ========================

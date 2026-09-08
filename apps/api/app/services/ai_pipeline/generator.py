@@ -21,6 +21,8 @@ from app.services.ai_pipeline.citation_keys import (
 from app.services.ai_pipeline.humanizer import Humanizer
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+from app.services.generation_operations import recorded_provider_call
+from app.services.generation_outcomes import GenerationStageError
 from app.services.model_response_recovery import (
     IncompleteModelResponse,
     ModelResponseRecovery,
@@ -672,7 +674,11 @@ class SectionGenerator:
             import openai
 
             if not settings.OPENAI_API_KEY:
-                raise ValueError("OpenAI API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "OpenAI API key not configured",
+                    stage="provider",
+                )
 
             client = openai.AsyncOpenAI(
                 api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
@@ -715,7 +721,14 @@ class SectionGenerator:
                     request_kwargs["max_tokens"] = recovery.max_tokens
                     request_kwargs["temperature"] = 0.7
 
-                response = await client.chat.completions.create(**request_kwargs)
+                response = await recorded_provider_call(
+                    client.chat.completions.create,
+                    provider="openai",
+                    model=model,
+                    request=request_kwargs,
+                    usage_tracker=self.usage_tracker,
+                    purpose="section_generation",
+                )
                 if self.usage_tracker is not None and response.usage:
                     self.usage_tracker.add(
                         "openai",
@@ -763,7 +776,11 @@ class SectionGenerator:
             import anthropic
 
             if not settings.ANTHROPIC_API_KEY:
-                raise ValueError("Anthropic API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "Anthropic API key not configured",
+                    stage="provider",
+                )
 
             client = anthropic.AsyncAnthropic(
                 api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
@@ -796,8 +813,13 @@ class SectionGenerator:
                 if model.startswith("claude-3"):
                     request_kwargs["temperature"] = 0.7
 
-                response = await client.messages.create(  # type: ignore[attr-defined]
-                    **request_kwargs
+                response = await recorded_provider_call(
+                    client.messages.create,
+                    provider="anthropic",
+                    model=model,
+                    request=request_kwargs,
+                    usage_tracker=self.usage_tracker,
+                    purpose="section_generation",
                 )
                 if self.usage_tracker is not None and response.usage:
                     self.usage_tracker.add(

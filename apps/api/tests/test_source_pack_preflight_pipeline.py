@@ -13,6 +13,7 @@ from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.background_jobs import BackgroundJobService, _build_source_pack
 from app.services.citation_verifier import VerificationResult, VerificationStatus
+from app.services.generation_outcomes import GenerationStageError
 from app.services.source_verification_stage import load_source_pack, persist_source_pack
 from tests.release_profile import RELEASE_PROFILE
 from tests.test_source_pack_rebuild import (
@@ -652,11 +653,14 @@ async def test_underfilled_pack_with_provider_outage_remains_retryable(
             patch("app.services.background_jobs.CitationVerifier")
         )
 
-        with pytest.raises(RuntimeError, match="providers were unavailable"):
+        with pytest.raises(
+            GenerationStageError, match="providers were unavailable"
+        ) as error:
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id), user_id=int(user.id)
             )
 
+        assert error.value.reason_code == "provider_temporarily_unavailable"
         assert mocks["generate_section"].called is False
         verifier_class.assert_not_called()
 
@@ -738,7 +742,9 @@ async def test_resume_rejects_frozen_pack_without_verification_proof(
             )
         )
 
-        with pytest.raises(CitationIntegrityError, match="no valid preflight proof"):
+        from app.services.generation_outcomes import GenerationStageError
+
+        with pytest.raises(GenerationStageError, match="no valid preflight proof"):
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id), user_id=int(user.id)
             )
@@ -805,11 +811,11 @@ async def test_existing_job_digest_reuses_pack_before_first_completed_section(
             )
         )
 
-        from app.core.exceptions import QualityThresholdNotMetError
+        from app.services.generation_outcomes import GenerationStageError
 
         # The frozen legacy identity pack stays untouched; the new academic
         # gate blocks BEFORE paying a writer without readable evidence.
-        with pytest.raises(QualityThresholdNotMetError):
+        with pytest.raises(GenerationStageError) as error:
             await BackgroundJobService.generate_full_document(
                 document_id=int(document.id),
                 user_id=int(user.id),
@@ -818,6 +824,7 @@ async def test_existing_job_digest_reuses_pack_before_first_completed_section(
                 lease_token="resume-token",
             )
 
+        assert error.value.reason_code == "checkpoint_integrity_error"
         assert mocks["build_pack"].called is False
         verifier_class.assert_not_called()
         assert mocks["generate_section"].call_count == 0

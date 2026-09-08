@@ -1,0 +1,139 @@
+{
+  "before": {
+    "source_pack": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "job_id": 14,
+    "attempt_count": 3,
+    "max_attempts": 3,
+    "tokens": 5800,
+    "cost_cents": 4,
+    "claims": 24,
+    "docx_sha": null,
+    "content_sha256": "b8c1eda2ea4d69d1fd665e3419f8c044579603fd46336195f7cc2957c493f0ec",
+    "outline_sha256": "9ec2bb70f02a3994eded87f93f37b736adabb38e060f16c3eb4bed7ed3d3f0b2",
+    "sections_sha256": "93e9853f420c72197e0b269209883028d81d85bc58cfeba4e325b24451ad09da",
+    "calls": {
+      "sdk_request": 417,
+      "sources_entered": 28,
+      "retrieval_page": 28,
+      "outline_entered": 14,
+      "outline": 14,
+      "academic_review:outline": 17,
+      "writer": 62,
+      "writer_entered": 62,
+      "writer_1_entered": 17,
+      "claims": 56,
+      "writer_2_entered": 14,
+      "writer_3_entered": 14,
+      "writer_4_entered": 17,
+      "academic_review:whole": 14,
+      "upload_entered": 22,
+      "upload_completed": 13,
+      "fault_consumed": 3,
+      "plan_reconciled": 2
+    }
+  },
+  "after": {
+    "source_pack": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "job_id": 14,
+    "attempt_count": 4,
+    "max_attempts": 6,
+    "tokens": 5800,
+    "cost_cents": 4,
+    "claims": 24,
+    "docx_sha": "d3b28506f648e7ecb2da45f7e9bad6d2217e266c0c074274281c75f06ce823ff",
+    "content_sha256": "b8c1eda2ea4d69d1fd665e3419f8c044579603fd46336195f7cc2957c493f0ec",
+    "outline_sha256": "9ec2bb70f02a3994eded87f93f37b736adabb38e060f16c3eb4bed7ed3d3f0b2",
+    "sections_sha256": "93e9853f420c72197e0b269209883028d81d85bc58cfeba4e325b24451ad09da",
+    "calls": {
+      "sdk_request": 417,
+      "sources_entered": 28,
+      "retrieval_page": 28,
+      "outline_entered": 14,
+      "outline": 14,
+      "academic_review:outline": 17,
+      "writer": 62,
+      "writer_entered": 62,
+      "writer_1_entered": 17,
+      "claims": 56,
+      "writer_2_entered": 14,
+      "writer_3_entered": 14,
+      "writer_4_entered": 17,
+      "academic_review:whole": 14,
+      "upload_entered": 23,
+      "upload_completed": 14,
+      "fault_consumed": 3,
+      "plan_reconciled": 2
+    }
+  },
+  "paid_requests": [
+    {
+      "url": "http://localhost:8340/api/v1/generate/full-document/14/resume",
+      "body": {
+        "intent_id": "ec54b774-9ec6-4b05-b37a-f6e6484a7865",
+        "expected_fingerprint": "bc696553a985c25384c098ac20b7c6209a61d676bc1e042cbf08509dee0db8c6",
+        "confirm_paid": true,
+        "confirm_access_restored": true
+      }
+    }
+  ],
+  "state_before": {
+    "job_id": 14,
+    "status": "failed",
+    "progress": 0,
+    "document_id": 14,
+    "error_message": "Не вдалося сформувати або зберегти файл. Текст збережений.",
+    "attempt_count": 3,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "export",
+      "reason_code": "artifact_temporarily_unavailable",
+      "retryability": "automatic",
+      "input_fingerprint": "32d4d07cbc91d187915c92512f9b043317937f605971cc3c2f5a8454b711a27c",
+      "attempt_id": "4577fe37-7754-44ff-88db-2a2eab0e0b7f",
+      "output_reference": "4577fe37-7754-44ff-88db-2a2eab0e0b7f",
+      "outcome": "outcome_unknown",
+      "message": "Не вдалося сформувати або зберегти файл. Текст збережений.",
+      "allowed_actions": [
+        "resume"
+      ],
+      "expected_fingerprint": "bc696553a985c25384c098ac20b7c6209a61d676bc1e042cbf08509dee0db8c6",
+      "usage": {
+        "confirmed_tokens": 5800,
+        "recorded_cost_cents": 4,
+        "unknown_provider_attempts": 0
+      }
+    }
+  },
+  "state_after": {
+    "job_id": 14,
+    "status": "completed",
+    "progress": 100,
+    "document_id": 14,
+    "error_message": null,
+    "attempt_count": 4,
+    "max_attempts": 6,
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "c0a0179072a0a8b65b1675db2176a02c4485a7c5aeb693d9a149dac31b8fbedc",
+      "attempt_id": "a1051cd0-b25c-4205-bf44-3eebc5b0e434",
+      "output_reference": "a1051cd0-b25c-4205-bf44-3eebc5b0e434",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "1ee3498ed121d7f2cc04f8c163dff018e0dcdb00363605adb438c803babcfdda",
+      "usage": {
+        "confirmed_tokens": 5800,
+        "recorded_cost_cents": 4,
+        "unknown_provider_attempts": 0
+      }
+    }
+  },
+  "artifact": {
+    "bytes": 37564,
+    "sha256": "d3b28506f648e7ecb2da45f7e9bad6d2217e266c0c074274281c75f06ce823ff"
+  },
+  "reason": "Controlled synthetic object-storage timeout, removed before explicit UI resume. All application checkpoints and export are real."
+}

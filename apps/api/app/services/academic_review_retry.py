@@ -20,6 +20,7 @@ from app.services.academic_review import (
 from app.services.ai_service import AIService
 from app.services.cost_estimator import UsageTracker
 from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_profile import generation_profile_sha256
 from app.services.source_evidence import evidence_text
 from app.services.source_verification_stage import load_source_pack
 from app.services.storage_service import StorageService
@@ -122,6 +123,9 @@ async def retry_academic_review(
     request ID is a new explicit manager action, permitted only for unchecked
     results. It never regenerates, re-exports or rewrites content.
     """
+    from app.services.generation_pause import require_generation_open
+
+    await require_generation_open(db)
     doc, job, pack, events, binding = await _snapshot(db, case_id)
     same_attempt = [
         e for e in events if (e.payload or {}).get("attempt_id") == attempt_id
@@ -148,6 +152,17 @@ async def retry_academic_review(
                 "reason": "Перевірка ще триває або була перервана. Новий платний виклик не запускався.",
                 "attempt_id": attempt_id,
             }
+        )
+    # A new paid review is bound to the job's recorded profile. A changed or
+    # missing generator/reviewer profile needs an explicit decision first;
+    # replays above stay free and unaffected.
+    if (job.request_payload or {}).get("profile_sha256") != generation_profile_sha256(
+        doc, job.user_id
+    ):
+        raise HTTPException(
+            409,
+            "Версія генератора або політики перевірки змінилася після цієї роботи; "
+            "повторна перевірка потребує окремого рішення.",
         )
     completed_ids = {
         (e.payload or {}).get("attempt_id")
@@ -236,7 +251,20 @@ async def retry_academic_review(
     original_artifact = (str(doc.docx_path), str(doc.docx_sha256))
     job_id = int(job.id)
     section_count = len((doc.outline or {}).get("sections") or [])
+    from app.services.generation_operations import journal_usage
+
+    previous_usage, _unknown = await journal_usage(db, int(doc.id), job_id)
+    previous_cost_offset = max(
+        0, int(job.cost_cents or 0) - previous_usage.cost_usd_cents()
+    )
     usage = UsageTracker()
+    # Every SDK call of this retry gets a durable receipt on the same job.
+    usage.generation_context = {
+        "document_id": int(doc.id),
+        "job_id": job_id,
+        "worker_attempt": int(job.attempt_count or 0),
+        "review_retry_attempt_id": attempt_id,
+    }
     cancellation = None
     try:
         service = ai_service or AIService(db, usage_tracker=usage, max_retries=0)
@@ -347,8 +375,7 @@ async def retry_academic_review(
         .values(
             total_tokens=func.coalesce(AIGenerationJob.total_tokens, 0)
             + usage.total_tokens,
-            cost_cents=func.coalesce(AIGenerationJob.cost_cents, 0)
-            + usage.cost_usd_cents(),
+            cost_cents=previous_cost_offset + usage.cost_usd_cents(previous_usage),
         )
     )
     await db.commit()  # result and incremental spend are atomic, once per request

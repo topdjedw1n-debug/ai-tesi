@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import html
 import json
+import uuid
 from typing import Any
 
 from markdown_it import MarkdownIt
@@ -19,6 +20,11 @@ from app.services.academic_context import (
     digest,
 )
 from app.services.ai_service import AIService
+from app.services.generation_outcomes import (
+    TEMPORARY_REASONS,
+    failure_reason,
+    outcome_fields,
+)
 from app.services.source_evidence import evidence_text
 
 REVIEW_MAX_CHARS = 240000
@@ -29,6 +35,9 @@ def review_binding(
 ) -> dict[str, Any]:
     return {
         "policy_version": ACADEMIC_POLICY_VERSION,
+        "profile_sha256": (getattr(job, "request_payload", None) or {}).get(
+            "profile_sha256"
+        ),
         "job_id": getattr(job, "id", None),
         "task_contract_sha256": academic_context(document)["task_contract_sha256"],
         "generation_contract_sha256": (getattr(job, "request_payload", None) or {}).get(
@@ -46,7 +55,8 @@ def outline_problems(outline: Any, keys: set[str]) -> list[str]:
     plan = outline.get("academic_plan") or {}
     if not isinstance(plan, dict):
         return ["Немає дослідницького питання та мети."]
-    problems = list(plan.get("conflicts") or [])
+    problems = list(plan.get("blocking_conflicts") or plan.get("conflicts") or [])
+    problems.extend(outline.get("blocking_conflicts") or [])
     if not str(plan.get("research_question") or "").strip() or not plan.get(
         "objectives"
     ):
@@ -54,6 +64,7 @@ def outline_problems(outline: Any, keys: set[str]) -> list[str]:
     functions: set[str] = set()
     for index, section in enumerate(outline.get("sections") or [], 1):
         functions.update(section.get("academic_functions") or [])
+        problems.extend(section.get("blocking_conflicts") or [])
         evidence = section.get("evidence_keys") or []
         if not evidence or not set(evidence).issubset(keys):
             problems.append(f"Розділ {index}: немає прив'язки до доступних доказів.")
@@ -97,7 +108,7 @@ BRIEF: {json.dumps(academic_context(document), ensure_ascii=False)}
 ADDITIONAL AGREED RUN REQUIREMENTS: {run_requirements or "None"}
 OUTLINE: {json.dumps(document.outline, ensure_ascii=False)}
 ACTUAL SEARCH AND SELECTION RECORD: {json.dumps(method, ensure_ascii=False)}
-AVAILABLE FROZEN EVIDENCE: {pack.prompt_block() if pack else 'MISSING'}
+AVAILABLE FROZEN EVIDENCE: {pack.prompt_block() if pack else "MISSING"}
 <<<REVIEW_INPUT>>>
 {reviewed}
 <<<END_REVIEW_INPUT>>>
@@ -236,10 +247,10 @@ async def run_academic_review(
     usage_tracker: Any = None,
     ai_service: Any = None,
 ) -> dict[str, Any]:
-    """Caller holds the generation lease. One provider attempt per job/kind.
+    """Reuse a bound verdict; retry a transient unchecked result once per worker attempt.
 
-    A crash after the committed started event consumes that attempt. Resume
-    exports an unchecked whole-work artifact; it never silently pays twice.
+    Caller holds the generation lease. The committed start prevents duplicate
+    model calls within an attempt; the job grant bounds subsequent retries.
     """
     event_type = "academic_outline_review" if kind == "outline" else "academic_review"
     binding = review_binding(document, job, pack.sha256() if pack else None, kind=kind)
@@ -265,18 +276,41 @@ async def run_academic_review(
         if e.event_type != "source_pack_preflight"
         and (e.payload or {}).get("binding", {}).get("job_id") == binding["job_id"]
     ]
+    worker_attempt = int(getattr(job, "attempt_count", 0) or 0)
     for event in reversed(prior):
-        if (
-            event.event_type == event_type
-            and (event.payload or {}).get("binding") == binding
-        ):
-            return dict(event.payload)
-    base = {"binding": binding, "kind": kind}
-    if prior:
+        payload = event.payload or {}
+        if event.event_type == event_type and payload.get("binding") == binding:
+            if (
+                payload.get("status") in {"passed", "failed"}
+                or payload.get("reason_code") not in TEMPORARY_REASONS
+                or payload.get("worker_attempt") == worker_attempt
+            ):
+                return dict(payload)
+    attempt_id = uuid.uuid4().hex
+    base = {
+        "binding": binding,
+        "kind": kind,
+        "worker_attempt": worker_attempt,
+        **outcome_fields("review", None, binding, attempt_id),
+    }
+    changed = any((e.payload or {}).get("binding") != binding for e in prior)
+    in_flight = any(
+        e.event_type == event_type + "_started"
+        and (e.payload or {}).get("worker_attempt", 0) == worker_attempt
+        for e in prior
+    )
+    if changed or in_flight:
+        reason_code = (
+            "contract_or_profile_mismatch"
+            if changed
+            else "review_temporarily_unavailable"
+        )
         outcome = {
             **base,
+            **outcome_fields("review", reason_code, binding, attempt_id),
             "status": "unchecked",
-            "reason": "Попередня спроба перервана або вхідні дані змінилися; автоматичного повтору немає.",
+            "outcome": "outcome_unknown",
+            "reason": "Вхід змінився або поточна спроба перервана; потрібне перевірене відновлення.",
         }
         await append_review_event(db, document.id, event_type, outcome)
         return outcome
@@ -294,13 +328,16 @@ async def run_academic_review(
     )
     keys = set(pack.keys()) if pack else set()
     problems = outline_problems(document.outline, keys) if kind == "outline" else []
+    integrity_error = False
     if (
         not pack
         or not pack.sources
         or any(not evidence_text(p.source) for p in pack.sources)
     ):
+        integrity_error = True
         problems.append("Бракує зафіксованих читабельних доказів джерел.")
     if not method.get("retrieval_trace"):
+        integrity_error = True
         problems.append("Немає фактичного запису пошуку для методики огляду.")
     prompt, reviewed = review_prompt(
         document,
@@ -312,16 +349,34 @@ async def run_academic_review(
         ),
     )
     if problems:
-        outcome = {**base, "status": "failed", "reason": " ".join(map(str, problems))}
+        outcome = {
+            **base,
+            **outcome_fields(
+                "review",
+                "checkpoint_integrity_error"
+                if integrity_error
+                else "plan_requirements_unmet",
+                binding,
+                attempt_id,
+            ),
+            "status": "unchecked" if integrity_error else "failed",
+            "outcome": "blocked",
+            "reason": " ".join(map(str, problems)),
+        }
     elif len(prompt) > REVIEW_MAX_CHARS or not reviewed.strip():
         outcome = {
             **base,
             "status": "unchecked",
+            **outcome_fields("review", "review_input_invalid", binding, attempt_id),
+            "outcome": "blocked",
             "reason": "Повний текст перевищує місткість перевірки або відсутній; скорочений текст не перевірявся.",
         }
     else:
         await append_review_event(
-            db, document.id, event_type + "_started", {**base, "status": "pending"}
+            db,
+            document.id,
+            event_type + "_started",
+            {**base, "status": "pending", "outcome": "outcome_unknown"},
         )
         try:
             service = ai_service or AIService(
@@ -343,9 +398,25 @@ async def run_academic_review(
                     response, reviewed, len(document.outline["sections"]), keys
                 ),
             }
+            code = (
+                None
+                if outcome["status"] == "passed"
+                else "source_coverage_gap"
+                if any(not c["supported"] for c in outcome["source_coverage"])
+                else "academic_content_rejected"
+            )
+            outcome.update(outcome_fields("review", code, binding, attempt_id))
+            outcome["outcome"] = outcome["status"]
         except Exception as error:
+            code = (
+                "review_input_invalid"
+                if isinstance(error, ValueError)
+                else failure_reason(error, stage="review")
+            )
             outcome = {
                 **base,
+                **outcome_fields("review", code, binding, attempt_id),
+                "outcome": "outcome_unknown",
                 "status": "unchecked",
                 "reason": f"Академічна перевірка не завершена ({type(error).__name__}).",
             }

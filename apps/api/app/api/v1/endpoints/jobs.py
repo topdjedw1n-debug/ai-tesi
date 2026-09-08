@@ -53,6 +53,9 @@ async def generate_document_async(
             detail="This generation path is disabled; use full-document generation.",
         )
     try:
+        from app.services.generation_pause import require_generation_open
+
+        await require_generation_open(db)
         # Verify document exists and belongs to user
         document_service = DocumentService(db)
         document = await document_service.check_document_ownership(
@@ -88,6 +91,9 @@ async def generate_document_async(
             status="queued",
             check_url=f"/api/v1/jobs/{job.id}/status",
         )
+    except HTTPException:
+        await db.rollback()
+        raise
     except NotFoundError as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
     except Exception as e:
@@ -125,6 +131,27 @@ async def get_document_job_status(
     ).scalar_one_or_none()
     if job is None:
         return None
+    from app.models.document import Document, ProductionCase
+    from app.services.generation_recovery import recovery_state
+
+    document = await db.get(Document, document_id)
+    case = (
+        await db.execute(
+            select(ProductionCase).where(ProductionCase.document_id == document_id)
+        )
+    ).scalar_one_or_none()
+    recovery = await recovery_state(db, document, job, case)
+    from app.services.generation_operations import journal_usage
+
+    confirmed, unknown = await journal_usage(db, document_id, int(job.id))
+    recovery["usage"] = {
+        "confirmed_tokens": max(int(job.total_tokens or 0), confirmed.total_tokens),
+        "recorded_cost_cents": max(
+            int(job.cost_cents or 0), confirmed.cost_usd_cents()
+        ),
+        "unknown_provider_attempts": unknown,
+    }
+
     return JobStatusResponse(
         job_id=int(job.id),
         document_id=document_id,
@@ -132,6 +159,8 @@ async def get_document_job_status(
         progress=int(job.progress or 0),
         error_message=str(job.error_message) if job.error_message else None,
         attempt_count=int(job.attempt_count or 0),
+        max_attempts=int(job.max_attempts or 0),
+        recovery=recovery,
     )
 
 
@@ -160,6 +189,12 @@ async def get_job_status(
                 status_code=status.HTTP_404_NOT_FOUND, detail="Job not found"
             )
 
+        if job.job_type == "full_document" and job.document_id:
+            projected = await get_document_job_status(
+                int(job.document_id), current_user, db
+            )
+            if projected and projected.job_id == job_id:
+                return projected
         return JobStatusResponse(
             job_id=job_id,
             status=str(job.status),

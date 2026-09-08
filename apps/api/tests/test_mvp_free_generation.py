@@ -286,13 +286,17 @@ async def test_free_mode_daily_user_quota_returns_429(
             )
         await session.commit()
 
+    second_document_id = await _make_document(test_user.id, target_pages=10)
     response = await client.post(
-        FULL_DOCUMENT_URL, json={"document_id": document_id}, headers=auth_headers
+        FULL_DOCUMENT_URL,
+        json={"document_id": second_document_id},
+        headers=auth_headers,
     )
 
     assert response.status_code == 429
     # No new job beyond the two seeded ones.
     assert await _job_count(document_id) == 2
+    assert await _job_count(second_document_id) == 0
 
 
 @pytest.mark.asyncio

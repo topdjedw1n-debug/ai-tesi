@@ -9,6 +9,8 @@ from typing import TYPE_CHECKING, Any
 
 from app.core.config import settings
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
+from app.services.generation_operations import recorded_provider_call
+from app.services.generation_outcomes import GenerationStageError
 
 if TYPE_CHECKING:
     from app.services.cost_estimator import UsageTracker
@@ -60,7 +62,7 @@ STYLE_VARIANT_POOL = [0, 2, 3]
 # "words" with no vowels (real Italian/English words virtually always have
 # one). Thresholds are deliberately loose — this must only catch wreckage.
 _ALLOWED_CHAR_RE = re.compile(
-    "[A-Za-zÀ-ÖØ-öø-ÿĀ-ž0-9\\s.,;:!?()\\[\\]'\"«»“”‘’" "—–\\-⟦⟧%€$§/&+*=@#_…·]"
+    "[A-Za-zÀ-ÖØ-öø-ÿĀ-ž0-9\\s.,;:!?()\\[\\]'\"«»“”‘’—–\\-⟦⟧%€$§/&+*=@#_…·]"
 )
 _VOWELS = set("aeiouyàèéìíòóùúäëïöüáâêîôû")
 _GARBLED_CHAR_RATIO = 0.02
@@ -298,7 +300,11 @@ class Humanizer:
             import openai
 
             if not settings.OPENAI_API_KEY:
-                raise ValueError("OpenAI API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "OpenAI API key not configured",
+                    stage="provider",
+                )
 
             client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
 
@@ -321,7 +327,14 @@ class Humanizer:
                 request_kwargs["max_tokens"] = 4000
                 request_kwargs["temperature"] = temperature
 
-            response = await client.chat.completions.create(**request_kwargs)
+            response = await recorded_provider_call(
+                client.chat.completions.create,
+                provider="openai",
+                model=model,
+                request=request_kwargs,
+                usage_tracker=self.usage_tracker,
+                purpose="humanization",
+            )
 
             if self.usage_tracker is not None and response.usage:
                 self.usage_tracker.add(
@@ -343,7 +356,11 @@ class Humanizer:
             import anthropic
 
             if not settings.ANTHROPIC_API_KEY:
-                raise ValueError("Anthropic API key not configured")
+                raise GenerationStageError(
+                    "provider_access_required",
+                    "Anthropic API key not configured",
+                    stage="provider",
+                )
 
             client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
 
@@ -358,8 +375,13 @@ class Humanizer:
             if model.startswith("claude-3"):
                 request_kwargs["temperature"] = temperature
 
-            response = await client.messages.create(  # type: ignore[attr-defined]
-                **request_kwargs
+            response = await recorded_provider_call(
+                client.messages.create,
+                provider="anthropic",
+                model=model,
+                request=request_kwargs,
+                usage_tracker=self.usage_tracker,
+                purpose="humanization",
             )
 
             if self.usage_tracker is not None:

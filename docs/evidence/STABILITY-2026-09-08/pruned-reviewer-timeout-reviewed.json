@@ -1,0 +1,148 @@
+{
+  "id": 11,
+  "started": {
+    "job_id": 11,
+    "status": "queued",
+    "check_url": "/api/v1/jobs/11/status"
+  },
+  "final": {
+    "job_id": 11,
+    "status": "completed",
+    "progress": 100,
+    "document_id": 11,
+    "error_message": null,
+    "attempt_count": 2,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "1d9f8362db7daa1b3c1782ed3706fd7d595025f612f0e9fa3ee39a628594cb12",
+      "attempt_id": "39790dc9-c729-4c5b-a195-1980719d5fdb",
+      "output_reference": "39790dc9-c729-4c5b-a195-1980719d5fdb",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "a0875caa7840c5397ed3b16bac591ff2fc87846444e606745fed9c6e32e6753a",
+      "usage": {
+        "confirmed_tokens": 6000,
+        "recorded_cost_cents": 5,
+        "unknown_provider_attempts": 1
+      }
+    }
+  },
+  "reviews": [
+    {
+      "binding": {
+        "policy_version": "academic-quality-v1",
+        "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+        "job_id": 11,
+        "task_contract_sha256": "5e3884649cc693a9495a8025f2b97542e6532e00cc3de7cea2ddb22a64ca7e7c",
+        "generation_contract_sha256": "7cfffe319d65b6c9df171fac6665a529215b958f91769ec3c11ba2b42a1b7368",
+        "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+        "outline_sha256": "a8f7304e7ed71feda1ada9da6b5c6159a6a558a2d1bdf76f7b613a8a64a1c6cc",
+        "text_sha256": null
+      },
+      "kind": "outline",
+      "worker_attempt": 1,
+      "stage": "review",
+      "reason_code": "review_temporarily_unavailable",
+      "retryability": "automatic",
+      "input_fingerprint": "3477d0aa2d5a1107949b5a1128bf7ce6bd07375c385e036ed1acd031cd71f90f",
+      "attempt_id": "a46c67a3c17a4872a688e6d5c886a6bc",
+      "output_reference": "a46c67a3c17a4872a688e6d5c886a6bc",
+      "outcome": "outcome_unknown",
+      "status": "unchecked",
+      "reason": "Академічна перевірка не завершена (AllProvidersFailedError)."
+    },
+    {
+      "binding": {
+        "policy_version": "academic-quality-v1",
+        "profile_sha256": "824336bf994c4747b3a8de36c2f2783733a577b0ffdc1b7a535c19d3334e73ca",
+        "job_id": 11,
+        "task_contract_sha256": "5e3884649cc693a9495a8025f2b97542e6532e00cc3de7cea2ddb22a64ca7e7c",
+        "generation_contract_sha256": "7cfffe319d65b6c9df171fac6665a529215b958f91769ec3c11ba2b42a1b7368",
+        "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+        "outline_sha256": "a8f7304e7ed71feda1ada9da6b5c6159a6a558a2d1bdf76f7b613a8a64a1c6cc",
+        "text_sha256": null
+      },
+      "kind": "outline",
+      "worker_attempt": 2,
+      "stage": "review",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "3477d0aa2d5a1107949b5a1128bf7ce6bd07375c385e036ed1acd031cd71f90f",
+      "attempt_id": "86127bbd652448a4aea8147805e50cf5",
+      "output_reference": "86127bbd652448a4aea8147805e50cf5",
+      "status": "passed",
+      "functions": {
+        "research_question": {
+          "satisfied": true,
+          "evidence_quote": "Synthetic technical evidence comparison",
+          "reason": "Synthetic technical fixture"
+        },
+        "review_method": {
+          "satisfied": true,
+          "evidence_quote": "Synthetic technical evidence comparison",
+          "reason": "Synthetic technical fixture"
+        },
+        "critical_analysis": {
+          "satisfied": true,
+          "evidence_quote": "Synthetic technical evidence comparison",
+          "reason": "Synthetic technical fixture"
+        },
+        "discussion_limitations": {
+          "satisfied": true,
+          "evidence_quote": "Synthetic technical evidence comparison",
+          "reason": "Synthetic technical fixture"
+        },
+        "conclusion_answer": {
+          "satisfied": true,
+          "evidence_quote": "Synthetic technical evidence comparison",
+          "reason": "Synthetic technical fixture"
+        }
+      },
+      "requirements_satisfied": true,
+      "source_coverage": [
+        {
+          "section_index": 1,
+          "supported": true,
+          "source_keys": [
+            "RossiA2023"
+          ],
+          "reason": "Synthetic technical fixture"
+        },
+        {
+          "section_index": 2,
+          "supported": true,
+          "source_keys": [
+            "RossiA2023"
+          ],
+          "reason": "Synthetic technical fixture"
+        },
+        {
+          "section_index": 3,
+          "supported": true,
+          "source_keys": [
+            "RossiA2023"
+          ],
+          "reason": "Synthetic technical fixture"
+        },
+        {
+          "section_index": 4,
+          "supported": true,
+          "source_keys": [
+            "RossiA2023"
+          ],
+          "reason": "Synthetic technical fixture"
+        }
+      ],
+      "issues": [],
+      "outcome": "passed"
+    }
+  ],
+  "source_builds": 2,
+  "writer_calls": 4,
+  "synthetic": true
+}

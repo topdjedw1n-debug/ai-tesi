@@ -16,6 +16,7 @@ from app.models.document import (
     ProductionCase,
 )
 from app.services.generation_contract import generation_contract_sha256
+from app.services.generation_profile import generation_profile_sha256
 from app.services.generation_worker import (
     GenerationLeaseLostError,
     cancel_active_generation_job,
@@ -66,6 +67,7 @@ async def _seed_cancellable_job(
         attempt_count=0,
         max_attempts=3,
         request_payload={
+            "profile_sha256": generation_profile_sha256(document, int(user.id)),
             "additional_requirements": run_requirements,
             "generation_contract_sha256": generation_contract_sha256(
                 document, production_case, run_requirements

@@ -18,7 +18,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
-from typing import TYPE_CHECKING, Any, Literal
+from typing import TYPE_CHECKING, Any, Literal, cast
 
 from sqlalchemy import and_, case, delete, func, or_, select, update
 from sqlalchemy.exc import IntegrityError
@@ -30,6 +30,7 @@ from app.models.document import (
     AIGenerationJob,
     ArtifactDeletionOutbox,
     Document,
+    DocumentProvenance,
     DocumentSection,
     ProductionCase,
 )
@@ -37,6 +38,8 @@ from app.services.generation_contract import (
     generation_contract_error,
     generation_contract_sha256,
 )
+from app.services.generation_outcomes import failure_reason, outcome_fields
+from app.services.generation_profile import generation_profile_sha256
 from app.services.uploaded_sources import uploaded_sources_digest
 
 if TYPE_CHECKING:
@@ -119,6 +122,11 @@ def _generation_contract_error(
     )
     if stored_contract != expected_contract:
         return "generation contract changed after enqueue"
+    profile = request_payload.get("profile_sha256")
+    if not profile:
+        return "legacy_unknown"
+    if profile != generation_profile_sha256(document, job_user_id):
+        return "contract_or_profile_mismatch"
     if require_running_token and (
         not lease_owner or not lease_token or lease_expires_at is None
     ):
@@ -277,6 +285,17 @@ async def _claim_job(
                 status="failed",
                 success=False,
                 error_message=f"Quarantined generation job: {contract_error}"[:500],
+                request_payload={
+                    **dict(mapping["request_payload"] or {}),
+                    "last_outcome": {
+                        "stage": "claim",
+                        "reason_code": contract_error
+                        if contract_error
+                        in {"legacy_unknown", "contract_or_profile_mismatch"}
+                        else "contract_or_profile_mismatch",
+                        "retryability": "none",
+                    },
+                },
                 completed_at=claim_time,
                 heartbeat_at=claim_time,
                 lease_owner=None,
@@ -853,6 +872,44 @@ async def complete_generation_job(
         return False
     completed_at = now or utc_now()
 
+    # The current view must be truthful: the failure that preceded a resume or
+    # an automatic retry is history (generation_attempt_finished /
+    # generation_resume), not the state of a finished job. A finished internal
+    # artifact whose whole-work review actually failed keeps that verdict; the
+    # release gate still decides separately on the exact DOCX bytes.
+    whole_review = None
+    if job.document_id is not None:
+        whole_review = (
+            await db.execute(
+                select(DocumentProvenance)
+                .where(
+                    DocumentProvenance.document_id == job.document_id,
+                    DocumentProvenance.event_type == "academic_review",
+                )
+                .order_by(DocumentProvenance.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+    whole_payload: Any = (
+        (whole_review.payload or {}) if whole_review is not None else {}
+    )
+    review_failed = (
+        whole_payload.get("status") == "failed"
+        and (whole_payload.get("binding") or {}).get("job_id") == job.id
+    )
+    cast(Any, job).request_payload = {
+        **(job.request_payload or {}),
+        "last_outcome": {
+            **outcome_fields(
+                "review" if review_failed else "export",
+                "academic_content_rejected" if review_failed else None,
+                {"job_id": job_id, "attempt_count": job.attempt_count},
+                str(uuid.uuid4()),
+            ),
+            "outcome": "completed",
+        },
+    }
+
     job.status = "completed"
     job.progress = 100
     job.success = True
@@ -1118,6 +1175,29 @@ async def cancel_active_generation_job(
         .values(status="failed")
     )
     await _revoke_failed_generation_release(db, document_id=document_id)
+    cancelled_job = await db.get(AIGenerationJob, cancelled_id)
+    if cancelled_job:
+        await db.refresh(cancelled_job)
+        cast(Any, cancelled_job).request_payload = {
+            **(cancelled_job.request_payload or {}),
+            "last_outcome": {
+                "stage": "generation",
+                "reason_code": "cancelled_by_user",
+                "retryability": "manual",
+            },
+        }
+        db.add(
+            DocumentProvenance(
+                document_id=document_id,
+                stage="generation",
+                event_type="generation_cancelled",
+                payload={
+                    "job_id": cancelled_id,
+                    "actor": cancelled_by,
+                    "attempt_count": cancelled_job.attempt_count,
+                },
+            )
+        )
     await db.commit()
     logger.info(
         "Cancelled generation job %s for document %s (%s)",
@@ -1155,6 +1235,42 @@ async def reschedule_or_fail_generation_job(
     attempts = int(job.attempt_count or 0)
     max_attempts = int(job.max_attempts or settings.GENERATION_JOB_MAX_ATTEMPTS)
     error_message = str(error)[:500]
+    from app.core.exceptions import CitationIntegrityError, QualityThresholdNotMetError
+
+    code = failure_reason(error)
+    if isinstance(error, CitationIntegrityError | QualityThresholdNotMetError):
+        code = getattr(error, "reason_code", "academic_content_rejected")
+    outcome = {
+        **outcome_fields(
+            getattr(error, "stage", "generation"),
+            code,
+            {"job_id": job_id, "attempt_count": attempts},
+            str(uuid.uuid4()),
+        ),
+        "outcome": "failed" if terminal else "outcome_unknown",
+        "message": error_message,
+    }
+    cast(Any, job).request_payload = {
+        **(job.request_payload or {}),
+        "last_outcome": outcome,
+    }
+    if job.document_id is not None:
+        db.add(
+            DocumentProvenance(
+                document_id=job.document_id,
+                stage="generation",
+                event_type="generation_attempt_finished",
+                payload={
+                    **outcome,
+                    "job_id": job_id,
+                    "attempt_count": attempts,
+                    "max_attempts": max_attempts,
+                    "total_tokens": job.total_tokens,
+                    "cost_cents": job.cost_cents,
+                    "claim_checks_used": job.claim_checks_used,
+                },
+            )
+        )
     should_fail = terminal or attempts >= max_attempts
 
     if should_fail:
@@ -1375,6 +1491,16 @@ async def quarantine_invalid_generation_jobs(
         job.status = "failed"
         job.success = False
         job.error_message = f"Quarantined generation job: {contract_error}"[:500]
+        cast(Any, job).request_payload = {
+            **(job.request_payload or {}),
+            "last_outcome": {
+                "stage": "claim",
+                "reason_code": contract_error
+                if contract_error in {"legacy_unknown", "contract_or_profile_mismatch"}
+                else "contract_or_profile_mismatch",
+                "retryability": "none",
+            },
+        }
         job.completed_at = quarantined_at
         job.heartbeat_at = quarantined_at
         job.lease_owner = None

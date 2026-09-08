@@ -29,6 +29,7 @@ interface ProgressState {
   currentSection?: string;
   estimatedTime?: string;
   error?: string;
+  reasonCode?: string;
 }
 
 export function GenerationProgress({
@@ -72,11 +73,12 @@ export function GenerationProgress({
         }
       } else if (message.type === 'job_failed') {
         const errorMsg = message.error || 'Причину зупинки ще не записано';
-        setProgressState({
+        setProgressState((current) => ({
           status: message.status === 'cancelled' ? 'cancelled' : 'failed',
           progress: message.progress || 0,
           error: errorMsg,
-        });
+          reasonCode: message.recovery?.reason_code ?? current.reasonCode,
+        }));
         if (!terminalNotified.current) {
           terminalNotified.current = true;
           callbacks.current.onError?.(errorMsg);
@@ -134,6 +136,7 @@ export function GenerationProgress({
           progress: number;
           attempt_count: number;
           error_message: string | null;
+          recovery?: { reason_code?: string };
         } | null>(API_ENDPOINTS.JOBS.FOR_DOCUMENT(documentId));
         if (stopped) return;
         setStatusUnavailable(false);
@@ -302,7 +305,7 @@ export function GenerationProgress({
                 Помилка генерації
               </p>
               <p className="mt-1 text-sm text-red-700">
-                {generationStopGuidance(progressState.error)}
+                {generationStopGuidance(progressState.reasonCode)}
               </p>
               <details className="mt-2 text-xs text-red-700">
                 <summary className="cursor-pointer">
