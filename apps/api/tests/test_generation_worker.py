@@ -431,6 +431,50 @@ async def test_cancelling_running_wrapper_requeues_and_keeps_checkpoint(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("wrapped", [False, True])
+async def test_billing_failure_stops_worker_after_first_attempt(
+    monkeypatch, db_session, wrapped
+):
+    import anthropic
+    import httpx
+
+    from app.core.exceptions import AIProviderError
+
+    _, job = await _seed_job(db_session, email=f"billing-{wrapped}@example.com")
+    error = anthropic.BadRequestError(
+        "Your credit balance is too low to access the Anthropic API.",
+        response=httpx.Response(
+            400, request=httpx.Request("POST", "https://provider.invalid/messages")
+        ),
+        body={"error": {"type": "invalid_request_error"}},
+    )
+    if wrapped:
+        cause = error
+        error = AIProviderError("Failed to generate outline")
+        error.__cause__ = cause
+    pipeline = AsyncMock(side_effect=error)
+    monkeypatch.setattr(BackgroundJobService, "generate_full_document", pipeline)
+    monkeypatch.setattr(
+        "app.services.background_jobs.manager.send_progress", AsyncMock()
+    )
+    monkeypatch.setattr(
+        "app.services.background_jobs._clear_generation_checkpoint", AsyncMock()
+    )
+    monkeypatch.setattr(
+        "app.services.background_jobs._send_terminal_failure_notification", AsyncMock()
+    )
+    with pytest.raises(type(error)):
+        await BackgroundJobService.generate_full_document_async(
+            document_id=job.document_id, user_id=job.user_id, job_id=job.id
+        )
+    await db_session.refresh(job)
+    assert job.status == "failed"
+    assert job.attempt_count == 1
+    assert job.lease_token is None
+    pipeline.assert_awaited_once()
+
+
+@pytest.mark.asyncio
 async def test_stale_attempt_cannot_mutate_generation_or_leave_artifact(
     monkeypatch, db_session
 ):

@@ -27,6 +27,29 @@ from PIL import Image, UnidentifiedImageError
 import journal
 
 log = logging.getLogger("thesica.operator_bot")
+
+COMMAND_HELP = (
+    "Вкажи команду й номер роботи:\n/status НОМЕР — стан роботи\n"
+    "/run НОМЕР — переглянути умови запуску\n/works — мої роботи.\n"
+    "Наприклад: /status 123. Ці команди працюють без AI-помічника."
+)
+
+
+def provider_access_guidance(error: str) -> str | None:
+    if re.search(r"credit balance.*too low", error, re.IGNORECASE):
+        return (
+            "Anthropic повідомив про недостатній баланс для AI. Власнику потрібно "
+            "поповнити баланс Anthropic API."
+        )
+    if "insufficient_quota" in error:
+        return "AI-сервіс вичерпав оплачений ліміт. Власнику потрібно перевірити баланс і ліміти API."
+    return None
+
+
+class AssistantUnavailableError(RuntimeError):
+    """Safe provider explanation, without credentials or raw request bodies."""
+
+
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
 Image.MAX_IMAGE_PIXELS = 25_000_000
 
@@ -656,7 +679,10 @@ class Bot:
                         f"Робота №{result['document_id']}, спроба {job_id}: {state}."
                     )
                     if result.get("error"):
-                        answer += "\nПричина: " + result["error"]
+                        reason = (
+                            provider_access_guidance(result["error"]) or result["error"]
+                        )
+                        answer += "\nПричина: " + reason
                     if result["status"] == "completed":
                         answer += "\nПеред видачею потрібні перевірки фінального файла, зокрема Compilatio."
                     answer += f"\nhttps://app.thesica.co/dashboard/documents/{result['document_id']}"
@@ -811,8 +837,22 @@ class Bot:
                 timeout=120,
             )
             if not response.is_success:
-                raise RuntimeError(
-                    f"Assistant provider unavailable ({response.status_code})"
+                try:
+                    data = response.json()
+                    detail = data.get("error", {}) if isinstance(data, dict) else {}
+                    reason = (
+                        str(detail.get("message", ""))
+                        if isinstance(detail, dict)
+                        else ""
+                    )
+                except ValueError:
+                    reason = ""
+                raise AssistantUnavailableError(
+                    (
+                        provider_access_guidance(reason)
+                        or "AI-помічник зараз недоступний."
+                    )
+                    + "\nСписок і стан робіт доступні без AI: /works або /status НОМЕР."
                 )
             data = response.json()
             blocks = data.get("content", [])
@@ -1000,7 +1040,8 @@ class Bot:
                 job = result.get("job") or {}
                 answer = f"Робота №{result['document_id']}: {result['status']}.\nПрогрес: {job.get('progress', 0)}%.\n"
                 if job.get("error"):
-                    answer += f"Причина зупинки: {job['error']}\n"
+                    reason = provider_access_guidance(job["error"]) or job["error"]
+                    answer += f"Причина зупинки: {reason}\n"
                 answer += result["delivery_note"] + "\n" + result["url"]
             elif re.fullmatch(r"/run\s+\d+(?:\s+[\s\S]+)?", question):
                 parts = question.split(maxsplit=2)
@@ -1017,10 +1058,12 @@ class Bot:
                 answer = (
                     "Перевір умови вище. Запуск відбудеться після натискання кнопки."
                 )
+            elif question.startswith("/"):
+                answer = COMMAND_HELP
             else:
                 answer = await self.chat(actor, update_id, question[:8000], picture)
                 self.store.remember(update_id, actor, question, answer)
-        except (GatewayError, ValueError) as exc:
+        except (GatewayError, ValueError, AssistantUnavailableError) as exc:
             answer = str(exc)
             self.store.record(
                 actor,

@@ -61,6 +61,60 @@ def test_private_numeric_identity_only():
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("command", ["/status", "/status abc", "/run", "/unknown"])
+async def test_incomplete_or_unknown_command_never_requires_ai(bot, command):
+    bot.chat = AsyncMock(side_effect=RuntimeError("AI provider is unavailable"))
+    await bot.process(message(text=command))
+    bot.chat.assert_not_awaited()
+    answer = bot.telegram.call.call_args.args[1]["text"]
+    assert "/status НОМЕР" in answer
+    assert "Не вдалося завершити запит" not in answer
+
+
+@pytest.mark.asyncio
+async def test_unfunded_assistant_keeps_clear_command_recovery(bot):
+    bot.client.post.return_value = httpx.Response(
+        400,
+        json={
+            "error": {
+                "type": "invalid_request_error",
+                "message": "Your credit balance is too low to access the Anthropic API.",
+            }
+        },
+    )
+    await bot.process(message(text="Робота знову зупинилася"))
+    answer = bot.telegram.call.call_args.args[1]["text"]
+    assert "баланс" in answer
+    assert "Anthropic" in answer
+    assert "/works" in answer and "/status НОМЕР" in answer
+    assert "Не вдалося завершити запит" not in answer
+    assert bot.client.post.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_status_explains_historical_billing_failure_without_ai(bot):
+    bot.gateway.call.side_effect = [
+        {"user_id": 1},
+        {
+            "document_id": 6,
+            "status": "failed",
+            "job": {
+                "progress": 0,
+                "error": "Error code: 400 - Your credit balance is too low to access the Anthropic API.",
+            },
+            "delivery_note": "DOCX ще немає.",
+            "url": "https://app.thesica.co/dashboard/documents/6",
+        },
+    ]
+    bot.chat = AsyncMock()
+    await bot.process(message(text="/status 6"))
+    answer = bot.telegram.call.call_args.args[1]["text"]
+    assert "баланс" in answer and "Anthropic" in answer
+    assert "Error code: 400" not in answer
+    bot.chat.assert_not_awaited()
+
+
+@pytest.mark.asyncio
 async def test_rejected_actor_never_downloads_or_uses_ai(bot):
     bot.gateway.call.side_effect = GatewayError("not allowed", 403)
     bot.chat = AsyncMock()

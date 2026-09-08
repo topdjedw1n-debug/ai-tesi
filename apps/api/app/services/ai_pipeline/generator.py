@@ -24,6 +24,7 @@ from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.model_response_recovery import (
     IncompleteModelResponse,
     ModelResponseRecovery,
+    is_permanent_provider_error,
     model_output_ceiling,
     section_output_budget,
 )
@@ -93,6 +94,8 @@ async def retry_with_backoff(
             return result
 
         except exceptions as e:
+            if is_permanent_provider_error(e):
+                raise
             last_exception = e
             exception_name = type(e).__name__
 
@@ -739,7 +742,7 @@ class SectionGenerator:
                 await client.close()
 
         except Exception as e:
-            logger.error(f"OpenAI API error (all retries exhausted): {e}")
+            logger.error(f"OpenAI API call failed: {e}")
             raise
 
     async def _call_anthropic(
@@ -823,5 +826,5 @@ class SectionGenerator:
                 await client.close()
 
         except Exception as e:
-            logger.error(f"Anthropic API error (all retries exhausted): {e}")
+            logger.error(f"Anthropic API call failed: {e}")
             raise

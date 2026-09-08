@@ -1,7 +1,32 @@
-"""Keep incomplete provider output out of persisted generation checkpoints."""
+"""Recover incomplete output without retrying permanent provider rejections."""
 
 import re
 from dataclasses import dataclass
+
+from anthropic import APIStatusError as AnthropicStatusError
+from openai import APIStatusError as OpenAIStatusError
+
+
+def is_permanent_provider_error(error: Exception) -> bool:
+    """Follow explicit causes retained by AIService's outline error wrapper."""
+    cause: BaseException | None = error
+    seen: set[int] = set()
+    while cause is not None and id(cause) not in seen:
+        seen.add(id(cause))
+        if isinstance(cause, AnthropicStatusError | OpenAIStatusError):
+            status = cause.status_code
+            if 400 <= status < 500 and status not in {408, 409, 429}:
+                return True
+            body = cause.body
+            if status == 429 and isinstance(body, dict):
+                detail = body.get("error", body)
+                if isinstance(detail, dict) and (
+                    detail.get("code") == "insufficient_quota"
+                    or detail.get("type") == "insufficient_quota"
+                ):
+                    return True
+        cause = cause.__cause__
+    return False
 
 
 def section_output_budget(prompt: str, model: str) -> int:

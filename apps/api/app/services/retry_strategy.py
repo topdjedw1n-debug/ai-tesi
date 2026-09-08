@@ -1,6 +1,7 @@
 """
 Retry strategy with exponential backoff and fallback models
 """
+
 import asyncio
 import functools
 import logging
@@ -8,6 +9,7 @@ from collections.abc import Callable
 from typing import Any, TypeVar
 
 from app.services.circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
+from app.services.model_response_recovery import is_permanent_provider_error
 
 logger = logging.getLogger(__name__)
 
@@ -86,6 +88,8 @@ class RetryStrategy:
                     raise
 
             except Exception as e:
+                if is_permanent_provider_error(e):
+                    raise
                 # Track error for logging
                 last_error = e
 

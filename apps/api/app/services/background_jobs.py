@@ -95,6 +95,7 @@ from app.services.generation_worker import (
 )
 from app.services.grammar_checker import GrammarChecker
 from app.services.grounding_gate import GroundingResult, evaluate_grounding
+from app.services.model_response_recovery import is_permanent_provider_error
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.provenance_service import record_event as _raw_record_provenance
 from app.services.quality_validator import QualityValidator
@@ -3819,7 +3820,7 @@ class BackgroundJobService:
                 await db.rollback()
                 terminal = isinstance(
                     error, CitationIntegrityError | QualityThresholdNotMetError
-                )
+                ) or is_permanent_provider_error(error)
                 decision = await reschedule_or_fail_generation_job(
                     db,
                     job_id=job_id,

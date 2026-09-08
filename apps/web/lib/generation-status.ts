@@ -1,4 +1,10 @@
 export function generationStopGuidance(error: string): string {
+  if (/credit balance.*too low/i.test(error)) {
+    return 'Anthropic повідомив про недостатній баланс для написання. Власнику потрібно поповнити баланс Anthropic API. Після відновлення доступу підтвердьте нову спробу в цій роботі.';
+  }
+  if (/insufficient_quota/i.test(error)) {
+    return 'AI-сервіс вичерпав оплачений ліміт. Власнику потрібно перевірити баланс і ліміти API перед новою спробою.';
+  }
   if (/cancelled|canceled/i.test(error)) {
     return 'Запуск скасовано. Нова спроба потребує повторного перегляду умов.';
   }

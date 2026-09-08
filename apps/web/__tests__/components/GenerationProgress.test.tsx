@@ -1,8 +1,14 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import { GenerationProgress } from '@/components/GenerationProgress'
+import { generationStopGuidance } from '@/lib/generation-status'
 import { useWebSocket } from '@/hooks/useWebSocket'
 import { apiClient } from '@/lib/api'
 
+it('explains a historical provider balance rejection before generic outage guidance', () => {
+  const reason = 'Error code: 400 - Your credit balance is too low to access the Anthropic API.'
+  expect(generationStopGuidance(reason)).toContain('баланс')
+  expect(generationStopGuidance(reason)).toContain('Anthropic')
+})
 jest.mock('@/lib/api', () => ({
   apiClient: { get: jest.fn() },
   API_ENDPOINTS: { JOBS: { FOR_DOCUMENT: (id: number) => `/api/v1/jobs/document/${id}/status` } },
