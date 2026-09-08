@@ -1,0 +1,526 @@
+{
+  "task": "M0-10",
+  "status": "VERIFIED",
+  "date": "2026-09-08",
+  "code_commit": "b85d28b442395269c7ce07d7f65e72d385c87a78",
+  "branch": "codex/generation-retry-guidance",
+  "diagnosis": {
+    "captured_at_utc": "2026-09-08T11:06:45.842627+00:00",
+    "document_id": 5,
+    "case_id": 7,
+    "document_status": "failed",
+    "has_docx": false,
+    "jobs": [
+      {
+        "id": 5,
+        "status": "failed",
+        "started_at": "2026-09-07T14:06:34.898473+00:00",
+        "completed_at": "2026-09-07T14:16:46.697078+00:00",
+        "attempt_count": 3,
+        "claim_checks_used": 50,
+        "error_message": "greenlet_spawn has not been called; can't call await_only() here. Was IO attempted in an unexpected place? (Background on this error at: https://sqlalche.me/e/20/xd2s)"
+      }
+    ],
+    "saved_section_count": 5,
+    "saved_section_words": 5811,
+    "post_release_start_requests": [],
+    "relevant_read_requests_after_release": [
+      {
+        "at_utc": "2026-09-07T17:41:34.183579902Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-07T17:41:34.332176161Z",
+        "method": "GET",
+        "path": "/api/v1/admin/production-cases/7",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-07T17:41:34.496080221Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 404
+      },
+      {
+        "at_utc": "2026-09-07T17:42:05.247024788Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-07T17:42:08.117132249Z",
+        "method": "GET",
+        "path": "/api/v1/admin/production-cases/7",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-08T07:39:06.087024268Z",
+        "method": "GET",
+        "path": "/api/v1/admin/production-cases/7",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-08T07:51:28.337917726Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-08T07:52:10.805399800Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 200
+      },
+      {
+        "at_utc": "2026-09-08T10:41:42.705948282Z",
+        "method": "GET",
+        "path": "/api/v1/documents/5",
+        "status": 200
+      }
+    ],
+    "http_log_sha256": "d10c232429466f4912191d41c6424b64db153a9a03bfd13c3898975ac018672d"
+  },
+  "validation": {
+    "new_regressions_before": {
+      "passed": 13,
+      "failed": 3
+    },
+    "targeted_after": {
+      "passed": 16,
+      "failed": 0
+    },
+    "web": {
+      "suites": 30,
+      "passed": 208,
+      "skipped": 1,
+      "failed": 0
+    },
+    "lint": "PASS",
+    "type_check": "PASS",
+    "production_build": "PASS",
+    "api_tests_rerun": false,
+    "review": {
+      "result": "NO_ISSUES_FOUND",
+      "session_id": "f78511e7-5a96-4dd1-982c-4fc6393985d3",
+      "tools_enabled": false
+    }
+  },
+  "browser": {
+    "before": {
+      "origin": "https://app.thesica.co",
+      "phase": "before",
+      "routes": [
+        {
+          "path": "/dashboard/production-cases/7",
+          "status": 200
+        },
+        {
+          "path": "/dashboard/documents/5",
+          "status": 200
+        }
+      ],
+      "errors": [],
+      "apiErrors": [],
+      "failedRequests": [],
+      "cancelledNavigationRequests": [
+        {
+          "path": "/dashboard/documents/5",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": false,
+          "rsc": true
+        },
+        {
+          "path": "/dashboard/production-cases/7",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": true,
+          "rsc": true
+        }
+      ],
+      "blockedMutations": [],
+      "generationStarted": false,
+      "retryGuidanceVisible": false,
+      "reviewDownloadDisabled": true,
+      "documentPositions": {
+        "retryY": 2732,
+        "sectionsY": 1294,
+        "retryBeforeSavedSections": false
+      },
+      "initialRetryDisabled": true,
+      "oneAcknowledgementStillDisabled": true,
+      "retryEnabledAfterBothAcknowledgements": true,
+      "reloadRequiresAcknowledgementsAgain": true
+    },
+    "candidate": {
+      "origin": "http://localhost:3127",
+      "phase": "candidate",
+      "routes": [
+        {
+          "path": "/dashboard/production-cases/7",
+          "status": 200
+        },
+        {
+          "path": "/dashboard/documents/5",
+          "status": 200
+        }
+      ],
+      "errors": [],
+      "apiErrors": [],
+      "failedRequests": [],
+      "cancelledNavigationRequests": [
+        {
+          "path": "/dashboard/documents/5",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": false,
+          "rsc": true
+        },
+        {
+          "path": "/dashboard/production-cases/7",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": true,
+          "rsc": true
+        }
+      ],
+      "blockedMutations": [],
+      "generationStarted": false,
+      "retryGuidanceVisible": true,
+      "reviewDownloadDisabled": true,
+      "documentPositions": {
+        "retryY": 1330,
+        "sectionsY": 5040,
+        "retryBeforeSavedSections": true
+      },
+      "initialRetryDisabled": true,
+      "oneAcknowledgementStillDisabled": true,
+      "retryEnabledAfterBothAcknowledgements": true,
+      "reloadRequiresAcknowledgementsAgain": true
+    },
+    "initial-live": {
+      "origin": "https://app.thesica.co",
+      "phase": "live",
+      "routes": [
+        {
+          "path": "/dashboard/production-cases/7",
+          "status": 200
+        },
+        {
+          "path": "/dashboard/documents/5",
+          "status": 200
+        }
+      ],
+      "assets": [
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/%5Bid%5D/page-ad7cfe45b821a1ab.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/error-9635e59087969c94.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/global-error-bcfce1f36f836728.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/layout-1c3b9c9966bee956.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/page-a67130ad0d1d19dd.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/page-8aee7130d9d356aa.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/settings/page-40b96bbd0094e100.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/page-79227e1daf6aafbf.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/profile/page-55b78165704921e0.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/%5Bid%5D/page-66f38ebc1a194518.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/global-error-bcfce1f36f836728.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/error-9635e59087969c94.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/layout-1c3b9c9966bee956.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/%5Bid%5D/page-66f38ebc1a194518.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/page-a67130ad0d1d19dd.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/page-8aee7130d9d356aa.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/page-79227e1daf6aafbf.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/settings/page-40b96bbd0094e100.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/profile/page-55b78165704921e0.js",
+          "status": 200
+        }
+      ],
+      "errors": [],
+      "apiErrors": [],
+      "failedRequests": [],
+      "cancelledNavigationRequests": [
+        {
+          "path": "/dashboard/production-cases/7",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": true,
+          "rsc": true
+        }
+      ],
+      "blockedMutations": [],
+      "generationStarted": false,
+      "retryGuidanceVisible": true,
+      "reviewDownloadDisabled": true,
+      "documentPositions": {
+        "retryY": 5184,
+        "sectionsY": 3746,
+        "retryBeforeSavedSections": false
+      },
+      "initialRetryDisabled": true,
+      "oneAcknowledgementStillDisabled": true,
+      "retryEnabledAfterBothAcknowledgements": true,
+      "reloadRequiresAcknowledgementsAgain": true
+    },
+    "live": {
+      "origin": "https://app.thesica.co",
+      "phase": "live",
+      "routes": [
+        {
+          "path": "/dashboard/production-cases/7",
+          "status": 200
+        },
+        {
+          "path": "/dashboard/documents/5",
+          "status": 200
+        }
+      ],
+      "assets": [
+        {
+          "path": "/_next/static/chunks/app/layout-1c3b9c9966bee956.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/error-9635e59087969c94.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/%5Bid%5D/page-ad7cfe45b821a1ab.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/global-error-bcfce1f36f836728.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/page-a67130ad0d1d19dd.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/settings/page-40b96bbd0094e100.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/profile/page-55b78165704921e0.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/page-8aee7130d9d356aa.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/page-79227e1daf6aafbf.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/%5Bid%5D/page-4250c46edbc2b167.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/error-9635e59087969c94.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/global-error-bcfce1f36f836728.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/layout-1c3b9c9966bee956.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/%5Bid%5D/page-4250c46edbc2b167.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/page-a67130ad0d1d19dd.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/documents/page-8aee7130d9d356aa.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/production-cases/page-79227e1daf6aafbf.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/profile/page-55b78165704921e0.js",
+          "status": 200
+        },
+        {
+          "path": "/_next/static/chunks/app/dashboard/settings/page-40b96bbd0094e100.js",
+          "status": 200
+        }
+      ],
+      "errors": [],
+      "apiErrors": [],
+      "failedRequests": [],
+      "cancelledNavigationRequests": [
+        {
+          "path": "/dashboard/documents/5",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": false,
+          "rsc": true
+        },
+        {
+          "path": "/dashboard/production-cases/7",
+          "error": "net::ERR_ABORTED",
+          "resourceType": "fetch",
+          "prefetch": true,
+          "rsc": true
+        }
+      ],
+      "blockedMutations": [],
+      "generationStarted": false,
+      "retryGuidanceVisible": true,
+      "reviewDownloadDisabled": true,
+      "documentPositions": {
+        "retryY": 1296,
+        "sectionsY": 5006,
+        "retryBeforeSavedSections": true
+      },
+      "initialRetryDisabled": true,
+      "oneAcknowledgementStillDisabled": true,
+      "retryEnabledAfterBothAcknowledgements": true,
+      "reloadRequiresAcknowledgementsAgain": true
+    }
+  },
+  "build_discrepancy": {
+    "initial_live_result": "FAIL_RETRY_PANEL_ORDER",
+    "expected_source_sha256": "ec0b2ef78e64ef59ab574449e5642096c670009a7ecd930cba86db3986cf1412",
+    "builder_source_sha256": "852d9475b810a07405b2d9e5719409dfb7167fd1b4eb2bb11edf4a7f400720cf",
+    "both_source_bytes": 12783,
+    "tar_mtime": 0,
+    "recovery": "stream verified tar context to docker build stdin",
+    "premature_marker_recorded": true,
+    "final_marker_gated_on_live_browser_and_state_equality": true
+  },
+  "runtime": {
+    "code_commit": "b85d28b442395269c7ce07d7f65e72d385c87a78",
+    "api_code_commit": "db9f8876a851091bfb34b398a8f29360eea01c61",
+    "web_build_id": "ZTMYgSVHAEdzifGsZ0gNT",
+    "web_image": "sha256:f76b6ec36e9cf8c958319190b4918d450fcd7736fe949506e5cc97fe9647e921",
+    "payload_files_verified": 456,
+    "healthy_services": 6,
+    "only_web_recreated": true,
+    "verified_at_utc": "2026-09-08T11:41:53.730180+00:00",
+    "live_verification": {
+      "verified_at_utc": "2026-09-08T11:41:37.288535+00:00",
+      "browser_passed": true,
+      "retry_before_sections": true,
+      "job5_unchanged": true,
+      "document_sections_provenance_case_unchanged": true,
+      "no_active_jobs": true,
+      "generation_started": false,
+      "browser_sha256": "8334f75a7f14e3a9aa0c120fa1e3240d47636cdee5d71d8b89555c519f9884bc",
+      "before_capture_utc": "2026-09-08T11:06:45.842627+00:00",
+      "after_capture_utc": "2026-09-08T11:40:46.526312+00:00",
+      "snapshots_sha256": {
+        "order-5-before.json": "8b83d7424a3976dfae0fc860217c266c2d9f98e99fc99495bdcc6011388ad4a5",
+        "order-5-final.json": "e54d3f5f0114e89064c516bc6b9f3551fc5494a6ef2e4e9febd89d1bdf79fb70"
+      }
+    },
+    "markers_pending_live_verification": false
+  },
+  "preservation": {
+    "verified_at_utc": "2026-09-08T11:41:37.288535+00:00",
+    "browser_passed": true,
+    "retry_before_sections": true,
+    "job5_unchanged": true,
+    "document_sections_provenance_case_unchanged": true,
+    "no_active_jobs": true,
+    "generation_started": false,
+    "browser_sha256": "8334f75a7f14e3a9aa0c120fa1e3240d47636cdee5d71d8b89555c519f9884bc",
+    "before_capture_utc": "2026-09-08T11:06:45.842627+00:00",
+    "after_capture_utc": "2026-09-08T11:40:46.526312+00:00",
+    "snapshots_sha256": {
+      "order-5-before.json": "8b83d7424a3976dfae0fc860217c266c2d9f98e99fc99495bdcc6011388ad4a5",
+      "order-5-final.json": "e54d3f5f0114e89064c516bc6b9f3551fc5494a6ef2e4e9febd89d1bdf79fb70"
+    }
+  },
+  "release": {
+    "candidate_payload_files": 170,
+    "active_payload_files": 456,
+    "only_web_recreated": true,
+    "other_container_id_image_start_unchanged": true,
+    "database_migrations": false,
+    "env_changes": false,
+    "backup": "/opt/thesica/backups/m0-10-20260908-ui",
+    "postgres_archive_list_passed": true,
+    "full_restore_test_this_task": false,
+    "rollback_web": "ai-thesis-web:rollback-m0-10-20260908"
+  },
+  "evidence_sha256": {
+    "regression-before.log": "c103b1bcd06e8410607dd22f5baa4dcdf9324e716264ef2547dce34390eb5493",
+    "regression-after.log": "237278af301d096f8389beb3e2fb1517b22529d2498261411fbbfca45e40b88e",
+    "web-tests.log": "a2b9e69ea5acc122a01ed5e9f45e307ae0e2711f09b51eb46a0c662ad41090f1",
+    "web-lint.log": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37",
+    "web-types.log": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb",
+    "web-build.log": "0064beab0bb8ed142661840aad8b97779474fc27afb2b47db7843f9d9b5d792d",
+    "production-web-build.log": "5906478ea124fb8c7a91ee30bfe9a5061f6b1451c980bab657c39fa7437a6c35",
+    "builder-inspect-build.log": "c90d175b06ce1b96f4d6d5c3b8bbe8dedd69c863dcf168f07c9b418069328c85",
+    "production-web-rebuild.log": "38389ece8c71d507d75738762dac1ec66350db9dbb5fb6a4ff98789283ec1679",
+    "initial-live-browser.log": "b3bc8787edad35c9a03c7f01b200b4b80795dfad9e471982da17685a8e38c370",
+    "live-browser.log": "1abdf3471ef7e75bd268cfa3b00e4c88c6dcf0b6e53297928952f976c49020bb"
+  },
+  "generation_started": false,
+  "new_docx": false,
+  "M1_accepted": false
+}
