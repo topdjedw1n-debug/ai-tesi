@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "payload_sha256": "950b405b30001280420926f864121d83a710008f335afba820e30e2757eaeaaf",
+  "images": {
+    "api": "sha256:0ba3d7d8f08973e62d731b876ed5f56257b48f1d9c13d39be5d5f2a0deabc472",
+    "web": "sha256:7d7eadb3a0e5b9a1074117f7025850778403e28193a7fb57fdcb0ccb7b9fb1ac"
+  },
+  "runtime_modules_verified": 122,
+  "network": "none",
+  "test_scope": "Exact formatted image: stability,worker,cancel,storage,review-retry,release evidence and all15 previously missing infrastructure-fixture tests. The current native full-suite result is recorded separately.",
+  "web_build_id": "ZGGca1ecH1pPAbI7darNx",
+  "image_tests_log_sha256": "35a7184b6ac2eb9f7b1782808caf4692b0b37884148672c8e17b189fe0f20409"
+}

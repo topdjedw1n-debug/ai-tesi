@@ -1,0 +1,10 @@
+{
+  "approved": true,
+  "implementation_commit": "061e2c31aa2514ffa53c600b49890ef4d1e190a7",
+  "model": "claude-fable-5-1",
+  "review_session": "3b6b4edc-4ca0-401d-b711-0c8ee4780b71",
+  "review_result_sha256": "cb4e3efce3b8343754030a2081e26aae490e764281d1fd3bc6799503a79bfa0c",
+  "primary_verified_all14_committed_blob_hashes": true,
+  "read_only_review_limit": "Optional Bash hash query was denied; Fable reviewed content/manifest and primary independently verified every committed blob.",
+  "approved_at": "2026-09-08T21:43:15.731565+00:00"
+}

@@ -1,0 +1,117 @@
+{
+  "prepared_at": "2026-09-08T21:43:30.764249+00:00",
+  "backup": "/opt/thesica/backups/stability-20260909-control9",
+  "before": {
+    "ai-thesis-api": {
+      "id": "571a8d91d086341cbb5db1f36e9072236c7e3271cf38d5e821b8419f3dd89afa",
+      "image": "sha256:850a4e428e7c9910bbda1ebcd482c1d953e697b9202e5dc09eab0e23088c983e",
+      "tag": "ai-thesis-api",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-web": {
+      "id": "540388b28c7b2e8bfd18785c5edc405f725e47d210139c3ecdf1564f07ef51b8",
+      "image": "sha256:2112a7e8f317c9ad1c2d4af7340a068e12285863d60f71114bb0d41459dd6437",
+      "tag": "ai-thesis-web",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-postgres": {
+      "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+      "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "tag": "postgres:15-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-redis": {
+      "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "tag": "redis:7-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-minio": {
+      "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+      "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "tag": "minio/minio:latest",
+      "health": "healthy",
+      "running": true
+    },
+    "docker-operator-bot-1": {
+      "id": "e00251229ba399749a22cb520d68fd42173af3b6ffe4954018110b58897697df",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "tag": "thesica-operator-bot",
+      "health": "unhealthy",
+      "running": false
+    }
+  },
+  "postgres_restore_passed": true,
+  "files_restore_passed": true,
+  "restored_tables": {
+    "documents": {
+      "rows": 9,
+      "rows_md5": "13b35741beff134dbb3beb3a335491bd"
+    },
+    "ai_generation_jobs": {
+      "rows": 9,
+      "rows_md5": "f9cc2e89993334cc14a02a9588a72c9c"
+    },
+    "document_sections": {
+      "rows": 11,
+      "rows_md5": "26cdd2cd2eae0e785a60f44618c93ea1"
+    },
+    "document_sources": {
+      "rows": 241,
+      "rows_md5": "8919d7415937cbdb1c203cd29568aaf2"
+    },
+    "document_provenance": {
+      "rows": 164,
+      "rows_md5": "81c098bfc4d625a2898d1864c49fb94a"
+    },
+    "production_cases": {
+      "rows": 9,
+      "rows_md5": "cdff7006541ef045a575978154042e27"
+    }
+  },
+  "objects": {
+    "count": 2,
+    "manifest_sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747",
+    "total_bytes": 222522
+  },
+  "rollback_tags": {
+    "ai-thesis-api": "ai-thesis-api:rollback-stability-20260909-control9",
+    "ai-thesis-web": "ai-thesis-web:rollback-stability-20260909-control9"
+  },
+  "off_host_copy_verified": false,
+  "rpo_rto": "Not established; no numerical claim. This proof covers same-host restore only.",
+  "files": {
+    "minio-data.tar.gz": {
+      "bytes": 209793,
+      "sha256": "6711e37c23b8a72d13816233eaaecd29953deb2bd7564a4ffc0684d90d3f6b6d"
+    },
+    "postgres.dump": {
+      "bytes": 409091,
+      "sha256": "75d30b952e6de9a91755f5c63460216b1026db14fae68004980e8b4ee521cd6a"
+    },
+    ".release-sha": {
+      "bytes": 41,
+      "sha256": "704e07a349b04d373fefe681176f94bf3fc7d317330266440dac1b85541c8f7c"
+    },
+    "source.tar.gz": {
+      "bytes": 10496006,
+      "sha256": "6c31055fd2b73e7105a64e38e68440c69bace8a7e39244c192cf07acfa2198dd"
+    },
+    "object-sha256.json": {
+      "bytes": 375,
+      "sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747"
+    },
+    "private-config.tar.gz": {
+      "bytes": 5834,
+      "sha256": "111761a11aff39d159c05c9f323bd161af59efe21a8b0d7f63436886db01f4cd"
+    },
+    ".release.json": {
+      "bytes": 58895,
+      "sha256": "c86f48e53170b6cbaf8302c5f860831f13e10490fa42d8253739a8be698f0e73"
+    }
+  }
+}
