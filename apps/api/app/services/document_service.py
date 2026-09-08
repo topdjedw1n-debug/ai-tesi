@@ -27,17 +27,20 @@ from app.services.ai_pipeline.citation_formatter import (
     merge_bibliographies,
 )
 from app.services.ai_pipeline.citation_keys import internal_marker_keys
+from app.services.docx_export import (
+    DEFAULT_DOCX_PROFILE,
+    append_markdown,
+    apply_academic_profile,
+    assemble_section,
+)
 from app.services.release_policy import REPORT_EVENT
-from app.services.task_contract import DEFAULT_WORK_TYPE
 
 logger = logging.getLogger(__name__)
 
 
 def _requires_sitography(document: Document) -> bool:
-    """The neutral Italian master's-thesis contract promises this section."""
-    language = str(document.language or "").strip().lower()
-    work_type = str(document.work_type or DEFAULT_WORK_TYPE).strip().lower()
-    return language.startswith("it") and work_type == "tesi_magistrale"
+    """Only explicit requirements can require a separate sitography."""
+    return "sitografia" in str(document.additional_requirements or "").casefold()
 
 
 class DocumentService:
@@ -925,49 +928,30 @@ class DocumentService:
                 docx.core_properties.created = exported_at
                 docx.core_properties.modified = exported_at
 
-                # Add title
+                apply_academic_profile(docx)
                 docx.add_heading(document.title, 0)
 
-                # Add content if available
                 if document.content:
-                    # Render "# ..." blocks (section titles and the
-                    # Bibliografia heading appended at assembly) as real
-                    # headings, everything else as body paragraphs
-                    for block in document.content.split("\n\n"):
-                        stripped = block.strip()
-                        if not stripped:
-                            continue
-                        if stripped.startswith("# "):
-                            docx.add_heading(stripped[2:].strip(), 1)
-                        else:
-                            docx.add_paragraph(stripped)
+                    append_markdown(docx, str(document.content))
                 elif document.sections:
-                    # Add sections
                     sorted_sections = sorted(
                         document.sections, key=lambda s: s.section_index
                     )
                     for section in sorted_sections:
-                        docx.add_heading(section.title, 1)
-                        if section.content:
-                            docx.add_paragraph(section.content)
-                        docx.add_paragraph("")  # Empty line between sections
-
-                    # Bibliography from persisted per-section references
+                        append_markdown(
+                            docx, assemble_section(section.title, section.content)
+                        )
                     section_bibliography = merge_bibliographies(
                         s.bibliography for s in sorted_sections
                     )
                     if section_bibliography:
-                        docx.add_heading(
-                            bibliography_heading(str(document.language)), 1
+                        append_markdown(
+                            docx,
+                            "# "
+                            + bibliography_heading(str(document.language))
+                            + "\n\n"
+                            + "\n\n".join(section_bibliography),
                         )
-                        for reference in section_bibliography:
-                            docx.add_paragraph(reference)
-
-                if _requires_sitography(document) and not any(
-                    paragraph.text.strip().casefold() == "sitografia"
-                    for paragraph in docx.paragraphs
-                ):
-                    docx.add_heading("Sitografia", 1)
 
                 # Save to BytesIO
                 file_stream = io.BytesIO()
@@ -1102,17 +1086,6 @@ class DocumentService:
                                 Paragraph(escape_pdf_text(reference), body_style)
                             )
 
-                content_headings = {
-                    block.strip()[2:].strip().casefold()
-                    for block in str(document.content or "").split("\n\n")
-                    if block.strip().startswith("# ")
-                }
-                if (
-                    _requires_sitography(document)
-                    and "sitografia" not in content_headings
-                ):
-                    elements.append(Paragraph("Sitografia", heading_style))
-
                 # Build PDF
                 logger.info(f"Generating PDF document for doc_id={document_id}")
                 pdf.build(elements)
@@ -1185,6 +1158,15 @@ class DocumentService:
                 "format": format,
                 "artifact_sha256": artifact_sha256,
                 "storage_path": storage_path,
+                "formatting_profile": (
+                    DEFAULT_DOCX_PROFILE if format == "docx" else None
+                ),
+                "formatting_warnings": (
+                    ["Required sitography must contain actual web-source entries."]
+                    if _requires_sitography(document)
+                    and "sitografia" not in export_text.casefold()
+                    else []
+                ),
             }
 
         except NotFoundError:

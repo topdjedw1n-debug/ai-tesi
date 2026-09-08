@@ -347,7 +347,7 @@ async def test_export_docx_renders_bibliografia_heading(db_session):
     headings = [p.text for p in docx.paragraphs if p.style.name.startswith("Heading")]
     assert "Introduzione" in headings
     assert "Bibliografia" in headings
-    assert "Sitografia" in headings
+    assert "Sitografia" not in headings
     body_text = "\n".join(p.text for p in docx.paragraphs)
     assert "Topic:" not in body_text
     assert "Language:" not in body_text

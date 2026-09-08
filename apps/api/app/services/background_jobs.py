@@ -74,6 +74,7 @@ from app.services.db_helpers import (
     safe_scalars_all as _safe_scalars_all,
 )
 from app.services.document_service import DocumentService
+from app.services.docx_export import assemble_section
 from app.services.generation_worker import (
     GenerationLeaseLostError,
     claim_generation_job_by_id,
@@ -3405,7 +3406,7 @@ class BackgroundJobService:
                 )
                 final_content = "\n\n".join(
                     [
-                        f"# {section.title}\n\n{section.content}"
+                        assemble_section(section.title, section.content)
                         for section in sorted(
                             completed_sections, key=lambda s: s.section_index
                         )
