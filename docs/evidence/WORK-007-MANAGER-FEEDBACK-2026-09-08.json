@@ -1,0 +1,98 @@
+{
+  "record": "WORK-007-MANAGER-FEEDBACK-2026-09-08",
+  "status": "DIAGNOSED / IMPLEMENTATION PENDING",
+  "recorded_at_utc": "2026-09-08T13:17:16.741776+00:00",
+  "feedback": {
+    "text": "Не виглядає як магістерська. Нема методології, не бачу рісорчу/дискусії, дуже мало джерел, заключення ні про що. Робота описового типу, тобто це скоріше бакалавр.",
+    "source": "Manager feedback screenshot forwarded by founder in current conversation",
+    "screenshot_sha256": "b21ca0558ffb1b1421bcf0fb8666dcdbc7c9c8560f767b98b78aedaa1db67ae6",
+    "document_id_visible_in_screenshot": false,
+    "document7_association": "Inferred from current conversation; no other artifact supplied",
+    "formal_manager_review_written_to_application": false
+  },
+  "document": {
+    "id": 7,
+    "case_id": 9,
+    "job_id": 7,
+    "work_type": "tesi_magistrale",
+    "target_pages": 18,
+    "artifact_sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+    "live_snapshot_at_utc": "2026-09-08T13:10:44.201386+00:00",
+    "stored_generation_status": "completed",
+    "sections": 6,
+    "bibliography_entries": 16,
+    "source_pack_verified_count": 24
+  },
+  "content_findings": {
+    "review_method_described": false,
+    "research_question_explicit": false,
+    "standalone_discussion_in_outline": false,
+    "introduction_outline_promised_methodology": true,
+    "conclusions_assessment": "Predominantly thematic summary, no clear answer to a defined review question or limitations of its evidence base",
+    "manager_source_quantity_complaint": "16 bibliography entries confirmed; no agreed numeric minimum was found, so adequacy is not decided by count alone",
+    "approved_structure_constraint": "Four fixed chapters and a prohibition on writing a different outline; level and research-method requirements must be reconciled with this constraint"
+  },
+  "offline_probe": {
+    "observed_work_type": "tesi_magistrale",
+    "uploaded_requirements_present": true,
+    "structure_directive_master": null,
+    "structure_directive_bachelor": null,
+    "grounded_outline_prompts_identical": true,
+    "section_prompts_identical": true,
+    "outline_prompt_sha256": "c205cb93993b761328d1a4d3dc15b50b901718982cc79bf793b2a91111e975c1",
+    "section_prompt_sha256": "ab9708d563e1e99508a463faa95581acfaffeda85fba5a84f40802b4342a82ef",
+    "ai_calls": 0,
+    "source_block_is_synthetic_for_offline_probe": true
+  },
+  "render": {
+    "renderer": "Packaged render_docx.py with workspace LibreOffice runtime",
+    "pages": 16,
+    "expected_pages": 18,
+    "last_page_only_sitografia_heading": true,
+    "visually_inspected_pages": [
+      1,
+      2,
+      13,
+      14,
+      15,
+      16
+    ],
+    "all_pages_visually_accepted": false,
+    "word_application_page_count_verified": false,
+    "duplicate_h1_pairs": 6,
+    "literal_markdown_heading_paragraphs": 14,
+    "inline_markdown_visible": true,
+    "html_entity_amp_visible": true,
+    "pdf_sha256": "8b4a7c698b79450f6904a97e3deee2d35622072c5cf5c182592b5cfd840a8068"
+  },
+  "code_evidence": {
+    "apps/api/app/services/task_contract.py": "f989fa019588f57e5c8c9432d8f7ff9c6944c5c98710c358a2d64e35b95e94aa",
+    "apps/api/app/services/ai_service.py": "d368c240b9b43baff284802debcafc380b895c14d17762cb9640044ed6e4a427",
+    "apps/api/app/services/ai_pipeline/prompt_builder.py": "66b8ebc8006f49e4d6155ac51c88b782d425fbea169dd74f48cd396ed7cfe4e6",
+    "apps/api/app/services/outline_validation.py": "73fd9934abcce30cce2116c314e235434956929e466f60a0293cca4994b57de6",
+    "apps/api/app/services/quality_validator.py": "af44ad8e1cf0d185d7e1cc3f05fe969cb6b5df115d3e5fd938a196c9f7f6cb44",
+    "apps/api/app/services/document_service.py": "7e28c2feb463d6dd14c43e8e05bbfa7518372991671a53e3b6d9373826bbe2bf",
+    "apps/api/app/services/background_jobs.py": "bb5ad269b306b7f8be0efd40812344a87ab05dfb49e2b869fbe543059e055d8d"
+  },
+  "next_tasks": [
+    {
+      "id": "M1-Q01",
+      "status": "DIAGNOSED / TODO",
+      "action": "Carry academic level independently of uploaded requirements through outline, writing and review; reconcile fixed chapter structure with review method, critical synthesis, discussion and question-linked conclusions. Use actual retrieval trace, improve evidence coverage, and evaluate the whole work."
+    },
+    {
+      "id": "M0-12",
+      "status": "DIAGNOSED / TODO",
+      "action": "Correct DOCX export duplicate headings, literal Markdown, HTML entities and empty sitography; render and verify final page count without altering the current accepted artifact history."
+    }
+  ],
+  "scope": {
+    "production_mutations": false,
+    "paid_ai_calls": 0,
+    "document_rewritten": false,
+    "code_changed": false,
+    "deployment": false,
+    "manager_contacted": false,
+    "formal_release_state_changed": false
+  }
+}
