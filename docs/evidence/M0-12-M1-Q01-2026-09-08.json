@@ -1,0 +1,369 @@
+{
+  "recorded_at_utc": "2026-09-08T15:17:00.169369+00:00",
+  "scope": [
+    "M0-12",
+    "M1-Q01"
+  ],
+  "status": {
+    "implementation": "DELIVERED_VERIFIED",
+    "M0_12_formatting": "VERIFIED",
+    "M1_Q01_new_thesis_acceptance": "PENDING_CONTROL_RUN",
+    "M0_overall": "OPEN",
+    "M1_overall": "OPEN",
+    "M1_Q02": "SEPARATE_PENDING_SCOPE"
+  },
+  "commits": {
+    "m0_12": "141836bdeedc9bb8311dd1824c3e271bebfee27b",
+    "m1_q01": "37bf2c5960fc96680d4878bea6b6eccda5ba5d97",
+    "final_runtime": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9"
+  },
+  "runtime": {
+    "commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "api_code_commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "web_code_commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "bot_code_commit": "7249e50ad7778d72888dbdef75d633359e41de4e",
+    "branch": "codex/docx-academic-quality",
+    "deployed_at_utc": "2026-09-08T15:09:28.422382+00:00",
+    "verified_at_utc": "2026-09-08T15:11:08.179938+00:00",
+    "images": {
+      "ai-thesis-api": "sha256:8efb8f707187126a3dda085995e83f9e51bd9cb9a7fbf43253ae669865959d22",
+      "ai-thesis-minio": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "ai-thesis-postgres": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "ai-thesis-redis": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "ai-thesis-web": "sha256:f2eda8ffa63063a65e59e8e45023138d55a3a7f09e6c7354a0f10e0dc461da71",
+      "docker-operator-bot-1": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9"
+    },
+    "web_build_id": "Hosbhy7YMw-q0Upbemu4D",
+    "healthy_services": 6,
+    "restart_counts": {
+      "ai-thesis-api": 0,
+      "ai-thesis-minio": 0,
+      "ai-thesis-postgres": 0,
+      "ai-thesis-redis": 0,
+      "ai-thesis-web": 0,
+      "docker-operator-bot-1": 0
+    },
+    "runtime_source_files_verified": 116,
+    "server_payload_files_verified": 467,
+    "release_marker_files": 473,
+    "backing_services_recreated": false,
+    "bot_recreated": false,
+    "migrations": false,
+    "environment_changes": false,
+    "release_markers_finalized_after_live_checks": true,
+    "live_verification": {
+      "passed": true,
+      "verified_at_utc": "2026-09-08T15:11:02.419010+00:00",
+      "browser_passed": true,
+      "bot_canary_passed": true,
+      "production_image_tests_passed": 1296,
+      "historical_document_ids": [
+        5,
+        6,
+        7
+      ],
+      "historical_documents_jobs_sections_cases_unchanged": true,
+      "historical_existing_provenance_unchanged": true,
+      "no_active_jobs": true,
+      "generation_started": false,
+      "audited_internal_download_requests": 1,
+      "artifact_sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+      "academic_gate_visible_and_non_overrideable": true,
+      "proof_sha256": {
+        "live-browser.json": "94d761471458550d3dcc6d8b6238ce1adec545e632bef40ea51d257c43734933",
+        "bot-canary.json": "fd7e7f7b7906ecf53cd4adae42d1b9902fb1a90429b6d9be853853e419c37da9",
+        "docx-integrity.json": "fee7261ca18cd0b0d4281992ad93363a80cbd91121cc5a6b8a0e5dd8ee1d523c",
+        "image-verification.json": "4795bf9e1e0ecfbfc70754ca640c39849891b4bfaeaa576929e727aef363d7eb",
+        "image-tests.log": "606fb8310bc4a738a21cf8fdcfc63dea163ca62160d44a1cd098338a654ef6eb",
+        "image-fixture-retest.log": "b4c9c7c54687ddac4053c089e2a1bdb02c8582f7309ec4d9eeafe48145673479"
+      }
+    }
+  },
+  "backup": {
+    "prepared_at_utc": "2026-09-08T14:54:19.494096+00:00",
+    "backup": "/opt/thesica/backups/m0-12-q01-20260908",
+    "rollback_tags": {
+      "ai-thesis-api": "ai-thesis-api:rollback-m0-12-q01-20260908",
+      "ai-thesis-web": "ai-thesis-web:rollback-m0-12-q01-20260908"
+    },
+    "postgres_restore_passed": true,
+    "restored_counts": {
+      "documents": 7,
+      "jobs": 7,
+      "document6": "failed"
+    },
+    "bot_changed": false,
+    "payload_files_verified": 464,
+    "files": {
+      "minio-data.tar.gz": {
+        "bytes": 211989,
+        "sha256": "181b5f551170cbe45a9cb9818c9184d06fb2fdc31b11bf636cc11160ee0074c4"
+      },
+      "postgres.dump": {
+        "bytes": 340108,
+        "sha256": "842a05398a39f718a19ff3127b0d53dc44ba6b480108d6146ccd3f816eb05b75"
+      },
+      ".release-sha": {
+        "bytes": 41,
+        "sha256": "e9ff5995d4802ed0181f8459510c323265168ce0b29d509727d254176e5223aa"
+      },
+      "source.tar.gz": {
+        "bytes": 10437123,
+        "sha256": "12ffb86229d13f9713a86493b98501db8637bc5dc635efb8a6a05d1418e712cc"
+      },
+      "private-config.tar.gz": {
+        "bytes": 5357,
+        "sha256": "1aa611b6e6da1462fdc8e5427dbf8dea876ef687c9a2daac980fa613b23d2cae"
+      },
+      ".release.json": {
+        "bytes": 57089,
+        "sha256": "fab64bc334d7e6289dbf4641a06c8a4de1749cb49dea11d7f67189faf9554f48"
+      }
+    }
+  },
+  "tests": {
+    "api_local": {
+      "passed": 1296,
+      "skipped": 10
+    },
+    "web": {
+      "passed": 209,
+      "skipped": 1,
+      "suites": 30,
+      "type_check": "passed",
+      "lint": "passed",
+      "production_build": "passed"
+    },
+    "mypy": {
+      "baseline_errors": 351,
+      "candidate_errors": 351,
+      "new_errors": 0,
+      "overall": "NOT_GREEN_EXISTING_DEBT"
+    },
+    "api_image": {
+      "passed": true,
+      "commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+      "image_id": "sha256:8efb8f707187126a3dda085995e83f9e51bd9cb9a7fbf43253ae669865959d22",
+      "unique_tests_passed": 1296,
+      "skipped": 10,
+      "primary_run": {
+        "passed": 1293,
+        "failed": 3,
+        "cause": "Test fixture mount omitted committed migration SQL files; application image contains them."
+      },
+      "retest": {
+        "passed": 3,
+        "failed": 0,
+        "failed_test_ids": [
+          "FAILED ../verify/apps/api/tests/test_gdpr_deletion.py::test_gdpr_deletion_marker_migration_guards_new_and_reactivated_jobs",
+          "FAILED ../verify/apps/api/tests/test_generation_job_single_owner.py::test_postgres_migration_creates_matching_partial_unique_index",
+          "FAILED ../verify/apps/api/tests/test_generation_job_single_owner.py::test_fencing_migration_adds_token_quarantine_and_section_uniqueness"
+        ]
+      },
+      "runtime_modules_verified_from_built_image": 111,
+      "network": "none",
+      "code_changed_after_review": false,
+      "logs_sha256": {
+        "image-tests.log": "606fb8310bc4a738a21cf8fdcfc63dea163ca62160d44a1cd098338a654ef6eb",
+        "image-fixture-retest.log": "b4c9c7c54687ddac4053c089e2a1bdb02c8582f7309ec4d9eeafe48145673479"
+      }
+    },
+    "log_sha256": {
+      "api-full-final-runtime.txt": "82594701b7e60b619e0fd1a5ea99fefcef1698e52aa6f56998b123050e928755",
+      "web-tests-with-retry.txt": "3a1bcef96ccd8df6418fcb646ab7520ea116135e042b9f1ddaac756a192a5c1c",
+      "web-types-with-retry.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "web-lint-final.txt": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37",
+      "mypy-base.txt": "51950667e160e5b85d0b93cfa0b39b60f32ab9ed5549e2f5028ad79d2284d15f",
+      "mypy-final-runtime.txt": "001f5db05cd61fbaf159f60b763e9c7eb9f581bb0f860ca395d3c9b9e1528f62",
+      "image-tests.log": "606fb8310bc4a738a21cf8fdcfc63dea163ca62160d44a1cd098338a654ef6eb",
+      "image-fixture-retest.log": "b4c9c7c54687ddac4053c089e2a1bdb02c8582f7309ec4d9eeafe48145673479",
+      "build-api.log": "3a4e3a04af92f08c55e23c7795090964c6c183b94535bd2f0e94d375c2d15e41",
+      "build-web.log": "924ab24b127f91a8ea69e80c61d7ef92d37dd6b084dbf5f0d3b62c4fc616a443",
+      "fable-r2-regressions-final.txt": "88843d9225f214d0eb23ce8599e01a029953c18e0299e85599b0d6e4b8741466"
+    }
+  },
+  "formatting": {
+    "profile": {
+      "version": "academic-docx-v1",
+      "basis": "system_default",
+      "page_size": "A4",
+      "font": "Times New Roman",
+      "font_size_pt": 12,
+      "line_spacing": 1.5,
+      "margins_cm": 2.5
+    },
+    "render": {
+      "all_17_pages_visually_inspected": true,
+      "final_commit_render_pixel_identical_to_inspected_render": true,
+      "pages": 17,
+      "requested_pages": 18,
+      "production_order_7_mutated": false,
+      "docx_sha256": "27fe3a772683dd20725112ae98358d8ee2b4b3801798bf078c7b8fbd04eb7376",
+      "page_sha256": {
+        "page-1.png": "184b7c11e4009ff3f6ea22aa64f0a7da6f109691fb9626523c5311ffa30057d7",
+        "page-10.png": "b31ebc12547c2795b0fb7bf99812bd4687db17414ef4ae277f180acca073cedd",
+        "page-11.png": "05393a47d34185d065c5ec18c39d716ed7d53e2a759cbf1dfe9e30a4b8bd8c69",
+        "page-12.png": "18aadb640b38d8b79a528ec05c16228ebf0344dd25281e6bb8d4d5128036763c",
+        "page-13.png": "a6e3e80fb53e89313c5aeb361844b9b1a833564245c7def317bd7dfe736f20d0",
+        "page-14.png": "21ae698fea67c6e359b973c5c4ce08ad686cf5d58cbdd658e7217b5ac3fe35e3",
+        "page-15.png": "e5ce2d1cd03e213126dfb428d141abeca1cdb5bf25f6dea98b9ba2b9c92581c2",
+        "page-16.png": "ea1b637df14306c047acd1f44caa2f00371e775b1856c20d417dd183a617b25b",
+        "page-17.png": "4b6e0803ca24d69d7fdfa2192eb5b2a2c3a9a631ae3d4fd80b7d4e1dd3eb2940",
+        "page-2.png": "140b438d364a505337ce812612ab77b3f1844f66efdc0fe072eeb6cc6382b045",
+        "page-3.png": "5ece6beb60609fc4fc2bc4f35acffaed69c264b6e53221d64a198a24cf2e5248",
+        "page-4.png": "839f0f12a9428eaea5bda356a173881f8f9c54265b912025e2284eba9253c2df",
+        "page-5.png": "8142e3c534928ab8e8b4041f2ac84bbaba668c5956c7ae9399e751586be06b1a",
+        "page-6.png": "6eb2f328b5166292512a7b3c382f3b6c1060780d29847446d99175ea389ce5b8",
+        "page-7.png": "d2c05a6e01c33f15f7e7ac19e45406d783818b72607ec66fa13c77063a8486cb",
+        "page-8.png": "2f1ab89f0bdf0b6e99dc73b8d80b271ff87033bda16aca0d3ae7e76beec84c0b",
+        "page-9.png": "b6096058bb51828f7a5f3daa13f851f60e96a5127c5ae01978e1d9a43b8ca07a"
+      }
+    },
+    "comparison": "Offline export of preserved work 7 text; no production export or rewrite; 17 rendered pages, target 18. This proves formatting, not new academic content acceptance."
+  },
+  "reviews": [
+    {
+      "stage": "plan_initial",
+      "model": "claude-fable-5-1",
+      "session_id": "af5d6a03-1863-45fc-bf47-669dc584f7d5",
+      "verdict": "CHANGES_REQUIRED",
+      "raw_result_sha256": "34b83e9a94b869531596a4d057bcc8446d82196d69b483606b2e85a95070cce1"
+    },
+    {
+      "stage": "plan_revised",
+      "model": "claude-fable-5-1",
+      "session_id": "3c981b07-f06b-4ace-b139-55dc32d44c44",
+      "verdict": "APPROVE",
+      "raw_result_sha256": "4c951c12a0129126b2baf94841dea5db20a7f84f4a970604a18eba1c8ad77220"
+    },
+    {
+      "stage": "implementation_r1",
+      "model": "claude-fable-5-1",
+      "session_id": "537688e9-3632-4c24-a4ae-f79fcbf60d65",
+      "verdict": "CHANGES_REQUIRED",
+      "raw_result_sha256": "a652157ad398f880a789622a98069625f15f5e62deba6fcba8369c34fcf4f228"
+    },
+    {
+      "stage": "implementation_r2",
+      "model": "claude-fable-5-1",
+      "session_id": "25ba231c-ea5d-499e-b5de-1ab6c933728f",
+      "verdict": "CHANGES_REQUIRED",
+      "raw_result_sha256": "f6563a6b7627abaeeb19b679f145d456221c02caf55afe9b7c477c238f750b84"
+    },
+    {
+      "stage": "implementation_r3",
+      "model": "claude-fable-5-1",
+      "session_id": "546d4a2e-5adf-402e-a924-f8bfc0b8f6ca",
+      "verdict": "APPROVE",
+      "raw_result_sha256": "1efaf930b78247aae593b7605f494b12082dbd973726b23b832a6add878b896c"
+    }
+  ],
+  "review_result": {
+    "approved": true,
+    "implementation_commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "model": "claude-fable-5-1",
+    "session_id": "546d4a2e-5adf-402e-a924-f8bfc0b8f6ca",
+    "scope": "R1 full implementation + R2 fixes + R3 final delta; production acceptance excluded",
+    "review": "**Вердикт: APPROVE.** Усі чотири пункти з попереднього рев'ю закриті саме в цьому delta, регресія 36/36 зелена.\n\n**Блокер закритий.** У `freeze_evidence` тепер, коли лексичний відбір нічого не знаходить, беруться реальні сторінки PDF у порядку номерів, а не порожній список. Це ті самі два випадки, що я описував: італійська тема з англійським посібником більше не викидає обов'язковий файл із пакета. Кожен доказ позначений полем вибору, тож у provenance видно, чи це збіг за словами, чи запасний порядок сторінок. Тест з італійським запитом прямо перевіряє, що всі пасажі мають нульовий бал, і при цьому доказ заморожений зі сторінками 1 і 42 з позначкою fallback. Перевірка, що писар і верифікатор бачать один і той самий текст, збережена для обох гілок.\n\n**Три тестові прогалини закриті.**\n- **Витіснення спроби.** Мок під час платного виклику дописує старт спроби C. Для спроби B лишаються лише старт і подія відхилення, жодного опублікованого рецензування. Точно те, що я просив.\n- **Протермінована спроба.** Старт зсунуто на 3 хвилини назад. Replay старого ID дає `unchecked` без виклику AI, новий ID приймається з одним платним викликом.\n- **Оператор-власник.** Не-адмін зі списку операторів отримує 200 на власну справу, 404 на чужу, 403 після видалення зі списку. Платний виклик один.\n\n**Неблокуюче, лише для протоколу.** У запасному режимі в доказ потрапляє і титульна сторінка, а ліміт у два пасажі не застосовується. Обидва наслідки видимі через поле вибору в origins, тому це не приховує стан. Це не підстава затримувати delta.\n\nЦе затвердження стосується лише переглянутого коду й тестів, не приймання в проді."
+  },
+  "control_draft": {
+    "document_id": 8,
+    "case_id": 10,
+    "source_document_id": 7,
+    "runtime_commit": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9",
+    "status": "draft",
+    "same_input_fields": [
+      "title",
+      "topic",
+      "language",
+      "target_pages",
+      "citation_style",
+      "work_type",
+      "ai_provider",
+      "ai_model",
+      "additional_requirements"
+    ],
+    "document_requirements_sha256": "cb270bdb2c34a9a7008a394882fcc49978beb2fe0b4a757175f48d36ab3858e7",
+    "contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+    "contract_confirmed": true,
+    "generation_started": false,
+    "paid_generation_calls": 0,
+    "run_requirements": null,
+    "steps": [
+      "created",
+      "exact_requirements_uploaded",
+      "case_created",
+      "contract_confirmed",
+      "inputs_verified"
+    ],
+    "database_inputs_verified": true,
+    "new_job_count": 0,
+    "uploaded_source_file_count": 0,
+    "case_requirements_identical": true
+  },
+  "preservation_before_our_docs": {
+    "main_head_unchanged": true,
+    "main_index_unchanged": true,
+    "preexisting_files": 680,
+    "changes_before_our_canon_updates": [
+      "docs/README.md",
+      "docs/AGENT_SYNC.md",
+      "docs/plans/M1-Q02-MODEL-BENCHMARK.md",
+      "THESICA-PLAN.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/plans/NEXT-SESSION-M0-12-M1-Q01.md",
+      "docs/phase1-runs/HUMANIZATION-RESEARCH.md"
+    ]
+  },
+  "limits": [
+    "No new production AI generation was started.",
+    "No new Compilatio or human content/no-rewrite acceptance exists.",
+    "Source evidence is bounded to 2400 characters; lexical PDF selection uses at most two passages per file, zero-match fallback uses page order and may include cover text. Origins disclose the selection.",
+    "Whole review validates supplied evidence and exact current artifact bindings; it does not establish detector acceptance.",
+    "Separate numbered Word lists may continue numbering; explicit restart is outside this patch.",
+    "M1-Q02 and Humanize documents were updated concurrently by other work; their text is preserved."
+  ],
+  "preservation_final": {
+    "main_head_unchanged": true,
+    "main_index_unchanged": true,
+    "preexisting_files": 680,
+    "outside_our_docs_and_preexisting_parallel_doc_changes_unchanged": true,
+    "parallel_content_around_our_bounded_edits_preserved": true,
+    "our_main_docs": [
+      "THESICA-PLAN.md",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/phase1-runs/SHORT-001.md",
+      "docs/plans/NEXT-SESSION-M0-12-M1-Q01.md",
+      "docs/setup/TANYA_FIRST_RUN.md"
+    ],
+    "parallel_docs_seen_before_our_edits": [
+      "THESICA-PLAN.md",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/phase1-runs/HUMANIZATION-RESEARCH.md",
+      "docs/plans/M1-Q02-MODEL-BENCHMARK.md",
+      "docs/plans/NEXT-SESSION-M0-12-M1-Q01.md"
+    ],
+    "main_doc_sha256": {
+      "docs/AGENT_SYNC.md": "a1074469e4ce136e8ddbf3cdc914e4d523165384282794eba9adc5c6af6c2571",
+      "docs/phase1-runs/SHORT-001.md": "3d236bfdda6a6b1c538d6690e6de6eb3e5bb56a1f144a46df8c3326759ae7d0e",
+      "docs/plans/NEXT-SESSION-M0-12-M1-Q01.md": "12c82416173e62eee479aedb62bdf6618fc0b7bcb6b8ba62da6774cc9a60e261",
+      "THESICA-PLAN.md": "d0c4d9765c61eba0ad660c0955fe0c10d71695ec68bdd306930402bddb6fc2f0",
+      "docs/PRE-RUN-001-TASKS.md": "5d47371831f02055c616d98df003610eee7c299bb6c5c73f04e18e894b9c94bf",
+      "docs/setup/TANYA_FIRST_RUN.md": "12eaaa1acbf2c7dc20fc297f1c939869e898215fcc42a090612863244fb18b8b",
+      "docs/README.md": "4115c53f04b560b19660a481a143dc78e7e86c5a4f7c9f40a4442f195308f02a"
+    }
+  },
+  "control_draft_browser": {
+    "passed": true,
+    "document_id": 8,
+    "status": 200,
+    "confirmation_button_visible": true,
+    "generation_started": false,
+    "errors": [],
+    "mutations": []
+  }
+}
