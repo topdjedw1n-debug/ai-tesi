@@ -219,7 +219,50 @@
         "page-9.png": "b6096058bb51828f7a5f3daa13f851f60e96a5127c5ae01978e1d9a43b8ca07a"
       }
     },
-    "comparison": "Offline export of preserved work 7 text; no production export or rewrite; 17 rendered pages, target 18. This proves formatting, not new academic content acceptance."
+    "comparison": "Offline export of preserved work 7 text; no production export or rewrite; 17 rendered pages, target 18. This proves formatting, not new academic content acceptance.",
+    "full_artifact_content_preservation": {
+      "original_docx_sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+      "offline_docx_sha256": "27fe3a772683dd20725112ae98358d8ee2b4b3801798bf078c7b8fbd04eb7376",
+      "original_paragraphs": 106,
+      "offline_paragraphs": 99,
+      "normalized_visible_text_identical": true,
+      "allowed_removals": [
+        {
+          "kind": "adjacent_duplicate",
+          "index": 2,
+          "sha256": "bed8e30cf3398a8e8b708629d64d8dbbfa005b0f89d7823bc7b8c5de8510a2aa"
+        },
+        {
+          "kind": "adjacent_duplicate",
+          "index": 9,
+          "sha256": "23f328074b6033d13faff238c78c3b1dd7f769fe0db108ebab8963836a1e715b"
+        },
+        {
+          "kind": "adjacent_duplicate",
+          "index": 27,
+          "sha256": "4e3e8eaa281e92ee796f6f13976430415f34bdc466066a31b77ef834c26b20c2"
+        },
+        {
+          "kind": "adjacent_duplicate",
+          "index": 44,
+          "sha256": "08b059fdf0c1240c92568a62b9d0d2cd8990b862f8a774ccfa55cace33c74c17"
+        },
+        {
+          "kind": "adjacent_duplicate",
+          "index": 63,
+          "sha256": "ebc792a704682c9b1c083e682e286dce705926552c8c66d4268129692f69d47e"
+        },
+        {
+          "kind": "adjacent_duplicate",
+          "index": 82,
+          "sha256": "2507a4fdd8b7c27858d2dd128b1030b97e9eef7d53080fa63499ebb6fb0afeed"
+        },
+        {
+          "kind": "empty_sitography",
+          "index": 105
+        }
+      ]
+    }
   },
   "reviews": [
     {
@@ -365,5 +408,206 @@
     "generation_started": false,
     "errors": [],
     "mutations": []
+  },
+  "completion_audit": {
+    "checked_at_utc": "2026-09-08T15:26:19.484157+00:00",
+    "goal_complete": false,
+    "previous_goal_turn": "PROGRESS: implementation, review, release, live verification and new draft completed",
+    "this_goal_turn": "PROGRESS: independently verified full artifact text preservation and mapped completion evidence",
+    "remaining_blocker": "Explicit confirmation for paid work 8 generation; thereafter same-artifact manager/Compilatio acceptance",
+    "items": [
+      {
+        "item": "1",
+        "requirement": "Read current canon and preserve dirty main checkout",
+        "status": "VERIFIED",
+        "evidence": "preservation_final; main HEAD/index unchanged; current source worktree clean and upstream equals 8bb4e07"
+      },
+      {
+        "item": "2",
+        "requirement": "Preserve historical works and exact work 7 input/artifact baseline",
+        "status": "VERIFIED",
+        "evidence": "runtime.live_verification; control_draft.database_inputs_verified; original DOCX SHA 8aac4b62...faf0b"
+      },
+      {
+        "item": "3.1",
+        "requirement": "Regression fixture and private original DOCX",
+        "status": "VERIFIED",
+        "evidence": "test_docx_formatting_regression.py; stored original SHA"
+      },
+      {
+        "item": "3.2",
+        "requirement": "Single idempotent leading-title normalization",
+        "status": "VERIFIED",
+        "evidence": "assemble_section; regression; six exact title hashes removed from real work 7"
+      },
+      {
+        "item": "3.3",
+        "requirement": "Word heading/emphasis/list elements, all visible text retained",
+        "status": "VERIFIED",
+        "evidence": "append_markdown; regression; 17 inspected pages; full normalized artifact text equality"
+      },
+      {
+        "item": "3.4",
+        "requirement": "Bibliography HTML entity decoding without changing sources or DOI",
+        "status": "VERIFIED",
+        "evidence": "citation_formatter.format_reference; entity regression; full normalized artifact text equality"
+      },
+      {
+        "item": "3.5",
+        "requirement": "No empty Sitografia; explicit missing requirement warning",
+        "status": "VERIFIED",
+        "evidence": "document_service._requires_sitography; regression; exactly one empty final heading removed from work 7"
+      },
+      {
+        "item": "3.6",
+        "requirement": "Explicit formatting profile for the actual work requirements",
+        "status": "VERIFIED",
+        "evidence": "formatting.profile; work 7 has no font/margin/spacing specification; A4/TNR12/1.5/2.5cm verified"
+      },
+      {
+        "item": "3.7",
+        "requirement": "Render and inspect all actual pages",
+        "status": "VERIFIED",
+        "evidence": "formatting.render; 17 pages, not the requested 18; no new content acceptance"
+      },
+      {
+        "item": "4.1",
+        "requirement": "Academic level, constraints and immutable contracts reach planner/writer/reviewer",
+        "status": "VERIFIED_IMPLEMENTATION",
+        "evidence": "academic_context.py; test_brief_reaches_outline_writer_and_preserves_contract_inputs; existing task-contract tests; Fable code review"
+      },
+      {
+        "item": "4.2",
+        "requirement": "Fixed chapter structure, research functions and actual retrieval trace",
+        "status": "VERIFIED_IMPLEMENTATION",
+        "evidence": "outline_problems; semantic outline review before writer; academic_quality_pipeline tests; source-pack retrieval_trace; Fable review"
+      },
+      {
+        "item": "4.3",
+        "requirement": "Readable shared evidence, supported-claim gate, full prior analysis context",
+        "status": "VERIFIED_IMPLEMENTATION",
+        "evidence": "test_preflight_enriches_same_identity_and_excludes_no_evidence; shared evidence hash checks; real PDF page selection and cross-language fallback tests; previous_analysis bounded to 120k chars"
+      },
+      {
+        "item": "4.4",
+        "requirement": "Whole-work checks with durable evidence and non-overrideable exact-artifact release gate",
+        "status": "VERIFIED_IMPLEMENTATION",
+        "evidence": "test_incomplete_or_invented_review_cannot_pass; review/retry durability and ownership tests; live work 7 no_data blocks release; exact-file release/download tests"
+      },
+      {
+        "item": "4.acceptance",
+        "requirement": "Actual descriptive negative sample and valid literature review judged correctly by real reviewer",
+        "status": "NOT_YET_PROVEN",
+        "evidence": "Tests validate contracts and controlled reviewer responses; real model semantic accuracy is not proved by mocks or Fable code approval. New production run remains pending."
+      },
+      {
+        "item": "4.5.parallel",
+        "requirement": "M1-Q02 model experiment added to main plan by parallel work",
+        "status": "NOT_RUN_SEPARATE_PENDING",
+        "evidence": "No five-model API smoke/30 answers/complete DOCX experiment was performed in this implementation; scope question was presented separately."
+      },
+      {
+        "item": "5",
+        "requirement": "Relevant full checks and actual built-image verification",
+        "status": "VERIFIED_WITH_RECORDED_LIMITS",
+        "evidence": "1296 API PASS/10 SKIP; 209 web PASS/1 SKIP; type/lint/build PASS; 1296 unique image PASS after correcting fixture mount; unchanged mypy debt 351 errors"
+      },
+      {
+        "item": "6.1",
+        "requirement": "Fresh live runtime hashes/health and zero active jobs before activation",
+        "status": "VERIFIED",
+        "evidence": "activation.active_jobs_at_activation=0; 116 runtime source hashes; 6 healthy containers"
+      },
+      {
+        "item": "6.2",
+        "requirement": "Backup, restore and rollback preparation",
+        "status": "VERIFIED",
+        "evidence": "backup.postgres_restore_passed; code/config/MinIO archives; API/web rollback images"
+      },
+      {
+        "item": "6.3",
+        "requirement": "Build exact committed payload via tar stream",
+        "status": "VERIFIED",
+        "evidence": "runtime.commit=067e90c; payload manifest; build logs; source hashes inside image"
+      },
+      {
+        "item": "6.4",
+        "requirement": "Recreate only needed services using existing Compose overlay",
+        "status": "VERIFIED",
+        "evidence": "activation; API/web changed, backing services and bot IDs unchanged"
+      },
+      {
+        "item": "6.5",
+        "requirement": "Live routes/download/gates/runtime health",
+        "status": "VERIFIED",
+        "evidence": "runtime.live_verification; UI screenshots inspected; DOCX hash unchanged; bot read-only canary"
+      },
+      {
+        "item": "6.6",
+        "requirement": "Finalize release markers after successful dependent live checks",
+        "status": "VERIFIED",
+        "evidence": "runtime.release_markers_finalized_after_live_checks=true"
+      },
+      {
+        "item": "7.prepare",
+        "requirement": "New exact-input control draft without mutating work 7",
+        "status": "VERIFIED",
+        "evidence": "work 8/case 10; same contract hash; API+DB equality; current job_count=0 and status=draft"
+      },
+      {
+        "item": "7.start",
+        "requirement": "Explicit production-start confirmation for work 8",
+        "status": "AWAITING_USER_CONFIRMATION",
+        "evidence": "No start approval received; normal confirmation button visible; no active job handle exists"
+      },
+      {
+        "item": "7.generate",
+        "requirement": "Completed new job and exact final DOCX with model/version/attempts/cost",
+        "status": "NOT_STARTED",
+        "evidence": "Current database: work 8 draft; zero jobs; no DOCX"
+      },
+      {
+        "item": "7.compare",
+        "requirement": "Agent audit of new full DOCX against work 7 using same quality rubric",
+        "status": "PENDING_NEW_ARTIFACT",
+        "evidence": "No new generated artifact exists"
+      },
+      {
+        "item": "7.accept",
+        "requirement": "Compilatio similarity <=10%, AI <=10%, human content/pages/no-rewrite on same final DOCX",
+        "status": "PENDING_NEW_ARTIFACT_AND_MANAGER",
+        "evidence": "Historical work 7 results 3%/47% cannot satisfy acceptance of work 8"
+      },
+      {
+        "item": "8.1",
+        "requirement": "Evidence MD and JSON with review/test/render/backup/runtime boundaries",
+        "status": "VERIFIED",
+        "evidence": "docs/evidence/M0-12-M1-Q01-2026-09-08.md and .json"
+      },
+      {
+        "item": "8.2",
+        "requirement": "Current canonical docs and Tanya instructions updated surgically",
+        "status": "VERIFIED",
+        "evidence": "preservation_final.our_main_docs; PRE-RUN and TANYA main-only to avoid committing unrelated untracked documentation"
+      },
+      {
+        "item": "8.3",
+        "requirement": "Separate implementation/deployment/generation/acceptance states",
+        "status": "VERIFIED",
+        "evidence": "status and this audit; M0/M1 overall still OPEN"
+      },
+      {
+        "item": "8.4",
+        "requirement": "Preserve main HEAD/index and historical work; no private outputs committed",
+        "status": "VERIFIED",
+        "evidence": "preservation_final; runtime.live_verification; clean isolated branch"
+      },
+      {
+        "item": "8.5",
+        "requirement": "Concise founder report with concrete next action",
+        "status": "VERIFIED",
+        "evidence": "Prior final report and explicit request to start work 8; this continuation adds artifact-content evidence"
+      }
+    ]
   }
 }
