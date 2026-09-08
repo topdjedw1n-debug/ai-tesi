@@ -158,10 +158,10 @@
   },
   "private_evidence_hashes": {
     "control-launch.json": "1a6d59132010a9cae1fcb7c214c2b168f29b27bfa45b06c0203981c9369755f7",
-    "control-latest.json": "227509cfc257f75d25f5bb01ad5cd6ea5fea1d67fd23b1a01c7601508be441b4",
     "control-final-sources.json": "93df953ea3ae06a434b501aa77bf281935e7f4a8a784a09f59bd018b58d2a94f",
     "historical-after-control.json": "3edba172759c86dadd1a443570dc17b3161f9e6fc1ae171e60637e9bb84d85c8",
-    "control-failed-browser.json": "4b9456f08ffbf02aff7a6687faad10c8d4c90787a62153c7418773ade8d3ac45"
+    "control-failed-browser.json": "4b9456f08ffbf02aff7a6687faad10c8d4c90787a62153c7418773ade8d3ac45",
+    "control-terminal.json": "94cbf0a6052f01b3ec83ffc0bcd38d9002a43c019af6feb3551554f44f15364d"
   },
   "workspace_preservation": {
     "checked_at_utc": "2026-09-08T15:53:15.873068+00:00",
