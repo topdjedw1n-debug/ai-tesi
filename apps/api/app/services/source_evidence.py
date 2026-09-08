@@ -46,10 +46,15 @@ def freeze_evidence(
             }
         )
     selected = [p for p in passages if p.citation_key == citation_key]
+    selection = "provided_order"
     if uploaded:
         from app.services.uploaded_sources import select_passages
 
-        selected = select_passages(selected, query or source.title)
+        relevant = select_passages(selected, query or source.title)
+        # Token matching cannot align different languages. Keep actual page
+        # text when it finds nothing, instead of silently dropping the file.
+        selection = "lexical_relevance" if relevant else "page_order_fallback"
+        selected = relevant or sorted(selected, key=lambda p: p.page_number)
     for passage in selected:
         if passage.citation_key != citation_key:
             continue
@@ -59,6 +64,7 @@ def freeze_evidence(
                 "kind": "uploaded_excerpt",
                 "source_file_id": passage.source_file_id,
                 "page_number": passage.page_number,
+                "selection": selection,
                 "text_sha256": hashlib.sha256(passage.text.encode()).hexdigest(),
             }
         )

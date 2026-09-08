@@ -1,5 +1,6 @@
 """Review-only remediation: explicit calls, idempotency, staleness and spend."""
 
+from datetime import UTC, datetime, timedelta
 from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 
@@ -7,7 +8,9 @@ import pytest
 from fastapi import HTTPException
 from sqlalchemy import select
 
+from app.core.config import settings
 from app.core.database import AsyncSessionLocal
+from app.models.auth import User
 from app.models.document import AIGenerationJob, Document, DocumentProvenance
 from app.services.academic_review import review_binding
 from app.services.academic_review_retry import RETRY_STARTED, retry_academic_review
@@ -226,3 +229,131 @@ async def test_timeout_replay_does_not_pay_again_but_new_explicit_id_can_retry(c
             db, case["id"], str(uuid4()), admin.id, ai_service=ai
         )
         assert second["status"] == "passed" and ai.call_with_fallback.await_count == 2
+
+
+@pytest.mark.asyncio
+async def test_superseded_attempt_cannot_publish_a_review(client):
+    admin, doc, case, _ = await seed(client)
+    attempt_b, attempt_c = str(uuid4()), str(uuid4())
+
+    async def replace_attempt(*args, **kwargs):
+        async with AsyncSessionLocal() as other:
+            started = (
+                await other.execute(
+                    select(DocumentProvenance).where(
+                        DocumentProvenance.document_id == doc.id,
+                        DocumentProvenance.event_type == RETRY_STARTED,
+                    )
+                )
+            ).scalar_one()
+            other.add(
+                DocumentProvenance(
+                    document_id=doc.id,
+                    stage="quality",
+                    event_type=RETRY_STARTED,
+                    payload={**started.payload, "attempt_id": attempt_c},
+                )
+            )
+            await other.commit()
+        return verdict()
+
+    ai = MagicMock()
+    ai.call_with_fallback = AsyncMock(side_effect=replace_attempt)
+    async with AsyncSessionLocal() as db:
+        result = await retry_academic_review(
+            db, case["id"], attempt_b, admin.id, ai_service=ai
+        )
+        assert result["status"] == "unchecked"
+        events = (
+            (
+                await db.execute(
+                    select(DocumentProvenance).where(
+                        DocumentProvenance.document_id == doc.id,
+                    )
+                )
+            )
+            .scalars()
+            .all()
+        )
+        published = [e for e in events if e.payload.get("attempt_id") == attempt_b]
+        assert [e.event_type for e in published] == [
+            RETRY_STARTED,
+            "academic_review_retry_discarded",
+        ]
+
+
+@pytest.mark.asyncio
+async def test_expired_start_replays_free_and_allows_new_explicit_attempt(client):
+    admin, doc, case, _ = await seed(client)
+    expired_id = str(uuid4())
+    async with AsyncSessionLocal() as db:
+        previous = (
+            await db.execute(
+                select(DocumentProvenance)
+                .where(
+                    DocumentProvenance.document_id == doc.id,
+                    DocumentProvenance.event_type == "academic_review",
+                )
+                .order_by(DocumentProvenance.id.desc())
+                .limit(1)
+            )
+        ).scalar_one()
+        db.add(
+            DocumentProvenance(
+                document_id=doc.id,
+                stage="quality",
+                event_type=RETRY_STARTED,
+                created_at=datetime.now(UTC) - timedelta(minutes=3),
+                payload={
+                    **previous.payload,
+                    "status": "pending",
+                    "attempt_id": expired_id,
+                },
+            )
+        )
+        await db.commit()
+        ai = MagicMock()
+        ai.call_with_fallback = AsyncMock(return_value=verdict())
+        replay = await retry_academic_review(
+            db, case["id"], expired_id, admin.id, ai_service=ai
+        )
+        assert replay["status"] == "unchecked"
+        ai.call_with_fallback.assert_not_awaited()
+        result = await retry_academic_review(
+            db, case["id"], str(uuid4()), admin.id, ai_service=ai
+        )
+        assert result["status"] == "passed"
+        assert ai.call_with_fallback.await_count == 1
+
+
+@pytest.mark.asyncio
+async def test_operator_can_retry_only_own_work_and_only_while_configured(
+    client, monkeypatch
+):
+    owner, _, own_case, _ = await seed(client)
+    _, _, foreign_case, _ = await seed(client)
+    async with AsyncSessionLocal() as db:
+        user = await db.get(User, owner.id)
+        user.is_admin = False
+        user.is_super_admin = False
+        await db.commit()
+    monkeypatch.setattr(settings, "PRODUCTION_OPERATOR_USER_IDS", [owner.id])
+    call = AsyncMock(return_value=verdict())
+    monkeypatch.setattr(
+        "app.services.academic_review_retry.AIService.call_with_fallback", call
+    )
+
+    async def request(case):
+        return await client.post(
+            f"/api/v1/admin/production-cases/{case['id']}/academic-review/retry",
+            json={"attempt_id": str(uuid4())},
+            headers=fixtures._auth_headers(owner),
+        )
+
+    own = await request(own_case)
+    assert own.status_code == 200, own.text
+    assert own.json()["status"] == "passed"
+    assert (await request(foreign_case)).status_code == 404
+    monkeypatch.setattr(settings, "PRODUCTION_OPERATOR_USER_IDS", [])
+    assert (await request(own_case)).status_code == 403
+    assert call.await_count == 1

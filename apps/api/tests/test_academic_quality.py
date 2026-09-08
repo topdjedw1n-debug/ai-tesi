@@ -420,8 +420,12 @@ def test_review_quote_matches_visible_markdown_and_normalized_whitespace():
     assert validate_review(result, source, 4, {"Author2024"})["status"] == "passed"
 
 
-def test_uploaded_evidence_selects_relevant_later_pages_not_cover():
-    from app.services.uploaded_sources import SourcePassage
+@pytest.mark.parametrize(
+    "query",
+    ["neonatal nursing thermoregulation", "assistenza infermieristica neonatale"],
+)
+def test_uploaded_evidence_uses_relevance_or_explicit_cross_language_fallback(query):
+    from app.services.uploaded_sources import SourcePassage, score_passage
 
     source = SourceDoc(
         "Uploaded textbook",
@@ -440,13 +444,15 @@ def test_uploaded_evidence_selects_relevant_later_pages_not_cover():
             "Neonatal nursing thermoregulation evidence compares skin temperature outcomes.",
         ),
     ]
-    assert freeze_evidence(
-        source, passages, "Author2024", query="neonatal nursing thermoregulation"
-    )
+    assert freeze_evidence(source, passages, "Author2024", query=query)
     assert "thermoregulation" in evidence_text(source)
-    assert "Title page" not in evidence_text(source)
-    assert (
-        source.canonical_metadata["academic_evidence"]["origins"][0]["page_number"]
-        == 42
-    )
+    origins = source.canonical_metadata["academic_evidence"]["origins"]
+    if query.startswith("neonatal"):
+        assert "Title page" not in evidence_text(source)
+        assert origins[0]["page_number"] == 42
+        assert origins[0]["selection"] == "lexical_relevance"
+    else:
+        assert all(score_passage(query, p.text) == 0 for p in passages)
+        assert [p["page_number"] for p in origins] == [1, 42]
+        assert all(p["selection"] == "page_order_fallback" for p in origins)
     assert _source_abstract(source) == evidence_text(source)
