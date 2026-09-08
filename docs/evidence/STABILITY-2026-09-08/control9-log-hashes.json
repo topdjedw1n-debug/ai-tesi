@@ -1,0 +1,32 @@
+{
+  "control9-web-types.txt": {
+    "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "archived_sha256": "01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  },
+  "control9-web-all-tests.txt": {
+    "raw_sha256": "f914fce421419fe4ea0ecf324e55e1cded3d6afe84eb42c399d277e6d2c3a21a",
+    "archived_sha256": "f914fce421419fe4ea0ecf324e55e1cded3d6afe84eb42c399d277e6d2c3a21a",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  },
+  "control9-web-build.txt": {
+    "raw_sha256": "b57f7c6957916787591b9ae34129419bec251628594faeb8c0d0ecbf09fefa92",
+    "archived_sha256": "2d192890e07ad3eeb6c6b12c134742618c29e8447c4dee51417876c69ff43eac",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  },
+  "control9-api-full.txt": {
+    "raw_sha256": "e5a2745e0d967a1cf71bd7aaf8f5caac1ea7ff85542a675199ab0608a285d3ec",
+    "archived_sha256": "c7285994f13095ce7304c475dce602761681b560e0cf33d28c922f8efab36f23",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  },
+  "control9-web-lint.txt": {
+    "raw_sha256": "9f6ac1417a1fb3d8c8d6551b62726b54a8545079ed74fe6eb00db0cac12b57bc",
+    "archived_sha256": "9f6ac1417a1fb3d8c8d6551b62726b54a8545079ed74fe6eb00db0cac12b57bc",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  },
+  "control9-ruff-final.txt": {
+    "raw_sha256": "3143d271a56c27524b8f856489c72c2c131953f6fd684fe28ab386550cfdc359",
+    "archived_sha256": "3143d271a56c27524b8f856489c72c2c131953f6fd684fe28ab386550cfdc359",
+    "normalization": "trailing whitespace and terminal carriage returns only"
+  }
+}

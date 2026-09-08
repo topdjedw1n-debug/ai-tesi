@@ -1,0 +1,19 @@
+{
+  "base": "189aba72ba11d73cad4a30e5203da44ea0261bd0",
+  "files": {
+    "apps/api/app/api/v1/endpoints/jobs.py": "fe35d03cd9391f82ac531c323284e0b7fdadfb3df7b0df01a434def58670dc4b",
+    "apps/api/app/schemas/document.py": "51004b5035d882daaa04738959ba21b4431718d0e9b7e4221736c97a57930a4f",
+    "apps/api/app/services/ai_service.py": "a6deac43146a4433d22732965853f06e76e17a8ee3488521443b1e4871497033",
+    "apps/api/app/services/background_jobs.py": "6fc4adaa6cfce49ffeca585eed26e9ef064d1606e0ba019145587027f7521448",
+    "apps/api/app/services/generation_operations.py": "e9c0fdc6b2c0d49ea5456f2fed9f429dd4628cc983e2009818ecf363bf23d421",
+    "apps/api/app/services/generation_outcomes.py": "ab82c8c52ca47b3969d64794f12631fedc7c6a334338d12f5d976ebd23704fb3",
+    "apps/api/app/services/model_response_recovery.py": "9abc05ddcb8a3c1f22bd45880479a267d1615e176b976975f0131799980ef3be",
+    "apps/api/app/services/plan_preparation.py": "b93cf6bfc7906298569df3deeb2b776e39c72b268d7206f852abdaf760e698d1",
+    "apps/api/app/services/retry_strategy.py": "1a9be53773824d0a740b6703389c326cb1ae081db0a4110beac559484ec3c364",
+    "apps/api/tests/test_job_operational_status.py": "526abf5497ebe89510027e378e2b41cedbc1f1c9c8a30b515f36416bd2585e17",
+    "apps/api/tests/test_stability_plan_budget.py": "0f21f3f6a9f28021759d9e44a029f38486f51af72d3bc935a04e8692f4aef662",
+    "apps/api/tests/test_stability_preparation_postgres.py": "4dbe0ab9f408ca278a58a23ea42162a585157fa6da5a6f4332d10d228b6ba589",
+    "apps/web/__tests__/components/GenerationProgress.test.tsx": "b7a1d80586cb196d5b4b2269f93ba178192f363a7777f138afb3c81c56d8f5e3",
+    "apps/web/components/GenerationProgress.tsx": "98e425bd7b74770773d692de56fd351123478b5871026c74393fa736f48cd895"
+  }
+}

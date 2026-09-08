@@ -1,0 +1,101 @@
+{
+  "synthetic": true,
+  "mode": "preparation_exhaustion",
+  "id": 21,
+  "start": {
+    "job_id": 21,
+    "status": "queued",
+    "check_url": "/api/v1/jobs/21/status"
+  },
+  "final": {
+    "job_id": 21,
+    "status": "failed",
+    "progress": 0,
+    "document_id": 21,
+    "error_message": "All AI providers failed for academic_plan_preparation. Tried 1 provider(s). Last error: IncompleteModelResponse",
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "preparation",
+      "reason_code": "review_input_invalid",
+      "retryability": "none",
+      "input_fingerprint": "dd0a6ffbc7313d99ad19058cece98491de06ef4ba3ededa040b9e9935e67ef12",
+      "attempt_id": "9f1aebb0-1949-4879-ae5e-d21a2e1a46ed",
+      "output_reference": "9f1aebb0-1949-4879-ae5e-d21a2e1a46ed",
+      "outcome": "failed",
+      "message": "All AI providers failed for academic_plan_preparation. Tried 1 provider(s). Last error: IncompleteModelResponse",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "a4a0725ad93093a9590181ae2e64cb3fcc6029dc69820f8ce1398ae831560334",
+      "usage": {
+        "confirmed_tokens": 1000,
+        "recorded_cost_cents": 2,
+        "unknown_provider_attempts": 0
+      }
+    },
+    "started_at": "2026-09-08T21:27:49.321487Z",
+    "available_at": "2026-09-08T21:27:49.321487Z",
+    "heartbeat_at": "2026-09-08T21:27:51.997838Z",
+    "lease_expires_at": null,
+    "observed_at": "2026-09-08T21:27:52.455746Z"
+  },
+  "job": {
+    "id": 21,
+    "status": "failed",
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "total_tokens": 1000,
+    "cost_cents": 2,
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2"
+  },
+  "document": {
+    "id": 21,
+    "status": "failed",
+    "docx_sha256": null,
+    "docx_path": null
+  },
+  "capacities": [
+    {
+      "time": 1788902869.9402392,
+      "pid": 68257,
+      "stage": "preparation_capacity",
+      "cap": 8000,
+      "truncated": true
+    },
+    {
+      "time": 1788902871.973089,
+      "pid": 68257,
+      "stage": "preparation_capacity",
+      "cap": 16000,
+      "truncated": true
+    }
+  ],
+  "source_builds": 2,
+  "writer_calls": 0,
+  "preparation": [
+    {
+      "binding": {
+        "policy_version": "academic-quality-v1",
+        "profile_sha256": "472de8be2ea66a611e1566163e5906a6bd7e7d295b024e3f7672d8261863e8e5",
+        "job_id": 21,
+        "task_contract_sha256": "4c49a8186d9f6ce090e11be834b59bb23ff00bf7a05c5a5c361ad3c2ed7b1740",
+        "generation_contract_sha256": "e2d51e859626088c2e22fafacc07be6daad976d8cbfe62062c068eddab4f28f1",
+        "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+        "outline_sha256": "ce8d5c9225a437e984a995c47383dff5dda1446519f14cee66e52aee6173c257",
+        "text_sha256": null
+      },
+      "worker_attempt": 1,
+      "stage": "preparation",
+      "reason_code": "review_input_invalid",
+      "retryability": "none",
+      "input_fingerprint": "9303ed25f04516ca3042df1bce32bb79e46e31ddf44322e9a1337da743e82d7e",
+      "attempt_id": "c49a101004004cdda8e37de9df1740ad",
+      "output_reference": "c49a101004004cdda8e37de9df1740ad",
+      "status": "unchecked",
+      "outcome": "unusable",
+      "reason": "All AI providers failed for academic_plan_preparation. Tried 1 provider(s). Last error: IncompleteModelResponse",
+      "budget_exhausted": true
+    }
+  ]
+}

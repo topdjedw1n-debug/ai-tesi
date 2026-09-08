@@ -32,6 +32,21 @@ interface ProgressState {
   reasonCode?: string;
 }
 
+interface JobTiming {
+  started_at?: string | null;
+  available_at?: string | null;
+  heartbeat_at?: string | null;
+  lease_expires_at?: string | null;
+  observed_at?: string | null;
+}
+
+function elapsedLabel(start: string | null | undefined, observed: string): string | null {
+  if (!start) return null;
+  const seconds = Math.max(0, Math.floor((Date.parse(observed) - Date.parse(start)) / 1000));
+  if (!Number.isFinite(seconds)) return null;
+  return seconds < 60 ? `${seconds} с` : `${Math.floor(seconds / 60)} хв`;
+}
+
 export function GenerationProgress({
   documentId,
   onComplete,
@@ -43,6 +58,7 @@ export function GenerationProgress({
     progress: 0,
   });
   const [statusUnavailable, setStatusUnavailable] = useState(false);
+  const [timing, setTiming] = useState<JobTiming | null>(null);
   const callbacks = useRef({ onComplete, onError });
   const terminalNotified = useRef(false);
   useEffect(() => {
@@ -126,10 +142,11 @@ export function GenerationProgress({
     let stopped = false;
     let timer: ReturnType<typeof setTimeout>;
     terminalNotified.current = false;
+    setTiming(null);
     const poll = async () => {
       let terminal = false;
       try {
-        const job = await apiClient.get<{
+        const job = await apiClient.get<({
           job_id: number;
           document_id: number;
           status: string;
@@ -137,13 +154,14 @@ export function GenerationProgress({
           attempt_count: number;
           error_message: string | null;
           recovery?: { reason_code?: string };
-        } | null>(API_ENDPOINTS.JOBS.FOR_DOCUMENT(documentId));
+        } & JobTiming) | null>(API_ENDPOINTS.JOBS.FOR_DOCUMENT(documentId));
         if (stopped) return;
         setStatusUnavailable(false);
         if (job) {
           terminal = ['completed', 'failed', 'cancelled'].includes(job.status);
           // A request started before the terminal socket event may return late.
           if (terminalNotified.current && !terminal) return;
+          setTiming(job);
           const type =
             job.status === 'completed'
               ? 'job_completed'
@@ -229,6 +247,12 @@ export function GenerationProgress({
     }
   };
 
+  const observed = timing?.observed_at;
+  const showTiming = active && observed && !statusUnavailable &&
+    ['queued', 'running', 'retrying'].includes(progressState.status);
+  const leaseOverdue = progressState.status === 'running' && observed &&
+    timing?.lease_expires_at && Date.parse(timing.lease_expires_at) <= Date.parse(observed);
+
   return (
     <div className="rounded-lg bg-white p-6 shadow">
       <div className="mb-4">
@@ -262,6 +286,23 @@ export function GenerationProgress({
           <div className="mb-2 text-xs text-green-500">Наживо</div>
         )}
       </div>
+
+      {showTiming && timing && observed && (
+        <div className="mb-4 space-y-1 text-sm text-gray-600">
+          {timing.started_at && <p>Від запуску: {elapsedLabel(timing.started_at, observed)}</p>}
+          {progressState.status !== 'running' ? (
+            <p>Очікування у черзі: {elapsedLabel(timing.available_at ?? timing.started_at, observed) ?? 'ще не визначено'}</p>
+          ) : (
+            <p>Останній сигнал виконавця: {timing.heartbeat_at ? `${elapsedLabel(timing.heartbeat_at, observed)} тому` : 'ще не отримано'}</p>
+          )}
+          {leaseOverdue && (
+            <p role="status" className="text-amber-700">
+              Сигнал виконавця прострочений. Передайте адміністратору номер роботи №{documentId},
+              щоб перевірити відновлення. Повторний запуск не потрібен.
+            </p>
+          )}
+        </div>
+      )}
 
       {/* A terminal failure has no meaningful completion percentage. */}
       {progressState.status !== 'failed' && progressState.status !== 'cancelled' && (

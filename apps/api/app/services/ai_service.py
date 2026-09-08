@@ -14,6 +14,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.services.generation_operations import (
+    operation_output_budget,
     operation_purpose,
     recorded_provider_call,
 )
@@ -496,9 +497,15 @@ class AIService:
         prompt: str,
         purpose: str = "ai_call",
         chain_override: list[tuple[str, str]] | None = None,
+        output_tokens: int | None = None,
     ) -> dict[str, Any]:
         """
         Call the configured AI fallback chain with a raw prompt.
+
+        ``output_tokens`` sizes the first request's output budget when the
+        caller knows the complete answer must hold a document of known size
+        (the reconciled plan). The provider wrappers clamp it to the model
+        ceiling and keep their existing enlarge-and-reissue recovery.
 
         Tries each (provider, model) from AI_FALLBACK_CHAIN_LIST in order
         (each provider already has retry + circuit breaker). When
@@ -524,6 +531,7 @@ class AIService:
         # The provider receipts of this call carry the caller's purpose
         # (plan preparation, outline/whole review, claim check...).
         purpose_token = operation_purpose.set(purpose)
+        budget_token = operation_output_budget.set(output_tokens)
         try:
             for provider, model in chain:
                 try:
@@ -535,6 +543,7 @@ class AIService:
                         f"{type(e).__name__}: {str(e)[:200]}"
                     )
         finally:
+            operation_output_budget.reset(budget_token)
             operation_purpose.reset(purpose_token)
 
         raise AllProvidersFailedError(
@@ -556,7 +565,10 @@ class AIService:
     async def _call_openai(self, model: str, prompt: str) -> dict[str, Any]:
         """Call OpenAI API with circuit breaker and retry"""
 
-        recovery = ModelResponseRecovery(8000 if model.startswith("gpt-5") else 4000)
+        default_budget = 8000 if model.startswith("gpt-5") else 4000
+        recovery = ModelResponseRecovery(
+            min(operation_output_budget.get() or default_budget, 16000)
+        )
         total_tokens = 0
 
         async def _make_request() -> dict[str, Any]:
@@ -634,7 +646,10 @@ class AIService:
     async def _call_anthropic(self, model: str, prompt: str) -> dict[str, Any]:
         """Call Anthropic API with circuit breaker and retry"""
 
-        recovery = ModelResponseRecovery(output_ceiling=model_output_ceiling(model))
+        ceiling = model_output_ceiling(model)
+        recovery = ModelResponseRecovery(
+            min(operation_output_budget.get() or 4000, ceiling), ceiling
+        )
         total_tokens = 0
 
         async def _make_request() -> dict[str, Any]:

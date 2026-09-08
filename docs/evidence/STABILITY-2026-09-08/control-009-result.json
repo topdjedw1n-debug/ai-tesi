@@ -1,0 +1,185 @@
+{
+  "document_id": 9,
+  "case_id": 11,
+  "job_id": 9,
+  "runtime_commit": "189aba72ba11d73cad4a30e5203da44ea0261bd0",
+  "authorized_new_jobs": 1,
+  "generation_post_count": 1,
+  "job_status": "failed",
+  "attempt_count": 1,
+  "max_attempts": 3,
+  "started_at": "2026-09-08T20:51:13.315314+00:00",
+  "completed_at": "2026-09-08T20:55:45.880988+00:00",
+  "source_pack_sha256": "c870ffa45f1f1cd0855b8c71350ff05a7429e3867b324a91cca66f31d13ce0e6",
+  "document_status": "failed",
+  "section_count": 0,
+  "docx_sha256": null,
+  "error_message": "All AI providers failed for academic_plan_preparation. Tried 1 provider(s). Last error: IncompleteModelResponse",
+  "journal": {
+    "confirmed_tokens": 63904,
+    "confirmed_cost_cents": 58,
+    "unknown_provider_attempts": 0
+  },
+  "job_total_tokens": 63904,
+  "job_cost_cents": 58,
+  "provider_attempts": [
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "72c296af-2070-4648-b309-b6d08c5bbd8e",
+      "stage": "pack_translation",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "edfce7a4417b31d00b30676f1ae0509dd12b01dcb8ef9e9251e1892e9c3e3680",
+      "output_reference": "msg_011Cerdh7HAuvq4WEwQL2mCY",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 154,
+        "output_tokens": 46
+      }
+    },
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "7ddc3aac-6c4c-4515-8512-7d60268c3f01",
+      "stage": "ai_service",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "934f75ab9a3bb140b6a1feb5331d16c478bf26e30d0ca29882135afa82d13c2d",
+      "output_reference": "msg_011Cerdhca3g8RcfE6RCWUMF",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 8691,
+        "output_tokens": 4000
+      }
+    },
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "0ffe3ada-82ed-4019-acbd-ff9220746f5e",
+      "stage": "ai_service",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "b2673be3094228ded42021ac7e4437dcd351b2e64498dd7e0381bd4e4e588f0e",
+      "output_reference": "msg_011CerdmDu9YD8ctgcc2hEfd",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 8691,
+        "output_tokens": 4403
+      }
+    },
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "5db111f2-c385-4c71-ad2f-b1efae5da03e",
+      "stage": "pack_translation",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "3f1bbcc71935f77300140b55cb1c0039a74747b592024d91d5c181a8a8a62c45",
+      "output_reference": "msg_011CerdqFqqXvVx6ucZB4qXh",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 341,
+        "output_tokens": 196
+      }
+    },
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "580153c1-19ac-4fc5-b981-c3a908fa6150",
+      "stage": "pack_translation",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "3f1bbcc71935f77300140b55cb1c0039a74747b592024d91d5c181a8a8a62c45",
+      "output_reference": "msg_011CerdttyaZmWVABGex6gso",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 341,
+        "output_tokens": 195
+      }
+    },
+    {
+      "document_id": 9,
+      "job_id": 9,
+      "worker_attempt": 1,
+      "attempt_id": "603ca5aa-d55b-4c19-8874-a182224f2e68",
+      "stage": "academic_plan_preparation",
+      "provider": "anthropic",
+      "model": "claude-opus-4-8",
+      "input_fingerprint": "1525ec2bbdf6171432598e2167cd82181c69d63d888f4f45712b458fb03a10ec",
+      "output_reference": "msg_011CerdyRErgzmNGQUbT2wHx",
+      "outcome": "received",
+      "usage": {
+        "input_tokens": 32846,
+        "output_tokens": 4000
+      }
+    }
+  ],
+  "preparation_events": [
+    {
+      "id": 160,
+      "document_id": 9,
+      "stage": "quality",
+      "event_type": "academic_plan_preparation_started",
+      "payload": {
+        "binding": {
+          "policy_version": "academic-quality-v1",
+          "profile_sha256": "90516e38244c9b98dcadc0b7bd91a3b391b01e9e67e8c79ba30b53734f0069e8",
+          "job_id": 9,
+          "task_contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+          "generation_contract_sha256": "a1a52536b802b679a2439092283d176a3eb8467baeabf3745814d36db373b0a9",
+          "source_pack_sha256": "c870ffa45f1f1cd0855b8c71350ff05a7429e3867b324a91cca66f31d13ce0e6",
+          "outline_sha256": "a2ab2113614118a515e35dc9fbe73aa1f5e2b7816493eea8224ea28e93d07d05",
+          "text_sha256": null
+        },
+        "worker_attempt": 1,
+        "stage": "preparation",
+        "reason_code": null,
+        "retryability": "none",
+        "input_fingerprint": "20d231284fde2a4ab7eabb846aea65eaccd962979125c7c8d2f7befe5cb0a7ef",
+        "attempt_id": "afe40ff415ff4ffab072a94fa999cadb",
+        "output_reference": "afe40ff415ff4ffab072a94fa999cadb",
+        "status": "pending",
+        "outcome": "outcome_unknown"
+      },
+      "created_at": "2026-09-08T20:54:55.144412+00:00"
+    },
+    {
+      "id": 163,
+      "document_id": 9,
+      "stage": "quality",
+      "event_type": "academic_plan_preparation",
+      "payload": {
+        "binding": {
+          "policy_version": "academic-quality-v1",
+          "profile_sha256": "90516e38244c9b98dcadc0b7bd91a3b391b01e9e67e8c79ba30b53734f0069e8",
+          "job_id": 9,
+          "task_contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+          "generation_contract_sha256": "a1a52536b802b679a2439092283d176a3eb8467baeabf3745814d36db373b0a9",
+          "source_pack_sha256": "c870ffa45f1f1cd0855b8c71350ff05a7429e3867b324a91cca66f31d13ce0e6",
+          "outline_sha256": "a2ab2113614118a515e35dc9fbe73aa1f5e2b7816493eea8224ea28e93d07d05",
+          "text_sha256": null
+        },
+        "worker_attempt": 1,
+        "stage": "preparation",
+        "reason_code": "unknown_failure",
+        "retryability": "none",
+        "input_fingerprint": "20d231284fde2a4ab7eabb846aea65eaccd962979125c7c8d2f7befe5cb0a7ef",
+        "attempt_id": "afe40ff415ff4ffab072a94fa999cadb",
+        "output_reference": "afe40ff415ff4ffab072a94fa999cadb",
+        "status": "unchecked",
+        "outcome": "outcome_unknown",
+        "reason": "All AI providers failed for academic_plan_preparation. Tried 1 provider(s). Last error: IncompleteModelResponse"
+      },
+      "created_at": "2026-09-08T20:55:45.858016+00:00"
+    }
+  ],
+  "semantic_review_calls": 0,
+  "s4_outcome": "TRACEABLE_NEGATIVE_CONTROL; newly exposed output-capacity defect; corrective candidate required",
+  "academic_acceptance": "not assessed; no DOCX; M1/M2/M3 remain open"
+}

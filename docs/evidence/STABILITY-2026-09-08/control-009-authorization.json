@@ -1,0 +1,12 @@
+{
+  "authorized_at_utc": "2026-09-08T20:46:20.390260+00:00",
+  "source": "Explicit user reply to request_user_input_async: Запустити один контроль",
+  "document_id": 9,
+  "case_id": 11,
+  "max_new_jobs": 1,
+  "automatic_retries": "Only existing bounded policy within this single job",
+  "writer": "anthropic/claude-opus-4-8",
+  "work_type": "tesi_magistrale",
+  "pages": 18,
+  "input_brief": "unchanged, verified contract in control-draft-created.json"
+}

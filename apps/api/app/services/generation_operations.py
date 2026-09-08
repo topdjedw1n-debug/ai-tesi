@@ -29,6 +29,12 @@ T = TypeVar("T")
 operation_purpose: ContextVar[str | None] = ContextVar(
     "generation_operation_purpose", default=None
 )
+# Output budget (tokens) the current operation needs for a complete answer.
+# Set by callers whose reply must contain a known-size document (the final
+# plan); provider wrappers read it instead of their generic default.
+operation_output_budget: ContextVar[int | None] = ContextVar(
+    "generation_operation_output_budget", default=None
+)
 
 _REVIEW_PURPOSE_MARKERS = ("review", "preparation")
 

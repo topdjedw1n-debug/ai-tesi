@@ -1,0 +1,161 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-7.4.3, pluggy-1.6.0
+rootdir: /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree
+configfile: pytest.ini
+plugins: anyio-4.12.1, cov-4.1.0, asyncio-0.21.1, Faker-38.2.0
+asyncio: mode=Mode.AUTO
+collected 1393 items
+
+tests/test_academic_quality.py .............................             [  2%]
+tests/test_academic_quality_pipeline.py ..                               [  2%]
+tests/test_academic_review_retry.py .........                            [  2%]
+tests/test_admin_auth_endpoints.py ...                                   [  3%]
+tests/test_admin_documents_endpoints.py ..............                   [  4%]
+tests/test_admin_endpoints.py .......                                    [  4%]
+tests/test_admin_login_security.py ..                                    [  4%]
+tests/test_admin_payments_endpoints.py ..............                    [  5%]
+tests/test_admin_production_cases_endpoints.py .......                   [  6%]
+tests/test_admin_service.py .............                                [  7%]
+tests/test_ai_pipeline_integration.py .................................. [  9%]
+....                                                                     [  9%]
+tests/test_ai_service.py ........                                        [ 10%]
+tests/test_ai_service_extended.py ....s..                                [ 10%]
+tests/test_api_endpoints.py ..........                                   [ 11%]
+tests/test_api_integration.py ......                                     [ 12%]
+tests/test_api_integration_simple.py ......                              [ 12%]
+tests/test_artifact_deletion_outbox.py ......                            [ 12%]
+tests/test_async_generation.py ....                                      [ 13%]
+tests/test_auth_login_token_uniqueness.py ...                            [ 13%]
+tests/test_auth_no_token.py .                                            [ 13%]
+tests/test_auth_refresh.py .....                                         [ 13%]
+tests/test_auth_service_extended.py ...........                          [ 14%]
+tests/test_background_jobs_recovery.py ......s..                         [ 15%]
+tests/test_bibliography_export.py ............................           [ 17%]
+tests/test_checkpoint_recovery.py ....                                   [ 17%]
+tests/test_circuit_breaker.py .......                                    [ 18%]
+tests/test_citation_closure.py ....                                      [ 18%]
+tests/test_citation_freezer.py .........                                 [ 19%]
+tests/test_citation_keys.py ........................                     [ 20%]
+tests/test_citation_pipeline_integration.py .........................    [ 22%]
+tests/test_citation_verifier.py ........................................ [ 25%]
+.                                                                        [ 25%]
+tests/test_claim_budget_resilience_regression.py ........                [ 26%]
+tests/test_claim_verifier.py .........................................   [ 29%]
+tests/test_config_grounding_flags.py ................                    [ 30%]
+tests/test_config_guards.py ......                                       [ 30%]
+tests/test_custom_requirements_upload.py ......                          [ 31%]
+tests/test_dependency_contract.py ...                                    [ 31%]
+tests/test_document_download.py ........                                 [ 31%]
+tests/test_document_feedback.py .......                                  [ 32%]
+tests/test_document_sanitization_regression.py .............             [ 33%]
+tests/test_document_schema_contract.py .....                             [ 33%]
+tests/test_document_service.py ...............                           [ 34%]
+tests/test_document_service_extended.py ......                           [ 35%]
+tests/test_documents_activity.py ........                                [ 35%]
+tests/test_documents_stats_endpoint.py ..                                [ 35%]
+tests/test_docx_formatting_regression.py ......                          [ 36%]
+tests/test_file_security.py ........                                     [ 36%]
+tests/test_gdpr_deletion.py .................                            [ 38%]
+tests/test_generation_cancel.py ........                                 [ 38%]
+tests/test_generation_input_recovery.py ...........                      [ 39%]
+tests/test_generation_job_single_owner.py ..........                     [ 40%]
+tests/test_generation_worker.py .............                            [ 41%]
+tests/test_gold_datasets.py ....                                         [ 41%]
+tests/test_grounding_gate.py .............                               [ 42%]
+tests/test_health_endpoint.py .                                          [ 42%]
+tests/test_humanizer_best_of_n.py .........                              [ 43%]
+tests/test_idor_protection.py .........                                  [ 43%]
+tests/test_job_operational_status.py .                                   [ 43%]
+tests/test_jwt_helpers.py .........                                      [ 44%]
+tests/test_jwt_security.py .....s....                                    [ 45%]
+tests/test_length_fairness.py ........                                   [ 45%]
+tests/test_manager_login_me.py .                                         [ 45%]
+tests/test_manager_workflow.py ........                                  [ 46%]
+tests/test_model_response_recovery.py .................................. [ 48%]
+........................                                                 [ 50%]
+tests/test_mvp_free_generation.py .............                          [ 51%]
+tests/test_operator_bot.py ..........                                    [ 52%]
+tests/test_outline_status_regression.py ..                               [ 52%]
+tests/test_payment.py ........                                           [ 52%]
+tests/test_payment_idempotency.py .....s....                             [ 53%]
+tests/test_plagiarism_checker.py .......                                 [ 54%]
+tests/test_production_cases.py .........................                 [ 55%]
+tests/test_production_operator_access.py .................               [ 57%]
+tests/test_production_runtime_contract.py ................               [ 58%]
+tests/test_provenance_ledger.py ...............                          [ 59%]
+tests/test_provenance_models.py ........                                 [ 59%]
+tests/test_provenance_schemas.py ....................................    [ 62%]
+tests/test_public_registration_closed.py .....                           [ 62%]
+tests/test_quality_checks_unchecked.py ............                      [ 63%]
+tests/test_quality_gates.py ...                                          [ 63%]
+tests/test_quality_integration.py .............                          [ 64%]
+tests/test_quality_metrics.py ......................                     [ 66%]
+tests/test_quality_panel.py .......................                      [ 68%]
+tests/test_quality_pipeline_e2e.py ................                      [ 69%]
+tests/test_rag_retriever.py ............................                 [ 71%]
+tests/test_rag_source_metadata.py ......                                 [ 71%]
+tests/test_rate_limit_init.py ..                                         [ 71%]
+tests/test_rate_limiter_integration.py ....                              [ 72%]
+tests/test_rate_limiter_redis_fallback.py ...                            [ 72%]
+tests/test_refund_endpoints.py ...........                               [ 73%]
+tests/test_refund_service.py .........                                   [ 73%]
+tests/test_release_evidence.py ....................................      [ 76%]
+tests/test_release_evidence_postgres.py ..                               [ 76%]
+tests/test_section_release_regression.py ..............                  [ 77%]
+tests/test_settings_endpoints.py ........                                [ 78%]
+tests/test_settings_service.py ...........                               [ 78%]
+tests/test_source_identity.py ...........                                [ 79%]
+tests/test_source_pack.py ................................               [ 81%]
+tests/test_source_pack_persistence.py ........                           [ 82%]
+tests/test_source_pack_preflight.py ............                         [ 83%]
+tests/test_source_pack_preflight_pipeline.py ...............             [ 84%]
+tests/test_source_pack_rebuild.py ..........                             [ 85%]
+tests/test_stability_operations.py .......                               [ 85%]
+tests/test_stability_outcomes.py ........................                [ 87%]
+tests/test_stability_plan_budget.py ........                             [ 88%]
+tests/test_stability_postgres.py ...........                             [ 88%]
+tests/test_stability_preparation.py .......................              [ 90%]
+tests/test_stability_preparation_postgres.py ...                         [ 90%]
+tests/test_stability_recovery.py ........                                [ 91%]
+tests/test_storage_resilience_regression.py ............                 [ 92%]
+tests/test_stripe_webhook_e2e.py .........                               [ 92%]
+tests/test_stylometrics.py .......                                       [ 93%]
+tests/test_task_contract.py .......                                      [ 93%]
+tests/test_uploaded_sources.py ..................                        [ 95%]
+tests/test_usage_accounting.py ............                              [ 95%]
+tests/test_user_management_endpoints.py ..............                   [ 96%]
+tests/test_websocket_heartbeat.py .....                                  [ 97%]
+tests/integration/test_admin_e2e_flows.py ....                           [ 97%]
+tests/integration/test_error_handling.py ............                    [ 98%]
+tests/integration/test_full_user_journey.py sss                          [ 98%]
+tests/integration/test_performance.py .......                            [ 99%]
+tests/integration/test_security_suite.py ..........s.                    [100%]
+
+=============================== warnings summary ===============================
+../../../../../apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../../apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+app/api/v1/endpoints/admin.py:82
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:82: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    period: str = Query("week", regex="^(day|week|month|year)$"),
+
+app/api/v1/endpoints/admin.py:128
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:128: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    type: str = Query("recent", regex="^(recent|payments|registrations|errors)$"),
+
+app/api/v1/endpoints/admin.py:958
+  /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/api/app/api/v1/endpoints/admin.py:958: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    group_by: str = Query("day", regex="^(day|week|month)$"),
+
+apps/api/tests/test_academic_quality_pipeline.py::test_outline_blocks_writer_but_whole_failure_keeps_internal_export[False]
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/fastapi_mail/schemas.py:91: PydanticDeprecatedSince212: Using `@model_validator` with mode='after' on a classmethod is deprecated. Instead, use an instance method. See the documentation at https://docs.pydantic.dev/2.12/concepts/validators/#model-after-validator. Deprecated in Pydantic V2.12 to be removed in V3.0.
+    @model_validator(mode="after")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========== 1385 passed, 8 skipped, 6 warnings in 109.18s (0:01:49) ============

@@ -55,7 +55,15 @@ def model_output_ceiling(model: str) -> int:
 
 
 class IncompleteModelResponse(ValueError):
-    pass
+    """A received but unusable answer: truncated or empty, never a verdict.
+
+    ``budget_exhausted`` is True only when the output was truncated at the
+    model's ceiling, so no larger same-task request can help.
+    """
+
+    def __init__(self, message: str, *, budget_exhausted: bool = False):
+        super().__init__(message)
+        self.budget_exhausted = budget_exhausted
 
 
 @dataclass
@@ -73,8 +81,11 @@ class ModelResponseRecovery:
         if stop_reason in ("max_tokens", "length"):
             # Reissue the same task and model with room for a complete answer;
             # never concatenate partial JSON or duplicate section paragraphs.
+            exhausted = self.max_tokens >= self.output_ceiling
             self.max_tokens = min(self.max_tokens * 2, self.output_ceiling)
-            raise IncompleteModelResponse("Model output reached its token limit")
+            raise IncompleteModelResponse(
+                "Model output reached its token limit", budget_exhausted=exhausted
+            )
         if not isinstance(content, str) or not content.strip():
             raise IncompleteModelResponse("Model returned empty text")
         return content

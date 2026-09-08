@@ -9,7 +9,10 @@ from collections.abc import Callable
 from typing import Any, TypeVar
 
 from app.services.circuit_breaker import CircuitBreaker, CircuitBreakerOpenError
-from app.services.model_response_recovery import is_permanent_provider_error
+from app.services.model_response_recovery import (
+    IncompleteModelResponse,
+    is_permanent_provider_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -89,6 +92,10 @@ class RetryStrategy:
 
             except Exception as e:
                 if is_permanent_provider_error(e):
+                    raise
+                if isinstance(e, IncompleteModelResponse) and e.budget_exhausted:
+                    # Truncated at the model ceiling: a repeat with the same
+                    # cap would only pay for the same truncated answer again.
                     raise
                 # Track error for logging
                 last_error = e

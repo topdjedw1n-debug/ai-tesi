@@ -1,0 +1,104 @@
+{
+  "synthetic": true,
+  "mode": "preparation_truncated_once",
+  "id": 20,
+  "start": {
+    "job_id": 20,
+    "status": "queued",
+    "check_url": "/api/v1/jobs/20/status"
+  },
+  "final": {
+    "job_id": 20,
+    "status": "completed",
+    "progress": 100,
+    "document_id": 20,
+    "error_message": null,
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "export",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "43c4b58fde82674eb97694ebc54ab5d6f23ac301062daafd12b9f79870e579e1",
+      "attempt_id": "19f20e77-25f5-48ec-94b1-165dc85d01d6",
+      "output_reference": "19f20e77-25f5-48ec-94b1-165dc85d01d6",
+      "outcome": "completed",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "763917d6224f0f2e5228b01d7dbb1c7eb0f4fb515eac46431de3e46448258404",
+      "usage": {
+        "confirmed_tokens": 8600,
+        "recorded_cost_cents": 6,
+        "unknown_provider_attempts": 0
+      }
+    },
+    "started_at": "2026-09-08T21:27:44.668260Z",
+    "available_at": "2026-09-08T21:27:44.668260Z",
+    "heartbeat_at": "2026-09-08T21:27:48.783414Z",
+    "lease_expires_at": null,
+    "observed_at": "2026-09-08T21:27:49.011289Z"
+  },
+  "job": {
+    "id": 20,
+    "status": "completed",
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "total_tokens": 8600,
+    "cost_cents": 6,
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2"
+  },
+  "document": {
+    "id": 20,
+    "status": "completed",
+    "docx_sha256": "cf536a82fa516380e7747a29d545b8c160e028771c8634782ad95e0b125f111f",
+    "docx_path": "s3://stability-documents/documents/1/20/20-cf536a82fa516380.docx"
+  },
+  "capacities": [
+    {
+      "time": 1788902865.236814,
+      "pid": 68257,
+      "stage": "preparation_capacity",
+      "cap": 8000,
+      "truncated": true
+    },
+    {
+      "time": 1788902867.261225,
+      "pid": 68257,
+      "stage": "preparation_capacity",
+      "cap": 16000,
+      "truncated": false
+    }
+  ],
+  "source_builds": 2,
+  "writer_calls": 6,
+  "preparation": [
+    {
+      "binding": {
+        "policy_version": "academic-quality-v1",
+        "profile_sha256": "472de8be2ea66a611e1566163e5906a6bd7e7d295b024e3f7672d8261863e8e5",
+        "job_id": 20,
+        "task_contract_sha256": "96669fa54948e19de9ca57636f5d2c447264a3dd60da1eb9353473c73d68bb94",
+        "generation_contract_sha256": "c713b15cca53d21bf8477ea372f41e8aa10c2315b1ee84b49ea6d5e142454a1e",
+        "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+        "outline_sha256": "ce8d5c9225a437e984a995c47383dff5dda1446519f14cee66e52aee6173c257",
+        "text_sha256": null
+      },
+      "worker_attempt": 1,
+      "stage": "preparation",
+      "reason_code": null,
+      "retryability": "none",
+      "input_fingerprint": "598777af3492b59a745dcc1ce3cb65f0b195a7b9752f153d9456df76b6587a6c",
+      "attempt_id": "585e5da766b240dcb4ece451638b79ff",
+      "output_reference": "585e5da766b240dcb4ece451638b79ff",
+      "status": "completed",
+      "outcome": "completed",
+      "output_sha256": "469ebf969f1746dedf84499c8d6bbae084c40194bcb342e4a47b69e3ac56402e",
+      "model_called": true
+    }
+  ],
+  "artifact": {
+    "bytes": 37635,
+    "sha256": "cf536a82fa516380e7747a29d545b8c160e028771c8634782ad95e0b125f111f"
+  }
+}

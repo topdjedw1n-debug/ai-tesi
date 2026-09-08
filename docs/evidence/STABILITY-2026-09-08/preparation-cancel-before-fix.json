@@ -1,0 +1,39 @@
+{
+  "synthetic": true,
+  "id": 15,
+  "before": {
+    "id": 15,
+    "status": "running",
+    "heartbeat_at": "2026-09-08T21:12:13.145033+00:00",
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "outline_sha": "7c345287407d536ee9425fff84fef7c1",
+    "sections": 0
+  },
+  "alive": {
+    "id": 15,
+    "status": "running",
+    "heartbeat_at": "2026-09-08T21:12:13.145033+00:00",
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "outline_sha": "7c345287407d536ee9425fff84fef7c1",
+    "sections": 0
+  },
+  "held": {
+    "id": 15,
+    "status": "running",
+    "heartbeat_at": "2026-09-08T21:12:13.145033+00:00",
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "outline_sha": "7c345287407d536ee9425fff84fef7c1",
+    "sections": 0
+  },
+  "after": {
+    "id": 15,
+    "status": "cancelled",
+    "heartbeat_at": "2026-09-08T21:12:27.520513+00:00",
+    "source_pack_sha256": "34f510bcf70ff3b8021fe8340ed9208f02019523a7fbc5889368277b4300a5d2",
+    "outline_sha": "3e2861db283a57ab5a1e866e48e3d1fb",
+    "sections": 0
+  },
+  "cancelled_while_provider_waiting": false,
+  "cancel_http_status": 200,
+  "heartbeat_advanced": false
+}

@@ -2060,20 +2060,35 @@ class BackgroundJobService:
                         and lease_token is not None
                     )
                     try:
+                        # The plan reply can take minutes. The Job row is held
+                        # only around the preparation's durable writes, so the
+                        # heartbeat keeps renewing and a cancel completes while
+                        # the provider reply is still pending; a reply arriving
+                        # after cancel/takeover is fenced out by the guard.
+                        await prepare_final_plan(
+                            db,
+                            document,
+                            academic_job,
+                            source_pack,
+                            usage_tracker=usage,
+                            persist_guard=functools.partial(
+                                hold_generation_job_lease,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                            ),
+                        )
+                        sections = validate_outline(document.outline)["sections"]
+                        # The outline review keeps its own bounded (<= 90 s)
+                        # guard: verdict persistence and its short call stay
+                        # inside the lease as before.
                         async with hold_generation_job_lease(
                             job_id=job_id,
                             worker_id=lease_owner,
                             lease_token=lease_token,
                             document_id=document_id,
                         ):
-                            await prepare_final_plan(
-                                db,
-                                document,
-                                academic_job,
-                                source_pack,
-                                usage_tracker=usage,
-                            )
-                            sections = validate_outline(document.outline)["sections"]
                             outline_review = await run_academic_review(
                                 db,
                                 document,

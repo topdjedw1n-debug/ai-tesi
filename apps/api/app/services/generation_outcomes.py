@@ -16,6 +16,7 @@ from urllib3.exceptions import HTTPError as UrllibHTTPError
 
 from app.core.exceptions import QualityThresholdNotMetError
 from app.services.circuit_breaker import CircuitBreakerOpenError
+from app.services.model_response_recovery import IncompleteModelResponse
 
 TEMPORARY_REASONS = frozenset(
     {
@@ -78,6 +79,16 @@ def failure_reason(error: BaseException, *, stage: str = "generation") -> str:
         seen.add(id(cause))
         if isinstance(cause, GenerationStageError | GenerationQualityError):
             return cause.reason_code
+        if isinstance(cause, IncompleteModelResponse):
+            # A truncated or empty answer is a technical result, never an
+            # academic verdict. Truncated at the model ceiling: the same task
+            # cannot fit, so a repeat is pointless (invalid review input).
+            # Otherwise a bounded same-task repeat may complete it.
+            if cause.budget_exhausted:
+                return (
+                    "review_input_invalid" if stage == "review" else "unknown_failure"
+                )
+            return _temporary_for(stage)
         if isinstance(cause, S3Error):
             if cause.code in _STORAGE_ACCESS_CODES:
                 return "provider_access_required"
@@ -147,11 +158,13 @@ def outcome_fields(
     return {
         "stage": stage,
         "reason_code": reason_code,
-        "retryability": "automatic"
-        if reason_code in TEMPORARY_REASONS
-        else "manual"
-        if reason_code in MANUAL_REASONS
-        else "none",
+        "retryability": (
+            "automatic"
+            if reason_code in TEMPORARY_REASONS
+            else "manual"
+            if reason_code in MANUAL_REASONS
+            else "none"
+        ),
         "input_fingerprint": digest(binding),
         "attempt_id": attempt_id,
         "output_reference": attempt_id,

@@ -49,4 +49,12 @@ Fresh backup:/opt/thesica/backups/stability-20260908. Isolated PostgreSQL restor
 
 Exact formatted-image 156 runtime tests passed. The earlier pre-format image full run had 1345 passes, 21 skips, 15 failures caused solely by absent infra/workflow files in the verification mount. All 15 are included in the 156 successful final-image tests. Do not call the formatted-image run a full 1373 run;native 1373 and AST equivalence are separate evidence.
 
-Prepared production draft 9/case 11 preserves the exact brief,uploaded university requirements and contract hash of the prior control. It is draft,without an outline or DOCX; 0 paid calls. The requested single-control approval is pending under execution-plan §7. Live provider generation and S5 academic/manager acceptance remain open,so LIVE_CANDIDATE_VERIFIED/AGENCY_ACCEPTED are not claimed.
+Prepared production draft 9/case 11 preserves the exact brief,uploaded university requirements and contract hash of the prior control. It is draft,without an outline or DOCX; 0 paid calls. The founder explicitly approved one control. At 20:51:13 UTC the ordinary UI sent exactly one generation POST (HTTP200,job9); the control is running. Live provider generation and S5 academic/manager acceptance remain open,so LIVE_CANDIDATE_VERIFIED/AGENCY_ACCEPTED are not claimed.
+
+## S4 control009 — real negative result
+
+One explicitly authorized UI launch created job9 (20:51:13 UTC). It stopped before writing:24 final sources saved,0sections/noDOCX. The complete-outline preparation request hit its4000-token output cap; AIService(max_retries=0) disabled existing truncated-response recovery and classification became unknown_failure. No semantic outline verdict was produced. All6 received provider calls sum to63904tokens/58recorded cents,matching job totals;0unknown provider attempts. This is application accounting,not a provider invoice. The original8 documents/jobs/sections/provenance/cases remain byte-equivalent by row hashes,0activejobs aftercontrol. Read-only terminal UI on2routes made0mutations and had0API/pageerrors. See control-009-result.json and related receipts.
+
+A corrective candidate is being prepared by Fable against this actual failure. S4 is not accepted as a stable positive candidate; S5 remains open. No second live control is authorized or launched by this receipt.
+
+[Corrective candidate after control009, local/full-stack evidence](CONTROL-009-CORRECTION.md).

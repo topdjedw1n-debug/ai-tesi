@@ -1,0 +1,77 @@
+
+> ai-thesis-platform-web@1.0.0 build
+> next build
+
+   ▲ Next.js 14.0.4
+
+   Creating an optimized production build ...
+[baseline-browser-mapping] The data in this module is over two months old.  To ensure accurate Baseline data, please update: `npm i baseline-browser-mapping@latest -D`
+Browserslist: browsers data (caniuse-lite) is 11 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/31) ...
+ ⚠ Entire page /auth/verify deopted into client-side rendering. https://nextjs.org/docs/messages/deopted-into-client-rendering /auth/verify
+   Generating static pages (7/31)
+   Generating static pages (15/31)
+ ⚠ Entire page /payment/success deopted into client-side rendering. https://nextjs.org/docs/messages/deopted-into-client-rendering /payment/success
+   Generating static pages (23/31)
+ ✓ Generating static pages (31/31)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    4.57 kB         101 kB
+├ ○ /_not-found                          872 B            83 kB
+├ ○ /admin                               149 B          82.3 kB
+├ ○ /admin/audit-logs                    13.4 kB        99.9 kB
+├ ○ /admin/dashboard                     7.69 kB        94.2 kB
+├ ○ /admin/documents                     8.95 kB         117 kB
+├ λ /admin/documents/[id]                9.72 kB        96.2 kB
+├ ○ /admin/login                         1.36 kB        99.4 kB
+├ ○ /admin/payments                      7.85 kB         109 kB
+├ λ /admin/payments/[id]                 8.38 kB        94.9 kB
+├ ○ /admin/phase0-readiness              5.56 kB        99.2 kB
+├ ○ /admin/production-cases              182 B           103 kB
+├ λ /admin/production-cases/[id]         1.02 kB         107 kB
+├ ○ /admin/refunds                       8.39 kB          97 kB
+├ λ /admin/refunds/[id]                  8.84 kB         101 kB
+├ ○ /admin/settings                      6.73 kB         113 kB
+├ ○ /admin/users                         9.76 kB        98.4 kB
+├ λ /admin/users/[id]                    9.24 kB        95.8 kB
+├ λ /api/admin/phase0-readiness          0 B                0 B
+├ ○ /api/health                          0 B                0 B
+├ ○ /auth/login                          9.3 kB         91.4 kB
+├ ○ /auth/register                       149 B          82.3 kB
+├ ○ /auth/verify                         3.74 kB        85.8 kB
+├ ○ /dashboard                           5.41 kB         102 kB
+├ ○ /dashboard/documents                 7.63 kB         105 kB
+├ λ /dashboard/documents/[id]            21.1 kB         122 kB
+├ ○ /dashboard/documents/new             11 kB           108 kB
+├ ○ /dashboard/payments                  149 B          82.3 kB
+├ ○ /dashboard/production-cases          2.35 kB         108 kB
+├ λ /dashboard/production-cases/[id]     2.35 kB         112 kB
+├ ○ /dashboard/profile                   5.95 kB         103 kB
+├ ○ /dashboard/settings                  5.09 kB         102 kB
+├ ○ /editor/tasks                        1.17 kB        99.2 kB
+├ λ /editor/tasks/[id]                   7.02 kB        93.5 kB
+├ λ /payment/[id]                        7.55 kB         104 kB
+├ λ /payment/[id]/refund                 2.7 kB          111 kB
+├ ○ /payment/cancel                      2.06 kB        84.2 kB
+├ ○ /payment/history                     6.61 kB         103 kB
+├ ○ /payment/refunds                     1.52 kB         104 kB
+├ λ /payment/refunds/[id]                1.52 kB         104 kB
+└ ○ /payment/success                     10 kB          92.1 kB
++ First Load JS shared by all            82.1 kB
+  ├ chunks/4938-b4d9608bcd8ed718.js      26.7 kB
+  ├ chunks/fd9d1056-13b55ba908682bbd.js  53.3 kB
+  ├ chunks/main-app-639376cea962736e.js  223 B
+  └ chunks/webpack-d4e7a1a8b90c9185.js   1.92 kB
+
+
+ƒ Middleware                             40.5 kB
+
+○  (Static)   prerendered as static content
+λ  (Dynamic)  server-rendered on demand using Node.js

@@ -66,6 +66,32 @@ describe('GenerationProgress', () => {
     expect(onError).not.toHaveBeenCalled()
   })
 
+  it('restores actual queue age from saved timing after reload', async () => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({
+      document_id: 123, job_id: 7, status: 'queued', progress: 0,
+      started_at: '2026-09-08T20:00:00Z', available_at: '2026-09-08T20:04:25Z',
+      observed_at: '2026-09-08T20:05:00Z',
+    })
+    render(<GenerationProgress documentId={123} />)
+    expect(await screen.findByText('Від запуску: 5 хв')).toBeInTheDocument()
+    expect(screen.getByText('Очікування у черзі: 35 с')).toBeInTheDocument()
+  })
+
+  it.each([true, false])('distinguishes worker lease expiry from socket connection (expired=%s)', async (expired) => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({
+      document_id: 123, job_id: 7, status: 'running', progress: 0,
+      heartbeat_at: '2026-09-08T20:04:53Z', observed_at: '2026-09-08T20:05:00Z',
+      lease_expires_at: expired ? '2026-09-08T20:04:59Z' : '2026-09-08T20:06:53Z',
+    })
+    const onError = jest.fn()
+    render(<GenerationProgress documentId={123} onError={onError} />)
+    expect(await screen.findByText('Останній сигнал виконавця: 7 с тому')).toBeInTheDocument()
+    if (expired) expect(screen.getByText(/Сигнал виконавця прострочений/)).toBeInTheDocument()
+    else expect(screen.queryByText(/Сигнал виконавця прострочений/)).not.toBeInTheDocument()
+    expect(screen.queryByText('Помилка генерації')).not.toBeInTheDocument()
+    expect(onError).not.toHaveBeenCalled()
+  })
+
   it('restores the saved progress after reload without a websocket event', async () => {
     ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, job_id: 7, status: 'queued', progress: 47, attempt_count: 1 })
     render(<GenerationProgress documentId={123} />)

@@ -1,0 +1,21 @@
+[
+  {
+    "path": "apps/api/app/services/generation_outcomes.py",
+    "before_sha256": "ab82c8c52ca47b3969d64794f12631fedc7c6a334338d12f5d976ebd23704fb3",
+    "after_sha256": "9ecda5daad8e3fb184368d5864876c5d653fcec30e71e4f4c8e9abf68f706869",
+    "ast_equal": true
+  },
+  {
+    "path": "apps/api/app/services/plan_preparation.py",
+    "before_sha256": "b93cf6bfc7906298569df3deeb2b776e39c72b268d7206f852abdaf760e698d1",
+    "after_sha256": "b93d52166a8876fd932a73b3aad5def26cda145e656d0090bdc5b0df0da63819",
+    "ast_equal": true
+  },
+  {
+    "path": "apps/api/tests/test_stability_preparation_postgres.py",
+    "before_sha256": "4dbe0ab9f408ca278a58a23ea42162a585157fa6da5a6f4332d10d228b6ba589",
+    "after_sha256": "5a38d84145ddb9ac5ab6532874598c07437cc419413330dd7a7cc56a8ce18bfc",
+    "ast_equal": false,
+    "test_only_change": "Pinned Ruff replaces list-comprehension unpack with equivalent generator unpack; actual PostgreSQL module rerun follows."
+  }
+]

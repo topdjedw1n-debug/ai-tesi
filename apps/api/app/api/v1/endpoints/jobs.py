@@ -3,6 +3,8 @@ Job status and async generation endpoints
 """
 
 import logging
+from datetime import UTC, datetime
+from typing import cast
 
 from fastapi import (
     APIRouter,
@@ -161,6 +163,11 @@ async def get_document_job_status(
         attempt_count=int(job.attempt_count or 0),
         max_attempts=int(job.max_attempts or 0),
         recovery=recovery,
+        started_at=cast(datetime | None, job.started_at),
+        available_at=cast(datetime | None, job.available_at),
+        heartbeat_at=cast(datetime | None, job.heartbeat_at),
+        lease_expires_at=cast(datetime | None, job.lease_expires_at),
+        observed_at=datetime.now(UTC),
     )
 
 

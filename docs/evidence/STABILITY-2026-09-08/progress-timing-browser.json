@@ -1,0 +1,16 @@
+{
+  "synthetic": true,
+  "id": 18,
+  "screens": [
+    "progress-timing-1280.png",
+    "progress-timing-390.png"
+  ],
+  "mutations": [],
+  "errors": [],
+  "desktop_and_mobile": true,
+  "passed": true,
+  "visually_inspected": true,
+  "polling_restored_state": true,
+  "websocket_connected": false,
+  "websocket_connection_not_verified_by_this_fixture": true
+}

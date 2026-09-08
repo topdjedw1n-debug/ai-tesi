@@ -466,6 +466,11 @@ class JobStatusResponse(BaseModel):
     attempt_count: int = 0
     max_attempts: int = 0
     recovery: dict[str, Any] | None = None
+    started_at: datetime | None = None
+    available_at: datetime | None = None
+    heartbeat_at: datetime | None = None
+    lease_expires_at: datetime | None = None
+    observed_at: datetime | None = None
 
 
 class ActivityItem(BaseModel):
