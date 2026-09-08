@@ -116,7 +116,7 @@ def append_markdown(docx: Any, text: str) -> None:
                 elif child.type == "hardbreak":
                     paragraph.add_run().add_break()
                 elif child.type == "link_open":
-                    link_href = child.attrGet("href") or ""
+                    link_href = str(child.attrGet("href") or "")
                     link_label = ""
                 elif child.type == "link_close":
                     if link_href and link_label != link_href:

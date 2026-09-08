@@ -174,7 +174,7 @@ function buildRows(summary: QualityEvidenceSummary, gates: ReleaseGate[], hasCas
           ? 'Панель рецензентів недоступна або вимкнена для цього прогону.'
           : `${summary.reviewerPanel.passed}/${summary.reviewerPanel.total} пройдено · ${summary.reviewerPanel.failed} провалено · ${summary.reviewerPanel.criticalOverrides} критичних override`,
     },
-    ...['plagiarism_proxy', 'ai_detection_proxy'].map((key) => {
+    ...['academic_quality', 'plagiarism_proxy', 'ai_detection_proxy'].map((key) => {
       const gate = gates.find((item) => item.gate_key === key)
       return {
         title: gateLabel(key),

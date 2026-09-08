@@ -745,6 +745,10 @@ export const adminApiClient = {
     return unwrapResponse(response)
   },
 
+  async retryAcademicReview(caseId: number, attemptId: string): Promise<{status: string; reason?: string}> {
+    return unwrapResponse(await apiClient.post(`/api/v1/admin/production-cases/${caseId}/academic-review/retry`, {attempt_id: attemptId}))
+  },
+
   async listDetectorReports(caseId: number): Promise<DetectorReport[]> {
     return unwrapResponse(await apiClient.get(`/api/v1/admin/production-cases/${caseId}/detector-reports`))
   },

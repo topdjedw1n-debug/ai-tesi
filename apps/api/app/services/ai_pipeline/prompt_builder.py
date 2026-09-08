@@ -6,6 +6,7 @@ Constructs prompts for outline and section generation
 from typing import Any
 
 from app.models.document import Document
+from app.services.academic_context import academic_directive, previous_analysis
 
 # Multilingual system prompts for AI models
 SYSTEM_PROMPTS = {
@@ -67,11 +68,7 @@ class PromptBuilder:
         Returns:
             Formatted prompt string
         """
-        context_text = ""
-        if context_sections:
-            context_text = "\n\nPrevious sections context:\n"
-            for section in context_sections:
-                context_text += f"- {section.get('title', 'Unknown')}: {section.get('content', '')[:200]}...\n"
+        context_text = previous_analysis(context_sections)
 
         # Sources block + citation rules: closed-book (pack) vs legacy (top-5).
         if source_pack_block:
@@ -85,7 +82,7 @@ class PromptBuilder:
                 "will convert it to the selected citation style.\n"
                 "- NEVER invent, alter, or cite any source that is not in that "
                 "list. If a statement cannot be supported by a listed source, "
-                "write it WITHOUT a citation — do not fabricate one.\n"
+                "omit the unsupported detail or explicitly state the evidence gap; never assert it without evidence.\n"
                 "- Include at least one concrete detail from the listed sources: "
                 "a statistic, numeric finding, named system, or specific study "
                 "result mentioned in their titles/abstracts.\n"
@@ -158,6 +155,8 @@ Language: {document.language}
 Target Pages: {document.target_pages}
 {PromptBuilder._length_instruction(target_word_count)}{context_text}
 {sources_text}
+{academic_directive(document)}
+APPROVED OUTLINE AND FUNCTION MAPPING: {document.outline}
 Please write this section with:
 - Academic tone and style
 - Proper structure and flow

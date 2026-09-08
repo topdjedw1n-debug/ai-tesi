@@ -103,3 +103,26 @@ def test_markdown_links_keep_destination_and_literal_underscores():
         doc.paragraphs[0].text
         == "Studio (https://example.org/a_b) e https://doi.org/10.1234/a_b"
     )
+
+
+def test_bibliography_entities_are_decoded_before_document_assembly():
+    from app.services.ai_pipeline.citation_formatter import (
+        CitationFormatter,
+        CitationStyle,
+        SourceDocument,
+    )
+
+    source = SourceDocument(
+        title="Care &amp; nursing",
+        authors=["Rossi, A."],
+        year=2024,
+        journal="Nursing &amp; Health",
+        doi="10.1000/under_score",
+    )
+    for style in CitationStyle:
+        reference = CitationFormatter.format_reference(source, style)
+        assert "&amp;" not in reference
+        assert "Care & nursing" in reference
+        assert source.doi == "10.1000/under_score"
+        if style == CitationStyle.APA:
+            assert "10.1000/under_score" in reference

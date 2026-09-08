@@ -20,11 +20,13 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.ai_pipeline.source_identity import normalize_doi
 from app.services.ai_pipeline.text_utils import ascii_fold, content_tokens
+from app.services.source_evidence import evidence_text, frozen_evidence
 
 logger = logging.getLogger(__name__)
 
@@ -220,6 +222,7 @@ class SourcePack:
     # may help the outline understand the landscape, but have no citation key
     # and are never part of the writer's citable universe or grounding gate.
     context_sources: list[PackedSource] = field(default_factory=list)
+    retrieval_trace: list[dict[str, Any]] = field(default_factory=list)
 
     def keys(self) -> list[str]:
         return [ps.citation_key for ps in self.sources]
@@ -307,6 +310,11 @@ class SourcePack:
                     ).hexdigest(),
                 }
             )
+        # Legacy packs keep their exact digest. New packs bind the precise
+        # evidence text AND its origin, including PDF page references.
+        for row, packed in zip(rows, self.canonical_sources(), strict=True):
+            if frozen_evidence(packed.source) is not None:
+                row["academic_evidence"] = frozen_evidence(packed.source)
         context_rows: list[dict[str, Any]] = []
         for position, packed in enumerate(self.canonical_context_sources()):
             source = packed.source
@@ -390,7 +398,9 @@ class SourcePack:
             year = src.year or "n.d."
             venue = f" {src.venue}." if src.venue else ""
             abstract = (src.abstract or "").strip().replace("\n", " ")
-            if len(abstract) > 300:
+            if frozen_evidence(src) is not None:
+                abstract = evidence_text(src) or "[Evidence invalid; do not cite.]"
+            elif len(abstract) > 300:
                 abstract = abstract[:300].rstrip() + "…"
             snippet = f" {abstract}" if abstract else ""
             lines.append(
@@ -415,7 +425,11 @@ class SourcePack:
                 lines.append(f"- {src.title} ({authors}, {year}).{venue}")
         block = "\n".join(lines)
 
-        if query and self.passages:
+        if (
+            query
+            and self.passages
+            and not all(frozen_evidence(p.source) is not None for p in rows)
+        ):
             # Local import: uploaded_sources imports this module for the pack
             # types, so the excerpt selector must be imported lazily here.
             from app.services.uploaded_sources import select_passages
@@ -555,21 +569,31 @@ class SourcePackBuilder:
 
         raw: list[SourceDoc] = []
         provider_errors: list[str] = []
+        retrieval_trace: list[dict[str, Any]] = []
         for query in queries:
             for provider in (self.rag.search_crossref, self.rag.search_openalex):
+                trace = {
+                    "provider": getattr(provider, "__name__", "provider"),
+                    "query": query,
+                    "page": retrieval_page,
+                    "retrieved_at": datetime.now(UTC).isoformat(),
+                }
                 try:
                     if retrieval_page == 1 and not raise_on_provider_error:
-                        raw.extend(await provider(query, limit=per_query))
+                        found = await provider(query, limit=per_query)
                     else:
-                        raw.extend(
-                            await provider(
-                                query,
-                                limit=per_query,
-                                page=retrieval_page,
-                                raise_on_error=raise_on_provider_error,
-                            )
+                        found = await provider(
+                            query,
+                            limit=per_query,
+                            page=retrieval_page,
+                            raise_on_error=raise_on_provider_error,
                         )
+                    raw.extend(found)
+                    retrieval_trace.append(
+                        {**trace, "status": "returned", "count": len(found)}
+                    )
                 except Exception as e:  # provider hiccup must not kill the build
+                    retrieval_trace.append({**trace, "status": "error", "count": 0})
                     provider_errors.append(
                         f"{getattr(provider, '__name__', 'provider')}: {e}"
                     )
@@ -693,6 +717,7 @@ class SourcePackBuilder:
             bilingual=bool(alt_terms),
             provider_errors=provider_errors,
             context_sources=context_packed,
+            retrieval_trace=retrieval_trace,
         )
         logger.info(
             f"Built source pack for document {document_id}: {len(packed)} citable "

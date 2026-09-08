@@ -805,17 +805,22 @@ async def test_existing_job_digest_reuses_pack_before_first_completed_section(
             )
         )
 
-        await BackgroundJobService.generate_full_document(
-            document_id=int(document.id),
-            user_id=int(user.id),
-            job_id=int(job.id),
-            lease_owner="resume-worker",
-            lease_token="resume-token",
-        )
+        from app.core.exceptions import QualityThresholdNotMetError
+
+        # The frozen legacy identity pack stays untouched; the new academic
+        # gate blocks BEFORE paying a writer without readable evidence.
+        with pytest.raises(QualityThresholdNotMetError):
+            await BackgroundJobService.generate_full_document(
+                document_id=int(document.id),
+                user_id=int(user.id),
+                job_id=int(job.id),
+                lease_owner="resume-worker",
+                lease_token="resume-token",
+            )
 
         assert mocks["build_pack"].called is False
         verifier_class.assert_not_called()
-        assert mocks["generate_section"].call_count == 1
+        assert mocks["generate_section"].call_count == 0
 
     refreshed_job = await db_session.get(AIGenerationJob, int(job.id))
     assert refreshed_job.source_pack_sha256 == digest

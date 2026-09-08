@@ -103,6 +103,75 @@ async def _create_document(user_id: int, *, completed: bool = False) -> Document
         return document
 
 
+async def _add_academic_evidence(session, document_id):
+    """Attach current whole-work fixture evidence; exercise the real release gate."""
+    from app.services.academic_review import review_binding
+    from app.services.ai_pipeline.rag_retriever import SourceDoc
+    from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
+    from app.services.source_evidence import freeze_evidence
+    from app.services.source_verification_stage import apply_source_pack_rows
+
+    job = (
+        await session.execute(
+            select(AIGenerationJob)
+            .where(
+                AIGenerationJob.document_id == document_id,
+                AIGenerationJob.status == "completed",
+            )
+            .order_by(AIGenerationJob.id.desc())
+            .limit(1)
+        )
+    ).scalar_one_or_none()
+    prior = (
+        (
+            await session.execute(
+                select(DocumentProvenance).where(
+                    DocumentProvenance.document_id == document_id,
+                    DocumentProvenance.event_type == "quality_gate",
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    if job is None or not prior:
+        return
+    doc = await session.get(Document, document_id)
+    source = SourceDoc(
+        "Fixture review source",
+        ["Author"],
+        2024,
+        abstract="Available fixture evidence",
+        doi="10.1000/fixture",
+    )
+    freeze_evidence(source, [], "Author2024")
+    pack = SourcePack(document_id, doc.topic, [PackedSource(source, "Author2024", 1)])
+    await apply_source_pack_rows(session, document_id, pack)
+    job.source_pack_sha256 = pack.sha256()
+    binding = review_binding(doc, job, pack.sha256(), kind="whole")
+    session.add_all(
+        [
+            DocumentProvenance(
+                document_id=document_id,
+                stage="quality",
+                event_type="academic_review",
+                payload={"binding": binding, "kind": "whole", "status": "passed"},
+            ),
+            DocumentProvenance(
+                document_id=document_id,
+                stage="export",
+                event_type="academic_review_artifact",
+                payload={
+                    "binding": binding,
+                    "docx_sha256": doc.docx_sha256,
+                    "docx_path": doc.docx_path,
+                },
+            ),
+        ]
+    )
+    await session.commit()
+
+
 async def _add_provenance(document_id: int) -> None:
     async with AsyncSessionLocal() as session:
         session.add_all(
@@ -162,6 +231,7 @@ async def _add_provenance(document_id: int) -> None:
             ]
         )
         await session.commit()
+        await _add_academic_evidence(session, document_id)
 
 
 def _auth_headers(user: User) -> dict[str, str]:
@@ -226,6 +296,7 @@ async def _create_case(client: AsyncClient, admin: User, document: Document) -> 
             stored_document.status = "completed"
             stored_document.completed_at = completed_at
             await session.commit()
+            await _add_academic_evidence(session, int(document.id))
         document.status = "completed"
         document.completed_at = completed_at
 
@@ -376,6 +447,7 @@ async def test_admin_case_starts_with_blocking_no_data_release_gates(client):
         "editorial_review",
         "delivery_package",
         "source_availability",
+        "academic_quality",
     }
     statuses = {gate["gate_key"]: gate["status"] for gate in gates}
     assert statuses["delivery_package"] == "passed"

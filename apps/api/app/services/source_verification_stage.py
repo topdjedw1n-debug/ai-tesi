@@ -39,6 +39,7 @@ from app.services.citation_verifier import (
 )
 from app.services.db_helpers import safe_scalars_all
 from app.services.provenance_service import record_event
+from app.services.source_evidence import preserve_evidence
 
 if TYPE_CHECKING:
     from app.core.config import Settings
@@ -558,11 +559,14 @@ async def run_citation_verification_stage(
 
         for source in uploaded_sources:
             source.verification_status = "verified"
-            source.canonical_metadata = {
-                "status": "verified",
-                "provider": "uploaded_file",
-                "reason": "manager-uploaded source PDF",
-            }
+            source.canonical_metadata = preserve_evidence(
+                source,
+                {
+                    "status": "verified",
+                    "provider": "uploaded_file",
+                    "reason": "manager-uploaded source PDF",
+                },
+            )
             status_counts["verified"] = status_counts.get("verified", 0) + 1
             source_records.append(
                 {
@@ -599,7 +603,7 @@ async def run_citation_verification_stage(
             mapped_status = map_verification_status(result)
             source.verification_status = mapped_status
             # Assign a NEW dict: plain JSON columns don't track mutations
-            source.canonical_metadata = result.to_dict()
+            source.canonical_metadata = preserve_evidence(source, result.to_dict())
             status_counts[mapped_status] = status_counts.get(mapped_status, 0) + 1
             if mapped_status == "not_found":
                 not_found_titles.append(source.title)

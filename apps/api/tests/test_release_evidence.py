@@ -455,3 +455,27 @@ async def test_nonfinite_percent_is_invalid_schema():
                 checked_at=datetime.utcnow(),
                 reason="A nonfinite result cannot authorize release.",
             )
+
+
+async def test_academic_gate_cannot_be_overridden_or_omitted(client, work):
+    from sqlalchemy import delete
+
+    admin, document, case = work
+    await ready(client, work)
+    async with AsyncSessionLocal() as db:
+        await db.execute(
+            delete(DocumentProvenance).where(
+                DocumentProvenance.document_id == document.id,
+                DocumentProvenance.event_type == "academic_review",
+            )
+        )
+        await db.commit()
+    denied = await client.post(
+        f"{BASE}/{case['id']}/release-gates/academic_quality/override",
+        json={"reason": "Attempt to bypass missing academic review"},
+        headers=_auth_headers(admin),
+    )
+    assert denied.status_code == 400
+    response = await release(client, work)
+    assert response.status_code == 409
+    assert "academic_quality" in response.json()["detail"]["blockers"]

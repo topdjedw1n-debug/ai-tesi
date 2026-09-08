@@ -27,6 +27,37 @@ export interface DocumentProvenance {
   events: ProvenanceEvent[]
 }
 
+export interface AcademicReviewBinding {
+  policy_version: string
+  job_id: number | null
+  task_contract_sha256: string
+  generation_contract_sha256: string | null
+  source_pack_sha256: string | null
+  outline_sha256: string
+  text_sha256: string | null
+}
+
+export interface AcademicReviewPayload {
+  binding: AcademicReviewBinding
+  kind: 'outline' | 'whole'
+  status: 'pending' | 'passed' | 'failed' | 'unchecked'
+  reason?: string | null
+  functions?: Record<string, { satisfied: boolean; evidence_quote: string; reason: string }> | null
+  requirements_satisfied?: boolean | null
+  source_coverage?: Array<{ section_index: number; supported: boolean; source_keys: string[]; reason: string }> | null
+  issues?: Array<{ severity: 'minor' | 'major' | 'critical'; reason: string }> | null
+  attempt_id?: string | null
+  actor_id?: number | null
+}
+
+export interface AcademicArtifactPayload {
+  binding: AcademicReviewBinding
+  docx_sha256: string | null
+  docx_path: string | null
+  formatting_profile?: Record<string, unknown> | null
+  formatting_warnings?: string[]
+}
+
 /** Verification status of a cited source (mirrors document_sources.verification_status) */
 export type SourceStatus =
   | 'verified'

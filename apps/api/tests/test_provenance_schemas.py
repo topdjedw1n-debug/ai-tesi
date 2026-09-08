@@ -175,6 +175,55 @@ CANONICAL_EXAMPLES: dict[str, dict] = {
 }
 
 
+ACADEMIC_BINDING = {
+    "policy_version": "academic-quality-v1",
+    "job_id": 1,
+    "task_contract_sha256": "a" * 64,
+    "generation_contract_sha256": "b" * 64,
+    "source_pack_sha256": "c" * 64,
+    "outline_sha256": "d" * 64,
+    "text_sha256": "e" * 64,
+}
+for kind, event_type in (
+    ("outline", "academic_outline_review"),
+    ("whole", "academic_review"),
+):
+    CANONICAL_EXAMPLES[event_type] = {
+        "binding": ACADEMIC_BINDING,
+        "kind": kind,
+        "status": "unchecked",
+        "reason": "Provider timeout",
+    }
+    CANONICAL_EXAMPLES[event_type + "_started"] = {
+        "binding": ACADEMIC_BINDING,
+        "kind": kind,
+        "status": "pending",
+    }
+CANONICAL_EXAMPLES["academic_review_artifact"] = {
+    "binding": ACADEMIC_BINDING,
+    "docx_sha256": "f" * 64,
+    "docx_path": "documents/1/final.docx",
+    "formatting_profile": {"version": "academic-docx-v1"},
+    "formatting_warnings": [],
+}
+
+CANONICAL_EXAMPLES["academic_review_retry_started"] = {
+    "binding": ACADEMIC_BINDING,
+    "kind": "whole",
+    "status": "pending",
+    "attempt_id": "retry-1",
+    "actor_id": 1,
+}
+CANONICAL_EXAMPLES["academic_review_retry_discarded"] = {
+    "binding": ACADEMIC_BINDING,
+    "kind": "whole",
+    "status": "unchecked",
+    "attempt_id": "retry-1",
+    "actor_id": 1,
+    "reason": "Inputs changed",
+}
+
+
 def test_registry_is_complete():
     assert set(PROVENANCE_PAYLOAD_SCHEMAS) == set(CANONICAL_EXAMPLES)
 

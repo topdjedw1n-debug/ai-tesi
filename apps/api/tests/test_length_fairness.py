@@ -94,6 +94,11 @@ async def test_grammar_per_1000_zero_disables_scaling():
 
 def test_section_prompt_carries_word_target(sample_document_factory=None):
     class Doc:
+        work_type = "tesi_magistrale"
+        citation_style = "apa"
+        additional_requirements = None
+        requirements_file_processed = False
+        outline = None
         topic = "Tema"
         language = "it"
         target_pages = 6
@@ -110,6 +115,11 @@ def test_section_prompt_carries_word_target(sample_document_factory=None):
 
 def test_section_prompt_without_target_has_no_length_brief():
     class Doc:
+        work_type = "tesi_magistrale"
+        citation_style = "apa"
+        additional_requirements = None
+        requirements_file_processed = False
+        outline = None
         topic = "Tema"
         language = "it"
         target_pages = 6

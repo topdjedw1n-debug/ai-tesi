@@ -74,6 +74,7 @@ class CitedClaim:
     source_id: int | None
     source_title: str | None
     abstract: str | None
+    frozen_evidence: bool = False
 
 
 @dataclass
@@ -134,6 +135,10 @@ def _source_abstract(source: Any) -> str | None:
     Abstract for a persisted source: canonical_metadata first (written by
     citation_verifier), falling back to the RAG-retrieved abstract.
     """
+    from app.services.source_evidence import evidence_text, frozen_evidence
+
+    if frozen_evidence(source) is not None:
+        return evidence_text(source)
     canonical = getattr(source, "canonical_metadata", None) or {}
     abstract = canonical.get("abstract") if isinstance(canonical, dict) else None
     if not abstract:
@@ -306,6 +311,11 @@ class ClaimVerifier:
                         source_id=getattr(source, "id", None) if source else None,
                         source_title=source.title if source else None,
                         abstract=_source_abstract(source) if source else None,
+                        frozen_evidence=bool(
+                            (getattr(source, "canonical_metadata", None) or {}).get(
+                                "academic_evidence"
+                            )
+                        ),
                     )
                 )
 
@@ -443,7 +453,11 @@ class ClaimVerifier:
         ):
             if source_label not in emitted_sources:
                 emitted_sources.add(source_label)
-                abstract = (claim.abstract or "")[: self.abstract_max_chars]
+                abstract = (
+                    (claim.abstract or "")
+                    if claim.frozen_evidence
+                    else (claim.abstract or "")[: self.abstract_max_chars]
+                )
                 source_blocks.append(
                     f"[{source_label}] {claim.source_title or 'Unknown source'}\n"
                     f"Abstract: {abstract}"

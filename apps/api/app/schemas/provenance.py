@@ -227,7 +227,45 @@ class ExportedPayload(_FrozenPayload):
     file_size: int | None = None
 
 
+class AcademicReviewBinding(_FrozenPayload):
+    policy_version: str
+    job_id: int | None
+    task_contract_sha256: str
+    generation_contract_sha256: str | None
+    source_pack_sha256: str | None
+    outline_sha256: str
+    text_sha256: str | None
+
+
+class AcademicReviewPayload(_FrozenPayload):
+    binding: AcademicReviewBinding
+    kind: Literal["outline", "whole"]
+    status: Literal["pending", "passed", "failed", "unchecked"]
+    reason: str | None = None
+    functions: dict[str, Any] | None = None
+    requirements_satisfied: bool | None = None
+    source_coverage: list[dict[str, Any]] | None = None
+    issues: list[dict[str, Any]] | None = None
+    attempt_id: str | None = None
+    actor_id: int | None = None
+
+
+class AcademicArtifactPayload(_FrozenPayload):
+    binding: AcademicReviewBinding
+    docx_sha256: str | None
+    docx_path: str | None
+    formatting_profile: dict[str, Any] | None = None
+    formatting_warnings: list[str] = []
+
+
 PROVENANCE_PAYLOAD_SCHEMAS: dict[str, type[BaseModel]] = {
+    "academic_review_retry_started": AcademicReviewPayload,
+    "academic_review_retry_discarded": AcademicReviewPayload,
+    "academic_review": AcademicReviewPayload,
+    "academic_review_started": AcademicReviewPayload,
+    "academic_outline_review": AcademicReviewPayload,
+    "academic_outline_review_started": AcademicReviewPayload,
+    "academic_review_artifact": AcademicArtifactPayload,
     "verification_summary": VerificationSummaryPayload,
     "citation_gate": CitationGatePayload,
     "citation_closure": CitationClosurePayload,

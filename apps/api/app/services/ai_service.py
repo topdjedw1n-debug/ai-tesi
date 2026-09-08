@@ -25,6 +25,7 @@ from app.models.document import (
     DocumentOutline,
     DocumentSection,
 )
+from app.services.academic_context import academic_directive
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.generator import SectionGenerator
 from app.services.circuit_breaker import CircuitBreaker
@@ -73,7 +74,13 @@ def _loads_lenient(content: str) -> dict[str, Any] | None:
 class AIService:
     """Service for AI content generation"""
 
-    def __init__(self, db: AsyncSession, usage_tracker: "UsageTracker | None" = None):
+    def __init__(
+        self,
+        db: AsyncSession,
+        usage_tracker: "UsageTracker | None" = None,
+        *,
+        max_retries: int = 3,
+    ):
         self.db = db
         # Optional UsageTracker: when set, every provider call records its
         # real response.usage here (covers outline, reviewer panel and claim
@@ -86,10 +93,14 @@ class AIService:
         )
         # Initialize retry strategies with circuit breakers
         self._openai_retry = RetryStrategy(
-            max_retries=3, delays=[2, 4, 8], circuit_breaker=self._openai_circuit
+            max_retries=max_retries,
+            delays=[2, 4, 8],
+            circuit_breaker=self._openai_circuit,
         )
         self._anthropic_retry = RetryStrategy(
-            max_retries=3, delays=[2, 4, 8], circuit_breaker=self._anthropic_circuit
+            max_retries=max_retries,
+            delays=[2, 4, 8],
+            circuit_breaker=self._anthropic_circuit,
         )
 
     async def _check_daily_token_limit(self) -> None:
@@ -735,7 +746,7 @@ Start with {max(3, min(10, document.target_pages // 10))} main sections appropri
 No section may exceed 3000 estimated_words. Split longer chapters into more sections while preserving the total requested length.
 Respond with ONLY the JSON object, no additional text or markdown formatting.
 """
-        return prompt.strip()
+        return prompt.strip() + academic_directive(document, outline=True)
 
     def _build_grounded_outline_prompt(
         self,
@@ -794,4 +805,4 @@ Requirements:
 
 Respond with ONLY the JSON object, no additional text or markdown formatting.
 """
-        return prompt.strip()
+        return prompt.strip() + academic_directive(document, outline=True)

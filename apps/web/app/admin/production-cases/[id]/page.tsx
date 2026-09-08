@@ -33,6 +33,8 @@ export default function ProductionCaseDetailPage() {
   const [isDownloadingReview, setIsDownloadingReview] = useState(false)
   const [isDownloadingFinal, setIsDownloadingFinal] = useState(false)
   const [loadError, setLoadError] = useState(false)
+  const [isRetryingReview, setIsRetryingReview] = useState(false)
+  const [reviewAttemptId, setReviewAttemptId] = useState<string | null>(null)
 
   const blockers = useMemo(
     () =>
@@ -78,6 +80,23 @@ export default function ProductionCaseDetailPage() {
       toast.error(error?.message || 'Видачу заблоковано')
     } finally {
       setIsReleasing(false)
+    }
+  }
+
+  const handleReviewRetry = async () => {
+    const attemptId = reviewAttemptId ?? crypto.randomUUID()
+    setReviewAttemptId(attemptId)
+    setIsRetryingReview(true)
+    try {
+      const result = await adminApiClient.retryAcademicReview(caseId, attemptId)
+      if (result.status !== 'pending') setReviewAttemptId(null)
+      if (result.status === 'passed') toast.success('Академічну перевірку пройдено')
+      else toast(result.reason || 'Перевірка завершилася із зауваженнями')
+      await load()
+    } catch (error: any) {
+      toast.error(error?.message || 'Не вдалося отримати результат перевірки')
+    } finally {
+      setIsRetryingReview(false)
     }
   }
 
@@ -270,6 +289,14 @@ export default function ProductionCaseDetailPage() {
                 <p className="mt-3 text-xs text-gray-500">
                   {gate.blocking ? 'Обов’язкова перевірка' : 'Інформація для огляду'}
                 </p>
+                {gate.gate_key === 'academic_quality' && gate.evidence?.retry_allowed === true && (
+                  <div className="mt-3">
+                    <p className="mb-2 text-xs text-gray-500">Повторна перевірка готового тексту потребує нового виклику AI.</p>
+                    <Button onClick={handleReviewRetry} disabled={isRetryingReview}>
+                      {isRetryingReview ? 'Перевірка триває…' : 'Повторити AI-перевірку'}
+                    </Button>
+                  </div>
+                )}
                 {!operatorView && gate.evidence && Object.keys(gate.evidence).length > 0 && (
                   <dl className="mt-3 grid grid-cols-1 gap-2 text-xs text-gray-600 sm:grid-cols-2">
                     {Object.entries(gate.evidence)

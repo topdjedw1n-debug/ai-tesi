@@ -951,6 +951,14 @@ async def test_strict_block_survives_async_wrapper(db_session, mock_redis, monke
     job_id = job.id
 
     with ExitStack() as stack:
+        # Isolate the citation failure under test; academic gates have
+        # independent leased-pipeline and release regression coverage.
+        stack.enter_context(
+            patch(
+                "app.services.background_jobs.run_academic_review",
+                AsyncMock(return_value={"status": "passed"}),
+            )
+        )
         mocks = pipeline_harness(
             stack,
             db_session,

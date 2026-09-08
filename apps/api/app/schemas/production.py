@@ -2,8 +2,15 @@
 
 from datetime import datetime
 from typing import Any, Literal
+from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+
+
+class AcademicReviewRetryRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    attempt_id: UUID
+
 
 CASE_STATUS_VALUES = {
     "draft",

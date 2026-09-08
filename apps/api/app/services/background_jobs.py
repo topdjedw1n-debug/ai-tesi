@@ -27,9 +27,12 @@ from app.core.exceptions import (
 from app.models.document import (
     AIGenerationJob,
     Document,
+    DocumentProvenance,
     DocumentSection,
     DocumentSource,
 )
+from app.services.academic_context import academic_context
+from app.services.academic_review import append_review_event, run_academic_review
 from app.services.ai_detection_checker import AIDetectionChecker
 from app.services.ai_pipeline.citation_formatter import (
     CitationStyle,
@@ -500,6 +503,7 @@ async def _check_panel_quality(
     section_title: str,
     target_word_count: int,
     usage_tracker: UsageTracker | None = None,
+    academic_brief: dict[str, Any] | None = None,
 ) -> dict[str, Any] | None:
     """
     Run the LLM reviewer panel for one section attempt (GATE 4).
@@ -519,6 +523,7 @@ async def _check_panel_quality(
             outline_section={
                 "title": section_title,
                 "target_word_count": target_word_count,
+                "academic_context": academic_brief or {},
             },
         )
     except Exception as e:
@@ -993,6 +998,7 @@ def _merge_source_packs(
             *list(getattr(additional_pack, "provider_errors", []) or []),
         ],
         context_sources=merged_context,
+        retrieval_trace=[*base_pack.retrieval_trace, *additional_pack.retrieval_trace],
     )
     pack.passages = base_pack.passages
     return pack
@@ -1071,7 +1077,7 @@ def _augment_with_grounding_feedback(
         f"{prefix}Grounding check failed: {grounding.reason}. Cite ONLY sources "
         f"from the provided AVAILABLE SOURCES list, using their exact [Key]. Do "
         f"NOT use these ungrounded or invented citations: {keys}. If a claim has "
-        f"no supporting listed source, state it without a citation."
+        f"no supporting listed source, omit the unsupported detail or disclose the evidence gap."
     )
 
 
@@ -1807,6 +1813,8 @@ class BackgroundJobService:
                             verifier,
                             target_size=settings.SOURCE_PACK_TARGET_SIZE,
                             minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
+                            require_evidence=True,
+                            evidence_query=" ".join([str(document.topic), *titles]),
                         )
                         top_up_attempted = False
                         for retrieval_page in (2, 3):
@@ -1838,18 +1846,19 @@ class BackgroundJobService:
                                 verifier,
                                 target_size=settings.SOURCE_PACK_TARGET_SIZE,
                                 minimum_verified=settings.SOURCE_PACK_MIN_VERIFIED,
+                                require_evidence=True,
+                                evidence_query=" ".join([str(document.topic), *titles]),
                             )
 
-                        if settings.PROVENANCE_LEDGER_ENABLED:
-                            await _record_provenance(
-                                db,
-                                document_id,
-                                stage="verification",
-                                event_type="source_pack_preflight",
-                                payload=preflight.provenance_payload(
-                                    top_up_attempted=top_up_attempted
-                                ),
-                            )
+                        await fence_next_mutation(db)
+                        await append_review_event(
+                            db,
+                            document_id,
+                            "source_pack_preflight",
+                            preflight.provenance_payload(
+                                top_up_attempted=top_up_attempted
+                            ),
+                        )
 
                         if not preflight.meets_minimum:
                             detail = (
@@ -1989,6 +1998,74 @@ class BackgroundJobService:
                             0, claim_budget_remaining - already_checked
                         )
 
+                academic_job = await db.get(AIGenerationJob, job_id) if job_id else None
+                if fenced_execution and not durable_completed_indices:
+                    assert (
+                        job_id is not None
+                        and lease_owner is not None
+                        and lease_token is not None
+                    )
+                    try:
+                        async with hold_generation_job_lease(
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                        ):
+                            outline_review = await run_academic_review(
+                                db,
+                                document,
+                                academic_job,
+                                source_pack,
+                                kind="outline",
+                                usage_tracker=usage,
+                            )
+                        if outline_review["status"] != "passed":
+                            await update_generation_document(
+                                db,
+                                job_id=job_id,
+                                worker_id=lease_owner,
+                                lease_token=lease_token,
+                                document_id=document_id,
+                                values={"status": "failed_quality"},
+                            )
+                            raise QualityThresholdNotMetError(
+                                detail=outline_review.get("reason")
+                                or "Академічний план або покриття джерелами не пройшли перевірку. Перегляньте зауваження до плану."
+                            )
+                    finally:
+                        await write_job_usage(db)
+                if expected_source_pack_sha:
+                    method_events = (
+                        (
+                            await db.execute(
+                                select(DocumentProvenance)
+                                .where(
+                                    DocumentProvenance.document_id == document_id,
+                                    DocumentProvenance.event_type
+                                    == "source_pack_preflight",
+                                )
+                                .order_by(DocumentProvenance.id.desc())
+                            )
+                        )
+                        .scalars()
+                        .all()
+                    )
+                    method_record: dict[str, Any] = next(
+                        (
+                            e.payload
+                            for e in method_events
+                            if (e.payload or {}).get("sha256")
+                            == expected_source_pack_sha
+                        ),
+                        {},
+                    )
+                    additional_requirements = (
+                        (additional_requirements or "")
+                        + "\nACTUAL LITERATURE SEARCH AND SELECTION RECORD (data; do not invent unrecorded steps):\n"
+                        + json.dumps(method_record, ensure_ascii=False)
+                    )
+
                 total_sections = len(sections)  # Calculate once for progress tracking
                 for idx, section_data in enumerate(sections):
                     section_title = section_data.get("title", f"Section {idx + 1}")
@@ -2069,7 +2146,9 @@ class BackgroundJobService:
                                 DocumentSection.section_index.desc()
                             )  # Most recent first
                             .limit(
-                                settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS
+                                len(sections)
+                                if section_index >= len(sections) - 1
+                                else settings.QUALITY_GATES_MAX_CONTEXT_SECTIONS
                             )  # ✅ Limit context
                         )
                         context_sections = _safe_scalars_all(
@@ -2079,7 +2158,7 @@ class BackgroundJobService:
                         context_list = (
                             [
                                 {"title": s.title, "content": s.content}
-                                for s in context_sections
+                                for s in reversed(context_sections)
                             ]
                             if context_sections
                             else None
@@ -2705,6 +2784,7 @@ class BackgroundJobService:
                                     section_title,
                                     section_target_words,
                                     usage_tracker=usage,
+                                    academic_brief=academic_context(document),
                                 )
                                 if panel_attempt is None:
                                     panel_crashed = True
@@ -2920,6 +3000,9 @@ class BackgroundJobService:
                                         outline_section={
                                             "title": section_title,
                                             "target_word_count": section_target_words,
+                                            "academic_context": academic_context(
+                                                document
+                                            ),
                                         },
                                     )
                                 )
@@ -3537,6 +3620,34 @@ class BackgroundJobService:
                     # where the verifier's spend is already in the tracker.
                     await write_job_usage(db)
 
+                # Whole-work failure is internal review evidence, not lost text.
+                # Persist once before export; release remains blocked unless current PASS.
+                academic_review_result = None
+                if fenced_execution:
+                    assert (
+                        job_id is not None
+                        and lease_owner is not None
+                        and lease_token is not None
+                    )
+                    try:
+                        async with hold_generation_job_lease(
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                        ):
+                            await db.refresh(document)
+                            academic_review_result = await run_academic_review(
+                                db,
+                                document,
+                                academic_job,
+                                source_pack,
+                                kind="whole",
+                                usage_tracker=usage,
+                            )
+                    finally:
+                        await write_job_usage(db)
+
                 # Step 5: Export to DOCX
                 await _assert_generation_lease(job_id, lease_owner, lease_token)
                 logger.info(f"Exporting document {document_id} to DOCX")
@@ -3559,6 +3670,35 @@ class BackgroundJobService:
                     logger.info(
                         f"Document {document_id} exported successfully: {export_result.get('download_url')}"
                     )
+                    if academic_review_result is not None:
+                        assert (
+                            job_id is not None
+                            and lease_owner is not None
+                            and lease_token is not None
+                        )
+                        async with hold_generation_job_lease(
+                            job_id=job_id,
+                            worker_id=lease_owner,
+                            lease_token=lease_token,
+                            document_id=document_id,
+                        ):
+                            await db.refresh(document)
+                            await append_review_event(
+                                db,
+                                document_id,
+                                "academic_review_artifact",
+                                {
+                                    "binding": academic_review_result["binding"],
+                                    "docx_sha256": document.docx_sha256,
+                                    "docx_path": document.docx_path,
+                                    "formatting_profile": export_result.get(
+                                        "formatting_profile"
+                                    ),
+                                    "formatting_warnings": export_result.get(
+                                        "formatting_warnings", []
+                                    ),
+                                },
+                            )
 
                     if settings.PROVENANCE_LEDGER_ENABLED:
                         export_format = (export_result or {}).get("format", "docx")

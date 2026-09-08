@@ -25,6 +25,7 @@ from app.core.production_access import (
 )
 from app.models.auth import User
 from app.schemas.production import (
+    AcademicReviewRetryRequest,
     ContentReviewRequest,
     DetectorReportResponse,
     EditorTaskCreate,
@@ -45,6 +46,23 @@ from app.services.production_case_service import (
 from app.services.release_policy import MAX_REPORT_BYTES
 
 router = APIRouter()
+
+
+@router.post("/{case_id}/academic-review/retry")
+async def retry_whole_work_review(
+    case_id: int,
+    payload: AcademicReviewRetryRequest,
+    current_user: User = Depends(
+        require_production_permission(AdminPermissions.RELEASE_DOCUMENTS)
+    ),
+    db: AsyncSession = Depends(get_db),
+) -> dict[str, Any]:
+    """Explicit paid review attempt; resubmitting its ID never calls AI twice."""
+    from app.services.academic_review_retry import retry_academic_review
+
+    return await retry_academic_review(
+        db, case_id, str(payload.attempt_id), int(current_user.id)
+    )
 
 
 def check_operator_assignments(

@@ -35,6 +35,7 @@ from app.schemas.production import (
     ProductionCaseCreate,
     ProductionCaseUpdate,
 )
+from app.services.academic_review import academic_release_verdict
 from app.services.generation_contract import (
     generation_contract_error,
     generation_contract_sha256,
@@ -49,8 +50,12 @@ from app.services.release_policy import (
     detector_verdict,
     section_release_status,
 )
+from app.services.source_verification_stage import load_source_pack
 from app.services.storage_service import StorageService
-from app.services.uploaded_sources import uploaded_sources_digest
+from app.services.uploaded_sources import (
+    build_uploaded_source_pack,
+    uploaded_sources_digest,
+)
 
 DETECTOR_GATE_KEYS = {"plagiarism_proxy", "ai_detection_proxy"}
 DETECTOR_ARTIFACT_FORMATS = ("docx", "pdf")
@@ -201,6 +206,11 @@ RELEASE_GATE_CONFIG: dict[str, dict[str, Any]] = {
     "source_availability": {
         "blocking": True,
         "override_allowed": True,
+        "source": "document_provenance",
+    },
+    "academic_quality": {
+        "blocking": True,
+        "override_allowed": False,
         "source": "document_provenance",
     },
 }
@@ -524,6 +534,15 @@ class ProductionCaseService:
         # flip the contract gate exactly like a methodology change.
         sources_sha = await uploaded_sources_digest(self.db, int(document.id))
 
+        current_pack_sha = None
+        if any(e.event_type == "academic_review" for e in events):
+            pack = await load_source_pack(self.db, int(document.id))
+            if pack:
+                uploaded_pack = await build_uploaded_source_pack(
+                    self.db, int(document.id), str(document.topic)
+                )
+                pack.passages = uploaded_pack.passages if uploaded_pack else None
+                current_pack_sha = pack.sha256()
         gates = []
         for gate_key, config in RELEASE_GATE_CONFIG.items():
             computed = self._compute_gate(
@@ -536,6 +555,7 @@ class ProductionCaseService:
                 sections,
                 latest_job,
                 uploaded_sources_sha=sources_sha,
+                current_source_pack_sha=current_pack_sha,
             )
             stored = persisted.get(gate_key)
             if stored and gate_key in DETECTOR_GATE_KEYS:
@@ -1150,12 +1170,32 @@ class ProductionCaseService:
         latest_job: AIGenerationJob | None,
         *,
         uploaded_sources_sha: str | None = None,
+        current_source_pack_sha: str | None = None,
     ) -> dict[str, Any]:
         status_value = "no_data"
         summary = "No evidence recorded yet."
         evidence: dict[str, Any] = {}
 
-        if gate_key == "generation_contract":
+        if gate_key == "academic_quality":
+            status_value, summary, evidence = academic_release_verdict(
+                document,
+                latest_job,
+                events,
+                current_source_pack_sha,
+                current_generation_sha=(
+                    generation_contract_sha256(
+                        document,
+                        case,
+                        cast(dict[str, Any], latest_job.request_payload or {}).get(
+                            "additional_requirements"
+                        ),
+                        uploaded_sources_sha,
+                    )
+                    if latest_job
+                    else None
+                ),
+            )
+        elif gate_key == "generation_contract":
             contract_error = generation_contract_error(document)
             if contract_error is not None:
                 status_value = "failed"

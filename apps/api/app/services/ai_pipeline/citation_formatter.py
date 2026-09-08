@@ -6,6 +6,7 @@ Handles both in-text citations and bibliography/reference formatting
 from collections.abc import Iterable
 from dataclasses import dataclass
 from enum import StrEnum
+from html import unescape
 from typing import Any
 
 
@@ -111,13 +112,19 @@ class CitationFormatter:
             Formatted reference string
         """
         if style == CitationStyle.APA:
-            return CitationFormatter._format_apa_reference(source, year_suffix)
+            return unescape(
+                CitationFormatter._format_apa_reference(source, year_suffix)
+            )
         elif style == CitationStyle.MLA:
-            return CitationFormatter._format_mla_reference(source)
+            return unescape(CitationFormatter._format_mla_reference(source))
         elif style == CitationStyle.CHICAGO:
-            return CitationFormatter._format_chicago_reference(source, year_suffix)
+            return unescape(
+                CitationFormatter._format_chicago_reference(source, year_suffix)
+            )
         elif style == CitationStyle.HARVARD:
-            return CitationFormatter._format_harvard_reference(source, year_suffix)
+            return unescape(
+                CitationFormatter._format_harvard_reference(source, year_suffix)
+            )
         else:
             raise ValueError(f"Unsupported citation style: {style}")
 

@@ -33,6 +33,7 @@ const GATE_LABELS: Record<string, string> = {
   citation_verification: 'Перевірка цитат',
   claim_support: 'Підкріпленість тверджень',
   section_quality: 'Якість розділів',
+  academic_quality: 'Академічна повнота роботи',
   plagiarism_proxy: 'Compilatio: збіги тексту',
   ai_detection_proxy: 'Compilatio: показник AI',
   editorial_review: 'Огляд змісту',
@@ -56,6 +57,17 @@ export function gateDetail(gate: ReleaseGate): string {
       }`;
     }
     return 'Завантажте DOCX для Compilatio, прикріпіть звіт і внесіть результат. Допустимо до 10% включно.';
+  }
+  if (gate.gate_key === 'academic_quality') {
+    const evidence = gate.evidence ?? {};
+    const issues = Array.isArray(evidence.issues) ? evidence.issues : [];
+    const functions = typeof evidence.functions === 'object' && evidence.functions
+      ? Object.values(evidence.functions) : [];
+    const coverage = Array.isArray(evidence.source_coverage) ? evidence.source_coverage : [];
+    const reasons = [...issues, ...functions.filter((item: any) => item?.satisfied === false),
+      ...coverage.filter((item: any) => item?.supported === false)]
+      .map((item: any) => item?.reason).filter((reason: unknown) => typeof reason === 'string');
+    return [gate.summary, ...Array.from(new Set(reasons))].join(' ');
   }
   const details: Record<string, [string, string]> = {
     generation_contract: [

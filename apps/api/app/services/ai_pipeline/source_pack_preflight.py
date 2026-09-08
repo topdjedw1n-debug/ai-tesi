@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import UTC, datetime
 from typing import Any
 
-from app.services.ai_pipeline.rag_retriever import SourceDoc
+from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.ai_pipeline.source_identity import sources_equivalent
 from app.services.ai_pipeline.source_pack import (
     PackedSource,
@@ -19,6 +20,7 @@ from app.services.citation_verifier import (
     SourceInput,
     VerificationStatus,
 )
+from app.services.source_evidence import freeze_evidence
 
 
 @dataclass(frozen=True)
@@ -52,6 +54,7 @@ class SourcePreflightOutcome:
             counts[rejection.reason] = counts.get(rejection.reason, 0) + 1
         return {
             "status": "passed" if self.meets_minimum else "failed",
+            "retrieval_trace": self.pack.retrieval_trace,
             "candidates": self.candidate_count,
             "verified": self.verified_count,
             "final_size": len(self.pack.sources),
@@ -214,6 +217,9 @@ async def preverify_source_pack(
     *,
     target_size: int,
     minimum_verified: int,
+    require_evidence: bool = False,
+    evidence_retriever: RAGRetriever | None = None,
+    evidence_query: str | None = None,
 ) -> SourcePreflightOutcome:
     """Return the final verified pack; never let an unsuitable source through."""
     accepted: list[tuple[float, SourceDoc, str, bool]] = []
@@ -279,6 +285,53 @@ async def preverify_source_pack(
             reason = "not_found"
         rejected.append(SourceRejection(source.title, reason))
 
+    retrieval_trace = list(pack.retrieval_trace)
+    if require_evidence:
+        retriever = evidence_retriever or RAGRetriever()
+        enriched = []
+        for score, source, key, uploaded in accepted:
+            if not source.abstract and not uploaded:
+                query = source.doi or source.title
+                trace = {
+                    "provider": "search_openalex",
+                    "query": query,
+                    "purpose": "missing_evidence",
+                    "retrieved_at": datetime.now(UTC).isoformat(),
+                }
+                try:
+                    found = await retriever.search_openalex(
+                        query, limit=5, raise_on_error=True
+                    )
+                    retrieval_trace.append(
+                        {**trace, "status": "returned", "count": len(found)}
+                    )
+                    match = next(
+                        (
+                            s
+                            for s in found
+                            if s.abstract and sources_equivalent(source, s)
+                        ),
+                        None,
+                    )
+                    if match:
+                        source.abstract = match.abstract
+                        source.canonical_metadata = {
+                            **(source.canonical_metadata or {}),
+                            "evidence_provider": match.provider or "openalex",
+                        }
+                except Exception:
+                    transient_count += 1
+                    retrieval_trace.append({**trace, "status": "error", "count": 0})
+            if freeze_evidence(
+                source,
+                pack.canonical_passages(),
+                key,
+                query=evidence_query or pack.topic,
+            ):
+                enriched.append((score, source, key, uploaded))
+            else:
+                rejected.append(SourceRejection(source.title, "no_readable_evidence"))
+        accepted = enriched
     deduped = _deduplicate_verified(accepted)
     final_pack = _assign_final_keys(
         pack.document_id,
@@ -288,6 +341,7 @@ async def preverify_source_pack(
         passages=pack.passages,
         bilingual=pack.bilingual,
     )
+    final_pack.retrieval_trace = retrieval_trace
     return SourcePreflightOutcome(
         pack=final_pack,
         candidate_count=len(pack.sources),
