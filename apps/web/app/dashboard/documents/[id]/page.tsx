@@ -247,6 +247,28 @@ export default function DocumentDetailPage() {
           </>
         )}
 
+        {/* Draft review: contract, uploaded sources, estimate, explicit start */}
+        {((document.status === 'draft' && !document.content) || failed) && (
+          <TaskContractPanel
+            documentId={documentId}
+            targetPages={document.target_pages}
+            provider={document.ai_provider || 'anthropic'}
+            model={document.ai_model || 'claude-opus-4-8'}
+            refreshKey={draftRevision}
+            retry={failed}
+            onGenerationStarted={() => {
+              setIsGenerating(true)
+              fetchDocument()
+            }}
+          >
+            <DocumentSourceFiles
+              documentId={documentId}
+              editable
+              onChanged={() => setDraftRevision((current) => current + 1)}
+            />
+          </TaskContractPanel>
+        )}
+
         {/* Sources certificate: cited sources with verification statuses */}
         {!isGeneratingStatus && document.status !== 'draft' && (
           <>
@@ -303,28 +325,6 @@ export default function DocumentDetailPage() {
                 ))}
             </div>
           </div>
-        )}
-
-        {/* Draft review: contract, uploaded sources, estimate, explicit start */}
-        {((document.status === 'draft' && !document.content) || failed) && (
-          <TaskContractPanel
-            documentId={documentId}
-            targetPages={document.target_pages}
-            provider={document.ai_provider || 'anthropic'}
-            model={document.ai_model || 'claude-opus-4-8'}
-            refreshKey={draftRevision}
-            retry={failed}
-            onGenerationStarted={() => {
-              setIsGenerating(true)
-              fetchDocument()
-            }}
-          >
-            <DocumentSourceFiles
-              documentId={documentId}
-              editable
-              onChanged={() => setDraftRevision((current) => current + 1)}
-            />
-          </TaskContractPanel>
         )}
       </div>
     </DashboardLayout>

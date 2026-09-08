@@ -125,6 +125,28 @@ describe('ProductionCaseDetailPage QA evidence', () => {
     expect(screen.queryByText('Витрати на підготовку')).not.toBeInTheDocument()
   })
 
+  it.each(['failed', 'failed_quality'])('guides the operator back to retry when writing stopped (%s)', async (status) => {
+    ;(usePathname as jest.Mock).mockReturnValue('/dashboard/production-cases/77')
+    ;(adminApiClient.getProductionCase as jest.Mock).mockResolvedValue({
+      ...productionCase,
+      generation_status: status,
+      document: { ...productionCase.document, status, docx_path: null, artifact_bindings: null },
+    })
+    render(<ProductionCaseDetailPage />)
+    expect(await screen.findByRole('heading', { name: 'Попереднє написання зупинилося' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Перейти до нової спроби' })).toHaveAttribute('href', '/dashboard/documents/123')
+    expect(screen.getByRole('button', { name: 'DOCX для Compilatio' })).toBeDisabled()
+    expect(adminApiClient.releaseProductionCase).not.toHaveBeenCalled()
+  })
+
+  it('keeps the completed-file path free of retry instructions', async () => {
+    ;(usePathname as jest.Mock).mockReturnValue('/dashboard/production-cases/77')
+    render(<ProductionCaseDetailPage />)
+    await screen.findByText('Результати перевірок')
+    expect(screen.queryByRole('link', { name: 'Перейти до нової спроби' })).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'DOCX для Compilatio' })).toBeEnabled()
+  })
+
   it('requires stored reports and removes manual pass and run-template controls', async () => {
     render(<ProductionCaseDetailPage />)
     expect(await screen.findByText('Результати перевірок')).toBeInTheDocument()

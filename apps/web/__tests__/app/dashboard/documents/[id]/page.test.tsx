@@ -151,6 +151,23 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
     expect(screen.queryByTestId('download-docx-button')).not.toBeInTheDocument()
   })
 
+  it('puts retry controls before the saved text of an unfinished work', async () => {
+    ;(apiClient.get as jest.Mock).mockResolvedValue({
+      ...draftDocument,
+      status: 'failed',
+      sections: [{
+        id: 1, section_index: 1, title: 'Saved chapter', status: 'completed',
+        word_count: 5811, content: 'Previously generated chapter text',
+      }],
+    })
+    render(<DocumentDetailPage />)
+    const retry = await screen.findByTestId('task-contract-panel')
+    const savedText = screen.getByText('Previously generated chapter text')
+    expect(retry.compareDocumentPosition(savedText) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
+    expect(screen.getAllByTestId('mock-confirm-and-start')).toHaveLength(1)
+    expect(apiClient.post).not.toHaveBeenCalled()
+  })
+
   it.each(['draft', 'generating', 'failed'])('omits the brief count before any saved section (%s)', async (status) => {
     ;(apiClient.get as jest.Mock).mockResolvedValue({ ...draftDocument, status, word_count: 22 })
     render(<DocumentDetailPage />)

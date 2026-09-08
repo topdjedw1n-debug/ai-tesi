@@ -140,11 +140,15 @@ export default function ProductionCaseDetailPage() {
     </div>
   )
 
+  const needsGenerationRetry = operatorView &&
+    ['failed', 'failed_quality'].includes(productionCase.document?.status || '') &&
+    !productionCase.document?.artifact_bindings?.docx
+
   return (
     <div className="space-y-6">
-      <Link href={operatorView ? `/dashboard/documents/${productionCase.document_id}` : '/admin/production-cases'} className="text-sm text-primary-700 underline">
+      {!needsGenerationRetry && <Link href={operatorView ? `/dashboard/documents/${productionCase.document_id}` : '/admin/production-cases'} className="text-sm text-primary-700 underline">
         {operatorView ? '← До роботи та стану генерації' : '← До списку перевірок'}
-      </Link>
+      </Link>}
       <div className="flex items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold font-serif text-gray-900">
@@ -180,6 +184,18 @@ export default function ProductionCaseDetailPage() {
           )}
         </div>
       </div>
+
+      {needsGenerationRetry && (
+        <section className="rounded-lg border border-amber-200 bg-amber-50 p-4" aria-labelledby="generation-stopped-heading">
+          <h2 id="generation-stopped-heading" className="text-lg font-semibold text-amber-900">Попереднє написання зупинилося</h2>
+          <p className="mt-2 text-sm text-amber-900">
+            Готового DOCX ще немає. Відкрийте роботу, перегляньте причину зупинки й після її усунення підтвердьте нову спробу. Перевірка у Compilatio починається після готового файла.
+          </p>
+          <Link href={`/dashboard/documents/${productionCase.document_id}`} className="mt-3 inline-flex rounded-md bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700">
+            Перейти до нової спроби
+          </Link>
+        </section>
+      )}
 
       {blockers.length > 0 && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
