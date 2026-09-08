@@ -1,0 +1,22 @@
+{
+  "result": "**Addendum: APPROVED_FOR_S4_PREPARATION зберігається для exact `review/formatted-manifest.json`.**\n\nЩо звірено:\n- Усі 15 записів у `formatting-equivalence.json` мають `reviewed_sha256`, що збігається з моїм попередньо схваленим `final-manifest.json`, а `formatted_sha256` дорівнює відповідному хешу у `formatted-manifest.json`. Решта 28 файлів (включно з усіма web-файлами) мають незмінні хеші. Жодного файла, який змінився без пари в equivalence, немає.\n- `ast_equal: true` для кожного з 15 файлів; це доказ primary agent, я його не відтворював, але Black за призначенням не змінює AST, і список змінених файлів відповідає лише форматуванню.\n- `usage-reconciliation-reviewed.json`: для jobs 11–14 recorded == journal за токенами й центами (6000/5, 6000/5, 6000/5, 5800/4); один unknown-виклик job 11 показаний окремо, не приписаний нулю. Це закриває мою попередню примітку про відсутній файл.\n- `export-recovery-reviewed.json` (job 14, на поточній cost-дельті): явний UI resume, 3/3 → 4/6 completed, той самий pack/content/sections/outline, лічильники писаря, пошуку й whole-review не зросли (лише upload +1), витрати незмінні 5800/4, sha артефакту збігається з `docx_sha` у БД.\n\nОдна операційна примітка для S4, не блокер: профіль хешує байти `ai_service.py` і `ai_pipeline/humanizer.py`, тож після Black усі задачі, створені на reviewed-байтах (локальні jobs 11–14 і будь-який харнес зі старим образом), під новим образом стануть `contract_or_profile_mismatch`. Це очікувана fail-closed поведінка; для першого встановлення її вже покриває вимога нуля queued/running, але локальні докази не можна «продовжувати» новим образом.\n\nМежа без змін: локальні behavioral proofs; не production, не реальна семантична точність моделей, не Compilatio й не академічний PASS.",
+  "session_id": "8ebda4d8-f26f-4bc0-a595-740165cda9d6",
+  "modelUsage": {
+    "claude-fable-5-1": {
+      "inputTokens": 34,
+      "outputTokens": 2457,
+      "cacheReadInputTokens": 754159,
+      "cacheCreationInputTokens": 12440,
+      "webSearchRequests": 0,
+      "costUSD": 0.56052975,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 1305,
+      "canonicalModel": "claude-fable-5-1",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "permission_denials": [],
+  "duration_ms": 53095
+}

@@ -1,0 +1,19 @@
+{
+  "code_commit": "189aba72ba11d73cad4a30e5203da44ea0261bd0",
+  "api_image": "sha256:850a4e428e7c9910bbda1ebcd482c1d953e697b9202e5dc09eab0e23088c983e",
+  "web_image": "sha256:2112a7e8f317c9ad1c2d4af7340a068e12285863d60f71114bb0d41459dd6437",
+  "web_build_id": "x7ixzspzw9qVTZ3oqryTS",
+  "verified_at": "2026-09-08T20:20:59.346751+00:00",
+  "healthy_services": 6,
+  "runtime_modules_verified": 122,
+  "release_profile_values_verified": 30,
+  "history_unchanged": true,
+  "ingress_reopened": true,
+  "operator_bot_restarted_same_container": true,
+  "operator_bot_code_commit": "7249e50ad7778d72888dbdef75d633359e41de4e",
+  "database_and_files_restore_verified": true,
+  "generation_started": false,
+  "academic_acceptance": false,
+  "migrations": false,
+  "env_changes": false
+}

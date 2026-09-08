@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "snapshot": {
+    "documents": {
+      "count": 8,
+      "sha256": "4bbf240fea302ebca783ad5f47d5f02d2e3d8d24688038e85312c8bc53ca947b"
+    },
+    "ai_generation_jobs": {
+      "count": 8,
+      "sha256": "f03c8b5ee80315c51782a85c100397a27ba9c1d593473b364bc3e8720c434677"
+    },
+    "document_sections": {
+      "count": 11,
+      "sha256": "884c282d3e9a1cd5977acd521ddbcd83d415f1e136861d919265b8ce51c8a7c0"
+    },
+    "document_provenance": {
+      "count": 143,
+      "sha256": "4df6b4ed35292de636c8dc0a5cef061923c91fd443e13bd82803c89b185f42c0"
+    },
+    "production_cases": {
+      "count": 8,
+      "sha256": "e32352ee51d5d5bb7667204ad50f126e6fd6b7dbfe0aee0389e6e20539998f38"
+    },
+    "active_jobs": 0
+  }
+}

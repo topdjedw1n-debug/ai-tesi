@@ -1,0 +1,113 @@
+{
+  "prepared_at": "2026-09-08T20:17:34.198357+00:00",
+  "backup": "/opt/thesica/backups/stability-20260908",
+  "before": {
+    "ai-thesis-api": {
+      "id": "c9dac3ecb5f2e1feb0f864a71eb596e0bba8b483b8c9d92d117a539e378fd66b",
+      "image": "sha256:8efb8f707187126a3dda085995e83f9e51bd9cb9a7fbf43253ae669865959d22",
+      "tag": "ai-thesis-api",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-web": {
+      "id": "3bbf9768b1eab5ee59ca359e4623e8cecfe73dffb041a5c147443b3b569b394c",
+      "image": "sha256:f2eda8ffa63063a65e59e8e45023138d55a3a7f09e6c7354a0f10e0dc461da71",
+      "tag": "ai-thesis-web",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-postgres": {
+      "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+      "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "tag": "postgres:15-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-redis": {
+      "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "tag": "redis:7-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-minio": {
+      "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+      "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "tag": "minio/minio:latest",
+      "health": "healthy",
+      "running": true
+    },
+    "docker-operator-bot-1": {
+      "id": "e00251229ba399749a22cb520d68fd42173af3b6ffe4954018110b58897697df",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "tag": "thesica-operator-bot",
+      "health": "unhealthy",
+      "running": false
+    }
+  },
+  "postgres_restore_passed": true,
+  "files_restore_passed": true,
+  "restored_tables": {
+    "documents": {
+      "rows": 8,
+      "rows_md5": "1827098d470e0ce28bc6db410e796be5"
+    },
+    "ai_generation_jobs": {
+      "rows": 8,
+      "rows_md5": "1d05c866f82e50a413cf13931a2247db"
+    },
+    "document_sections": {
+      "rows": 11,
+      "rows_md5": "26cdd2cd2eae0e785a60f44618c93ea1"
+    },
+    "document_provenance": {
+      "rows": 143,
+      "rows_md5": "51c68b3a569fc7db1f6f81ae49139a50"
+    },
+    "production_cases": {
+      "rows": 8,
+      "rows_md5": "50c8f00a1ea8e2bfd85e2265a6e7662f"
+    }
+  },
+  "objects": {
+    "count": 2,
+    "manifest_sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747",
+    "total_bytes": 222522
+  },
+  "rollback_tags": {
+    "ai-thesis-api": "ai-thesis-api:rollback-stability-20260908",
+    "ai-thesis-web": "ai-thesis-web:rollback-stability-20260908"
+  },
+  "off_host_copy_verified": false,
+  "rpo_rto": "Not established; no numerical claim. This proof covers same-host restore only.",
+  "files": {
+    "minio-data.tar.gz": {
+      "bytes": 208551,
+      "sha256": "982e86458d220ab4b4eba7d55eeb5ba1e9066f52e6e35ee2c8b09e897b3b3ae7"
+    },
+    "postgres.dump": {
+      "bytes": 369506,
+      "sha256": "c136bae38200a2497a45e34426b94eebc45266d1c92c98375642f1b09c55dc57"
+    },
+    ".release-sha": {
+      "bytes": 41,
+      "sha256": "987ab5749d3378c2473fa55ef45000ca02f0285d815d64b0a02b972823d5e4c0"
+    },
+    "source.tar.gz": {
+      "bytes": 10462183,
+      "sha256": "17729bfd0f5344c6c81f273602042aef4e1a0afe428c9a011eb3f1136e9a6fe4"
+    },
+    "object-sha256.json": {
+      "bytes": 375,
+      "sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747"
+    },
+    "private-config.tar.gz": {
+      "bytes": 5833,
+      "sha256": "bf8c8e8b6c6ee31959b52fff529c5e55a0a4160f71eefe3542e0d1933d472ed8"
+    },
+    ".release.json": {
+      "bytes": 58012,
+      "sha256": "51feed45253fd9160762cc1d68431aca669f81b50a97d32cf12f41e8bdbde983"
+    }
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "closed": true,
+  "closed_at": "2026-09-08T20:16:36.187138+00:00",
+  "caddy_original_sha256": "3d975f794bb0a83f32dc14499742a415b06e1589f7761e5282c5afbc10462102",
+  "caddy_closed_sha256": "083ca82818c750d2f67ea3e9f67d57b4110ec8d852b93c633858ad27c9a60fdf",
+  "bot_stopped": "docker-operator-bot-1",
+  "active_jobs": 0,
+  "checks": [
+    {
+      "path": "/api/v1/generate/full-document",
+      "status": 503
+    },
+    {
+      "path": "/api/v1/admin/documents/8/retry",
+      "status": 503
+    },
+    {
+      "path": "/api/v1/generate/full-document/8/resume",
+      "status": 503
+    },
+    {
+      "path": "/api/v1/admin/production-cases/10/academic-review/retry",
+      "status": 503
+    }
+  ]
+}

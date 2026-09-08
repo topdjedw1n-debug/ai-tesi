@@ -26,5 +26,9 @@
   "web-types-final.txt": {
     "raw_sha256": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb",
     "normalized_sha256": "aa01f9ca6bc7f6594175baec06950379959a9ac9c70c6accf3c864bd6d56b7aa"
+  },
+  "image-tests-formatted.txt": {
+    "raw_sha256": "95fd0f97a7bafe13e3ea7d4e5601bb8641f560af40b1e720a5cf7067f79123e0",
+    "normalized_sha256": "6c5f17e92a088e5d245f685ab84f1bcfacc16abc8b1eeedbf7dc9cf5567ea88a"
   }
 }
