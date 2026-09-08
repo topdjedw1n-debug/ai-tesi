@@ -1,0 +1,149 @@
+{
+  "record_type": "template_not_a_measured_result",
+  "template_version": "m1q02-three-criteria-v1",
+  "run_id": null,
+  "round_id": null,
+  "previous_run_id": null,
+  "task": {
+    "academic_level": null,
+    "work_type": null,
+    "language": null,
+    "target_pages": null,
+    "contract_sha256": null,
+    "source_pack_sha256": null
+  },
+  "configuration": {
+    "provider": null,
+    "model_id": null,
+    "parameters": null,
+    "prompt_sha256": null,
+    "pipeline_commit": null,
+    "configuration_sha256": null
+  },
+  "experiment": {
+    "changed_factor": null,
+    "hypothesis": null,
+    "expected_effect": null
+  },
+  "artifact": {
+    "docx_reference": null,
+    "docx_sha256": null,
+    "render_reference": null,
+    "actual_pages": null
+  },
+  "results": {
+    "similarity": {
+      "status": "pending",
+      "percent": null,
+      "threshold_percent": 10,
+      "report_reference": null,
+      "report_sha256": null,
+      "checked_docx_sha256": null,
+      "settings_reference": null,
+      "checked_at_utc": null
+    },
+    "ai": {
+      "status": "pending",
+      "percent": null,
+      "threshold_percent": 10,
+      "report_reference": null,
+      "report_sha256": null,
+      "checked_docx_sha256": null,
+      "settings_reference": null,
+      "checked_at_utc": null
+    },
+    "academic": {
+      "rubric_version": "Q-v1",
+      "status": "pending",
+      "criteria": [
+        {
+          "id": "Q1",
+          "title": "Завдання і заданий академічний рівень",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q2",
+          "title": "Фактично виконаний метод",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q3",
+          "title": "Джерела, цитати й підтвердження тверджень",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q4",
+          "title": "Аналіз досліджень",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q5",
+          "title": "Дискусія та обмеження",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q6",
+          "title": "Висновки з відповіді на питання",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        },
+        {
+          "id": "Q7",
+          "title": "Цілісність, мова й придатність без переписування",
+          "score": null,
+          "rationale": null,
+          "evidence_references": []
+        }
+      ],
+      "sum_out_of_21": null,
+      "minimum_required_per_criterion": 2,
+      "critical_defects": [],
+      "agent_review_reference": null,
+      "human_review": {
+        "decision": "pending",
+        "reviewer": null,
+        "reviewed_docx_sha256": null,
+        "evidence_reference": null
+      }
+    },
+    "technical": {
+      "status": "pending",
+      "error_reference": null
+    },
+    "no_human_rewrite": {
+      "status": "pending",
+      "docx_sha256": null,
+      "evidence_reference": null
+    },
+    "three_criteria_status": "pending",
+    "evidence_complete": false,
+    "release_status": "not_evaluated"
+  },
+  "operations": {
+    "started_at_utc": null,
+    "completed_at_utc": null,
+    "attempt_count": null,
+    "input_tokens": null,
+    "output_tokens": null,
+    "reasoning_tokens": null,
+    "cached_input_tokens": null,
+    "total_cost_usd": null,
+    "pricing_reference": null
+  },
+  "next_step": {
+    "specific_defect": null,
+    "proposed_change": null,
+    "decision_reason": null
+  }
+}
