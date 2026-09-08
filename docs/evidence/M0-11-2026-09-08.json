@@ -1,0 +1,419 @@
+{
+  "task": "M0-11",
+  "status": "VERIFIED",
+  "recorded_at_utc": "2026-09-08T13:01:49.003003+00:00",
+  "scope": "Provider balance failure recovery, deterministic bot commands, current production artifact verification",
+  "authorization": "Existing explicit user commit/push/deploy approval and request to eliminate technical generation failures; user topped up API balance independently.",
+  "code_commit": "7249e50ad7778d72888dbdef75d633359e41de4e",
+  "base_commit": "d00f5f06d3c71c3e0b605cb54a3b5198abc81354",
+  "work6": {
+    "document_id": 6,
+    "job_id": 6,
+    "status": "failed",
+    "worker_attempts": 3,
+    "started_at_utc": "2026-09-08T12:14:37.606736+00:00",
+    "finished_at_utc": "2026-09-08T12:17:00.59933+00:00",
+    "provider_status": 400,
+    "provider_error_type": "invalid_request_error",
+    "reason": "Your credit balance is too low to access the Anthropic API.",
+    "request_id": "req_011CeqxUjV7fA5MhxGS8G2Fw",
+    "sections": 0,
+    "docx_present": false,
+    "application_tokens": 7719,
+    "application_cost_cents": 8,
+    "all_business_data_unchanged": true
+  },
+  "provider_access_probe": {
+    "at_utc": "2026-09-08T12:43:31.111712+00:00",
+    "http_status": 200,
+    "requested_model": "claude-opus-4-8",
+    "returned_model": "claude-opus-4-8",
+    "request_id": "req_011CeqzVuqUVG43Jz9gQvTGE",
+    "usage": {
+      "input_tokens": 12,
+      "cache_creation_input_tokens": 0,
+      "cache_read_input_tokens": 0,
+      "cache_creation": {
+        "ephemeral_5m_input_tokens": 0,
+        "ephemeral_1h_input_tokens": 0
+      },
+      "output_tokens": 4,
+      "output_tokens_details": {
+        "thinking_tokens": 0
+      },
+      "service_tier": "standard",
+      "inference_geo": "global"
+    },
+    "generation_jobs_started": false,
+    "documents_created": false
+  },
+  "tests": {
+    "api_full": {
+      "passed": 1244,
+      "skipped": 10
+    },
+    "web_full": {
+      "passed": 209,
+      "skipped": 1,
+      "suites": 30
+    },
+    "bot_full": {
+      "passed": 31
+    },
+    "production_api_image": {
+      "passed": 71
+    },
+    "permanent_provider_cases_red_before_fix": 30,
+    "bot_cases_red_before_fix": 6,
+    "web_cases_red_before_fix": 1,
+    "transient_provider_controls_passed": 20,
+    "web_lint_types_build": "passed",
+    "changed_python_black_ruff": "passed",
+    "helper_mypy": "passed",
+    "full_mypy_or_github_ci_claimed_green": false
+  },
+  "review": {
+    "result": "NO_ISSUES_FOUND",
+    "session_id": "f5d61c08-ee5e-40f0-9d91-9b778ca4517d",
+    "tools_enabled": false,
+    "subagents_spawned": false,
+    "web_test_import_order_suggestion_applied": true
+  },
+  "deployment": {
+    "commit": "7249e50ad7778d72888dbdef75d633359e41de4e",
+    "branch": "codex/provider-balance-recovery",
+    "deployed_at_utc": "2026-09-08T12:47:29.082993+00:00",
+    "verified_at_utc": "2026-09-08T12:58:06.944578+00:00",
+    "images": {
+      "ai-thesis-api": "sha256:a82b340bec90031d010e26bca4958b9e0fa39f3b2b2004fb3eaf941bbb3d1fd7",
+      "ai-thesis-minio": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "ai-thesis-postgres": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "ai-thesis-redis": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "ai-thesis-web": "sha256:1512d31939c5156f9febe6788862f16c2be5e4612b43a3cd0ee49872306fca6d",
+      "docker-operator-bot-1": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9"
+    },
+    "web_build_id": "i2tqMzidB9Abh_lkrieuW",
+    "healthy_services": 6,
+    "restart_counts": {
+      "ai-thesis-api": 0,
+      "ai-thesis-minio": 0,
+      "ai-thesis-postgres": 0,
+      "ai-thesis-redis": 0,
+      "ai-thesis-web": 0,
+      "docker-operator-bot-1": 0
+    },
+    "runtime_source_files_verified": 5,
+    "server_payload_files_verified": 462,
+    "release_marker_files": 464,
+    "backing_services_recreated": false,
+    "migrations": false,
+    "environment_changes": false,
+    "release_markers_finalized_after_live_checks": true,
+    "live_verification": {
+      "passed": true,
+      "verified_at_utc": "2026-09-08T12:57:48.320879+00:00",
+      "browser_passed": true,
+      "bot_canary_passed": true,
+      "production_image_tests_passed": 71,
+      "work6_all_business_data_unchanged": true,
+      "work7_document_job_sections_case_unchanged": true,
+      "work7_existing_provenance_unchanged": true,
+      "work7_concurrent_manager_detector_events": [
+        136
+      ],
+      "no_active_jobs": true,
+      "generation_started": false,
+      "audited_internal_download_requests": 1,
+      "artifact_sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+      "proof_sha256": {
+        "live-browser.json": "271d7e5e907b5ef9494c3c7bf52d17260a09f979d20a895408944d178d17bb53",
+        "bot-canary.json": "449f12220a890f4e0b94a2882b250f491b31f7337cec6eec554cb575530e1038",
+        "docx-integrity.json": "d637da3783cad15856d85139b02281196252ce7115ee803ea4d9f5b7c237add3",
+        "image-tests.log": "c4543002bcfc81f79cd63412efd1cdfd3fd7ec14c71ebcd8e5f152cdb0b9e90e",
+        "order-6-before.json": "b3a12343e2b2efba22d5d4c128664e7640730c308d5d2a63d02bdfe00899d452",
+        "order-6-after.json": "52c53e69b4211d1ade8ab249e1dae9bdbeedee5b4e881a20d15ee174cd6d48d0",
+        "order-7-before.json": "2766d4706916e2e864b9bf5fe03a2727f61e49fa378ebac8a6f5b1ef1634954c",
+        "order-7-after.json": "30ed51c246fe45726d5009b7c551bb62047c2d801c029e7c56cecfb0442ed736"
+      }
+    }
+  },
+  "backup": {
+    "prepared_at_utc": "2026-09-08T12:42:13.784279+00:00",
+    "backup": "/opt/thesica/backups/m0-11-20260908",
+    "rollback_tags": {
+      "ai-thesis-api": "ai-thesis-api:rollback-m0-11-20260908",
+      "ai-thesis-web": "ai-thesis-web:rollback-m0-11-20260908",
+      "docker-operator-bot-1": "thesica-operator-bot:rollback-m0-11-20260908"
+    },
+    "postgres_restore_passed": true,
+    "restored_counts": {
+      "documents": 7,
+      "jobs": 7,
+      "document6": "failed"
+    },
+    "bot_sqlite_integrity": "ok",
+    "payload_files_verified": 456,
+    "files": {
+      "minio-data.tar.gz": {
+        "bytes": 210011,
+        "sha256": "1d9c33874893e17456b3a5a92bc23b09316205795a91ca03d8e7f7771e253aab"
+      },
+      "postgres.dump": {
+        "bytes": 338594,
+        "sha256": "1f968845556c138a4db864057ea70d6426141e51300c0af467665afa5e94e8a2"
+      },
+      ".release-sha": {
+        "bytes": 41,
+        "sha256": "914306978d69c21ff7894e4c311d526b79b1ed7e01da66e91d21100dc7b56b0a"
+      },
+      "bot.sqlite3": {
+        "bytes": 180224,
+        "sha256": "8fcf706b893f44648162826a273bd71afb292174e6afb100503dc24300ac90b5"
+      },
+      "source.tar.gz": {
+        "bytes": 10436843,
+        "sha256": "777d55826548d2b1dd49486b3f28aa28dac31dabecdbeb782e421d860fd5304d"
+      },
+      "private-config.tar.gz": {
+        "bytes": 5357,
+        "sha256": "1aa611b6e6da1462fdc8e5427dbf8dea876ef687c9a2daac980fa613b23d2cae"
+      },
+      ".release.json": {
+        "bytes": 55342,
+        "sha256": "7c0f04ab8c5e0ea0ab33ce283f2aea7dd83e16ed91b14b01638f250e612d0ba1"
+      }
+    }
+  },
+  "live_browser": {
+    "checkedAt": "2026-09-08T12:53:31.606Z",
+    "origin": "https://app.thesica.co",
+    "routes": [
+      {
+        "path": "/dashboard/documents/6",
+        "status": 200
+      },
+      {
+        "path": "/dashboard/production-cases/9",
+        "status": 200
+      }
+    ],
+    "errors": [],
+    "apiErrors": [],
+    "failedRequests": [],
+    "expectedDownloadNavigationAborts": [],
+    "cancelledPrefetches": [],
+    "blockedMutations": [],
+    "auditedDownloadRequests": 1,
+    "generationStarted": false,
+    "balanceGuidanceVisible": true,
+    "historicalRetryRequiresConfirmation": true,
+    "work7InternalDownloadEnabled": true,
+    "work7Docx": {
+      "status": 200,
+      "sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+      "bytes": 51357,
+      "matchesGeneratedArtifact": true
+    },
+    "passed": true
+  },
+  "live_bot_canary": {
+    "passed": true,
+    "checked_at_utc": "2026-09-08T12:53:33.168328+00:00",
+    "commands": {
+      "/works": {
+        "passed": true,
+        "ai_requests": 0
+      },
+      "/status": {
+        "passed": true,
+        "ai_requests": 0
+      },
+      "/status 6": {
+        "passed": true,
+        "ai_requests": 0
+      },
+      "/status 7": {
+        "passed": true,
+        "ai_requests": 0
+      },
+      "Чому зупинилася робота?": {
+        "passed": true,
+        "ai_requests": 1
+      }
+    },
+    "real_gateway_requests": [
+      {
+        "method": "GET",
+        "path": "/me"
+      },
+      {
+        "method": "GET",
+        "path": "/documents"
+      },
+      {
+        "method": "GET",
+        "path": "/me"
+      },
+      {
+        "method": "GET",
+        "path": "/me"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/6"
+      },
+      {
+        "method": "GET",
+        "path": "/me"
+      },
+      {
+        "method": "GET",
+        "path": "/documents/7"
+      },
+      {
+        "method": "GET",
+        "path": "/me"
+      }
+    ],
+    "mocked_ai_errors": 1,
+    "paid_ai_calls": 0,
+    "telegram_sends": 0,
+    "real_bot_state_mutations": 0
+  },
+  "work7": {
+    "document_id": 7,
+    "case_id": 9,
+    "job_id": 7,
+    "status": "completed",
+    "worker_attempts": 1,
+    "started_at_utc": "2026-09-08T12:23:13.034904+00:00",
+    "finished_at_utc": "2026-09-08T12:31:42.752639+00:00",
+    "generation_api_commit": "db9f8876a851091bfb34b398a8f29360eea01c61",
+    "completed_before_m0_11_deployment": true,
+    "sections": 6,
+    "target_pages": 18,
+    "application_tokens": 169604,
+    "application_cost_cents": 116,
+    "artifact": {
+      "zip_integrity_passed": true,
+      "document_xml_valid": true,
+      "words_including_frontmatter_references": 6052,
+      "bytes": 51357,
+      "sha256": "8aac4b62c9a573a06e1a74aa526c0b325bf87bd59d614d82926a18b72d7faf0b",
+      "page_count_rendered": false,
+      "content_quality_accepted": false
+    },
+    "document_job_sections_case_unchanged": true,
+    "inputs_equal_to_document6": [
+      "title",
+      "topic",
+      "language",
+      "target_pages",
+      "work_type",
+      "citation_style",
+      "additional_requirements"
+    ],
+    "inputs_differ_from_document5": [
+      "work_type",
+      "additional_requirements"
+    ],
+    "not_an_identical_short001_retry": true,
+    "quality": {
+      "claim_summary": {
+        "budget": 100,
+        "counts": {
+          "supported": 41,
+          "uncertain": 15
+        },
+        "checked": 46,
+        "incomplete": 0,
+        "total_claims": 56,
+        "reserved_checks": 58,
+        "budget_exhausted": false
+      },
+      "uncertain_missing_abstract": 10,
+      "uncertain_insufficient_abstract_support": 5,
+      "stored_manager_compilatio_similarity_percent": 3.0,
+      "stored_manager_compilatio_ai_percent": 47.0,
+      "report_event_id": 133,
+      "report_sha256": "6151e02b64dfc8979531ed379c27ef7d22d481a1a1e31ed00d8d1fc26342040a",
+      "report_artifact_binding": "current",
+      "report_contents_independently_reviewed": false,
+      "gate_statuses": {
+        "generation_contract": "passed",
+        "citation_verification": "passed",
+        "claim_support": "unchecked",
+        "section_quality": "passed",
+        "plagiarism_proxy": "passed",
+        "ai_detection_proxy": "failed",
+        "editorial_review": "no_data",
+        "delivery_package": "passed",
+        "source_availability": "passed"
+      },
+      "human_content_pages_no_rewrite_acceptance": false,
+      "release_allowed": false,
+      "m1_pass": false
+    }
+  },
+  "side_effects": {
+    "new_generation_started_by_agent": false,
+    "old_failed_jobs_restarted": false,
+    "api_credit_purchase_by_agent": false,
+    "telegram_messages_sent": 0,
+    "audited_internal_download": 1,
+    "business_db_edits": false,
+    "migrations": false,
+    "environment_changes": false
+  },
+  "technical_execution_notes": [
+    "Bot SQLite backup initially could not be copied from tmpfs through docker cp; online backup bytes were streamed via docker exec and integrity check passed.",
+    "Restore readiness initially observed the temporary PostgreSQL init socket; retry used the final TCP listener and a full pg_restore succeeded.",
+    "One full local API run was interrupted to repair a test fixture usage field; the final full suite passed.",
+    "System Python CA store lacked the local issuer bundle; read-only API fetch was repeated with the installed certifi trust bundle; TLS verification remained enabled."
+  ],
+  "evidence_sha256": {
+    "api-before.log": "8ee73a2c1d161adc85eda55962d29dea8bfb7f18ee6c3bdaf1b22fdd1c6f034d",
+    "bot-before.log": "91fbd8ce7352f74370eb95c6f9446418c9cd145b816ccf96e1a4c930f6221b73",
+    "web-before.log": "e6dd70e693e4d74344183125718c68ddbafd2d6501a830a465aedfb4118e4657",
+    "api-full.log": "c36aa827d1da35b08f7be3c8caa9437a4d4ea3a38f9f5dfadc1f4d7c2fb8504f",
+    "web-after.log": "bf05658795a9f9044de0826827d616a955e6838d876080fe373352e4ed298af8",
+    "bot-after.log": "21ded57fffa14dbaf8e0b1ab9be157d6b1695ce5e5c1b3e32830183ec9e84672",
+    "image-tests.log": "c4543002bcfc81f79cd63412efd1cdfd3fd7ec14c71ebcd8e5f152cdb0b9e90e",
+    "api-transient.log": "935fb25797ba481fe0aea96730ea074dfdc8a63bc2709857bd86681b8216d68c",
+    "mypy-helper.log": "5d4b6d285b77932e3d08212c3b4974d0a803f98ec60408ac6ccf6a063fa6c19e",
+    "build-api.log": "da29e31c0742a1a29771dc8a01c60753f0b55429bee0657710ac9706d25726fa",
+    "build-web.log": "2098bd99854e1508ede6f428827f7f27424f107df6541907a3ca603968d08fb3",
+    "build-bot.log": "3c3637d5abd3d249904887bac7486d13fc9019d3ab2ae2c2d6528b0d1f26e063",
+    "review.json": "5e9856c89e99aa85cef003bb35454104635e620016f795f464418a788042c052",
+    "live-browser.json": "271d7e5e907b5ef9494c3c7bf52d17260a09f979d20a895408944d178d17bb53",
+    "bot-canary.json": "449f12220a890f4e0b94a2882b250f491b31f7337cec6eec554cb575530e1038",
+    "docx-integrity.json": "d637da3783cad15856d85139b02281196252ce7115ee803ea4d9f5b7c237add3",
+    "final-manifest.json": "23b4f479a72490141adf1c460b0a98e1b5a7205066b69e7e467476c02a28e194"
+  },
+  "next_step": "Inspect the 10 missing-abstract and 5 insufficient-support claims and attached Compilatio report for document7; improve automatic evidence/source selection and content quality without blind regeneration or weakening release gates.",
+  "workspace_preservation": {
+    "head_unchanged": true,
+    "index_unchanged": true,
+    "unrelated_existing_files_preserved": 657,
+    "changed_paths": [
+      "THESICA-PLAN.md",
+      "apps/api/app/services/ai_pipeline/generator.py",
+      "apps/api/app/services/background_jobs.py",
+      "apps/api/app/services/model_response_recovery.py",
+      "apps/api/app/services/retry_strategy.py",
+      "apps/api/tests/test_generation_worker.py",
+      "apps/api/tests/test_model_response_recovery.py",
+      "apps/operator-bot/bot.py",
+      "apps/operator-bot/test_bot.py",
+      "apps/web/__tests__/components/GenerationProgress.test.tsx",
+      "apps/web/lib/generation-status.ts",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/evidence/M0-11-2026-09-08.json",
+      "docs/evidence/M0-11-2026-09-08.md",
+      "docs/phase1-runs/SHORT-001.md",
+      "docs/setup/TANYA_FIRST_RUN.md"
+    ]
+  }
+}
