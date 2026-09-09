@@ -5,12 +5,10 @@ resume-from-checkpoint must NOT rebuild (already-generated sections cite the
 persisted keys — a rebuild would re-key the pack and orphan them).
 """
 
-import json
 from contextlib import ExitStack
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from sqlalchemy import select
 
 from app.core.config import Settings
 from app.core.exceptions import CitationIntegrityError
@@ -19,7 +17,6 @@ from app.models.document import Document, DocumentSection
 from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.background_jobs import (
-    BackgroundJobService,
     _assert_rewrite_citation_keys_unchanged,
 )
 
@@ -232,147 +229,6 @@ def rebuild_harness(stack: ExitStack, db_session, redis_checkpoint: str | None):
         "humanizer": humanizer,
         "export_document": doc_service.export_document,
     }
-
-
-@pytest.mark.asyncio
-async def test_humanizer_cannot_add_a_new_valid_pack_citation(db_session, monkeypatch):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings",
-        make_settings(HUMANIZER_ENABLED=True),
-    )
-    user, document = await seed_document(
-        db_session,
-        "rewrite-added-citation@example.com",
-        sections=["Introduzione"],
-    )
-    pack = fake_pack(int(document.id))
-    pack.sources.append(
-        PackedSource(
-            SourceDoc(
-                title="A second valid source",
-                authors=["Bianchi"],
-                year=2022,
-                abstract="additional evidence",
-            ),
-            "Bianchi2022",
-            0.8,
-        )
-    )
-
-    with ExitStack() as stack:
-        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
-        mocks["build_pack"].side_effect = lambda *args, **kwargs: pack
-        mocks["humanizer"].humanize.side_effect = lambda *args, **kwargs: (
-            "Testo [Rossi2021] con il 30% di dati. " "Nuova affermazione [Bianchi2022]."
-        )
-
-        with pytest.raises(CitationIntegrityError, match="added: Bianchi2022"):
-            await BackgroundJobService.generate_full_document(
-                document_id=int(document.id), user_id=int(user.id)
-            )
-
-        assert mocks["export_document"].called is False
-
-
-@pytest.mark.asyncio
-async def test_fresh_generation_rebuilds_pack_with_section_titles(
-    db_session, monkeypatch
-):
-    monkeypatch.setattr("app.services.background_jobs.settings", make_settings())
-    user, document = await seed_document(
-        db_session, "rebuild-fresh@example.com", sections=["Introduzione"]
-    )
-    document_id = document.id
-
-    with ExitStack() as stack:
-        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-        # Initial build (no titles) + post-outline rebuild (with titles).
-        assert mocks["build_pack"].call_count == 2
-        rebuild_kwargs = mocks["build_pack"].call_args_list[1].kwargs
-        assert rebuild_kwargs.get("section_titles") == ["Introduzione"]
-        # Both call sites hand over an AIService so the bilingual translation
-        # (and its token spend) can happen inside the wrapper.
-        for call in mocks["build_pack"].call_args_list:
-            assert call.kwargs.get("ai_service") is not None
-        assert mocks["persist_pack"].call_count == 2
-        # The rebuilt pack is what sections consume.
-        section_kwargs = mocks["generate_section"].call_args.kwargs
-        assert section_kwargs["source_pack"] is not None
-        assert mocks["export_document"].call_count == 1
-
-    refreshed = (
-        await db_session.execute(select(Document).where(Document.id == document_id))
-    ).scalar_one()
-    assert refreshed.status == "completed"
-
-
-@pytest.mark.asyncio
-async def test_resume_skips_rebuild(db_session, monkeypatch):
-    monkeypatch.setattr("app.services.background_jobs.settings", make_settings())
-    user, document = await seed_document(
-        db_session,
-        "rebuild-resume@example.com",
-        sections=["Introduzione", "Futuro"],
-        completed=1,
-    )
-    document_id = document.id
-
-    checkpoint = json.dumps({"last_completed_section_index": 1})
-    with ExitStack() as stack:
-        mocks = rebuild_harness(stack, db_session, redis_checkpoint=checkpoint)
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-        # Only the initial build — resume must NOT re-key the pack.
-        assert mocks["build_pack"].call_count == 1
-        assert mocks["build_pack"].call_args.kwargs.get("section_titles") in (
-            None,
-            [],
-        )
-        # Section 1 (checkpointed) skipped; only section 2 generated.
-        assert mocks["generate_section"].call_count == 1
-
-
-@pytest.mark.asyncio
-async def test_unresolved_internal_marker_retries_even_when_grounding_gate_is_off(
-    db_session, monkeypatch
-):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings",
-        make_settings(
-            QUALITY_MAX_REGENERATE_ATTEMPTS=1,
-            GROUNDING_GATE_ENABLED=False,
-        ),
-    )
-    user, document = await seed_document(
-        db_session,
-        "marker-retry@example.com",
-        sections=["Introduzione"],
-    )
-
-    with ExitStack() as stack:
-        mocks = rebuild_harness(stack, db_session, redis_checkpoint=None)
-        clean = dict(mocks["generate_section"].return_value)
-        broken = dict(clean)
-        broken.update(
-            {
-                "content": "Testo con citazione rotta [Ghost2021].",
-                "content_with_markers": "Testo con citazione rotta [Ghost2021].",
-                "unresolved_pack_markers": ["Ghost2021"],
-            }
-        )
-        mocks["generate_section"].side_effect = [broken, clean]
-
-        await BackgroundJobService.generate_full_document(
-            document_id=int(document.id), user_id=int(user.id)
-        )
-
-        assert mocks["generate_section"].call_count == 2
 
 
 # ---------------------------------------------------------------------------

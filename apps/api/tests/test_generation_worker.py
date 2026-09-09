@@ -1,6 +1,5 @@
 """Durable generation worker: lease, recovery, retry, and shutdown coverage."""
 
-import asyncio
 import inspect
 from datetime import timedelta
 from unittest.mock import AsyncMock
@@ -22,7 +21,6 @@ from app.services import generation_worker as generation_worker_module
 from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.background_jobs import (
-    BackgroundJobService,
     _export_document_with_fence,
 )
 from app.services.generation_contract import generation_contract_sha256
@@ -67,6 +65,9 @@ async def _seed_job(
     )
     db_session.add(document)
     await db_session.flush()
+    from app.services.task_contract import task_contract_sha256
+
+    document.contract_confirmed_sha256 = task_contract_sha256(document)
     run_requirements = "Use the persisted methodic"
     job = AIGenerationJob(
         user_id=user.id,
@@ -367,7 +368,7 @@ async def test_retry_is_bounded_and_final_attempt_fails_document(db_session):
 async def test_polling_workers_do_not_double_deliver_claim(monkeypatch, db_session):
     _, job = await _seed_job(db_session, email="worker-poller@example.com")
     execute = AsyncMock(return_value=None)
-    monkeypatch.setattr(BackgroundJobService, "generate_full_document_async", execute)
+    monkeypatch.setattr("app.services.executor_v2.run.run", execute)
 
     first = GenerationWorker(worker_id="poller-a")
     second = GenerationWorker(worker_id="poller-b")
@@ -375,105 +376,10 @@ async def test_polling_workers_do_not_double_deliver_claim(monkeypatch, db_sessi
     assert await second.poll_once() is False
 
     execute.assert_awaited_once()
-    assert execute.await_args.kwargs["job_id"] == job.id
-    assert execute.await_args.kwargs["lease_owner"] == "poller-a"
-    assert execute.await_args.kwargs["lease_token"]
-    assert (
-        execute.await_args.kwargs["additional_requirements"]
-        == "Use the persisted methodic"
-    )
-
-
-@pytest.mark.asyncio
-async def test_cancelling_running_wrapper_requeues_and_keeps_checkpoint(
-    monkeypatch, db_session
-):
-    _, job = await _seed_job(db_session, email="worker-cancel@example.com")
-    pipeline_started = asyncio.Event()
-
-    async def never_finishes(**_kwargs):
-        pipeline_started.set()
-        await asyncio.Event().wait()
-
-    monkeypatch.setattr(
-        BackgroundJobService,
-        "generate_full_document",
-        AsyncMock(side_effect=never_finishes),
-    )
-    monkeypatch.setattr(
-        "app.services.background_jobs.manager.send_progress", AsyncMock()
-    )
-    checkpoint_clear = AsyncMock()
-    monkeypatch.setattr(
-        "app.services.background_jobs._clear_generation_checkpoint",
-        checkpoint_clear,
-    )
-
-    task = asyncio.create_task(
-        BackgroundJobService.generate_full_document_async(
-            document_id=job.document_id,
-            user_id=job.user_id,
-            job_id=job.id,
-        )
-    )
-    await asyncio.wait_for(pipeline_started.wait(), timeout=2)
-    task.cancel()
-    with pytest.raises(asyncio.CancelledError):
-        await task
-
-    refreshed = (
-        await db_session.execute(
-            select(AIGenerationJob).where(AIGenerationJob.id == job.id)
-        )
-    ).scalar_one()
-    assert refreshed.status == "queued"
-    assert refreshed.lease_owner is None
-    assert refreshed.attempt_count == 0
-    checkpoint_clear.assert_not_awaited()
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("wrapped", [False, True])
-async def test_billing_failure_stops_worker_after_first_attempt(
-    monkeypatch, db_session, wrapped
-):
-    import anthropic
-    import httpx
-
-    from app.core.exceptions import AIProviderError
-
-    _, job = await _seed_job(db_session, email=f"billing-{wrapped}@example.com")
-    error = anthropic.BadRequestError(
-        "Your credit balance is too low to access the Anthropic API.",
-        response=httpx.Response(
-            400, request=httpx.Request("POST", "https://provider.invalid/messages")
-        ),
-        body={"error": {"type": "invalid_request_error"}},
-    )
-    if wrapped:
-        cause = error
-        error = AIProviderError("Failed to generate outline")
-        error.__cause__ = cause
-    pipeline = AsyncMock(side_effect=error)
-    monkeypatch.setattr(BackgroundJobService, "generate_full_document", pipeline)
-    monkeypatch.setattr(
-        "app.services.background_jobs.manager.send_progress", AsyncMock()
-    )
-    monkeypatch.setattr(
-        "app.services.background_jobs._clear_generation_checkpoint", AsyncMock()
-    )
-    monkeypatch.setattr(
-        "app.services.background_jobs._send_terminal_failure_notification", AsyncMock()
-    )
-    with pytest.raises(type(error)):
-        await BackgroundJobService.generate_full_document_async(
-            document_id=job.document_id, user_id=job.user_id, job_id=job.id
-        )
-    await db_session.refresh(job)
-    assert job.status == "failed"
-    assert job.attempt_count == 1
-    assert job.lease_token is None
-    pipeline.assert_awaited_once()
+    claimed = execute.await_args.args[0]
+    assert claimed.id == job.id
+    assert claimed.lease_owner == "poller-a" and claimed.lease_token
+    assert claimed.additional_requirements == "Use the persisted methodic"
 
 
 @pytest.mark.asyncio

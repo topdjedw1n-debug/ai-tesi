@@ -1,0 +1,28 @@
+........................................................................ [ 29%]
+........................................................................ [ 59%]
+........................................................................ [ 88%]
+...........................                                              [100%]
+=============================== warnings summary ===============================
+../../../../apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
+
+    self._warn_or_fail_if_strict(f"Unknown config option: {key}\n")
+
+../../../../apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/starlette/formparsers.py:10: PendingDeprecationWarning: Please use `import python_multipart` instead.
+    import multipart
+
+app/api/v1/endpoints/admin.py:82
+  /Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/api/app/api/v1/endpoints/admin.py:82: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    period: str = Query("week", regex="^(day|week|month|year)$"),
+
+app/api/v1/endpoints/admin.py:128
+  /Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/api/app/api/v1/endpoints/admin.py:128: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    type: str = Query("recent", regex="^(recent|payments|registrations|errors)$"),
+
+app/api/v1/endpoints/admin.py:958
+  /Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/api/app/api/v1/endpoints/admin.py:958: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
+    group_by: str = Query("day", regex="^(day|week|month)$"),
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+243 passed, 5 warnings in 17.80s

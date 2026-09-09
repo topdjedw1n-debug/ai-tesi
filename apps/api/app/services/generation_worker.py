@@ -108,7 +108,11 @@ def _generation_contract_error(
     run_requirements = request_payload.get("additional_requirements")
     if run_requirements is not None and not isinstance(run_requirements, str):
         return "additional_requirements must be text or null"
-    document_error = generation_contract_error(document)
+    document_error = (
+        None
+        if request_payload.get("executor_version") == 2
+        else generation_contract_error(document)
+    )
     if document_error is not None:
         return document_error
     stored_contract = request_payload.get("generation_contract_sha256")
@@ -123,9 +127,11 @@ def _generation_contract_error(
     if stored_contract != expected_contract:
         return "generation contract changed after enqueue"
     profile = request_payload.get("profile_sha256")
-    if not profile:
+    if not profile and request_payload.get("executor_version") != 2:
         return "legacy_unknown"
-    if profile != generation_profile_sha256(document, job_user_id):
+    if request_payload.get(
+        "executor_version"
+    ) != 2 and profile != generation_profile_sha256(document, job_user_id):
         return "contract_or_profile_mismatch"
     if require_running_token and (
         not lease_owner or not lease_token or lease_expires_at is None
@@ -289,10 +295,12 @@ async def _claim_job(
                     **dict(mapping["request_payload"] or {}),
                     "last_outcome": {
                         "stage": "claim",
-                        "reason_code": contract_error
-                        if contract_error
-                        in {"legacy_unknown", "contract_or_profile_mismatch"}
-                        else "contract_or_profile_mismatch",
+                        "reason_code": (
+                            contract_error
+                            if contract_error
+                            in {"legacy_unknown", "contract_or_profile_mismatch"}
+                            else "contract_or_profile_mismatch"
+                        ),
                         "retryability": "none",
                     },
                 },
@@ -306,6 +314,11 @@ async def _claim_job(
         if document is not None and document.status != "failed_quality":
             document.status = "failed"
             await _revoke_failed_generation_release(db, document_id=int(document.id))
+        rejected = await db.get(AIGenerationJob, job_id)
+        _executor_worker_stop(
+            rejected,
+            "Запуск не відповідає збереженому завданню. Потрібна перевірка власника.",
+        )
         await db.commit()
         logger.error("Quarantined generation job %s: %s", job_id, contract_error)
         return None
@@ -702,7 +715,7 @@ async def update_generation_document(
     if lease is None:
         await db.rollback()
         raise _lease_lost(job_id)
-    allowed = {"content", "status", "completed_at"}
+    allowed = {"content", "status", "completed_at", "outline"}
     safe_values = {key: value for key, value in values.items() if key in allowed}
     if not safe_values:
         await db.rollback()
@@ -870,6 +883,9 @@ async def complete_generation_job(
     if job is None:
         await db.rollback()
         return False
+    v2 = (job.request_payload or {}).get("executor_version") == 2
+    if v2:
+        await assert_executor_recording(db, job)
     completed_at = now or utc_now()
 
     # The current view must be truthful: the failure that preceded a resume or
@@ -924,6 +940,12 @@ async def complete_generation_job(
             update(Document)
             .where(Document.id == job.document_id)
             .values(status="completed", completed_at=completed_at)
+        )
+    if v2 and job.document_id is not None:
+        await db.execute(
+            update(ProductionCase)
+            .where(ProductionCase.document_id == job.document_id)
+            .values(generation_status="completed")
         )
     await db.commit()
     return True
@@ -1178,6 +1200,26 @@ async def cancel_active_generation_job(
     cancelled_job = await db.get(AIGenerationJob, cancelled_id)
     if cancelled_job:
         await db.refresh(cancelled_job)
+        if (cancelled_job.request_payload or {}).get("executor_version") == 2:
+            cancelled_job.error_message = None
+            state = {
+                **(cancelled_job.request_payload or {}).get("execution", {}),
+                "stop": None,
+            }
+            cancelled_job.request_payload = {
+                **(cancelled_job.request_payload or {}),
+                "execution": state,
+            }
+            await db.execute(
+                update(Document)
+                .where(Document.id == document_id)
+                .values(status="cancelled")
+            )
+            await db.execute(
+                update(ProductionCase)
+                .where(ProductionCase.document_id == document_id)
+                .values(generation_status="cancelled")
+            )
         cast(Any, cancelled_job).request_payload = {
             **(cancelled_job.request_payload or {}),
             "last_outcome": {
@@ -1277,6 +1319,9 @@ async def reschedule_or_fail_generation_job(
         job.status = "failed"
         job.success = False
         job.error_message = error_message
+        _executor_worker_stop(
+            job, "Виконавець втратив зв'язок до завершення роботи.", "storage_or_db"
+        )
         job.completed_at = failure_time
         job.heartbeat_at = failure_time
         job.lease_owner = None
@@ -1316,6 +1361,21 @@ async def reschedule_or_fail_generation_job(
 
     await db.commit()
     return decision
+
+
+def _executor_worker_stop(job, message, code="internal_error"):
+    from app.services.executor_v2.warnings import ExecutionStop, is_v2
+
+    if is_v2(job):
+        state = dict((job.request_payload or {}).get("execution", {}))
+        state["stop"] = ExecutionStop(
+            code,
+            message,
+            stage=state.get("stage", "sources"),
+            section_index=state.get("section_index"),
+        ).stop
+        job.request_payload = {**job.request_payload, "execution": state}
+        job.error_message = message
 
 
 async def fail_exhausted_generation_jobs(
@@ -1395,6 +1455,9 @@ async def fail_exhausted_generation_jobs(
         job.error_message = (
             job.error_message or "Generation worker stopped before completion"
         )[:500]
+        _executor_worker_stop(
+            job, "Виконавець втратив зв'язок до завершення роботи.", "storage_or_db"
+        )
         job.completed_at = failure_time
         job.heartbeat_at = failure_time
         job.lease_owner = None
@@ -1495,12 +1558,19 @@ async def quarantine_invalid_generation_jobs(
             **(job.request_payload or {}),
             "last_outcome": {
                 "stage": "claim",
-                "reason_code": contract_error
-                if contract_error in {"legacy_unknown", "contract_or_profile_mismatch"}
-                else "contract_or_profile_mismatch",
+                "reason_code": (
+                    contract_error
+                    if contract_error
+                    in {"legacy_unknown", "contract_or_profile_mismatch"}
+                    else "contract_or_profile_mismatch"
+                ),
                 "retryability": "none",
             },
         }
+        _executor_worker_stop(
+            job,
+            "Запуск не відповідає збереженому завданню. Потрібна перевірка власника.",
+        )
         job.completed_at = quarantined_at
         job.heartbeat_at = quarantined_at
         job.lease_owner = None
@@ -1599,16 +1669,110 @@ class GenerationWorker:
             claimed.attempt_count,
             claimed.max_attempts,
         )
-        # Lazy import avoids a module cycle: background_jobs uses the lease
-        # helpers above, while this worker invokes the actual pipeline.
-        from app.services.background_jobs import BackgroundJobService
+        from app.services.executor_v2.run import run
 
-        await BackgroundJobService.generate_full_document_async(
-            document_id=claimed.document_id,
-            user_id=claimed.user_id,
-            job_id=claimed.id,
-            additional_requirements=claimed.additional_requirements,
-            lease_owner=claimed.lease_owner,
-            lease_token=claimed.lease_token,
-        )
+        await run(claimed)
         return True
+
+
+async def update_executor_state(db, *, state, **fence):
+    """Short fenced v2 progress transaction; never surrounds a provider call."""
+    job = await _lock_generation_lease(db, **fence, lock_case=True)
+    if job is None:
+        await db.rollback()
+        raise _lease_lost(fence["job_id"])
+    job.request_payload = {**(job.request_payload or {}), "execution": dict(state)}
+    job.progress = state.get("progress", job.progress)
+    job.heartbeat_at = utc_now()
+    job.total_tokens = max(
+        int(job.total_tokens or 0), int(state.get("tokens_so_far", 0))
+    )
+    job.cost_cents = max(
+        int(job.cost_cents or 0), int(state.get("cost_cents_so_far", 0))
+    )
+    await db.execute(
+        update(Document)
+        .where(Document.id == job.document_id)
+        .values(status="generating")
+    )
+    await db.execute(
+        update(ProductionCase)
+        .where(ProductionCase.document_id == job.document_id)
+        .values(generation_status="generating")
+    )
+    await db.commit()
+
+
+async def fail_executor_job(db, *, stop, **fence):
+    """Persist one technical stop, without rescheduling a terminal v2 job."""
+    job = await _lock_generation_lease(db, **fence, lock_case=True)
+    if job is None:
+        await db.rollback()
+        return False
+    state = dict((job.request_payload or {}).get("execution", {}))
+    state["stop"] = stop
+    job.request_payload = {**(job.request_payload or {}), "execution": state}
+    job.status, job.success = "failed", False
+    job.error_message = stop["message_uk"]
+    job.completed_at = job.heartbeat_at = utc_now()
+    job.lease_owner = job.lease_token = job.lease_expires_at = None
+    await db.execute(
+        update(Document).where(Document.id == job.document_id).values(status="failed")
+    )
+    await _revoke_failed_generation_release(db, document_id=job.document_id)
+    await db.commit()
+    return True
+
+
+async def assert_executor_recording(db, job):
+    """A completion receipt must have every input, attempt, stage and artifact."""
+    from app.services.generation_policy import RecordingPersistenceError
+
+    events = list(
+        (
+            await db.execute(
+                select(DocumentProvenance).where(
+                    DocumentProvenance.document_id == job.document_id
+                )
+            )
+        ).scalars()
+    )
+    events = [e for e in events if (e.payload or {}).get("job_id") == job.id]
+    started, finished, steps = {}, {}, set()
+    for event in events:
+        payload = event.payload or {}
+        if event.event_type == "generation_provider_attempt":
+            (started if payload.get("outcome") == "started" else finished)[
+                payload["attempt_id"]
+            ] = payload
+        if event.event_type == "executor_step_completed":
+            steps.add(payload["step"])
+    result = (job.request_payload or {}).get("execution", {}).get("result") or {}
+    required = {
+        "docx",
+        "sections",
+        "bibliography",
+        "sources",
+        "usage",
+        "recording_id",
+        "warnings",
+    }
+    inputs = any(e.event_type == "generation_replay_inputs" for e in events)
+    if (
+        not inputs
+        or not started
+        or started.keys() != finished.keys()
+        or steps != {"S1", "S2", "S3", "S4", "S5", "S6"}
+        or not required.issubset(result)
+        or any(not e.get("request") for e in started.values())
+        or any(
+            e.get("outcome") not in {"received", "failed"}
+            or e.get("outcome") == "received"
+            and not e.get("response")
+            for e in finished.values()
+        )
+        or any(not entry.get("verified") for entry in result.get("bibliography", []))
+    ):
+        raise RecordingPersistenceError(
+            "Executor completion has no complete recording or result"
+        )

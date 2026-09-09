@@ -24,7 +24,7 @@ DEFAULT_DOCX_PROFILE = {
 def _heading_identity(value: str) -> str:
     value = re.sub(r"^\s*#{1,6}\s+", "", value).strip()
     value = re.sub(r"\s+#+\s*$", "", value)
-    return " ".join(value.strip("*_ ").split()).casefold()
+    return " ".join(value.strip("*_ ").split()).replace("’", "'").casefold()
 
 
 def assemble_section(title: str, content: str | None) -> str:
@@ -124,3 +124,20 @@ def append_markdown(docx: Any, text: str) -> None:
                     link_href = ""
         elif token.type in {"fence", "code_block"}:
             docx.add_paragraph(token.content.rstrip())
+
+
+def canonical_docx_bytes(data: bytes) -> bytes:
+    """Remove ZIP container clock noise; the document's own metadata is retained."""
+    from io import BytesIO
+    from zipfile import ZIP_DEFLATED, ZipFile, ZipInfo
+
+    output = BytesIO()
+    with (
+        ZipFile(BytesIO(data)) as archive,
+        ZipFile(output, "w", ZIP_DEFLATED) as target,
+    ):
+        for name in sorted(archive.namelist()):
+            info = ZipInfo(name, (1980, 1, 1, 0, 0, 0))
+            info.compress_type = ZIP_DEFLATED
+            target.writestr(info, archive.read(name))
+    return output.getvalue()

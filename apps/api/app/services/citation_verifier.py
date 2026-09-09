@@ -49,6 +49,7 @@ import httpx
 import redis.asyncio as aioredis
 
 from app.core.config import settings
+from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import active_replay
 from app.services.replay_dependencies import recorded_dependency
 
@@ -104,6 +105,8 @@ class SourceInput:
     year: int | None = None
     doi: str | None = None
     arxiv_id: str | None = None
+    source_type: str | None = None
+    url: str | None = None
 
 
 @dataclass
@@ -312,6 +315,8 @@ class CitationVerifier:
             PROVIDER_OPENALEX: settings.OPENALEX_RATE_LIMIT_RPS,
             PROVIDER_SEMANTIC_SCHOLAR: settings.SEMANTIC_SCHOLAR_RATE_LIMIT_RPS,
             PROVIDER_ARXIV: settings.ARXIV_RATE_LIMIT_RPS,
+            "openlibrary": 1.0,
+            "who": 1.0,
         }
         if rate_limits_rps:
             rps.update(rate_limits_rps)
@@ -406,6 +411,14 @@ class CitationVerifier:
                     authoritative_clean = True
                 any_error = any_error or outcome.errored
 
+        if result is None and source.source_type in {
+            "book",
+            "monograph",
+            "guideline",
+            "guidelines",
+            "manual",
+        }:
+            result = await self.verify_catalogue(source)
         if result is not None:
             await self._cache_set(cache_key, result)
             return result
@@ -430,10 +443,114 @@ class CitationVerifier:
             status=VerificationStatus.UNRESOLVABLE, reason="provider_errors"
         )
 
+    async def verify_catalogue(self, source: SourceInput) -> VerificationResult | None:
+        """Check an identified book or a WHO publication, never model recall.
+
+        Open Library search fields: https://openlibrary.org/dev/docs/api/search
+        WHO metadata is read only from the official, non-redirected publication URL.
+        """
+        from html.parser import HTMLParser
+        from urllib.parse import urlparse
+
+        if source.source_type in {"guideline", "guidelines"} and source.url:
+            parsed = urlparse(source.url)
+            if (
+                parsed.scheme != "https"
+                or parsed.hostname not in {"www.who.int", "who.int", "iris.who.int"}
+                or parsed.port not in {None, 443}
+                or parsed.username
+            ):
+                return None
+            status, response = await self._fetch("who", source.url)
+            if status != "ok" or response is None:
+                return None
+
+            class Metadata(HTMLParser):
+                def __init__(self):
+                    super().__init__()
+                    self.values = {}
+
+                def handle_starttag(self, tag, attrs):
+                    values = dict(attrs)
+                    if tag == "meta":
+                        key = (
+                            values.get("name") or values.get("property") or ""
+                        ).lower()
+                        self.values.setdefault(key, []).append(
+                            values.get("content", "")
+                        )
+
+            parser = Metadata()
+            parser.feed(response.text)
+            meta = parser.values
+            title = (
+                meta.get("citation_title")
+                or meta.get("dc.title")
+                or meta.get("og:title")
+                or [""]
+            )[0]
+            authors = (
+                meta.get("citation_author")
+                or meta.get("dc.creator")
+                or ["World Health Organization"]
+            )
+            issued = (
+                meta.get("citation_publication_date")
+                or meta.get("dc.date.issued")
+                or [""]
+            )[0]
+            year = _coerce_year(issued[:4])
+            candidate = {"title": title, "authors": authors, "year": year}
+            score = self._match_candidate(
+                source, normalize_title(source.title), candidate
+            )
+            if score is not None:
+                return VerificationResult(
+                    status=VerificationStatus.VERIFIED,
+                    title=title,
+                    authors=authors,
+                    year=year,
+                    provider="who",
+                    match_score=score,
+                )
+            return None
+        status, response = await self._fetch(
+            "openlibrary",
+            "https://openlibrary.org/search.json",
+            params={
+                "title": source.title,
+                "fields": "key,title,author_name,first_publish_year",
+                "limit": 5,
+            },
+        )
+        if status != "ok" or response is None:
+            return None
+        for item in response.json().get("docs", []):
+            candidate = {
+                "title": item.get("title"),
+                "authors": item.get("author_name") or [],
+                "year": item.get("first_publish_year"),
+            }
+            score = self._match_candidate(
+                source, normalize_title(source.title), candidate
+            )
+            if score is not None:
+                return VerificationResult(
+                    status=VerificationStatus.VERIFIED,
+                    title=candidate["title"],
+                    authors=candidate["authors"],
+                    year=candidate["year"],
+                    provider="openlibrary",
+                    match_score=score,
+                )
+        return None
+
     async def _bounded_verify(self, source: SourceInput) -> VerificationResult:
         async with self._semaphore:
             try:
                 return await self.verify_source(source)
+            except RecordingPersistenceError:
+                raise
             except Exception as e:
                 logger.error(f"Citation verification internal error: {e}")
                 return VerificationResult(

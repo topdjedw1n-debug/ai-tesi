@@ -247,7 +247,7 @@ async def test_generation_rejects_user_with_pending_deletion_before_document_loc
 
 
 @pytest.mark.asyncio
-async def test_repeated_request_returns_active_job_when_document_is_generating(
+async def test_repeated_request_returns_409_without_creating_job(
     monkeypatch,
 ):
     monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
@@ -291,23 +291,22 @@ async def test_repeated_request_returns_active_job_when_document_is_generating(
     generation_gate = AsyncMock(return_value=None)
     monkeypatch.setattr(generate_endpoint, "_enforce_generation_gate", generation_gate)
 
-    response = await _generation_handler()(
-        request=Request({"type": "http", "method": "POST", "path": "/"}),
-        req_data=AsyncGenerationRequest(document_id=16),
-        background_tasks=BackgroundTasks(),
-        current_user=current_user,
-        db=db,
-    )
-
-    assert response.job_id == 90
-    assert response.status == "queued"
+    with pytest.raises(HTTPException) as rejected:
+        await _generation_handler()(
+            request=Request({"type": "http", "method": "POST", "path": "/"}),
+            req_data=AsyncGenerationRequest(document_id=16),
+            background_tasks=BackgroundTasks(),
+            current_user=current_user,
+            db=db,
+        )
+    assert rejected.value.status_code == 409
     generation_gate.assert_not_awaited()
     db.flush.assert_not_awaited()
-    db.commit.assert_awaited_once()
+    db.commit.assert_not_awaited()
 
 
 @pytest.mark.asyncio
-async def test_generation_race_returns_competing_active_job(monkeypatch):
+async def test_generation_race_returns_409_without_second_job(monkeypatch):
     monkeypatch.setattr(generate_endpoint, "require_generation_open", AsyncMock())
     monkeypatch.setattr(
         generate_endpoint, "latest_job_for_update", AsyncMock(return_value=None)
@@ -374,17 +373,15 @@ async def test_generation_race_returns_competing_active_job(monkeypatch):
     background_tasks = BackgroundTasks()
     request = Request({"type": "http", "method": "POST", "path": "/"})
 
-    response = await _generation_handler()(
-        request=request,
-        req_data=AsyncGenerationRequest(document_id=17),
-        background_tasks=background_tasks,
-        current_user=current_user,
-        db=db,
-    )
-
-    assert response.job_id == 91
-    assert response.status == "running"
-    assert response.check_url == "/api/v1/jobs/91/status"
+    with pytest.raises(HTTPException) as rejected:
+        await _generation_handler()(
+            request=request,
+            req_data=AsyncGenerationRequest(document_id=17),
+            background_tasks=background_tasks,
+            current_user=current_user,
+            db=db,
+        )
+    assert rejected.value.status_code == 409
     db.rollback.assert_awaited_once()
     db.commit.assert_not_awaited()
     assert background_tasks.tasks == []

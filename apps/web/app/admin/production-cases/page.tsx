@@ -201,6 +201,7 @@ export default function ProductionCasesPage() {
                     </Link>
                     <p className="mt-1 text-xs text-gray-500">
                       {item.client_email || `Обліковий запис ${item.client_user_id}`}
+                      {item.executor_version === 2 && <span className="block">{item.generation_status_label} · {item.warnings_count || 0} попереджень</span>}
                     </p>
                   </td>
                   {[

@@ -139,6 +139,16 @@ async def recovery_state(
     db: Any, document: Any, job: Any, case: Any = None
 ) -> dict[str, Any]:
     payload = job.request_payload or {}
+    if payload.get("executor_version") == 2:
+        stop = (payload.get("execution") or {}).get("stop")
+        return {
+            "executor_version": 2,
+            "stop": stop,
+            "allowed_actions": (
+                ["new_version"] if job.status in {"failed", "cancelled"} else []
+            ),
+            "expected_fingerprint": terminal_fingerprint(job),
+        }
     result = dict(payload.get("last_outcome") or {})
     reason = result.get("reason_code") or (
         "cancelled_by_user" if job.status == "cancelled" else "legacy_unknown"
@@ -253,9 +263,9 @@ async def recovery_state(
     return {
         **result,
         "reason_code": reason,
-        "allowed_actions": [action]
-        if job.status in {"failed", "cancelled", "completed"}
-        else [],
+        "allowed_actions": (
+            [action] if job.status in {"failed", "cancelled", "completed"} else []
+        ),
         "expected_fingerprint": terminal_fingerprint(job),
     }
 
@@ -285,6 +295,10 @@ async def resume_generation(db: Any, document_id: int, actor: Any, request: Any)
     if owned is None:
         raise HTTPException(404, "Роботу не знайдено.")
     job = await latest_job_for_update(db, document_id)
+    if job is not None and (job.request_payload or {}).get("executor_version") == 2:
+        raise HTTPException(
+            409, "Для цієї роботи потрібна нова спроба з новим номером запуску."
+        )
     document = (
         await db.execute(
             select(Document)

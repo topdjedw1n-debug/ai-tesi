@@ -100,4 +100,8 @@ def generation_contract_error(document: Any) -> str | None:
     style = str(document.citation_style or "").strip().lower()
     if style not in SUPPORTED_CITATION_STYLES:
         return f"unsupported citation style '{style}'"
+    # Preserve historical release evaluation. New v2 launches enforce explicit
+    # confirmation separately at enqueue, including methodology-based works.
+    if document.requirements_file_processed and document.additional_requirements:
+        return None
     return contract_confirmation_error(document)

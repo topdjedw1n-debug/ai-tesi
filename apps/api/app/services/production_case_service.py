@@ -1124,10 +1124,29 @@ class ProductionCaseService:
             .scalars()
             .all()
         )
+        latest_job = (
+            await self.db.get(AIGenerationJob, latest_job_id) if latest_job_id else None
+        )
+        from app.services.executor_v2.warnings import STATUS_LABELS, is_v2
+
+        v2 = latest_job is not None and is_v2(latest_job)
         generation_warnings = []
         for event in warning_events:
             payload = event.payload or {}
             if payload.get("job_id") != latest_job_id:
+                continue
+            if v2:
+                generation_warnings.append(
+                    {
+                        "id": event.id,
+                        **payload,
+                        "section_label": (
+                            f"Розділ {payload['section_index']}"
+                            if payload.get("section_index")
+                            else "Загальні зауваження"
+                        ),
+                    }
+                )
                 continue
             details = list(payload.get("details") or payload.get("issues") or [])
             for issue in (payload.get("review") or {}).get("issues") or []:
@@ -1170,6 +1189,11 @@ class ProductionCaseService:
             "ai_total_tokens": ai_total_tokens,
             "ai_cost_usd_cents": ai_cost_usd_cents,
             "generation_warnings": generation_warnings,
+            "warnings_count": len(generation_warnings),
+            "executor_version": 2 if v2 else None,
+            "generation_status_label": (
+                STATUS_LABELS.get(case.generation_status) if v2 else None
+            ),
             "ai_cost_eur_cents": round(ai_cost_usd_cents * settings.USD_TO_EUR_RATE),
             "release_notes": case.release_notes,
             "released_docx_path": case.released_docx_path,
@@ -1188,7 +1212,26 @@ class ProductionCaseService:
 
     async def _sync_case_status(self, case: ProductionCase) -> None:
         document = await self._get_document(case.document_id)
-        case.generation_status = _document_generation_status(document)
+        latest = (
+            await self.db.execute(
+                select(AIGenerationJob)
+                .where(
+                    AIGenerationJob.document_id == document.id,
+                    AIGenerationJob.job_type == "full_document",
+                )
+                .order_by(AIGenerationJob.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        if (
+            latest is not None
+            and (latest.request_payload or {}).get("executor_version") == 2
+        ):
+            case.generation_status = (
+                "generating" if latest.status == "running" else latest.status
+            )
+        else:
+            case.generation_status = _document_generation_status(document)
         if document.status == "failed_quality":
             revoke_release(case)
             case.qa_status = "failed"

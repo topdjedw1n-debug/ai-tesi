@@ -542,21 +542,6 @@ async def test_verification_auto_verifies_uploaded_sources(db_session):
     assert by_key["Crossref2020"].verification_status == "verified"
 
 
-def test_generation_pipeline_wiring_for_uploaded_packs():
-    """Pin the wiring: Step 0 prefers uploaded packs; the generator asks for
-    section-specific excerpts when the pack carries passages."""
-    import inspect
-
-    from app.services import background_jobs as bj
-    from app.services.ai_pipeline.generator import SectionGenerator
-
-    step0 = inspect.getsource(bj.BackgroundJobService.generate_full_document)
-    assert step0.index("build_uploaded_source_pack") < step0.index("_load_source_pack")
-
-    gen = inspect.getsource(SectionGenerator.generate_section)
-    assert "prompt_block(" in gen and "query=" in gen
-
-
 def test_long_single_block_page_is_fully_covered():
     """GPT review 2026-07-11: a 3849-char single-block page kept only its
     first 900 chars. Every word must land in a passage, and a sentence from

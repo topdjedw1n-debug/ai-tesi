@@ -1,170 +1,64 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { GenerationProgress } from '@/components/GenerationProgress'
-import { generationStopGuidance } from '@/lib/generation-status'
-import { useWebSocket } from '@/hooks/useWebSocket'
 import { apiClient } from '@/lib/api'
-
-it('uses the API reason code instead of interpreting provider error text', () => {
-  const reason = 'Error code: 400 - Your credit balance is too low to access the Anthropic API.'
-  expect(generationStopGuidance('provider_access_required')).toContain('баланс')
-  expect(generationStopGuidance(reason)).toContain('діагностики')
+import { useWebSocket } from '@/hooks/useWebSocket'
+jest.mock('@/hooks/useWebSocket', () => ({ useWebSocket: jest.fn() }))
+jest.mock('@/lib/api', () => ({ apiClient: { get: jest.fn() }, API_ENDPOINTS: { JOBS: { FOR_DOCUMENT: (id: number) => `/jobs/document/${id}/status` } } }))
+const base = { executor_version: 2, job_id: 12, status: 'running', status_label: 'Виконується', progress: 55, stage_label: 'Написання розділів', sections_done: 2, sections_total: 6, last_signal: 'Розділ збережено.', warnings_count: 3, tokens_so_far: 2500, cost_cents_so_far: 14, heartbeat_at: '2026-09-09T12:00:00Z', observed_at: '2026-09-09T12:00:10Z' }
+beforeEach(() => jest.clearAllMocks())
+it('restores API labels, sections, cost and warnings by GET without a socket', async () => {
+  ;(apiClient.get as jest.Mock).mockResolvedValue(base)
+  render(<GenerationProgress documentId={11} active={false} />)
+  expect(await screen.findByText('Написання розділів')).toBeInTheDocument()
+  expect(screen.getByText('Розділів збережено: 2 із 6')).toBeInTheDocument()
+  expect(screen.getByText(/\$0.14 · 3 попереджень/)).toBeInTheDocument()
+  expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '55')
+  expect(useWebSocket).not.toHaveBeenCalled()
 })
-jest.mock('@/lib/api', () => ({
-  apiClient: { get: jest.fn() },
-  API_ENDPOINTS: { JOBS: { FOR_DOCUMENT: (id: number) => `/api/v1/jobs/document/${id}/status` } },
-}))
+it.each([true, false])('uses five minute heartbeat threshold (stale=%s)', async stale => {
+  ;(apiClient.get as jest.Mock).mockResolvedValue({ ...base, observed_at: stale ? '2026-09-09T12:05:01Z' : '2026-09-09T12:05:00Z' })
+  render(<GenerationProgress documentId={11} active={false} />)
+  await screen.findByText('Написання розділів')
+  expect(!!screen.queryByText('Виконавець не відповідає.')).toBe(stale)
+  if (stale) expect(screen.getByRole('button', { name: 'Звернутися до власника' })).toBeInTheDocument()
+})
+it('shows the API technical stop and one owner action', async () => {
+  const stop = { code: 'provider_access', message_uk: 'Потрібно поповнити баланс моделі.', next_action: 'retry_after_owner', next_action_label: 'Звернутися до власника', retryable: false }
+  ;(apiClient.get as jest.Mock).mockResolvedValue({ ...base, status: 'failed', status_label: 'Технічна зупинка', stop })
+  const onError = jest.fn()
+  render(<GenerationProgress documentId={11} active={false} onError={onError} />)
+  expect(await screen.findByText(stop.message_uk)).toBeInTheDocument()
+  expect(screen.getAllByRole('button')).toHaveLength(1)
+  expect(screen.queryByRole('progressbar')).not.toBeInTheDocument()
+  expect(onError).toHaveBeenCalledWith(stop.message_uk)
+})
+it('retains saved progress after a polling failure', async () => {
+  jest.useFakeTimers()
+  ;(apiClient.get as jest.Mock).mockResolvedValueOnce(base).mockRejectedValue(new Error('offline'))
+  render(<GenerationProgress documentId={11} />)
+  await act(async () => {})
+  await act(async () => { jest.advanceTimersByTime(3000) })
+  expect(screen.getByText(/Не вдалося оновити стан/)).toBeInTheDocument()
+  expect(screen.getByText('Розділ збережено.')).toBeInTheDocument()
+  jest.useRealTimers()
+})
+it('renders cancellation without a technical stop', async () => {
+  ;(apiClient.get as jest.Mock).mockResolvedValue({ ...base, status: 'cancelled', status_label: 'Скасовано', stop: null })
+  const onError = jest.fn(), onCancelled = jest.fn()
+  render(<GenerationProgress documentId={11} active={false} onError={onError} onCancelled={onCancelled} />)
+  expect(await screen.findByText('Скасовано')).toBeInTheDocument()
+  expect(screen.queryByRole('button')).not.toBeInTheDocument()
+  expect(onError).not.toHaveBeenCalled()
+  expect(onCancelled).toHaveBeenCalledTimes(1)
+})
 
-jest.mock('@/hooks/useWebSocket', () => ({
-  useWebSocket: jest.fn(),
-}))
-
-describe('GenerationProgress', () => {
-  let onMessage: (message: Record<string, unknown>) => void
-
-  beforeEach(() => {
-    jest.clearAllMocks()
-    ;(apiClient.get as jest.Mock).mockResolvedValue(null)
-    ;(useWebSocket as jest.Mock).mockImplementation((options) => {
-      onMessage = options.onMessage
-      return {
-        isConnected: true,
-        isConnecting: false,
-        error: null,
-        lastMessage: null,
-        reconnectAttempts: 0,
-        connect: jest.fn(),
-        disconnect: jest.fn(),
-      }
-    })
-  })
-
-  it('shows a retry as a non-terminal state and preserves progress', async () => {
-    const onError = jest.fn()
-    render(<GenerationProgress documentId={123} onError={onError} />)
-    await act(async () => {})
-
-    act(() => {
-      onMessage({
-        type: 'progress_update',
-        progress_percentage: 37,
-        current_section: 'Методологія',
-      })
-    })
-    expect(screen.getByText('37%')).toBeInTheDocument()
-
-    act(() => {
-      onMessage({
-        type: 'job_retrying',
-        status: 'queued',
-        error: 'Temporary provider outage',
-      })
-    })
-
-    expect(screen.getByText('Повторна спроба')).toBeInTheDocument()
-    expect(screen.getByText('37%')).toBeInTheDocument()
-    expect(screen.queryByText('Помилка генерації')).not.toBeInTheDocument()
-    expect(onError).not.toHaveBeenCalled()
-  })
-
-  it('restores actual queue age from saved timing after reload', async () => {
-    ;(apiClient.get as jest.Mock).mockResolvedValue({
-      document_id: 123, job_id: 7, status: 'queued', progress: 0,
-      started_at: '2026-09-08T20:00:00Z', available_at: '2026-09-08T20:04:25Z',
-      observed_at: '2026-09-08T20:05:00Z',
-    })
-    render(<GenerationProgress documentId={123} />)
-    expect(await screen.findByText('Від запуску: 5 хв')).toBeInTheDocument()
-    expect(screen.getByText('Очікування у черзі: 35 с')).toBeInTheDocument()
-  })
-
-  it.each([true, false])('distinguishes worker lease expiry from socket connection (expired=%s)', async (expired) => {
-    ;(apiClient.get as jest.Mock).mockResolvedValue({
-      document_id: 123, job_id: 7, status: 'running', progress: 0,
-      heartbeat_at: '2026-09-08T20:04:53Z', observed_at: '2026-09-08T20:05:00Z',
-      lease_expires_at: expired ? '2026-09-08T20:04:59Z' : '2026-09-08T20:06:53Z',
-    })
-    const onError = jest.fn()
-    render(<GenerationProgress documentId={123} onError={onError} />)
-    expect(await screen.findByText('Останній сигнал виконавця: 7 с тому')).toBeInTheDocument()
-    if (expired) expect(screen.getByText(/Сигнал виконавця прострочений/)).toBeInTheDocument()
-    else expect(screen.queryByText(/Сигнал виконавця прострочений/)).not.toBeInTheDocument()
-    expect(screen.queryByText('Помилка генерації')).not.toBeInTheDocument()
-    expect(onError).not.toHaveBeenCalled()
-  })
-
-  it('restores the saved progress after reload without a websocket event', async () => {
-    ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, job_id: 7, status: 'queued', progress: 47, attempt_count: 1 })
-    render(<GenerationProgress documentId={123} />)
-    expect(await screen.findByText('47%')).toBeInTheDocument()
-    expect(screen.getByText('Повторна спроба')).toBeInTheDocument()
-    expect(screen.getByText(/Завершені розділи зберігаються/)).toBeInTheDocument()
-  })
-
-  it.each([true, false])('merges a delayed poll with socket detail (connected=%s)', async (connected) => {
-    let resolvePoll: (value: unknown) => void = () => {}
-    ;(apiClient.get as jest.Mock).mockReturnValue(new Promise((resolve) => { resolvePoll = resolve }))
-    ;(useWebSocket as jest.Mock).mockImplementation((options) => {
-      onMessage = options.onMessage
-      return { isConnected: connected, isConnecting: false, error: null }
-    })
-    render(<GenerationProgress documentId={123} />)
-    act(() => onMessage({
-      type: 'progress_update', document_id: 123, progress_percentage: 73,
-      current_section: 'Методологія', estimated_time: '2 хв',
-    }))
-    await act(async () => resolvePoll({
-      document_id: 123, job_id: 7, status: 'running', progress: 47, attempt_count: 1,
-    }))
-    expect(screen.getByText(connected ? '73%' : '47%')).toBeInTheDocument()
-    expect(screen.getByText('Методологія')).toBeInTheDocument()
-    expect(screen.getByText(/2 хв/)).toBeInTheDocument()
-  })
-
-  it('does not reopen a completed job when an older poll returns late', async () => {
-    let resolvePoll: (value: unknown) => void = () => {}
-    ;(apiClient.get as jest.Mock).mockReturnValue(new Promise((resolve) => { resolvePoll = resolve }))
-    const onComplete = jest.fn()
-    render(<GenerationProgress documentId={123} onComplete={onComplete} />)
-    act(() => onMessage({ type: 'job_completed', document_id: 123 }))
-    await act(async () => resolvePoll({ document_id: 123, status: 'running', progress: 47 }))
-    expect(screen.getByText('Написання завершено')).toBeInTheDocument()
-    expect(screen.getByText('100%')).toBeInTheDocument()
-    expect(onComplete).toHaveBeenCalledTimes(1)
-  })
-
-  it('keeps socket loss separate from generation failure and ignores other work', async () => {
-    const onError = jest.fn()
-    ;(useWebSocket as jest.Mock).mockImplementation((options) => {
-      onMessage = options.onMessage
-      return { isConnected: false, isConnecting: false, error: 'Connection lost' }
-    })
-    ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, status: 'running', progress: 47 })
-    render(<GenerationProgress documentId={123} onError={onError} />)
-    await screen.findByText('47%')
-    act(() => onMessage({ type: 'job_failed', document_id: 124, error: 'Foreign failure' }))
-    expect(screen.getByText('47%')).toBeInTheDocument()
-    expect(screen.getByText(/це не означає зупинку генерації/)).toBeInTheDocument()
-    expect(screen.queryByText('Помилка генерації')).not.toBeInTheDocument()
-    expect(onError).not.toHaveBeenCalled()
-  })
-
-  it('restores a terminal reason once and explains what must be fixed', async () => {
-    const onError = jest.fn()
-    ;(apiClient.get as jest.Mock).mockResolvedValue({ document_id: 123, status: 'failed', progress: 12, error_message: 'Too few citable sources', recovery: { reason_code: 'source_coverage_gap' } })
-    render(<GenerationProgress documentId={123} active={false} onError={onError} />)
-    expect(await screen.findByText('Too few citable sources')).toBeInTheDocument()
-    expect(screen.getByText(/Джерела не покривають/)).toBeInTheDocument()
-    act(() => onMessage({ type: 'job_failed', document_id: 123, error: 'Too few citable sources' }))
-    await waitFor(() => expect(onError).toHaveBeenCalledTimes(1))
-  })
-
-  // ISSUE-009: a persisted terminal job can have progress=0 despite saved sections.
-  it.each(['failed', 'cancelled'])('does not present a false completion percentage for %s', async (status) => {
-    ;(apiClient.get as jest.Mock).mockResolvedValue({
-      document_id: 123, status, progress: 0, error_message: 'Generation stopped',
-    })
-    render(<GenerationProgress documentId={123} active={false} />)
-    expect(await screen.findByText('Generation stopped')).toBeInTheDocument()
-    expect(screen.queryByText('0%')).not.toBeInTheDocument()
-  })
+it('ages the last heartbeat while the status API is unavailable', async () => {
+  jest.useFakeTimers()
+  ;(apiClient.get as jest.Mock).mockResolvedValueOnce(base).mockRejectedValue(new Error('DB unavailable'))
+  render(<GenerationProgress documentId={11} />)
+  await act(async () => {})
+  await act(async () => { jest.advanceTimersByTime(310000) })
+  expect(screen.getByText('Виконавець не відповідає.')).toBeInTheDocument()
+  expect(screen.getByRole('button', { name: 'Звернутися до власника' })).toBeInTheDocument()
+  jest.useRealTimers()
 })

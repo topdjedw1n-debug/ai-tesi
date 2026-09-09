@@ -98,6 +98,22 @@ describe('TaskContractPanel', () => {
     ;(apiClient.post as jest.Mock).mockResolvedValue({ confirmed: true })
   })
 
+  it('allows one confirmed new job after an owner action, without resuming the terminal job', async () => {
+    const originalGet = (apiClient.get as jest.Mock).getMockImplementation()!
+    ;(apiClient.get as jest.Mock).mockImplementation((url: string) => url.endsWith('/recovery') ? Promise.resolve({ executor_version: 2, stop: { next_action: 'retry_after_owner', message_uk: 'Відновіть доступ.' }, allowed_actions: ['new_version'], expected_fingerprint: 'b'.repeat(64) }) : originalGet(url))
+    const view = render(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry />)
+    await waitFor(() => expect(apiClient.get).toHaveBeenCalledTimes(3))
+    expect(screen.queryByRole('button', { name: 'Нова спроба' })).not.toBeInTheDocument()
+    view.rerender(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry ownerRecoveryAllowed />)
+    const button = await screen.findByRole('button', { name: 'Нова спроба' })
+    expect(screen.getAllByRole('checkbox')).toHaveLength(1)
+    expect(button).toBeDisabled()
+    fireEvent.click(screen.getByTestId('task-contract-confirmation'))
+    fireEvent.click(button)
+    await waitFor(() => expect(apiClient.post).toHaveBeenCalledWith('/api/v1/generate/full-document', expect.objectContaining({ mode: 'new_version', confirm_replace: true })))
+    expect((apiClient.post as jest.Mock).mock.calls.some(([url]) => url.endsWith('/resume'))).toBe(false)
+  })
+
   it('requires resolution of the failed attempt before an explicit new paid start', async () => {
     render(<TaskContractPanel documentId={123} targetPages={18} provider="anthropic" model="claude-opus-4-8" retry />)
     const start = await screen.findByRole('button', { name: 'Почати заново' })

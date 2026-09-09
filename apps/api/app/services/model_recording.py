@@ -75,6 +75,7 @@ class ReplayIncomplete(BaseException):
 class ReplayTape:
     records: list[dict[str, Any]]
     allow_request_changes: bool = False
+    persist_receipts: bool = False  # Only the isolated replay CLI writes a new journal.
     dependencies: list[dict[str, Any]] = field(default_factory=list)
     consumed: list[dict[str, Any]] = field(default_factory=list)
     _used: set[int] = field(default_factory=set)
@@ -132,6 +133,18 @@ class ReplayTape:
                 and row.get("input_fingerprint") == fingerprint
             ):
                 self._used_dependencies.add(index)
+                parents = {row.get("dependency_id")} - {None}
+                while parents:
+                    children = [
+                        (i, child)
+                        for i, child in enumerate(self.dependencies)
+                        if i not in self._used_dependencies
+                        and child.get("parent_dependency_id") in parents
+                    ]
+                    self._used_dependencies.update(i for i, _ in children)
+                    parents = {child.get("dependency_id") for _, child in children} - {
+                        None
+                    }
                 return copy.deepcopy(row)
         raise ReplayIncomplete(
             f"No external input recording for {kind}/{fingerprint[:12]}"

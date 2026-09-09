@@ -485,10 +485,7 @@ class RAGRetriever:
         Returns:
             List of SourceDoc instances
         """
-        if not settings.SEMANTIC_SCHOLAR_ENABLED:
-            logger.debug("Semantic Scholar disabled, skipping")
-            return []
-
+        # Explicit search always executes; callers decide whether to search.
         # Use existing retrieve method
         return await self.retrieve(query, limit=10)
 

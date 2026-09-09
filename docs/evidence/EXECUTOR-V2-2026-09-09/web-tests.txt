@@ -1,0 +1,41 @@
+PASS __tests__/components/dashboard/TaskContractPanel.test.tsx
+PASS __tests__/components/dashboard/DocumentsList.test.tsx
+  ● Console
+
+    console.error
+      Failed to fetch documents: Error: API Error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/__tests__/components/dashboard/DocumentsList.test.tsx:197:54)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      58 |         setDocuments(documents)
+      59 |       } catch (error) {
+    > 60 |         console.error('Failed to fetch documents:', error)
+         |                 ^
+      61 |         setLoadError(true)
+      62 |       } finally {
+      63 |         setIsLoading(false)
+
+      at error (components/dashboard/DocumentsList.tsx:60:17)
+
+PASS __tests__/components/dashboard/DocumentsList.regression-1.test.tsx
+PASS __tests__/components/GenerationProgress.test.tsx
+PASS __tests__/components/ProductionWorkspace.test.tsx
+
+Test Suites: 5 passed, 5 total
+Tests:       29 passed, 29 total
+Snapshots:   0 total
+Time:        1.337 s, estimated 2 s
+Ran all test suites matching GenerationProgress|TaskContractPanel|DocumentsList|ProductionWorkspace.

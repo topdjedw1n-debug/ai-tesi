@@ -8,11 +8,16 @@ import inspect
 from contextvars import ContextVar
 from dataclasses import asdict, is_dataclass
 from typing import Any
+from uuid import uuid4
 
 import httpx
 
 from app.services.academic_context import digest
 from app.services.model_recording import active_replay, json_value
+
+dependency_parent: ContextVar[str | None] = ContextVar(
+    "dependency_parent", default=None
+)
 
 recording_context: ContextVar[dict[str, Any] | None] = ContextVar(
     "dependency_recording", default=None
@@ -141,12 +146,16 @@ def recorded_dependency(kind: str, *, codec: str = "json"):
                 return _decode(row["response"], codec)
             from app.services.generation_operations import _append
 
+            dependency_id = uuid4().hex
             payload = {
+                "dependency_id": dependency_id,
+                "parent_dependency_id": dependency_parent.get(),
                 "kind": kind,
                 "input_fingerprint": fingerprint,
                 "request": request,
                 "codec": codec,
             }
+            parent_token = dependency_parent.set(dependency_id)
             try:
                 result = await function(*args, **kwargs)
             except Exception as error:
@@ -163,6 +172,8 @@ def recorded_dependency(kind: str, *, codec: str = "json"):
                     event_type="generation_dependency",
                 )
                 raise
+            finally:
+                dependency_parent.reset(parent_token)
             await _append(
                 context,
                 {**payload, "outcome": "received", "response": _encode(result, codec)},

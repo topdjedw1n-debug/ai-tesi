@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import asyncio
 import base64
+import gzip
 import hashlib
 import io
 import json
@@ -68,7 +69,10 @@ async def run(args):
     from app.services.replay_snapshot import REPLAY_SETTING_NAMES
     from app.services.storage_service import StorageService
 
-    data = json.loads(args.recording.read_text())
+    raw = args.recording.read_bytes()
+    data = json.loads(gzip.decompress(raw) if args.recording.suffix == ".gz" else raw)
+    if isinstance(data, list):
+        data = {"provenance": data}
     events = data.get("document_provenance", data.get("provenance", []))
     snapshots = [
         e["payload"]
@@ -106,6 +110,7 @@ async def run(args):
             job_id=snapshot["job_id"],
             worker_attempt=snapshot["worker_attempt"],
             allow_request_changes=args.allow_request_changes,
+            persist_receipts=True,
         )
         for name, value in snapshot.get(
             "replay_settings", snapshot["profile"]["settings"]
@@ -157,6 +162,16 @@ async def run(args):
                     < snapshot["worker_attempt"]
                 ],
             ]
+            # The immutable original input receipt belongs in the isolated DB;
+            # provider receipts are re-journaled when the tape consumes them.
+            rows["document_provenance"].append(
+                {
+                    "document_id": snapshot["document"]["id"],
+                    "stage": "sources",
+                    "event_type": "generation_replay_inputs",
+                    "payload": snapshot,
+                }
+            )
             user_ids = {snapshot["job"]["user_id"], snapshot["document"]["user_id"]}
             for table_name, records in rows.items():
                 table = database.Base.metadata.tables[table_name]

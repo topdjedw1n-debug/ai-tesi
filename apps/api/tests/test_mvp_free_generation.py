@@ -130,12 +130,16 @@ async def _make_document(
             target_pages=target_pages,
             created_at=created_at,
             # These tests exercise the payment/quota gates; satisfy the
-            # task-contract gate with a processed methodology.
+            # task-contract gate with explicit confirmation and a methodology.
             additional_requirements="Parsed methodology for gate tests",
             requirements_file_processed=True,
             citation_style="apa",
         )
         session.add(document)
+        await session.flush()
+        from app.services.task_contract import task_contract_sha256
+
+        document.contract_confirmed_sha256 = task_contract_sha256(document)
         await session.commit()
         await session.refresh(document)
         return int(document.id)

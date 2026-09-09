@@ -1,0 +1,427 @@
+{
+  "mode": "offline_fixture",
+  "origin": {
+    "source": "real_full_job",
+    "job_id": 12,
+    "document_id": 11,
+    "full_recording_sha256": "d78317b98a450407c966fcfb4580ff85773baa9fe342e529ce78129cb5cde591",
+    "use": "Recorded dependencies and Opus texts used as fixtures for new v2 prompts; this is not replay of job12."
+  },
+  "result": {
+    "docx": {
+      "sha256": "e3ba0bc35f128028f284ad1b9a43f030f7b24b2748d642d2709361d0be924ba9",
+      "size": 50477,
+      "estimated_pages": 24,
+      "storage_path": "s3://ai-thesis-documents/documents/1/1/1-e3ba0bc35f128028.docx"
+    },
+    "sections": [
+      {
+        "title": "Introduzione",
+        "section_index": 1,
+        "word_count": 516
+      },
+      {
+        "title": "Capitolo 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+        "section_index": 2,
+        "word_count": 1165
+      },
+      {
+        "title": "Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+        "section_index": 3,
+        "word_count": 1173
+      },
+      {
+        "title": "Capitolo 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+        "section_index": 4,
+        "word_count": 1192
+      },
+      {
+        "title": "Capitolo 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+        "section_index": 5,
+        "word_count": 1206
+      },
+      {
+        "title": "Conclusioni",
+        "section_index": 6,
+        "word_count": 531
+      }
+    ],
+    "bibliography": [
+      {
+        "key": "K1536a03f36de",
+        "formatted": "Bicking, C., & Moore, G. A. (2012).  Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse. Neonatal Network. https://doi.org/10.1891/0730-0832.31.5.295",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "K7e1c5023b6f5",
+        "formatted": "Perez, K. (2020).  Educating Perinatal Nurses to Promote Bonding Techniques and Increase Support of Neonatal Intensive Care Unit Parents. Digital Scholarship - UNLV (University of Nevada Reno). https://doi.org/10.34917/13568655",
+        "verified": true,
+        "verification_provider": "openalex",
+        "origin": "pack"
+      },
+      {
+        "key": "K5f415dc265d4",
+        "formatted": "Hallett, C. E., & Pateman, B. D. (2000).  The ‘invisible assessment’: the role of the staff nurse in the community setting. Journal of Clinical Nursing. https://doi.org/10.1046/j.1365-2702.2000.00425.x",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "Kf79fb21cb30b",
+        "formatted": "Lewin, S., Munabi-Babigumira, S., Glenton, C., Daniels, K., Bosch-Capblanch, X., Wyk, B. E. V., ... Scheel, I. B. (2010).  Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases. Cochrane Database of Systematic Reviews. https://doi.org/10.1002/14651858.cd004015.pub3",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "K5222d16e1632",
+        "formatted": "Curley, A., Jones, L. K., & Staff, L. (2023).  Barriers to Couplet Care of the Infant Requiring Additional Care: Integrative Review. Healthcare. https://doi.org/10.3390/healthcare11050737",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "Ke30bae93ce84",
+        "formatted": "Laurence, S. D. (2023).  Beyond Inadequate Prenatal Care Utilisation in French Guiana: Role of Education, Isolation and Pregnancy Experiences. Pregnancy and Women’s Health Care International Journal. https://doi.org/10.53902/pwhcij.2023.03.000515",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "K93a495245de9",
+        "formatted": "Ochako, R., Fotso, J. C., Ikamari, L., & Khasakhala, A. (2011).  Utilization of maternal health services among young women in Kenya: Insights from the Kenya Demographic and Health Survey, 2003. BMC Pregnancy and Childbirth. https://doi.org/10.1186/1471-2393-11-1",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "Kfb9b7575cec2",
+        "formatted": "Kokkinaki, T., Anagnostatou, N., Markodimitraki, M., Roumeliotaki, T., Tzatzarakis, M., Vakonaki, E., ... Hatzidaki, E. (2025).  The development of preterm infants from low socio-economic status families: The combined effects of melatonin, autonomic nervous system maturation and psychosocial factors (ProMote): A study protocol. PLOS ONE. https://doi.org/10.1371/journal.pone.0316520",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      },
+      {
+        "key": "Kd1fcb912b570",
+        "formatted": "Tinti, S., Gabbai, V., Timoftica, C., Buccoliero, C., Ripa, P., Ranieri, R., ... Alberti, A. (2022).  Il bisogno di assistenza infermieristica di natura preventiva in ottica di genere presso il Carcere di Bollate . Un esempio: il cancro della mammella. Recenti Progressi in Medicina. https://doi.org/10.1701/3827.38110",
+        "verified": true,
+        "verification_provider": "crossref",
+        "origin": "pack"
+      }
+    ],
+    "sources": [
+      {
+        "key": "K1536a03f36de",
+        "origin": "pack"
+      },
+      {
+        "key": "K7e1c5023b6f5",
+        "origin": "pack"
+      },
+      {
+        "key": "K5f415dc265d4",
+        "origin": "pack"
+      },
+      {
+        "key": "Kf79fb21cb30b",
+        "origin": "pack"
+      },
+      {
+        "key": "K5222d16e1632",
+        "origin": "pack"
+      },
+      {
+        "key": "Ke30bae93ce84",
+        "origin": "pack"
+      },
+      {
+        "key": "K93a495245de9",
+        "origin": "pack"
+      },
+      {
+        "key": "Kfb9b7575cec2",
+        "origin": "pack"
+      },
+      {
+        "key": "Kd1fcb912b570",
+        "origin": "pack"
+      }
+    ],
+    "usage": {
+      "calls": [
+        {
+          "attempt_id": "ed2ab28c-0c46-47de-a5db-e5ecbda765e7",
+          "model": "claude-opus-4-8",
+          "tokens": 150,
+          "cost_cents": 0,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "41094b84-e39a-4769-8af4-fea6e9af7082",
+          "model": "claude-opus-4-8",
+          "tokens": 150,
+          "cost_cents": 0,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "108d950d-dfcf-4adf-abf2-8f5b74e035d4",
+          "model": "claude-opus-4-8",
+          "tokens": 40231,
+          "cost_cents": 24,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "3cf970a0-09a6-4afe-b9d7-9139868aecb2",
+          "model": "claude-opus-4-8",
+          "tokens": 43435,
+          "cost_cents": 28,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "4249f0c3-d617-4fde-b46b-f2358a93f370",
+          "model": "claude-opus-4-8",
+          "tokens": 46956,
+          "cost_cents": 31,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "5e9824f4-c388-4442-810b-3a0c603ce781",
+          "model": "claude-opus-4-8",
+          "tokens": 50377,
+          "cost_cents": 32,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "6b6d1743-ff41-4ef8-abc9-bffc34d8161b",
+          "model": "claude-opus-4-8",
+          "tokens": 53667,
+          "cost_cents": 33,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "09699664-0536-4701-a68f-37c0f37ed7ff",
+          "model": "claude-opus-4-8",
+          "tokens": 55082,
+          "cost_cents": 31,
+          "outcome": "received"
+        },
+        {
+          "attempt_id": "9587da3a-33db-456f-8701-4e2c461a469e",
+          "model": "claude-opus-4-8",
+          "tokens": 55904,
+          "cost_cents": 34,
+          "outcome": "received"
+        }
+      ],
+      "tokens": 345952,
+      "cost_cents": 214,
+      "unknown_attempts": 0
+    },
+    "recording_id": "executor-v2:job:1",
+    "warnings": [
+      {
+        "code": "citation_unresolved",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 1,
+        "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+        "detail": "Maben2012",
+        "created_at": "2026-09-09T14:49:50.601274+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 1,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "492 / 750",
+        "created_at": "2026-09-09T14:49:50.604673+00:00"
+      },
+      {
+        "code": "citation_unresolved",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 2,
+        "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+        "detail": "Maben2012",
+        "created_at": "2026-09-09T14:49:50.620635+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 2,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "1132 / 750",
+        "created_at": "2026-09-09T14:49:50.623850+00:00"
+      },
+      {
+        "code": "citation_unresolved",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 3,
+        "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+        "detail": "Maben2012",
+        "created_at": "2026-09-09T14:49:50.640286+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 3,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "1161 / 750",
+        "created_at": "2026-09-09T14:49:50.643931+00:00"
+      },
+      {
+        "code": "citation_unresolved",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 4,
+        "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+        "detail": "Maben2012",
+        "created_at": "2026-09-09T14:49:50.659689+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 4,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "1185 / 750",
+        "created_at": "2026-09-09T14:49:50.663019+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 5,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "1206 / 750",
+        "created_at": "2026-09-09T14:49:50.678810+00:00"
+      },
+      {
+        "code": "citation_unresolved",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 6,
+        "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+        "detail": "Maben2012",
+        "created_at": "2026-09-09T14:49:50.694746+00:00"
+      },
+      {
+        "code": "length_off_target",
+        "severity": "warning",
+        "stage": "writing",
+        "section_index": 6,
+        "message_uk": "Обсяг розділу відрізняється від запланованого.",
+        "detail": "506 / 750",
+        "created_at": "2026-09-09T14:49:50.698228+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 1,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:dm739-1994: 739/1994 [STD:dm739-1994]; il perimetro ostetrico è definito dal D.M.",
+        "created_at": "2026-09-09T14:49:50.714236+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 1,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:dm740-1994: 740/1994 [STD:dm740-1994].",
+        "created_at": "2026-09-09T14:49:50.717856+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 2,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:manuale_ostetricia_ginecologia_nursing: I richiami fisiologici che sostengono questa osservazione — le modificazioni cardiocircolatorie e respiratorie della gravidanza, i range di normalità dei parametri — appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire loro dati che le fonti disponibili non forniscono [STD:manuale_ostetricia_ginecologia_nursing].",
+        "created_at": "2026-09-09T14:49:50.727102+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 3,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:mckinney-maternalchild: Questi richiami fisiologici appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire dati che le fonti disponibili non forniscono [STD:mckinney-maternalchild].",
+        "created_at": "2026-09-09T14:49:50.739258+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 3,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:who-thermal: Questi meccanismi fisiologici appartengono alla materia standard e non sono coperti dal pack; li segnalo come tali, rimandando a manuali e linee guida da verificare [STD:who-thermal].",
+        "created_at": "2026-09-09T14:49:50.742524+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 3,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:nanda-i: Va precisato subito che queste tassonomie non sono coperte dal materiale bibliografico recuperato: le tratto come materia standard, riferendomi alle classificazioni ufficiali soggette a verifica [STD:nanda-i][STD:noc].",
+        "created_at": "2026-09-09T14:49:50.745887+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 3,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:noc: Va precisato subito che queste tassonomie non sono coperte dal materiale bibliografico recuperato: le tratto come materia standard, riferendomi alle classificazioni ufficiali soggette a verifica [STD:noc].",
+        "created_at": "2026-09-09T14:49:50.749097+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 4,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:mckinney_maternal_child: Questi meccanismi fisiologici appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire dati che le fonti disponibili non forniscono [STD:mckinney_maternal_child].",
+        "created_at": "2026-09-09T14:49:50.760579+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 4,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:apgar_who: Anche la descrizione dell'Apgar e dei suoi limiti interpretativi appartiene alla materia standard, che sviluppo con manuali e linee guida da verificare [STD:apgar_who], perché nessuna fonte del pack fornisce dati primari su questo indice.",
+        "created_at": "2026-09-09T14:49:50.763890+00:00"
+      },
+      {
+        "code": "reference_replaced",
+        "severity": "warning",
+        "stage": "references",
+        "section_index": 4,
+        "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+        "detail": "STD:nanda_i: Queste classificazioni non sono coperte dal pack e le tratto come materia standard, riferendomi alle tassonomie ufficiali soggette a verifica [STD:nanda_i].",
+        "created_at": "2026-09-09T14:49:50.767194+00:00"
+      },
+      {
+        "code": "review_note",
+        "severity": "info",
+        "stage": "assembling",
+        "section_index": null,
+        "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+        "detail": "{\n\"functions\": {\n\"research_question\": {\n\"satisfied\": true,\n\"evidence_quote\": \"quale è il ruolo autonomo e collaborativo dell'infermiere nell'area perinatale e nella gestione della transizione extrauterina del neonato, e come le tassonomie NANDA-I, NOC e NIC insieme alle evidenze disponibili sostengono una pianificazione assistenziale sicura, entro i confini definiti dal D.M. 739/1994?\",\n\"reason\": \"Дослідницьке питання сформульоване чітко, з чіткими межами (D.M. 739/1994) та операційними компонентами (автономна/колаборативна роль, таксономії, безпечне планування).\"\n},\n\"review_method\": {\n\"satisfied\": true,\n\"evidence_quote\": \"Le fonti sono state cercate su banche dati accademiche interrogate con stringhe tematiche via Crossref e OpenAlex. Il materiale recuperato risulta disomogeneo: molte voci riguardano transizioni professionali o ambiti pedagogici non pertinenti, riducendo il nucleo clinicamente utilizzabile a poche fonti\",\n\"reason\": \"Метод описано чесно: названо бази (Crossref, OpenAle",
+        "created_at": "2026-09-09T14:49:50.854414+00:00"
+      }
+    ]
+  },
+  "replay_identical_bytes": true,
+  "provider_calls": 9,
+  "real_paid_v2_run": false
+}

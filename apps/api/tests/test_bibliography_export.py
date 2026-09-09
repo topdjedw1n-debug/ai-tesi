@@ -17,9 +17,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from sqlalchemy import select
 
-import tests.test_provenance_ledger as harness_mod
 from app.core.exceptions import ValidationError
 from app.models.document import Document, DocumentSection
 from app.services.ai_pipeline.citation_formatter import (
@@ -27,7 +25,6 @@ from app.services.ai_pipeline.citation_formatter import (
     merge_bibliographies,
 )
 from app.services.ai_pipeline.citation_keys import internal_marker_keys
-from app.services.background_jobs import BackgroundJobService
 from app.services.document_service import DocumentService
 
 
@@ -94,178 +91,6 @@ def test_bibliography_heading_is_language_aware():
 # ---------------------------------------------------------------------------
 # Pipeline: persistence + document assembly
 # ---------------------------------------------------------------------------
-
-
-@pytest.mark.asyncio
-async def test_section_save_persists_bibliography_and_pack_keys(
-    db_session, mock_redis, monkeypatch
-):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Intro", "Methods")
-    )
-    document_id = document.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[
-                section_result_with_bibliography(1, [REF_A], ["Vaswani2017"]),
-                section_result_with_bibliography(2, [REF_B, REF_A], ["Devlin2019"]),
-            ],
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-    sections = (
-        (
-            await db_session.execute(
-                select(DocumentSection)
-                .where(DocumentSection.document_id == document_id)
-                .order_by(DocumentSection.section_index)
-            )
-        )
-        .scalars()
-        .all()
-    )
-    assert sections[0].bibliography == [REF_A]
-    assert sections[0].pack_keys_used == ["Vaswani2017"]
-    assert sections[1].bibliography == [REF_B, REF_A]
-    assert sections[1].pack_keys_used == ["Devlin2019"]
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize(
-    ("language", "heading"),
-    [("it", "Bibliografia"), ("en", "Bibliography"), ("uk", "Бібліографія")],
-)
-async def test_document_content_gets_bibliography_section(
-    db_session, mock_redis, monkeypatch, language, heading
-):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Intro", "Methods")
-    )
-    document.language = language
-    await db_session.commit()
-    document_id = document.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[
-                section_result_with_bibliography(1, [REF_B]),
-                section_result_with_bibliography(2, [REF_A, REF_B]),  # dup REF_B
-            ],
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-    content = (
-        await db_session.execute(
-            select(Document.content).where(Document.id == document_id)
-        )
-    ).scalar_one()
-    marker = f"# {heading}"
-    assert marker in content
-    bibliography_block = content.split(marker, 1)[1]
-    # Deduped: each reference exactly once, alphabetical order
-    assert bibliography_block.count(REF_A) == 1
-    assert bibliography_block.count(REF_B) == 1
-    assert bibliography_block.index(REF_B) < bibliography_block.index(REF_A)
-    # DOI strings from the pack land in the final content
-    assert "https://doi.org/" in bibliography_block
-
-
-@pytest.mark.asyncio
-async def test_empty_bibliography_appends_nothing(db_session, mock_redis, monkeypatch):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Only",)
-    )
-    document_id = document.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[section_result_with_bibliography(1, [])],
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-    content = (
-        await db_session.execute(
-            select(Document.content).where(Document.id == document_id)
-        )
-    ).scalar_one()
-    assert "Bibliograf" not in content
-    assert "Бібліографія" not in content
-
-
-@pytest.mark.asyncio
-async def test_regen_persists_final_attempt_bibliography(
-    db_session, mock_redis, monkeypatch
-):
-    """Attempt 1 fails a gate with bibliography X; accepted attempt 2 has Y —
-    only Y may be persisted and exported."""
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings",
-        harness_mod.make_settings(
-            QUALITY_GATES_ENABLED=True, QUALITY_MAX_REGENERATE_ATTEMPTS=1
-        ),
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Only",)
-    )
-    document_id = document.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[
-                section_result_with_bibliography(1, [REF_A], ["Vaswani2017"]),
-                section_result_with_bibliography(1, [REF_B], ["Devlin2019"]),
-            ],
-            grammar_side_effect=[
-                (40.0, 25, "failed", "Too many grammar errors"),
-                (95.0, 0, "passed", None),
-            ],
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id
-        )
-
-    section = (
-        await db_session.execute(
-            select(DocumentSection).where(DocumentSection.document_id == document_id)
-        )
-    ).scalar_one()
-    assert section.bibliography == [REF_B]
-    assert section.pack_keys_used == ["Devlin2019"]
-    content = (
-        await db_session.execute(
-            select(Document.content).where(Document.id == document_id)
-        )
-    ).scalar_one()
-    assert REF_B in content
-    assert REF_A not in content
 
 
 # ---------------------------------------------------------------------------

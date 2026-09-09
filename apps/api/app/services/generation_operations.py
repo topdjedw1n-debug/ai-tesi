@@ -94,11 +94,28 @@ async def recorded_provider_call(
 ) -> T:
     purpose = operation_purpose.get() or purpose
     tape = active_replay.get()
-    if tape is not None:
-        return tape.response(
-            provider=provider, model=model, stage=purpose, request=request
-        )
     context = getattr(usage_tracker, "generation_context", None)
+    if tape is not None:
+        consumed_before = len(tape.consumed)
+        try:
+            return tape.response(
+                provider=provider, model=model, stage=purpose, request=request
+            )
+        finally:
+            # Replay into a fresh DB journals only the calls actually consumed.
+            # Preserve receipt identity and observed usage; never simulate spend.
+            if (
+                tape.persist_receipts
+                and isinstance(context, dict)
+                and len(tape.consumed) > consumed_before
+            ):
+                attempt_id = tape.consumed[-1]["attempt_id"]
+                receipt = next(r for r in tape.records if r["attempt_id"] == attempt_id)
+                await _append(
+                    context,
+                    {**receipt, "outcome": "started", "usage": None, "response": None},
+                )
+                await _append(context, receipt)
     if not isinstance(context, dict):
         return await call(**request)
     safe_request = recorded_request(request)
@@ -134,9 +151,9 @@ async def recorded_provider_call(
                 context,
                 {
                     **base,
-                    "outcome": "failed"
-                    if isinstance(error, Exception)
-                    else "outcome_unknown",
+                    "outcome": (
+                        "failed" if isinstance(error, Exception) else "outcome_unknown"
+                    ),
                     "reason_code": reason,
                     "usage": None,
                     "provider_spend_unknown": True,

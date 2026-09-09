@@ -25,7 +25,7 @@ class SourceDocument:
 
     title: str
     authors: list[str]
-    year: int
+    year: int | None
     journal: str | None = None
     volume: str | None = None
     issue: str | None = None
@@ -39,8 +39,6 @@ class SourceDocument:
         """Validate required fields"""
         if not self.authors:
             raise ValueError("SourceDocument must have at least one author")
-        if not self.year:
-            raise ValueError("SourceDocument must have a year")
 
 
 class CitationFormatter:
@@ -136,6 +134,7 @@ class CitationFormatter:
         year_suffix: str = "",
     ) -> str:
         """Format APA in-text citation"""
+        year = year or "n.d."
         surnames = [CitationFormatter._author_surname(author) for author in authors]
         if len(authors) == 1:
             citation = f"{surnames[0]}, {year}{year_suffix}"
@@ -234,7 +233,7 @@ class CitationFormatter:
             )
 
         # Year
-        year_str = f" ({source.year}{year_suffix})."
+        year_str = f" ({source.year or 'n.d.'}{year_suffix})."
 
         # Title
         title_str = f" {source.title}."
@@ -261,8 +260,21 @@ class CitationFormatter:
         return reference
 
     @staticmethod
+    def _institutional_author(value: str) -> bool:
+        import re
+
+        return bool(
+            re.search(
+                r"\b(?:Organization|Organisation|Association|University|Institute|Ministry|Department|Agency|Council|Committee|Group|Society|WHO|NANDA|UNICEF|UNESCO|Organizzazione|Ministero|Istituto|Асоціація|Міністерство)\b",
+                value,
+            )
+        )
+
+    @staticmethod
     def _author_surname(author: str) -> str:
         value = author.strip()
+        if CitationFormatter._institutional_author(value):
+            return value
         if not value:
             return "Unknown"
         return value.split(",", 1)[0].strip() if "," in value else value.split()[-1]
@@ -270,6 +282,8 @@ class CitationFormatter:
     @staticmethod
     def _format_apa_author(author: str) -> str:
         value = author.strip()
+        if CitationFormatter._institutional_author(value):
+            return value
         if not value:
             return "Unknown"
         if "," in value:

@@ -174,7 +174,7 @@ def build_task_contract(
         "basis_label": basis_label,
         "rules": rules,
         "assumptions": assumptions,
-        "confirmation_required": basis == "standard_academic",
+        "confirmation_required": True,
         "sha256": task_contract_sha256(document),
     }
 
@@ -209,21 +209,12 @@ def task_contract_sha256(document: Any) -> str:
 def contract_confirmation_error(document: Any) -> str | None:
     """Why generation must not start yet, or None.
 
-    Explicit basis (methodology) needs no confirmation. An assumed basis
-    (standard academic structure) requires the manager to have confirmed
-    the CURRENT contract fingerprint.
+    Every new launch requires explicit confirmation of the current fingerprint,
+    including works with an uploaded methodology.
     """
-    methodology_present = bool(document.requirements_file_processed) and bool(
-        str(document.additional_requirements or "").strip()
-    )
-    if methodology_present:
-        return None
     confirmed = str(document.contract_confirmed_sha256 or "")
     if not confirmed:
-        return (
-            "no methodology uploaded: the manager must review and confirm "
-            "the assumed task contract (standard academic structure) first"
-        )
+        return "the manager must review and confirm the current task contract first"
     if confirmed != task_contract_sha256(document):
         return (
             "the task inputs changed after the contract was confirmed: "

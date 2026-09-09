@@ -41,7 +41,7 @@ async def _seed(db_session, email: str, **overrides) -> tuple[User, Document]:
 
 
 @pytest.mark.asyncio
-async def test_methodology_basis_needs_no_confirmation(db_session):
+async def test_methodology_basis_requires_explicit_confirmation(db_session):
     _, document = await _seed(
         db_session,
         "contract-methodology@example.com",
@@ -51,8 +51,10 @@ async def test_methodology_basis_needs_no_confirmation(db_session):
     )
     contract = build_task_contract(document)
     assert contract["basis"] == "university_methodology"
-    assert contract["confirmation_required"] is False
+    assert contract["confirmation_required"] is True
     assert contract["assumptions"] == []
+    assert contract_confirmation_error(document)
+    document.contract_confirmed_sha256 = task_contract_sha256(document)
     assert contract_confirmation_error(document) is None
     assert generation_contract_error(document) is None
     assert structure_directive(document) is None
@@ -233,21 +235,3 @@ def test_merged_pack_keeps_uploaded_sources_first():
     assert "Rossi2020b" in keys  # collided API source got a suffix
     assert merged.passages == ["sentinel"]
     assert merged.sources[0].on_topic_score == 1.0
-
-
-def test_pipeline_wiring_for_contract_and_supplement():
-    import inspect
-
-    from app.services import background_jobs as bj
-
-    src = inspect.getsource(bj.BackgroundJobService.generate_full_document)
-    # Mandatory-only blockers run before the pack is built; API retrieval
-    # supplements the uploaded pack instead of replacing it.
-    assert src.index("uploaded_sources_blockers") < src.index(
-        "build_uploaded_source_pack"
-    )
-    assert "_merge_source_packs" in src
-    # The run records its honest contract basis and the structure directive
-    # reaches the prompts for no-methodology works.
-    assert "task_contract" in src
-    assert "structure_directive" in src

@@ -1,4 +1,6 @@
 export interface GenerationRecovery {
+  executor_version?: number
+  stop?: { message_uk: string; retryable: boolean; next_action: string; next_action_label: string } | null
   reason_code?: string
   allowed_actions: Array<'resume' | 'new_version'>
   expected_fingerprint: string

@@ -64,11 +64,20 @@ export interface CostAnalysisResponse {
 }
 
 export interface ProductionCase {
+  executor_version?: number | null
+  generation_status_label?: string | null
+  warnings_count?: number
   generation_warnings?: Array<{
+    section_label?: string
     id: number
     stage: string
     section_index?: number | null
-    reason: string
+    reason?: string
+    message_uk?: string
+    detail?: string
+    code?: string
+    severity?: string
+    created_at?: string
     details?: string[]
     references?: Array<{ title?: string; authors?: string[]; year?: number | null; issue?: string }>
     checks?: Record<string, { status?: string; reason?: string | null }>

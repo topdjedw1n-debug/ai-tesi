@@ -159,6 +159,12 @@ export default function ProductionCaseDetailPage() {
     </div>
   )
 
+  const warningGroups = (productionCase.generation_warnings || []).reduce<Record<string, NonNullable<typeof productionCase.generation_warnings>>>((groups, item) => {
+    const label = item.section_label || "Зауваження";
+    (groups[label] ||= []).push(item);
+    return groups;
+  }, {});
+
   const needsGenerationRetry = operatorView &&
     ['failed', 'failed_quality'].includes(productionCase.document?.status || '') &&
     !productionCase.document?.artifact_bindings?.docx
@@ -206,12 +212,15 @@ export default function ProductionCaseDetailPage() {
 
       {!!productionCase.generation_warnings?.length && (
         <section className="rounded-lg border border-amber-200 bg-amber-50 p-4" aria-labelledby="generation-warnings-heading">
-          <h2 id="generation-warnings-heading" className="text-lg font-semibold text-amber-900">Зауваження під час написання</h2>
+          <h2 id="generation-warnings-heading" className="text-lg font-semibold text-amber-900">{productionCase.generation_warnings.length} попереджень</h2>
           <p className="mt-2 text-sm text-amber-900">Ці зауваження не зупиняють підготовку DOCX. Перегляньте їх перед перевіркою та видачею роботи.</p>
+          {Object.entries(warningGroups).map(([label, warnings]) => (
+            <div key={label} className="mt-4">
+              <h3 className="font-medium text-amber-950">{label}</h3>
           <ul className="mt-3 space-y-3 text-sm text-amber-950">
-            {productionCase.generation_warnings.map(warning => (
+            {warnings.map(warning => (
               <li key={warning.id}>
-                <p>{warning.section_index ? `Розділ ${warning.section_index}. ` : ''}{warning.reason}</p>
+                <p>{warning.message_uk || warning.reason}</p>
                 {warning.details?.map((detail, index) => <p key={`detail-${index}`} className="mt-1">{detail}</p>)}
                 {warning.references?.map((reference, index) => (
                   <p key={index} className="mt-1">{reference.title ? `${reference.authors?.join('; ') || ''}. ${reference.title}${reference.year ? ` (${reference.year})` : ''}. Потребує перевірки.` : 'Бібліографічні дані потребують уточнення.'}</p>
@@ -222,6 +231,8 @@ export default function ProductionCaseDetailPage() {
               </li>
             ))}
           </ul>
+            </div>
+          ))}
         </section>
       )}
 

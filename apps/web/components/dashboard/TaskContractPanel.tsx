@@ -45,6 +45,7 @@ interface TaskContractPanelProps {
   model: string
   refreshKey?: number
   retry?: boolean
+  ownerRecoveryAllowed?: boolean
   onGenerationStarted?: () => void
   children?: ReactNode
 }
@@ -138,6 +139,7 @@ export function TaskContractPanel({
   model,
   refreshKey = 0,
   retry = false,
+  ownerRecoveryAllowed = false,
   onGenerationStarted,
   children,
 }: TaskContractPanelProps) {
@@ -151,9 +153,11 @@ export function TaskContractPanel({
   const [recovery, setRecovery] = useState<GenerationRecovery | null>(null)
   const [replacementReason, setReplacementReason] = useState('')
   const intent = useRef<{ fingerprint: string; id: string } | null>(null)
-  const resuming = retry && !!recovery?.allowed_actions.includes('resume')
+  const v2 = recovery?.executor_version === 2
+  const ownerRequired = v2 && retry && !!recovery?.stop && recovery.stop.next_action !== 'retry_now'
+  const resuming = !v2 && retry && !!recovery?.allowed_actions.includes('resume')
   const replacing = retry && !!recovery?.allowed_actions.includes('new_version')
-  const recoveryReady = !retry || !!recovery && (resuming || replacing) && (!replacing || replacementReason.trim().length >= 3)
+  const recoveryReady = !retry || !!recovery && (resuming || replacing) && (!replacing || v2 || replacementReason.trim().length >= 3)
 
   const loadContract = useCallback(async () => {
     setIsLoading(true)
@@ -199,7 +203,7 @@ export function TaskContractPanel({
   }, [loadContract, refreshKey])
 
   const handleConfirmAndStart = async () => {
-    if (!contract || !acknowledged || isStarting || !recoveryReady || (retry && !causeResolved)) return
+    if (!contract || !acknowledged || isStarting || !recoveryReady || (retry && !v2 && !causeResolved)) return
     setIsStarting(true)
     let confirmed = contract.confirmed
     try {
@@ -231,7 +235,7 @@ export function TaskContractPanel({
             mode: 'new_version',
             confirm_replace: true,
             expected_fingerprint: recovery.expected_fingerprint,
-            replacement_reason: replacementReason.trim(),
+            replacement_reason: v2 ? 'Нова спроба після технічної зупинки або скасування' : replacementReason.trim(),
           } : {}),
         })
       }
@@ -274,6 +278,8 @@ export function TaskContractPanel({
       </div>
     )
   }
+
+  if (v2 && retry && (!recovery?.allowed_actions.includes('new_version') || (ownerRequired && !ownerRecoveryAllowed))) return null
 
   return (
     <div className="space-y-6" data-testid="task-contract-flow">
@@ -334,10 +340,10 @@ export function TaskContractPanel({
 
       <section className="rounded-lg bg-white p-6 shadow" aria-labelledby="generation-start-heading">
         <h2 id="generation-start-heading" className="text-lg font-semibold text-gray-900">
-          {resuming ? 'Продовжити з місця зупинки' : retry ? 'Почати заново після виправлення причини' : 'Перевірка перед запуском'}
+          {v2 && retry ? 'Нова спроба' : resuming ? 'Продовжити з місця зупинки' : retry ? 'Почати заново після виправлення причини' : 'Перевірка перед запуском'}
         </h2>
 
-        {retry ? (
+        {retry && !v2 ? (
           <label className="mt-4 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
             <input type="checkbox" checked={causeResolved} onChange={(event) => setCauseResolved(event.target.checked)} className="mt-1" />
             <span>{resuming ? 'Причину зупинки усунуто. Я підтверджую платне продовження зі збереженими джерелами й завершеними розділами.' : 'Причину зупинки усунуто. Я підтверджую нову платну генерацію із заміною попередніх робочих матеріалів і перевірок. Історія спроб і витрат збережеться.'}</span>
@@ -346,9 +352,9 @@ export function TaskContractPanel({
           <p className="mt-3 text-sm text-gray-600">До натискання кнопки нижче написання не починається. Справа для перевірок створиться автоматично разом із першим запуском.</p>
         )}
 
-        {retry && <p className="mt-3 text-sm text-gray-700">{generationStopGuidance(recovery?.reason_code)}</p>}
+        {retry && <p className="mt-3 text-sm text-gray-700">{v2 ? recovery?.stop?.message_uk : generationStopGuidance(recovery?.reason_code)}</p>}
         {retry && !recovery && <p className="mt-3 text-sm text-amber-700">Не вдалося підтвердити доступні дії. Оновіть стан перед запуском.</p>}
-        {replacing && (
+        {replacing && !v2 && (
           <label className="mt-4 block text-sm text-gray-700">
             Причина нового запуску
             <textarea value={replacementReason} onChange={(event) => setReplacementReason(event.target.value)} maxLength={500} className="mt-1 block w-full rounded-md border border-gray-300 p-2" />
@@ -384,7 +390,7 @@ export function TaskContractPanel({
             data-testid="task-contract-confirmation"
           />
           <span>
-            Я перевірив(ла) тему, тип роботи, обсяг, правила та джерела й підтверджую цей контракт.
+            {ownerRequired ? 'Власник відновив доступ або усунув помилку. Підтверджую нову спробу зі збереженням попередніх матеріалів в історії.' : v2 && retry ? 'Підтверджую нову спробу. Попередні розділи збережуться в історії; робота буде написана заново.' : 'Я перевірив(ла) тему, тип роботи, обсяг і вимоги й підтверджую це завдання.'}
           </span>
         </label>
 
@@ -398,11 +404,11 @@ export function TaskContractPanel({
         <div className="mt-5 flex justify-end">
           <Button
             onClick={handleConfirmAndStart}
-            disabled={!acknowledged || isStarting || !recoveryReady || (retry && !causeResolved)}
+            disabled={!acknowledged || isStarting || !recoveryReady || (retry && !v2 && !causeResolved)}
             data-testid="confirm-and-start-button"
           >
             {isStarting && <LoadingSpinner size="sm" className="mr-2" />}
-            {isStarting ? 'Запускаємо…' : resuming ? 'Підтвердити продовження' : retry ? 'Почати заново' : 'Підтвердити і запустити'}
+            {isStarting ? 'Запускаємо…' : v2 && retry ? 'Нова спроба' : resuming ? 'Підтвердити продовження' : retry ? 'Почати заново' : 'Підтвердити і запустити'}
           </Button>
         </div>
       </section>

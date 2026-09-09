@@ -18,7 +18,6 @@ from fastapi import (
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
 from app.core.database import get_db
 from app.core.dependencies import get_current_user, get_current_user_ws
 from app.core.exceptions import NotFoundError
@@ -29,8 +28,8 @@ from app.schemas.document import (
     AsyncGenerationResponse,
     JobStatusResponse,
 )
-from app.services.background_jobs import BackgroundJobService
 from app.services.document_service import DocumentService
+from app.services.executor_v2.warnings import is_v2, status_fields
 from app.services.websocket_manager import manager
 
 logger = logging.getLogger(__name__)
@@ -49,61 +48,10 @@ async def generate_document_async(
     Start async document generation.
     Returns immediately with job_id for status checking.
     """
-    if not settings.LEGACY_GENERATION_ENDPOINTS_ENABLED:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="This generation path is disabled; use full-document generation.",
-        )
-    try:
-        from app.services.generation_pause import require_generation_open
+    from app.api.v1.endpoints.generate import enqueue_full_document
 
-        await require_generation_open(db)
-        # Verify document exists and belongs to user
-        document_service = DocumentService(db)
-        document = await document_service.check_document_ownership(
-            request.document_id, int(current_user.id)
-        )
-
-        # Create job in database
-        from app.models.document import AIGenerationJob
-
-        job = AIGenerationJob(
-            document_id=document.id,
-            user_id=int(current_user.id),
-            job_type="document_generation",
-            status="queued",
-            progress=0,
-            ai_model=request.model,
-        )
-        db.add(job)
-        await db.flush()  # Get job.id
-        await db.commit()
-
-        # Start background task
-        background_tasks.add_task(
-            BackgroundJobService.generate_full_document_async,
-            document.id,
-            current_user.id,
-            job.id,
-            request.requirements,
-        )
-
-        return AsyncGenerationResponse(
-            job_id=int(job.id),
-            status="queued",
-            check_url=f"/api/v1/jobs/{job.id}/status",
-        )
-    except HTTPException:
-        await db.rollback()
-        raise
-    except NotFoundError as e:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e)) from e
-    except Exception as e:
-        await db.rollback()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to start document generation: {str(e)}",
-        ) from e
+    # Compatibility URL shares the same confirmation, duplicate and durable queue boundary.
+    return await enqueue_full_document(request, current_user, db)
 
 
 @router.get("/document/{document_id}/status", response_model=JobStatusResponse | None)
@@ -168,6 +116,17 @@ async def get_document_job_status(
         heartbeat_at=cast(datetime | None, job.heartbeat_at),
         lease_expires_at=cast(datetime | None, job.lease_expires_at),
         observed_at=datetime.now(UTC),
+        **{
+            **status_fields(job),
+            **(
+                {
+                    "tokens_so_far": recovery["usage"]["confirmed_tokens"],
+                    "cost_cents_so_far": recovery["usage"]["recorded_cost_cents"],
+                }
+                if is_v2(job)
+                else {}
+            ),
+        },
     )
 
 
@@ -203,6 +162,11 @@ async def get_job_status(
             if projected and projected.job_id == job_id:
                 return projected
         return JobStatusResponse(
+            **status_fields(job),
+            observed_at=datetime.now(UTC),
+            started_at=job.started_at,
+            heartbeat_at=job.heartbeat_at,
+            attempt_count=int(job.attempt_count or 0),
             job_id=job_id,
             status=str(job.status),
             progress=int(job.progress),

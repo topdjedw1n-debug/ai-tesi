@@ -402,3 +402,15 @@ def _author_surname(author: str) -> str:
     if not value:
         return ""
     return value.split(",", 1)[0].strip() if "," in value else value.split()[-1]
+
+
+def split_group_markers(text: str) -> str:
+    """Normalize grouped transport markers without discarding page locators."""
+
+    def replace(match):
+        parts = _parse_group(match.group(1))
+        if parts is None:
+            return match.group(0)
+        return "; ".join(f"[{part.key}]" + part.locator for part in parts)
+
+    return _BRACKET_RE.sub(replace, text)

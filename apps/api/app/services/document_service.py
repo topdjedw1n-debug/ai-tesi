@@ -49,6 +49,33 @@ class DocumentService:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+    async def _generation_fields(self, document_ids):
+        from app.services.executor_v2.warnings import is_v2, status_fields
+
+        if not document_ids:
+            return {}
+        rows = (
+            await self.db.execute(
+                select(AIGenerationJob)
+                .where(
+                    AIGenerationJob.document_id.in_(document_ids),
+                    AIGenerationJob.job_type == "full_document",
+                )
+                .order_by(AIGenerationJob.id.desc())
+            )
+        ).scalars()
+        latest = {}
+        for job in rows:
+            latest.setdefault(job.document_id, job)
+        return {
+            document_id: {
+                key: status_fields(job)[key]
+                for key in ("executor_version", "status_label", "warnings_count")
+            }
+            for document_id, job in latest.items()
+            if is_v2(job)
+        }
+
     async def _lock_user_for_personal_data_write(self, user_id: int) -> User:
         """Serialize document mutations with durable GDPR deletion intent."""
         result = await self.db.execute(
@@ -208,7 +235,11 @@ class DocumentService:
                 )
             ).scalar_one_or_none()
 
+            generation = (await self._generation_fields([document_id])).get(
+                document_id, {}
+            )
             return {
+                **generation,
                 "id": document.id,
                 "user_id": document.user_id,
                 "title": document.title,
@@ -246,6 +277,11 @@ class DocumentService:
                         "content": section.content,
                         "word_count": section.word_count,
                         "status": section.status,
+                        "status_label": (
+                            "Розділ збережено"
+                            if generation and section.status == "completed"
+                            else None
+                        ),
                         "tokens_used": section.tokens_used,
                         "generation_time_seconds": section.generation_time_seconds,
                         "created_at": section.created_at.isoformat(),
@@ -284,6 +320,7 @@ class DocumentService:
             )
             documents = result.scalars().all()
             document_ids = [int(doc.id) for doc in documents]
+            generation_fields = await self._generation_fields(document_ids)
             release_statuses: dict[int, str] = {}
             if document_ids:
                 release_rows = await self.db.execute(
@@ -316,6 +353,7 @@ class DocumentService:
 
                 doc_list.append(
                     {
+                        **generation_fields.get(doc.id, {}),
                         "id": doc.id,
                         "user_id": doc.user_id,
                         "title": doc.title,
@@ -874,6 +912,7 @@ class DocumentService:
         user_id: int,
         *,
         persist_pointer: bool = True,
+        exported_at: datetime | None = None,
     ) -> dict[str, Any]:
         """Export document to DOCX or PDF format"""
         logger.info(
@@ -898,7 +937,10 @@ class DocumentService:
                 raise NotFoundError("Document not found")
 
             # Check if document has content or sections
-            if document.status not in ["completed", "sections_generated"]:
+            if (
+                document.status not in ["completed", "sections_generated"]
+                and persist_pointer
+            ):
                 raise ValidationError(
                     "Document is not ready for export. Status must be 'completed' or 'sections_generated'."
                 )
@@ -924,7 +966,7 @@ class DocumentService:
                 docx.core_properties.author = ""
                 docx.core_properties.last_modified_by = ""
                 docx.core_properties.comments = ""
-                exported_at = datetime.utcnow()
+                exported_at = exported_at or datetime.utcnow()
                 docx.core_properties.created = exported_at
                 docx.core_properties.modified = exported_at
 
@@ -1100,6 +1142,11 @@ class DocumentService:
             else:
                 raise ValidationError(f"Unsupported export format: {format}")
 
+            if format == "docx" and not persist_pointer:
+                from app.services.docx_export import canonical_docx_bytes
+
+                file_data = canonical_docx_bytes(file_data)
+                file_size = len(file_data)
             artifact_sha256 = hashlib.sha256(file_data).hexdigest()
 
             # Content-addressed object names prevent a later export from

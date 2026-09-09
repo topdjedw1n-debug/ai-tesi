@@ -19,6 +19,9 @@ interface Document {
   title: string
   topic: string
   status: string
+  status_label?: string
+  executor_version?: number
+  warnings_count?: number
   release_status: string
   created_at: string
   updated_at: string
@@ -43,6 +46,9 @@ export function DocumentsList() {
           title: doc.title || `Робота ${doc.id}`,
           topic: doc.topic || '',
           status: doc.status || 'draft',
+          status_label: doc.status_label,
+          executor_version: doc.executor_version,
+          warnings_count: doc.warnings_count,
           release_status: doc.release_status || 'not_ready',
           created_at: doc.created_at,
           updated_at: doc.updated_at || doc.created_at,
@@ -133,7 +139,7 @@ export function DocumentsList() {
         ) : (
           <div className="space-y-4" data-testid="documents-list-container">
             {documents.map((document) => {
-              const status = documentStatus(document.status, document.release_status)
+              const status = { ...documentStatus(document.status, document.release_status), ...(document.status_label ? { label: document.status_label } : {}) }
               return (
                 <div key={document.id} className="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors" data-testid={`document-item-${document.id}`}>
                   <div className="flex items-start justify-between">
@@ -149,6 +155,7 @@ export function DocumentsList() {
                       </p>
                       <div className="mt-2 flex items-center space-x-4 text-xs text-gray-500">
                         <span>Створено {formatDate(document.created_at)}</span>
+                        {document.executor_version === 2 && <span>{document.warnings_count || 0} попереджень</span>}
                         {document.status === 'completed' && document.word_count > 0 && (
                           <>
                             <span>•</span>

@@ -325,27 +325,3 @@ async def test_monotonic_usage_never_decreases(db_session):
     ).one()
     assert row.total_tokens == 2000
     assert row.cost_cents == 11
-
-
-def test_pipeline_wires_monotonic_usage_on_cancel_paths():
-    """Pin the wiring: the pipeline's CancelledError handler and the
-    lease-lost failure branch must use the monotonic writer (the fenced one
-    silently drops the spend there)."""
-    import inspect
-
-    from app.services import background_jobs as bj
-
-    # The pipeline lives in generate_full_document; generate_full_document_async
-    # is the durable-worker wrapper whose own CancelledError handler releases
-    # the lease AFTER the pipeline's handler has persisted the spend.
-    source = inspect.getsource(bj.BackgroundJobService.generate_full_document)
-    cancel_block = source.split("except asyncio.CancelledError:")[1].split(
-        "except Exception as e:"
-    )[0]
-    assert "write_job_usage_monotonic" in cancel_block
-
-    # The generic failure handler is the LAST `except Exception as e:` in the
-    # pipeline (earlier ones handle outline/section-local failures).
-    failure_block = source.rsplit("except Exception as e:", 1)[1]
-    assert "isinstance(e, GenerationLeaseLostError)" in failure_block
-    assert "write_job_usage_monotonic" in failure_block

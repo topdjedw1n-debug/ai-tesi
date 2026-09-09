@@ -28,6 +28,9 @@ interface Document {
   title: string
   topic: string
   status: string
+  status_label?: string
+  executor_version?: number
+  warnings_count?: number
   release_status: string
   production_case_id: number | null
   content: string | null
@@ -46,6 +49,7 @@ interface Document {
     content: string | null
     word_count: number
     status: string
+    status_label?: string
   }>
 }
 
@@ -61,6 +65,7 @@ export default function DocumentDetailPage() {
   const [isDownloading, setIsDownloading] = useState(false)
   const [isCancelling, setIsCancelling] = useState(false)
   const [draftRevision, setDraftRevision] = useState(0)
+  const [ownerRecovery, setOwnerRecovery] = useState(false)
 
   const fetchDocument = useCallback(async () => {
     try {
@@ -69,7 +74,7 @@ export default function DocumentDetailPage() {
       setDocument(data)
 
       // Check if document is generating
-      if (data.status === 'generating' || data.status === 'payment_pending') {
+      if (['queued', 'generating', 'payment_pending'].includes(data.status)) {
         setIsGenerating(true)
       } else {
         setIsGenerating(false)
@@ -127,7 +132,10 @@ export default function DocumentDetailPage() {
   const handleDownload = async () => {
     setIsDownloading(true)
     try {
-      await downloadDocumentDocx(documentId)
+      if (user?.can_access_production && document?.release_status !== 'released') {
+        const result = await apiClient.post<{ download_url: string }>(`/api/v1/admin/documents/${documentId}/download`, { format: 'docx' })
+        window.open(new URL(result.download_url, process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').toString(), '_blank', 'noopener,noreferrer')
+      } else await downloadDocumentDocx(documentId)
     } catch (error: any) {
       toast.error(error?.message || 'Не вдалося завантажити файл')
     } finally {
@@ -163,9 +171,9 @@ export default function DocumentDetailPage() {
     )
   }
 
-  const isGeneratingStatus = document.status === 'generating' || document.status === 'payment_pending'
-  const status = documentStatus(document.status, document.release_status)
-  const failed = ['failed', 'failed_quality'].includes(document.status)
+  const isGeneratingStatus = ['queued', 'generating', 'payment_pending'].includes(document.status)
+  const status = { ...documentStatus(document.status, document.release_status), ...(document.status_label ? { label: document.status_label } : {}) }
+  const failed = ['failed', 'failed_quality', 'cancelled'].includes(document.status)
   // Until assembly, document.word_count can still describe the original brief.
   const partialWordCount = document.sections.reduce((total, section) => (
     section.status === 'completed' ? total + section.word_count : total
@@ -192,7 +200,7 @@ export default function DocumentDetailPage() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {document.status === 'completed' && document.release_status === 'released' && (
+            {document.status === 'completed' && (document.release_status === 'released' || user?.can_access_production) && (
               <Button onClick={handleDownload} disabled={isDownloading} data-testid="download-docx-button">
                 {isDownloading ? (
                   <LoadingSpinner className="h-4 w-4 mr-2" />
@@ -229,10 +237,12 @@ export default function DocumentDetailPage() {
             <GenerationProgress
               documentId={documentId}
               active={!failed}
+              onOwnerAction={() => setOwnerRecovery(true)}
+              onCancelled={() => { setIsGenerating(false); fetchDocument(); }}
               onComplete={failed ? undefined : handleGenerationComplete}
               onError={failed ? undefined : handleGenerationError}
             />
-            {(document.status === 'generating' || isGenerating) && (
+            {(['queued', 'generating'].includes(document.status) || isGenerating) && (
               <div className="flex justify-end">
                 <button
                   type="button"
@@ -256,7 +266,9 @@ export default function DocumentDetailPage() {
             model={document.ai_model || 'claude-opus-4-8'}
             refreshKey={draftRevision}
             retry={failed}
+            ownerRecoveryAllowed={ownerRecovery}
             onGenerationStarted={() => {
+              setOwnerRecovery(false)
               setIsGenerating(true)
               fetchDocument()
             }}
@@ -308,7 +320,7 @@ export default function DocumentDetailPage() {
                         {section.section_index}. {section.title}
                       </h3>
                       <span className={`text-xs px-2 py-1 rounded ${documentStatus(section.status).badgeClass}`}>
-                        {documentStatus(section.status).label}
+                        {section.status_label || documentStatus(section.status).label}
                       </span>
                     </div>
                     {section.content && (

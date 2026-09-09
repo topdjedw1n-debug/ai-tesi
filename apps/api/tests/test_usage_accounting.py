@@ -8,18 +8,15 @@ UsageTracker, the background job writes absolute totals incrementally,
 and the case serializer exposes tokens + EUR cost.
 """
 
-from contextlib import ExitStack
 from types import SimpleNamespace
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from sqlalchemy import select
 
 import tests.test_provenance_ledger as harness_mod
-from app.models.document import AIGenerationJob, DocumentSection, ProductionCase
+from app.models.document import AIGenerationJob, ProductionCase
 from app.services.admin_service import AdminService
 from app.services.ai_service import AIService
-from app.services.background_jobs import BackgroundJobService
 from app.services.cost_estimator import UsageTracker
 from app.services.production_case_service import ProductionCaseService
 
@@ -196,144 +193,6 @@ async def _seed_job(db_session, user, document):
     await db_session.commit()
     await db_session.refresh(job)
     return job
-
-
-@pytest.mark.asyncio
-async def test_job_totals_written_on_completion(db_session, mock_redis, monkeypatch):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Intro", "Methods")
-    )
-    job = await _seed_job(db_session, user, document)
-    document_id, job_id = document.id, job.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[None, None],  # replaced below
-        )
-        _capturing_generator_patch(
-            stack,
-            [
-                harness_mod.section_result(1, [harness_mod.SOURCE_A]),
-                harness_mod.section_result(2, [harness_mod.SOURCE_B]),
-            ],
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document_id, user_id=user.id, job_id=job_id
-        )
-
-    refreshed_job = (
-        await db_session.execute(
-            select(AIGenerationJob).where(AIGenerationJob.id == job_id)
-        )
-    ).scalar_one()
-    assert refreshed_job.total_tokens == 2400  # 2 sections x 1200
-    assert refreshed_job.cost_cents > 0
-
-    sections = (
-        (
-            await db_session.execute(
-                select(DocumentSection)
-                .where(DocumentSection.document_id == document_id)
-                .order_by(DocumentSection.section_index)
-            )
-        )
-        .scalars()
-        .all()
-    )
-    assert all(s.tokens_used == 1200 for s in sections)
-
-
-@pytest.mark.asyncio
-async def test_job_partial_totals_survive_midrun_failure(
-    db_session, mock_redis, monkeypatch
-):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Intro", "Methods")
-    )
-    job = await _seed_job(db_session, user, document)
-    document_id, job_id = document.id, job.id
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[None, None],
-        )
-        _capturing_generator_patch(
-            stack,
-            [
-                harness_mod.section_result(1, [harness_mod.SOURCE_A]),
-                RuntimeError("provider outage on section 2"),
-            ],
-        )
-        try:
-            await BackgroundJobService.generate_full_document(
-                document_id=document_id, user_id=user.id, job_id=job_id
-            )
-        except Exception:
-            pass  # the job dying is the scenario under test
-
-    refreshed_job = (
-        await db_session.execute(
-            select(AIGenerationJob).where(AIGenerationJob.id == job_id)
-        )
-    ).scalar_one()
-    # Section 1's spend was written before the crash AND the failed
-    # attempt's spend was flushed by the failure handler — the tracker
-    # holds 2 calls x 1200 tokens and the job row must match exactly.
-    # (A weaker >= 1200 would pass even if the failed call's spend was
-    # lost, which is precisely the bug this guards against.)
-    assert refreshed_job.total_tokens == 2400
-
-
-@pytest.mark.asyncio
-async def test_recovered_attempt_adds_to_persisted_usage_baseline(
-    db_session, mock_redis, monkeypatch
-):
-    monkeypatch.setattr(
-        "app.services.background_jobs.settings", harness_mod.make_settings()
-    )
-    user, document = await harness_mod.seed_document(
-        db_session, section_titles=("Recovered section",)
-    )
-    job = await _seed_job(db_session, user, document)
-    job_id = int(job.id)
-    job.total_tokens = 2400
-    job.cost_cents = 75
-    await db_session.commit()
-
-    with ExitStack() as stack:
-        harness_mod.pipeline_harness(
-            stack,
-            db_session,
-            mock_redis,
-            generate_side_effect=[None],
-        )
-        _capturing_generator_patch(
-            stack,
-            [harness_mod.section_result(1, [harness_mod.SOURCE_A])],
-            tokens_per_call=1200,
-        )
-        await BackgroundJobService.generate_full_document(
-            document_id=document.id,
-            user_id=user.id,
-            job_id=job_id,
-        )
-
-    db_session.expire_all()
-    recovered_job = await db_session.get(AIGenerationJob, job_id)
-    assert recovered_job.total_tokens == 3600
-    assert recovered_job.cost_cents > 75
 
 
 # ---------------------------------------------------------------------------

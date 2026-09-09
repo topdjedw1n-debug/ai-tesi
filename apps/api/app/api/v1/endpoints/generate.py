@@ -48,6 +48,7 @@ from app.services.background_jobs import (  # noqa: F401 - legacy patch surface
 from app.services.cost_estimator import TOKENS_PER_PAGE, CostEstimator
 from app.services.custom_requirements_service import combine_generation_requirements
 from app.services.document_service import DocumentService
+from app.services.executor_v2.budgets import POLICY
 from app.services.generation_contract import generation_contract_sha256
 from app.services.generation_pause import require_generation_open
 from app.services.generation_profile import generation_profile_sha256
@@ -66,10 +67,10 @@ from app.services.generation_worker import (
 )
 from app.services.grammar_checker import GrammarChecker
 from app.services.plagiarism_checker import PlagiarismChecker
+from app.services.replay_snapshot import row_data
 from app.services.storage_service import StorageService
 from app.services.task_contract import (
     SUPPORTED_CITATION_STYLES,
-    build_task_contract,
     contract_confirmation_error,
 )
 from app.services.uploaded_sources import (
@@ -430,32 +431,11 @@ async def _enforce_generation_gate(
     (``429``). Raises ``HTTPException`` when a guardrail is hit; returns ``None``
     when generation is allowed.
     """
-    if settings.METHODOLOGY_REQUIRED_FOR_GENERATION:
-        # Narrow-pilot mode (kept as an explicit opt-in): methodology is a
-        # hard prerequisite. The universal task contract below is the
-        # default (course decision 2026-07-11).
-        if not document.requirements_file_processed:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    "A university methodology file must be uploaded and "
-                    "processed before generation can start."
-                ),
-            )
-    else:
-        confirmation_error = contract_confirmation_error(document)
-        if confirmation_error is not None:
-            contract = build_task_contract(document)
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    f"Task contract is not confirmed: {confirmation_error}. "
-                    "Assumed rules: "
-                    + "; ".join(
-                        f"{r['key']} = {r['value']}" for r in contract["assumptions"]
-                    )
-                ),
-            )
+    confirmation_error = contract_confirmation_error(document)
+    if confirmation_error is not None:
+        raise HTTPException(
+            409, "Підтвердіть завдання перед запуском, зокрема за наявності методички."
+        )
     style = str(document.citation_style or "apa").strip().lower()
     if style not in SUPPORTED_CITATION_STYLES:
         raise HTTPException(
@@ -791,20 +771,15 @@ async def enqueue_full_document(
             )
 
         previous_job = await latest_job_for_update(db, req_data.document_id)
+        if previous_job is not None and previous_job.status in {"queued", "running"}:
+            raise HTTPException(409, "Ця робота вже виконується.")
         receipt = await intent_receipt(
             db, req_data.document_id, actor_id, req_data.intent_id
         )
         if receipt:
-            if (
-                receipt["action"] != req_data.mode
-                or receipt["expected_fingerprint"] != req_data.expected_fingerprint
-            ):
-                raise HTTPException(409, {"reason_code": "intent_conflict"})
-            received_job = await db.get(AIGenerationJob, receipt["job_id"])
-            if received_job is None:
-                raise HTTPException(409, {"reason_code": "checkpoint_integrity_error"})
-            await db.commit()
-            return _active_job_response(received_job)
+            raise HTTPException(
+                409, "Цей запуск уже зареєстровано. Оновіть стан роботи."
+            )
         # Lock order: pause -> User -> Job -> Document -> Case.
         # Lock the document before looking up its optional production case.
         # The document row always exists, so it serializes generation against
@@ -835,25 +810,12 @@ async def enqueue_full_document(
         )
         production_case = case_result.scalar_one_or_none()
 
-        # 3. Make repeated/concurrent requests idempotent. This check must run
+        # 3. Reject repeated/concurrent requests with 409. This check must run
         # before the document-status guard because the winning transaction
         # sets the document to "generating" when it creates the job.
         existing_job = await _get_active_generation_job(db, req_data.document_id)
         if existing_job:
-            logger.info(
-                f"Returning existing job {existing_job.id} for document {req_data.document_id}"
-            )
-            record_intent(
-                db,
-                req_data.document_id,
-                actor_id,
-                req_data.intent_id,
-                int(existing_job.id),
-                req_data.mode,
-                req_data.expected_fingerprint,
-            )
-            await db.commit()
-            return _active_job_response(existing_job)
+            raise HTTPException(409, "Ця робота вже виконується.")
 
         has_previous_result = previous_job is not None or bool(
             document.content
@@ -872,9 +834,11 @@ async def enqueue_full_document(
                     409,
                     {
                         **state,
-                        "reason_code": "resumable_job_exists"
-                        if "resume" in state["allowed_actions"]
-                        else state["reason_code"],
+                        "reason_code": (
+                            "resumable_job_exists"
+                            if "resume" in state["allowed_actions"]
+                            else state["reason_code"]
+                        ),
                     },
                 )
             if "new_version" not in state["allowed_actions"]:
@@ -971,6 +935,39 @@ async def enqueue_full_document(
             await uploaded_sources_digest(db, req_data.document_id),
         )
         if has_previous_result:
+            previous_sections = list(
+                (
+                    await db.execute(
+                        select(DocumentSection)
+                        .where(DocumentSection.document_id == document.id)
+                        .order_by(DocumentSection.section_index)
+                    )
+                ).scalars()
+            )
+            previous_sources = list(
+                (
+                    await db.execute(
+                        select(DocumentSource).where(
+                            DocumentSource.document_id == document.id
+                        )
+                    )
+                ).scalars()
+            )
+            db.add(
+                DocumentProvenance(
+                    document_id=document.id,
+                    stage="generation",
+                    event_type="generation_previous_snapshot",
+                    payload={
+                        "previous_job_id": previous_job.id if previous_job else None,
+                        "document": row_data(document),
+                        "sections": [row_data(row) for row in previous_sections],
+                        "sources": [row_data(row) for row in previous_sources],
+                        "outline": document.outline,
+                    },
+                )
+            )
+            await db.flush()
             db.add(
                 DocumentProvenance(
                     document_id=req_data.document_id,
@@ -980,24 +977,32 @@ async def enqueue_full_document(
                         "actor_id": actor_id,
                         "intent_id": req_data.intent_id,
                         "reason": req_data.replacement_reason,
-                        "previous_job_id": previous_job.id
-                        if previous_job is not None
-                        else None,
-                        "previous_status": previous_job.status
-                        if previous_job is not None
-                        else document.status,
+                        "previous_job_id": (
+                            previous_job.id if previous_job is not None else None
+                        ),
+                        "previous_status": (
+                            previous_job.status
+                            if previous_job is not None
+                            else document.status
+                        ),
                         "expected_fingerprint": req_data.expected_fingerprint,
-                        "source_pack_sha256": previous_job.source_pack_sha256
-                        if previous_job is not None
-                        else None,
+                        "source_pack_sha256": (
+                            previous_job.source_pack_sha256
+                            if previous_job is not None
+                            else None
+                        ),
                         "docx_sha256": document.docx_sha256,
                         "outline_sha256": digest(document.outline),
-                        "total_tokens": previous_job.total_tokens
-                        if previous_job is not None
-                        else document.tokens_used,
-                        "cost_cents": previous_job.cost_cents
-                        if previous_job is not None
-                        else None,
+                        "total_tokens": (
+                            previous_job.total_tokens
+                            if previous_job is not None
+                            else document.tokens_used
+                        ),
+                        "cost_cents": (
+                            previous_job.cost_cents
+                            if previous_job is not None
+                            else None
+                        ),
                     },
                 )
             )
@@ -1012,12 +1017,12 @@ async def enqueue_full_document(
             user_id=int(current_user.id),
             document_id=req_data.document_id,
             job_type="full_document",
-            ai_provider=document.ai_provider,
-            ai_model=req_data.model or document.ai_model,
+            ai_provider="anthropic",
+            ai_model=POLICY["model"],
             status="queued",
             progress=0,
             request_payload={
-                "generation_policy": "platform-first-v1",
+                "executor_version": 2,
                 "profile_sha256": generation_profile_sha256(
                     document, int(current_user.id)
                 ),
@@ -1025,7 +1030,7 @@ async def enqueue_full_document(
                 "generation_contract_sha256": contract_sha256,
                 "superseded_artifact_paths": superseded_paths,
             },
-            max_attempts=settings.GENERATION_JOB_MAX_ATTEMPTS,
+            max_attempts=1,
         )
         db.add(job)
         try:
@@ -1044,7 +1049,7 @@ async def enqueue_full_document(
                 existing_job.id,
                 req_data.document_id,
             )
-            return _active_job_response(existing_job)
+            raise HTTPException(409, "Ця робота вже виконується.") from None
 
         record_intent(
             db,
@@ -1058,7 +1063,8 @@ async def enqueue_full_document(
         )
 
         # 7. Update document status
-        document.status = "generating"
+        document.status = "queued"
+        production_case.generation_status = "queued"
 
         # 8. Commit transaction before starting background task
         if on_enqueued is not None:
@@ -1067,7 +1073,7 @@ async def enqueue_full_document(
 
         # The new job and release revocation are now durable. Blob cleanup can
         # no longer leave SQL pointing at a file that was rolled back into use.
-        await _delete_superseded_artifacts(superseded_paths)
+        # Prior artifacts remain addressable through the immutable attempt snapshot.
 
         logger.info(
             f"Created generation job {job.id} for document {req_data.document_id}"

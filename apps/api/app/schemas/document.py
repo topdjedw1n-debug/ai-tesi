@@ -14,6 +14,8 @@ class DocumentStatus(str, Enum):
     """Document status enumeration"""
 
     DRAFT = "draft"
+    QUEUED = "queued"
+    CANCELLED = "cancelled"
     GENERATING = "generating"
     OUTLINE_GENERATED = "outline_generated"
     SECTIONS_GENERATED = "sections_generated"
@@ -250,6 +252,9 @@ class DocumentResponse(DocumentBase):
     id: int
     user_id: int
     status: DocumentStatus
+    status_label: str | None = None
+    executor_version: int | None = None
+    warnings_count: int = 0
     is_archived: bool
     created_at: datetime
     updated_at: datetime | None
@@ -461,6 +466,18 @@ class JobStatusResponse(BaseModel):
     job_id: int
     status: str
     progress: int
+    executor_version: int | None = None
+    status_label: str | None = None
+    stage: str | None = None
+    stage_label: str | None = None
+    sections_done: int = 0
+    sections_total: int = 0
+    last_signal: str | None = Field(default=None, max_length=120)
+    cost_cents_so_far: int = 0
+    tokens_so_far: int = 0
+    warnings_count: int = 0
+    stop: dict[str, Any] | None = None
+    result: dict[str, Any] | None = None
     document_id: int | None = None
     error_message: str | None = None
     attempt_count: int = 0

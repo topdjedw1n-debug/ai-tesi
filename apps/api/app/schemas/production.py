@@ -126,6 +126,9 @@ class ProductionCaseResponse(BaseModel):
     ai_cost_usd_cents: int = 0
     ai_cost_eur_cents: int = 0
     generation_warnings: list[dict[str, Any]] = Field(default_factory=list)
+    warnings_count: int = 0
+    executor_version: int | None = None
+    generation_status_label: str | None = None
     release_notes: str | None = None
     released_docx_path: str | None = None
     released_pdf_path: str | None = None
