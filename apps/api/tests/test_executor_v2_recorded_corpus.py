@@ -216,6 +216,17 @@ async def test_recorded_job12_to_docx_and_replay(db_session, monkeypatch, tmp_pa
     row = await db_session.get(AIGenerationJob, claimed.id)
     assert row.status == "completed", row.request_payload.get("execution")
     assert len(result["sections"]) == 6 and result["bibliography"]
+    # Real recorded texts contain 10 "da verificare" notes and one
+    # "soggetta a verifica"; S6 reports every affected section without rewriting.
+    placeholders = [w for w in result["warnings"] if w["code"] == "placeholder_text"]
+    assert {w["section_index"] for w in placeholders} == {2, 3, 4, 5, 6}
+    assert all(
+        w["detail"] == "da verificare" for w in placeholders if w["section_index"] != 6
+    )
+    assert (
+        next(w for w in placeholders if w["section_index"] == 6)["detail"]
+        == "soggetta a verifica"
+    )
     assert all(
         r["verified"] and r["verification_provider"] for r in result["bibliography"]
     )
@@ -253,6 +264,11 @@ async def test_recorded_job12_to_docx_and_replay(db_session, monkeypatch, tmp_pa
         replayed = await run(replay_job)
         tape.assert_complete()
     assert replayed and artifacts[0] == artifacts[1]
+    assert [
+        (w["section_index"], w["detail"])
+        for w in replayed["warnings"]
+        if w["code"] == "placeholder_text"
+    ] == [(w["section_index"], w["detail"]) for w in placeholders]
     assert hashlib.sha256(artifacts[0]).hexdigest() == result["docx"]["sha256"]
     # Test output is local and cannot overwrite a product artifact or DB.
     output = tmp_path

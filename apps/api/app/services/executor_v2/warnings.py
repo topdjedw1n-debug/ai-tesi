@@ -39,6 +39,7 @@ WARNING_CODES = {
     "review_negative": ("warning", "Академічний огляд виявив недоліки готової роботи."),
     "review_note": ("info", "Академічний огляд залишив зауваження до готової роботи."),
     "detector_unchecked": ("info", "Зовнішній детектор зараз недоступний."),
+    "placeholder_text": ("warning", "У розділі залишилися редакторські заглушки."),
 }
 STAGE_LABELS = {
     "sources": "Пошук джерел",
@@ -66,13 +67,10 @@ class ExecutionStop(Exception):
     def __init__(self, code, message, *, stage=None, section_index=None, budget=False):
         if code not in STOP_CODES | {DEFECT_CODE}:
             raise ValueError(code)
-        action = (
-            "retry_after_owner"
-            if code == "provider_access"
-            else "contact_owner"
-            if code == DEFECT_CODE
-            else "retry_now"
-        )
+        action = {
+            "provider_access": "retry_after_owner",
+            DEFECT_CODE: "contact_owner",
+        }.get(code, "retry_now")
         self.budget = budget
         self.stop = {
             "code": code,
@@ -107,11 +105,9 @@ def status_fields(job):
     if not is_v2(job):
         return {
             "status_label": {
-                "queued": "У черзі",
+                **STATUS_LABELS,
                 "running": "Генерується…",
-                "completed": "Написання завершено",
                 "failed": "Не вдалося",
-                "cancelled": "Скасовано",
                 "failed_quality": "Якість не підтверджена",
             }.get(job.status, "Стара робота")
         }

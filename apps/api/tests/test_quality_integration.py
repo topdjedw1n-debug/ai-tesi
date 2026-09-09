@@ -12,7 +12,7 @@ Author: AI Assistant
 Created: 2025-11-30
 """
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -125,25 +125,6 @@ class TestQualityValidationIntegration:
             assert (
                 result["passed"] == expected_pass
             ), f"Score {target_score} should {'pass' if expected_pass else 'fail'}"
-
-    @patch("app.services.background_jobs.manager")
-    async def test_websocket_progress_includes_quality_score(self, mock_manager):
-        """Test that WebSocket updates include quality_score and quality_passed"""
-        mock_manager.send_progress = AsyncMock()
-
-        # Verify the signature exists (actual call happens in background_jobs)
-        import inspect
-
-        from app.services.background_jobs import BackgroundJobService
-
-        source = inspect.getsource(BackgroundJobService)
-
-        # Check for quality WebSocket update
-        assert "quality_score" in source, "WebSocket should send quality_score"
-        assert "quality_passed" in source, "WebSocket should send quality_passed"
-        assert (
-            "stage" in source and "quality_check" in source
-        ), "Should have quality_check stage"
 
     async def test_quality_validator_async_methods(self):
         """Test that all validation methods are properly async"""

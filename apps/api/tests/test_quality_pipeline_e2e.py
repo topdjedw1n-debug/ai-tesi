@@ -13,7 +13,6 @@ Author: AI Assistant
 Created: 2025-11-30
 """
 
-from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -250,7 +249,9 @@ Results indicate significant correlation between the examined variables.
 Furthermore, the study demonstrates clear evidence supporting the hypothesis.
 Therefore, future research should investigate additional contributing factors.
 Moreover, these findings have important practical applications.
-        """ + " ".join(["word"] * 400)  # ~500 words total
+        """ + " ".join(
+            ["word"] * 400
+        )  # ~500 words total
 
         outline_section = {"title": "Literature Review", "target_word_count": 500}
 
@@ -308,13 +309,15 @@ Moreover, these findings have important practical applications.
         According to Müller (2020), naïve approaches don't work well.
         Research by González et al. (2021) confirms this [1].
         The data shows 50% improvement → significant results.
-        """ + " ".join(["word"] * 450)
+        """ + " ".join(
+            ["word"] * 450
+        )
 
         # Should not crash on unicode
         result = await validator.validate_section(content, {"target_word_count": 500})
 
         assert "overall_score" in result
-        assert isinstance(result["overall_score"], (int, float))
+        assert isinstance(result["overall_score"], int | float)
 
     async def test_edge_case_missing_target_word_count(self):
         """Test quality validation without target_word_count in outline"""
@@ -327,34 +330,3 @@ Moreover, these findings have important practical applications.
 
         assert "overall_score" in result
         assert result["checks"]["word_count"]["details"]["target_word_count"] == 500
-
-
-@pytest.mark.asyncio
-class TestQualityPipelineIntegration:
-    """Integration tests for quality validation in generation pipeline"""
-
-    @patch("app.services.background_jobs.QualityValidator")
-    async def test_quality_validator_called_in_pipeline(self, mock_validator_class):
-        """Test that QualityValidator is instantiated and called during generation"""
-        mock_validator = AsyncMock()
-        mock_validator.validate_section.return_value = {
-            "passed": True,
-            "overall_score": 85.0,
-            "checks": {},
-            "issues": [],
-        }
-        mock_validator_class.return_value = mock_validator
-
-        # This test verifies the integration point exists
-        # Actual pipeline testing requires full DB setup
-
-        # Import to verify no syntax errors
-        # Verify QualityValidator is imported
-        import inspect
-
-        from app.services.background_jobs import BackgroundJobService
-
-        source = inspect.getsource(BackgroundJobService)
-        assert "QualityValidator" in source
-        assert "quality_validator = QualityValidator()" in source
-        assert "quality_score" in source

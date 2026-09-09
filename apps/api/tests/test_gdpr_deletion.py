@@ -26,6 +26,7 @@ from app.models.document import (
 )
 from app.services.gdpr_service import GDPRService
 from app.services.generation_recovery import orphan_result_state
+from app.services.task_contract import task_contract_sha256
 from main import app
 
 
@@ -374,6 +375,8 @@ async def test_admin_retry_invalidates_evidence_and_enqueues_real_job_atomically
     )
     db_session.add(gate)
     await db_session.commit()
+    document.contract_confirmed_sha256 = task_contract_sha256(document)
+    await db_session.commit()
     document_id = int(document.id)
     owner_id = int(owner.id)
     production_case_id = int(production_case.id)
@@ -402,17 +405,14 @@ async def test_admin_retry_invalidates_evidence_and_enqueues_real_job_atomically
     assert result["status"] == "queued"
     assert isinstance(result["job_id"], int)
     assert result["check_url"] == f"/api/v1/jobs/{result['job_id']}/status"
-    assert delete_file.await_args_list == [
-        call(f"s3://documents/{document_status}.docx"),
-        call(f"s3://documents/{document_status}.pdf"),
-    ]
+    delete_file.assert_not_awaited()  # Prior artifacts remain available in the snapshot.
 
     db_session.expire_all()
     persisted_document = await db_session.get(Document, document_id)
     job = await db_session.get(AIGenerationJob, result["job_id"])
     persisted_case = await db_session.get(ProductionCase, production_case_id)
     assert persisted_document is not None
-    assert persisted_document.status == "generating"
+    assert persisted_document.status == "queued"
     assert persisted_document.content is None
     assert persisted_document.outline is None
     assert persisted_document.docx_path is None
@@ -448,7 +448,7 @@ async def test_admin_retry_invalidates_evidence_and_enqueues_real_job_atomically
 
 
 @pytest.mark.asyncio
-async def test_admin_retry_joins_active_job_without_invalidating_artifacts(
+async def test_admin_retry_rejects_active_duplicate_without_invalidating_artifacts(
     db_session,
 ):
     admin, owner = await _create_admin_and_owner(db_session, suffix="active")
@@ -477,15 +477,14 @@ async def test_admin_retry_joins_active_job_without_invalidating_artifacts(
         new_callable=AsyncMock,
         return_value=True,
     ) as delete_file:
-        result = await retry_document_generation(
-            document_id=document_id,
-            request=_admin_request(document_id),
-            current_user=admin,
-            db=db_session,
-        )
-
-    assert result["job_id"] == active_job_id
-    assert result["status"] == "queued"
+        with pytest.raises(HTTPException) as error:
+            await retry_document_generation(
+                document_id=document_id,
+                request=_admin_request(document_id),
+                current_user=admin,
+                db=db_session,
+            )
+    assert error.value.status_code == 409
     delete_file.assert_not_awaited()
     db_session.expire_all()
     persisted_document = await db_session.get(Document, document_id)
@@ -572,6 +571,9 @@ async def test_admin_retry_rejects_job_the_worker_would_quarantine(
     )
     db_session.add(document)
     await db_session.commit()
+    if citation_style != "apa":
+        document.contract_confirmed_sha256 = task_contract_sha256(document)
+        await db_session.commit()
     document_id = int(document.id)
 
     with pytest.raises(HTTPException) as error:
@@ -583,9 +585,10 @@ async def test_admin_retry_rejects_job_the_worker_would_quarantine(
         )
 
     assert error.value.status_code == 409
-    assert (
-        "not confirmed" in error.value.detail or "not supported" in error.value.detail
+    expected_message = (
+        "not supported" if citation_style != "apa" else "Підтвердіть завдання"
     )
+    assert expected_message in error.value.detail
     job_count = (
         await db_session.execute(
             select(func.count(AIGenerationJob.id)).where(
@@ -611,6 +614,8 @@ async def test_admin_retry_obeys_generation_page_budget(db_session):
     )
     db_session.add(document)
     await db_session.commit()
+    document.contract_confirmed_sha256 = task_contract_sha256(document)
+    await db_session.commit()
     document_id = int(document.id)
 
     with pytest.raises(HTTPException) as error:
@@ -634,7 +639,7 @@ async def test_admin_retry_obeys_generation_page_budget(db_session):
 
 
 @pytest.mark.asyncio
-async def test_admin_retry_keeps_committed_job_when_deferred_cleanup_fails(
+async def test_admin_retry_preserves_prior_artifact_without_deferred_cleanup(
     db_session,
 ):
     admin, owner = await _create_admin_and_owner(db_session, suffix="rollback")
@@ -659,14 +664,16 @@ async def test_admin_retry_keeps_committed_job_when_deferred_cleanup_fails(
     )
     db_session.add(section)
     await db_session.commit()
+    document.contract_confirmed_sha256 = task_contract_sha256(document)
+    await db_session.commit()
     document_id = int(document.id)
     section_id = int(section.id)
 
     with patch(
         "app.services.storage_service.StorageService.delete_file",
         new_callable=AsyncMock,
-        side_effect=RuntimeError("storage unavailable"),
-    ):
+        side_effect=AssertionError("Prior version must not be deleted"),
+    ) as delete_file:
         result = await retry_document_generation(
             document_id=document_id,
             request=_admin_request(document_id),
@@ -683,6 +690,7 @@ async def test_admin_retry_keeps_committed_job_when_deferred_cleanup_fails(
             },
         )
 
+    delete_file.assert_not_awaited()
     assert result["status"] == "queued"
     db_session.expire_all()
     persisted_document = await db_session.get(Document, document_id)
@@ -693,7 +701,7 @@ async def test_admin_retry_keeps_committed_job_when_deferred_cleanup_fails(
         )
     ).scalar_one()
     assert persisted_document is not None
-    assert persisted_document.status == "generating"
+    assert persisted_document.status == "queued"
     assert persisted_document.docx_path is None
     assert persisted_document.docx_sha256 is None
     assert persisted_section is None

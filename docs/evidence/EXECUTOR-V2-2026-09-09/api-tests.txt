@@ -1,7 +1,23 @@
-........................................................................ [ 29%]
-........................................................................ [ 59%]
-........................................................................ [ 88%]
-...........................                                              [100%]
+........................................................................ [  5%]
+........................................................................ [ 10%]
+....s................................................................... [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 25%]
+........................................................................ [ 30%]
+........................................................................ [ 36%]
+........................................................................ [ 41%]
+.....................s.................................................. [ 46%]
+........................................................................ [ 51%]
+...s.................................................................... [ 56%]
+........................................................................ [ 61%]
+........................................................................ [ 66%]
+........................................................................ [ 72%]
+........................................ss.............................. [ 77%]
+........................................................................ [ 82%]
+........................................................................ [ 87%]
+.............sssssssssss.......................sss...................... [ 92%]
+........................................................................ [ 97%]
+.........sss.................s.                                          [100%]
 =============================== warnings summary ===============================
 ../../../../apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373
   /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/_pytest/config/__init__.py:1373: PytestConfigWarning: Unknown config option: asyncio_default_fixture_loop_scope
@@ -24,5 +40,30 @@ app/api/v1/endpoints/admin.py:958
   /Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/api/app/api/v1/endpoints/admin.py:958: DeprecationWarning: `regex` has been deprecated, please use `pattern` instead
     group_by: str = Query("day", regex="^(day|week|month)$"),
 
+apps/api/tests/test_admin_service.py::test_send_email_to_user
+  /Users/maxmaxvel/AI TESI/apps/api/venv/lib/python3.11/site-packages/fastapi_mail/schemas.py:91: PydanticDeprecatedSince212: Using `@model_validator` with mode='after' on a classmethod is deprecated. Instead, use an instance method. See the documentation at https://docs.pydantic.dev/2.12/concepts/validators/#model-after-validator. Deprecated in Pydantic V2.12 to be removed in V3.0.
+    @model_validator(mode="after")
+
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-243 passed, 5 warnings in 17.80s
+=========================== short test summary info ============================
+SKIPPED [1] tests/test_ai_service_extended.py:152: AIService.generate_section() now works without outline (uses SectionGenerator directly)
+SKIPPED [1] tests/test_jwt_security.py:156: JWT_ISS not configured in settings
+SKIPPED [1] tests/test_payment_idempotency.py:519: SQLite doesn't support SELECT FOR UPDATE row-level locking
+SKIPPED [2] tests/test_release_evidence_postgres.py:64: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:48: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:73: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:105: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:120: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:153: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:178: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:213: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [3] tests/test_stability_postgres.py:224: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_postgres.py:252: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_preparation_postgres.py:239: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_preparation_postgres.py:305: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/test_stability_preparation_postgres.py:379: An isolated PostgreSQL database is required for the row-lock races
+SKIPPED [1] tests/integration/test_full_user_journey.py:102: Magic link token not found
+SKIPPED [1] tests/integration/test_full_user_journey.py:205: Magic link token not found
+SKIPPED [1] tests/integration/test_full_user_journey.py:257: Magic link token not found
+SKIPPED [1] tests/integration/test_security_suite.py:429: Rate limiting appears to be disabled in test environment
+1376 passed, 23 skipped, 6 warnings in 102.97s (0:01:42)

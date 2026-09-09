@@ -1,0 +1,400 @@
+{
+  "status": "completed",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "origin": "recorded_export",
+  "consumed": [
+    {
+      "attempt_id": "d8ea86ac-9749-4701-9926-ce30d5e0c32b",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "a9ac7241-c457-4eb2-bd17-f243bccaf6a5",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "4a175d71-ef58-4bc8-a483-16cc2712eb20",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "172eba0c-c647-48f8-94f3-8dc12b92a3e2",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "99787fa9-d684-4196-bf34-b3dee0b8c485",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "48b500a1-dd1b-417b-91dc-f340dbf4d58f",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "fdf20bcd-5763-417c-b7bc-00b7a2561020",
+      "stage": "S4",
+      "section_index": 5,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "561a523f-9459-4784-bac2-e882cf74dff4",
+      "stage": "S4",
+      "section_index": 6,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "a3b56565-9a8a-46d0-8d6c-706257f9aebc",
+      "stage": "S6",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "profile_changed": true,
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 214,
+  "artifacts": [
+    {
+      "path": "/private/tmp/thesica-v2-placeholder-replay-20260909/3034e9ba5ec26756780bec0ad6a83751e4017550f70c3eb75f76c973c8b6a22f.docx",
+      "sha256": "3034e9ba5ec26756780bec0ad6a83751e4017550f70c3eb75f76c973c8b6a22f",
+      "bytes": 50477
+    }
+  ],
+  "warnings": [
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 1,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "Maben2012",
+      "created_at": "2026-09-09T15:41:42.998068+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 1,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "492 / 750",
+      "created_at": "2026-09-09T15:41:43.002192+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "Maben2012",
+      "created_at": "2026-09-09T15:41:43.028651+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "1132 / 750",
+      "created_at": "2026-09-09T15:41:43.032658+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "Maben2012",
+      "created_at": "2026-09-09T15:41:43.052144+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "1161 / 750",
+      "created_at": "2026-09-09T15:41:43.056131+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "Maben2012",
+      "created_at": "2026-09-09T15:41:43.075277+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "1185 / 750",
+      "created_at": "2026-09-09T15:41:43.079248+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 5,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "1206 / 750",
+      "created_at": "2026-09-09T15:41:43.097978+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 6,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "Maben2012",
+      "created_at": "2026-09-09T15:41:43.117145+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 6,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "506 / 750",
+      "created_at": "2026-09-09T15:41:43.120821+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 1,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:dm739-1994: 739/1994 [STD:dm739-1994]; il perimetro ostetrico è definito dal D.M.",
+      "created_at": "2026-09-09T15:41:43.136447+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 1,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:dm740-1994: 740/1994 [STD:dm740-1994].",
+      "created_at": "2026-09-09T15:41:43.140515+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:manuale_ostetricia_ginecologia_nursing: I richiami fisiologici che sostengono questa osservazione — le modificazioni cardiocircolatorie e respiratorie della gravidanza, i range di normalità dei parametri — appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire loro dati che le fonti disponibili non forniscono [STD:manuale_ostetricia_ginecologia_nursing].",
+      "created_at": "2026-09-09T15:41:43.149607+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:mckinney-maternalchild: Questi richiami fisiologici appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire dati che le fonti disponibili non forniscono [STD:mckinney-maternalchild].",
+      "created_at": "2026-09-09T15:41:43.159146+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:who-thermal: Questi meccanismi fisiologici appartengono alla materia standard e non sono coperti dal pack; li segnalo come tali, rimandando a manuali e linee guida da verificare [STD:who-thermal].",
+      "created_at": "2026-09-09T15:41:43.163118+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:nanda-i: Va precisato subito che queste tassonomie non sono coperte dal materiale bibliografico recuperato: le tratto come materia standard, riferendomi alle classificazioni ufficiali soggette a verifica [STD:nanda-i][STD:noc].",
+      "created_at": "2026-09-09T15:41:43.167040+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:noc: Va precisato subito che queste tassonomie non sono coperte dal materiale bibliografico recuperato: le tratto come materia standard, riferendomi alle classificazioni ufficiali soggette a verifica [STD:noc].",
+      "created_at": "2026-09-09T15:41:43.170985+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:mckinney_maternal_child: Questi meccanismi fisiologici appartengono alla manualistica standard e non sono coperti dal materiale bibliografico recuperato; li tratto come materia da verificare, senza attribuire dati che le fonti disponibili non forniscono [STD:mckinney_maternal_child].",
+      "created_at": "2026-09-09T15:41:43.180362+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:apgar_who: Anche la descrizione dell'Apgar e dei suoi limiti interpretativi appartiene alla materia standard, che sviluppo con manuali e linee guida da verificare [STD:apgar_who], perché nessuna fonte del pack fornisce dati primari su questo indice.",
+      "created_at": "2026-09-09T15:41:43.184163+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:nanda_i: Queste classificazioni non sono coperte dal pack e le tratto come materia standard, riferendomi alle tassonomie ufficiali soggette a verifica [STD:nanda_i].",
+      "created_at": "2026-09-09T15:41:43.187897+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-09T15:41:43.213635+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-09T15:41:43.217912+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-09T15:41:43.222003+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 5,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-09T15:41:43.226050+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 6,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "soggetta a verifica",
+      "created_at": "2026-09-09T15:41:43.229905+00:00"
+    },
+    {
+      "document_id": 1,
+      "job_id": 1,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "{\n\"functions\": {\n\"research_question\": {\n\"satisfied\": true,\n\"evidence_quote\": \"quale è il ruolo autonomo e collaborativo dell'infermiere nell'area perinatale e nella gestione della transizione extrauterina del neonato, e come le tassonomie NANDA-I, NOC e NIC insieme alle evidenze disponibili sostengono una pianificazione assistenziale sicura, entro i confini definiti dal D.M. 739/1994?\",\n\"reason\": \"Дослідницьке питання сформульоване чітко, з чіткими межами (D.M. 739/1994) та операційними компонентами (автономна/колаборативна роль, таксономії, безпечне планування).\"\n},\n\"review_method\": {\n\"satisfied\": true,\n\"evidence_quote\": \"Le fonti sono state cercate su banche dati accademiche interrogate con stringhe tematiche via Crossref e OpenAlex. Il materiale recuperato risulta disomogeneo: molte voci riguardano transizioni professionali o ambiti pedagogici non pertinenti, riducendo il nucleo clinicamente utilizzabile a poche fonti\",\n\"reason\": \"Метод описано чесно: названо бази (Crossref, OpenAle",
+      "created_at": "2026-09-09T15:41:43.313981+00:00"
+    }
+  ],
+  "recorded_model_calls": 9
+}

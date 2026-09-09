@@ -11,7 +11,7 @@ SCRIPT = Path(__file__).resolve().parents[1] / "deploy.sh"
 
 
 class DeployOrchestrationTest(unittest.TestCase):
-    def run_deploy(self, *, bot=False, config=False, invalid_compose=False):
+    def run_deploy(self, *, bot=False, config=False, invalid_compose=False, failure=""):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             compose = root / "infra/docker"
@@ -32,6 +32,7 @@ class DeployOrchestrationTest(unittest.TestCase):
                 "#!/usr/bin/env python3\n"
                 "import json, os, sys\n"
                 "args = sys.argv[1:]\n"
+                "failure = os.environ['DEPLOY_TEST_FAILURE']\n"
                 "with open(os.environ['DEPLOY_TEST_LOG'], 'a') as f:\n"
                 " f.write(json.dumps(args) + '\\n')\n"
                 "if args[0] == 'inspect':\n"
@@ -39,15 +40,22 @@ class DeployOrchestrationTest(unittest.TestCase):
                 "if args[0] == 'compose' and 'config' in args:\n"
                 " sys.exit(int(os.environ['DEPLOY_TEST_INVALID']))\n"
                 "if args[0] == 'exec' and 'pg_dump' in ' '.join(args):\n"
+                " if failure == 'backup': print('incomplete'); sys.exit(0)\n"
                 " print('-- fixture database dump\\n' * 500)\n"
+                " if failure == 'backup_marker': sys.exit(0)\n"
                 " print('-- PostgreSQL database dump complete')\n"
+                "if failure == 'migration' and 'psql' in ' '.join(args): sys.exit(1)\n"
+                "if failure == 'build' and 'build' in args: sys.exit(1)\n"
+                "if failure == 'sdk' and '--entrypoint' in args: sys.exit(1)\n"
             )
             curl = binaries / "curl"
             curl.write_text(
                 "#!/usr/bin/env python3\n"
-                "import sys\n"
+                "import os, sys\n"
                 "args = sys.argv[1:]\n"
                 "url = args[-1]\n"
+                "if os.environ['DEPLOY_TEST_FAILURE'] == 'health': sys.exit(22)\n"
+                "if os.environ['DEPLOY_TEST_FAILURE'] == 'public' and '-w' in args: print('503'); sys.exit(0)\n"
                 "if '-w' not in args: sys.exit(0)\n"
                 "if url.endswith('/auth/register'): print('302')\n"
                 "elif url.endswith('/auth/magic-link'): print('403')\n"
@@ -61,6 +69,7 @@ class DeployOrchestrationTest(unittest.TestCase):
             for binary in (docker, curl, sleep):
                 binary.chmod(0o755)
             script = root / "deploy.sh"
+            assert "ROOT=/opt/thesica" in SCRIPT.read_text()
             script.write_text(
                 SCRIPT.read_text()
                 .replace("ROOT=/opt/thesica", f'ROOT="{root}"')
@@ -72,9 +81,14 @@ class DeployOrchestrationTest(unittest.TestCase):
                 DEPLOY_TEST_LOG=str(command_log),
                 DEPLOY_TEST_BOT=str(int(bot)),
                 DEPLOY_TEST_INVALID=str(int(invalid_compose)),
+                DEPLOY_TEST_FAILURE=failure,
             )
             result = subprocess.run(
-                ["bash", str(script)], env=env, capture_output=True, text=True
+                ["bash", str(script)],
+                env=env,
+                capture_output=True,
+                text=True,
+                timeout=30,
             )
             commands = (
                 [json.loads(line) for line in command_log.read_text().splitlines()]

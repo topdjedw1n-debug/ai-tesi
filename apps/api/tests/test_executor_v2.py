@@ -198,6 +198,7 @@ def test_spec_guardrails():
         "review_negative",
         "review_note",
         "detector_unchecked",
+        "placeholder_text",
     }
     from app.services.background_jobs import BackgroundJobService
 
@@ -445,8 +446,21 @@ async def test_new_attempt_snapshots_previous_materials(
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    "text, expected_placeholder",
+    [
+        ("Da   verificare.", "da   verificare"),
+        ("La fonte è SOGGETTA A VERIFICA.", "soggetta a verifica"),
+        ("An editorial [citation needed] remains.", "[citation needed]"),
+        ("[TODO]: finish the text.", "todo"),
+        (
+            "La letteratura disponibile non consente di stabilire un nesso causale. Metodo e metodologia.",
+            None,
+        ),
+    ],
+)
 async def test_offline_docx_warnings_and_exact_replay(
-    db_session, monkeypatch, tmp_path
+    db_session, monkeypatch, tmp_path, text, expected_placeholder
 ):
     from datetime import timedelta
     from io import BytesIO
@@ -474,12 +488,17 @@ async def test_offline_docx_warnings_and_exact_replay(
         response('{"sections":', True),
         response(json.dumps(plan)),
         response(
-            f"# Sleep\n\nEvidence **supports** a finding [{key}]. Unsupported marker [UNKNOWN] and [STD:D.M.739/1994]."
+            f"# Sleep\n\nEvidence **supports** a finding [{key}]. Unsupported marker [UNKNOWN] and [STD:D.M.739/1994]. {text}"
         ),
         response("FAIL: section is short."),
     ]
 
     async def provider(self, **request):
+        if len(replies) == 2:
+            prompt = request["messages"][0]["content"]
+            assert "Never include editorial placeholders" in prompt
+            assert "la letteratura disponibile non consente di" in prompt
+            assert all(phrase in prompt for phrase in POLICY["placeholder_phrases"])
         return replies.pop(0)
 
     monkeypatch.setattr(Context, "provider", provider)
@@ -495,6 +514,17 @@ async def test_offline_docx_warnings_and_exact_replay(
     row = await db_session.get(AIGenerationJob, claimed.id)
     assert row.status == "completed", row.request_payload
     assert result is not None
+    placeholders = [w for w in result["warnings"] if w["code"] == "placeholder_text"]
+    if expected_placeholder:
+        assert len(placeholders) == 1
+        assert placeholders[0]["detail"] == expected_placeholder
+        assert placeholders[0]["stage"] == "assembling"
+        assert placeholders[0]["section_index"] == 1
+        assert (
+            placeholders[0]["severity"] == "warning" and placeholders[0]["message_uk"]
+        )
+    else:
+        assert placeholders == []
     assert set(result) == {
         "docx",
         "sections",
@@ -557,6 +587,11 @@ async def test_offline_docx_warnings_and_exact_replay(
     assert replayed is not None
     assert artifacts[0] == artifacts[1]
     assert result["docx"]["sha256"] == replayed["docx"]["sha256"]
+    assert [
+        (w["section_index"], w["detail"])
+        for w in replayed["warnings"]
+        if w["code"] == "placeholder_text"
+    ] == [(w["section_index"], w["detail"]) for w in placeholders]
 
 
 @pytest.mark.asyncio
@@ -707,7 +742,22 @@ async def test_run_technical_stops_and_case_projection(
 
     monkeypatch.setattr(Context, "provider", provider)
     monkeypatch.setitem(POLICY, "retry_seconds", (0, 0, 0))
+    terminal_writes = []
     if failure == "recording":
+        import importlib
+
+        runner = importlib.import_module("app.services.executor_v2.run")
+        persist_stop = runner.fail_executor_job
+
+        async def transient_recording_failure(*args, **kwargs):
+            terminal_writes.append(kwargs["stop"]["code"])
+            if len(terminal_writes) == 1:
+                raise RecordingPersistenceError(
+                    "Terminal receipt temporarily unavailable"
+                )
+            return await persist_stop(*args, **kwargs)
+
+        monkeypatch.setattr(runner, "fail_executor_job", transient_recording_failure)
 
         async def broken(*args, **kwargs):
             raise RecordingPersistenceError("No durable request receipt")
@@ -720,6 +770,8 @@ async def test_run_technical_stops_and_case_projection(
 
         monkeypatch.setattr(Context, "initialize", broken)
     assert await asyncio.wait_for(run(claimed), timeout=5) is None
+    if failure == "recording":
+        assert terminal_writes == ["storage_or_db", "storage_or_db"]
     db_session.expire_all()
     job = await db_session.get(AIGenerationJob, claimed.id)
     stop = status_fields(job)["stop"]

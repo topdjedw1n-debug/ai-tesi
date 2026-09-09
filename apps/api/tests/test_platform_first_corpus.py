@@ -239,11 +239,16 @@ async def test_recorded_real_writer_stage_11_replays_exact_prompt_without_sdk(
         warning_mode.reset(policy)
     assert result["content"] == data["expected"]["content"].replace(
         "[Selix2015]", "(Selix, 2015)"
-    )
+    ).replace("(Organization, 2022)", "(World Health Organization, 2022)")
     assert "[Selix2015]" not in result["content"]
     assert "Selix2015" in result["discarded_outline_keys"]
     assert tape.consumed[0]["request_changed"] is tape.allow_request_changes
-    assert result["bibliography"] == data["expected"]["bibliography"]
+    # Preserve the historical response bytes; apply only the approved institutional
+    # author formatting correction to the comparison, not to the source fixture.
+    assert result["bibliography"] == [
+        entry.replace("Organization, W. H. (2022)", "World Health Organization (2022)")
+        for entry in data["expected"]["bibliography"]
+    ]
     assert result["standard_references"] == data["expected"]["standard_references"]
     # A format correction is not source verification or a model rewrite.
     assert (

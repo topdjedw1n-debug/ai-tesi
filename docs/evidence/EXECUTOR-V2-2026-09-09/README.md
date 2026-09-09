@@ -12,12 +12,16 @@
 
 ## Перевірка
 
-- 243 API-тести: [журнал](api-tests.txt). Включно з усіма запобіжниками §8, втратою запису після DOCX, скасуванням під час утримуваної відповіді та новими спробами після дії власника.
-- 29 UI-тестів: [журнал](web-tests.txt). TypeScript `tsc --noEmit` — без помилок.
+Зауваження наступного рев'ю Fable «NOT READY_FOR_INSTALL» опрацьовано: [повний звіт виправлень](FABLE-FOLLOWUP/README.md). Попередні висновки контрольних точок нижче збережено як історію.
+
+- Повна сукупність API: **1376 passed, 0 failed, 0 errors, 23 skipped; 1399 total** — [журнал](api-tests.txt).
+- Повна сукупність web: **210 passed, 0 failed, 1 skipped; 211 total**; **30/30 suites passed** — [журнал](web-tests.txt). TypeScript `tsc --noEmit` — без помилок.
 - Пакет: 1500 рядків після Black, 0 перемикачів, 3 дозволені стопи; `internal_error` залишається дефектом. Ruff для пакета проходить.
-- 78 тестів видаленого старого виконавця замінені тестами v2; [точний список](retired-executor-tests.txt). Перевірки бібліотек, черги, API та видачі залишені активними.
+- Тести видаленого старого виконавця виведено явно та замінено перевірками v2; [точний список](retired-executor-tests.txt). Перевірки бібліотек, черги, API та видачі залишені активними.
 
 ## Офлайн-артефакт і незалежне відтворення
+
+Поточний комплект із `placeholder_text`: [FABLE-FOLLOWUP](FABLE-FOLLOWUP/README.md#офлайн-доказ). Нижче збережено попередній комплект c8cccaf, до доповнення про заглушки.
 
 [DOCX](offline-job12-fixture.docx) · [повний запис](offline-job12-recording.json.gz) · [результат](offline-job12-result.json) · [незалежний replay](independent-replay.json) · [перевірка структури DOCX](docx-inspection.json).
 

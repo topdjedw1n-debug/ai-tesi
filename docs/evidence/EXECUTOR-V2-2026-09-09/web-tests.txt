@@ -1,4 +1,142 @@
+PASS __tests__/app/admin/production-cases/detail.test.tsx
+PASS __tests__/components/payment/PaymentForm.test.tsx
+  ● Console
+
+    console.error
+      Error: Not implemented: navigation (except hash changes)
+          at module.exports (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+          at navigateFetch (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+          at exports.navigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+          at LocationImpl._locationObjectNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+          at LocationImpl._locationObjectSetterNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+          at LocationImpl.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+          at Location.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+          at handleSubmit (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/components/payment/PaymentForm.tsx:89:29) {
+        type: 'not implemented'
+      }
+
+      87 |       if (result.checkout_url) {
+      88 |         // Redirect to Stripe Checkout
+    > 89 |         window.location.href = result.checkout_url
+         |                             ^
+      90 |       } else {
+      91 |         throw new Error('No checkout URL received')
+      92 |       }
+
+      at VirtualConsole.<anonymous> (../../../stability-20260908/worktree/apps/web/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at navigateFetch (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+      at exports.navigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+      at LocationImpl._locationObjectNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+      at LocationImpl._locationObjectSetterNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+      at LocationImpl.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+      at Location.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+      at handleSubmit (components/payment/PaymentForm.tsx:89:29)
+
+    console.error
+      Payment initialization failed: Error: Payment failed
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/__tests__/components/payment/PaymentForm.test.tsx:147:55)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      92 |       }
+      93 |     } catch (error: any) {
+    > 94 |       console.error('Payment initialization failed:', error)
+         |               ^
+      95 |       toast.error(
+      96 |         error.message || 'Failed to initialize payment. Please try again.'
+      97 |       )
+
+      at error (components/payment/PaymentForm.tsx:94:15)
+
+    console.error
+      Payment initialization failed: Error: No checkout URL received
+          at handleSubmit (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/components/payment/PaymentForm.tsx:91:15)
+
+      92 |       }
+      93 |     } catch (error: any) {
+    > 94 |       console.error('Payment initialization failed:', error)
+         |               ^
+      95 |       toast.error(
+      96 |         error.message || 'Failed to initialize payment. Please try again.'
+      97 |       )
+
+      at error (components/payment/PaymentForm.tsx:94:15)
+
+    console.error
+      Failed to fetch pricing: Error: Pricing API Error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/__tests__/components/payment/PaymentForm.test.tsx:191:54)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      50 |         setPricingConfig(config)
+      51 |       } catch (error) {
+    > 52 |         console.error('Failed to fetch pricing:', error)
+         |                 ^
+      53 |         // Fallback to default pricing
+      54 |         setPricingConfig({
+      55 |           price_per_page: 0.50,
+
+      at error (components/payment/PaymentForm.tsx:52:17)
+
+PASS __tests__/components/ReleaseEvidenceForms.test.tsx
+PASS __tests__/app/auth/login/page.test.tsx
 PASS __tests__/components/dashboard/TaskContractPanel.test.tsx
+PASS __tests__/components/dashboard/RecentActivity.test.tsx
+  ● Console
+
+    console.error
+      Failed to fetch activities: Error: API Error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/__tests__/components/dashboard/RecentActivity.test.tsx:161:54)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      57 |         setActivities(response.activities || [])
+      58 |       } catch (error) {
+    > 59 |         console.error('Failed to fetch activities:', error)
+         |                 ^
+      60 |         setActivities([])
+      61 |       } finally {
+      62 |         setIsLoading(false)
+
+      at error (components/dashboard/RecentActivity.tsx:59:17)
+
 PASS __tests__/components/dashboard/DocumentsList.test.tsx
   ● Console
 
@@ -30,12 +168,265 @@ PASS __tests__/components/dashboard/DocumentsList.test.tsx
 
       at error (components/dashboard/DocumentsList.tsx:60:17)
 
+PASS components/providers/__tests__/AuthProvider.test.tsx
+  ● Console
+
+    console.error
+      Magic link verification failed: Error: Invalid token
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/components/providers/__tests__/AuthProvider.test.tsx:390:56)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      159 |       return false
+      160 |     } catch (error) {
+    > 161 |       console.error('Magic link verification failed:', error)
+          |               ^
+      162 |       toast.error('Invalid or expired magic link')
+      163 |       return false
+      164 |     } finally {
+
+      at error (components/providers/AuthProvider.tsx:161:15)
+
+    console.error
+      Logout API call failed: Error: Network error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/components/providers/__tests__/AuthProvider.test.tsx:506:56)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      174 |       } catch (error) {
+      175 |         // Continue with logout even if API call fails (token might already be expired)
+    > 176 |         console.error('Logout API call failed:', error)
+          |                 ^
+      177 |       }
+      178 |
+      179 |       clearTokens()
+
+      at error (components/providers/AuthProvider.tsx:176:17)
+
+PASS __tests__/components/dashboard/StatsOverview.test.tsx
+  ● Console
+
+    console.error
+      Failed to fetch stats: Error: API Error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/__tests__/components/dashboard/StatsOverview.test.tsx:133:54)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      34 |         })
+      35 |       } catch (error: any) {
+    > 36 |         console.error('Failed to fetch stats:', error)
+         |                 ^
+      37 |         // Don't show error toast - auth check will redirect
+      38 |         // toast.error('Failed to load statistics')
+      39 |       } finally {
+
+      at error (components/dashboard/StatsOverview.tsx:36:17)
+
+PASS __tests__/components/admin/UsersTable.test.tsx
+PASS __tests__/app/dashboard/documents/[id]/page.test.tsx
+PASS __tests__/components/dashboard/DocumentSources.test.tsx
+PASS __tests__/components/dashboard/CreateDocumentForm.test.tsx
+PASS __tests__/components/dashboard/DocumentSourceFiles.test.tsx
 PASS __tests__/components/dashboard/DocumentsList.regression-1.test.tsx
 PASS __tests__/components/GenerationProgress.test.tsx
+PASS __tests__/components/dashboard/DocumentQualityEvidence.test.tsx
+PASS __tests__/app/admin/production-cases/page.test.tsx
+PASS __tests__/app/admin/phase0-readiness/page.test.tsx
 PASS __tests__/components/ProductionWorkspace.test.tsx
+PASS __tests__/app/page.test.tsx
+PASS __tests__/components/admin/StatsGrid.test.tsx
+PASS lib/__tests__/api-refresh.test.ts
+  ● Console
 
-Test Suites: 5 passed, 5 total
-Tests:       29 passed, 29 total
+    console.error
+      Error: Not implemented: navigation (except hash changes)
+          at module.exports (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+          at navigateFetch (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+          at exports.navigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+          at LocationImpl._locationObjectNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+          at LocationImpl._locationObjectSetterNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+          at LocationImpl.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+          at Location.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+          at handleResponse (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/api.ts:222:31)
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/__tests__/api-refresh.test.ts:210:9) {
+        type: 'not implemented'
+      }
+
+      220 |         // Redirect на login якщо refresh не вдався
+      221 |         if (typeof window !== 'undefined') {
+    > 222 |           window.location.href = '/auth/login';
+          |                               ^
+      223 |         }
+      224 |         throw new Error('Authentication required');
+      225 |       }
+
+      at VirtualConsole.<anonymous> (../../../stability-20260908/worktree/apps/web/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at navigateFetch (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+      at exports.navigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+      at LocationImpl._locationObjectNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+      at LocationImpl._locationObjectSetterNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+      at LocationImpl.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+      at Location.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+      at handleResponse (lib/api.ts:222:31)
+      at Object.<anonymous> (lib/__tests__/api-refresh.test.ts:210:9)
+
+    console.error
+      Error: Not implemented: navigation (except hash changes)
+          at module.exports (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+          at navigateFetch (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+          at exports.navigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+          at LocationImpl._locationObjectNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+          at LocationImpl._locationObjectSetterNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+          at LocationImpl.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+          at Location.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+          at Reflect.set (<anonymous>)
+          at Window.set location [as location] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/Window.js:424:15)
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/__tests__/api-refresh.test.ts:227:22)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7) {
+        type: 'not implemented'
+      }
+
+      225 |       // Mock window.location
+      226 |       delete (window as any).location
+    > 227 |       window.location = { href: '' } as any
+          |                      ^
+      228 |
+      229 |       ;(global.fetch as jest.Mock)
+      230 |         .mockResolvedValueOnce({
+
+      at VirtualConsole.<anonymous> (../../../stability-20260908/worktree/apps/web/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at navigateFetch (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+      at exports.navigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+      at LocationImpl._locationObjectNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+      at LocationImpl._locationObjectSetterNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+      at LocationImpl.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+      at Location.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+          at Reflect.set (<anonymous>)
+      at Window.set location [as location] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/Window.js:424:15)
+      at Object.<anonymous> (lib/__tests__/api-refresh.test.ts:227:22)
+
+    console.error
+      Error: Not implemented: navigation (except hash changes)
+          at module.exports (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+          at navigateFetch (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+          at exports.navigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+          at LocationImpl._locationObjectNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+          at LocationImpl._locationObjectSetterNavigate (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+          at LocationImpl.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+          at Location.set href [as href] (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+          at handleResponse (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/api.ts:222:31)
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/__tests__/api-refresh.test.ts:242:9) {
+        type: 'not implemented'
+      }
+
+      220 |         // Redirect на login якщо refresh не вдався
+      221 |         if (typeof window !== 'undefined') {
+    > 222 |           window.location.href = '/auth/login';
+          |                               ^
+      223 |         }
+      224 |         throw new Error('Authentication required');
+      225 |       }
+
+      at VirtualConsole.<anonymous> (../../../stability-20260908/worktree/apps/web/node_modules/@jest/environment-jsdom-abstract/build/index.js:87:23)
+      at module.exports (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:12:26)
+      at navigateFetch (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:77:3)
+      at exports.navigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/navigation.js:55:3)
+      at LocationImpl._locationObjectNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:30:5)
+      at LocationImpl._locationObjectSetterNavigate (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:24:17)
+      at LocationImpl.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/window/Location-impl.js:46:10)
+      at Location.set href [as href] (../../../stability-20260908/worktree/apps/web/node_modules/jsdom/lib/jsdom/living/generated/Location.js:125:37)
+      at handleResponse (lib/api.ts:222:31)
+      at Object.<anonymous> (lib/__tests__/api-refresh.test.ts:242:9)
+
+    console.error
+      Token refresh failed: Error: Network error
+          at Object.<anonymous> (/Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/web/lib/__tests__/api-refresh.test.ts:352:9)
+          at Promise.finally.completed (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1557:28)
+          at new Promise (<anonymous>)
+          at callAsyncCircusFn (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1497:10)
+          at _callCircusTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1007:40)
+          at _runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:947:3)
+          at /Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:849:7
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:862:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at _runTestsForDescribeBlock (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:857:11)
+          at run (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:761:3)
+          at runAndTransformResultsToJestFormat (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/jestAdapterInit.js:1918:21)
+          at jestAdapter (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-circus/build/runner.js:101:19)
+          at runTestInternal (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:275:16)
+          at runTest (/Users/maxmaxvel/AI TESI/.scratch/stability-20260908/worktree/apps/web/node_modules/jest-runner/build/index.js:343:7)
+
+      145 |       return newAccessToken;
+      146 |     } catch (error) {
+    > 147 |       console.error('Token refresh failed:', error);
+          |               ^
+      148 |       clearTokens();
+      149 |       return null;
+      150 |     } finally {
+
+      at error (lib/api.ts:147:15)
+
+PASS __tests__/app/dashboard/page.test.tsx
+PASS lib/__tests__/api.test.ts
+PASS lib/__tests__/provenance.test.ts
+PASS lib/__tests__/api-validation.regression-1.test.ts
+PASS lib/__tests__/api-login.regression-1.test.ts
+PASS lib/__tests__/api-contract-smoke.test.ts
+PASS lib/__tests__/feature-flags.test.ts
+
+Test Suites: 30 passed, 30 total
+Tests:       1 skipped, 210 passed, 211 total
 Snapshots:   0 total
-Time:        1.337 s, estimated 2 s
-Ran all test suites matching GenerationProgress|TaskContractPanel|DocumentsList|ProductionWorkspace.
+Time:        5.434 s
+Ran all test suites.

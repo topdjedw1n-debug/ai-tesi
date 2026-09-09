@@ -126,7 +126,7 @@ async def test_default_start_cannot_erase_a_resumable_result(db_session):
 
 
 @pytest.mark.asyncio
-async def test_non_resumable_replacement_is_explicit_and_idempotent(
+async def test_legacy_replacement_creates_v2_and_rejects_active_duplicate(
     db_session, monkeypatch
 ):
     doc, job, owner = await stopped_work(db_session, "academic_content_rejected")
@@ -145,8 +145,12 @@ async def test_non_resumable_replacement_is_explicit_and_idempotent(
         replacement_reason="The recorded requirement defect was fixed",
     )
     first = await enqueue_full_document(request, owner, db_session)
-    second = await enqueue_full_document(request, owner, db_session)
-    assert first.job_id == second.job_id and first.job_id != old_id
+    with pytest.raises(HTTPException) as error:
+        await enqueue_full_document(request, owner, db_session)
+    assert error.value.status_code == 409
+    assert first.job_id != old_id
+    replacement = await db_session.get(AIGenerationJob, first.job_id)
+    assert replacement.request_payload["executor_version"] == 2
     old = await db_session.get(AIGenerationJob, old_id)
     assert (old.status, old.total_tokens, old.cost_cents) == ("failed", 1000, 4)
     events = list(

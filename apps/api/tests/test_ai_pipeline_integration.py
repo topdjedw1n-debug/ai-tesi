@@ -812,15 +812,11 @@ def test_format_apa_reference_no_authors():
         )
 
 
-def test_format_apa_reference_no_year():
-    """Test APA reference handles missing year gracefully"""
-    # Should raise ValueError - year is required
-    with pytest.raises(ValueError, match="must have a year"):
-        SourceDocument(
-            title="Undated Paper",
-            authors=["Smith, John"],
-            year=None,  # type: ignore
-        )
+def test_format_apa_reference_no_year(citation_formatter_instance):
+    """APA keeps verified undated sources and renders n.d. rather than a fake year."""
+    source = SourceDocument(title="Undated Paper", authors=["Smith, John"], year=None)
+    formatted = citation_formatter_instance.format_reference(source, CitationStyle.APA)
+    assert "(n.d.)" in formatted and "Undated Paper" in formatted
 
 
 def test_format_apa_reference_no_journal_title(citation_formatter_instance):

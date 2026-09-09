@@ -221,6 +221,7 @@ export default function ProductionCaseDetailPage() {
             {warnings.map(warning => (
               <li key={warning.id}>
                 <p>{warning.message_uk || warning.reason}</p>
+                {warning.detail && <p className="mt-1">{warning.detail}</p>}
                 {warning.details?.map((detail, index) => <p key={`detail-${index}`} className="mt-1">{detail}</p>)}
                 {warning.references?.map((reference, index) => (
                   <p key={index} className="mt-1">{reference.title ? `${reference.authors?.join('; ') || ''}. ${reference.title}${reference.year ? ` (${reference.year})` : ''}. Потребує перевірки.` : 'Бібліографічні дані потребують уточнення.'}</p>

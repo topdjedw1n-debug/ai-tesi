@@ -1,0 +1,19 @@
+{
+  "docx_sha256": "3034e9ba5ec26756780bec0ad6a83751e4017550f70c3eb75f76c973c8b6a22f",
+  "recording_sha256_uncompressed": "3fbd794f4e5714e44a940c0778cd89c6e49f7b6bbc8aacab6db420a3657e8d86",
+  "independent_replay_identical_bytes": true,
+  "paragraphs": 84,
+  "heading_count": 27,
+  "placeholder_occurrences": {
+    "da verificare": 10,
+    "soggetta a verifica": 1
+  },
+  "placeholder_warning_sections": [
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "full_page_render_verified": false
+}

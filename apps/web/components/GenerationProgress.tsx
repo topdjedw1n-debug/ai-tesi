@@ -94,7 +94,7 @@ export function GenerationProgress({ documentId, onComplete, onError, onCancelle
       {job?.last_signal && <p className="mt-2 text-sm text-gray-600">{job.last_signal}</p>}
       {job && (!terminal || job.status === 'completed') && <div className="my-4">
         <div role="progressbar" aria-valuenow={job.progress} aria-valuemin={0} aria-valuemax={100} className="h-2.5 rounded-full bg-gray-200">
-          <div className="h-2.5 rounded-full bg-primary-500" style={{ width: `${job.progress}%` }} />
+          <div className="h-2.5 rounded-full bg-accent" style={{ width: `${job.progress}%` }} />
         </div><p className="mt-1 text-sm">{job.progress}%</p>
       </div>}
       {job?.executor_version === 2 && <p className="mt-3 text-sm text-gray-600">

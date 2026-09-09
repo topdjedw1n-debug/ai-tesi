@@ -11,6 +11,12 @@ from app.services.model_recording import operation_section
 from .warnings import ExecutionStop
 
 POLICY = {
+    "placeholder_phrases": (
+        "da verificare",
+        "soggetta a verifica",
+        "[citation needed]",
+        "TODO",
+    ),
     "stage_progress": {
         "sources": 5,
         "outline": 25,

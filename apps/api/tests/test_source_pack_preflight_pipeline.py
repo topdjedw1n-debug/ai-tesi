@@ -1,5 +1,4 @@
 from functools import partial
-from unittest.mock import AsyncMock
 
 import httpx
 import pytest
@@ -13,30 +12,6 @@ from tests.test_source_pack_rebuild import (
     make_settings,
     seed_document,
 )
-
-
-@pytest.fixture(autouse=True)
-def _stub_claim_judge(monkeypatch):
-    """Source-preflight tests must never call a paid claim judge."""
-    monkeypatch.setattr(
-        "app.services.background_jobs.verify_section_claims",
-        AsyncMock(
-            return_value=(
-                {
-                    "total": 1,
-                    "checked": 1,
-                    "counts": {"supported": 1},
-                    "claims": [],
-                },
-                [],
-                1,
-            )
-        ),
-    )
-    monkeypatch.setattr(
-        "app.services.background_jobs._run_claim_verification_stage",
-        AsyncMock(),
-    )
 
 
 def _preflight_settings(**overrides):

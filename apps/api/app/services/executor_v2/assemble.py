@@ -1,6 +1,7 @@
 """S6: persist complete DOCX before the advisory whole-document review."""
 
 import math
+import re
 from datetime import datetime
 
 from app.core import database
@@ -19,13 +20,30 @@ from .warnings import ExecutionStop
 
 
 async def assemble(ctx, sections, bibliography, pack):
+    placeholders = re.compile(
+        r"(?<!\w)(?:"
+        + "|".join(
+            re.escape(p).replace(r"\ ", r"\s+") for p in POLICY["placeholder_phrases"]
+        )
+        + r")(?!\w)",
+        re.I,
+    )
+    for section in sections:
+        # Raw text also retains placeholders removed as unknown citation markers.
+        matches = placeholders.findall(
+            section["content"] + "\n" + section["raw_content"]
+        )
+        if matches:
+            await ctx.warn(
+                "placeholder_text",
+                section_index=section["section_index"],
+                detail="; ".join(sorted({m.casefold() for m in matches})),
+            )
     content = "\n\n".join(assemble_section(s["title"], s["content"]) for s in sections)
     if bibliography:
-        content += (
-            "\n\n# "
-            + bibliography_heading(ctx.inputs["brief"]["language"])
-            + "\n\n"
-            + "\n\n".join(r["formatted"] for r in bibliography)
+        content += "\n\n" + assemble_section(
+            bibliography_heading(ctx.inputs["brief"]["language"]),
+            "\n\n".join(r["formatted"] for r in bibliography),
         )
     try:
         async with database.AsyncSessionLocal() as db:
@@ -59,15 +77,11 @@ async def assemble(ctx, sections, bibliography, pack):
         ):
             raise ExecutionStop("storage_or_db", "Не вдалося зберегти DOCX.") from error
         raise
+    words = sum(s["word_count"] for s in sections)
     docx = {
         "sha256": artifact["artifact_sha256"],
         "size": artifact["file_size"],
-        "estimated_pages": max(
-            1,
-            math.ceil(
-                sum(s["word_count"] for s in sections) / POLICY["words_per_page"]
-            ),
-        ),
+        "estimated_pages": max(1, math.ceil(words / POLICY["words_per_page"])),
         "storage_path": artifact["storage_path"],
     }
     await ctx.emit("executor_artifact", docx)
@@ -83,13 +97,9 @@ async def assemble(ctx, sections, bibliography, pack):
         )
         await ctx.emit("executor_review", {"text": review, "truncated": truncated})
         if truncated or review.strip() != "PASS":
+            negative = review.lstrip().startswith("FAIL")
             await ctx.warn(
-                (
-                    "review_negative"
-                    if review.lstrip().startswith("FAIL")
-                    else "review_note"
-                ),
-                detail=review,
+                "review_negative" if negative else "review_note", detail=review
             )
     except ExecutionStop as error:
         if error.budget:
@@ -101,17 +111,13 @@ async def assemble(ctx, sections, bibliography, pack):
 
         from app.models.document import DocumentProvenance
 
-        events = list(
-            (
-                await db.execute(
-                    select(DocumentProvenance)
-                    .where(
-                        DocumentProvenance.document_id == ctx.job.document_id,
-                        DocumentProvenance.event_type == "generation_provider_attempt",
-                    )
-                    .order_by(DocumentProvenance.id)
-                )
-            ).scalars()
+        events = await db.scalars(
+            select(DocumentProvenance)
+            .where(
+                DocumentProvenance.document_id == ctx.job.document_id,
+                DocumentProvenance.event_type == "generation_provider_attempt",
+            )
+            .order_by(DocumentProvenance.id)
         )
     calls = {
         e.payload["attempt_id"]: e.payload

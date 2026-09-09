@@ -78,3 +78,28 @@ test_background_jobs_recovery.py::test_redis_save_error_non_critical
 test_background_jobs_recovery.py::test_redis_load_error_starts_fresh
 test_background_jobs_recovery.py::test_export_failure_marks_document_failed
 test_generation_cancel.py::test_pipeline_wires_monotonic_usage_on_cancel_paths
+
+Fable closeout follow-up (2026-09-09); removed from active collection, preserved in git c8cccaf:
+test_quality_gates.py::test_quality_gate_blocks_high_plagiarism — Deleted generator quality gates contradict advisory-only v2; replaced by test_offline_docx_warnings_and_exact_replay.
+test_quality_gates.py::test_quality_gate_allows_good_content — Deleted generator quality gates contradict advisory-only v2; replaced by test_offline_docx_warnings_and_exact_replay.
+test_quality_gates.py::test_quality_gates_can_be_disabled — Deleted generator quality gates contradict advisory-only v2; replaced by test_offline_docx_warnings_and_exact_replay.
+test_platform_first_pipeline.py::test_source_shortage_bad_reviews_grammar_reach_real_docx_and_replay — Old pipeline prompts/fixtures cannot execute v2; replaced by test_recorded_job12_to_docx_and_replay.
+test_quality_integration.py::TestQualityValidationIntegration::test_websocket_progress_includes_quality_score — Old background_jobs wiring assertions; library tests remain active, v2 progress/review are covered in test_executor_v2.py and web GenerationProgress tests.
+test_quality_pipeline_e2e.py::TestQualityPipelineIntegration::test_quality_validator_called_in_pipeline — Old background_jobs wiring assertions; library tests remain active, v2 progress/review are covered in test_executor_v2.py and web GenerationProgress tests.
+test_citation_pipeline_integration.py::test_strict_block_survives_async_wrapper — Deleted strict-quality pipeline/source persistence helper; verified-only bibliography and storage stop are covered by test_executor_v2.py.
+test_citation_pipeline_integration.py::test_persist_cited_sources_unit — Deleted strict-quality pipeline/source persistence helper; verified-only bibliography and storage stop are covered by test_executor_v2.py.
+
+Retained test_source_pack_preflight_pipeline.py::test_initial_retrieval_distinguishes_empty_results_from_http_outage: reusable legacy source builder still exists; removed only its unrelated fixture patching deleted claim-judge functions.
+
+Replaced obsolete deploy-aws.yml contracts (removed workflow since step 0):
+test_production_runtime_contract.py::test_deploy_only_uses_an_exact_revision_that_passed_ci
+test_production_runtime_contract.py::test_deploy_pins_the_ssh_host_instead_of_trusting_first_contact
+test_production_runtime_contract.py::test_deploy_env_writer_quotes_values_and_url_encodes_database_credentials
+test_production_runtime_contract.py::test_deploy_env_writer_rejects_non_public_https_origins
+test_production_runtime_contract.py::test_deploy_env_writer_rejects_multiline_secret_before_creating_file
+test_production_runtime_contract.py::test_deploy_removes_temporary_secrets_and_checks_public_https
+test_production_runtime_contract.py::test_deploy_bootstraps_infrastructure_and_schema_before_api_and_web
+test_production_runtime_contract.py::test_deploy_and_compose_yaml_are_parseable
+Replacement: actual infra/deploy.sh executed with fake Docker/curl in temporary directories; verifies backup validity, rollback tags, migration/SDK order, stop-before-restart, operator overlay, health failures and shell/compose syntax. The server-local script neither writes secrets nor initiates SSH/CI deployment; those removed workflow expectations are retired explicitly, not attributed to the current script.
+
+Removed empty test_academic_quality_pipeline.py fixture alias left after its previously retired sole test; it only imported the deleted claim-judge fixture and had no active tests.

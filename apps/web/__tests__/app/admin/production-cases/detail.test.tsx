@@ -209,13 +209,33 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       expect(within(current).getByLabelText('Збережений звіт Compilatio')).toHaveValue(replaced ? '' : '8')
     })
   })
+  it('shows placeholder warnings under the API section label with internal DOCX available', async () => {
+    ;(adminApiClient.getProductionCase as jest.Mock).mockResolvedValue({
+      ...productionCase,
+      executor_version: 2,
+      generation_warnings: [{
+        id: 2, stage: 'assembling', section_index: 3, section_label: 'Розділ 3',
+        code: 'placeholder_text', severity: 'warning',
+        message_uk: 'У розділі залишилися редакторські заглушки.',
+        detail: 'da verificare',
+      }],
+    })
+    render(<ProductionCaseDetailPage />)
+    expect(await screen.findByRole('heading', { name: '1 попереджень' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Розділ 3' })).toBeInTheDocument()
+    expect(screen.getByText('У розділі залишилися редакторські заглушки.')).toBeInTheDocument()
+    expect(screen.getByText('da verificare')).toBeInTheDocument()
+    expect(screen.getByTestId('internal-review-download')).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Дозволити видачу' })).toBeDisabled()
+  })
+
   it('shows generation findings and standard references while keeping release blocked', async () => {
     ;(adminApiClient.getProductionCase as jest.Mock).mockResolvedValue({ ...productionCase,
       generation_warnings: [{ id: 1, stage: 'sources', section_index: 2,
         reason: 'Стандартні джерела потребують перевірки менеджером',
         references: [{ title: 'WHO standard manual', authors: ['WHO'], year: null }] }] })
     render(<ProductionCaseDetailPage />)
-    expect(await screen.findByRole('heading', { name: 'Зауваження під час написання' })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: '1 попереджень' })).toBeInTheDocument()
     expect(screen.getByText(/WHO standard manual/)).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Дозволити видачу' })).toBeDisabled()
     expect(screen.getByTestId('internal-review-download')).toBeEnabled()

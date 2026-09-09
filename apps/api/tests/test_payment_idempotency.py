@@ -111,6 +111,10 @@ async def test_document(db_session: AsyncSession, test_user: User):
     db_session.add(doc)
     await db_session.commit()
     await db_session.refresh(doc)
+    from app.services.task_contract import task_contract_sha256
+
+    doc.contract_confirmed_sha256 = task_contract_sha256(doc)
+    await db_session.commit()
     return doc
 
 

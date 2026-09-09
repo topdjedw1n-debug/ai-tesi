@@ -38,12 +38,12 @@ from .warnings import ExecutionStop, warning
 class Context:
     def __init__(self, job):
         self.job = job
-        self.fence = {
+        self.lease = {
             "job_id": job.id,
-            "document_id": job.document_id,
             "worker_id": job.lease_owner,
             "lease_token": job.lease_token,
         }
+        self.fence = {"document_id": job.document_id, **self.lease}
         self.recording = {
             "document_id": job.document_id,
             "job_id": job.id,
@@ -296,12 +296,7 @@ async def execute(ctx):
     result = await ctx.step("S6", "assembling", assemble, sections, bibliography, pack)
     await ctx.progress("DOCX збережено. Написання завершено.", result=result)
     async with database.AsyncSessionLocal() as db:
-        completed = await complete_generation_job(
-            db,
-            job_id=ctx.job.id,
-            worker_id=ctx.job.lease_owner,
-            lease_token=ctx.job.lease_token,
-        )
+        completed = await complete_generation_job(db, **ctx.lease)
     if not completed:
         raise GenerationLeaseLostError("Lease lost before completion")
     return result
@@ -310,12 +305,7 @@ async def execute(ctx):
 async def heartbeat(ctx):
     while True:
         async with database.AsyncSessionLocal() as db:
-            owned = await renew_generation_lease(
-                db,
-                job_id=ctx.job.id,
-                worker_id=ctx.job.lease_owner,
-                lease_token=ctx.job.lease_token,
-            )
+            owned = await renew_generation_lease(db, **ctx.lease)
         if not owned:
             raise GenerationLeaseLostError("Generation was cancelled or lease expired")
         await asyncio.sleep(POLICY["heartbeat_seconds"])

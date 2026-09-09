@@ -1,8 +1,7 @@
-import os
-import re
-import stat
+"""Production compose and actual server deploy script contracts; all shell commands are stubbed."""
+
+import importlib.util
 import subprocess
-import sys
 from pathlib import Path
 
 import pytest
@@ -12,10 +11,10 @@ from app.core.config import Settings
 from tests.release_profile import RELEASE_PROFILE, release_profile_env
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
-PROD_COMPOSE = REPO_ROOT / "infra" / "docker" / "docker-compose.prod.yml"
-DEV_COMPOSE = REPO_ROOT / "infra" / "docker" / "docker-compose.yml"
-DEPLOY_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "deploy-aws.yml"
-CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+PROD_COMPOSE = REPO_ROOT / "infra/docker/docker-compose.prod.yml"
+DEV_COMPOSE = REPO_ROOT / "infra/docker/docker-compose.yml"
+DEPLOY_SCRIPT = REPO_ROOT / "infra/deploy.sh"
+CI_WORKFLOW = REPO_ROOT / ".github/workflows/ci.yml"
 
 
 def _prod_compose() -> dict:
@@ -27,55 +26,14 @@ def _api_environment() -> dict[str, str]:
     return dict(entry.split("=", 1) for entry in entries)
 
 
-def _workflow_text() -> str:
-    return DEPLOY_WORKFLOW.read_text(encoding="utf-8")
-
-
-def _deployment_step_script() -> str:
-    workflow = yaml.safe_load(_workflow_text())
-    steps = workflow["jobs"]["deploy"]["steps"]
-    step = next(
-        item for item in steps if item["name"] == "Deploy the verified revision"
+@pytest.fixture
+def deploy():
+    spec = importlib.util.spec_from_file_location(
+        "offline_deploy", REPO_ROOT / "infra/tests/test_deploy.py"
     )
-    return step["run"]
-
-
-def _dotenv_writer_code() -> str:
-    script = _deployment_step_script()
-    match = re.search(r"python3 <<'PY'\n(?P<code>.*?)\nPY(?:\n|$)", script, re.DOTALL)
-    assert match is not None
-    return match.group("code")
-
-
-def _writer_environment(path: Path) -> dict[str, str]:
-    environment = os.environ.copy()
-    environment.update(
-        {
-            "DEPLOY_ENV_FILE": str(path),
-            "PUBLIC_FRONTEND_URL": "https://app.example.com/",
-            "PUBLIC_API_URL": "https://api.example.com",
-            "POSTGRES_DB": "tesi_db",
-            "POSTGRES_USER": "tesi+user",
-            "POSTGRES_PASSWORD": "pa$ss:@/'\\word",
-            "MINIO_ROOT_USER": "storage-user",
-            "MINIO_ROOT_PASSWORD": "storage-$ecret-'value",
-            "SECRET_KEY": "s" * 40 + "$'",
-            "JWT_SECRET": "j" * 40 + "$'",
-            "OPENAI_API_KEY": "openai-$value",
-            "ANTHROPIC_API_KEY": "",
-            "STRIPE_SECRET_KEY": "",
-            "STRIPE_PUBLISHABLE_KEY": "",
-            "STRIPE_WEBHOOK_SECRET": "",
-            "RESEND_API_KEY": "",
-            "COPYSCAPE_API_KEY": "",
-            "COPYSCAPE_USERNAME": "",
-            "GPTZERO_API_KEY": "",
-            "ORIGINALITY_AI_API_KEY": "",
-            "SEMANTIC_SCHOLAR_API_KEY": "",
-            "OPENALEX_API_KEY": "",
-        }
-    )
-    return environment
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module.DeployOrchestrationTest().run_deploy
 
 
 def test_prod_api_uses_minio_root_credentials_without_insecure_fallback() -> None:
@@ -121,154 +79,71 @@ def test_release_profile_is_a_valid_settings_combination() -> None:
         assert getattr(runtime, name) == expected
 
 
-def test_deploy_only_uses_an_exact_revision_that_passed_ci() -> None:
-    workflow = _workflow_text()
-    trigger_section = workflow.split("\npermissions:", 1)[0]
-    ci_workflow = CI_WORKFLOW.read_text(encoding="utf-8")
-
-    assert "workflow_run:" in trigger_section
-    assert 'workflows: ["CI Quality Gates"]' in trigger_section
-    assert "workflow_dispatch:" in trigger_section
-    assert "\n  push:" not in trigger_section
-    assert "github.event.workflow_run.conclusion == 'success'" in workflow
-    assert "github.event.workflow_run.event == 'push'" in workflow
-    assert "github.event.workflow_run.head_sha" in workflow
-    assert "${{ inputs.commit_sha }}" in workflow
-    assert 'deploy_mode="automatic"' in workflow
-    assert 'deploy_mode="manual"' in workflow
-    assert "actions/workflows/ci.yml/runs" in workflow
-    assert "-f event=push" in workflow
-    assert "-f status=success" in workflow
-    assert "git merge-base --is-ancestor" in workflow
-    assert 'if [ "$DEPLOY_SHA" != "$branch_head" ]' in workflow
-    assert "skipping this stale automatic deploy" in workflow
-    assert 'git reset --hard "$DEPLOY_SHA"' in workflow
-    assert "git reset --hard origin/main" not in workflow
-    assert "cancel-in-progress: false" in workflow
-    assert "branches: [main, develop, production]" in ci_workflow
-
-
-def test_deploy_pins_the_ssh_host_instead_of_trusting_first_contact() -> None:
-    workflow = _workflow_text()
-
-    assert "EC2_KNOWN_HOSTS: ${{ secrets.EC2_KNOWN_HOSTS }}" in workflow
-    assert "printf '%s\\n' \"$EC2_KNOWN_HOSTS\"" in workflow
-    assert "ssh-keygen -F" in workflow
-    assert "StrictHostKeyChecking=yes" in workflow
-    assert "ssh-keyscan" not in workflow
-    assert "StrictHostKeyChecking=no" not in workflow
-
-
-def test_deploy_env_writer_quotes_values_and_url_encodes_database_credentials(
-    tmp_path: Path,
-) -> None:
-    output = tmp_path / "production.env"
-    result = subprocess.run(
-        [sys.executable, "-c", _dotenv_writer_code()],
-        env=_writer_environment(output),
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
-    assert result.returncode == 0, result.stderr
-    assert stat.S_IMODE(output.stat().st_mode) == 0o600
-    content = output.read_text(encoding="utf-8")
+def test_deploy_backs_up_and_checks_schema_and_sdk_before_restart(deploy):
+    result, commands = deploy()
+    assert result.returncode == 0, result.stdout + result.stderr
+    dump = next(i for i, c in enumerate(commands) if "pg_dump" in " ".join(c))
+    tags = [i for i, c in enumerate(commands) if c[0] == "tag"]
+    migrations = [i for i, c in enumerate(commands) if "psql" in " ".join(c)]
+    build = next(i for i, c in enumerate(commands) if "build" in c)
+    sdk = next(i for i, c in enumerate(commands) if "--entrypoint" in c)
+    restart = next(i for i, c in enumerate(commands) if "up" in c)
+    assert len(tags) == 2 and len(migrations) == 4
     assert (
-        "DATABASE_URL='postgresql+asyncpg://tesi%2Buser:"
-        "pa%24ss%3A%40%2F%27%5Cword@postgres:5432/tesi_db'"
-    ) in content
-    assert "POSTGRES_PASSWORD='pa$ss:@/\\'\\\\word'" in content
-    assert "OPENAI_API_KEY='openai-$value'" in content
-    assert "CORS_ALLOWED_ORIGINS='https://app.example.com'" in content
-    assert "NEXT_PUBLIC_API_URL='https://api.example.com'" in content
+        dump
+        < min(tags)
+        < max(tags)
+        < min(migrations)
+        < max(migrations)
+        < build
+        < sdk
+        < restart
+    )
+    assert all("ON_ERROR_STOP=1" in " ".join(commands[i]) for i in migrations)
+    assert not any("down" in c for c in commands)
+    assert commands[restart][-5:] == ["up", "-d", "--no-deps", "api", "web"]
 
 
 @pytest.mark.parametrize(
-    "frontend_url",
-    [
-        "http://app.example.com",
-        "https://127.0.0.1",
-        "https://app.example.com/path",
-        "https://app.example.com:not-a-port",
-        "https://app example.com",
-    ],
+    "failure", ["backup", "backup_marker", "migration", "build", "sdk"]
 )
-def test_deploy_env_writer_rejects_non_public_https_origins(
-    tmp_path: Path,
-    frontend_url: str,
-) -> None:
-    output = tmp_path / "production.env"
-    environment = _writer_environment(output)
-    environment["PUBLIC_FRONTEND_URL"] = frontend_url
-
-    result = subprocess.run(
-        [sys.executable, "-c", _dotenv_writer_code()],
-        env=environment,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
+def test_deploy_failure_before_restart_keeps_running_containers(deploy, failure):
+    result, commands = deploy(failure=failure)
     assert result.returncode != 0
-    assert not output.exists()
+    assert not any("up" in c or "down" in c for c in commands)
+    if failure.startswith("backup"):
+        assert not any(c[0] == "tag" or "psql" in " ".join(c) for c in commands)
 
 
-def test_deploy_env_writer_rejects_multiline_secret_before_creating_file(
-    tmp_path: Path,
-) -> None:
-    output = tmp_path / "production.env"
-    environment = _writer_environment(output)
-    environment["JWT_SECRET"] = "valid-prefix\ninjected=value"
-
-    result = subprocess.run(
-        [sys.executable, "-c", _dotenv_writer_code()],
-        env=environment,
-        capture_output=True,
-        text=True,
-        check=False,
-    )
-
+@pytest.mark.parametrize("failure", ["health", "public"])
+def test_deploy_health_failures_return_nonzero_and_print_rollback(deploy, failure):
+    result, commands = deploy(failure=failure)
     assert result.returncode != 0
-    assert "line breaks" in result.stderr
-    assert not output.exists()
+    assert any("up" in c for c in commands)
+    assert "Відкат:" in result.stdout and "ДЕПЛОЙ УСПІШНИЙ" not in result.stdout
 
 
-def test_deploy_removes_temporary_secrets_and_checks_public_https() -> None:
-    workflow = _workflow_text()
-
-    assert "ai-thesis-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.env.production" in workflow
-    assert "trap cleanup_local_secret EXIT" in workflow
-    assert "trap cleanup_remote_secret EXIT" in workflow
-    assert 'rm -f "$REMOTE_ENV_FILE"' in workflow
-    assert "PUBLIC_FRONTEND_URL: ${{ vars.PUBLIC_FRONTEND_URL }}" in workflow
-    assert "PUBLIC_API_URL: ${{ vars.PUBLIC_API_URL }}" in workflow
-    assert 'parsed.scheme != "https"' in workflow
-    assert "--proto '=https' --tlsv1.2" in workflow
-    assert "http://$EC2_HOST" not in workflow
+def test_deploy_keeps_operator_overlay_for_every_compose_call(deploy):
+    result, commands = deploy(bot=True, config=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    compose = [c for c in commands if c[0] == "compose"]
+    assert compose and all("docker-compose.operator-bot.yml" in c for c in compose)
 
 
-def test_deploy_bootstraps_infrastructure_and_schema_before_api_and_web() -> None:
-    workflow = _workflow_text()
-
-    build = workflow.index("compose build api web")
-    infrastructure = workflow.index("compose up -d postgres redis minio")
-    minio_setup = workflow.index("compose run --rm --no-deps minio-setup")
-    database_init = workflow.index("from app.core.database import init_db")
-    migrations = workflow.index("for migration in ../../apps/api/migrations/")
-    api_start = workflow.index("compose up -d --no-deps --force-recreate api")
-    web_start = workflow.index("compose up -d --no-deps --force-recreate web")
-
-    assert build < infrastructure < minio_setup < database_init < migrations
-    assert migrations < api_start < web_start
-    assert "docker-compose -f docker-compose.prod.yml down" not in workflow
-    assert "--set ON_ERROR_STOP=1 --single-transaction" in workflow
-    assert 'if [ "$migration_count" -eq 0 ]' in workflow
-    assert "wait_healthy api 240" in workflow
-    assert "wait_healthy web 240" in workflow
+@pytest.mark.parametrize(
+    "options", [{"bot": True}, {"config": True, "invalid_compose": True}]
+)
+def test_deploy_invalid_configuration_stops_before_any_mutation(deploy, options):
+    result, commands = deploy(**options)
+    assert result.returncode != 0
+    assert len(commands) == 1
+    assert commands[0][0] == "inspect" or commands[0][-2:] == ["config", "--quiet"]
 
 
-def test_deploy_and_compose_yaml_are_parseable() -> None:
-    assert yaml.safe_load(DEPLOY_WORKFLOW.read_text(encoding="utf-8"))
+def test_actual_deploy_script_and_compose_contracts_parse():
+    result = subprocess.run(
+        ["bash", "-n", str(DEPLOY_SCRIPT)], capture_output=True, text=True
+    )
+    assert result.returncode == 0, result.stderr
     assert yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
     assert _prod_compose()
