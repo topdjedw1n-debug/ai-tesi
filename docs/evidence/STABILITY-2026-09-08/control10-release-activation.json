@@ -1,0 +1,98 @@
+{
+  "commit": "63520dfdaacc437aaceb9bba7fb5c1e1a12866b9",
+  "activated_at": "2026-09-09T07:52:44.959376+00:00",
+  "before": {
+    "ai-thesis-api": {
+      "id": "b7b677566af9a727cf26b941792508507cc95e994e9ca4a933c4d7bfa398e13e",
+      "image": "sha256:0ba3d7d8f08973e62d731b876ed5f56257b48f1d9c13d39be5d5f2a0deabc472",
+      "tag": "ai-thesis-api",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-web": {
+      "id": "8bdb6f80e5bb126d6df4b09efdf691305233b3f959c1bc6363e86bceccac4f6b",
+      "image": "sha256:7d7eadb3a0e5b9a1074117f7025850778403e28193a7fb57fdcb0ccb7b9fb1ac",
+      "tag": "ai-thesis-web",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-postgres": {
+      "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+      "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "tag": "postgres:15-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-redis": {
+      "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "tag": "redis:7-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-minio": {
+      "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+      "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "tag": "minio/minio:latest",
+      "health": "healthy",
+      "running": true
+    },
+    "docker-operator-bot-1": {
+      "id": "e00251229ba399749a22cb520d68fd42173af3b6ffe4954018110b58897697df",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "tag": "thesica-operator-bot",
+      "health": "unhealthy",
+      "running": false
+    }
+  },
+  "after": {
+    "ai-thesis-api": {
+      "id": "001ee308a752c61be489bc5f8aded1dc4fa11b70df9592c31ec8b1732e760fb4",
+      "image": "sha256:7c887a0fe0ff094fa2f00ac1e2e03639858d1ed7475c2d334914eda523b32291",
+      "tag": "ai-thesis-api",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-web": {
+      "id": "8bdb6f80e5bb126d6df4b09efdf691305233b3f959c1bc6363e86bceccac4f6b",
+      "image": "sha256:7d7eadb3a0e5b9a1074117f7025850778403e28193a7fb57fdcb0ccb7b9fb1ac",
+      "tag": "ai-thesis-web",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-postgres": {
+      "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+      "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "tag": "postgres:15-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-redis": {
+      "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "tag": "redis:7-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-minio": {
+      "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+      "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "tag": "minio/minio:latest",
+      "health": "healthy",
+      "running": true
+    },
+    "docker-operator-bot-1": {
+      "id": "e00251229ba399749a22cb520d68fd42173af3b6ffe4954018110b58897697df",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "tag": "thesica-operator-bot",
+      "health": "unhealthy",
+      "running": false
+    }
+  },
+  "web_build_id": "ZGGca1ecH1pPAbI7darNx",
+  "active_jobs_at_switch": 0,
+  "migrations": false,
+  "env_changes": false,
+  "generation_started": false,
+  "ingress_still_closed": true
+}

@@ -60,3 +60,5 @@ Fable corrected this actual failure; the reviewed candidate061e2c3 is now instal
 [Corrective candidate after control009, local/full-stack evidence](CONTROL-009-CORRECTION.md).
 
 Corrective runtime061e2c3 is verified,with6healthy services and unchanged history. Draft10/case12 is ready; a new paid launch is awaiting explicit authorization. See CONTROL-009-CORRECTION.md and control9-release-*.json for exact image,restore,history and Fable evidence.
+
+Latest: [control010 result and installed63520df correction](CONTROL-010-RESULT.md).1410nativeAPI/16realPG,190exact-image checks,Fable approval,full-stack synthetic job22 DOCX and exact runtime/restore/history proofs are recorded there. Draft11/case13 is ready; paid approval is pending. The real control10failed before writing; academic and agency acceptance remain open.

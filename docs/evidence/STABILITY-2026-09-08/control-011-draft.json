@@ -1,0 +1,30 @@
+{
+  "document_id": 11,
+  "case_id": 13,
+  "source_document_id": 7,
+  "runtime_commit": "63520dfdaacc437aaceb9bba7fb5c1e1a12866b9",
+  "status": "draft",
+  "same_input_fields": [
+    "title",
+    "topic",
+    "language",
+    "target_pages",
+    "citation_style",
+    "work_type",
+    "ai_provider",
+    "ai_model",
+    "additional_requirements"
+  ],
+  "document_requirements_sha256": "cb270bdb2c34a9a7008a394882fcc49978beb2fe0b4a757175f48d36ab3858e7",
+  "contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+  "contract_confirmed": true,
+  "generation_started": false,
+  "paid_generation_calls": 0,
+  "steps": [
+    "created",
+    "exact_requirements_uploaded",
+    "case_created",
+    "contract_confirmed",
+    "inputs_verified"
+  ]
+}

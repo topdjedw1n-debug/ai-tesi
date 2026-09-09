@@ -1,6 +1,6 @@
 # Control010 — real result,09.09.2026
 
-Status: CONTROL_FAILED / CORRECTION_REVIEW_IN_PROGRESS. This is not an accepted academic or agency result.
+Status: CONTROL_FAILED / CORRECTIVE_RUNTIME_VERIFIED / CONTROL_011_PENDING_AUTHORIZATION. This is not an accepted academic or agency result.
 
 The owner's reply «дозволяю» approved one paid control10. At05:58:22UTC the ordinary manager UI sent one POST and received job10/case12,HTTP200. Before the click,the draft's18pages/Italian/tesi_magistrale/Opus4.8,requirements and confirmed contract SHA were verified. Runtime API/web images remained the exact061e2c3 candidate;30 profile settings matched. Earlier read-only preflight scripts referenced fields absent from the public document response; the correct contract API and read-only DB checks resolved this before any launch.
 
@@ -23,3 +23,11 @@ The final3-file manifest passes1410API tests,including16real PostgreSQL cases an
 Full-stack synthetic job22 retained the legacy note alongside explicit empty blocking_conflicts and limitations,ran one preparation and both semantic reviews,wrote6sections and completed in one worker attempt. Downloaded DOCX SHA104f1579c13673035b17a8565053810dec03b15f121e55ccc3285e6ba9dfb5f2matches DB. Real API/worker/PostgreSQL/Redis/MinIO/SDK transport/export;external scholarly/model replies are synthetic.8400tokens/6recorded cents match the synthetic journal;0unknown. This is local behavior proof,not a real academic result.
 
 Fable: APPROVED_FOR_S4_PREPARATION for control10-final-manifest.json; no permission denials. Review read the pre-commit file contents; primary verifies the final committed blob hashes separately. Installation is the next step under existing authorization. Control10's paid permission is consumed; a further live generation needs a separate approval.
+
+## Installed correction — 09.09.2026,07:54UTC
+
+Code63520dfdaacc437aaceb9bba7fb5c1e1a12866b9 is committed,pushed and installed. API image7c887a0fe0ff094fa2f00ac1e2e03639858d1ed7475c2d334914eda523b32291; web image7d7eadb3a0e5b9a1074117f7025850778403e28193a7fb57fdcb0ccb7b9fb1ac/buildZGGca1ecH1pPAbI7darNx are unchanged. All122 API modules and30 profile settings match the candidate;6services healthy. Same operator-bot container/code7249e50 restored. No migrations or environment changes.
+
+Fresh backup and isolated same-host restore cover6business tables and2MinIO objects,222522bytes. All10documents/jobs/cases,11sections,276source rows and185provenance records match exactly before/after installation. Mutating ingress was closed and bot stopped at0active jobs through verification; ingress reopened. Live read-only3route browser proof had0mutations/page/APIerrors. Off-host copy and numericalRPO/RTO remain unestablished.
+
+After that history comparison,draft11/case13 was prepared through normal APIs using the exact same brief/requirements/contract/Opus4.8. GET job status returned200/null. One new paid control11 has been requested under plan§7; no reply is recorded and no generation has started. Local fixture API and its3test containers were stopped after evidence capture; their data and proofs remain available.

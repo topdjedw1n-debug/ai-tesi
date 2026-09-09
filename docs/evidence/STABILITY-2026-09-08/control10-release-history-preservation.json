@@ -1,0 +1,32 @@
+{
+  "passed": true,
+  "tables": {
+    "documents": {
+      "count": 10,
+      "sha256": "7e19d8b24dd746e8dca2a5d9107fc36eec826f9bcf086d75ae3916223e77d65b"
+    },
+    "ai_generation_jobs": {
+      "count": 10,
+      "sha256": "c9789e0a46f5530f095ccdc8b26f23b9f19796ad6428d56fcc5fc98c8e4b1bc6"
+    },
+    "document_sections": {
+      "count": 11,
+      "sha256": "884c282d3e9a1cd5977acd521ddbcd83d415f1e136861d919265b8ce51c8a7c0"
+    },
+    "document_sources": {
+      "count": 276,
+      "sha256": "2eeca1c86d71cf52b465447acfeb9479b3f03ad6932da091e8e5f0f589fbfb8f"
+    },
+    "document_provenance": {
+      "count": 185,
+      "sha256": "845f3580d4ac534ec01334dd0bbeb0d3facb3bb4d7b91381200049a323187aa4"
+    },
+    "production_cases": {
+      "count": 10,
+      "sha256": "d9513250f37f2f0f38b1f186bf3906d429118c17f491c3ee7b6f1a960d7e6955"
+    },
+    "active_jobs": 0
+  },
+  "scope": "All10documents/jobs/cases plus all sections/sources/provenance; exact before/after row hashes",
+  "generation_started": false
+}

@@ -11,5 +11,6 @@
   "recorded_cost_cents": 6,
   "unknown_provider_attempts": 0,
   "docx_sha256": "104f1579c13673035b17a8565053810dec03b15f121e55ccc3285e6ba9dfb5f2",
-  "academic_acceptance": false
+  "academic_acceptance": false,
+  "synthetic_outline_and_whole_reviews_passed": true
 }

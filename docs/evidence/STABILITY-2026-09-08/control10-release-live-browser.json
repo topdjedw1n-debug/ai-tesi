@@ -1,0 +1,23 @@
+{
+  "routes": [
+    {
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "path": "/dashboard/documents/8",
+      "status": 200
+    },
+    {
+      "path": "/dashboard/production-cases/9",
+      "status": 200
+    }
+  ],
+  "mutations": [],
+  "page_errors": [],
+  "api_errors": [],
+  "generation_started": false,
+  "legacy_requires_explicit_new_version": true,
+  "passed": true,
+  "checked_at": "2026-09-09T07:53:38.175Z"
+}

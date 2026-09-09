@@ -1,0 +1,117 @@
+{
+  "prepared_at": "2026-09-09T07:52:24.521362+00:00",
+  "backup": "/opt/thesica/backups/stability-20260909-control10",
+  "before": {
+    "ai-thesis-api": {
+      "id": "b7b677566af9a727cf26b941792508507cc95e994e9ca4a933c4d7bfa398e13e",
+      "image": "sha256:0ba3d7d8f08973e62d731b876ed5f56257b48f1d9c13d39be5d5f2a0deabc472",
+      "tag": "ai-thesis-api",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-web": {
+      "id": "8bdb6f80e5bb126d6df4b09efdf691305233b3f959c1bc6363e86bceccac4f6b",
+      "image": "sha256:7d7eadb3a0e5b9a1074117f7025850778403e28193a7fb57fdcb0ccb7b9fb1ac",
+      "tag": "ai-thesis-web",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-postgres": {
+      "id": "afc546126919289b82e119e73d80ad888230fe998a2c3d7021904204f598654c",
+      "image": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+      "tag": "postgres:15-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-redis": {
+      "id": "e69203f3420f1e31a9199d30567dbc67e736c5dcd194985631b2c0df001e7854",
+      "image": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+      "tag": "redis:7-alpine",
+      "health": "healthy",
+      "running": true
+    },
+    "ai-thesis-minio": {
+      "id": "fd7d26f4c5ad0bed9bb227ef194411063b6d43d1265ac709e0df92228fa032ec",
+      "image": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+      "tag": "minio/minio:latest",
+      "health": "healthy",
+      "running": true
+    },
+    "docker-operator-bot-1": {
+      "id": "e00251229ba399749a22cb520d68fd42173af3b6ffe4954018110b58897697df",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "tag": "thesica-operator-bot",
+      "health": "unhealthy",
+      "running": false
+    }
+  },
+  "postgres_restore_passed": true,
+  "files_restore_passed": true,
+  "restored_tables": {
+    "documents": {
+      "rows": 10,
+      "rows_md5": "76789718373ef638d0c57c2c002d8135"
+    },
+    "ai_generation_jobs": {
+      "rows": 10,
+      "rows_md5": "819fbbc23371418a4d059e8d2b7bc4be"
+    },
+    "document_sections": {
+      "rows": 11,
+      "rows_md5": "26cdd2cd2eae0e785a60f44618c93ea1"
+    },
+    "document_sources": {
+      "rows": 276,
+      "rows_md5": "9df3ca572df26e97a92801ad764c373d"
+    },
+    "document_provenance": {
+      "rows": 185,
+      "rows_md5": "baf0fd41e83a6455363169d5d581b385"
+    },
+    "production_cases": {
+      "rows": 10,
+      "rows_md5": "acb908e7309db332d172b6e09f5e2a40"
+    }
+  },
+  "objects": {
+    "count": 2,
+    "manifest_sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747",
+    "total_bytes": 222522
+  },
+  "rollback_tags": {
+    "ai-thesis-api": "ai-thesis-api:rollback-stability-20260909-control10",
+    "ai-thesis-web": "ai-thesis-web:rollback-stability-20260909-control10"
+  },
+  "off_host_copy_verified": false,
+  "rpo_rto": "Not established; no numerical claim. This proof covers same-host restore only.",
+  "files": {
+    "minio-data.tar.gz": {
+      "bytes": 214819,
+      "sha256": "f06c6d841e1606bb8f87baeba29ed3a37aff064ff7a125a458bc4bf84057ff29"
+    },
+    "postgres.dump": {
+      "bytes": 454845,
+      "sha256": "c0e0e4768066666db9bc202025427eccb775b327ad3c8e811205eb53080434a3"
+    },
+    ".release-sha": {
+      "bytes": 41,
+      "sha256": "f2b3db6352361d3b27a7cdc706b6d54cfe08c82457d8a4c0046f28088f547458"
+    },
+    "source.tar.gz": {
+      "bytes": 10507359,
+      "sha256": "ffffd175f7296599592d01025be51cc08b32e64ae874aba46e911b215341017d"
+    },
+    "object-sha256.json": {
+      "bytes": 375,
+      "sha256": "35724c6d87f36caf6815f97b989be66c2739effdbfa32815f2161416229b7747"
+    },
+    "private-config.tar.gz": {
+      "bytes": 5832,
+      "sha256": "8630c27f461bb73e5175a5420d0dcb4dc2769e75089e0f56135a681156e4af88"
+    },
+    ".release.json": {
+      "bytes": 59310,
+      "sha256": "855b6b93c26d0699fe3c81d490486fdbfcce81c2789de24fa223d3bfbd03d706"
+    }
+  }
+}
