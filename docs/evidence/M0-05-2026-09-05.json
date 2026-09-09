@@ -1,0 +1,688 @@
+{
+  "task": "M0-05",
+  "status": "LOCAL",
+  "recorded_at_utc": "2026-09-05T16:10:41.202240+00:00",
+  "base_commit": "19e36fc42611675f25149efaae6ed2985c68323c",
+  "branch": "codex/telegram-operator-bot",
+  "scope": {
+    "production_mutation": false,
+    "deployment": false,
+    "real_generation": false,
+    "real_compilatio": false,
+    "real_tanya_acceptance": false,
+    "schema_change": false,
+    "git_commit": false,
+    "messages_sent": false,
+    "local_worker_enabled": false
+  },
+  "verification": {
+    "api_full": {
+      "passed": 1114,
+      "skipped": 10,
+      "duration_seconds": 192.67,
+      "log": "api-suite-verified.log",
+      "network": "none",
+      "post_suite_change": "Typing-only runtime casts for two legacy ORM string attributes; final focused suite rerun."
+    },
+    "api_final_focused": {
+      "passed": 75,
+      "skipped": 0,
+      "duration_seconds": 14.98,
+      "log": "backend-final-pass.log"
+    },
+    "web": {
+      "passed": 186,
+      "skipped": 1,
+      "suites": 27,
+      "lint": "PASS",
+      "types": "PASS",
+      "build": "PASS",
+      "build_api_url": "http://localhost:8305",
+      "deployable_to_production": false
+    },
+    "ruff": "PASS",
+    "mypy": {
+      "errors": 357,
+      "files": 46,
+      "checked_source_files": 109,
+      "added_vs_m004": 0,
+      "removed_vs_m004": 0,
+      "overall_ci_green": false
+    },
+    "red_regressions_before": 4,
+    "admin_compatibility_regression": {
+      "failed_before_narrowing": 1,
+      "preserved_test": "test_admin_can_patch_separate_status_dimensions",
+      "final": "PASS"
+    },
+    "current_backend_code_equals_test_checkout": true,
+    "current_web_code_equals_built_checkout": true
+  },
+  "browser": {
+    "kind": "synthetic local manager workflow",
+    "local_document_id": 103,
+    "local_case_id": 3,
+    "compiled_smoke_check": true,
+    "snapshots": {
+      "browser-created.json": {
+        "local_fixture": true,
+        "action": "observe",
+        "document_id": 103,
+        "document_status": "draft",
+        "case_id": null,
+        "job_id": null,
+        "job_status": null,
+        "progress": null,
+        "completed_section_sha256": [],
+        "docx_sha256": null
+      },
+      "browser-retry-before-restart.json": {
+        "local_fixture": true,
+        "action": "retrying",
+        "document_id": 103,
+        "document_status": "generating",
+        "case_id": 3,
+        "job_id": 2,
+        "job_status": "queued",
+        "progress": 47,
+        "completed_section_sha256": [
+          "56a23fda34f5bdbafe043308d31500bea1cc0b1cb4b636207944aa934c6ba994"
+        ],
+        "docx_sha256": null
+      },
+      "browser-retry-after-restart.json": {
+        "local_fixture": true,
+        "action": "observe",
+        "document_id": 103,
+        "document_status": "generating",
+        "case_id": 3,
+        "job_id": 2,
+        "job_status": "queued",
+        "progress": 47,
+        "completed_section_sha256": [
+          "56a23fda34f5bdbafe043308d31500bea1cc0b1cb4b636207944aa934c6ba994"
+        ],
+        "docx_sha256": null
+      },
+      "browser-failed.json": {
+        "local_fixture": true,
+        "action": "failed",
+        "document_id": 103,
+        "document_status": "failed",
+        "case_id": 3,
+        "job_id": 2,
+        "job_status": "failed",
+        "progress": 47,
+        "completed_section_sha256": [
+          "56a23fda34f5bdbafe043308d31500bea1cc0b1cb4b636207944aa934c6ba994"
+        ],
+        "docx_sha256": null
+      },
+      "browser-fresh-attempt-verified.json": {
+        "local_fixture": true,
+        "action": "observe",
+        "document_id": 103,
+        "document_status": "generating",
+        "case_id": 3,
+        "job_id": 3,
+        "job_status": "queued",
+        "progress": 0,
+        "completed_section_sha256": [],
+        "docx_sha256": null
+      },
+      "browser-completed-verified.json": {
+        "local_fixture": true,
+        "action": "complete",
+        "document_id": 103,
+        "document_status": "completed",
+        "case_id": 3,
+        "job_id": 3,
+        "job_status": "completed",
+        "progress": 100,
+        "completed_section_sha256": [],
+        "docx_sha256": "697369b6c518b13fce342f2ec32e8421a63176b40ec25afa7b4802d268076398"
+      },
+      "browser-before-evidence.json": {
+        "local_fixture": true,
+        "phase": "before",
+        "release_status": "blocked",
+        "delivery_status": "not_ready",
+        "gates": {
+          "generation_contract": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "citation_verification": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "claim_support": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "section_quality": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "plagiarism_proxy": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "ai_detection_proxy": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "editorial_review": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "delivery_package": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "source_availability": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          }
+        },
+        "download_sha256": "697369b6c518b13fce342f2ec32e8421a63176b40ec25afa7b4802d268076398",
+        "download_bytes": 36789
+      },
+      "browser-threshold22-evidence.json": {
+        "local_fixture": true,
+        "phase": "threshold22",
+        "release_status": "blocked",
+        "delivery_status": "not_ready",
+        "gates": {
+          "generation_contract": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "citation_verification": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "claim_support": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "section_quality": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "plagiarism_proxy": {
+            "status": "failed",
+            "result_percent": 22.0,
+            "reviewed_page_count": null
+          },
+          "ai_detection_proxy": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "editorial_review": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "delivery_package": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "source_availability": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          }
+        }
+      },
+      "browser-no-review-evidence.json": {
+        "local_fixture": true,
+        "phase": "no-review",
+        "release_status": "blocked",
+        "delivery_status": "not_ready",
+        "gates": {
+          "generation_contract": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "citation_verification": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "claim_support": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "section_quality": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "plagiarism_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "ai_detection_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "editorial_review": {
+            "status": "no_data",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "delivery_package": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "source_availability": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          }
+        }
+      },
+      "browser-after-evidence.json": {
+        "local_fixture": true,
+        "phase": "after",
+        "release_status": "released",
+        "delivery_status": "ready",
+        "gates": {
+          "generation_contract": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "citation_verification": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "claim_support": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "section_quality": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "plagiarism_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "ai_detection_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "editorial_review": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": 10
+          },
+          "delivery_package": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "source_availability": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          }
+        },
+        "download_sha256": "697369b6c518b13fce342f2ec32e8421a63176b40ec25afa7b4802d268076398",
+        "download_bytes": 36789
+      },
+      "browser-final-status-evidence.json": {
+        "local_fixture": true,
+        "phase": "final-status",
+        "release_status": "released",
+        "delivery_status": "ready",
+        "gates": {
+          "generation_contract": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "citation_verification": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "claim_support": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "section_quality": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "plagiarism_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "ai_detection_proxy": {
+            "status": "passed",
+            "result_percent": 10.0,
+            "reviewed_page_count": null
+          },
+          "editorial_review": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": 10
+          },
+          "delivery_package": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          },
+          "source_availability": {
+            "status": "passed",
+            "result_percent": null,
+            "reviewed_page_count": null
+          }
+        }
+      }
+    },
+    "page_count": {
+      "entered": 10,
+      "source": "simulated manager review input",
+      "automatic_pagination_verified": false,
+      "real_docx_layout_reviewed": false
+    },
+    "same_docx_bytes": true,
+    "docx_bytes": 36789,
+    "docx_sha256": "697369b6c518b13fce342f2ec32e8421a63176b40ec25afa7b4802d268076398",
+    "report_filename": "M0-05-LOCAL-SIMULATION.pdf",
+    "report_sha256": "d08228a2997ebfec5d5542009e241a95c7e439b1c4db0fd3f2f0fcd8215e1152",
+    "fixture_script_sha256": "ac92d22ba036a3847af24a99cdaf0fc6638adfc807fd25c8ea45b73eac1e78ec",
+    "setup_notes": [
+      "Docker API requires a published non-internal bridge as primary network.",
+      "Local retry initially hit existing free quota; isolated manager exemption was aligned to [1] before verified retry."
+    ]
+  },
+  "preservation": {
+    "initial_files": 609,
+    "unrelated_original_files_unchanged": 579,
+    "index_sha256_before": "1a28fe7a0d77275d75f00f785e150718d11ee5f9fb013e37fedb9cfc1ced453f",
+    "index_sha256_after": "1a28fe7a0d77275d75f00f785e150718d11ee5f9fb013e37fedb9cfc1ced453f",
+    "head_unchanged": true,
+    "readiness_record_hand_edited": false
+  },
+  "changed_files": [
+    {
+      "path": "THESICA-PLAN.md",
+      "before_sha256": "2f2eb18e25d8acea2f09b41cc7d0e6040751ec90a23b280afe9e507f52c168be",
+      "sha256": "da734fe84f9c50fce1c6ccdfbd59c9c2f5f661d3595b9e727c91f4c6996c1546"
+    },
+    {
+      "path": "apps/api/app/api/v1/endpoints/jobs.py",
+      "before_sha256": "3cb8bfd98caba797473d451c992345e65ab77223346c1603fd6ff3327fc38e32",
+      "sha256": "985de0cc65fbf02097b67c9b8f013cb8680b23f51497413cf0029d8bf447ca88"
+    },
+    {
+      "path": "apps/api/app/schemas/document.py",
+      "before_sha256": "c52bf3dc6eea95780fb7ca860fa2cb5c4d813686cdf750c48788ed455af235ef",
+      "sha256": "2521d5dfffd4ba37571d80df84207b41e17fc76f3dcf26741a008dd44609280b"
+    },
+    {
+      "path": "apps/api/app/schemas/production.py",
+      "before_sha256": "b47dbae48e8ad5ad2fa42c1befc7dd3aaadeeb9de7c0ed198ca381f622679031",
+      "sha256": "dea32468111dec972c1b0208ea2bc00b3ad08f3d9670a988f4fd752570d88387"
+    },
+    {
+      "path": "apps/api/app/services/document_service.py",
+      "before_sha256": "636001749448600bbfa67068f18423b29c1323b5b92dcf3c582bd91588ffb301",
+      "sha256": "7e28c2feb463d6dd14c43e8e05bbfa7518372991671a53e3b6d9373826bbe2bf"
+    },
+    {
+      "path": "apps/api/app/services/production_case_service.py",
+      "before_sha256": "90d60432844f208c491c807a943e8342428734567fe6ab410a1da6f3a6e77968",
+      "sha256": "ccd15682756a624fa72ad911f6d5e01a11b6db987666360dc0c47cce09f790b3"
+    },
+    {
+      "path": "apps/api/tests/test_manager_workflow.py",
+      "before_sha256": null,
+      "sha256": "e9d9a6c630152845e1090f155b42c5f4427768f29ee5978547a5117378c5f799"
+    },
+    {
+      "path": "apps/api/tests/test_production_cases.py",
+      "before_sha256": "8216dcf90389ca62cd9cdd9334003bd643d8afce27a4244423b66598bfeabef6",
+      "sha256": "b8ebc20362201706398dc21886688680144b485e055eef8fd3da12b2fc0d6873"
+    },
+    {
+      "path": "apps/api/tests/test_production_operator_access.py",
+      "before_sha256": "8f0696a7b936049d86adc7012f9215450a7f31fcb683dd6556f38df6bf8e875f",
+      "sha256": "7a4aa21dce9e9064077b1a457412795fd129ed45e57bb4fb06990edfa426f20b"
+    },
+    {
+      "path": "apps/api/tests/test_release_evidence.py",
+      "before_sha256": "a3b80efc315c0631e112fb68d1aabbd1b086d2835aea71f3df40043aeeaf8afd",
+      "sha256": "b6a3f19dc1378c4828a65285591ece3c943566112560573953bbb766e861f9be"
+    },
+    {
+      "path": "apps/web/__tests__/app/admin/production-cases/detail.test.tsx",
+      "before_sha256": "6c6530dc747777d1f215fb3ebcb1d67be0ddb515b6c8e4a78c128423b8d1f94a",
+      "sha256": "4ea8bf2cbbf9d39fd342248bfa9d012adc55985e15ac641831346503bf7296bb"
+    },
+    {
+      "path": "apps/web/__tests__/app/admin/production-cases/page.test.tsx",
+      "before_sha256": "4ab074e18961487cc2e00b4d5d28a8fe27f50684d41be57ee54f8b8aa588b026",
+      "sha256": "4d2f53dd26746b1072388068103b17b0b2aaa4a3c64f5068f72631344095db10"
+    },
+    {
+      "path": "apps/web/__tests__/app/dashboard/documents/[id]/page.test.tsx",
+      "before_sha256": "3f51d88ea63d1e08ddd0e0b51b6103d4afa47e207a6bc85ad4ff11b289c60a7f",
+      "sha256": "bd4c57e260cf66ddc932369283fa46c686d39b65a6be4a516531000f99a4d4b0"
+    },
+    {
+      "path": "apps/web/__tests__/components/GenerationProgress.test.tsx",
+      "before_sha256": "14dabdc0720198e0110e5d812df5f5344e0b6a2b79ce3174adecf6df6692ee8d",
+      "sha256": "b82ccb1e29cf9f76e6260ba4dcae9b328309151dd1f320f0a2b84ebfd42cfc61"
+    },
+    {
+      "path": "apps/web/__tests__/components/ReleaseEvidenceForms.test.tsx",
+      "before_sha256": "c22ab884dfbd621a647ba60dbb63fbe7ac8c37c2a727c60752b36017149578a4",
+      "sha256": "646a75e16008bbe5c199e0e6553e6c11084b7e0f74a87ff14e3c18c9ec6b447c"
+    },
+    {
+      "path": "apps/web/__tests__/components/dashboard/DocumentQualityEvidence.test.tsx",
+      "before_sha256": "16896886aad08f68dde54b3dcf7028837fe69c4e38433c3bc24bbfdecdbc7223",
+      "sha256": "a2cc7f72054aeac80eb416857d16cbd3c4ba94ee1cdda038089c07a672294123"
+    },
+    {
+      "path": "apps/web/__tests__/components/dashboard/TaskContractPanel.test.tsx",
+      "before_sha256": "41364355862d84c0612b4a46b7ce69a63268ae1e2d651f628de5d00566a724c1",
+      "sha256": "34771ee822f0d29c7f11fa0b6ff52b678fee0ed8eaf366e524c52a0c20194eb0"
+    },
+    {
+      "path": "apps/web/app/admin/production-cases/[id]/page.tsx",
+      "before_sha256": "e28a2d1b5c312af35b9f1291b22c6574b6f0ede23eb1adae242268413e38c25f",
+      "sha256": "b32a804e3936d9104d32a8115be98b42279a629ed74c340b2224e5396c19fcdb"
+    },
+    {
+      "path": "apps/web/app/admin/production-cases/page.tsx",
+      "before_sha256": "5475f2ec569e958cad3fe776cbbbf8e5a15d8b0c501a96d88ead94d3a13b36e8",
+      "sha256": "06b3d49b92353f55cce04c95b22c24b866e0b591d61cd81a6aea7aca78510c92"
+    },
+    {
+      "path": "apps/web/app/dashboard/documents/[id]/page.tsx",
+      "before_sha256": "55012436b712d35011e9d4b7011b721e129e511f237332f433c4bcea07f08fd8",
+      "sha256": "83ec9a1e0594f2bc5238e64d2bfe698a27d11229537d8226f1297f948109c99a"
+    },
+    {
+      "path": "apps/web/components/GenerationProgress.tsx",
+      "before_sha256": "b50bda8f63703eea51e11f18022e6d9532563ca2c58a5b06f64591f1a6c0f314",
+      "sha256": "9de13506ba37a327f7f2ae038120816eb7d928622b5c84f59ef55a4f3f356aac"
+    },
+    {
+      "path": "apps/web/components/dashboard/DocumentQualityEvidence.tsx",
+      "before_sha256": "3c5a9dd49d38830ea7d95c6170af1a09fed301f8be98048f0243d7bc75a603df",
+      "sha256": "3ee3036333b7b71121cedc609b764138bbeadd98b86d7bb8dab4ea90d5b47614"
+    },
+    {
+      "path": "apps/web/components/dashboard/TaskContractPanel.tsx",
+      "before_sha256": "bac6a73190f830df3158cc86b617e32c3c152fb45a96c768b5d98af47c57c01b",
+      "sha256": "1614273dfdded6b9955ba335d0c021954219fb0f03682be7f839d36f73438793"
+    },
+    {
+      "path": "apps/web/components/production/ProductionWorkspace.tsx",
+      "before_sha256": "0102d43de299ed5941e50eea0e8aa40ea99de9744f7c4339e8ac2e01655f5eac",
+      "sha256": "e203c190096fd172ace7c03d5c74493bbedde1259bbed70c69a2f4c27fa5c00e"
+    },
+    {
+      "path": "apps/web/components/production/ReleaseEvidenceForms.tsx",
+      "before_sha256": "df2d91c91d28aa2e07fc3207acb6f527e6c5759e6d28d06c1ad349a11ede2229",
+      "sha256": "26f0678f8898ca3b5687a9737620ebcdccf15972519127caa32e20322d80cfbd"
+    },
+    {
+      "path": "apps/web/lib/api.ts",
+      "before_sha256": "99b1934f4c45cfcc9b58dc9cdf4647400821d22f38a5c10fa4f84a23d443ff6d",
+      "sha256": "6541f174a5e5bc6d3c707c376ff83fec85df818f8ad6c787519a0b420387cd66"
+    },
+    {
+      "path": "apps/web/lib/api/admin.ts",
+      "before_sha256": "08b637aea7c280224a0182af1834db353d2fc5585839a899c3762eae24d4b960",
+      "sha256": "684e0a6bcd4942f95da292240e4257730e926ba91839e4ff84f62683f4ffd254"
+    },
+    {
+      "path": "apps/web/lib/generation-status.ts",
+      "before_sha256": null,
+      "sha256": "ba881ef1707a17e5b15765a8a7e262c799d8e44fcee35f8dd6851980718ca0a8"
+    },
+    {
+      "path": "apps/web/lib/production-status.ts",
+      "before_sha256": null,
+      "sha256": "ed6e92eff0ffffd3b6e56e86ba010f9b4120c3347f54efca1182c77a5521b8b9"
+    },
+    {
+      "path": "docs/AGENT_SYNC.md",
+      "before_sha256": "6813f8bb76ecd99c3c2e07a06a206c6920c56a390f935b18cff2bc58c87eebf2",
+      "sha256": "11b67f043efd4695d4d1dffee7a0c283a0a360c0b7f3b1d0115063fc8446c0e9"
+    },
+    {
+      "path": "docs/PRE-RUN-001-TASKS.md",
+      "before_sha256": "c43e0a68ccc7e5350c51eebf5d8c7bbcd29b904c53fc0fd51bafb40aeadd5280",
+      "sha256": "760419d5a1197663a26d720b6c3aa5832992a349da2ea3761bbe9ced4791bd79"
+    },
+    {
+      "path": "docs/README.md",
+      "before_sha256": "528afaa18bdc0b134ab3bf9d941514f03cab577c5dced76800a8984b5bdd3506",
+      "sha256": "68df5de42509535bbc00cb6b91a949e8c850d794e4e92d8730b585f34971edba"
+    },
+    {
+      "path": "docs/evidence/M0-05-2026-09-05-recovery.png",
+      "before_sha256": null,
+      "sha256": "df229326b7e51a47f1535ccf9547c7237ec18e5ec32e9e7c23daaa1052152f7b"
+    },
+    {
+      "path": "docs/evidence/M0-05-2026-09-05-release.png",
+      "before_sha256": null,
+      "sha256": "3f2b70c0a6f93145309c1e4b81940c33bb17215f301c1e46249b15974ede096e"
+    },
+    {
+      "path": "docs/evidence/M0-05-2026-09-05.md",
+      "before_sha256": null,
+      "sha256": "e71cc4646dc8cb473d4e6b32c9fb80ea0c9b31cce11c7b646d0645c8ff9bf5ca"
+    },
+    {
+      "path": "docs/setup/TANYA_FIRST_RUN.md",
+      "before_sha256": "dcbd2ef660c9c6f6fb9600dff5735a8965539281f36d5f7de665621fc6314f60",
+      "sha256": "1112332345dce8a78e865c741df797373cbb41a0bd89d49527935001ece9bb1e"
+    }
+  ],
+  "raw_check_logs": {
+    "backend-before.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/backend-before.log",
+      "sha256": "a6963a901e353ab44f154e8ec009e9ba440f255edf4b527f95637cd3b5c249ec"
+    },
+    "backend-targeted.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/backend-targeted.log",
+      "sha256": "1b2cea89fe169fef4ab639052be4f4e2a3005dac38d8c9f3586bf6ea37b629fd"
+    },
+    "backend-status-targeted.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/backend-status-targeted.log",
+      "sha256": "f16d7053dfd81cb2ebac37710a52b1de98c61ce51c7a8fb210452b39962fb201"
+    },
+    "api-suite-final-after-status.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/api-suite-final-after-status.log",
+      "sha256": "8e291a8809e9e72d7fada74ada8ee146a9556991820ed7ae8182d6346bb1e76a"
+    },
+    "api-suite-verified.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/api-suite-verified.log",
+      "sha256": "cbc021a47aef1a2cb403178aca19aaaeefaf502a86ba4be7c28397ae2979574d"
+    },
+    "backend-final-pass.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/backend-final-pass.log",
+      "sha256": "95a71d6486b4d9b338415af437b08e46985156642da9e8531647db8809ecd1af"
+    },
+    "web-suite-final-after-status.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/web-suite-final-after-status.log",
+      "sha256": "57221f6881d3e7328686c34d3bebf4a41a30edb83c86a6e5ee07f08bbee7ef7a"
+    },
+    "web-lint-final-after-status.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/web-lint-final-after-status.log",
+      "sha256": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37"
+    },
+    "web-types-final.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/web-types-final.log",
+      "sha256": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb"
+    },
+    "web-build-final.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/web-build-final.log",
+      "sha256": "e04314de8fcb89a6be13f6f08baa22fe9d30ef07809fadd197905eeaa6cf6805"
+    },
+    "ruff-final-pass.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/ruff-final-pass.log",
+      "sha256": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e"
+    },
+    "mypy-final-pass.log": {
+      "path": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-05-20260905-dupyzb0j/mypy-final-pass.log",
+      "sha256": "b6303a1f198a430f20486cc221b411754689c86a2ea50c0f8916ec65ed287e4a"
+    }
+  },
+  "limits": [
+    "No real generated academic work or actual Compilatio report.",
+    "No live Tanya acceptance.",
+    "Pagination is manager-entered evidence; no Word/LibreOffice render was performed.",
+    "PostgreSQL concurrent-release evidence is from M0-03, not a new live PostgreSQL run.",
+    "Local next build contains localhost API; production must be rebuilt."
+  ],
+  "next_task": "M0-06: exact M0-02..05 release bundle, independent review, deployment profile and recovery checks, coordinated release and live operator verification.",
+  "cleanup": {
+    "pending": false,
+    "recorded_at_utc": "2026-09-05T16:11:33.912286+00:00",
+    "local_api_and_minio_removed": true,
+    "local_networks_removed": true,
+    "local_web_dev_and_compiled_processes_stopped": true,
+    "scratch_logs_retained": true
+  }
+}

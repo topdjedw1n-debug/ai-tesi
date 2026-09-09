@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "payload_sha256": "292f43f95d9ba1ae2d46ec9727b70e3e5c9cd0ff6aa6dbe715590705b4fc3394",
+  "images": {
+    "api": "sha256:3b5b1683661da354b5b6a0b7841fa1452c0d4c274e9e43d0f87027b33ab6c114",
+    "web": "sha256:b9ebfe0a3601b14adde8ba4da369ac1c2176c2f5d3da86e5c13898042113c102"
+  },
+  "runtime_modules_verified": 134,
+  "network": "none",
+  "test_scope": "Exact approved image: stability, worker, storage, model recording, complete local pipeline/replay, real response corpus, dependencies and production cases; network disabled.",
+  "web_build_id": "J3UqeojCFGJ1GP82jsmjH",
+  "image_tests_log_sha256": "da8b6ef1357505fbdca15d0e1690ad2dd9654033be916816e5f1e2377055845e"
+}

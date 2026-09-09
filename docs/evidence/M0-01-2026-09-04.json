@@ -1,0 +1,906 @@
+{
+  "audit": "M0-01",
+  "checked_at_utc": "2026-09-04T19:53:53.615202+00:00",
+  "local_commit": "67ef46deb933b8d88ea8a4f31f3a6a2725412fb4",
+  "branch": "main",
+  "origin_main": "67ef46deb933b8d88ea8a4f31f3a6a2725412fb4",
+  "source": {
+    "observed_at_utc": "2026-09-04T19:46:57.854026+00:00",
+    "host_tracked_files_checked": 426,
+    "host_matching": 425,
+    "host_mismatches": [
+      {
+        "path": "apps/api/.env.example",
+        "local": "c89b79f5478ddf893bc242ffac86c1ec0d25576d935aeb44ab58606dd7713147",
+        "remote": "2541a344a82ac84d44ca101f89c5c8cdcc0038073dab2c5668a45b8669c34a06"
+      }
+    ],
+    "server_git_checkout": false,
+    "server_release_marker": "8cf379d44d211ca44e603ca128b8aa4e2327db6b",
+    "api_runtime_files": 106,
+    "api_runtime_mismatches": [],
+    "api_extra_python_files": [],
+    "api_expected_manifest_sha256": "05e1a76be73126865fa174afe3c13761e93311b0cbaf6b93211e6c87cd4694c9",
+    "api_live_manifest_sha256": "05e1a76be73126865fa174afe3c13761e93311b0cbaf6b93211e6c87cd4694c9",
+    "all_host_manifest_sha256": "775b36a53689a3b162262f908641091fdbac5fe3da782252374680496e2d6787",
+    "all_local_manifest_sha256": "b14927231f7a7146525bb4f60dd6b3c081ace391edf659dd4d632f4dcd89b3a9",
+    "api_image_excluded": {
+      "tests": "all tests excluded by .dockerignore",
+      "env_templates": [
+        ".env.production.example",
+        ".env.template"
+      ]
+    },
+    "limitation": "Web source matches HEAD; the runtime standalone image has no commit attestation. Runtime image ID, build ID and required feature chunks identify it separately."
+  },
+  "runtime": {
+    "observed_at_utc": "2026-09-04T19:48:19.319332+00:00",
+    "profile": {
+      "MVP_FREE_GENERATION_ENABLED": true,
+      "MVP_FREE_GENERATION_MAX_PAGES": 50,
+      "MVP_FREE_GENERATION_DAILY_USER_LIMIT": 2,
+      "GLOBAL_DAILY_TOKEN_LIMIT": 6000000,
+      "PUBLIC_REGISTRATION_ENABLED": false,
+      "METHODOLOGY_REQUIRED_FOR_GENERATION": false,
+      "LEGACY_GENERATION_ENDPOINTS_ENABLED": false,
+      "AI_ENABLE_FALLBACK": false,
+      "GENERATION_WORKER_ENABLED": true,
+      "QUALITY_GATES_ENABLED": true,
+      "PARTIAL_COMPLETION_ENABLED": false,
+      "PROVENANCE_LEDGER_ENABLED": true,
+      "SOURCE_GROUNDING_ENABLED": true,
+      "SOURCE_PACK_PREFLIGHT_ENABLED": true,
+      "SOURCE_PACK_TARGET_SIZE": 24,
+      "SOURCE_PACK_CANDIDATE_RESERVE_SIZE": 48,
+      "SOURCE_PACK_MIN_VERIFIED": 18,
+      "SOURCE_PACK_MIN_ON_TOPIC_SCORE": 0.35,
+      "GROUNDING_GATE_ENABLED": true,
+      "GROUNDING_GATE_POLICY": "strict",
+      "CITATION_VERIFICATION_ENABLED": true,
+      "CITATION_VERIFICATION_POLICY": "strict",
+      "CLAIM_VERIFICATION_ENABLED": true,
+      "CLAIM_VERIFICATION_BLOCKING": true,
+      "HUMANIZER_FREEZE_CITATIONS": true,
+      "HUMANIZER_ENABLED": false,
+      "QUALITY_PANEL_ENABLED": true,
+      "AI_DETECTION_ENABLED": true,
+      "AI_DETECTION_BLOCKING": false
+    },
+    "sdk_versions": {
+      "anthropic": "0.76.0",
+      "openai": "2.15.0",
+      "fastapi": "0.104.1",
+      "SQLAlchemy": "2.0.23",
+      "asyncpg": "0.29.0"
+    },
+    "profile_mismatches": {},
+    "primary_detector": "Compilatio",
+    "sdk_contract": {
+      "anthropic_messages": true,
+      "openai_max_completion_tokens": true
+    },
+    "jobs_by_status": [
+      {
+        "status": "failed",
+        "count": 4
+      }
+    ],
+    "active_jobs": {
+      "queued": 0,
+      "running": 0,
+      "expired_running": 0,
+      "overdue_queued": 0
+    },
+    "deletion_outbox": {
+      "pending": 0,
+      "due": 0
+    },
+    "worker_polling_evidence": {
+      "interval_seconds": 6,
+      "before": [
+        {
+          "relname": "ai_generation_jobs",
+          "seq_scan": 9463477,
+          "idx_scan": 119771
+        },
+        {
+          "relname": "artifact_deletion_outbox",
+          "seq_scan": 7,
+          "idx_scan": 1208854
+        }
+      ],
+      "after": [
+        {
+          "relname": "ai_generation_jobs",
+          "seq_scan": 9463489,
+          "idx_scan": 119771
+        },
+        {
+          "relname": "artifact_deletion_outbox",
+          "seq_scan": 7,
+          "idx_scan": 1208860
+        }
+      ]
+    }
+  },
+  "schema": {
+    "mode": "READ ONLY transaction; no migrations applied",
+    "model_table_count": 24,
+    "model_column_count": 323,
+    "missing_model_columns": [],
+    "critical_columns": [
+      {
+        "table_name": "documents",
+        "column_name": "docx_sha256",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "documents",
+        "column_name": "pdf_sha256",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "documents",
+        "column_name": "work_type",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "documents",
+        "column_name": "contract_confirmed_sha256",
+        "data_type": "character",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "documents",
+        "column_name": "contract_confirmed_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "production_cases",
+        "column_name": "release_version",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "table_name": "production_cases",
+        "column_name": "released_docx_path",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "production_cases",
+        "column_name": "released_pdf_path",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "production_cases",
+        "column_name": "released_docx_sha256",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "production_cases",
+        "column_name": "released_pdf_sha256",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "request_payload",
+        "data_type": "jsonb",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "lease_owner",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "lease_token",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "heartbeat_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "lease_expires_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "attempt_count",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "max_attempts",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "3"
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "source_pack_sha256",
+        "data_type": "character",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "ai_generation_jobs",
+        "column_name": "claim_checks_used",
+        "data_type": "integer",
+        "is_nullable": "NO",
+        "column_default": "0"
+      },
+      {
+        "table_name": "document_source_files",
+        "column_name": "sha256",
+        "data_type": "character",
+        "is_nullable": "NO",
+        "column_default": null
+      },
+      {
+        "table_name": "document_source_files",
+        "column_name": "mandatory",
+        "data_type": "boolean",
+        "is_nullable": "NO",
+        "column_default": "false"
+      },
+      {
+        "table_name": "document_sources",
+        "column_name": "retrieval_provider",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "document_sources",
+        "column_name": "source_type",
+        "data_type": "character varying",
+        "is_nullable": "YES",
+        "column_default": null
+      },
+      {
+        "table_name": "users",
+        "column_name": "deletion_requested_at",
+        "data_type": "timestamp with time zone",
+        "is_nullable": "YES",
+        "column_default": null
+      }
+    ],
+    "critical_indexes": [
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "ai_generation_jobs_pkey",
+        "indexdef": "CREATE UNIQUE INDEX ai_generation_jobs_pkey ON public.ai_generation_jobs USING btree (id)"
+      },
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "ix_ai_generation_jobs_id",
+        "indexdef": "CREATE INDEX ix_ai_generation_jobs_id ON public.ai_generation_jobs USING btree (id)"
+      },
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "ix_ai_generation_jobs_started_at",
+        "indexdef": "CREATE INDEX ix_ai_generation_jobs_started_at ON public.ai_generation_jobs USING btree (started_at)"
+      },
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "ix_ai_generation_jobs_user_id",
+        "indexdef": "CREATE INDEX ix_ai_generation_jobs_user_id ON public.ai_generation_jobs USING btree (user_id)"
+      },
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "ix_ai_generation_jobs_worker_queue",
+        "indexdef": "CREATE INDEX ix_ai_generation_jobs_worker_queue ON public.ai_generation_jobs USING btree (status, available_at, lease_expires_at, started_at) WHERE (((job_type)::text = 'full_document'::text) AND ((status)::text = ANY ((ARRAY['queued'::character varying, 'running'::character varying])::text[])))"
+      },
+      {
+        "tablename": "ai_generation_jobs",
+        "indexname": "uq_ai_generation_jobs_active_document_job_type",
+        "indexdef": "CREATE UNIQUE INDEX uq_ai_generation_jobs_active_document_job_type ON public.ai_generation_jobs USING btree (document_id, job_type) WHERE ((status)::text = ANY ((ARRAY['queued'::character varying, 'running'::character varying])::text[]))"
+      },
+      {
+        "tablename": "artifact_deletion_outbox",
+        "indexname": "artifact_deletion_outbox_file_path_key",
+        "indexdef": "CREATE UNIQUE INDEX artifact_deletion_outbox_file_path_key ON public.artifact_deletion_outbox USING btree (file_path)"
+      },
+      {
+        "tablename": "artifact_deletion_outbox",
+        "indexname": "artifact_deletion_outbox_pkey",
+        "indexdef": "CREATE UNIQUE INDEX artifact_deletion_outbox_pkey ON public.artifact_deletion_outbox USING btree (id)"
+      },
+      {
+        "tablename": "artifact_deletion_outbox",
+        "indexname": "ix_artifact_deletion_outbox_due",
+        "indexdef": "CREATE INDEX ix_artifact_deletion_outbox_due ON public.artifact_deletion_outbox USING btree (next_attempt_at)"
+      },
+      {
+        "tablename": "document_sections",
+        "indexname": "document_sections_pkey",
+        "indexdef": "CREATE UNIQUE INDEX document_sections_pkey ON public.document_sections USING btree (id)"
+      },
+      {
+        "tablename": "document_sections",
+        "indexname": "ix_document_sections_document_id",
+        "indexdef": "CREATE INDEX ix_document_sections_document_id ON public.document_sections USING btree (document_id)"
+      },
+      {
+        "tablename": "document_sections",
+        "indexname": "ix_document_sections_id",
+        "indexdef": "CREATE INDEX ix_document_sections_id ON public.document_sections USING btree (id)"
+      },
+      {
+        "tablename": "document_sections",
+        "indexname": "uq_document_sections_document_section_index",
+        "indexdef": "CREATE UNIQUE INDEX uq_document_sections_document_section_index ON public.document_sections USING btree (document_id, section_index)"
+      },
+      {
+        "tablename": "document_source_files",
+        "indexname": "document_source_files_pkey",
+        "indexdef": "CREATE UNIQUE INDEX document_source_files_pkey ON public.document_source_files USING btree (id)"
+      },
+      {
+        "tablename": "document_source_files",
+        "indexname": "ix_document_source_files_document",
+        "indexdef": "CREATE INDEX ix_document_source_files_document ON public.document_source_files USING btree (document_id)"
+      },
+      {
+        "tablename": "document_source_files",
+        "indexname": "uq_document_source_files_doc_key",
+        "indexdef": "CREATE UNIQUE INDEX uq_document_source_files_doc_key ON public.document_source_files USING btree (document_id, citation_key)"
+      },
+      {
+        "tablename": "document_source_files",
+        "indexname": "uq_document_source_files_doc_sha",
+        "indexdef": "CREATE UNIQUE INDEX uq_document_source_files_doc_sha ON public.document_source_files USING btree (document_id, sha256)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_client_user_id",
+        "indexdef": "CREATE INDEX ix_production_cases_client_user_id ON public.production_cases USING btree (client_user_id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_document_id",
+        "indexdef": "CREATE INDEX ix_production_cases_document_id ON public.production_cases USING btree (document_id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_editor_id",
+        "indexdef": "CREATE INDEX ix_production_cases_editor_id ON public.production_cases USING btree (editor_id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_id",
+        "indexdef": "CREATE INDEX ix_production_cases_id ON public.production_cases USING btree (id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_manager_id",
+        "indexdef": "CREATE INDEX ix_production_cases_manager_id ON public.production_cases USING btree (manager_id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "ix_production_cases_release_status",
+        "indexdef": "CREATE INDEX ix_production_cases_release_status ON public.production_cases USING btree (release_status)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "production_cases_pkey",
+        "indexdef": "CREATE UNIQUE INDEX production_cases_pkey ON public.production_cases USING btree (id)"
+      },
+      {
+        "tablename": "production_cases",
+        "indexname": "uq_production_cases_document_id",
+        "indexdef": "CREATE UNIQUE INDEX uq_production_cases_document_id ON public.production_cases USING btree (document_id)"
+      },
+      {
+        "tablename": "release_gate_results",
+        "indexname": "ix_release_gate_results_case_id",
+        "indexdef": "CREATE INDEX ix_release_gate_results_case_id ON public.release_gate_results USING btree (production_case_id)"
+      },
+      {
+        "tablename": "release_gate_results",
+        "indexname": "ix_release_gate_results_gate_key",
+        "indexdef": "CREATE INDEX ix_release_gate_results_gate_key ON public.release_gate_results USING btree (gate_key)"
+      },
+      {
+        "tablename": "release_gate_results",
+        "indexname": "ix_release_gate_results_id",
+        "indexdef": "CREATE INDEX ix_release_gate_results_id ON public.release_gate_results USING btree (id)"
+      },
+      {
+        "tablename": "release_gate_results",
+        "indexname": "release_gate_results_pkey",
+        "indexdef": "CREATE UNIQUE INDEX release_gate_results_pkey ON public.release_gate_results USING btree (id)"
+      },
+      {
+        "tablename": "release_gate_results",
+        "indexname": "uq_release_gate_case_gate",
+        "indexdef": "CREATE UNIQUE INDEX uq_release_gate_case_gate ON public.release_gate_results USING btree (production_case_id, gate_key)"
+      },
+      {
+        "tablename": "source_file_pages",
+        "indexname": "ix_source_file_pages_file",
+        "indexdef": "CREATE INDEX ix_source_file_pages_file ON public.source_file_pages USING btree (source_file_id)"
+      },
+      {
+        "tablename": "source_file_pages",
+        "indexname": "source_file_pages_pkey",
+        "indexdef": "CREATE UNIQUE INDEX source_file_pages_pkey ON public.source_file_pages USING btree (id)"
+      },
+      {
+        "tablename": "source_file_pages",
+        "indexname": "uq_source_file_pages_file_page",
+        "indexdef": "CREATE UNIQUE INDEX uq_source_file_pages_file_page ON public.source_file_pages USING btree (source_file_id, page_number)"
+      }
+    ],
+    "generation_triggers": [
+      {
+        "trigger_name": "trg_generation_job_block_deleting_user_insert",
+        "event_manipulation": "INSERT",
+        "action_timing": "BEFORE"
+      },
+      {
+        "trigger_name": "trg_generation_job_block_deleting_user_update",
+        "event_manipulation": "UPDATE",
+        "action_timing": "BEFORE"
+      }
+    ]
+  },
+  "infrastructure": {
+    "observed_at_utc": "2026-09-04T19:52:12.350635+00:00",
+    "containers": [
+      {
+        "name": "/ai-thesis-api",
+        "image_id": "sha256:a2ed08b79644ed1e16021db7e7f8f4bb99636def020b400ba8cedb9ae9d99775",
+        "started_at": "2026-09-04T13:56:16.365965901Z",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0,
+        "restart_policy": "no",
+        "ports": {
+          "8000/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "8000"
+            }
+          ]
+        },
+        "mounts": [],
+        "revision_label": null
+      },
+      {
+        "name": "/ai-thesis-web",
+        "image_id": "sha256:d6d6b866259760c37a5af1a3a638e163586592fa1d8a4f7f2355eced311aae2e",
+        "started_at": "2026-09-04T13:56:22.135710333Z",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0,
+        "restart_policy": "no",
+        "ports": {
+          "3000/tcp": [
+            {
+              "HostIp": "127.0.0.1",
+              "HostPort": "3000"
+            }
+          ]
+        },
+        "mounts": [],
+        "revision_label": null
+      },
+      {
+        "name": "/ai-thesis-postgres",
+        "image_id": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e",
+        "started_at": "2026-08-21T16:01:51.221148093Z",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0,
+        "restart_policy": "no",
+        "ports": {
+          "5432/tcp": null
+        },
+        "mounts": [
+          {
+            "type": "volume",
+            "destination": "/var/lib/postgresql/data",
+            "name": "docker_postgres_data"
+          }
+        ],
+        "revision_label": null
+      },
+      {
+        "name": "/ai-thesis-redis",
+        "image_id": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99",
+        "started_at": "2026-08-21T16:01:51.226283539Z",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0,
+        "restart_policy": "no",
+        "ports": {
+          "6379/tcp": null
+        },
+        "mounts": [
+          {
+            "type": "volume",
+            "destination": "/data",
+            "name": "docker_redis_data"
+          }
+        ],
+        "revision_label": null
+      },
+      {
+        "name": "/ai-thesis-minio",
+        "image_id": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e",
+        "started_at": "2026-08-21T16:01:51.223365055Z",
+        "status": "running",
+        "health": "healthy",
+        "restart_count": 0,
+        "restart_policy": "no",
+        "ports": {
+          "9000/tcp": null
+        },
+        "mounts": [
+          {
+            "type": "volume",
+            "destination": "/data",
+            "name": "docker_minio_data"
+          }
+        ],
+        "revision_label": null
+      }
+    ],
+    "api_log_counts_since_start": {
+      "worker_started": 0,
+      "worker_stopped": 0,
+      "worker_poll_failures": 0,
+      "outbox_sweep_failures": 0,
+      "tracebacks": 0,
+      "read_exit_code": 0,
+      "lines_available": 6390
+    },
+    "enabled_services": {
+      "docker": "enabled",
+      "caddy": "enabled"
+    },
+    "matching_boot_units": [],
+    "web": {
+      "build_id": "Q7b3CZvL5w9NHSKTQ2BSr",
+      "route_hashes": {
+        ".next/server/app/dashboard/documents/new/page.js": "7e10c282048d576793898b2b5ae179a7651c39189c817d49c841682b5dea5380",
+        ".next/server/app/dashboard/documents/[id]/page.js": "3bb771230a1b3ed48870218ee48aa52c80bc997c0c2fd40e7d905851fed41e19",
+        ".next/server/app/admin/production-cases/[id]/page.js": "06c3127c0e369561a5cea9a64de8b0e098c428744f979c47e43e75f8fec8e7cc"
+      },
+      "feature_chunks": {
+        "/task-contract/confirm": [
+          ".next/static/chunks/2473-b9564e228f773219.js",
+          ".next/static/chunks/9035-3a7e32d02cf2d709.js",
+          ".next/static/chunks/app/auth/login/page-8c3ede0b10fbc20f.js",
+          ".next/static/chunks/app/auth/verify/page-66940372ee8b3285.js",
+          ".next/static/chunks/app/layout-4fe42da74a3716c2.js",
+          ".next/static/chunks/app/payment/success/page-c884b61ccec7b8b0.js"
+        ],
+        "/task-contract": [
+          ".next/static/chunks/2473-b9564e228f773219.js",
+          ".next/static/chunks/9035-3a7e32d02cf2d709.js",
+          ".next/static/chunks/app/auth/login/page-8c3ede0b10fbc20f.js",
+          ".next/static/chunks/app/auth/verify/page-66940372ee8b3285.js",
+          ".next/static/chunks/app/layout-4fe42da74a3716c2.js",
+          ".next/static/chunks/app/payment/success/page-c884b61ccec7b8b0.js"
+        ],
+        "source-files": [
+          ".next/static/chunks/app/dashboard/documents/[id]/page-8402d3235216b586.js"
+        ]
+      },
+      "payment_flow": "false",
+      "refund_flow": "false"
+    },
+    "https_probes": [
+      {
+        "method": "GET",
+        "path": "/health",
+        "status": 200,
+        "location": null
+      },
+      {
+        "method": "GET",
+        "path": "/auth/login",
+        "status": 200,
+        "location": null
+      },
+      {
+        "method": "GET",
+        "path": "/admin/login",
+        "status": 200,
+        "location": null
+      },
+      {
+        "method": "GET",
+        "path": "/dashboard",
+        "status": 200,
+        "location": null
+      },
+      {
+        "method": "GET",
+        "path": "/auth/register",
+        "status": 302,
+        "location": "/auth/login"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/auth/magic-link",
+        "status": 403,
+        "location": null
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/documents",
+        "status": 307,
+        "location": "https://app.thesica.co/api/v1/documents/"
+      },
+      {
+        "method": "POST",
+        "path": "/api/v1/documents/",
+        "status": 401,
+        "location": null
+      }
+    ]
+  },
+  "ci": {
+    "observed_at_utc": "2026-09-04T19:53:53.501Z",
+    "runs": [
+      {
+        "id": 33880781230,
+        "name": "Deploy to AWS EC2",
+        "head_sha": "67ef46deb933b8d88ea8a4f31f3a6a2725412fb4",
+        "event": "workflow_run",
+        "status": "completed",
+        "conclusion": "skipped",
+        "url": "https://github.com/topdjedw1n-debug/ai-tesi/actions/runs/33880781230",
+        "created_at": "2026-09-04T13:55:39Z",
+        "updated_at": "2026-09-04T13:55:40Z"
+      },
+      {
+        "id": 33880293127,
+        "name": "CI Quality Gates",
+        "head_sha": "67ef46deb933b8d88ea8a4f31f3a6a2725412fb4",
+        "event": "push",
+        "status": "completed",
+        "conclusion": "failure",
+        "url": "https://github.com/topdjedw1n-debug/ai-tesi/actions/runs/33880293127",
+        "created_at": "2026-09-04T13:50:24Z",
+        "updated_at": "2026-09-04T13:55:37Z"
+      }
+    ],
+    "jobs": [
+      {
+        "id": 101047026291,
+        "name": "web-jest",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047026523,
+        "name": "python-version-gate",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047026538,
+        "name": "web-build",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047026576,
+        "name": "web-typecheck",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047026616,
+        "name": "web-lint",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047026683,
+        "name": "repo-hygiene",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047075655,
+        "name": "backend-pytest",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101047075887,
+        "name": "backend-mypy",
+        "status": "completed",
+        "conclusion": "failure"
+      },
+      {
+        "id": 101047075912,
+        "name": "backend-ruff",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "id": 101048587257,
+        "name": "quality-gate",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "baseline_runs": [
+      {
+        "id": 33875920022,
+        "name": "Deploy to AWS EC2",
+        "head_sha": "5ccf1c3e6b2b1af9518cd8d4a1d98ecf696763e1",
+        "conclusion": "skipped",
+        "url": "https://github.com/topdjedw1n-debug/ai-tesi/actions/runs/33875920022"
+      },
+      {
+        "id": 33875464066,
+        "name": "CI Quality Gates",
+        "head_sha": "5ccf1c3e6b2b1af9518cd8d4a1d98ecf696763e1",
+        "conclusion": "failure",
+        "url": "https://github.com/topdjedw1n-debug/ai-tesi/actions/runs/33875464066"
+      }
+    ],
+    "current_mypy_summary": [
+      "2026-09-04T13:51:41.3636504Z Found 358 errors in 46 files (checked 105 source files)"
+    ],
+    "baseline_mypy_summary": [
+      "2026-09-04T12:59:03.8475611Z Found 358 errors in 46 files (checked 105 source files)"
+    ]
+  },
+  "local_checks": [
+    {
+      "check": "backend-pytest",
+      "summary": [
+        "=========== 1038 passed, 8 skipped, 6 warnings in 240.95s (0:04:00) ============"
+      ],
+      "log_sha256": "d08807b57fb8b99cc4f286dcb61530e1a9f9798745ae7afe771d99febc2e9302",
+      "exit_code": 0
+    },
+    {
+      "check": "backend-ruff",
+      "summary": [
+        "All checks passed!"
+      ],
+      "log_sha256": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e",
+      "exit_code": 0
+    },
+    {
+      "check": "backend-mypy",
+      "summary": [
+        "Found 358 errors in 46 files (checked 105 source files)"
+      ],
+      "log_sha256": "d3c9a15035c1e81755cfe4e1bbd139c276a11174b471cc6b3d55ac5a9260b999",
+      "exit_code": 1
+    },
+    {
+      "check": "baseline-mypy",
+      "summary": [
+        "Found 358 errors in 46 files (checked 105 source files)"
+      ],
+      "log_sha256": "72e4d9a7cdfc15a03b674d3b9e1124c2a191d3de4cfdf8505be21a352a34f2aa",
+      "exit_code": 1
+    },
+    {
+      "check": "web-jest",
+      "summary": [
+        "Test Suites: 25 passed, 25 total",
+        "Tests:       1 skipped, 171 passed, 172 total"
+      ],
+      "log_sha256": "44c2337eadaf4401cdfebf24a09e50937bf29bd1bea1444759c1023cac8dd4d9",
+      "exit_code": 0
+    },
+    {
+      "check": "web-lint",
+      "summary": [
+        "✔ No ESLint warnings or errors"
+      ],
+      "log_sha256": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37",
+      "exit_code": 0
+    },
+    {
+      "check": "web-typecheck",
+      "summary": [],
+      "log_sha256": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb",
+      "exit_code": 0
+    },
+    {
+      "check": "web-build",
+      "summary": [
+        "✓ Compiled successfully",
+        "Collecting build traces ..."
+      ],
+      "log_sha256": "28eb45f07da7b41d330955680718376ba419ceb93a5bcd909b98f495850af580",
+      "exit_code": 0
+    }
+  ],
+  "mypy_comparison": {
+    "baseline_count": 358,
+    "current_count": 358,
+    "added": [],
+    "removed": [],
+    "comparison": "error path and message; line numbers excluded"
+  },
+  "test_environment": {
+    "api_image": "sha256:558668fab6ad9e178494949e4b8ab8679b85777c3cece03401c66fbacd064a2f",
+    "network": "none for backend tests and static checks",
+    "source": "git archive HEAD in disposable directory; no production credentials",
+    "node": "v20.19.5",
+    "npm": "10.8.2",
+    "backend_static": {
+      "baseline_sha": "5ccf1c3e6b2b1af9518cd8d4a1d98ecf696763e1",
+      "checks": [
+        {
+          "check": "backend-ruff",
+          "exit_code": 0,
+          "checkout": "checkout",
+          "image_id": "sha256:558668fab6ad9e178494949e4b8ab8679b85777c3cece03401c66fbacd064a2f"
+        },
+        {
+          "check": "backend-mypy",
+          "exit_code": 1,
+          "checkout": "checkout",
+          "image_id": "sha256:558668fab6ad9e178494949e4b8ab8679b85777c3cece03401c66fbacd064a2f"
+        },
+        {
+          "check": "baseline-mypy",
+          "exit_code": 1,
+          "checkout": "baseline",
+          "image_id": "sha256:558668fab6ad9e178494949e4b8ab8679b85777c3cece03401c66fbacd064a2f"
+        }
+      ]
+    }
+  },
+  "setup_notes": [
+    "The first build failed because shared node_modules resolved outside the disposable checkout. A private copy of the existing dependencies fixed the audit setup; unchanged code then built successfully.",
+    "Initial HTTPS probes used noncanonical paths and lacked the bearer-header bypass for CSRF. Final probes use infra/deploy.sh routes and an intentionally invalid token; they do not create data.",
+    "System Python lacked the local CA chain; final HTTPS probes used system curl with certificate verification enabled."
+  ],
+  "scope": {
+    "production_mutations": false,
+    "paid_generation": false,
+    "source_code_changes": false,
+    "complete_manager_browser_flow_tested": false,
+    "compilatio_checked": false,
+    "reboot_restore_tested": false
+  }
+}

@@ -1,0 +1,1911 @@
+{
+  "schema_version": 1,
+  "task_id": "M0-04",
+  "status": "LOCAL",
+  "recorded_at_utc": "2026-09-05T14:17:20.177130+00:00",
+  "source": {
+    "base_commit": "19e36fc42611675f25149efaae6ed2985c68323c",
+    "branch": "codex/telegram-operator-bot",
+    "committed": false,
+    "deployed": false,
+    "prerequisite_evidence": {
+      "path": "docs/evidence/M0-03-2026-09-05.json",
+      "sha256": "86af731da936bd116400fd62e2258caba21dda90611e3e1f32e48e8d46eb7813"
+    },
+    "m0_04_manifest": [
+      {
+        "path": "apps/api/app/services/ai_pipeline/source_pack.py",
+        "sha256": "6504f8d6895704f633a7c027539776e6c0f6a26978040c4909e6604e7d8c4b93",
+        "before_sha256": "c63bc3d92560df77544034cdcb9f7fb88719e0a3db898ddfd278332e377b6b73"
+      },
+      {
+        "path": "apps/api/app/services/background_jobs.py",
+        "sha256": "1b22a4dfc1696ec01c0b1fae5f6866e122708186196f7d5dc941b26aaa7301f6",
+        "before_sha256": "e18f684646a9e7e5f806c82bf9828d4abda5faf511065a1dfcbc394740a4fd61"
+      },
+      {
+        "path": "apps/api/tests/test_source_pack.py",
+        "sha256": "874e17d99ea304bcf84b13a72f5ee6df4df84b5b35437c8bd83b4077fc5326d8",
+        "before_sha256": "eaa7bbac1e6cbc6a9516e556ffb89afb2d3330e12b7e1ee247be273294346e45"
+      },
+      {
+        "path": "apps/api/tests/test_source_pack_preflight_pipeline.py",
+        "sha256": "a9302b55a6493b3c60d8f98d256be605f55bec9e8ac2620951f7a39851df51d5",
+        "before_sha256": "bcb609925d4ac866ceb02ae3fe107f62d358ed12e449b29e4cb82ce5409e66cf"
+      }
+    ],
+    "canary_runner": {
+      "path": "docs/evidence/M0-04-2026-09-05-canary.py",
+      "sha256": "05f2bf6dcc60e645ee8e15acc937d46ef205d48593340c4741224cb0da2f2761"
+    },
+    "isolated_apps_infra_files_matching_current": 448
+  },
+  "changes": [
+    "Initial wrapper retains actual provider HTTP failures in SourcePack.provider_errors while keeping partial results.",
+    "Unfrozen preflight attempts refresh provisional automatic sources; frozen proof/digest/key reuse and flag-off legacy resume are preserved.",
+    "Nursing/midwifery scope excludes explicit animal study populations before reserve selection, unless topic/section requests animal or veterinary work.",
+    "Insufficient-source guidance requests review of automatic selection and explicitly keeps PDFs optional."
+  ],
+  "checks": {
+    "outage_and_retry_regressions_before": {
+      "failed": 3,
+      "passed": 1,
+      "actual_adapter_http_mock_transport": true,
+      "persisted_incomplete_pack_real_sqlite_roundtrip": true
+    },
+    "relevance_regressions_before": {
+      "failed": 2,
+      "passed": 4,
+      "fixture_titles_from_initial_live_canary": true
+    },
+    "source_final": {
+      "passed": 91,
+      "skipped": 1,
+      "network": "none",
+      "skip_reason": "Pre-existing flaky Redis-save recovery test",
+      "command": "python -m pytest tests/test_source_pack.py tests/test_source_pack_preflight.py tests/test_source_pack_preflight_pipeline.py tests/test_source_pack_persistence.py tests/test_source_pack_rebuild.py tests/test_background_jobs_recovery.py tests/test_rag_source_metadata.py --asyncio-mode=auto -q --tb=short"
+    },
+    "api_full": {
+      "passed": 1106,
+      "skipped": 10,
+      "warnings": 6,
+      "seconds": 266.5,
+      "network": "none",
+      "command": "python -m pytest tests --asyncio-mode=auto -q --tb=short",
+      "mount": "entire isolated checkout at /workspace; PYTHONPATH=/workspace/apps/api; workdir=/workspace/apps/api",
+      "image": "ai-thesis-api:no-pdf-auto-sources-67ef46d"
+    },
+    "ruff": {
+      "status": "passed",
+      "changed_python_files": 4
+    },
+    "mypy": {
+      "before": 357,
+      "after": 357,
+      "new_errors": [],
+      "removed_errors": [],
+      "comparison": "Counter(path, message), source line and embedded on line N normalized; same image/config; --no-incremental",
+      "baseline_log_sha256": "0f175361518176226fbc1ecc1787a05556b0805c73dee9a22a52b489968b0e1c",
+      "status": "existing_debt"
+    },
+    "web": "Unchanged; M0-03 evidence is a historical prerequisite, not re-executed here.",
+    "local_evidence_root": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-04-20260905-k6pbjhx8",
+    "log_sha256": {
+      "regressions-before.log": "0554fedb0b79125c937ad678bf4aa628bbf391a3d5139447578288fc8aecbf53",
+      "relevance-before.log": "cbb0e8140a0161ceae1903c38c36f9af7d696209deadbeecb1fa91a044f92e70",
+      "source-tests-final.log": "91a968263a17f22c5c64d4aa40e2eb34a326514c740baf99691fd158c314b3fa",
+      "api-suite-final.log": "2ab598e4d9339c7bb42e7c263f27030d975329c3f5cb20dac2b76e44a3501486",
+      "ruff-final.log": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e",
+      "mypy-final.log": "3d9a6edb47a025c10d05384faef70ab4e31a62de344d338fd24deac7ffd5878a",
+      "source-canary.log": "ff7ba960f69d58f797b1e26a379bfece835877e6ad92122a8e8f8619cf2b2e8d",
+      "source-canary-after.log": "49b698228d5c12cf6b704a529a9152f4988db0db0756f0cf3eb5c78621be3bd3"
+    },
+    "regression_output_excerpt": {
+      "regressions-before.log": ".FFF                                                                     [100%]\n=================================== FAILURES ===================================\n___ test_initial_retrieval_distinguishes_empty_results_from_http_outage[503] ___\ntests/test_source_pack_preflight_pipeline.py:151: in test_initial_retrieval_distinguishes_empty_results_from_http_outage\n    assert bool(pack.provider_errors) is (crossref_status == 503)\nE   AssertionError: assert False is (503 == 503)\nE    +  where False = bool([])\nE    +    where [] = SourcePack(document_id=1, topic='AI in Education', sources=[], underfilled=True, bilingual=False, passages=None, provider_errors=[], context_sources=[]).provider_errors\n------------------------------ Captured log call -------------------------------\nWARNING  app.services.ai_pipeline.rag_retriever:rag_retriever.py:668 HTTP error retrieving from Crossref: Server error '503 Service Unavailable' for url 'https://api.crossref.org/works?query=AI%20in%20Education&rows=10&offset=0&select=title%2Cauthor%2Cissued%2CDOI%2Cabstract%2Ccontainer-title%2CURL%2Ctype%2Cis-referenced-by-count&mailto=research%40thesica.ai'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503\nWARNING  app.services.ai_pipeline.rag_retriever:rag_retriever.py:668 HTTP error retrieving from Crossref: Server error '503 Service Unavailable' for url 'https://api.crossref.org/works?query=AI%20in%20Education%20education%20school&rows=10&offset=0&select=title%2Cauthor%2Cissued%2CDOI%2Cabstract%2Ccontainer-title%2CURL%2Ctype%2Cis-referenced-by-count&mailto=research%40thesica.ai'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503\nWARNING  app.services.ai_pipeline.rag_retriever:rag_retriever.py:668 HTTP error retrieving from Crossref: Server error '503 Service Unavailable' for url 'https://api.crossref.org/works?query=AI%20in%20Education%20student%20learning&rows=10&offset=0&select=title%2Cauthor%2Cissued%2CDOI%2Cabstract%2Ccontainer-title%2CURL%2Ctype%2Cis-referenced-by-count&mailto=research%40thesica.ai'\nFor more information check: https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/503\nWARNING  app.services.ai_pipeline.source_pack:source_pack.py:616 Source pack underfilled for document 1: 0 citable source(s) at threshold 0.35; keeping 0 additional record(s) as non-citable context at relaxed threshold 0.17 (wanted >= 6 citable)\n______ test_retry_refreshes_unfrozen_persisted_pack_before_writing[True] _______\ntests/test_source_pack_preflight_pipeline.py:212: in test_retry_refreshes_unfrozen_persisted_pack_before_writing\n    await BackgroundJobService.generate_full_document(\napp/services/background_jobs.py:314: in wrapper\n    result = await func(*args, **kwargs)\napp/services/background_jobs.py:1549: in generate_full_document\n    raise CitationIntegrityError(detail=detail)\nE   app.core.exceptions.CitationIntegrityError: Too few relevant sources to start writing (0/6). Upload relevant PDF sources and try again.\n------------------------------ Captured log call -------------------------------\nWARNING  app.services.notification_service:notification_service.py:45 ⚠️ Email service not configured. Set SMTP_HOST in .env to enable emails.\nERROR    app.services.background_jobs:background_jobs.py:3452 Critical error in background document generation: Too few relevant sources to start writing (0/6). Upload relevant PDF sources and try again.\nTraceback (most recent call last):\n  File \"/app/app/services/background_jobs.py\", line 1549, in generate_full_document\n    raise CitationIntegrityError(detail=detail)\napp.core.exceptions.CitationIntegrityError: Too few relevant sources to start writing (0/6). Upload relevant PDF sources and try again.\nERROR    app.services.background_jobs:background_jobs.py:318 Background task failed: generate_full_document\nTraceback (most recent call last):\n  File \"/app/app/services/background_jobs.py\", line 314, in wrapper\n    result = await func(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/app/app/services/background_jobs.py\", line 1549, in generate_full_document\n    raise CitationIntegrityError(detail=detail)\napp.core.exceptions.CitationIntegrityError: Too few relevant sources to start writing (0/6). Upload relevant PDF sources and try again.\n______ test_retry_refreshes_unfrozen_persisted_pack_before_writing[False] ______\ntests/test_source_pack_preflight_pipeline.py:216: in test_retry_refreshes_unfrozen_persisted_pack_before_writing\n    assert build.await_count == 2\nE   AssertionError: assert 1 == 2",
+      "relevance-before.log": "FF....                                                                   [100%]\n=================================== FAILURES ===================================\n_ test_nursing_pack_excludes_animal_populations_before_reserve_cut[Perinatal nursing care and neonatal transition to extrauterine life-section_titles0] _\ntests/test_source_pack.py:101: in test_nursing_pack_excludes_animal_populations_before_reserve_cut\n    assert selected.isdisjoint(animal_titles)\nE   AssertionError: assert False\nE    +  where False = <built-in method isdisjoint of set object at 0xffff881b83c0>(['Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis', 'Role of ...al of offspring in domestic mammals', 'Transition to extrauterine life and the modeling of perinatal asphyxia in rats'])\nE    +    where <built-in method isdisjoint of set object at 0xffff881b83c0> = {'Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis', 'Emu oil-...or patients with rat bite fever', 'Role of mother-young interactions in the survival of offspring in domestic mammals'}.isdisjoint\n_ test_nursing_pack_excludes_animal_populations_before_reserve_cut[Il ruolo dell'infermiere nell'area perinatale-section_titles1] _\ntests/test_source_pack.py:101: in test_nursing_pack_excludes_animal_populations_before_reserve_cut\n    assert selected.isdisjoint(animal_titles)\nE   AssertionError: assert False\nE    +  where False = <built-in method isdisjoint of set object at 0xffff89056ea0>(['Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis', 'Role of ...al of offspring in domestic mammals', 'Transition to extrauterine life and the modeling of perinatal asphyxia in rats'])\nE    +    where <built-in method isdisjoint of set object at 0xffff89056ea0> = {'Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis', 'Emu oil-...or patients with rat bite fever', 'Role of mother-young interactions in the survival of offspring in domestic mammals'}.isdisjoint\n=========================== short test summary info ============================\nFAILED tests/test_source_pack.py::test_nursing_pack_excludes_animal_populations_before_reserve_cut[Perinatal nursing care and neonatal transition to extrauterine life-section_titles0]\nFAILED tests/test_source_pack.py::test_nursing_pack_excludes_animal_populations_before_reserve_cut[Il ruolo dell'infermiere nell'area perinatale-section_titles1]\n2 failed, 4 passed, 26 deselected in 1.54s"
+    },
+    "git_diff_check": "passed",
+    "evidence_hash_and_document_link_check": "passed"
+  },
+  "public_canary": {
+    "before_relevance_fix": {
+      "started_at_utc": "2026-09-05T13:59:23.836359+00:00",
+      "scope": "public bibliographic metadata only; no LLM, production DB, PDFs or DOCX",
+      "topic": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+      "alt_topic": "The role of the nurse in perinatal care and neonatal transition to extrauterine life",
+      "section_titles": [
+        "Assistenza infermieristica perinatale",
+        "Adattamento neonatale alla vita extrauterina"
+      ],
+      "alt_section_titles": [
+        "Perinatal nursing care",
+        "Neonatal adaptation to extrauterine life"
+      ],
+      "input_boundary": "Founder-selected topic; English translation and two representative section scopes prepared manually for this canary, not the saved outline",
+      "profile": {
+        "target": 24,
+        "minimum": 18,
+        "reserve": 48,
+        "min_on_topic_score": 0.35
+      },
+      "paid_calls": 0,
+      "initial": {
+        "citable": 24,
+        "context": 0,
+        "underfilled": false,
+        "provider_errors": []
+      },
+      "candidates": {
+        "citable": 48,
+        "provider_errors": [],
+        "initial_keys_retained": true
+      },
+      "preflight": {
+        "status": "passed",
+        "candidates": 48,
+        "verified": 24,
+        "final_size": 24,
+        "target": 24,
+        "min_required": 18,
+        "rejected_by_reason": {
+          "not_found": 1,
+          "metadata_mismatch": 1
+        },
+        "rejected": [
+          {
+            "title": "Neonatal Hypoglycemia",
+            "reason": "not_found"
+          },
+          {
+            "title": "Neonatal intensive care unit lighting: update and recommendations",
+            "reason": "metadata_mismatch"
+          }
+        ],
+        "transient_count": 0,
+        "unknown_type_count": 0,
+        "top_up_attempted": false,
+        "sha256": "4615fcf6252eb48a2c8bd9804f24bbc5cd03d6d71b44a6dca832e89d6379defe"
+      },
+      "sources": [
+        {
+          "key": "McGowan1999",
+          "title": "Neonatal Hypoglycemia",
+          "authors": [
+            "Jane E. McGowan"
+          ],
+          "year": 1999,
+          "doi": "10.1542/pir.20.7.e6",
+          "type": "article",
+          "relevance_score": 0.7777777777777778,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1542/pir.20.7.e6",
+            "title": "Neonatal Hypoglycemia",
+            "year": 1999,
+            "authors": [
+              "Jane E. McGowan"
+            ],
+            "venue": "Pediatrics In Review",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Narvey2019",
+          "title": "The screening and management of newborns at risk for low blood glucose",
+          "authors": [
+            "Michael R Narvey",
+            "Seth D Marks"
+          ],
+          "year": 2019,
+          "doi": "10.1093/pch/pxz134",
+          "type": "article",
+          "relevance_score": 0.75,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1093/pch/pxz134",
+            "title": "The screening and management of newborns at risk for low blood glucose",
+            "year": 2019,
+            "authors": [
+              "Michael R Narvey",
+              "Seth D Marks"
+            ],
+            "venue": "Paediatrics &amp; Child Health",
+            "abstract": "Abstract Hypoglycemia in the first hours to days after birth remains one of the most common conditions facing practitioners across Canada who care for newborns. Many cases represent normal physiologic transition to extrauterine life, but another group experiences hypoglycemia of longer duration. This statement addresses key issues for providers of neonatal care, including the definition of hypoglycemia, risk factors, screening protocols, blood glucose levels requiring intervention, and managing care for this condition. Screening, monitoring, and intervention protocols have been revised to better identify, manage, and treat infants who are at risk for persistent, recurrent, or severe hypoglycemia. The role of dextrose gels in raising glucose levels or preventing more persistent hypoglycemia, and precautions to reduce risk for recurrence after leaving hospital, are also addressed. This statement differentiates between approaches to care for hypoglycemia during the ‘transitional’ phase—the first 72 hours post-birth—and persistent hypoglycemia, which occurs or presents for the first time past that point.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Suciu2023a",
+          "title": "Normative echocardiography data of myocardial adaptation to extrauterine life: a review of prospective studies",
+          "authors": [
+            "Laura Mihaela Suciu",
+            "Irina Prelipcean",
+            "Amalia Făgărășan",
+            "Regan E. Giesinger",
+            "Patrick J. McNamara"
+          ],
+          "year": 2023,
+          "doi": "10.3389/fped.2023.1192618",
+          "type": "article",
+          "relevance_score": 0.6666666666666666,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2023.1192618",
+            "title": "Normative echocardiography data of myocardial adaptation to extrauterine life: a review of prospective studies",
+            "year": 2023,
+            "authors": [
+              "Laura Mihaela Suciu",
+              "Irina Prelipcean",
+              "Amalia Făgărășan",
+              "Regan E. Giesinger",
+              "Patrick J. McNamara"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Recent research has increased focus and interest in characterizing the physiology of the transition circulation using echocardiography. Critique of published normative neonatal echocardiography data among healthy term neonates has not been performed. We have performed a comprehensive literature review using the key terms: cardiac adaptation, hemodynamics, neonatal transition, term newborns. Studies were included if they had reported echocardiography indices of cardiovascular function in the presence of maternal diabetes, intrauterine growth restricted newborns and prematurity and had a comparison group of healthy term newborns within first seven postnatal days. Sixteen published studies evaluating transitional circulation in healthy newborns were included. There was marked heterogeneity in the methodologies used; specifically, inconsistency in time of evaluation and imaging techniques used makes it challenging to determine specific trends of expected physiologic changes. Some studies revealed nomograms for echocardiography indices, though limitations persist in terms of sample size, number of reported parameters and consistency of measurement technique. A comprehensive standardized echocardiography framework which includes consistent techniques for assessment dimensions, function, blood flow, pulmonary/systemic vascular resistance, and shunts pattern is warranted to ensure consistency in the use of echocardiography to guide care of healthy and sick newborns.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Bicking2012",
+          "title": "Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse",
+          "authors": [
+            "Cara Bicking",
+            "Ginger A. Moore"
+          ],
+          "year": 2012,
+          "doi": "10.1891/0730-0832.31.5.295",
+          "type": "journal-article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1891/0730-0832.31.5.295",
+            "title": "Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse",
+            "year": 2012,
+            "authors": [
+              "Cara Bicking",
+              "Ginger A. Moore"
+            ],
+            "venue": "Neonatal Network",
+            "abstract": "The onset of depressive symptoms during pregnancy or the first year postpartum, termed perinatal depression , occurs in approximately 15 percent of women. Perinatal depression can have a significant negative impact on health outcomes for the mother and her infant including maternal emotional distress and parenting difficulties and infant behavioral and developmental problems. Nurses caring for patients in the neonatal intensive care unit (NICU) are in a key position to affect positive change in the lives of families affected by perinatal depression. An overview of antepartum and postpartum depression is provided that has been tailored to the educational needs of the neonatal nurse. A discussion of the role of neonatal nurses in the identification and treatment of perinatal depression follows in order that neonatal nurses may improve both short- and long-term outcomes for mothers, infants, and families in the NICU affected by perinatal depression.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Devin2018",
+          "title": "Delayed Cord Clamping in Term Neonates: Attitudes and Practices of Midwives in Irish Hospitals",
+          "authors": [
+            "Joan Devin",
+            "Patricia Larkin"
+          ],
+          "year": 2018,
+          "doi": "10.1891/2156-5287.8.1.4",
+          "type": "article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1891/2156-5287.8.1.4",
+            "title": "Delayed Cord Clamping in Term Neonates: Attitudes and Practices of Midwives in Irish Hospitals",
+            "year": 2018,
+            "authors": [
+              "Joan Devin",
+              "Patricia Larkin"
+            ],
+            "venue": "International Journal of Childbirth",
+            "abstract": "Background: At the time of birth, the baby is attached to its mother’s placenta via the umbilical cord. A delay in cord clamping is physiologically beneficial to the neonate as they receive an increase in blood volume (30%–40%), increased iron stores (20–30mg/kg), and an easier transition to extrauterine life. Active management of the third stage of labor, in order to prevent maternal postpartum hemorrhage, may contribute to early cord clamping practices in Ireland. Objective: To describe the current practices and attitudes of midwives in Irish hospitals toward delayed cord clamping in term neonates. Methods: A cross-sectional descriptive survey was distributed to three maternity hospitals and two Irish online midwifery groups. Results: One hundred and fifty-three valid responses were received. One hundred and eleven midwives (72.4%) defined delayed cord clamping as “clamping after the cord ceases to pulsate.” One hundred and forty (91.5%) respondents practiced delayed cord clamping. Moreover, 62.7 % (98/153) of participants routinely clamp the umbilical cord >1 minute when practicing active management of the third stage, with 49.1% (48/98) of those waiting until cord pulsations have ceased. Awareness of research, practice guidelines advising delayed cord clamping, and experience of practicing physiological third stage are associated with increased delayed cord clamping practices. Early cord clamping is influenced by a deteriorating neonatal or maternal condition and the cultural context within clinical sites. Delayed cord clamping times during active management of the third stage differ significantly between clinical sites and maternity care pathways. Conclusion: A variety of midwifery practices were identified with differing attitudes toward cord clamping practices. Diverse influences included the practice environment, awareness of research, and availability of adjunct resuscitation supports. Recommendations for future practice include a synchronized approach to d",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Haren2024",
+          "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+          "authors": [
+            "Juliette S. van Haren",
+            "Frank L. M. Delbressine",
+            "Mark Schoberer",
+            "Arjan B. te Pas",
+            "Judith O. E. H. van Laar",
+            "S. Guid Oei",
+            "M. Beatrijs van der Hout-van der Jagt"
+          ],
+          "year": 2024,
+          "doi": "10.3389/fped.2024.1360111",
+          "type": "article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2024.1360111",
+            "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+            "year": 2024,
+            "authors": [
+              "Juliette S. van Haren",
+              "Frank L. M. Delbressine",
+              "Mark Schoberer",
+              "Arjan B. te Pas",
+              "Judith O. E. H. van Laar",
+              "S. Guid Oei",
+              "M. Beatrijs van der Hout-van der Jagt"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "To improve care for extremely premature infants, the development of an extrauterine environment for newborn development is being researched, known as Artificial Placenta and Artificial Womb (APAW) technology. APAW facilitates extended development in a liquid-filled incubator with oxygen and nutrient supply through an oxygenator connected to the umbilical vessels. This setup is intended to provide the optimal environment for further development, allowing further lung maturation by delaying gas exposure to oxygen. This innovative treatment necessitates interventions in obstetric procedures to transfer an infant from the native to an artificial womb, while preventing fetal-to-neonatal transition. In this narrative review we analyze relevant fetal physiology literature, provide an overview of insights from APAW studies, and identify considerations for the obstetric procedure from the native uterus to an APAW system. Lastly, this review provides suggestions to improve sterility, fetal and maternal well-being, and the prevention of neonatal transition.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Rice2012",
+          "title": "The Role of the Perinatal-Neonatal Nurse Navigator in a Tertiary Care Center",
+          "authors": [
+            "Debbie L. Rice"
+          ],
+          "year": 2012,
+          "doi": "10.1111/j.1552-6909.2012.01361_32.x",
+          "type": "journal-article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1111/j.1552-6909.2012.01361_32.x",
+            "title": "The Role of the Perinatal-Neonatal Nurse Navigator in a Tertiary Care Center",
+            "year": 2012,
+            "authors": [
+              "Debbie L. Rice"
+            ],
+            "venue": "Journal of Obstetric, Gynecologic &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Kinsella2022",
+          "title": "Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis",
+          "authors": [
+            "Hannah M. Kinsella",
+            "Laura D. Hostnik",
+            "Hailey A. Snyder",
+            "Sarah E. Mazur",
+            "Ahmed M. Kamr",
+            "Teresa A. Burns",
+            "John C. Mossbarger",
+            "Ramiro E. Toribio"
+          ],
+          "year": 2022,
+          "doi": "10.1371/journal.pone.0262584",
+          "type": "article",
+          "relevance_score": 0.5555555555555556,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1371/journal.pone.0262584",
+            "title": "Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis",
+            "year": 2022,
+            "authors": [
+              "Hannah M. Kinsella",
+              "Laura D. Hostnik",
+              "Hailey A. Snyder",
+              "Sarah E. Mazur",
+              "Ahmed M. Kamr",
+              "Teresa A. Burns",
+              "John C. Mossbarger",
+              "Ramiro E. Toribio"
+            ],
+            "venue": "PLOS ONE",
+            "abstract": "The equine neonate is considered to have impaired glucose tolerance due to delayed maturation of the pancreatic endocrine system. Few studies have investigated insulin sensitivity in newborn foals using dynamic testing methods. The objective of this study was to assess insulin sensitivity by comparing the insulin-modified frequently sampled intravenous glucose tolerance test (I-FSIGTT) between neonatal foals and adult horses. This study was performed on healthy neonatal foals (n = 12), 24 to 60 hours of age, and horses (n = 8), 3 to 14 years of age using dextrose (300 mg/kg IV) and insulin (0.02 IU/kg IV). Insulin sensitivity (SI), acute insulin response to glucose (AIRg), glucose effectiveness (Sg), and disposition index (DI) were calculated using minimal model analysis. Proxy measurements were calculated using fasting insulin and glucose concentrations. Nonparametric statistical methods were used for analysis and reported as median and interquartile range (IQR). SI was significantly higher in foals (18.3 L·min -1 · μIU -1 [13.4–28.4]) compared to horses (0.9 L·min -1 · μIU -1 [0.5–1.1]); (p < 0.0001). DI was higher in foals (12 × 10 3 [8 × 10 3 −14 × 10 3 ]) compared to horses (4 × 10 2 [2 × 10 2 −7 × 10 2 ]); (p < 0.0001). AIRg and Sg were not different between foals and horses. The modified insulin to glucose ratio (MIRG) was lower in foals (1.72 μIU insulin 2 /10·L·mg glucose [1.43–2.68]) compared to horses (3.91 μIU insulin 2 /10·L·mg glucose [2.57–7.89]); (p = 0.009). The homeostasis model assessment of beta cell function (HOMA-BC%) was higher in horses (78.4% [43–116]) compared to foals (23.2% [17.8–42.2]); (p = 0.0096). Our results suggest that healthy neonatal foals are insulin sensitive in the first days of life, which contradicts current literature regarding the equine neonate. Newborn foals may be more insulin sensitive immediately after birth as an evolutionary adaptation to conserve energy during the transition to extrauterine life.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Michel2017",
+          "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+          "authors": [
+            "Alexandra Michel",
+            "Nancy K. Lowe"
+          ],
+          "year": 2017,
+          "doi": "10.1177/1099800416685178",
+          "type": "journal-article",
+          "relevance_score": 0.5555555555555556,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1177/1099800416685178",
+            "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+            "year": 2017,
+            "authors": [
+              "Alexandra Michel",
+              "Nancy K. Lowe"
+            ],
+            "venue": "Biological Research For Nursing",
+            "abstract": "Purpose: To define and describe the processes underlying the successful neonatal transition to extrauterine life and methods to assess the transition. Method: Cumulative Index to Nursing and Allied Health Literature (CINAHL), Embase, Web of Science, and Google Scholar were searched using a combination of the key words neonate, neonatal, newborn, transition, respiratory OR pulmonary, cardiac, metabolic, pH, umbilical cord, and assessment. Articles in English and German were reviewed. The final sample of articles consisted of one randomized controlled trial, 30 observational studies using human neonates, one observational study using rabbit pups, one secondary analysis, three systematic reviews, and 23 review articles. Major Findings: The pertinent findings in regard to normal events in the respiratory, cardiovascular, and metabolic transitions are reviewed and summarized. We address the underlying factors necessary for the transition to extrauterine life, specify the consequences of a successful transition, and review common assessment approaches. Conclusion: Available evidence indicates that the successful immediate transition to extrauterine life should be completed within 1–3 hr after birth, though some adaptive processes can fail as late as 24–48 hr after birth. Further research is necessary to identify a feasible, easily used, noninvasive method to assess the status of a neonate’s transition to extrauterine life.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Ayenew2020",
+          "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+          "authors": [
+            "Asteray Ayenew",
+            "Mahlet Abebe",
+            "Mesafint Ewnetu"
+          ],
+          "year": 2020,
+          "doi": "10.2147/phmt.s276698",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.2147/phmt.s276698",
+            "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+            "year": 2020,
+            "authors": [
+              "Asteray Ayenew",
+              "Mahlet Abebe",
+              "Mesafint Ewnetu"
+            ],
+            "venue": "Pediatric Health, Medicine and Therapeutics",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 0.956,
+            "reason": null
+          }
+        },
+        {
+          "key": "Bergman2024",
+          "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+          "authors": [
+            "Nils J. Bergman"
+          ],
+          "year": 2024,
+          "doi": "10.3389/fpsyg.2024.1385320",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fpsyg.2024.1385320",
+            "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+            "year": 2024,
+            "authors": [
+              "Nils J. Bergman"
+            ],
+            "venue": "Frontiers in Psychology",
+            "abstract": "Background In 2023, the World Health Organization (WHO) published a Global Position Paper on Kangaroo Mother Care (KMC), which is applicable to all countries worldwide: from the moment of birth, every “small and sick” newborn should remain with mother in immediate and continuous skin-to-skin contact (SSC), receiving all required clinical care in that place. This was prompted by the startling results of a randomized controlled trial published in 2021: in which 1,609 infants receiving immediate SSC were compared with 1,602 controls that were separated from their mothers but otherwise received identical conventional state-of-the-art care. The intervention infants showed a 25% reduction in mortality after 28 days. New perspectives The new WHO guidelines are a significant change from earlier guidance and common clinical practice. The author presents that separating mothers and babies is assumed to be “normal” (a paradigm) but actually puts newborns at increased risk for morbidity and mortality. The author presents arguments and ethical perspectives for a new perspective on what is “normal,” keeping newborns with their mothers is the infant’s physiological expectation and critical requirement for healthy development. The author reviews the scientific rationale for changing the paradigm, based on synchronous interactions of oxytocin on both mother and infant. This follows a critique of the new policies that highlights the role of immediate SSC. Actionable recommendations This critique strengthens the case for implementing the WHO guidelines on KMC for small and sick babies. System changes will be necessary in both obstetric and neonatal settings to ensure seamless perinatal care. Based on the role of oxytocin, the author identifies that many current routine care practices may actually contribute to stress and increased vulnerability to the newborn. WHO has actionable recommendations about family involvement and presence in newborn intensive care units. Discussion The conce",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Caeymaex2011",
+          "title": "Living with a Crucial Decision: A Qualitative Study of Parental Narratives Three Years after the Loss of Their Newborn in the NICU",
+          "authors": [
+            "Laurence Caeymaex",
+            "Mario Speranza",
+            "Caroline Vasilescu",
+            "Claude Danan",
+            "Marie-Michèle Bourrat",
+            "Micheline Garel",
+            "Catherine Jousselme"
+          ],
+          "year": 2011,
+          "doi": "10.1371/journal.pone.0028633",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1371/journal.pone.0028633",
+            "title": "Living with a Crucial Decision: A Qualitative Study of Parental Narratives Three Years after the Loss of Their Newborn in the NICU",
+            "year": 2011,
+            "authors": [
+              "Laurence Caeymaex",
+              "Mario Speranza",
+              "Caroline Vasilescu",
+              "Claude Danan",
+              "Marie-Michèle Bourrat",
+              "Micheline Garel",
+              "Catherine Jousselme"
+            ],
+            "venue": "PLoS ONE",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Cusson2008",
+          "title": "Neonatal Nurse Practitioner Role Transition",
+          "authors": [
+            "Regina M. Cusson",
+            "Sally Nelson Strange"
+          ],
+          "year": 2008,
+          "doi": "10.1097/01.jpn.0000341365.60693.39",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1097/01.jpn.0000341365.60693.39",
+            "title": "Neonatal Nurse Practitioner Role Transition",
+            "year": 2008,
+            "authors": [
+              "Regina M. Cusson",
+              "Sally Nelson Strange"
+            ],
+            "venue": "Journal of Perinatal &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Etten2022",
+          "title": "The important primary care role of neonatal nurse practitioners in the neonatal intensive care unit",
+          "authors": [
+            "Kristen Etten",
+            "Jacqui Hoffman",
+            "Carol Wallman",
+            "Bobby Bellflower"
+          ],
+          "year": 2022,
+          "doi": "10.1097/jxx.0000000000000800",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1097/jxx.0000000000000800",
+            "title": "The important primary care role of neonatal nurse practitioners in the neonatal intensive care unit",
+            "year": 2022,
+            "authors": [
+              "Kristen Etten",
+              "Jacqui Hoffman",
+              "Carol Wallman",
+              "Bobby Bellflower"
+            ],
+            "venue": "Journal of the American Association of Nurse Practitioners",
+            "abstract": "ABSTRACT Neonatal nurse practitioners (NNPs) are recognized as acute care providers but are actually both acute and primary care providers via education and practice. Neonatal nurse practitioners provide primary care such as anticipatory guidance, care and follow-up of technologically dependent infants, and discharge planning. Numerous interventions and care in the neonatal intensive care unit (NICU) fall under the umbrella of health promotion, an aspect of primary care. In addition, NNPs must also be able to recognize, diagnose, and manage myriad common pediatric illnesses. There is a paucity of data to evaluate how NNP programs are meeting the National Association of Neonatal Nurses educational standards on this topic. A REDCap survey was sent to 31 NNP program directors, with a 100% response rate. All programs provide content addressing primary care management in their curriculum. National recognition of the primary care role, in addition to the acute care role that NNPs practice, should increase opportunities for clinical placement sites, employment opportunities, and grant funding. This article aims to demonstrate both the educational preparation and the delivery of primary care that NNPs provide in the NICU and other areas of practice.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Heo2021",
+          "title": "2020 Korean Guidelines for Cardiopulmonary Resuscitation. Part 8. Neonatal resuscitation",
+          "authors": [
+            "Ju Sun Heo",
+            "Su Yeong Kim",
+            "Hye Won Park",
+            "Yong-Sung Choi",
+            "Chan-Wook Park",
+            "Geum Joon Cho",
+            "Ah Young Oh",
+            "Eun Kyung Jang",
+            "Han-Suk Kim",
+            "Ai-Rhan Ellen Kim",
+            "Sung Oh Hwang"
+          ],
+          "year": 2021,
+          "doi": "10.15441/ceem.21.028",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.15441/ceem.21.028",
+            "title": "2020 Korean Guidelines for Cardiopulmonary Resuscitation. Part 8. Neonatal resuscitation",
+            "year": 2021,
+            "authors": [
+              "Ju Sun Heo",
+              "Su Yeong Kim",
+              "Hye Won Park",
+              "Yong-Sung Choi",
+              "Chan-Wook Park",
+              "Geum Joon Cho",
+              "Ah Young Oh",
+              "Eun Kyung Jang",
+              "Han-Suk Kim",
+              "Ai-Rhan Ellen Kim",
+              "Sung Oh Hwang"
+            ],
+            "venue": "Clinical and Experimental Emergency Medicine",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Ivory2015",
+          "title": "The Role of Health Care Technology in Support of Perinatal Nurse Staffing",
+          "authors": [
+            "Catherine H. Ivory"
+          ],
+          "year": 2015,
+          "doi": "10.1111/1552-6909.12546",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1111/1552-6909.12546",
+            "title": "The Role of Health Care Technology in Support of Perinatal Nurse Staffing",
+            "year": 2015,
+            "authors": [
+              "Catherine H. Ivory"
+            ],
+            "venue": "Journal of Obstetric, Gynecologic &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Jagt2022",
+          "title": "Interprofessional Consensus Regarding Design Requirements for Liquid-Based Perinatal Life Support (PLS) Technology",
+          "authors": [
+            "M. Beatrijs van der Hout-van der Jagt",
+            "E. J. T. Verweij",
+            "Peter Andriessen",
+            "Willem P. de Boode",
+            "Arend F. Bos",
+            "Frank L. M. Delbressine",
+            "Alex J. Eggink",
+            "Jan Jaap H. M. Erwich",
+            "Loe M. G. Feijs",
+            "Floris Groenendaal",
+            "Boris W. W. Kramer",
+            "A. Titia Lely",
+            "Rachel F. A. M. Loop",
+            "Franziska Neukamp",
+            "Wes Onland",
+            "Martijn A. Oudijk",
+            "Arjan B. te Pas",
+            "Irwin K. M. Reiss",
+            "Mark Schoberer",
+            "Ralph R. Scholten",
+            "Marc E. A. Spaanderman",
+            "Myrthe van der Ven",
+            "Marijn J. Vermeulen",
+            "Frans N. van de Vosse",
+            "S. Guid Oei"
+          ],
+          "year": 2022,
+          "doi": "10.3389/fped.2021.793531",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2021.793531",
+            "title": "Interprofessional Consensus Regarding Design Requirements for Liquid-Based Perinatal Life Support (PLS) Technology",
+            "year": 2022,
+            "authors": [
+              "M. Beatrijs van der Hout-van der Jagt",
+              "E. J. T. Verweij",
+              "Peter Andriessen",
+              "Willem P. de Boode",
+              "Arend F. Bos",
+              "Frank L. M. Delbressine",
+              "Alex J. Eggink",
+              "Jan Jaap H. M. Erwich",
+              "Loe M. G. Feijs",
+              "Floris Groenendaal",
+              "Boris W. W. Kramer",
+              "A. Titia Lely",
+              "Rachel F. A. M. Loop",
+              "Franziska Neukamp",
+              "Wes Onland",
+              "Martijn A. Oudijk",
+              "Arjan B. te Pas",
+              "Irwin K. M. Reiss",
+              "Mark Schoberer",
+              "Ralph R. Scholten",
+              "Marc E. A. Spaanderman",
+              "Myrthe van der Ven",
+              "Marijn J. Vermeulen",
+              "Frans N. van de Vosse",
+              "S. Guid Oei"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Liquid-based perinatal life support (PLS) technology will probably be applied in a first-in-human study within the next decade. Research and development of PLS technology should not only address technical issues, but also consider socio-ethical and legal aspects, its application area, and the corresponding design implications. This paper represents the consensus opinion of a group of healthcare professionals, designers, ethicists, researchers and patient representatives, who have expertise in tertiary obstetric and neonatal care, bio-ethics, experimental perinatal animal models for physiologic research, biomedical modeling, monitoring, and design. The aim of this paper is to provide a framework for research and development of PLS technology. These requirements are considering the possible respective user perspectives, with the aim to co-create a PLS system that facilitates physiological growth and development for extremely preterm born infants.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Nowak2000",
+          "title": "Role of mother-young interactions in the survival of offspring in domestic mammals",
+          "authors": [
+            "R Nowak"
+          ],
+          "year": 2000,
+          "doi": "10.1530/ror.0.0050153",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1530/ror.0.0050153",
+            "title": "Role of mother-young interactions in the survival of offspring in domestic mammals",
+            "year": 2000,
+            "authors": [
+              "R Nowak"
+            ],
+            "venue": "Reviews of Reproduction",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Ortiz2022",
+          "title": "Transition to extrauterine life and the modeling of perinatal asphyxia in rats",
+          "authors": [
+            "Mauro Ortiz",
+            "Fabián Loidl",
+            "Pablo Vázquez‐Borsetti"
+          ],
+          "year": 2022,
+          "doi": "10.1002/wsbm.1568",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1002/wsbm.1568",
+            "title": "Transition to extrauterine life and the modeling of perinatal asphyxia in rats",
+            "year": 2022,
+            "authors": [
+              "Mauro Ortiz",
+              "Fabián Loidl",
+              "Pablo Vázquez‐Borsetti"
+            ],
+            "venue": "WIREs Mechanisms of Disease",
+            "abstract": "Abstract Generation of murine models for the study of birth‐related pathologies has proven to be a complex and controversial problem. Differences in the relative timing of developmental events of both species have led some researchers to suggest that the rat is born comparatively less developed than the human. The solution proposed to this problem would consist in the delay of the experiments of perinatal asphyxia (PA), usually up to 7–10 days, allowing developmental levels to “equalize” with the human at birth. This solution generates a new set of problems. The developmental milestones in both species follow a divergent temporal pattern. Increasing the age of the rat not only can improve resemblance with humans but also will make the model miss a crucial set of milestones related to birth. During this process, there are specific mechanisms to protect the fetus from neuronal damage, especially those caused by asphyxia. These factors are not present in models where the asphyxia is delayed. In these models, there will be more false positives and more damage that would not be present in humans exposed to PA. This article is categorized under: Cancer > Stem Cells and Development Congenital Diseases > Environmental Factors Neurological Diseases > Environmental Factors",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Suciu2023b",
+          "title": "Comparative evaluation of echocardiography indices during the transition to extrauterine life between small and appropriate for gestational age infants",
+          "authors": [
+            "Laura Mihaela Suciu",
+            "Regan E. Giesinger",
+            "Claudiu Mărginean",
+            "Mihai Muntean",
+            "Manuela Cucerea",
+            "Amalia Făgărășan",
+            "Patrick McNamara"
+          ],
+          "year": 2023,
+          "doi": "10.3389/fped.2022.1045242",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2022.1045242",
+            "title": "Comparative evaluation of echocardiography indices during the transition to extrauterine life between small and appropriate for gestational age infants",
+            "year": 2023,
+            "authors": [
+              "Laura Mihaela Suciu",
+              "Regan E. Giesinger",
+              "Claudiu Mărginean",
+              "Mihai Muntean",
+              "Manuela Cucerea",
+              "Amalia Făgărășan",
+              "Patrick McNamara"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Objectives To study changes in heart function and hemodynamics during the transitional period in small for gestational (SGA) infants and appropriate (AGA) healthier counterparts. Design A hospital based prospective observational study was performed at a perinatal center. Echocardiograms were performed on the first postnatal day and again at 48 h age. Term SGA infants were compared with those AGA newborns matched for the GA and mode of delivery. Results Eighteen SGA infants were compared with 18 AGA infants [gestation 38 ± 1.5 vs. 38 ± 1.2 weeks, p &gt; 0.05 and birthweight 2331 ± 345 vs. 3332 ± 405 grams, p &lt; 0.05, respectively]. Maternal weight and body mass index was higher among non-affected pregnancies, 61% infants were born vaginally, and no differences in cord blood pH at birth were noted. SGA infants had higher systolic and mean blood pressure at both time points, lower indices of right ventricular (RV) performance [TAPSE (tricuspid annular peak systolic excursion) 7.4 ± 2.8 vs. 9.3 ± 0.7 on day 1, 7.2 ± 2.8 vs. 9.2 ± 0.5 on day 2, p = 0.001], lower pulmonary acceleration time (PAAT) suggestive of elevated pulmonary vascular resistance [56.4 ± 10.5 vs. 65.7 ± 13.2 on day 1, 61.4 ± 12.5 vs. 71.5 ± 15.7 on day 2, p = 0.01] and higher left ventricular (LV) ejection fraction [62.1 ± 7.8 vs. 54.9 ± 5.5 on day 1, 61.9 ± 7.6 vs. 55.8 ± 4.9 on day 2, p = 0.003]. Conclusions SGA infants had evidence of higher pulmonary vascular resistance, and lower RV performance during the postnatal transition. The relevance and impact of these changes to hemodynamic disease states during the postnatal transition requires prospective investigation.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Tandberg2025",
+          "title": "Practices supporting cue-based breastfeeding of preterm infants in neonatal intensive care units across Europe",
+          "authors": [
+            "Bente Silnes Tandberg",
+            "Hege Grundt",
+            "Ragnhild Maastrup",
+            "Annie Aloysius",
+            "Livia Nagy",
+            "Renée Flacking"
+          ],
+          "year": 2025,
+          "doi": "10.1186/s13006-024-00697-y",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1186/s13006-024-00697-y",
+            "title": "Practices supporting cue-based breastfeeding of preterm infants in neonatal intensive care units across Europe",
+            "year": 2025,
+            "authors": [
+              "Bente Silnes Tandberg",
+              "Hege Grundt",
+              "Ragnhild Maastrup",
+              "Annie Aloysius",
+              "Livia Nagy",
+              "Renée Flacking"
+            ],
+            "venue": "International Breastfeeding Journal",
+            "abstract": "Abstract Background Emerging knowledge about supportive neurodevelopmental neonatal care shows the need for an individual approach to establish breastfeeding. However, evidence on how cue-based breastfeeding is supported in neonatal intensive care units (NICUs) is scarce. Therefore, the aim was to describe supporting practices for cue-based breastfeeding. Method Through Delphi rounds, a questionnaire was developed comprising questions on the usage and occurrence of supportive practices for cue-based breastfeeding. A multinational online survey was distributed September to October in 2023 to NICUs in Europe using snowball sampling. Practices such as the practice of skin-to-skin contact (SSC), restrictions for breastfeeding, providing information to parents, observing and responding to infants’ cues were explored. Results The survey was completed by 105 neonatal units across 15 European countries. Less than half (46%) of the NICUs had no restrictions upon placing the infant in SSC with the parents. Approximately half (49%) of the NICUs stated that infants had SSC within the first hour after birth. Many units (68%) had some restriction for breastfeeding. One week after birth, 48% of the NICUs encouraged breastfeeding for infants at 33 postmenstrual age whenever the infant showed cues, regardless of scheduled tube feeding time. This percentage increased to 59% at 33–35 gestational age. Less than half of the units (47%) stated that they had the necessary tools/instruments to support the transition from tube feeding to breastfeeding. There were variations in how milk intake was assessed, such as weighing before and after breastfeeding or estimating milk intake by time spent sucking. Infants in 50% of the units had to be fed exclusively orally before discharge. Many units (65%) provided specific support to or enabled discharge before the infant was exclusively orally fed. Conclusion European NICUs employ supportive practices, SSC, early initiation of breastfeeding, and pro",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Warren2012",
+          "title": "Care of the Well Newborn",
+          "authors": [
+            "Johanna B. Warren",
+            "Carrie A. Phillipi"
+          ],
+          "year": 2012,
+          "doi": "10.1542/pir.33.1.4",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1542/pir.33.1.4",
+            "title": "Care of the Well Newborn",
+            "year": 2012,
+            "authors": [
+              "Johanna B. Warren",
+              "Carrie A. Phillipi"
+            ],
+            "venue": "Pediatrics In Review",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Zanardo2017",
+          "title": "Emu oil-based lotion effects on neonatal skin barrier during transition from intrauterine to extrauterine life",
+          "authors": [
+            "Vincenzo Zanardo",
+            "David Giarrizzo",
+            "Francesca Volpe",
+            "Lara Giliberti",
+            "Gianluca Straface"
+          ],
+          "year": 2017,
+          "doi": "10.2147/ccid.s133484",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.2147/ccid.s133484",
+            "title": "Emu oil-based lotion effects on neonatal skin barrier during transition from intrauterine to extrauterine life",
+            "year": 2017,
+            "authors": [
+              "Vincenzo Zanardo",
+              "David Giarrizzo",
+              "Francesca Volpe",
+              "Lara Giliberti",
+              "Gianluca Straface"
+            ],
+            "venue": "Clinical, Cosmetic and Investigational Dermatology",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Zhong2023",
+          "title": "The development of blood protein profiles in extremely preterm infants follows a stereotypic evolution pattern",
+          "authors": [
+            "Wen Zhong",
+            "Hanna Danielsson",
+            "Nele Brusselaers",
+            "Dirk Wackernagel",
+            "Ulrika Sjöbom",
+            "Karin Sävman",
+            "Ingrid Hansen Pupp",
+            "David Ley",
+            "Anders K. Nilsson",
+            "Linn Fagerberg",
+            "Mathias Uhlén",
+            "Ann Hellström"
+          ],
+          "year": 2023,
+          "doi": "10.1038/s43856-023-00338-1",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1038/s43856-023-00338-1",
+            "title": "The development of blood protein profiles in extremely preterm infants follows a stereotypic evolution pattern",
+            "year": 2023,
+            "authors": [
+              "Wen Zhong",
+              "Hanna Danielsson",
+              "Nele Brusselaers",
+              "Dirk Wackernagel",
+              "Ulrika Sjöbom",
+              "Karin Sävman",
+              "Ingrid Hansen Pupp",
+              "David Ley",
+              "Anders K. Nilsson",
+              "Linn Fagerberg",
+              "Mathias Uhlén",
+              "Ann Hellström"
+            ],
+            "venue": "Communications Medicine",
+            "abstract": "Abstract Background Preterm birth is the leading cause of neonatal mortality and morbidity. Early diagnosis and interventions are critical to improving the clinical outcomes of extremely premature infants. Blood protein profiling during the first months of life in preterm infants can shed light on the role of early extrauterine development and provide an increased understanding of maturation after extremely preterm birth and the underlying mechanisms of prematurity-related disorders. Methods We have investigated the blood protein profiles during the first months of life in preterm infants on the role of early extrauterine development. The blood protein levels were analyzed using next generation blood profiling on 1335 serum samples, collected longitudinally at nine time points from birth to full-term from 182 extremely preterm infants. Results The protein analysis reveals evident predestined serum evolution patterns common for all included infants. The majority of the variations in blood protein expression are associated with the postnatal age of the preterm infants rather than any other factors. There is a uniform protein pattern on postnatal day 1 and after 30 weeks postmenstrual age (PMA), independent of gestational age (GA). However, during the first month of life, GA had a significant impact on protein variability. Conclusions The unified pattern of protein development for all included infants suggests an age-dependent stereotypic development of blood proteins after birth. This knowledge should be considered in neonatal settings and might alter the clinical approach within neonatology, where PMA is today the most dominant age variable.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        }
+      ],
+      "result": "pass",
+      "finished_at_utc": "2026-09-05T13:59:49.821109+00:00"
+    },
+    "after_relevance_fix": {
+      "started_at_utc": "2026-09-05T14:07:42.181116+00:00",
+      "scope": "public bibliographic metadata only; no LLM, production DB, PDFs or DOCX",
+      "topic": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+      "alt_topic": "The role of the nurse in perinatal care and neonatal transition to extrauterine life",
+      "section_titles": [
+        "Assistenza infermieristica perinatale",
+        "Adattamento neonatale alla vita extrauterina"
+      ],
+      "alt_section_titles": [
+        "Perinatal nursing care",
+        "Neonatal adaptation to extrauterine life"
+      ],
+      "input_boundary": "Founder-selected topic; English translation and two representative section scopes prepared manually for this canary, not the saved outline",
+      "profile": {
+        "target": 24,
+        "minimum": 18,
+        "reserve": 48,
+        "min_on_topic_score": 0.35
+      },
+      "paid_calls": 0,
+      "initial": {
+        "citable": 24,
+        "context": 0,
+        "underfilled": false,
+        "provider_errors": []
+      },
+      "candidates": {
+        "citable": 48,
+        "provider_errors": [],
+        "initial_keys_retained": true
+      },
+      "preflight": {
+        "status": "passed",
+        "candidates": 48,
+        "verified": 24,
+        "final_size": 24,
+        "target": 24,
+        "min_required": 18,
+        "rejected_by_reason": {
+          "not_found": 1,
+          "metadata_mismatch": 1
+        },
+        "rejected": [
+          {
+            "title": "Neonatal Hypoglycemia",
+            "reason": "not_found"
+          },
+          {
+            "title": "Neonatal intensive care unit lighting: update and recommendations",
+            "reason": "metadata_mismatch"
+          }
+        ],
+        "transient_count": 0,
+        "unknown_type_count": 0,
+        "top_up_attempted": false,
+        "sha256": "dbe6f941597561d6f586744dab4e39172179156fa930992262101ab6d8ab227f"
+      },
+      "sources": [
+        {
+          "key": "McGowan1999",
+          "title": "Neonatal Hypoglycemia",
+          "authors": [
+            "Jane E. McGowan"
+          ],
+          "year": 1999,
+          "doi": "10.1542/pir.20.7.e6",
+          "type": "article",
+          "relevance_score": 0.7777777777777778,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1542/pir.20.7.e6",
+            "title": "Neonatal Hypoglycemia",
+            "year": 1999,
+            "authors": [
+              "Jane E. McGowan"
+            ],
+            "venue": "Pediatrics In Review",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Narvey2019",
+          "title": "The screening and management of newborns at risk for low blood glucose",
+          "authors": [
+            "Michael R Narvey",
+            "Seth D Marks"
+          ],
+          "year": 2019,
+          "doi": "10.1093/pch/pxz134",
+          "type": "article",
+          "relevance_score": 0.75,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1093/pch/pxz134",
+            "title": "The screening and management of newborns at risk for low blood glucose",
+            "year": 2019,
+            "authors": [
+              "Michael R Narvey",
+              "Seth D Marks"
+            ],
+            "venue": "Paediatrics &amp; Child Health",
+            "abstract": "Abstract Hypoglycemia in the first hours to days after birth remains one of the most common conditions facing practitioners across Canada who care for newborns. Many cases represent normal physiologic transition to extrauterine life, but another group experiences hypoglycemia of longer duration. This statement addresses key issues for providers of neonatal care, including the definition of hypoglycemia, risk factors, screening protocols, blood glucose levels requiring intervention, and managing care for this condition. Screening, monitoring, and intervention protocols have been revised to better identify, manage, and treat infants who are at risk for persistent, recurrent, or severe hypoglycemia. The role of dextrose gels in raising glucose levels or preventing more persistent hypoglycemia, and precautions to reduce risk for recurrence after leaving hospital, are also addressed. This statement differentiates between approaches to care for hypoglycemia during the ‘transitional’ phase—the first 72 hours post-birth—and persistent hypoglycemia, which occurs or presents for the first time past that point.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Suciu2023a",
+          "title": "Normative echocardiography data of myocardial adaptation to extrauterine life: a review of prospective studies",
+          "authors": [
+            "Laura Mihaela Suciu",
+            "Irina Prelipcean",
+            "Amalia Făgărășan",
+            "Regan E. Giesinger",
+            "Patrick J. McNamara"
+          ],
+          "year": 2023,
+          "doi": "10.3389/fped.2023.1192618",
+          "type": "article",
+          "relevance_score": 0.6666666666666666,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2023.1192618",
+            "title": "Normative echocardiography data of myocardial adaptation to extrauterine life: a review of prospective studies",
+            "year": 2023,
+            "authors": [
+              "Laura Mihaela Suciu",
+              "Irina Prelipcean",
+              "Amalia Făgărășan",
+              "Regan E. Giesinger",
+              "Patrick J. McNamara"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Recent research has increased focus and interest in characterizing the physiology of the transition circulation using echocardiography. Critique of published normative neonatal echocardiography data among healthy term neonates has not been performed. We have performed a comprehensive literature review using the key terms: cardiac adaptation, hemodynamics, neonatal transition, term newborns. Studies were included if they had reported echocardiography indices of cardiovascular function in the presence of maternal diabetes, intrauterine growth restricted newborns and prematurity and had a comparison group of healthy term newborns within first seven postnatal days. Sixteen published studies evaluating transitional circulation in healthy newborns were included. There was marked heterogeneity in the methodologies used; specifically, inconsistency in time of evaluation and imaging techniques used makes it challenging to determine specific trends of expected physiologic changes. Some studies revealed nomograms for echocardiography indices, though limitations persist in terms of sample size, number of reported parameters and consistency of measurement technique. A comprehensive standardized echocardiography framework which includes consistent techniques for assessment dimensions, function, blood flow, pulmonary/systemic vascular resistance, and shunts pattern is warranted to ensure consistency in the use of echocardiography to guide care of healthy and sick newborns.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Bicking2012",
+          "title": "Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse",
+          "authors": [
+            "Cara Bicking",
+            "Ginger A. Moore"
+          ],
+          "year": 2012,
+          "doi": "10.1891/0730-0832.31.5.295",
+          "type": "journal-article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1891/0730-0832.31.5.295",
+            "title": "Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse",
+            "year": 2012,
+            "authors": [
+              "Cara Bicking",
+              "Ginger A. Moore"
+            ],
+            "venue": "Neonatal Network",
+            "abstract": "The onset of depressive symptoms during pregnancy or the first year postpartum, termed perinatal depression , occurs in approximately 15 percent of women. Perinatal depression can have a significant negative impact on health outcomes for the mother and her infant including maternal emotional distress and parenting difficulties and infant behavioral and developmental problems. Nurses caring for patients in the neonatal intensive care unit (NICU) are in a key position to affect positive change in the lives of families affected by perinatal depression. An overview of antepartum and postpartum depression is provided that has been tailored to the educational needs of the neonatal nurse. A discussion of the role of neonatal nurses in the identification and treatment of perinatal depression follows in order that neonatal nurses may improve both short- and long-term outcomes for mothers, infants, and families in the NICU affected by perinatal depression.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Devin2018",
+          "title": "Delayed Cord Clamping in Term Neonates: Attitudes and Practices of Midwives in Irish Hospitals",
+          "authors": [
+            "Joan Devin",
+            "Patricia Larkin"
+          ],
+          "year": 2018,
+          "doi": "10.1891/2156-5287.8.1.4",
+          "type": "article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1891/2156-5287.8.1.4",
+            "title": "Delayed Cord Clamping in Term Neonates: Attitudes and Practices of Midwives in Irish Hospitals",
+            "year": 2018,
+            "authors": [
+              "Joan Devin",
+              "Patricia Larkin"
+            ],
+            "venue": "International Journal of Childbirth",
+            "abstract": "Background: At the time of birth, the baby is attached to its mother’s placenta via the umbilical cord. A delay in cord clamping is physiologically beneficial to the neonate as they receive an increase in blood volume (30%–40%), increased iron stores (20–30mg/kg), and an easier transition to extrauterine life. Active management of the third stage of labor, in order to prevent maternal postpartum hemorrhage, may contribute to early cord clamping practices in Ireland. Objective: To describe the current practices and attitudes of midwives in Irish hospitals toward delayed cord clamping in term neonates. Methods: A cross-sectional descriptive survey was distributed to three maternity hospitals and two Irish online midwifery groups. Results: One hundred and fifty-three valid responses were received. One hundred and eleven midwives (72.4%) defined delayed cord clamping as “clamping after the cord ceases to pulsate.” One hundred and forty (91.5%) respondents practiced delayed cord clamping. Moreover, 62.7 % (98/153) of participants routinely clamp the umbilical cord >1 minute when practicing active management of the third stage, with 49.1% (48/98) of those waiting until cord pulsations have ceased. Awareness of research, practice guidelines advising delayed cord clamping, and experience of practicing physiological third stage are associated with increased delayed cord clamping practices. Early cord clamping is influenced by a deteriorating neonatal or maternal condition and the cultural context within clinical sites. Delayed cord clamping times during active management of the third stage differ significantly between clinical sites and maternity care pathways. Conclusion: A variety of midwifery practices were identified with differing attitudes toward cord clamping practices. Diverse influences included the practice environment, awareness of research, and availability of adjunct resuscitation supports. Recommendations for future practice include a synchronized approach to d",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Haren2024",
+          "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+          "authors": [
+            "Juliette S. van Haren",
+            "Frank L. M. Delbressine",
+            "Mark Schoberer",
+            "Arjan B. te Pas",
+            "Judith O. E. H. van Laar",
+            "S. Guid Oei",
+            "M. Beatrijs van der Hout-van der Jagt"
+          ],
+          "year": 2024,
+          "doi": "10.3389/fped.2024.1360111",
+          "type": "article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2024.1360111",
+            "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+            "year": 2024,
+            "authors": [
+              "Juliette S. van Haren",
+              "Frank L. M. Delbressine",
+              "Mark Schoberer",
+              "Arjan B. te Pas",
+              "Judith O. E. H. van Laar",
+              "S. Guid Oei",
+              "M. Beatrijs van der Hout-van der Jagt"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "To improve care for extremely premature infants, the development of an extrauterine environment for newborn development is being researched, known as Artificial Placenta and Artificial Womb (APAW) technology. APAW facilitates extended development in a liquid-filled incubator with oxygen and nutrient supply through an oxygenator connected to the umbilical vessels. This setup is intended to provide the optimal environment for further development, allowing further lung maturation by delaying gas exposure to oxygen. This innovative treatment necessitates interventions in obstetric procedures to transfer an infant from the native to an artificial womb, while preventing fetal-to-neonatal transition. In this narrative review we analyze relevant fetal physiology literature, provide an overview of insights from APAW studies, and identify considerations for the obstetric procedure from the native uterus to an APAW system. Lastly, this review provides suggestions to improve sterility, fetal and maternal well-being, and the prevention of neonatal transition.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Rice2012",
+          "title": "The Role of the Perinatal-Neonatal Nurse Navigator in a Tertiary Care Center",
+          "authors": [
+            "Debbie L. Rice"
+          ],
+          "year": 2012,
+          "doi": "10.1111/j.1552-6909.2012.01361_32.x",
+          "type": "journal-article",
+          "relevance_score": 0.625,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1111/j.1552-6909.2012.01361_32.x",
+            "title": "The Role of the Perinatal-Neonatal Nurse Navigator in a Tertiary Care Center",
+            "year": 2012,
+            "authors": [
+              "Debbie L. Rice"
+            ],
+            "venue": "Journal of Obstetric, Gynecologic &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Michel2017",
+          "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+          "authors": [
+            "Alexandra Michel",
+            "Nancy K. Lowe"
+          ],
+          "year": 2017,
+          "doi": "10.1177/1099800416685178",
+          "type": "journal-article",
+          "relevance_score": 0.5555555555555556,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1177/1099800416685178",
+            "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+            "year": 2017,
+            "authors": [
+              "Alexandra Michel",
+              "Nancy K. Lowe"
+            ],
+            "venue": "Biological Research For Nursing",
+            "abstract": "Purpose: To define and describe the processes underlying the successful neonatal transition to extrauterine life and methods to assess the transition. Method: Cumulative Index to Nursing and Allied Health Literature (CINAHL), Embase, Web of Science, and Google Scholar were searched using a combination of the key words neonate, neonatal, newborn, transition, respiratory OR pulmonary, cardiac, metabolic, pH, umbilical cord, and assessment. Articles in English and German were reviewed. The final sample of articles consisted of one randomized controlled trial, 30 observational studies using human neonates, one observational study using rabbit pups, one secondary analysis, three systematic reviews, and 23 review articles. Major Findings: The pertinent findings in regard to normal events in the respiratory, cardiovascular, and metabolic transitions are reviewed and summarized. We address the underlying factors necessary for the transition to extrauterine life, specify the consequences of a successful transition, and review common assessment approaches. Conclusion: Available evidence indicates that the successful immediate transition to extrauterine life should be completed within 1–3 hr after birth, though some adaptive processes can fail as late as 24–48 hr after birth. Further research is necessary to identify a feasible, easily used, noninvasive method to assess the status of a neonate’s transition to extrauterine life.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Abdelmaaboud2023",
+          "title": "Perinatal Care and Threshold of Viability; A Great Dilemma",
+          "authors": [
+            "Mohammad Abdelmaaboud"
+          ],
+          "year": 2023,
+          "doi": "10.21608/anj.2023.310523",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.21608/anj.2023.310523",
+            "title": "Perinatal Care and Threshold of Viability; A Great Dilemma",
+            "year": 2023,
+            "authors": [
+              "Mohammad Abdelmaaboud"
+            ],
+            "venue": "Annals of Neonatology Journal",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Ayenew2020",
+          "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+          "authors": [
+            "Asteray Ayenew",
+            "Mahlet Abebe",
+            "Mesafint Ewnetu"
+          ],
+          "year": 2020,
+          "doi": "10.2147/phmt.s276698",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.2147/phmt.s276698",
+            "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+            "year": 2020,
+            "authors": [
+              "Asteray Ayenew",
+              "Mahlet Abebe",
+              "Mesafint Ewnetu"
+            ],
+            "venue": "Pediatric Health, Medicine and Therapeutics",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 0.956,
+            "reason": null
+          }
+        },
+        {
+          "key": "Bergman2024",
+          "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+          "authors": [
+            "Nils J. Bergman"
+          ],
+          "year": 2024,
+          "doi": "10.3389/fpsyg.2024.1385320",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fpsyg.2024.1385320",
+            "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+            "year": 2024,
+            "authors": [
+              "Nils J. Bergman"
+            ],
+            "venue": "Frontiers in Psychology",
+            "abstract": "Background In 2023, the World Health Organization (WHO) published a Global Position Paper on Kangaroo Mother Care (KMC), which is applicable to all countries worldwide: from the moment of birth, every “small and sick” newborn should remain with mother in immediate and continuous skin-to-skin contact (SSC), receiving all required clinical care in that place. This was prompted by the startling results of a randomized controlled trial published in 2021: in which 1,609 infants receiving immediate SSC were compared with 1,602 controls that were separated from their mothers but otherwise received identical conventional state-of-the-art care. The intervention infants showed a 25% reduction in mortality after 28 days. New perspectives The new WHO guidelines are a significant change from earlier guidance and common clinical practice. The author presents that separating mothers and babies is assumed to be “normal” (a paradigm) but actually puts newborns at increased risk for morbidity and mortality. The author presents arguments and ethical perspectives for a new perspective on what is “normal,” keeping newborns with their mothers is the infant’s physiological expectation and critical requirement for healthy development. The author reviews the scientific rationale for changing the paradigm, based on synchronous interactions of oxytocin on both mother and infant. This follows a critique of the new policies that highlights the role of immediate SSC. Actionable recommendations This critique strengthens the case for implementing the WHO guidelines on KMC for small and sick babies. System changes will be necessary in both obstetric and neonatal settings to ensure seamless perinatal care. Based on the role of oxytocin, the author identifies that many current routine care practices may actually contribute to stress and increased vulnerability to the newborn. WHO has actionable recommendations about family involvement and presence in newborn intensive care units. Discussion The conce",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Caeymaex2011",
+          "title": "Living with a Crucial Decision: A Qualitative Study of Parental Narratives Three Years after the Loss of Their Newborn in the NICU",
+          "authors": [
+            "Laurence Caeymaex",
+            "Mario Speranza",
+            "Caroline Vasilescu",
+            "Claude Danan",
+            "Marie-Michèle Bourrat",
+            "Micheline Garel",
+            "Catherine Jousselme"
+          ],
+          "year": 2011,
+          "doi": "10.1371/journal.pone.0028633",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1371/journal.pone.0028633",
+            "title": "Living with a Crucial Decision: A Qualitative Study of Parental Narratives Three Years after the Loss of Their Newborn in the NICU",
+            "year": 2011,
+            "authors": [
+              "Laurence Caeymaex",
+              "Mario Speranza",
+              "Caroline Vasilescu",
+              "Claude Danan",
+              "Marie-Michèle Bourrat",
+              "Micheline Garel",
+              "Catherine Jousselme"
+            ],
+            "venue": "PLoS ONE",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Cusson2008",
+          "title": "Neonatal Nurse Practitioner Role Transition",
+          "authors": [
+            "Regina M. Cusson",
+            "Sally Nelson Strange"
+          ],
+          "year": 2008,
+          "doi": "10.1097/01.jpn.0000341365.60693.39",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1097/01.jpn.0000341365.60693.39",
+            "title": "Neonatal Nurse Practitioner Role Transition",
+            "year": 2008,
+            "authors": [
+              "Regina M. Cusson",
+              "Sally Nelson Strange"
+            ],
+            "venue": "Journal of Perinatal &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Divoll1987",
+          "title": "The role of the perinatal and neonatal nurse in risk management",
+          "authors": [
+            "Marcia K. Divoll"
+          ],
+          "year": 1987,
+          "doi": "10.1097/00005237-198710000-00003",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1097/00005237-198710000-00003",
+            "title": "The role of the perinatal and neonatal nurse in risk management",
+            "year": 1987,
+            "authors": [
+              "Marcia K. Divoll"
+            ],
+            "venue": "The Journal of Perinatal &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Etten2022",
+          "title": "The important primary care role of neonatal nurse practitioners in the neonatal intensive care unit",
+          "authors": [
+            "Kristen Etten",
+            "Jacqui Hoffman",
+            "Carol Wallman",
+            "Bobby Bellflower"
+          ],
+          "year": 2022,
+          "doi": "10.1097/jxx.0000000000000800",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1097/jxx.0000000000000800",
+            "title": "The important primary care role of neonatal nurse practitioners in the neonatal intensive care unit",
+            "year": 2022,
+            "authors": [
+              "Kristen Etten",
+              "Jacqui Hoffman",
+              "Carol Wallman",
+              "Bobby Bellflower"
+            ],
+            "venue": "Journal of the American Association of Nurse Practitioners",
+            "abstract": "ABSTRACT Neonatal nurse practitioners (NNPs) are recognized as acute care providers but are actually both acute and primary care providers via education and practice. Neonatal nurse practitioners provide primary care such as anticipatory guidance, care and follow-up of technologically dependent infants, and discharge planning. Numerous interventions and care in the neonatal intensive care unit (NICU) fall under the umbrella of health promotion, an aspect of primary care. In addition, NNPs must also be able to recognize, diagnose, and manage myriad common pediatric illnesses. There is a paucity of data to evaluate how NNP programs are meeting the National Association of Neonatal Nurses educational standards on this topic. A REDCap survey was sent to 31 NNP program directors, with a 100% response rate. All programs provide content addressing primary care management in their curriculum. National recognition of the primary care role, in addition to the acute care role that NNPs practice, should increase opportunities for clinical placement sites, employment opportunities, and grant funding. This article aims to demonstrate both the educational preparation and the delivery of primary care that NNPs provide in the NICU and other areas of practice.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Heo2021",
+          "title": "2020 Korean Guidelines for Cardiopulmonary Resuscitation. Part 8. Neonatal resuscitation",
+          "authors": [
+            "Ju Sun Heo",
+            "Su Yeong Kim",
+            "Hye Won Park",
+            "Yong-Sung Choi",
+            "Chan-Wook Park",
+            "Geum Joon Cho",
+            "Ah Young Oh",
+            "Eun Kyung Jang",
+            "Han-Suk Kim",
+            "Ai-Rhan Ellen Kim",
+            "Sung Oh Hwang"
+          ],
+          "year": 2021,
+          "doi": "10.15441/ceem.21.028",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.15441/ceem.21.028",
+            "title": "2020 Korean Guidelines for Cardiopulmonary Resuscitation. Part 8. Neonatal resuscitation",
+            "year": 2021,
+            "authors": [
+              "Ju Sun Heo",
+              "Su Yeong Kim",
+              "Hye Won Park",
+              "Yong-Sung Choi",
+              "Chan-Wook Park",
+              "Geum Joon Cho",
+              "Ah Young Oh",
+              "Eun Kyung Jang",
+              "Han-Suk Kim",
+              "Ai-Rhan Ellen Kim",
+              "Sung Oh Hwang"
+            ],
+            "venue": "Clinical and Experimental Emergency Medicine",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Ivory2015",
+          "title": "The Role of Health Care Technology in Support of Perinatal Nurse Staffing",
+          "authors": [
+            "Catherine H. Ivory"
+          ],
+          "year": 2015,
+          "doi": "10.1111/1552-6909.12546",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1111/1552-6909.12546",
+            "title": "The Role of Health Care Technology in Support of Perinatal Nurse Staffing",
+            "year": 2015,
+            "authors": [
+              "Catherine H. Ivory"
+            ],
+            "venue": "Journal of Obstetric, Gynecologic &amp; Neonatal Nursing",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Jagt2022",
+          "title": "Interprofessional Consensus Regarding Design Requirements for Liquid-Based Perinatal Life Support (PLS) Technology",
+          "authors": [
+            "M. Beatrijs van der Hout-van der Jagt",
+            "E. J. T. Verweij",
+            "Peter Andriessen",
+            "Willem P. de Boode",
+            "Arend F. Bos",
+            "Frank L. M. Delbressine",
+            "Alex J. Eggink",
+            "Jan Jaap H. M. Erwich",
+            "Loe M. G. Feijs",
+            "Floris Groenendaal",
+            "Boris W. W. Kramer",
+            "A. Titia Lely",
+            "Rachel F. A. M. Loop",
+            "Franziska Neukamp",
+            "Wes Onland",
+            "Martijn A. Oudijk",
+            "Arjan B. te Pas",
+            "Irwin K. M. Reiss",
+            "Mark Schoberer",
+            "Ralph R. Scholten",
+            "Marc E. A. Spaanderman",
+            "Myrthe van der Ven",
+            "Marijn J. Vermeulen",
+            "Frans N. van de Vosse",
+            "S. Guid Oei"
+          ],
+          "year": 2022,
+          "doi": "10.3389/fped.2021.793531",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2021.793531",
+            "title": "Interprofessional Consensus Regarding Design Requirements for Liquid-Based Perinatal Life Support (PLS) Technology",
+            "year": 2022,
+            "authors": [
+              "M. Beatrijs van der Hout-van der Jagt",
+              "E. J. T. Verweij",
+              "Peter Andriessen",
+              "Willem P. de Boode",
+              "Arend F. Bos",
+              "Frank L. M. Delbressine",
+              "Alex J. Eggink",
+              "Jan Jaap H. M. Erwich",
+              "Loe M. G. Feijs",
+              "Floris Groenendaal",
+              "Boris W. W. Kramer",
+              "A. Titia Lely",
+              "Rachel F. A. M. Loop",
+              "Franziska Neukamp",
+              "Wes Onland",
+              "Martijn A. Oudijk",
+              "Arjan B. te Pas",
+              "Irwin K. M. Reiss",
+              "Mark Schoberer",
+              "Ralph R. Scholten",
+              "Marc E. A. Spaanderman",
+              "Myrthe van der Ven",
+              "Marijn J. Vermeulen",
+              "Frans N. van de Vosse",
+              "S. Guid Oei"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Liquid-based perinatal life support (PLS) technology will probably be applied in a first-in-human study within the next decade. Research and development of PLS technology should not only address technical issues, but also consider socio-ethical and legal aspects, its application area, and the corresponding design implications. This paper represents the consensus opinion of a group of healthcare professionals, designers, ethicists, researchers and patient representatives, who have expertise in tertiary obstetric and neonatal care, bio-ethics, experimental perinatal animal models for physiologic research, biomedical modeling, monitoring, and design. The aim of this paper is to provide a framework for research and development of PLS technology. These requirements are considering the possible respective user perspectives, with the aim to co-create a PLS system that facilitates physiological growth and development for extremely preterm born infants.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "SepulvedaOviedo2024",
+          "title": "Effect of timing of umbilical cord clamping and birth on fetal to neonatal transition: OpenModelica-based virtual simulator-based approach",
+          "authors": [
+            "Edgar Hernando Sepúlveda-Oviedo",
+            "Leonardo Enrique Bermeo Clavijo",
+            "Luis Carlos Méndez-Córdoba"
+          ],
+          "year": 2024,
+          "doi": "10.1016/j.bbe.2024.08.008",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1016/j.bbe.2024.08.008",
+            "title": "Effect of timing of umbilical cord clamping and birth on fetal to neonatal transition: OpenModelica-based virtual simulator-based approach",
+            "year": 2024,
+            "authors": [
+              "Edgar Hernando Sepúlveda-Oviedo",
+              "Leonardo Enrique Bermeo Clavijo",
+              "Luis Carlos Méndez-Córdoba"
+            ],
+            "venue": "Biocybernetics and Biomedical Engineering",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Suciu2023b",
+          "title": "Comparative evaluation of echocardiography indices during the transition to extrauterine life between small and appropriate for gestational age infants",
+          "authors": [
+            "Laura Mihaela Suciu",
+            "Regan E. Giesinger",
+            "Claudiu Mărginean",
+            "Mihai Muntean",
+            "Manuela Cucerea",
+            "Amalia Făgărășan",
+            "Patrick McNamara"
+          ],
+          "year": 2023,
+          "doi": "10.3389/fped.2022.1045242",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.3389/fped.2022.1045242",
+            "title": "Comparative evaluation of echocardiography indices during the transition to extrauterine life between small and appropriate for gestational age infants",
+            "year": 2023,
+            "authors": [
+              "Laura Mihaela Suciu",
+              "Regan E. Giesinger",
+              "Claudiu Mărginean",
+              "Mihai Muntean",
+              "Manuela Cucerea",
+              "Amalia Făgărășan",
+              "Patrick McNamara"
+            ],
+            "venue": "Frontiers in Pediatrics",
+            "abstract": "Objectives To study changes in heart function and hemodynamics during the transitional period in small for gestational (SGA) infants and appropriate (AGA) healthier counterparts. Design A hospital based prospective observational study was performed at a perinatal center. Echocardiograms were performed on the first postnatal day and again at 48 h age. Term SGA infants were compared with those AGA newborns matched for the GA and mode of delivery. Results Eighteen SGA infants were compared with 18 AGA infants [gestation 38 ± 1.5 vs. 38 ± 1.2 weeks, p &gt; 0.05 and birthweight 2331 ± 345 vs. 3332 ± 405 grams, p &lt; 0.05, respectively]. Maternal weight and body mass index was higher among non-affected pregnancies, 61% infants were born vaginally, and no differences in cord blood pH at birth were noted. SGA infants had higher systolic and mean blood pressure at both time points, lower indices of right ventricular (RV) performance [TAPSE (tricuspid annular peak systolic excursion) 7.4 ± 2.8 vs. 9.3 ± 0.7 on day 1, 7.2 ± 2.8 vs. 9.2 ± 0.5 on day 2, p = 0.001], lower pulmonary acceleration time (PAAT) suggestive of elevated pulmonary vascular resistance [56.4 ± 10.5 vs. 65.7 ± 13.2 on day 1, 61.4 ± 12.5 vs. 71.5 ± 15.7 on day 2, p = 0.01] and higher left ventricular (LV) ejection fraction [62.1 ± 7.8 vs. 54.9 ± 5.5 on day 1, 61.9 ± 7.6 vs. 55.8 ± 4.9 on day 2, p = 0.003]. Conclusions SGA infants had evidence of higher pulmonary vascular resistance, and lower RV performance during the postnatal transition. The relevance and impact of these changes to hemodynamic disease states during the postnatal transition requires prospective investigation.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Tandberg2025",
+          "title": "Practices supporting cue-based breastfeeding of preterm infants in neonatal intensive care units across Europe",
+          "authors": [
+            "Bente Silnes Tandberg",
+            "Hege Grundt",
+            "Ragnhild Maastrup",
+            "Annie Aloysius",
+            "Livia Nagy",
+            "Renée Flacking"
+          ],
+          "year": 2025,
+          "doi": "10.1186/s13006-024-00697-y",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1186/s13006-024-00697-y",
+            "title": "Practices supporting cue-based breastfeeding of preterm infants in neonatal intensive care units across Europe",
+            "year": 2025,
+            "authors": [
+              "Bente Silnes Tandberg",
+              "Hege Grundt",
+              "Ragnhild Maastrup",
+              "Annie Aloysius",
+              "Livia Nagy",
+              "Renée Flacking"
+            ],
+            "venue": "International Breastfeeding Journal",
+            "abstract": "Abstract Background Emerging knowledge about supportive neurodevelopmental neonatal care shows the need for an individual approach to establish breastfeeding. However, evidence on how cue-based breastfeeding is supported in neonatal intensive care units (NICUs) is scarce. Therefore, the aim was to describe supporting practices for cue-based breastfeeding. Method Through Delphi rounds, a questionnaire was developed comprising questions on the usage and occurrence of supportive practices for cue-based breastfeeding. A multinational online survey was distributed September to October in 2023 to NICUs in Europe using snowball sampling. Practices such as the practice of skin-to-skin contact (SSC), restrictions for breastfeeding, providing information to parents, observing and responding to infants’ cues were explored. Results The survey was completed by 105 neonatal units across 15 European countries. Less than half (46%) of the NICUs had no restrictions upon placing the infant in SSC with the parents. Approximately half (49%) of the NICUs stated that infants had SSC within the first hour after birth. Many units (68%) had some restriction for breastfeeding. One week after birth, 48% of the NICUs encouraged breastfeeding for infants at 33 postmenstrual age whenever the infant showed cues, regardless of scheduled tube feeding time. This percentage increased to 59% at 33–35 gestational age. Less than half of the units (47%) stated that they had the necessary tools/instruments to support the transition from tube feeding to breastfeeding. There were variations in how milk intake was assessed, such as weighing before and after breastfeeding or estimating milk intake by time spent sucking. Infants in 50% of the units had to be fed exclusively orally before discharge. Many units (65%) provided specific support to or enabled discharge before the infant was exclusively orally fed. Conclusion European NICUs employ supportive practices, SSC, early initiation of breastfeeding, and pro",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Warren2012",
+          "title": "Care of the Well Newborn",
+          "authors": [
+            "Johanna B. Warren",
+            "Carrie A. Phillipi"
+          ],
+          "year": 2012,
+          "doi": "10.1542/pir.33.1.4",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1542/pir.33.1.4",
+            "title": "Care of the Well Newborn",
+            "year": 2012,
+            "authors": [
+              "Johanna B. Warren",
+              "Carrie A. Phillipi"
+            ],
+            "venue": "Pediatrics In Review",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Zanardo2017",
+          "title": "Emu oil-based lotion effects on neonatal skin barrier during transition from intrauterine to extrauterine life",
+          "authors": [
+            "Vincenzo Zanardo",
+            "David Giarrizzo",
+            "Francesca Volpe",
+            "Lara Giliberti",
+            "Gianluca Straface"
+          ],
+          "year": 2017,
+          "doi": "10.2147/ccid.s133484",
+          "type": "journal-article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.2147/ccid.s133484",
+            "title": "Emu oil-based lotion effects on neonatal skin barrier during transition from intrauterine to extrauterine life",
+            "year": 2017,
+            "authors": [
+              "Vincenzo Zanardo",
+              "David Giarrizzo",
+              "Francesca Volpe",
+              "Lara Giliberti",
+              "Gianluca Straface"
+            ],
+            "venue": "Clinical, Cosmetic and Investigational Dermatology",
+            "abstract": null,
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        },
+        {
+          "key": "Zhong2023",
+          "title": "The development of blood protein profiles in extremely preterm infants follows a stereotypic evolution pattern",
+          "authors": [
+            "Wen Zhong",
+            "Hanna Danielsson",
+            "Nele Brusselaers",
+            "Dirk Wackernagel",
+            "Ulrika Sjöbom",
+            "Karin Sävman",
+            "Ingrid Hansen Pupp",
+            "David Ley",
+            "Anders K. Nilsson",
+            "Linn Fagerberg",
+            "Mathias Uhlén",
+            "Ann Hellström"
+          ],
+          "year": 2023,
+          "doi": "10.1038/s43856-023-00338-1",
+          "type": "article",
+          "relevance_score": 0.5,
+          "verification_status": "verified",
+          "canonical_metadata": {
+            "status": "verified",
+            "doi": "10.1038/s43856-023-00338-1",
+            "title": "The development of blood protein profiles in extremely preterm infants follows a stereotypic evolution pattern",
+            "year": 2023,
+            "authors": [
+              "Wen Zhong",
+              "Hanna Danielsson",
+              "Nele Brusselaers",
+              "Dirk Wackernagel",
+              "Ulrika Sjöbom",
+              "Karin Sävman",
+              "Ingrid Hansen Pupp",
+              "David Ley",
+              "Anders K. Nilsson",
+              "Linn Fagerberg",
+              "Mathias Uhlén",
+              "Ann Hellström"
+            ],
+            "venue": "Communications Medicine",
+            "abstract": "Abstract Background Preterm birth is the leading cause of neonatal mortality and morbidity. Early diagnosis and interventions are critical to improving the clinical outcomes of extremely premature infants. Blood protein profiling during the first months of life in preterm infants can shed light on the role of early extrauterine development and provide an increased understanding of maturation after extremely preterm birth and the underlying mechanisms of prematurity-related disorders. Methods We have investigated the blood protein profiles during the first months of life in preterm infants on the role of early extrauterine development. The blood protein levels were analyzed using next generation blood profiling on 1335 serum samples, collected longitudinally at nine time points from birth to full-term from 182 extremely preterm infants. Results The protein analysis reveals evident predestined serum evolution patterns common for all included infants. The majority of the variations in blood protein expression are associated with the postnatal age of the preterm infants rather than any other factors. There is a uniform protein pattern on postnatal day 1 and after 30 weeks postmenstrual age (PMA), independent of gestational age (GA). However, during the first month of life, GA had a significant impact on protein variability. Conclusions The unified pattern of protein development for all included infants suggests an age-dependent stereotypic development of blood proteins after birth. This knowledge should be considered in neonatal settings and might alter the clinical approach within neonatology, where PMA is today the most dominant age variable.",
+            "provider": "crossref",
+            "match_score": 1.0,
+            "reason": null
+          }
+        }
+      ],
+      "result": "pass",
+      "finished_at_utc": "2026-09-05T14:08:07.708063+00:00"
+    },
+    "first_metadata_pass_is_not_relevance_pass": true,
+    "initial_relevance_verdict": "FAIL: three genuine publications studied nonhuman populations unrelated to the nursing scope.",
+    "after_relevance_verdict": "Observed three unrelated animal-population titles removed; 24 verified sources retained.",
+    "provider_cascade_warnings": [
+      "Crossref DOI lookup HTTP 301",
+      "Semantic Scholar search HTTP 429 with retries"
+    ],
+    "retrieval_and_existence_only": true,
+    "llm_translation_tested_live": false,
+    "saved_outline_used": false,
+    "generated_docx": false,
+    "before_source_pack_module_sha256": "c63bc3d92560df77544034cdcb9f7fb88719e0a3db898ddfd278332e377b6b73",
+    "after_source_pack_module_sha256": "6504f8d6895704f633a7c027539776e6c0f6a26978040c4909e6604e7d8c4b93",
+    "removed_titles": [
+      "Comparison of insulin sensitivity between healthy neonatal foals and horses using minimal model analysis",
+      "Role of mother-young interactions in the survival of offspring in domestic mammals",
+      "Transition to extrauterine life and the modeling of perinatal asphyxia in rats"
+    ],
+    "added_titles": [
+      "Effect of timing of umbilical cord clamping and birth on fetal to neonatal transition: OpenModelica-based virtual simulator-based approach",
+      "Perinatal Care and Threshold of Viability; A Great Dilemma",
+      "The role of the perinatal and neonatal nurse in risk management"
+    ]
+  },
+  "preservation": {
+    "start_file_hash_count": 606,
+    "preexisting_files_changed": [
+      "THESICA-PLAN.md",
+      "apps/api/app/services/ai_pipeline/source_pack.py",
+      "apps/api/app/services/background_jobs.py",
+      "apps/api/tests/test_source_pack.py",
+      "apps/api/tests/test_source_pack_preflight_pipeline.py",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md"
+    ],
+    "unrelated_file_hashes_unchanged": true,
+    "staged_index_unchanged": true,
+    "staged_index_sha256": "1a28fe7a0d77275d75f00f785e150718d11ee5f9fb013e37fedb9cfc1ced453f",
+    "application_readiness_record_unchanged": true,
+    "production_mutations": 0,
+    "paid_generation_starts": 0,
+    "messages_sent": 0
+  },
+  "remaining": {
+    "next_task": "M0-05",
+    "m0_05": "Verify the manager path through requirements, confirmation, generation state, actionable recovery, review DOCX, detector reports and permission for the exact file; resolve display discrepancies recorded in M0-03.",
+    "m0_06": [
+      "Independent review",
+      "Founder-authorized coordinated release",
+      "Live manager access and functional checks"
+    ],
+    "m1": "Real accepted DOCX, same-artifact Compilatio reports, no-rewrite and human-minutes evidence after readiness/release.",
+    "new_founder_input_required_for_next_task": false
+  },
+  "product_pass_proven": false
+}

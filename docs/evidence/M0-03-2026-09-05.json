@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "task_id": "M0-03",
+  "status": "LOCAL",
+  "recorded_at_utc": "2026-09-05T11:21:38.879147+00:00",
+  "source": {
+    "base_commit": "19e36fc42611675f25149efaae6ed2985c68323c",
+    "branch": "codex/telegram-operator-bot",
+    "committed": false,
+    "deployed": false,
+    "prerequisite_evidence": {
+      "path": "docs/evidence/M0-02-2026-09-05.json",
+      "sha256": "8435b948368530825aeb32a8bc82437ba4ecd630464f402b2e8ff2008d70e7ad"
+    },
+    "m0_03_manifest": [
+      {
+        "path": "apps/api/app/api/v1/endpoints/documents.py",
+        "sha256": "4806fb87164ee18e70db17e08b631579df8f55c1b76342a31b98a1ce90e525cc"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/production_cases.py",
+        "sha256": "d00163a98f966c7b1f7b6d09495194810ad589567163c21c05c649f4f7d803f0"
+      },
+      {
+        "path": "apps/api/app/schemas/production.py",
+        "sha256": "b47dbae48e8ad5ad2fa42c1befc7dd3aaadeeb9de7c0ed198ca381f622679031"
+      },
+      {
+        "path": "apps/api/app/services/document_service.py",
+        "sha256": "636001749448600bbfa67068f18423b29c1323b5b92dcf3c582bd91588ffb301"
+      },
+      {
+        "path": "apps/api/app/services/gdpr_service.py",
+        "sha256": "a7a8237c6f20e03f9b7bcba21e489a66c54327bfa9f9be86c0d032ef23207bfa"
+      },
+      {
+        "path": "apps/api/app/services/production_case_service.py",
+        "sha256": "90d60432844f208c491c807a943e8342428734567fe6ab410a1da6f3a6e77968"
+      },
+      {
+        "path": "apps/api/app/services/release_policy.py",
+        "sha256": "f0f33c85f7dfb5447cb9501978c5a7c1c55154f3051b73ae6d8bece9dc55f3ba"
+      },
+      {
+        "path": "apps/api/tests/test_document_download.py",
+        "sha256": "47900d1cfc210ad960fc11db73762f31a5347621a7de0c6592992330595dbcf9"
+      },
+      {
+        "path": "apps/api/tests/test_production_cases.py",
+        "sha256": "8216dcf90389ca62cd9cdd9334003bd643d8afce27a4244423b66598bfeabef6"
+      },
+      {
+        "path": "apps/api/tests/test_production_operator_access.py",
+        "sha256": "8f0696a7b936049d86adc7012f9215450a7f31fcb683dd6556f38df6bf8e875f"
+      },
+      {
+        "path": "apps/api/tests/test_release_evidence.py",
+        "sha256": "a3b80efc315c0631e112fb68d1aabbd1b086d2835aea71f3df40043aeeaf8afd"
+      },
+      {
+        "path": "apps/api/tests/test_release_evidence_postgres.py",
+        "sha256": "2d2d94c6ee112721b51570392967faac2e8c2e6d43bc1f1d35620ccaaf2855ee"
+      },
+      {
+        "path": "apps/web/__tests__/app/admin/production-cases/detail.test.tsx",
+        "sha256": "6c6530dc747777d1f215fb3ebcb1d67be0ddb515b6c8e4a78c128423b8d1f94a"
+      },
+      {
+        "path": "apps/web/__tests__/components/ReleaseEvidenceForms.test.tsx",
+        "sha256": "c22ab884dfbd621a647ba60dbb63fbe7ac8c37c2a727c60752b36017149578a4"
+      },
+      {
+        "path": "apps/web/app/admin/production-cases/[id]/page.tsx",
+        "sha256": "e28a2d1b5c312af35b9f1291b22c6574b6f0ede23eb1adae242268413e38c25f"
+      },
+      {
+        "path": "apps/web/components/production/ReleaseEvidenceForms.tsx",
+        "sha256": "df2d91c91d28aa2e07fc3207acb6f527e6c5759e6d28d06c1ad349a11ede2229"
+      },
+      {
+        "path": "apps/web/lib/api.ts",
+        "sha256": "99b1934f4c45cfcc9b58dc9cdf4647400821d22f38a5c10fa4f84a23d443ff6d"
+      },
+      {
+        "path": "apps/web/lib/api/admin.ts",
+        "sha256": "08b637aea7c280224a0182af1834db353d2fc5585839a899c3762eae24d4b960"
+      }
+    ],
+    "combined_local_implementation_manifest": [
+      {
+        "path": "apps/api/.env.example",
+        "sha256": "974b01602cee12ff9eae7960d254bda8aeca052a48dd2dcbeec8ddb5e3ab56f7"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/admin_documents.py",
+        "sha256": "524a3e7bde44f0e083565f6aee3907dc2e582c62cd397c92eb58df34cdcd113b"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/documents.py",
+        "sha256": "4806fb87164ee18e70db17e08b631579df8f55c1b76342a31b98a1ce90e525cc"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/production_cases.py",
+        "sha256": "d00163a98f966c7b1f7b6d09495194810ad589567163c21c05c649f4f7d803f0"
+      },
+      {
+        "path": "apps/api/app/core/config.py",
+        "sha256": "b6064845a3212af5a0ae28bc3d1aa7e4acdfe2adedbb68d654d8e8e2043ee21f"
+      },
+      {
+        "path": "apps/api/app/core/production_access.py",
+        "sha256": "4ef6fba544c6bb611e71c97b70a6b313caf1711addd65c7fa1065c58b1f224cc"
+      },
+      {
+        "path": "apps/api/app/schemas/production.py",
+        "sha256": "b47dbae48e8ad5ad2fa42c1befc7dd3aaadeeb9de7c0ed198ca381f622679031"
+      },
+      {
+        "path": "apps/api/app/schemas/user.py",
+        "sha256": "dd0fa5e2439d422cec1c5cd3ec4a51fca28853cd436ba15812488dc4995ca99c"
+      },
+      {
+        "path": "apps/api/app/services/auth_service.py",
+        "sha256": "d2a20533ae0839382cfed834bd0a1d83140d18937c016fffb73816612e7d6b6a"
+      },
+      {
+        "path": "apps/api/app/services/document_service.py",
+        "sha256": "636001749448600bbfa67068f18423b29c1323b5b92dcf3c582bd91588ffb301"
+      },
+      {
+        "path": "apps/api/app/services/gdpr_service.py",
+        "sha256": "a7a8237c6f20e03f9b7bcba21e489a66c54327bfa9f9be86c0d032ef23207bfa"
+      },
+      {
+        "path": "apps/api/app/services/production_case_service.py",
+        "sha256": "90d60432844f208c491c807a943e8342428734567fe6ab410a1da6f3a6e77968"
+      },
+      {
+        "path": "apps/api/app/services/release_policy.py",
+        "sha256": "f0f33c85f7dfb5447cb9501978c5a7c1c55154f3051b73ae6d8bece9dc55f3ba"
+      },
+      {
+        "path": "apps/api/tests/test_document_download.py",
+        "sha256": "47900d1cfc210ad960fc11db73762f31a5347621a7de0c6592992330595dbcf9"
+      },
+      {
+        "path": "apps/api/tests/test_production_cases.py",
+        "sha256": "8216dcf90389ca62cd9cdd9334003bd643d8afce27a4244423b66598bfeabef6"
+      },
+      {
+        "path": "apps/api/tests/test_production_operator_access.py",
+        "sha256": "8f0696a7b936049d86adc7012f9215450a7f31fcb683dd6556f38df6bf8e875f"
+      },
+      {
+        "path": "apps/api/tests/test_release_evidence.py",
+        "sha256": "a3b80efc315c0631e112fb68d1aabbd1b086d2835aea71f3df40043aeeaf8afd"
+      },
+      {
+        "path": "apps/api/tests/test_release_evidence_postgres.py",
+        "sha256": "2d2d94c6ee112721b51570392967faac2e8c2e6d43bc1f1d35620ccaaf2855ee"
+      },
+      {
+        "path": "apps/web/__tests__/app/admin/production-cases/detail.test.tsx",
+        "sha256": "6c6530dc747777d1f215fb3ebcb1d67be0ddb515b6c8e4a78c128423b8d1f94a"
+      },
+      {
+        "path": "apps/web/__tests__/app/admin/production-cases/page.test.tsx",
+        "sha256": "4ab074e18961487cc2e00b4d5d28a8fe27f50684d41be57ee54f8b8aa588b026"
+      },
+      {
+        "path": "apps/web/__tests__/components/ProductionWorkspace.test.tsx",
+        "sha256": "29c6fd19ff8d5917aabca107f8b92e9507490a5012ed1a63248a0a5d12054cee"
+      },
+      {
+        "path": "apps/web/__tests__/components/ReleaseEvidenceForms.test.tsx",
+        "sha256": "c22ab884dfbd621a647ba60dbb63fbe7ac8c37c2a727c60752b36017149578a4"
+      },
+      {
+        "path": "apps/web/app/admin/production-cases/[id]/page.tsx",
+        "sha256": "e28a2d1b5c312af35b9f1291b22c6574b6f0ede23eb1adae242268413e38c25f"
+      },
+      {
+        "path": "apps/web/app/admin/production-cases/page.tsx",
+        "sha256": "5475f2ec569e958cad3fe776cbbbf8e5a15d8b0c501a96d88ead94d3a13b36e8"
+      },
+      {
+        "path": "apps/web/app/dashboard/production-cases/[id]/page.tsx",
+        "sha256": "c276e5b41fe9b791ea4402079274ac613384a3d639e55a606012a81baa57aa3d"
+      },
+      {
+        "path": "apps/web/app/dashboard/production-cases/page.tsx",
+        "sha256": "5c58cc3fd5fc32679894001d64c228af4b8f9cede6ec57d0b6fea3a081c1f397"
+      },
+      {
+        "path": "apps/web/components/layout/DashboardLayout.tsx",
+        "sha256": "258e74fcae5a6c2cbfe9ba5d6ed4e1627cf8191daa722bf9b32bf62d2a8539c9"
+      },
+      {
+        "path": "apps/web/components/production/ProductionWorkspace.tsx",
+        "sha256": "0102d43de299ed5941e50eea0e8aa40ea99de9744f7c4339e8ac2e01655f5eac"
+      },
+      {
+        "path": "apps/web/components/production/ReleaseEvidenceForms.tsx",
+        "sha256": "df2d91c91d28aa2e07fc3207acb6f527e6c5759e6d28d06c1ad349a11ede2229"
+      },
+      {
+        "path": "apps/web/components/providers/AuthProvider.tsx",
+        "sha256": "5621a46cfe9d2d12f3f1a1b81420264cca1d79a4657384f95476dc1fc9c41716"
+      },
+      {
+        "path": "apps/web/lib/api.ts",
+        "sha256": "99b1934f4c45cfcc9b58dc9cdf4647400821d22f38a5c10fa4f84a23d443ff6d"
+      },
+      {
+        "path": "apps/web/lib/api/admin.ts",
+        "sha256": "08b637aea7c280224a0182af1834db353d2fc5585839a899c3762eae24d4b960"
+      },
+      {
+        "path": "infra/docker/docker-compose.prod.yml",
+        "sha256": "f40677efef9d644ef34359ed61c2ed3e44fda7f03dd003f7e9333f241f859920"
+      }
+    ],
+    "combined_manifest_sha256": "5f136f36876a0d3cd9af4107e1f9d834ab467cbf86de3e537d72fca2e63bbc15",
+    "tested_copy_matches_final_source": true
+  },
+  "policy": {
+    "version": "agency-docx-2026-09-04",
+    "detector": "Compilatio",
+    "similarity_max_percent": 10,
+    "ai_max_percent": 10,
+    "format": "docx",
+    "same_artifact_required": true,
+    "saved_report_required": true,
+    "expected_fingerprint_required": true,
+    "no_rewrite_required": true,
+    "rewritten_is_sticky_for_completed_generation": true,
+    "report_content_authenticity_automatically_verified": false,
+    "manual_attestation_required": true,
+    "schema_migration_required": false
+  },
+  "checks": {
+    "regression_before": {
+      "expected_failures": 3,
+      "observed_failures": 3,
+      "defects": [
+        "22% manually passed for similarity",
+        "22% manually passed for AI",
+        "editorial override replaced no-rewrite"
+      ]
+    },
+    "api_full": {
+      "passed": 1095,
+      "skipped": 10,
+      "warnings": 6,
+      "seconds": 232.9,
+      "network": "none",
+      "command": "python -m pytest tests --asyncio-mode=auto -q --tb=short",
+      "mount": "entire isolated checkout at /workspace; PYTHONPATH=/workspace/apps/api; workdir=/workspace/apps/api",
+      "image": "ai-thesis-api:no-pdf-auto-sources-67ef46d"
+    },
+    "postgres_concurrency": {
+      "passed": 2,
+      "postgres_major": 16,
+      "isolated_database": true,
+      "unique_schema_cleanup": true,
+      "contending_row_lock_observed_in_pg_stat_activity": true,
+      "orders": [
+        "release_then_rewritten",
+        "rewritten_then_release"
+      ],
+      "final_release_revoked": true,
+      "command": "M0_03_TEST_DATABASE_URL=<isolated PostgreSQL URL> python -m pytest tests/test_release_evidence_postgres.py --asyncio-mode=auto -q --tb=short"
+    },
+    "web_full": {
+      "passed": 181,
+      "skipped": 1,
+      "suites": 27,
+      "command": "npm test -- --runInBand"
+    },
+    "web_forms": {
+      "passed": 9,
+      "suites": 2,
+      "native_file_chooser_verified_in_browser": true
+    },
+    "web_lint": "passed",
+    "web_type_check": "passed",
+    "web_build": {
+      "status": "passed",
+      "production_deployment_artifact": false
+    },
+    "ruff": {
+      "status": "passed",
+      "changed_python_files": 12
+    },
+    "git_diff_check": "passed",
+    "mypy": {
+      "before": 361,
+      "after": 357,
+      "new_errors": [],
+      "removed_errors": [
+        {
+          "file": "app/services/production_case_service.py",
+          "message": "Incompatible types in assignment (expression has type \"str\", variable has type \"Column[str]\")  [assignment]",
+          "count": 1
+        },
+        {
+          "file": "app/services/production_case_service.py",
+          "message": "Argument 1 to \"_get_document\" of \"ProductionCaseService\" has incompatible type \"Column[int]\"; expected \"int\"  [arg-type]",
+          "count": 1
+        },
+        {
+          "file": "app/services/production_case_service.py",
+          "message": "Incompatible types in assignment (expression has type \"Literal['passed', 'failed']\", variable has type \"Column[str]\")  [assignment]",
+          "count": 1
+        },
+        {
+          "file": "app/services/production_case_service.py",
+          "message": "Incompatible types in assignment (expression has type \"dict[str, float | str | None]\", variable has type \"Column[Any]\")  [assignment]",
+          "count": 1
+        }
+      ],
+      "status": "existing_debt",
+      "same_image_and_config": true,
+      "baseline_api_file_hashes_matched": 267,
+      "comparison": "Counter(path, error message), file/embedded line numbers normalized; --no-incremental; baseline source matches start-of-task hashes"
+    },
+    "local_evidence_root": "/var/folders/2r/jwflfxtj7sq7m00d0zr8_2xw0000gp/T/thesica-m0-03-20260905-zykaxeya",
+    "log_sha256": {
+      "regression-before.log": "cfda961976755dceddd0679cacec0b99ce449833e65480e408f9ccb32f48280d",
+      "api-full-final.log": "92a749c87dd783a5e3bc4ec502665297a382a3f976dc920c767e5ff73994b583",
+      "postgres-final.log": "ca2092d7c69e007bd6cb9f692ebefa575c4a2a121aeb5f5ef5887833a059736e",
+      "web-tests-final.log": "d6403b2d4b8bb8c6369535b038bf1a2e1ae0bce4d429aace00fb331569b25f1f",
+      "web-forms.log": "5b6845869d0e86a287bc5f2b5528a7b51dc778b4b50d84f4e4b6efc5dca04054",
+      "web-build-final.log": "3736da9101f060aa9e5bf6245e3d35cc2099b9d424f7624607eace9281b00969",
+      "web-lint-final.log": "5a9d2bb89c189ac750ba4382abd73aba632b85488bcd7bafeb45b3cbcfca8c37",
+      "web-types-final.log": "359888ab6a2c35c01cccc6a9a6f20af9fc736bf5a56d6cf80e61e3a1d165b6eb",
+      "ruff-final.log": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e",
+      "mypy-before.log": "b0139b427372ecf9cdb56d052648822bd352649fe223de9bfc52f15e599860ac",
+      "mypy-final.log": "0f175361518176226fbc1ecc1787a05556b0805c73dee9a22a52b489968b0e1c",
+      "mypy-comparison.json": "6dc91dfc4e21c15750c2b472cb01c20ddc571ffba854759e02b40f3554d4aa2c",
+      "browser-downloads.json": "6adf340d852eaafbe80623366400bedd257162c62fa9de3ccde25d2c64e83e28",
+      "browser-http.json": "74f3f8859d02960acdd47b298034c86084292c8fec5630dca94b54802745b9f2",
+      "browser-released.txt": "0af8d89965d4084200ba7454a64d70dbd3c112455562126f45d7e7de33977a4b",
+      "browser-rewritten.txt": "6a850e7ebf61bacc9da30b9424a92bd6f4d04821e0d5909d97660b4d61f7dc64"
+    }
+  },
+  "browser": {
+    "web_origin": "http://localhost:3103",
+    "api_origin": "http://localhost:8303",
+    "database": "isolated SQLite",
+    "object_store": "temporary MinIO",
+    "synthetic_fixture": true,
+    "production_credentials_used": false,
+    "document_id": 101,
+    "case_id": 1,
+    "foreign_document_id": 102,
+    "observed": [
+      "ordinary manager login",
+      "only own case listed",
+      "internal DOCX downloaded",
+      "report uploaded via native file chooser and saved",
+      "22% stored as failed; release disabled",
+      "10% and 10% still blocked without content review",
+      "explicit accepted review then release",
+      "final DOCX downloaded from document page",
+      "rewritten review revoked release and remained after reload",
+      "same saved report downloaded"
+    ],
+    "downloads": [
+      {
+        "kind": "browser-internal.docx",
+        "sha256": "f3c78eb6f9c62dcb11a79c7538b441bbcd6dcb9e0fccb281328dea5e62dffc32",
+        "bytes": 36682
+      },
+      {
+        "kind": "browser-final.docx",
+        "sha256": "f3c78eb6f9c62dcb11a79c7538b441bbcd6dcb9e0fccb281328dea5e62dffc32",
+        "bytes": 36682
+      }
+    ],
+    "report_sha256": "cd7539fee3266a24a52ca0501a1c958386804c89d1fe07d43c2843fe68876817",
+    "downloaded_report_sha256": "cd7539fee3266a24a52ca0501a1c958386804c89d1fe07d43c2843fe68876817",
+    "http_status_counts": {
+      "POST /api/v1/auth/login 200": 1,
+      "GET /api/v1/auth/me 200": 8,
+      "GET /api/v1/documents/ 200": 1,
+      "GET /api/v1/documents/activity 200": 2,
+      "GET /api/v1/documents/stats 200": 1,
+      "GET /api/v1/admin/production-cases 200": 2,
+      "GET /api/v1/admin/production-cases/1 200": 12,
+      "GET /api/v1/admin/production-cases/1/release-gates 200": 12,
+      "GET /api/v1/admin/production-cases/1/detector-reports 200": 18,
+      "POST /api/v1/admin/documents/101/download 200": 1,
+      "GET /api/v1/documents/download/file 200": 2,
+      "POST /api/v1/admin/production-cases/1/detector-reports 201": 1,
+      "POST /api/v1/admin/production-cases/1/release-gates/plagiarism_proxy/detector-result 200": 2,
+      "POST /api/v1/admin/production-cases/1/release-gates/ai_detection_proxy/detector-result 200": 1,
+      "POST /api/v1/admin/production-cases/1/content-review 200": 2,
+      "POST /api/v1/admin/production-cases/1/release 200": 1,
+      "GET /api/v1/documents/101 200": 2,
+      "GET /api/v1/documents/101/provenance 200": 4,
+      "POST /api/v1/documents/101/export 200": 1,
+      "GET /api/v1/admin/production-cases/1/detector-reports/5/file 200": 1
+    },
+    "screenshot": {
+      "path": "docs/evidence/M0-03-2026-09-05-rewrite.png",
+      "sha256": "8f0256f7e4bd4a7a2086732b426a9734e0409ce60ab380df4de74f0b52feda9c"
+    },
+    "final_typing_adjustment_after_browser": {
+      "description": "Explicit Any casts for legacy SQLAlchemy scalar instance assignments; no runtime behavior change",
+      "full_api_postgres_ruff_mypy_rechecked_on_final_source": true
+    },
+    "known_console_events": [
+      "two initial dashboard Failed to fetch messages followed by recovery; full console not claimed clean"
+    ]
+  },
+  "preservation": {
+    "start_file_hash_count": 598,
+    "preexisting_files_changed": [
+      "THESICA-PLAN.md",
+      "apps/api/app/api/v1/endpoints/documents.py",
+      "apps/api/app/api/v1/endpoints/production_cases.py",
+      "apps/api/app/schemas/production.py",
+      "apps/api/app/services/document_service.py",
+      "apps/api/app/services/gdpr_service.py",
+      "apps/api/app/services/production_case_service.py",
+      "apps/api/tests/test_document_download.py",
+      "apps/api/tests/test_production_cases.py",
+      "apps/api/tests/test_production_operator_access.py",
+      "apps/web/__tests__/app/admin/production-cases/detail.test.tsx",
+      "apps/web/app/admin/production-cases/[id]/page.tsx",
+      "apps/web/lib/api.ts",
+      "apps/web/lib/api/admin.ts",
+      "docs/AGENT_SYNC.md",
+      "docs/PRE-RUN-001-TASKS.md",
+      "docs/README.md",
+      "docs/setup/TANYA_FIRST_RUN.md"
+    ],
+    "unrelated_file_hashes_unchanged": true,
+    "staged_index_unchanged": true,
+    "staged_index_sha256": "1a28fe7a0d77275d75f00f785e150718d11ee5f9fb013e37fedb9cfc1ced453f",
+    "application_readiness_record_unchanged": true,
+    "production_mutations": false,
+    "production_reads_this_task": false,
+    "generation_started": false,
+    "passwords_changed": false,
+    "messages_sent": false,
+    "temporary_containers_removed": true,
+    "temporary_networks_removed": true,
+    "local_ports_closed": {
+      "3103": true,
+      "8303": true
+    }
+  },
+  "remaining": {
+    "next_task": "M0-04",
+    "m0_05": [
+      "raw/English status labels",
+      "delivered shown after release permission; not actual client handoff",
+      "document quality panel says external detectors have no data despite case evidence",
+      "initial dashboard fetch recovery needs full-flow check"
+    ],
+    "m0_06": [
+      "independent review",
+      "coordinated API/web release under founder authority",
+      "backup/restore and live access/gate checks",
+      "pause release when rolling back to code without current policy"
+    ],
+    "m1": [
+      "real finished accepted DOCX with real Compilatio reports; local fixture is not product proof"
+    ],
+    "new_founder_input_required_for_next_task": false
+  },
+  "product_pass_proven": false
+}

@@ -1,0 +1,58 @@
+{
+  "captured_at_utc": "2026-09-08T13:39:34.267426+00:00",
+  "runtime_settings": {
+    "AI_FALLBACK_CHAIN": "anthropic:claude-opus-4-8,openai:gpt-4o,anthropic:claude-sonnet-5",
+    "AI_ENABLE_FALLBACK": false,
+    "QUALITY_JUDGE_MODEL": "gpt-4.1-mini",
+    "HUMANIZER_ENABLED": false
+  },
+  "catalogs": [
+    {
+      "provider": "openai",
+      "http_status": [
+        200
+      ],
+      "models_returned": 125,
+      "candidate_presence": {
+        "gpt-6-astra": true,
+        "gpt-5.6-sol": true,
+        "gpt-5.6": false
+      },
+      "related_ids": [
+        "gpt-5.6-luna",
+        "gpt-5.6-sol",
+        "gpt-5.6-terra",
+        "gpt-6-astra"
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "http_status": [
+        200
+      ],
+      "models_returned": 11,
+      "candidate_presence": {
+        "claude-opus-4-8": true,
+        "claude-opus-5": true,
+        "claude-fable-5-1": true
+      },
+      "related_ids": [
+        "claude-fable-5",
+        "claude-fable-5-1",
+        "claude-opus-4-8",
+        "claude-opus-5"
+      ]
+    }
+  ],
+  "generation_requests": 0,
+  "scope": "read-only model catalog; no generation access or quality claim",
+  "documentation_checked_at": "2026-09-08",
+  "official_sources": [
+    "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+    "https://developers.openai.com/api/docs/guides/latest-model",
+    "https://platform.claude.com/docs/en/models/opus-5/whats-new-opus-5",
+    "https://platform.claude.com/docs/en/models/fable-5-1/overview"
+  ],
+  "interpretation": "Requested exact model IDs are listed for configured provider keys; successful generation, budget, rate limits and Thesica compatibility still require a bounded API smoke test. No model configuration changed."
+}

@@ -1,0 +1,276 @@
+{
+  "document_id": 11,
+  "case_id": 13,
+  "job_id": 11,
+  "status": "failed",
+  "reason_code": "plan_requirements_unmet",
+  "stage": "preparation",
+  "message": "Узгодження змінило структуру розділу.",
+  "attempt_count": 1,
+  "sections": 0,
+  "docx_sha256": null,
+  "journal_usage": {
+    "confirmed_tokens": 46065,
+    "confirmed_cost_cents": 42,
+    "unknown_provider_attempts": 0
+  },
+  "received_provider_calls": 4,
+  "requirements_sha256": "cb270bdb2c34a9a7008a394882fcc49978beb2fe0b4a757175f48d36ab3858e7",
+  "source_pack_sha256": "de3938e2fbc613b0dd7328cc64ee4dda58ccd54d13c8203b43859487c2f9d266",
+  "rejection": {
+    "problems": [
+      "Узгодження змінило структуру розділу."
+    ],
+    "problem_count": 1,
+    "response_sha256": "805e76b7c199b3d905fe3b4f095a79f65f7d136b60b60ff5b9a8195a5c4bacd9",
+    "plan_fields": {
+      "blocking_conflicts": [
+        "Il framework NANDA-I/NOC/NIC richiesto tassativamente dal committente (specifiche etichette diagnostiche: 'Disponibilità a migliorare il processo di maternità', 'Rischio di alterazione del legame di attaccamento', 'Problema Collaborativo: rischio di compromissione degli scambi gassosi') NON è supportato da alcuna fonte nella FINAL EVIDENCE: nessun abstract reperito tratta la tassonomia NANDA-I, gli indicatori NOC o gli interventi NIC. Tali sezioni (2.3, 3.3, 3.3.1, 3.3.2) non possono essere sostenute con evidenza citabile e vanno trattate come cornice metodologica dichiarativa, senza inventare dati o corrispondenze diagnostiche.",
+        "I richiami fisiologici specifici richiesti dall'indice sulla termoregolazione neonatale e sulla prevenzione dello stress da freddo (sezione 2.2) non trovano supporto in alcuna fonte reperita: nessun abstract affronta i meccanismi della termoregolazione neonatale o gli interventi infermieristici autonomi correlati."
+      ],
+      "limitations": [
+        "La base bibliografica reperita è in prevalenza anglosassone e non italiana: la trasferibilità al contesto normativo-organizzativo italiano (D.M. 740/1994, competenze infermieristiche territoriali) è pertanto solo parziale e va dichiarata.",
+        "Diverse fonti disponibili sulla transizione fisiologica (Michel2017, SepulvedaOviedo2024, Ayenew2020, Warren2012) descrivono processi neonatali senza distinguere in modo netto la titolarità infermieristica da quella ostetrica/medica; l'attribuzione infermieristica va inferita e argomentata con cautela.",
+        "Le fonti relative alla figura infermieristica territoriale (GAROFALO2024) e a specifici ambiti di leadership organizzativa (Corbetta2026) non riguardano l'area perinatale in senso stretto e sono utilizzabili solo come analogia di ruolo, non come evidenza diretta.",
+        "L'evidenza sul contatto pelle a pelle e sull'allattamento (Bergman2024, Joseph2020, Kumar2026) proviene in parte da contesti a basso reddito o da popolazioni pretermine/LBW: l'estensione al neonato sano a termine e alle affermazioni sul microbiota richiede prudenza interpretativa."
+      ]
+    }
+  },
+  "frozen_sources": [
+    {
+      "citation_key": "Kumar2026",
+      "title": "Effect of Kangaroo Mother Care during the first 72 hours of life on early growth and breastfeeding in normal birth weight newborns: Protocol for a Randomised Controlled Trial",
+      "doi": "10.64898/2026.02.23.26346760",
+      "verification_status": "verified",
+      "on_topic_score": 0.625,
+      "abstract_chars": 2000,
+      "row_sha256": "2e8344c87bcd6a32dba2ed4d0d4abe981564cc854e8dd907e46e984ddba147b2"
+    },
+    {
+      "citation_key": "Aydin2017",
+      "title": "Birth Journey of a Newborn: Transition from Intrauterine  to Extrauterine Life",
+      "doi": "10.18844/gjapas.v0i8.2780",
+      "verification_status": "verified",
+      "on_topic_score": 0.5714285714285714,
+      "abstract_chars": 1010,
+      "row_sha256": "40322d143a91b53e3515958eaa5e85422f8fa4097cf65ab38e6f42486e454514"
+    },
+    {
+      "citation_key": "Corbetta2026",
+      "title": "La metodologia Lean nella transizione al metadone compresse: il ruolo dell'infermiere nell'esperienza del Ser.D. presso l'ASST Papa Giovanni XXIII - Bergamo",
+      "doi": "10.3280/mis73-2026oa21076",
+      "verification_status": "verified",
+      "on_topic_score": 0.5,
+      "abstract_chars": 1543,
+      "row_sha256": "c6e87305e3b7e9b619204ba572f7112896fed6b5ee23a487014dbaafb0a38075"
+    },
+    {
+      "citation_key": "GAROFALO2024",
+      "title": "Il ruolo dell'Infermiere di Famiglia e di Comunità nella Promozione della Salute - Uno Studio Qualitativo nella ASL di Avellino",
+      "doi": "10.63099/nps.v4i2.17",
+      "verification_status": "verified",
+      "on_topic_score": 0.5,
+      "abstract_chars": 2000,
+      "row_sha256": "fd6f9af00028a2aac7b34cbc74754c9e3e729f6f5c8c823735564ffad55a6756"
+    },
+    {
+      "citation_key": "Rolle2026",
+      "title": "Role transition from registered nurse to nurse practitioner in Jamaica",
+      "doi": "10.1097/jxx.0000000000001354",
+      "verification_status": "verified",
+      "on_topic_score": 0.5,
+      "abstract_chars": 1674,
+      "row_sha256": "db5ff37ffbf45d0812c414ccbc4e2f4682f9cdea493192b562bb75f1c6d3ea4b"
+    },
+    {
+      "citation_key": "Zulu2026a",
+      "title": "Operational Nurse Managers’ Perspectives towards Community Service Nurses’ Transition into Professional Nurse Role",
+      "doi": "10.33140/oajdgh.04.01.06",
+      "verification_status": "verified",
+      "on_topic_score": 0.5,
+      "abstract_chars": 1940,
+      "row_sha256": "cf308a172e9ff73735a60eda9188ec5d0a23f9799394ae81daa22fcb70574b23"
+    },
+    {
+      "citation_key": "Zulu2026b",
+      "title": "Operational nurse managers’ perspectives towards community service nurses’ transition into professional nurse role",
+      "doi": "10.21203/rs.3.rs-8772505/v1",
+      "verification_status": "verified",
+      "on_topic_score": 0.5,
+      "abstract_chars": 1941,
+      "row_sha256": "e816fdb89d294702faf1e00e751fdbbac638abf92487c07e1c55ec2a252bf2fe"
+    },
+    {
+      "citation_key": "Ares2018",
+      "title": "Role Transition After Clinical Nurse Specialist Education",
+      "doi": "10.1097/nur.0000000000000357",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1315,
+      "row_sha256": "5cd3fb0c6723bfcb3988d60816a6c8ca8ad8b984bb914569da8e44b663c1eecb"
+    },
+    {
+      "citation_key": "Ayenew2020",
+      "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+      "doi": "10.2147/phmt.s276698",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 2018,
+      "row_sha256": "b8b84a2eb7d51c89faa696009a13864d6493402f44ad7480f4ad0b25e830f0b5"
+    },
+    {
+      "citation_key": "Bergman2024",
+      "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+      "doi": "10.3389/fpsyg.2024.1385320",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 2000,
+      "row_sha256": "59741f566bb92329966144dde4aab803166d68432081df70613779f0dfbd42f3"
+    },
+    {
+      "citation_key": "Glen1998",
+      "title": "Role transition from staff nurse to clinical nurse specialist: a case study",
+      "doi": "10.1046/j.1365-2702.1998.00216.x",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 673,
+      "row_sha256": "7ddc67f0bb919f03f374e9d5372017693512fc96d13f8a3572b904f2e8d050e2"
+    },
+    {
+      "citation_key": "Haren2024",
+      "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+      "doi": "10.3389/fped.2024.1360111",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1062,
+      "row_sha256": "417eb0d93a0b363fb75a8414d01493c076560277bad79cbb9be12700edba41b4"
+    },
+    {
+      "citation_key": "Kolmakova2022",
+      "title": "The role of a nurse in parent education in the care of long-term in-hospital children",
+      "doi": "10.33920/med-05-2211-01",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1071,
+      "row_sha256": "2654e541dee844084d6dab3b76f2ccc5f7f805a87948a1c3e21ae4dde706687d"
+    },
+    {
+      "citation_key": "Michel2017",
+      "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+      "doi": "10.1177/1099800416685178",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1440,
+      "row_sha256": "60801cc08619128077eb6e1f2c43ce3b2ea460480e60c76796ce9466872d1f5a"
+    },
+    {
+      "citation_key": "SepulvedaOviedo2024",
+      "title": "Effect of timing of umbilical cord clamping and birth on fetal to neonatal transition: OpenModelica-based virtual simulator-based approach",
+      "doi": "10.1016/j.bbe.2024.08.008",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1211,
+      "row_sha256": "28cc67857d417c1ab5419c19613184c5860e7c556c335613c1140e81feec0875"
+    },
+    {
+      "citation_key": "Warren2012",
+      "title": "Care of the Well Newborn",
+      "doi": "10.1542/pir.33.1.4",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 23603,
+      "row_sha256": "6dc457032dde3696704e5d6c61d9829988fddcdd335817dc5e62e40c464ad480"
+    },
+    {
+      "citation_key": "Wenner2019",
+      "title": "The Work-Role Transition of Part-time Clinical Faculty",
+      "doi": "10.1097/nne.0000000000000704",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1096,
+      "row_sha256": "52a25f8d6004b80335e9be0ebc425e64d2cb96363a57c26a77e8d8227a98c379"
+    },
+    {
+      "citation_key": "Yasmin2024",
+      "title": "Challenges and Support Mechanisms for Nurse Educators during Transition from Clinical Nursing to Nurse Educator: A Commentary on Role Transformation",
+      "doi": "10.54393/nrs.v4i01.77",
+      "verification_status": "verified",
+      "on_topic_score": 0.42857142857142855,
+      "abstract_chars": 1267,
+      "row_sha256": "867ab65a6eb88c25c8871f77ee5746c8df2d94241c7645e0cc7893dc09480796"
+    },
+    {
+      "citation_key": "Joseph2020",
+      "title": "Promoting Newborn Skin-to-Skin Contact to Increase Breastfeeding Initiation and Exclusivity in Cesarean Deliveries",
+      "doi": null,
+      "verification_status": "verified",
+      "on_topic_score": 0.4117647058823529,
+      "abstract_chars": 2000,
+      "row_sha256": "ba05daa79cfef8a6dc343d476660057c1419e4ea2f5fe24c765ee17e97ff04de"
+    },
+    {
+      "citation_key": "Cartello2023",
+      "title": "Ruolo dell’infermiere nella diffusione della cultura nella donazione d’organo: indagine su conoscenza ed opinione.",
+      "doi": "10.54103/dn/19438",
+      "verification_status": "verified",
+      "on_topic_score": 0.375,
+      "abstract_chars": 1666,
+      "row_sha256": "42815fd43cfa694c8c58a84ee9f4b4434da2fa6e17b5673a9ad17f313d61afd8"
+    },
+    {
+      "citation_key": "Colombo2021",
+      "title": "Il paziente con dolore toracico in Pronto Soccorso: ruolo dellâ€™infermiere nella presa in carico precoce. Una esperienza presso lâ€™ASST Rhodense",
+      "doi": "10.4081/scenario.2020.456",
+      "verification_status": "verified",
+      "on_topic_score": 0.375,
+      "abstract_chars": 1871,
+      "row_sha256": "293a9a1047d1b881f33bf830bd7bb62131defdc0374577bf9371ae6be8e2ff7c"
+    },
+    {
+      "citation_key": "Messina2021",
+      "title": "IL RUOLO DELL’INFERMIERE NELLE CARCERI: REVISIONE DELLA LETTERATURA",
+      "doi": "10.32549/opi-nsc-46",
+      "verification_status": "verified",
+      "on_topic_score": 0.375,
+      "abstract_chars": 1581,
+      "row_sha256": "b0d3a4691747f35ba7afaef95b2d40b76cabff9d15d7a1a17646b369af3d57ee"
+    },
+    {
+      "citation_key": "Petteruti2023",
+      "title": "Il ruolo del Terzo Settore nella tutela  dell'ambiente e nella transizione  energetica. Esperienze europee a  confronto",
+      "doi": "10.54103/2531-6710/19681",
+      "verification_status": "verified",
+      "on_topic_score": 0.375,
+      "abstract_chars": 790,
+      "row_sha256": "40b143cc668e837cae331a0992b6e1efec48e264696eda177c65e2bae96bedec"
+    },
+    {
+      "citation_key": "Wanduru2025",
+      "title": "Intrapartum-related adverse perinatal outcomes : burden, consequences, and models of care from studies in eastern Uganda",
+      "doi": "10.69622/28546754.v1",
+      "verification_status": "verified",
+      "on_topic_score": 0.375,
+      "abstract_chars": 2000,
+      "row_sha256": "ebf05c857026f3b3d0089a929766aa8ecea49a04984a3083c0737f105f6f5f7f"
+    }
+  ],
+  "retrieval_queries": [
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+    "The role of the nurse in the perinatal area and in the neonate's extrauterine transition",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Introduzione",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+    "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Conclusioni",
+    "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition",
+    "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Introduction",
+    "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 1. The Role of the Nurse in Assessment and Primary Prevention in the Perinatal Area",
+    "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 2. Homeostatic Stability of the Dyad and Nursing Surveillance",
+    "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 3. Nursing Management of the Newborn's Extrauterine Transition and Care Planning"
+  ],
+  "raw_snapshot_sha256": "9a7c25d7e01e3ee2ecb3ff332d78778354bd4f6cfe6eaad15bd66ae47a2ea1ae",
+  "historical_rows_unchanged": true,
+  "human_or_Compilatio_acceptance": false,
+  "next_paid_control_authorized": false
+}

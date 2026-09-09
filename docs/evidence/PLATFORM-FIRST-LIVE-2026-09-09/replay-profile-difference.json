@@ -1,0 +1,12 @@
+{
+  "recorded_job_profile": "5e41e620fc350fba2aa25f77c309748fb111eb1e014d5479718f0694f29e325d",
+  "snapshot_profile_sha256": "5e41e620fc350fba2aa25f77c309748fb111eb1e014d5479718f0694f29e325d",
+  "replay_profile_sha256": "2d84124fd8207447ab579469f37027aa7c8166013e3d200dc6012b98aeff8c95",
+  "differences": [
+    {
+      "field": "settings.PARTIAL_COMPLETION_ENABLED",
+      "recorded": false,
+      "replay": true
+    }
+  ]
+}

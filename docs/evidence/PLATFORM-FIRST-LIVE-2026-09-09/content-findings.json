@@ -1,0 +1,642 @@
+{
+  "warnings": [
+    {
+      "stage": "review",
+      "section_index": null,
+      "reason": "Зауваження до плану"
+    },
+    {
+      "stage": "sources",
+      "section_index": 1,
+      "reason": "Стандартні джерела потребують перевірки менеджером"
+    },
+    {
+      "stage": "claims",
+      "section_index": 1,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 1,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "sources",
+      "section_index": 2,
+      "reason": "Стандартні джерела потребують перевірки менеджером"
+    },
+    {
+      "stage": "claims",
+      "section_index": 2,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 2,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "sources",
+      "section_index": 3,
+      "reason": "Стандартні джерела потребують перевірки менеджером"
+    },
+    {
+      "stage": "claims",
+      "section_index": 3,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 3,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "sources",
+      "section_index": 4,
+      "reason": "Стандартні джерела потребують перевірки менеджером"
+    },
+    {
+      "stage": "claims",
+      "section_index": 4,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 4,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "grounding",
+      "section_index": 5,
+      "reason": "no grounded citation in section"
+    },
+    {
+      "stage": "claims",
+      "section_index": 5,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 5,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "claims",
+      "section_index": 6,
+      "reason": "Є непідтверджені або неперевірені твердження"
+    },
+    {
+      "stage": "quality",
+      "section_index": 6,
+      "reason": "Перевірки завершені із зауваженнями"
+    },
+    {
+      "stage": "review",
+      "section_index": null,
+      "reason": "Зауваження до повної роботи"
+    }
+  ],
+  "sections": [
+    {
+      "title": "Introduzione",
+      "word_count": 524
+    },
+    {
+      "title": "Capitolo 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+      "word_count": 1183
+    },
+    {
+      "title": "Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+      "word_count": 1207
+    },
+    {
+      "title": "Capitolo 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+      "word_count": 1248
+    },
+    {
+      "title": "Capitolo 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+      "word_count": 1206
+    },
+    {
+      "title": "Conclusioni",
+      "word_count": 534
+    }
+  ],
+  "document_source_candidates": [
+    {
+      "title": "Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse",
+      "authors": [
+        "Cara Bicking",
+        "Ginger A. Moore"
+      ],
+      "year": 2012,
+      "doi": "10.1891/0730-0832.31.5.295",
+      "url": "https://doi.org/10.1891/0730-0832.31.5.295",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Role transition from student nurse to staff nurse: Facilitating the transition period",
+      "authors": [
+        "Suji Kumaran",
+        "Marie Carney"
+      ],
+      "year": 2014,
+      "doi": "10.1016/j.nepr.2014.06.002",
+      "url": "https://doi.org/10.1016/j.nepr.2014.06.002",
+      "verification_status": "unverified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Education for a new role: a review of neonatal nurse practitioner programmes",
+      "authors": [
+        "Margaret Redshaw",
+        "Merryl Harvey"
+      ],
+      "year": 2001,
+      "doi": "10.1054/nedt.2001.0592",
+      "url": "https://doi.org/10.1054/nedt.2001.0592",
+      "verification_status": "unverified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Practical Insights on Expanding Nurse Practitioner’s Role During and Post Hospitalization in U.S. Health Care",
+      "authors": [
+        "Sameer Kumar",
+        "Gregory W. McKewan"
+      ],
+      "year": 2011,
+      "doi": "10.1177/1084822310388387",
+      "url": "https://doi.org/10.1177/1084822310388387",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases",
+      "authors": [
+        "Simon Lewin",
+        "Susan Munabi-Babigumira",
+        "Claire Glenton",
+        "Karen Daniels",
+        "Xavier Bosch-Capblanch",
+        "Brian E van Wyk",
+        "Jan Odgaard-Jensen",
+        "Marit Johansen",
+        "Godwin N Aja",
+        "Merrick Zwarenstein",
+        "Inger B Scheel"
+      ],
+      "year": 2010,
+      "doi": "10.1002/14651858.cd004015.pub3",
+      "url": "https://doi.org/10.1002/14651858.cd004015.pub3",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "The ‘invisible assessment’: the role of the staff nurse in the community setting",
+      "authors": [
+        "Christine E. Hallett",
+        "Brian D. Pateman"
+      ],
+      "year": 2000,
+      "doi": "10.1046/j.1365-2702.2000.00425.x",
+      "url": "https://doi.org/10.1046/j.1365-2702.2000.00425.x",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "The development of preterm infants from low socio-economic status families: The combined effects of melatonin, autonomic nervous system maturation and psychosocial factors (ProMote): A study protocol",
+      "authors": [
+        "Theano Kokkinaki",
+        "Nicole Anagnostatou",
+        "Maria Markodimitraki",
+        "Theano Roumeliotaki",
+        "Manolis Tzatzarakis",
+        "Elena Vakonaki",
+        "Giorgos Giannakakis",
+        "Aristidis Tsatsakis",
+        "Eleftheria Hatzidaki"
+      ],
+      "year": 2025,
+      "doi": "10.1371/journal.pone.0316520",
+      "url": "https://doi.org/10.1371/journal.pone.0316520",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "High quality care metrics for nursing",
+      "authors": [
+        "Jill Maben",
+        "Elizabeth Morrow",
+        "Jane Ball",
+        "Glenn Robert",
+        "Peter Griffiths"
+      ],
+      "year": 2012,
+      "doi": null,
+      "url": "https://openalex.org/W1765267599",
+      "verification_status": "verified",
+      "source_type": "book"
+    },
+    {
+      "title": "Educating Perinatal Nurses to Promote Bonding Techniques and Increase Support of Neonatal Intensive Care Unit Parents",
+      "authors": [
+        "Kandice Perez"
+      ],
+      "year": 2020,
+      "doi": "10.34917/13568655",
+      "url": "https://doi.org/10.34917/13568655",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Coppie in attesa. Il ruolo dell’ecografia ostetrica nel processo di transizione alla genitorialità",
+      "authors": [
+        "Livia Cadei",
+        "Domenico Simeone"
+      ],
+      "year": 2011,
+      "doi": "10.13128/rief-10214",
+      "url": "https://doi.org/10.13128/rief-10214",
+      "verification_status": "unverified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Il ruolo del capitale umano nella transizione Universitŕ-lavoro: fattori individuali e sociali",
+      "authors": [
+        "Pier Giorgio Lovaglio"
+      ],
+      "year": 2012,
+      "doi": "10.3280/qua2012-097005",
+      "url": "https://doi.org/10.3280/qua2012-097005",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "L'Operatore dello Sviluppo Umano nella cooperazione internazionale: dimensione formativa, ruolo professionale e competenze educative",
+      "authors": [
+        "Francesco De Maria"
+      ],
+      "year": 2021,
+      "doi": "10.3280/qua2020-112009",
+      "url": "https://doi.org/10.3280/qua2020-112009",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Transizione ecologica e nuove generazioni: il ruolo della famiglia nella promozione della sostenibilità in un’ottica inclusiva e interculturale",
+      "authors": [
+        "Giada Prisco"
+      ],
+      "year": 2021,
+      "doi": "10.36253/rief-12171",
+      "url": "https://doi.org/10.36253/rief-12171",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Innovazione delle competenze e sostenibilità ambientale nella formazione e nel ruolo professionale del tecnico diplomato in Costruzioni Ambiente e Territorio",
+      "authors": [
+        "Gianluigi Ferrario",
+        "Andrea Pompigna"
+      ],
+      "year": 2024,
+      "doi": "10.31219/osf.io/zmxsu",
+      "url": "https://doi.org/10.31219/osf.io/zmxsu",
+      "verification_status": "verified",
+      "source_type": "posted-content"
+    },
+    {
+      "title": "La relazione educativa in epoca di Covid-19. Una riflessione pedagogica sul ruolo della famiglia e sul senso di cittadinanza",
+      "authors": [
+        "Vito Balzano"
+      ],
+      "year": 2021,
+      "doi": "10.36253/rief-10246",
+      "url": "https://doi.org/10.36253/rief-10246",
+      "verification_status": "unverified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Women with fetal death: nurses’ care limitations",
+      "authors": [
+        "Joice Moreira Schmalfuss",
+        "Regina Yoshie Matsue",
+        "Lucimare Ferraz"
+      ],
+      "year": 2019,
+      "doi": "10.1590/0034-7167-2018-0261",
+      "url": "https://doi.org/10.1590/0034-7167-2018-0261",
+      "verification_status": "unverified",
+      "source_type": "article"
+    },
+    {
+      "title": "Costruire cittadinanza economica: il ruolo della pedagogia",
+      "authors": [
+        "Monica Parricchi"
+      ],
+      "year": 2020,
+      "doi": "10.30557/mt00141",
+      "url": "https://doi.org/10.30557/mt00141",
+      "verification_status": "unverified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Student Nurse Anesthetists’ Views on CRNA Role Transition",
+      "authors": [
+        "Andy Tracey, MSN, CRNA"
+      ],
+      "year": 2015,
+      "doi": "10.18776/d4ppe652",
+      "url": "https://doi.org/10.18776/d4ppe652",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Beyond Inadequate Prenatal Care Utilisation in French Guiana: Role of Education, Isolation and Pregnancy Experiences",
+      "authors": [
+        "Simmat Durand Laurence"
+      ],
+      "year": 2023,
+      "doi": "10.53902/pwhcij.2023.03.000515",
+      "url": "https://doi.org/10.53902/pwhcij.2023.03.000515",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Essential basic and emergency obstetric and newborn care: From education and training to service delivery and quality of care",
+      "authors": [
+        "Emmanuel Otolorin",
+        "Patricia Gomez",
+        "Sheena Currie",
+        "Kusum Thapa",
+        "Blami Dao"
+      ],
+      "year": 2015,
+      "doi": "10.1016/j.ijgo.2015.03.007",
+      "url": "https://doi.org/10.1016/j.ijgo.2015.03.007",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Advancing quality and safety of perinatal services in India: opportunities for effective midwifery integration",
+      "authors": [
+        "Saraswathi Vedam",
+        "Reena Titoria",
+        "Paulomi Niles",
+        "Kathrin Stoll",
+        "Vishwajeet Kumar",
+        "Dinesh Baswal",
+        "Kaveri Mayra",
+        "Inderjeet Kaur",
+        "Pandora Hardtman"
+      ],
+      "year": 2022,
+      "doi": "10.1093/heapol/czac032",
+      "url": "https://doi.org/10.1093/heapol/czac032",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Il bisogno di assistenza infermieristica di natura preventiva in ottica di genere presso il Carcere di Bollate . Un esempio: il cancro della mammella",
+      "authors": [
+        "Stefania Tinti",
+        "Viola Gabbai",
+        "Claudia Timoftica",
+        "Cosima Buccoliero",
+        "Paola Ripa",
+        "Roberto Ranieri",
+        "Anne Destrebecq",
+        "Annalisa Alberti"
+      ],
+      "year": 2022,
+      "doi": "10.1701/3827.38110",
+      "url": "https://doi.org/10.1701/3827.38110",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Barriers to Couplet Care of the Infant Requiring Additional Care: Integrative Review",
+      "authors": [
+        "Amanda Curley",
+        "Linda K. Jones",
+        "Lynette Staff"
+      ],
+      "year": 2023,
+      "doi": "10.3390/healthcare11050737",
+      "url": "https://doi.org/10.3390/healthcare11050737",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Still too far to walk: Literature review of the determinants of delivery service use",
+      "authors": [
+        "Sabine Gabrysch",
+        "Oona MR Campbell"
+      ],
+      "year": 2009,
+      "doi": "10.1186/1471-2393-9-34",
+      "url": "https://doi.org/10.1186/1471-2393-9-34",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Utilization of maternal health services among young women in Kenya: Insights from the Kenya Demographic and Health Survey, 2003",
+      "authors": [
+        "Rhoune Ochako",
+        "Jean-Christophe Fotso",
+        "Lawrence Ikamari",
+        "Anne Khasakhala"
+      ],
+      "year": 2011,
+      "doi": "10.1186/1471-2393-11-1",
+      "url": "https://doi.org/10.1186/1471-2393-11-1",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Perinatal Loss in Emerging Adults: A Review of the Literature",
+      "authors": [
+        "Hannah Wood"
+      ],
+      "year": 2019,
+      "doi": "10.17615/5dv1-nc11",
+      "url": "https://doi.org/10.17615/5dv1-nc11",
+      "verification_status": "verified",
+      "source_type": "article"
+    },
+    {
+      "title": "Il ruolo delle transizioni nella costruzione professionale di docenti, educatori e pedagogisti",
+      "authors": [
+        "Francesco Casotti"
+      ],
+      "year": 2026,
+      "doi": "10.36253/979-12-215-0943-4.11",
+      "url": "https://doi.org/10.36253/979-12-215-0943-4.11",
+      "verification_status": "verified",
+      "source_type": "book-chapter"
+    },
+    {
+      "title": "Le competenze come architettura del valore \n&lt;div&gt;\n &amp;nbsp;Il ruolo strategico della Direzione Risorse Umane nelle imprese italiane in uno scenario di instabilità strutturale&amp;nbsp;\n&lt;/div&gt;",
+      "authors": [
+        "Ciro Di Cecio"
+      ],
+      "year": 2026,
+      "doi": "10.2139/ssrn.6633920",
+      "url": "https://doi.org/10.2139/ssrn.6633920",
+      "verification_status": "verified",
+      "source_type": "posted-content"
+    },
+    {
+      "title": "Per una pedagogia del soggetto: la centralità della persona negli interventi educativi",
+      "authors": [
+        "Stefano Manici"
+      ],
+      "year": 2022,
+      "doi": "10.4081/rp.2022.607",
+      "url": "https://doi.org/10.4081/rp.2022.607",
+      "verification_status": "verified",
+      "source_type": "journal-article"
+    },
+    {
+      "title": "Health-Related Behaviors by Urban-Rural County Classification — United States, 2013",
+      "authors": [
+        "Kevin A. Matthews",
+        "Janet B. Croft",
+        "Yong Liu",
+        "Hua Lu",
+        "Dafna Kanny",
+        "Anne G. Wheaton",
+        "Timothy J. Cunningham",
+        "Laura Kettel Khan",
+        "Ralph S. Caraballo",
+        "James B. Holt",
+        "Paul I. Eke",
+        "Wayne H. Giles"
+      ],
+      "year": 2017,
+      "doi": "10.15585/mmwr.ss6605a1",
+      "url": "https://doi.org/10.15585/mmwr.ss6605a1",
+      "verification_status": "verified",
+      "source_type": "article"
+    }
+  ],
+  "actual_docx_bibliography": {
+    "entries": [
+      "Bicking, C., & Moore, G. A. (2012).  Maternal Perinatal Depression in the Neonatal Intensive Care Unit: The Role of the Neonatal Nurse. Neonatal Network. https://doi.org/10.1891/0730-0832.31.5.295",
+      "Curley, A., Jones, L. K., & Staff, L. (2023).  Barriers to Couplet Care of the Infant Requiring Additional Care: Integrative Review. Healthcare. https://doi.org/10.3390/healthcare11050737",
+      "Emily Slone McKinney; Susan R. James; Sharon Smith Murray; Kristine Ann Nelson; Jean Weiler Ashwill. (s.d.). Maternal-Child Nursing.",
+      "Hallett, C. E., & Pateman, B. D. (2000).  The ‘invisible assessment’: the role of the staff nurse in the community setting. Journal of Clinical Nursing. https://doi.org/10.1046/j.1365-2702.2000.00425.x",
+      "Kokkinaki, T., Anagnostatou, N., Markodimitraki, M., Roumeliotaki, T., Tzatzarakis, M., Vakonaki, E., ... Hatzidaki, E. (2025).  The development of preterm infants from low socio-economic status families: The combined effects of melatonin, autonomic nervous system maturation and psychosocial factors (ProMote): A study protocol. PLOS ONE. https://doi.org/10.1371/journal.pone.0316520",
+      "Laurence, S. D. (2023).  Beyond Inadequate Prenatal Care Utilisation in French Guiana: Role of Education, Isolation and Pregnancy Experiences. Pregnancy and Women’s Health Care International Journal. https://doi.org/10.53902/pwhcij.2023.03.000515",
+      "Lewin, S., Munabi-Babigumira, S., Glenton, C., Daniels, K., Bosch-Capblanch, X., Wyk, B. E. V., ... Scheel, I. B. (2010).  Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases. Cochrane Database of Systematic Reviews. https://doi.org/10.1002/14651858.cd004015.pub3",
+      "Maben, J., Morrow, E., Ball, J., Robert, G., & Griffiths, P. (2012).  High quality care metrics for nursing. ePrints Soton (University of Southampton)",
+      "NANDA International. (s.d.). NANDA International Nursing Diagnoses: Definitions and Classification.",
+      "Ochako, R., Fotso, J. C., Ikamari, L., & Khasakhala, A. (2011).  Utilization of maternal health services among young women in Kenya: Insights from the Kenya Demographic and Health Survey, 2003. BMC Pregnancy and Childbirth. https://doi.org/10.1186/1471-2393-11-1",
+      "Perez, K. (2020).  Educating Perinatal Nurses to Promote Bonding Techniques and Increase Support of Neonatal Intensive Care Unit Parents. Digital Scholarship - UNLV (University of Nevada Reno). https://doi.org/10.34917/13568655",
+      "Sanità, M. D. (1994).  Decreto Ministeriale 14 settembre 1994, n. 739 - Regolamento concernente l'individuazione della figura e del relativo profilo professionale dell'infermiere.",
+      "Sanità, M. D. (1994).  Decreto Ministeriale 14 settembre 1994, n. 740 - Regolamento concernente l'individuazione della figura e del relativo profilo professionale dell'ostetrica/o.",
+      "Sue Moorhead; Elizabeth Swanson; Marion Johnson; Meridean Maas. (s.d.). Nursing Outcomes Classification (NOC): Measurement of Health Outcomes.",
+      "Tinti, S., Gabbai, V., Timoftica, C., Buccoliero, C., Ripa, P., Ranieri, R., ... Alberti, A. (2022).  Il bisogno di assistenza infermieristica di natura preventiva in ottica di genere presso il Carcere di Bollate . Un esempio: il cancro della mammella. Recenti Progressi in Medicina. https://doi.org/10.1701/3827.38110",
+      "World Health Organization. (s.d.). Thermal Protection of the Newborn: A Practical Guide.",
+      "World Health Organization. (s.d.). WHO recommendations on newborn health."
+    ],
+    "entry_count": 17,
+    "verified_pack_entries": 10,
+    "unverified_standard_entries": 7,
+    "unverified_standard_metadata": [
+      {
+        "id": "dm739-1994",
+        "title": "Decreto Ministeriale 14 settembre 1994, n. 739 - Regolamento concernente l'individuazione della figura e del relativo profilo professionale dell'infermiere",
+        "authors": [
+          "Ministero della Sanità"
+        ],
+        "year": 1994,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "dm740-1994",
+        "title": "Decreto Ministeriale 14 settembre 1994, n. 740 - Regolamento concernente l'individuazione della figura e del relativo profilo professionale dell'ostetrica/o",
+        "authors": [
+          "Ministero della Sanità"
+        ],
+        "year": 1994,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "mckinney_maternal_child",
+        "title": "Maternal-Child Nursing",
+        "authors": [
+          "Emily Slone McKinney",
+          "Susan R. James",
+          "Sharon Smith Murray",
+          "Kristine Ann Nelson",
+          "Jean Weiler Ashwill"
+        ],
+        "year": null,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "who-thermal",
+        "title": "Thermal Protection of the Newborn: A Practical Guide",
+        "authors": [
+          "World Health Organization"
+        ],
+        "year": null,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "nanda_i",
+        "title": "NANDA International Nursing Diagnoses: Definitions and Classification",
+        "authors": [
+          "NANDA International"
+        ],
+        "year": null,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "noc",
+        "title": "Nursing Outcomes Classification (NOC): Measurement of Health Outcomes",
+        "authors": [
+          "Sue Moorhead",
+          "Elizabeth Swanson",
+          "Marion Johnson",
+          "Meridean Maas"
+        ],
+        "year": null,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      },
+      {
+        "id": "apgar_who",
+        "title": "WHO recommendations on newborn health",
+        "authors": [
+          "World Health Organization"
+        ],
+        "year": null,
+        "origin": "model_standard_reference",
+        "status": "manager_verification_required",
+        "in_frozen_pack": false,
+        "identity_verified": false
+      }
+    ]
+  },
+  "source_table_interpretation": "30 candidates =24verified+6rejected/unverified candidates. These6 are not the7standard references in finalDOCX."
+}

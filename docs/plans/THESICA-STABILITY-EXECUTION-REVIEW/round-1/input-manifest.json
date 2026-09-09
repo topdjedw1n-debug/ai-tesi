@@ -1,0 +1,34 @@
+[
+  {
+    "path": "/Users/maxmaxvel/AI TESI/docs/plans/THESICA-STABILITY-EXECUTION.md",
+    "sha256": "ac513d5232ba52ae5a161fbc2bc448f66b90fb3e1441f12e8332c9dd4a8a24a1"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/docs/research/platform-reliability-review-2026-09-08/review-round-1/code-fact-check.md",
+    "sha256": "20d47c28901b1fa1389e3cd7c83f840abd23a2ee0168c27ea57f835774ee5996"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/background_jobs.py",
+    "sha256": "e9a293341e5ae381388f25117514bd054b0dde445d3abe182c74855a74d436ac"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/production_case_service.py",
+    "sha256": "58a9650aa8f2cbb9cd1aafafec2dd7f9d55c7cea6587d8569503939aae120e8c"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_review.py",
+    "sha256": "6d01ec11b2357231b0f1305a2a29ccf5c6ebdf819a0393977669cc1760ebf768"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/generation_worker.py",
+    "sha256": "447b14533386a771d834df268eaa3db0ec9934a551d92927a661423362aa2923"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/models/document.py",
+    "sha256": "fcae8a4754a30a49548c1bcf69dfd28bacaf174d04d4058b52b92545ac2bb06b"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/THESICA-PLAN.md",
+    "sha256": "74673844ed96b7918dced184e9abdcf072cf61842b245b17a19e705f7614432d"
+  }
+]

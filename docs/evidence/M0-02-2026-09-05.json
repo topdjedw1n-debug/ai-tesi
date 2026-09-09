@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "task_id": "M0-02",
+  "status": "LOCAL",
+  "recorded_at_utc": "2026-09-05T09:42:44.395899+00:00",
+  "source": {
+    "base_commit": "19e36fc42611675f25149efaae6ed2985c68323c",
+    "branch": "codex/telegram-operator-bot",
+    "committed": false,
+    "manifest": [
+      {
+        "path": "apps/api/.env.example",
+        "sha256": "974b01602cee12ff9eae7960d254bda8aeca052a48dd2dcbeec8ddb5e3ab56f7"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/admin_documents.py",
+        "sha256": "524a3e7bde44f0e083565f6aee3907dc2e582c62cd397c92eb58df34cdcd113b"
+      },
+      {
+        "path": "apps/api/app/api/v1/endpoints/production_cases.py",
+        "sha256": "4141af4a2b49f606e5dc7b1f7e294ae3ed5440d1a733e0ec2b3e5290dba5ca23"
+      },
+      {
+        "path": "apps/api/app/core/config.py",
+        "sha256": "b6064845a3212af5a0ae28bc3d1aa7e4acdfe2adedbb68d654d8e8e2043ee21f"
+      },
+      {
+        "path": "apps/api/app/core/production_access.py",
+        "sha256": "4ef6fba544c6bb611e71c97b70a6b313caf1711addd65c7fa1065c58b1f224cc"
+      },
+      {
+        "path": "apps/api/app/schemas/user.py",
+        "sha256": "dd0fa5e2439d422cec1c5cd3ec4a51fca28853cd436ba15812488dc4995ca99c"
+      },
+      {
+        "path": "apps/api/app/services/auth_service.py",
+        "sha256": "d2a20533ae0839382cfed834bd0a1d83140d18937c016fffb73816612e7d6b6a"
+      },
+      {
+        "path": "apps/api/app/services/production_case_service.py",
+        "sha256": "5b47dc2111db429b8928e090785b28e3c36c3111ec5ec643cfda77ed2aad7adc"
+      },
+      {
+        "path": "apps/api/tests/test_production_operator_access.py",
+        "sha256": "115395ab358430686eabf5052bad70ec403d386cf431aeb30b56d7ea99f1fd15"
+      },
+      {
+        "path": "apps/web/__tests__/app/admin/production-cases/detail.test.tsx",
+        "sha256": "ba4b323314ade688f85e1d551a59a247e47f561d5610a42aae04513f2908cf67"
+      },
+      {
+        "path": "apps/web/__tests__/app/admin/production-cases/page.test.tsx",
+        "sha256": "4ab074e18961487cc2e00b4d5d28a8fe27f50684d41be57ee54f8b8aa588b026"
+      },
+      {
+        "path": "apps/web/__tests__/components/ProductionWorkspace.test.tsx",
+        "sha256": "29c6fd19ff8d5917aabca107f8b92e9507490a5012ed1a63248a0a5d12054cee"
+      },
+      {
+        "path": "apps/web/app/admin/production-cases/[id]/page.tsx",
+        "sha256": "89c8acef9c8a7e056773a2e0962ce81dd7386e0430c80bacd946c75a4449f609"
+      },
+      {
+        "path": "apps/web/app/admin/production-cases/page.tsx",
+        "sha256": "5475f2ec569e958cad3fe776cbbbf8e5a15d8b0c501a96d88ead94d3a13b36e8"
+      },
+      {
+        "path": "apps/web/app/dashboard/production-cases/[id]/page.tsx",
+        "sha256": "c276e5b41fe9b791ea4402079274ac613384a3d639e55a606012a81baa57aa3d"
+      },
+      {
+        "path": "apps/web/app/dashboard/production-cases/page.tsx",
+        "sha256": "5c58cc3fd5fc32679894001d64c228af4b8f9cede6ec57d0b6fea3a081c1f397"
+      },
+      {
+        "path": "apps/web/components/layout/DashboardLayout.tsx",
+        "sha256": "258e74fcae5a6c2cbfe9ba5d6ed4e1627cf8191daa722bf9b32bf62d2a8539c9"
+      },
+      {
+        "path": "apps/web/components/production/ProductionWorkspace.tsx",
+        "sha256": "0102d43de299ed5941e50eea0e8aa40ea99de9744f7c4339e8ac2e01655f5eac"
+      },
+      {
+        "path": "apps/web/components/providers/AuthProvider.tsx",
+        "sha256": "5621a46cfe9d2d12f3f1a1b81420264cca1d79a4657384f95476dc1fc9c41716"
+      },
+      {
+        "path": "infra/docker/docker-compose.prod.yml",
+        "sha256": "f40677efef9d644ef34359ed61c2ed3e44fda7f03dd003f7e9333f241f859920"
+      }
+    ],
+    "change_set_sha256": "f3c78daf4244a7cc4bd20a0183c37f9bcd60e400cd0ad3ebe959551802082261"
+  },
+  "founder_confirmations": {
+    "date": "2026-09-05",
+    "tanya_uses_manager1": true,
+    "compilatio_similarity_access": true,
+    "compilatio_ai_access": true,
+    "use_existing_first_order_if_found": true,
+    "external_compilatio_login_independently_tested": false
+  },
+  "production_access_before_and_after_unchanged": {
+    "checked_at_utc": "2026-09-05T08:55:37.318561+00:00",
+    "account_reference": "manager1; Tanya identity confirmed by founder on 2026-09-05",
+    "user": {
+      "id": 1,
+      "is_active": true,
+      "is_verified": true,
+      "is_admin": false,
+      "is_super_admin": false,
+      "password_set": true,
+      "deletion_pending": false
+    },
+    "permissions": [],
+    "required_permissions": [
+      "view_documents",
+      "manage_production_cases",
+      "release_documents"
+    ],
+    "effective_permissions": {
+      "view_documents": false,
+      "manage_production_cases": false,
+      "release_documents": false
+    },
+    "documents_by_status": [
+      {
+        "status": "draft",
+        "count": 1
+      },
+      {
+        "status": "failed",
+        "count": 2
+      },
+      {
+        "status": "failed_quality",
+        "count": 2
+      }
+    ],
+    "unlimited_generation_configured": true,
+    "telegram_mapped_actor_count": 1
+  },
+  "selected_order": {
+    "checked_at_utc": "2026-09-05T09:22:27.335476+00:00",
+    "id": 5,
+    "user_id": 1,
+    "title": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+    "status": "draft",
+    "work_type": "tesi_triennale",
+    "language": "it",
+    "target_pages": 18,
+    "citation_style": "apa",
+    "contract_confirmation_error": null,
+    "contract_basis": "university_methodology",
+    "requirements_file_processed": true,
+    "methodology_file_present": false,
+    "additional_requirements_present": true,
+    "additional_requirements_sha256": "b255274ed52c5fe0c8bcc56c62f815b36f48135a706fb0eeda9eaefd762f6d21",
+    "uploaded_university_requirements_embedded": true,
+    "job_count": 0,
+    "case_count": 0,
+    "production_operator_access_setting_present": false,
+    "uploaded_source_count_at_initial_order_lookup": 0
+  },
+  "production_services": {
+    "checked_at_utc": "2026-09-05T09:24:27.168505+00:00",
+    "services": [
+      {
+        "name": "ai-thesis-api",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:3ab9c4c2ee5e93dded9dd8bde7f96888159f7d1cbc18b2d4b589bcc6ca2fcb6f"
+      },
+      {
+        "name": "docker-operator-bot-1",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:f36c547e776198787ffe7cc911f2fc4577050fd0d836f844c4b33b6b0e840b7b"
+      },
+      {
+        "name": "ai-thesis-web",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:d6d6b866259760c37a5af1a3a638e163586592fa1d8a4f7f2355eced311aae2e"
+      },
+      {
+        "name": "ai-thesis-postgres",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:cd17e2ac98240fce1541ad2a803b34009b4eea5aec8a832363cdc7eca62e722e"
+      },
+      {
+        "name": "ai-thesis-redis",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:6ab0b6e7381779332f97b8ca76193e45b0756f38d4c0dcda72dbb3c32061ab99"
+      },
+      {
+        "name": "ai-thesis-minio",
+        "running": true,
+        "health": "healthy",
+        "restart_policy": "unless-stopped",
+        "image_id": "sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e"
+      }
+    ]
+  },
+  "checks": {
+    "api": {
+      "passed": 39,
+      "new_operator_cases": 9,
+      "skipped": 0,
+      "network": "none",
+      "files": [
+        "tests/test_production_operator_access.py",
+        "tests/test_manager_login_me.py",
+        "tests/test_admin_production_cases_endpoints.py",
+        "tests/test_production_cases.py"
+      ]
+    },
+    "web": {
+      "passed": 29,
+      "skipped": 1,
+      "suites": 5
+    },
+    "web_explicit_draft_flow": {
+      "passed": 1
+    },
+    "web_type_check": "passed",
+    "web_lint": "passed",
+    "web_build": {
+      "status": "passed",
+      "api_origin": "http://localhost:8102",
+      "production_deployment_artifact": false
+    },
+    "python_new_module_mypy": {
+      "status": "passed",
+      "follow_imports": "silent",
+      "whole_repository": false
+    },
+    "compose": [
+      {
+        "input": "[]",
+        "rendered": "[]"
+      },
+      {
+        "input": "[1]",
+        "rendered": "[1]"
+      }
+    ],
+    "browser": {
+      "environment": "isolated local SQLite fixture; real password login; no production credentials",
+      "origin": "http://localhost:3102",
+      "observed": [
+        "password login redirected to /dashboard",
+        "ordinary navigation contains Перевірка та видача",
+        "/dashboard/production-cases lists only own fixture case; foreign fixture absent",
+        "own detail at /dashboard/production-cases/1 opens",
+        "internal DOCX and Approve release buttons disabled before artifact exists",
+        "both Compilatio forms visible; admin override controls absent",
+        "desktop screenshot inspected; content readable within viewport"
+      ],
+      "production_tanya_login": false
+    },
+    "python_lint": "passed; 8 changed Python modules/test",
+    "log_sha256": {
+      "api-tests.log": "a47401aceb4440c7b02ac66a2e2efdfcf2046b3356bde06c8646c0b37dc92cb6",
+      "web-tests.log": "60c452bc35031642a5848ca6464310fa56105dccb220a1edd222916c81573172",
+      "web-draft-flow.log": "552eeb3532345a5ffcd3c505b0494740c7cdba7bdbd628ee6cb80d4a93b840a7",
+      "web-build.log": "2ac79f60f84c8c067f431f9925fba88ebc05c2a280a1117ac75349f58ef38731"
+    }
+  },
+  "preservation": {
+    "staged_index_unchanged": true,
+    "unrelated_file_hashes_unchanged": true,
+    "production_mutations": false,
+    "generation_started": false,
+    "passwords_changed": false,
+    "broad_admin_granted": false,
+    "messages_sent": false
+  },
+  "activation": {
+    "required": true,
+    "setting": "PRODUCTION_OPERATOR_USER_IDS",
+    "value": [
+      1
+    ],
+    "default": [],
+    "schema_migration_required": false,
+    "scope": "existing authenticated active user; own documents and cases only",
+    "api_and_web_release_required": true,
+    "depends_on": [
+      "M0-03",
+      "M0-04",
+      "M0-05",
+      "approved M0-06 release and live access check"
+    ]
+  },
+  "next_task": "M0-03",
+  "other_short_orders_supplied": false,
+  "product_pass_proven": false,
+  "production_admin_user_count_at_access_probe": 0
+}

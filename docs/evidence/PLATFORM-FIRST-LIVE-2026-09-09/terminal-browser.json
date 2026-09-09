@@ -1,0 +1,17 @@
+{
+  "routes": [
+    {
+      "path": "/dashboard/documents/11",
+      "status": 200
+    },
+    {
+      "path": "/dashboard/production-cases/13",
+      "status": 200
+    }
+  ],
+  "page_errors": [],
+  "api_errors": [],
+  "blocked_mutations": [],
+  "case_generation_status": "completed",
+  "passed": true
+}

@@ -1,0 +1,14 @@
+{
+  "status": "completed",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "profile_changed": false,
+  "recorded_model_calls": 44,
+  "simulated_cost_cents": 336,
+  "all44_requests_unchanged": true,
+  "docx_differing_members": [
+    "docProps/core.xml"
+  ],
+  "word_document_xml_identical": true,
+  "requires_wrapper_for_recorded_partial_completion": true
+}

@@ -1,0 +1,19 @@
+{
+  "valid_zip_and_word_xml": true,
+  "bytes": 50995,
+  "sha256": "cad0dff06ea153273bcfd5fb5e35cc54d181249f56caece29e4fe49445f24d08",
+  "paragraphs": 92,
+  "words_including_bibliography": 6322,
+  "sections": 6,
+  "section_word_counts": [
+    524,
+    1183,
+    1207,
+    1248,
+    1206,
+    534
+  ],
+  "rendered_page_count": null,
+  "academic_acceptance": false,
+  "unrendered_markup_occurrences": 0
+}

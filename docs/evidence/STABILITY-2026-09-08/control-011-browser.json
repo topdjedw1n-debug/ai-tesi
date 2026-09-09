@@ -1,0 +1,31 @@
+{
+  "job_id": 11,
+  "status": "failed",
+  "routes": [
+    {
+      "path": "/dashboard/documents/11",
+      "status": 200,
+      "buttons": [
+        "manager1",
+        "Назад",
+        "",
+        "Почати заново",
+        "Надіслати фідбек"
+      ]
+    },
+    {
+      "path": "/dashboard/production-cases/13",
+      "status": 200,
+      "buttons": [
+        "manager1",
+        "DOCX для Compilatio",
+        "Дозволити видачу"
+      ]
+    }
+  ],
+  "mutations": [],
+  "page_errors": [],
+  "api_errors": [],
+  "checked_at": "2026-09-09T08:01:49.678Z",
+  "passed": true
+}

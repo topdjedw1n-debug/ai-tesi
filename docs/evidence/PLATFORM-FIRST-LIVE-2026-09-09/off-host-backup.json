@@ -1,0 +1,22 @@
+{
+  "verified": true,
+  "files": {
+    "postgres.dump": {
+      "bytes": 492201,
+      "sha256": "278f93e2e68069c0c478a47b8dec576af89f3e92151932d2cf7ce622390ab203"
+    },
+    "source.tar.gz": {
+      "bytes": 10512995,
+      "sha256": "3f0c3624981ed997d7899edb208acc5988c104942a7954a85a9345a29aa97936"
+    },
+    "private-config.tar.gz": {
+      "bytes": 5833,
+      "sha256": "14b1a642051391b06f9a9898f65647e26538930544bc82009d313bcff519f6f8"
+    },
+    "minio-data.tar.gz": {
+      "bytes": 213033,
+      "sha256": "c37131ead99fe87b94e7430977e5b610d80bd8438a3f821f19157aa86fa288c8"
+    }
+  },
+  "private_directory": ".scratch/stability-20260908/platform-release-6ff8c5c/private-backup"
+}

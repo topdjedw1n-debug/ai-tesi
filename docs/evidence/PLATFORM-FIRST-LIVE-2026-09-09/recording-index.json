@@ -1,0 +1,186 @@
+{
+  "origin": "real_full_job",
+  "document_id": 11,
+  "case_id": 13,
+  "job_id": 12,
+  "runtime_commit": "6ff8c5c2c7b0b804e53ca4d4347bb44199cb1d99",
+  "status": "completed",
+  "attempt_count": 1,
+  "recording_events": {
+    "generation_intent_receipt": 1,
+    "generation_replay_inputs": 1,
+    "generation_provider_attempt": 88,
+    "generation_dependency": 323,
+    "generation_warning": 19
+  },
+  "provider_calls": 44,
+  "by_stage": {
+    "pack_translation": {
+      "calls": 1,
+      "received": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 355,
+      "output_tokens": 181,
+      "response_files": [
+        "001-pack_translation-received.json"
+      ]
+    },
+    "outline": {
+      "calls": 2,
+      "received": 2,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 19976,
+      "output_tokens": 8574,
+      "response_files": [
+        "002-outline-received.json",
+        "003-outline-received.json"
+      ]
+    },
+    "academic_plan_preparation": {
+      "calls": 1,
+      "received": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 33258,
+      "output_tokens": 4348,
+      "response_files": [
+        "004-academic_plan_preparation-received.json"
+      ]
+    },
+    "academic_outline_review": {
+      "calls": 1,
+      "received": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 40246,
+      "output_tokens": 3464,
+      "response_files": [
+        "005-academic_outline_review-received.json"
+      ]
+    },
+    "section_generation": {
+      "calls": 6,
+      "received": 6,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 272697,
+      "output_tokens": 17051,
+      "response_files": [
+        "006-section_generation-received.json",
+        "013-section_generation-received.json",
+        "020-section_generation-received.json",
+        "026-section_generation-received.json",
+        "032-section_generation-received.json",
+        "038-section_generation-received.json"
+      ]
+    },
+    "claim_verification": {
+      "calls": 8,
+      "received": 8,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 37693,
+      "output_tokens": 4630,
+      "response_files": [
+        "007-claim_verification-received.json",
+        "008-claim_verification-received.json",
+        "014-claim_verification-received.json",
+        "015-claim_verification-received.json",
+        "021-claim_verification-received.json",
+        "027-claim_verification-received.json",
+        "033-claim_verification-received.json",
+        "039-claim_verification-received.json"
+      ]
+    },
+    "quality_panel_methodology": {
+      "calls": 6,
+      "received": 6,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 23954,
+      "output_tokens": 702,
+      "response_files": [
+        "009-quality_panel_methodology-received.json",
+        "016-quality_panel_methodology-received.json",
+        "022-quality_panel_methodology-received.json",
+        "028-quality_panel_methodology-received.json",
+        "034-quality_panel_methodology-received.json",
+        "040-quality_panel_methodology-received.json"
+      ]
+    },
+    "quality_panel_citations": {
+      "calls": 6,
+      "received": 6,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 23978,
+      "output_tokens": 945,
+      "response_files": [
+        "010-quality_panel_citations-received.json",
+        "017-quality_panel_citations-received.json",
+        "023-quality_panel_citations-received.json",
+        "029-quality_panel_citations-received.json",
+        "035-quality_panel_citations-received.json",
+        "041-quality_panel_citations-received.json"
+      ]
+    },
+    "quality_panel_coherence": {
+      "calls": 6,
+      "received": 6,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 23936,
+      "output_tokens": 737,
+      "response_files": [
+        "011-quality_panel_coherence-received.json",
+        "018-quality_panel_coherence-received.json",
+        "024-quality_panel_coherence-received.json",
+        "030-quality_panel_coherence-received.json",
+        "036-quality_panel_coherence-received.json",
+        "042-quality_panel_coherence-received.json"
+      ]
+    },
+    "quality_panel_devils_advocate": {
+      "calls": 6,
+      "received": 6,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 23794,
+      "output_tokens": 445,
+      "response_files": [
+        "012-quality_panel_devils_advocate-received.json",
+        "019-quality_panel_devils_advocate-received.json",
+        "025-quality_panel_devils_advocate-received.json",
+        "031-quality_panel_devils_advocate-received.json",
+        "037-quality_panel_devils_advocate-received.json",
+        "043-quality_panel_devils_advocate-received.json"
+      ]
+    },
+    "academic_review": {
+      "calls": 1,
+      "received": 1,
+      "failed": 0,
+      "unfinished": 0,
+      "input_tokens": 52660,
+      "output_tokens": 3244,
+      "response_files": [
+        "044-academic_review-received.json"
+      ]
+    }
+  },
+  "usage": {
+    "confirmed_tokens": 596868,
+    "confirmed_cost_cents": 336,
+    "unknown_provider_attempts": 0
+  },
+  "sections": 6,
+  "docx_path": "s3://ai-thesis-documents/documents/1/11/11-cad0dff06ea15327.docx",
+  "docx_sha256": "cad0dff06ea153273bcfd5fb5e35cc54d181249f56caece29e4fe49445f24d08",
+  "full_recording": "FULL-RECORDING.json",
+  "full_recording_bytes": 43180079,
+  "full_recording_sha256": "d78317b98a450407c966fcfb4580ff85773baa9fe342e529ce78129cb5cde591",
+  "original_job11_preserved_in_export": true,
+  "academic_acceptance": false
+}

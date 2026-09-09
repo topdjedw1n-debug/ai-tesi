@@ -1,0 +1,18 @@
+{
+  "authorized_scope": "one new control document11/case13",
+  "runtime_commit": "63520dfdaacc437aaceb9bba7fb5c1e1a12866b9",
+  "started_via": "normal manager UI",
+  "paid_request_count": 1,
+  "request": {
+    "document_id": 11,
+    "intent_id": "e2708390-6211-4721-b9d3-b9706f9c4925"
+  },
+  "requested_at": "2026-09-09T07:58:12.684Z",
+  "http_status": 200,
+  "response": {
+    "job_id": 11,
+    "status": "queued",
+    "check_url": "/api/v1/jobs/11/status"
+  },
+  "received_at": "2026-09-09T07:58:12.849Z"
+}

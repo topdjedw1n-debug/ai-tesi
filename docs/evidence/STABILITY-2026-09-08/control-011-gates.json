@@ -1,0 +1,685 @@
+[
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "generation_contract",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "generation_job",
+    "summary": "No completed durable generation job is bound to this file.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743793"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "citation_verification",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_provenance",
+    "summary": "No evidence recorded yet.",
+    "evidence": {},
+    "override_allowed": true,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743811"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "claim_support",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_provenance",
+    "summary": "No evidence recorded yet.",
+    "evidence": {},
+    "override_allowed": true,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743836"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "section_quality",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_provenance",
+    "summary": "No evidence recorded yet.",
+    "evidence": {},
+    "override_allowed": true,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743877"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "plagiarism_proxy",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "compilatio_report",
+    "summary": "Record an artifact-bound external detector result and explicit release-manager decision before release.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743881"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "ai_detection_proxy",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "compilatio_report",
+    "summary": "Record an artifact-bound external detector result and explicit release-manager decision before release.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743884"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "editorial_review",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "manager_review",
+    "summary": "Потрібен огляд менеджером і підтвердження відсутності переписування.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743905"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "delivery_package",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_export",
+    "summary": "No evidence recorded yet.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743911"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "source_availability",
+    "status": "passed",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_provenance",
+    "summary": "Source preflight passed: 24 verified source(s).",
+    "evidence": {
+      "status": "passed",
+      "retrieval_trace": [
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:58:14.887721+00:00",
+          "status": "returned",
+          "count": 24
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:58:16.007980+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The role of the nurse in the perinatal area and in the neonate's extrauterine transition",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:58:17.153797+00:00",
+          "status": "returned",
+          "count": 24
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The role of the nurse in the perinatal area and in the neonate's extrauterine transition",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:58:18.033791+00:00",
+          "status": "returned",
+          "count": 24
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:09.726630+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:12.304878+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Introduzione",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:13.458912+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Introduzione",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:14.993402+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:15.531634+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:16.622970+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:16.996127+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:18.968718+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:19.614267+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:21.606498+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:22.576211+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Capitolo 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:24.406538+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Conclusioni",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:24.848129+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Conclusioni",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:26.600675+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:27.267096+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:29.230816+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Introduction",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:31.144218+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Introduction",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:33.038676+00:00",
+          "status": "returned",
+          "count": 37
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 1. The Role of the Nurse in Assessment and Primary Prevention in the Perinatal Area",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:34.355807+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 1. The Role of the Nurse in Assessment and Primary Prevention in the Perinatal Area",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:36.690919+00:00",
+          "status": "returned",
+          "count": 18
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 2. Homeostatic Stability of the Dyad and Nursing Surveillance",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:37.733193+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 2. Homeostatic Stability of the Dyad and Nursing Surveillance",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:40.380628+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_crossref",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 3. Nursing Management of the Newborn's Extrauterine Transition and Care Planning",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:40.933032+00:00",
+          "status": "returned",
+          "count": 48
+        },
+        {
+          "provider": "search_openalex",
+          "query": "The Role of the Nurse in the Perinatal Area and in the Newborn's Extrauterine Transition Chapter 3. Nursing Management of the Newborn's Extrauterine Transition and Care Planning",
+          "page": 1,
+          "retrieved_at": "2026-09-09T07:59:42.813510+00:00",
+          "status": "returned",
+          "count": 15
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00002800-198900320-00016",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:47.252533+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00002800-198922000-00016",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:48.561556+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1111/nuf.12078",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:49.445950+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1203/00006450-199904020-00289",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:51.080897+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/01.jpn.0000341365.60693.39",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:51.907083+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00005237-198710000-00003",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:52.667159+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1016/j.nepr.2014.06.002",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:53.113191+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1016/j.nurpra.2014.11.009",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:54.117154+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1111/j.1751-486x.2007.00222.x",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:54.832896+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1136/archdischild-2024-rcpch.47",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:55.511027+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.7748/ns2001.10.16.3.36.c3093",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:56.515105+00:00",
+          "status": "returned",
+          "count": 2
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1016/j.nurpra.2014.11.004",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T07:59:58.553645+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1891/9780826125347.0001",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:00.672619+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00004045-199611000-00002",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:02.112254+00:00",
+          "status": "returned",
+          "count": 1
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1054/nepr.2002.0048",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:03.726395+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/nne.0000000000001412",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:04.749569+00:00",
+          "status": "returned",
+          "count": 3
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1016/0091-2182(96)00034-1",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:05.966448+00:00",
+          "status": "returned",
+          "count": 4
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00005237-199512000-00006",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:07.189445+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1097/00006247-198802000-00011",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:08.363263+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1891/0730-0832.31.5.317",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:09.017943+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1111/j.1552-6356.2006.00036.x",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:11.885971+00:00",
+          "status": "returned",
+          "count": 0
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1016/s0163-6383(83)80020-4",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:13.435323+00:00",
+          "status": "returned",
+          "count": 5
+        },
+        {
+          "provider": "search_openalex",
+          "query": "10.1007/978-3-030-53002-0_1",
+          "purpose": "missing_evidence",
+          "retrieved_at": "2026-09-09T08:00:16.502281+00:00",
+          "status": "returned",
+          "count": 0
+        }
+      ],
+      "candidates": 48,
+      "verified": 24,
+      "final_size": 24,
+      "target": 24,
+      "min_required": 18,
+      "rejected_by_reason": {
+        "not_found": 1,
+        "no_readable_evidence": 23
+      },
+      "rejected": [
+        {
+          "title": "L’impact d’une expérience clinique simulée sur la perception d’auto-efficacité et d’accomplissment des étudiants de Cégep en soins infirmiers",
+          "reason": "not_found"
+        },
+        {
+          "title": "Challenges in the Perinatal Clinical Nurse Specialist Role",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Challenges in the Perinatal Clinical Nurse Specialist Role",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Nurse Practitioner Role Transition: A Concept Analysis",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Nitric Oxide in Perinatal Circulation during Transition to Extrauterine Life",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Neonatal Nurse Practitioner Role Transition",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "The role of the perinatal and neonatal nurse in risk management",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Role transition from student nurse to staff nurse: Facilitating the transition period",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Creation of a National Policy on Perinatal Depression: Role of the Advanced Practice Nurse",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "The Newborn Triage Nurse: A New Perinatal Nursing Role",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "6798 Introduction of a perinatal palliative clinical nurse specialist role enhancing partnership working between palliative care and perinatal services-one year on",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "An evaluation of staff nurse role transition",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Exploring the Factors That Influence Nurse Practitioner Role Transition",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Transition to the Professional Nurse Role",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "The Role of the Perinatal Home Care Clinical Nurse Specialist",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Developing the role of the mentor in post basic nurse education: East Midlands NHS confederation area",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Art as Self-reflection in Nurse Practitioner Role Transition",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Student to nurse-midwife role transition process smoothing the way",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "High-risk obstetric nursing role: Perinatal nurse practitioner",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "A Collaborative Effort to Facilitate Role Transition from Student to Registered Nurse Practitioner",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Newborn Transition to Extrauterine Life",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Embracing the Role of the Advanced Practice Nurse in the Perinatal Setting",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "Newborn behavior and the transition to extrauterine life",
+          "reason": "no_readable_evidence"
+        },
+        {
+          "title": "APN Role Transition Introduction",
+          "reason": "no_readable_evidence"
+        }
+      ],
+      "transient_count": 0,
+      "unknown_type_count": 0,
+      "top_up_attempted": false,
+      "sha256": "de3938e2fbc613b0dd7328cc64ee4dda58ccd54d13c8203b43859487c2f9d266"
+    },
+    "override_allowed": true,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743929"
+  },
+  {
+    "id": null,
+    "production_case_id": 13,
+    "gate_key": "academic_quality",
+    "status": "no_data",
+    "severity": "blocking",
+    "blocking": true,
+    "source": "document_provenance",
+    "summary": "Немає перевірки академічної повноти цілої роботи.",
+    "evidence": {},
+    "override_allowed": false,
+    "override_reason": null,
+    "overridden_by_id": null,
+    "overridden_at": null,
+    "last_checked_at": "2026-09-09T08:01:29.743961"
+  }
+]

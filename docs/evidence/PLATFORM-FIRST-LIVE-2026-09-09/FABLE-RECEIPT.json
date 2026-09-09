@@ -1,0 +1,14 @@
+{
+  "subtype": "success",
+  "is_error": false,
+  "session_id": "4109071d-c806-46da-ade1-e4689a0a9f06",
+  "num_turns": 39,
+  "duration_ms": 225262,
+  "total_cost_usd": 11.352749249999999,
+  "model": "claude-fable-5-1",
+  "mode": "CLI read-only Read/Glob/Grep",
+  "direction": "DIRECTION_APPROVED",
+  "criterion": "DOCX reached",
+  "cost_note": "CLI reports estimated usage cost11.35274925USD; not a confirmed separate charge or generation-job cost.",
+  "review_sha256": "025d5627e029d48d7564e5a0d7d36e54ef7e19770ce411cd0d6aa987b0452146"
+}

@@ -1,0 +1,22 @@
+{
+  "authorized_scope": "one authorized new_version job on existing unchanged document11/case13",
+  "runtime_commit": "6ff8c5c2c7b0b804e53ca4d4347bb44199cb1d99",
+  "started_via": "normal manager UI",
+  "paid_request_count": 1,
+  "request": {
+    "document_id": 11,
+    "intent_id": "41037337-56d9-4d93-8cbc-59cea21e03ce",
+    "mode": "new_version",
+    "confirm_replace": true,
+    "expected_fingerprint": "30b29a29251b4c3749ddea3e8bb1bfd92e9ca3416d47aeba61042153d0092b32",
+    "replacement_reason": "Фаундер дозволив один повний прогін №11 на 6ff8c5c у новому режимі попереджень; початкові вимоги й модель незмінні."
+  },
+  "requested_at": "2026-09-09T12:04:34.354Z",
+  "http_status": 200,
+  "response": {
+    "job_id": 12,
+    "status": "queued",
+    "check_url": "/api/v1/jobs/12/status"
+  },
+  "received_at": "2026-09-09T12:04:34.494Z"
+}

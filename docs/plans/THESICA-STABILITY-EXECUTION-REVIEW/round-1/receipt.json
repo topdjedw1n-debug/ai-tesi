@@ -1,0 +1,52 @@
+{
+  "provider": "fable",
+  "started_at": "2026-09-08T17:28:43.869525+00:00",
+  "finished_at": "2026-09-08T17:33:28.062563+00:00",
+  "duration_seconds": 284.17,
+  "exit_code": 0,
+  "argv": [
+    "claude",
+    "-p",
+    "--model",
+    "claude-fable-5-1",
+    "--output-format",
+    "json",
+    "--disable-slash-commands",
+    "--tools",
+    "",
+    "--allowedTools",
+    "Read,Grep,Glob",
+    "--disallowedTools",
+    "Bash,Edit,Write",
+    "--strict-mcp-config",
+    "--setting-sources",
+    "",
+    "--resume",
+    "b0b3082d-e7e0-4971-9803-1d8df93cad04"
+  ],
+  "packet_sha256": "6b48b5cacac74dbd35579cbd7e690d6ca24797480de9e807cd3b44eb66386c82",
+  "response_bytes": 20323,
+  "response_sha256": "4074930e0d7d4fb4ec83f04f35ca49df401d17f820aa009f059b36c381d365ad",
+  "session_id": "b0b3082d-e7e0-4971-9803-1d8df93cad04",
+  "request_id": null,
+  "is_error": false,
+  "stop_reason": "success",
+  "model_usage": {
+    "claude-fable-5-1": {
+      "inputTokens": 2,
+      "outputTokens": 15853,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 119907,
+      "webSearchRequests": 0,
+      "costUSD": 3.19081,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 64000,
+      "thinkingTokens": 10855,
+      "canonicalModel": "claude-fable-5-1",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  },
+  "reported_cost_usd": 3.19081,
+  "answer_chars": 11887
+}

@@ -1,0 +1,55 @@
+{
+  "at": "2026-09-09T12:04:21.639077+00:00",
+  "checks": [
+    {
+      "path": "/health",
+      "status": 200
+    },
+    {
+      "path": "/auth/login",
+      "status": 200
+    },
+    {
+      "path": "/dashboard",
+      "status": 200
+    },
+    {
+      "path": "/auth/register",
+      "status": 302
+    },
+    {
+      "path": "/api/v1/auth/magic-link",
+      "status": 403
+    },
+    {
+      "path": "/api/v1/documents/",
+      "status": 401
+    },
+    {
+      "path": "/api/v1/documents",
+      "status": 307
+    }
+  ],
+  "passed": true,
+  "unchanged_original_requirements": true,
+  "document_id": 11,
+  "case_id": 13,
+  "existing_failed_job": 11,
+  "contract_confirmed": true,
+  "recovery": {
+    "stage": "preparation",
+    "message": "Узгодження змінило структуру розділу.",
+    "outcome": "failed",
+    "attempt_id": "74307065-d053-4951-83e9-7baa1731e043",
+    "reason_code": "contract_or_profile_mismatch",
+    "retryability": "none",
+    "output_reference": "74307065-d053-4951-83e9-7baa1731e043",
+    "input_fingerprint": "27b9e9988165a3b4903dc8e47383105e34bc48b1581580028de26b7874ff3ef0",
+    "allowed_actions": [
+      "new_version"
+    ],
+    "expected_fingerprint": "30b29a29251b4c3749ddea3e8bb1bfd92e9ca3416d47aeba61042153d0092b32"
+  },
+  "criterion": "DOCX",
+  "paid_start_requests": 0
+}

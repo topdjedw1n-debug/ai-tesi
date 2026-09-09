@@ -1,0 +1,9 @@
+{
+  "status": "PASS",
+  "scope": "planning documentation and preserved review/code evidence; no runtime execution tests",
+  "main_plan_sha256": "ef0247ce18a74f63119c4fb0c844f1a964195f00868c582865d51c4bef304ac7",
+  "local_links_checked": 101,
+  "unchanged_source_files": 12,
+  "fable_rounds_verified": 2,
+  "problems": []
+}

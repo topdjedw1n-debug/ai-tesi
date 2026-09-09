@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-09T12:01:18.588694+00:00",
+  "exact_commit": "6ff8c5c2c7b0b804e53ca4d4347bb44199cb1d99",
+  "web_tests": {
+    "passed": 214,
+    "skipped": 1,
+    "suites": 30
+  },
+  "web_typecheck": "passed",
+  "web_lint": "passed",
+  "ruff": "passed",
+  "api_full_suite_prior_exact_candidate": {
+    "passed": 1445,
+    "skipped": 24,
+    "evidence": "docs/evidence/PLATFORM-FIRST-2026-09-09/platform-api-final.txt"
+  },
+  "mypy": {
+    "passed": false,
+    "baseline": 348,
+    "candidate": 386,
+    "added": 46,
+    "removed": 8,
+    "scope": "Static annotations/decorators/proxy typing debt recorded; no application change made to founder-authorized exact commit. Old S0-S5 execution superseded by platform-first plan and explicit exact-release authorization. CI is not green."
+  }
+}

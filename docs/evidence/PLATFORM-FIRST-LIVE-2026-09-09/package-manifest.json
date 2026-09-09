@@ -1,0 +1,10 @@
+{
+  "archive": "/Users/maxmaxvel/AI TESI/docs/evidence/PLATFORM-FIRST-LIVE-2026-09-09/CONTROL-011-FULL-RECORDING.zip",
+  "bytes": 6046007,
+  "sha256": "19bdb2b9abb3767e81f56fb724ed56ad51abdd771dd82ab117e83c4c00340046",
+  "files": 82,
+  "all_entries_verified": true,
+  "contains_original_docx": true,
+  "full_recording_sha256": "d78317b98a450407c966fcfb4580ff85773baa9fe342e529ce78129cb5cde591",
+  "full_model_calls": 44
+}

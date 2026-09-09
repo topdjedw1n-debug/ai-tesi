@@ -1,0 +1,398 @@
+{
+  "status": "EXPERIMENT_NOT_PRODUCT",
+  "limitations": [
+    "Captured source pool is not the complete historical48candidate pool.",
+    "Focus terms are manually derived for the observation, not an implemented automatic requirement planner.",
+    "Lexical population/framework matches do not prove clinical applicability or exact requirement support.",
+    "One of16free metadata requests hit429; it was not hidden or retried."
+  ],
+  "current24": [
+    {
+      "title": "Effect of Kangaroo Mother Care during the first 72 hours of life on early growth and breastfeeding in normal birth weight newborns: Protocol for a Randomised Controlled Trial",
+      "doi": "10.64898/2026.02.23.26346760",
+      "readable": true,
+      "baseline_score": 0.5,
+      "prototype_score": 0.5,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Birth Journey of a Newborn: Transition from Intrauterine  to Extrauterine Life",
+      "doi": "10.18844/gjapas.v0i8.2780",
+      "readable": true,
+      "baseline_score": 0.5714285714285714,
+      "prototype_score": 0.5714285714285714,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "La metodologia Lean nella transizione al metadone compresse: il ruolo dell'infermiere nell'esperienza del Ser.D. presso l'ASST Papa Giovanni XXIII - Bergamo",
+      "doi": "10.3280/mis73-2026oa21076",
+      "readable": true,
+      "baseline_score": 0.5,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Il ruolo dell'Infermiere di Famiglia e di Comunità nella Promozione della Salute - Uno Studio Qualitativo nella ASL di Avellino",
+      "doi": "10.63099/nps.v4i2.17",
+      "readable": true,
+      "baseline_score": 0.5,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Role transition from registered nurse to nurse practitioner in Jamaica",
+      "doi": "10.1097/jxx.0000000000001354",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Operational Nurse Managers’ Perspectives towards Community Service Nurses’ Transition into Professional Nurse Role",
+      "doi": "10.33140/oajdgh.04.01.06",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Operational nurse managers’ perspectives towards community service nurses’ transition into professional nurse role",
+      "doi": "10.21203/rs.3.rs-8772505/v1",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Role Transition After Clinical Nurse Specialist Education",
+      "doi": "10.1097/nur.0000000000000357",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "&lt;p&gt;Essential Newborn Care and Associated Factors Among Obstetrical Care Providers in Awi Zone Health Facilities, Northwest Ethiopia: An Institutional-Based Cross-Sectional Study&lt;/p&gt;",
+      "doi": "10.2147/phmt.s276698",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.42857142857142855,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "New policies on skin-to-skin contact warrant an oxytocin-based perspective on perinatal health care",
+      "doi": "10.3389/fpsyg.2024.1385320",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.5,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Role transition from staff nurse to clinical nurse specialist: a case study",
+      "doi": "10.1046/j.1365-2702.1998.00216.x",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Transferring an extremely premature infant to an extra-uterine life support system: a prospective view on the obstetric procedure",
+      "doi": "10.3389/fped.2024.1360111",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.5,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "The role of a nurse in parent education in the care of long-term in-hospital children",
+      "doi": "10.33920/med-05-2211-01",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.5,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "The Successful Immediate Neonatal Transition to Extrauterine Life",
+      "doi": "10.1177/1099800416685178",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.6666666666666666,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Effect of timing of umbilical cord clamping and birth on fetal to neonatal transition: OpenModelica-based virtual simulator-based approach",
+      "doi": "10.1016/j.bbe.2024.08.008",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.42857142857142855,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Care of the Well Newborn",
+      "doi": "10.1542/pir.33.1.4",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0.42857142857142855,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "The Work-Role Transition of Part-time Clinical Faculty",
+      "doi": "10.1097/nne.0000000000000704",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Challenges and Support Mechanisms for Nurse Educators during Transition from Clinical Nursing to Nurse Educator: A Commentary on Role Transformation",
+      "doi": "10.54393/nrs.v4i01.77",
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Promoting Newborn Skin-to-Skin Contact to Increase Breastfeeding Initiation and Exclusivity in Cesarean Deliveries",
+      "doi": null,
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Ruolo dell’infermiere nella diffusione della cultura nella donazione d’organo: indagine su conoscenza ed opinione.",
+      "doi": "10.54103/dn/19438",
+      "readable": true,
+      "baseline_score": 0.375,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Il paziente con dolore toracico in Pronto Soccorso: ruolo dellâ€™infermiere nella presa in carico precoce. Una esperienza presso lâ€™ASST Rhodense",
+      "doi": "10.4081/scenario.2020.456",
+      "readable": true,
+      "baseline_score": 0.375,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "IL RUOLO DELL’INFERMIERE NELLE CARCERI: REVISIONE DELLA LETTERATURA",
+      "doi": "10.32549/opi-nsc-46",
+      "readable": true,
+      "baseline_score": 0.375,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Il ruolo del Terzo Settore nella tutela  dell'ambiente e nella transizione  energetica. Esperienze europee a  confronto",
+      "doi": "10.54103/2531-6710/19681",
+      "readable": true,
+      "baseline_score": 0.375,
+      "prototype_score": 0,
+      "population_or_framework_anchor": false
+    },
+    {
+      "title": "Intrapartum-related adverse perinatal outcomes : burden, consequences, and models of care from studies in eastern Uganda",
+      "doi": "10.69622/28546754.v1",
+      "readable": true,
+      "baseline_score": 0.375,
+      "prototype_score": 0.375,
+      "population_or_framework_anchor": true
+    }
+  ],
+  "pool_size": 374,
+  "top24": [
+    {
+      "title": "Born Too Soon: Care for the preterm baby",
+      "doi": "10.1186/1742-4755-10-s1-s5",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Comprehensive Neonatal Nursing: A Physiologic Perspective",
+      "doi": null,
+      "readable": true,
+      "baseline_score": 0.42857142857142855,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Core curriculum for neonatal intensive care nursing",
+      "doi": null,
+      "readable": true,
+      "baseline_score": 0.5833333333333334,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Cuidado integral a recién nacido con hiperbilirrubinemia neonatal: análisis de caso clínico",
+      "doi": "10.63618/omd/isj/v3/n3/82",
+      "readable": true,
+      "baseline_score": 0.2857142857142857,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Evaluasi Kualitas Dokumentasi Asuhan Keperawatan Metode NNN (Nanda, NOC dan NIC) pada Keperawatan Neonatus: Studi Deskriptif Observasional Dokumentasi Mahasiswa Ners",
+      "doi": "10.33088/jkr.v5i2.922",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "FUNDAMENTALS OF PHOTOTHERAPY FOR NEONATAL JAUNDICE",
+      "doi": "10.1016/j.adnc.2006.08.004",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Fundamentals of Phototherapy for Neonatal Jaundice",
+      "doi": "10.1097/anc.0b013e31822ee62c",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Nursing care to maintain neonatal thermoregulation",
+      "doi": "10.4037/ccn1984.4.2.102",
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Nursing diagnoses and theoretical frameworks in neonatal units: a literature review.",
+      "doi": "10.7429/pi.2016.6910044",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Nursing the neonate",
+      "doi": null,
+      "readable": true,
+      "baseline_score": 0.4166666666666667,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "The Curious Case of Alagille Syndrome",
+      "doi": "10.1097/sga.0000000000000755",
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "The effect of thermoregulation quality improvement initiatives on the admission temperature of premature/very low birth‐weight infants in neonatal intensive care units: A systematic review",
+      "doi": "10.1111/jspn.12286",
+      "readable": true,
+      "baseline_score": 0.16666666666666666,
+      "prototype_score": 1.0,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "AGED PEOPLE'S AFFECTED SEXUALITY AND THE NANDA-I/NOC/NIC LINKS: CROSS-MAPPING",
+      "doi": "10.1590/1980-265x-tce-2023-0112en",
+      "readable": true,
+      "baseline_score": 0.08333333333333333,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "ANALISIS KESESUAIAN DIAGNOSIS MENURUT NANDA, NIC DAN NOC PADA PASIEN GAGAL JANTUNG",
+      "doi": "10.31227/osf.io/w9zqb",
+      "readable": true,
+      "baseline_score": 0.0,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Analysis of Nursing Intervention Studies Published by the Journal of Korean Academy of Psychiatric and Mental Health Nursing Using the NANDA, NIC, and NOC*",
+      "doi": "10.12934/jkpmhn.2007.16.4.377",
+      "readable": true,
+      "baseline_score": 0.16666666666666666,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Aplicación de la terminología nanda-noc-nic  en un paciente trasplantado de páncreas riñón",
+      "doi": "10.4321/s2254-28842016000100009",
+      "readable": true,
+      "baseline_score": 0.17647058823529413,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Barriers and enablers to skin-to-skin contact at birth in healthy neonates - a qualitative study",
+      "doi": "10.1186/s12887-018-1033-y",
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Brecha entre el conocimiento teórico y la aplicación clínica de NANDA-NOC-NIC en estudiantes de enfermería",
+      "doi": "10.17162/rccs.v19i1.2127",
+      "readable": true,
+      "baseline_score": 0.0,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Determining awareness of and readiness for standardized nursing languages in a mid-level midwestern hospital and associated school of nursing",
+      "doi": "10.1111/2047-3095.12487",
+      "readable": true,
+      "baseline_score": 0.3333333333333333,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Immediate newborn care practices delay thermoregulation and breastfeeding initiation",
+      "doi": "10.1111/j.1651-2227.2011.02215.x",
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Implementation of nursing process in a neonatal intensive",
+      "doi": "10.5205/reuol.1053-8009-3-le.0403esp201049",
+      "readable": true,
+      "baseline_score": 0.16666666666666666,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Kangaroo mother care: a multi-country analysis of health system bottlenecks and potential solutions",
+      "doi": "10.1186/1471-2393-15-s2-s5",
+      "readable": true,
+      "baseline_score": 0.16666666666666666,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Kronik Obstrüktif Akciğer Hastalığı Tanısı Almış Yoğun Bakım Hastasının Uyku Aktivitesinin NANDA, NIC ve NOC Doğrultusunda Değerlendirilmesi: Bir Olgu Sunumu",
+      "doi": "10.25279/sak.1090687",
+      "readable": true,
+      "baseline_score": 0.0,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    },
+    {
+      "title": "Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases",
+      "doi": "10.1002/14651858.cd004015.pub3",
+      "readable": true,
+      "baseline_score": 0.25,
+      "prototype_score": 0.75,
+      "population_or_framework_anchor": true
+    }
+  ]
+}
