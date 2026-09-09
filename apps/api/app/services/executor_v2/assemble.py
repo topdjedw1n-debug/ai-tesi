@@ -4,8 +4,12 @@ import math
 import re
 from datetime import datetime
 
+from sqlalchemy import select
+
 from app.core import database
+from app.models.document import DocumentProvenance
 from app.services.ai_pipeline.citation_formatter import bibliography_heading
+from app.services.cost_estimator import UsageTracker
 from app.services.document_service import DocumentService
 from app.services.docx_export import assemble_section
 from app.services.generation_operations import journal_usage
@@ -15,7 +19,7 @@ from app.services.generation_worker import (
     update_generation_document,
 )
 
-from .budgets import POLICY, model_call
+from .budgets import POLICY, json_call
 from .warnings import ExecutionStop
 
 
@@ -85,32 +89,29 @@ async def assemble(ctx, sections, bibliography, pack):
         "storage_path": artifact["storage_path"],
     }
     await ctx.emit("executor_artifact", docx)
-    # Review is advisory even if the reviewer is unavailable. Recording errors
-    # remain technical stops, while the already persisted artifact is retained.
+    # Invalid review JSON stops the job but retains the already persisted DOCX.
     try:
-        review, truncated = await model_call(
+        review = await json_call(
             ctx,
-            "Review the complete academic work. Reply with plain text beginning PASS or FAIL, followed by concise notes. Do not rewrite it.\n"
+            'Review the complete academic work. Reply only with JSON {"verdict":"PASS" or "FAIL","notes":"concise notes"}. Do not rewrite it.\n'
             + content,
             budget=POLICY["review_tokens"],
             purpose="S6",
         )
-        await ctx.emit("executor_review", {"text": review, "truncated": truncated})
-        if truncated or review.strip() != "PASS":
-            negative = review.lstrip().startswith("FAIL")
-            await ctx.warn(
-                "review_negative" if negative else "review_note", detail=review
-            )
+        verdict, notes = review.get("verdict"), review.get("notes")
+        if verdict not in ("PASS", "FAIL") or not isinstance(notes, str):
+            raise ExecutionStop("provider_unusable_response", "Хибний формат огляду.")
+        text = verdict + "\n" + notes
+        await ctx.emit("executor_review", {"text": text, "truncated": False})
+        if verdict == "FAIL" or notes.strip():
+            code = "review_negative" if verdict == "FAIL" else "review_note"
+            await ctx.warn(code, detail=text)
     except ExecutionStop as error:
-        if error.budget:
+        if error.budget or error.stop["code"] == "provider_unusable_response":
             raise
         await ctx.warn("review_note", detail=error.stop["message_uk"])
     async with database.AsyncSessionLocal() as db:
         totals, unknown = await journal_usage(db, ctx.job.document_id, ctx.job.id)
-        from sqlalchemy import select
-
-        from app.models.document import DocumentProvenance
-
         events = await db.scalars(
             select(DocumentProvenance)
             .where(
@@ -126,8 +127,6 @@ async def assemble(ctx, sections, bibliography, pack):
         and e.payload.get("outcome") != "started"
     }
     accounting = []
-    from app.services.cost_estimator import UsageTracker
-
     for call in calls.values():
         usage = call.get("usage") or {}
         tracker = UsageTracker()

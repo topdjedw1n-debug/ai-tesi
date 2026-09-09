@@ -31,6 +31,8 @@ POLICY = {
     "json_min_tokens": 8000,
     "structure_tokens_per_node": 400,
     "json_multiplier": 2,
+    "json_attempts": 2,
+    "json_stages": ("S1", "S3", "S6"),
     "tokens_per_word": 1.6,
     "output_margin": 1.3,
     "truncation_multiplier": 2,
@@ -125,7 +127,7 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
             text = "\n".join(
                 b.text for b in response.content if getattr(b, "type", None) == "text"
             ).strip()
-            if not text:
+            if not text and purpose not in POLICY["json_stages"]:
                 raise ExecutionStop(
                     "provider_unusable_response", "Модель повернула порожню відповідь."
                 )
@@ -135,16 +137,26 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
 
 
 def sparse_json(text):
-    text = text.strip()
-    if text.startswith("```"):
-        text = text.split("\n", 1)[1].rsplit("```", 1)[0]
-    try:
-        value = json.loads(text)
-        if not isinstance(value, dict):
-            raise ValueError("Expected an object")
-        return value
-    except (ValueError, TypeError) as error:
-        raise ExecutionStop(
-            "provider_unusable_response",
-            "Структуру відповіді моделі не вдалося прочитати.",
-        ) from error
+    decoder = json.JSONDecoder()
+    for index in (i for i, char in enumerate(text) if char == "{"):
+        try:
+            return decoder.raw_decode(text, index)[0]
+        except ValueError:
+            continue
+    return None
+
+
+async def json_call(ctx, prompt, *, budget, purpose):
+    retried_truncation = False
+    for _ in range(POLICY["json_attempts"]):
+        text, truncated = await model_call(ctx, prompt, budget=budget, purpose=purpose)
+        value = None if truncated else sparse_json(text)
+        if value is not None:
+            if retried_truncation:
+                await ctx.warn("output_truncated_retried")
+            return value
+        if truncated and purpose == "S3":
+            budget *= POLICY["truncation_multiplier"]
+            retried_truncation = True
+        prompt += "\nReturn only a JSON object, without explanations."
+    raise ExecutionStop("provider_unusable_response", "Немає JSON після повтору.")

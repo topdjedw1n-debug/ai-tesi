@@ -490,7 +490,7 @@ async def test_offline_docx_warnings_and_exact_replay(
         response(
             f"# Sleep\n\nEvidence **supports** a finding [{key}]. Unsupported marker [UNKNOWN] and [STD:D.M.739/1994]. {text}"
         ),
-        response("FAIL: section is short."),
+        response('{"verdict":"FAIL","notes":"Section is short."}'),
     ]
 
     async def provider(self, **request):
@@ -923,7 +923,7 @@ async def test_missing_writer_receipt_blocks_completion_after_docx(
         response(json.dumps({"nodes": NODES})),
         response(json.dumps(PLAN)),
         response("A concise section with its limitations."),
-        response("PASS"),
+        response('{"verdict":"PASS","notes":""}'),
     ]
 
     async def provider(self, **request):

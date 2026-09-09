@@ -3,7 +3,7 @@
 import json
 import re
 
-from .budgets import model_call, output_budget, sparse_json
+from .budgets import json_call, output_budget
 from .warnings import ExecutionStop
 
 
@@ -53,14 +53,10 @@ BRIEF:\n"""
         + "\nREQUIREMENTS:\n"
         + ctx.inputs["requirements"]
     )
-    text, truncated = await model_call(
+    parsed = await json_call(
         ctx, prompt, budget=output_budget("S1", max(1, len(index))), purpose="S1"
     )
-    if truncated:
-        raise ExecutionStop(
-            "provider_unusable_response", "Модель не завершила структуру вимог."
-        )
-    nodes = sparse_json(text).get("nodes")
+    nodes = parsed.get("nodes")
 
     def validate(items):
         if not isinstance(items, list) or not items:

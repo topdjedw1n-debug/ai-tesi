@@ -198,7 +198,23 @@ async def test_recorded_job12_to_docx_and_replay(db_session, monkeypatch, tmp_pa
                         block["text"],
                     )
         responses.append(_sdk_value(recorded))
-    responses.append(_sdk_value(FIXTURE["review"]["response"]))
+    # The old review used a different schema. Preserve its real notes inside
+    # the v2 S6 envelope; this remains a fixture simulation, not old-query replay.
+    responses.append(
+        response(
+            json.dumps(
+                {
+                    "verdict": "FAIL",
+                    "notes": "\n".join(
+                        b["text"]
+                        for b in FIXTURE["review"]["response"]["content"]
+                        if b.get("type") == "text"
+                    ),
+                },
+                ensure_ascii=False,
+            )
+        )
+    )
 
     async def provider(self, **request):
         return responses.pop(0)

@@ -1,8 +1,8 @@
-"""S3: one plan, one truncation retry, server-owned section identities."""
+"""S3: one plan, one format/truncation retry, server-owned section identities."""
 
 import json
 
-from .budgets import POLICY, model_call, output_budget, sparse_json
+from .budgets import json_call, output_budget
 from .scopes import flatten
 from .warnings import ExecutionStop
 
@@ -31,18 +31,10 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
         },
         ensure_ascii=False,
     )
-    budget = output_budget("S3", len(nodes))
-    text, truncated = await model_call(ctx, prompt, budget=budget, purpose="S3")
-    if truncated:
-        text, truncated = await model_call(
-            ctx, prompt, budget=budget * POLICY["truncation_multiplier"], purpose="S3"
-        )
-        if truncated:
-            raise ExecutionStop(
-                "provider_unusable_response", "Модель двічі обірвала план роботи."
-            )
-        await ctx.warn("output_truncated_retried")
-    sections = sparse_json(text).get("sections")
+    parsed = await json_call(
+        ctx, prompt, budget=output_budget("S3", len(nodes)), purpose="S3"
+    )
+    sections = parsed.get("sections")
     if not isinstance(sections, list) or not sections:
         raise ExecutionStop(
             "provider_unusable_response", "Модель не повернула розділи плану."
