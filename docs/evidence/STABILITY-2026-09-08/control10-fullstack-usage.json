@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "document_id": 22,
+  "retained_legacy_conflicts": [
+    "Narrative review permitted by the brief; no primary data."
+  ],
+  "explicit_blocking_conflicts": [],
+  "limitations_preserved": true,
+  "job_status": "completed",
+  "confirmed_tokens": 8400,
+  "recorded_cost_cents": 6,
+  "unknown_provider_attempts": 0,
+  "docx_sha256": "104f1579c13673035b17a8565053810dec03b15f121e55ccc3285e6ba9dfb5f2",
+  "academic_acceptance": false
+}

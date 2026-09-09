@@ -1,0 +1,36 @@
+{
+  "at": "2026-09-09T06:03:41.914302+00:00",
+  "job": {
+    "job_id": 10,
+    "status": "failed",
+    "progress": 0,
+    "document_id": 10,
+    "error_message": "L'indice ufficiale richiede 'richiami fisiologici' materno-fetali (1.1) e 'risposte sistemiche materne' (2.1): tali contenuti sono trattati esclusivamente come indicatori di sorveglianza infermieristica, senza sconfinare in valutazioni ostetriche (conformazione pelvica, canale del parto, fase espulsiva), coerentemente con il vincolo del relatore. Le fonti frozen (Warren2012, Michel2017) supportano questo inquadramento nei limiti dell'assistenza neonatale/well-newborn. LIMITE DI EVIDENZA (permiss",
+    "attempt_count": 1,
+    "max_attempts": 3,
+    "recovery": {
+      "stage": "preparation",
+      "message": "L'indice ufficiale richiede 'richiami fisiologici' materno-fetali (1.1) e 'risposte sistemiche materne' (2.1): tali contenuti sono trattati esclusivamente come indicatori di sorveglianza infermieristica, senza sconfinare in valutazioni ostetriche (conformazione pelvica, canale del parto, fase espulsiva), coerentemente con il vincolo del relatore. Le fonti frozen (Warren2012, Michel2017) supportano questo inquadramento nei limiti dell'assistenza neonatale/well-newborn. LIMITE DI EVIDENZA (permiss",
+      "outcome": "failed",
+      "attempt_id": "ffb1da97-56b8-4bbb-86d3-1ee96becb965",
+      "reason_code": "plan_requirements_unmet",
+      "retryability": "none",
+      "output_reference": "ffb1da97-56b8-4bbb-86d3-1ee96becb965",
+      "input_fingerprint": "f029079d64d7ce98ed9482ceaf86afa6ed8b4e3aab9966193d39eb7b84764cf9",
+      "allowed_actions": [
+        "new_version"
+      ],
+      "expected_fingerprint": "137fee829b631718329d1afb15211fef5e56beda5a0a03ed332cece238e1318e",
+      "usage": {
+        "confirmed_tokens": 66335,
+        "recorded_cost_cents": 63,
+        "unknown_provider_attempts": 0
+      }
+    },
+    "started_at": "2026-09-09T05:58:22.124955Z",
+    "available_at": "2026-09-09T05:58:22.124955Z",
+    "heartbeat_at": "2026-09-09T06:03:39.405039Z",
+    "lease_expires_at": null,
+    "observed_at": "2026-09-09T06:03:41.988911Z"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "commit": "061e2c31aa2514ffa53c600b49890ef4d1e190a7",
+  "academic_review_sha256": "225ac71865b99a7ba555a679a5701bcb168b1f924d817496965ea23bdb9ffda1",
+  "fixture": "Minimal structurally valid plan, explicit empty blocking_conflicts, retained legacy note declared also as limitation",
+  "old_problems": [
+    "L'indice ufficiale richiede 'richiami fisiologici' materno-fetali (1.1) e 'risposte sistemiche materne' (2.1): tali contenuti sono trattati esclusivamente come indicatori di sorveglianza infermioristica, senza sconfinare in valutazioni ostetriche (conformazione pelvica, canale del parto, fase espulsiva), coerentemente con il vincolo del relatore."
+  ],
+  "false_positive_reproduced": true,
+  "live_control_cause_limit": "Final rejected model outline was not persisted. This proves the code defect, not which conflict field the actual model populated."
+}

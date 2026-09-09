@@ -1,0 +1,5 @@
+{
+  "apps/api/app/services/academic_review.py": "a964019492e2626038b61b15bf2a9d25979fe3d952cfc53a34ae0c63fcdad2d7",
+  "apps/api/app/services/plan_preparation.py": "5801205ec189d098a6aa8f1f9157d8ce0d0dfeed8798c2a5df69859ad6f97393",
+  "apps/api/tests/test_stability_plan_conflicts.py": "4924f021f8834f675195062e17b2cfc476ff8c2fb4244574a64d18f2f2ffa581"
+}

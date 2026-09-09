@@ -1,0 +1,18 @@
+{
+  "control10-api-full.txt": {
+    "raw_sha256": "942acea79af65dc1bd536f2ecaf914869e4d9e6d9f35fc469eba7fe68d9b803f",
+    "archived_sha256": "69c9aa9f0470dab23d5f68c370270549f5b9271c310f4b257552be6e784b9e3a"
+  },
+  "control10-ruff.txt": {
+    "raw_sha256": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e",
+    "archived_sha256": "d71d2c39cb6b6e0bf858263c9842819a8527d458645355fc8ce99bd5f0e36c6e"
+  },
+  "control10-format-final.txt": {
+    "raw_sha256": "9a0cf050b15f70a5f280f85ab9f1fa20a8e9293eb153853e4b761064661181c6",
+    "archived_sha256": "9a0cf050b15f70a5f280f85ab9f1fa20a8e9293eb153853e4b761064661181c6"
+  },
+  "control10-image-tests.txt": {
+    "raw_sha256": "06d8209042a135cac3ac7836b4b9c55d9c3069ddd22eb04cf7b878a19acc6ba0",
+    "archived_sha256": "4df8fe5513f49dff8db5d279cda7c1ef60a55583d40dcc84a8596109d03f0077"
+  }
+}

@@ -49,13 +49,41 @@ def review_binding(
     }
 
 
+def plan_conflicts(plan: dict[str, Any]) -> list[str]:
+    """Structural blocking list of an academic plan (S1 requirement contract).
+
+    ``blocking_conflicts`` is authoritative once the plan carries it as a list:
+    it holds only explicit requirements that remain genuinely unmet, and an
+    empty list means none remain. Whether the ``limitations`` kept beside it
+    are admissible is the semantic reviewer's judgement, not a structural
+    check. Before reconciliation the planner records every brief tension in
+    the legacy ``conflicts`` list without that distinction, so a plan that has
+    no ``blocking_conflicts`` list stays conservative and blocks on all of them.
+    A ``blocking_conflicts`` value of another type is never coerced to "none".
+    Control work 10 (2026-09-09): the former ``[] or conflicts`` made an
+    explicit empty authoritative list fall through to the legacy list, so a
+    complete plan that echoed the provisional entries beside ``[]`` was
+    rejected as unmet requirements. Its retained record cannot prove which
+    list held the entry; the fallback itself was the reachable defect.
+    """
+    if "blocking_conflicts" not in plan:
+        legacy = plan.get("conflicts") or []
+        if isinstance(legacy, str):
+            legacy = [legacy]
+        return [str(item) for item in legacy]
+    blocking = plan["blocking_conflicts"]
+    if not isinstance(blocking, list):
+        return ["blocking_conflicts має бути списком, отримано: " + str(blocking)[:200]]
+    return [str(item) for item in blocking]
+
+
 def outline_problems(outline: Any, keys: set[str]) -> list[str]:
     if not isinstance(outline, dict):
         return ["План відсутній."]
     plan = outline.get("academic_plan") or {}
     if not isinstance(plan, dict):
         return ["Немає дослідницького питання та мети."]
-    problems = list(plan.get("blocking_conflicts") or plan.get("conflicts") or [])
+    problems = plan_conflicts(plan)
     problems.extend(outline.get("blocking_conflicts") or [])
     if not str(plan.get("research_question") or "").strip() or not plan.get(
         "objectives"
