@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from typing import Any
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
@@ -20,6 +19,7 @@ from app.services.citation_verifier import (
     SourceInput,
     VerificationStatus,
 )
+from app.services.replay_dependencies import retrieval_time
 from app.services.source_evidence import freeze_evidence
 
 
@@ -52,6 +52,8 @@ class SourcePreflightOutcome:
         counts: dict[str, int] = {}
         for rejection in self.rejected:
             counts[rejection.reason] = counts.get(rejection.reason, 0) + 1
+        from app.services.generation_policy import warning_mode
+
         return {
             "status": "passed" if self.meets_minimum else "failed",
             "retrieval_trace": self.pack.retrieval_trace,
@@ -68,7 +70,9 @@ class SourcePreflightOutcome:
             "transient_count": self.transient_count,
             "unknown_type_count": self.unknown_type_count,
             "top_up_attempted": top_up_attempted,
-            "sha256": self.pack.sha256() if self.pack.sources else None,
+            "sha256": (
+                self.pack.sha256() if self.pack.sources or warning_mode.get() else None
+            ),
         }
 
 
@@ -296,7 +300,7 @@ async def preverify_source_pack(
                     "provider": "search_openalex",
                     "query": query,
                     "purpose": "missing_evidence",
-                    "retrieved_at": datetime.now(UTC).isoformat(),
+                    "retrieved_at": await retrieval_time(query, "search_openalex", 0),
                 }
                 try:
                     found = await retriever.search_openalex(

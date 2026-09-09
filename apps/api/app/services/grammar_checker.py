@@ -9,6 +9,7 @@ from typing import Any
 import httpx
 
 from app.core.config import settings
+from app.services.replay_dependencies import recorded_http
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +62,9 @@ class GrammarChecker:
                 headers["Authorization"] = f"Bearer {self.api_key}"
 
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(
+                response = await recorded_http(
+                    client,
+                    "POST",
                     f"{self.api_url}/check",
                     data=data,
                     headers=headers,

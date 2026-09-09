@@ -11,6 +11,8 @@ from app.core.config import settings
 from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.generation_operations import recorded_provider_call
 from app.services.generation_outcomes import GenerationStageError
+from app.services.generation_policy import warning_mode
+from app.services.model_recording import sdk_key
 
 if TYPE_CHECKING:
     from app.services.cost_estimator import UsageTracker
@@ -280,7 +282,9 @@ class Humanizer:
 
         except Exception as e:
             logger.error(f"Error humanizing text: {e}")
-            # Return original text on error
+            # The full worker persists an explicit warning before keeping the writer text.
+            if warning_mode.get():
+                raise
             return text
 
     async def _call_ai_provider(
@@ -299,14 +303,14 @@ class Humanizer:
         try:
             import openai
 
-            if not settings.OPENAI_API_KEY:
+            if not sdk_key(settings.OPENAI_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "OpenAI API key not configured",
                     stage="provider",
                 )
 
-            client = openai.AsyncOpenAI(api_key=settings.OPENAI_API_KEY)
+            client = openai.AsyncOpenAI(api_key=sdk_key(settings.OPENAI_API_KEY))
 
             request_kwargs: dict[str, Any] = {
                 "model": model,
@@ -355,14 +359,16 @@ class Humanizer:
         try:
             import anthropic
 
-            if not settings.ANTHROPIC_API_KEY:
+            if not sdk_key(settings.ANTHROPIC_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "Anthropic API key not configured",
                     stage="provider",
                 )
 
-            client = anthropic.AsyncAnthropic(api_key=settings.ANTHROPIC_API_KEY)
+            client = anthropic.AsyncAnthropic(
+                api_key=sdk_key(settings.ANTHROPIC_API_KEY)
+            )
 
             request_kwargs: dict[str, Any] = {
                 "model": model,

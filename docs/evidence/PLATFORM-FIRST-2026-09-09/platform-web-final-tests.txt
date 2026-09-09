@@ -1,0 +1,8 @@
+PASS __tests__/app/admin/production-cases/detail.test.tsx
+PASS lib/__tests__/provenance.test.ts
+
+Test Suites: 2 passed, 2 total
+Tests:       19 passed, 19 total
+Snapshots:   0 total
+Time:        0.619 s, estimated 1 s
+Ran all test suites within paths "__tests__/app/admin/production-cases/detail.test.tsx", "lib/__tests__/provenance.test.ts".

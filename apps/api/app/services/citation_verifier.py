@@ -49,6 +49,8 @@ import httpx
 import redis.asyncio as aioredis
 
 from app.core.config import settings
+from app.services.model_recording import active_replay
+from app.services.replay_dependencies import recorded_dependency
 
 logger = logging.getLogger(__name__)
 
@@ -524,6 +526,7 @@ class CitationVerifier:
     # HTTP with retry/backoff
     # ------------------------------------------------------------------
 
+    @recorded_dependency("citation_http", codec="http")
     async def _fetch(
         self,
         provider: str,
@@ -871,6 +874,7 @@ class CitationVerifier:
             self._warn_cache(f"Redis unavailable, caching disabled: {e}")
             return None
 
+    @recorded_dependency("citation_cache", codec="verification")
     async def _cache_get(self, key: str) -> VerificationResult | None:
         if not self.cache_enabled:
             return None
@@ -892,6 +896,8 @@ class CitationVerifier:
         return result
 
     async def _cache_set(self, key: str, result: VerificationResult) -> None:
+        if active_replay.get() is not None:
+            return  # Replays never write to the shared verification cache.
         # Only VERIFIED / NOT_FOUND are cached (callers ensure this)
         if not self.cache_enabled:
             return

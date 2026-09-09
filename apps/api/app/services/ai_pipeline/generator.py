@@ -23,6 +23,7 @@ from app.services.ai_pipeline.prompt_builder import PromptBuilder
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.generation_operations import recorded_provider_call
 from app.services.generation_outcomes import GenerationStageError
+from app.services.model_recording import sdk_key
 from app.services.model_response_recovery import (
     IncompleteModelResponse,
     ModelResponseRecovery,
@@ -152,7 +153,7 @@ class SectionGenerator:
         """
         self.rag_retriever = rag_retriever or RAGRetriever()
         self.citation_formatter = citation_formatter or CitationFormatter()
-        self.humanizer = humanizer or Humanizer()
+        self.humanizer = humanizer or Humanizer(usage_tracker=usage_tracker)
         self.prompt_builder = PromptBuilder()
         self.training_collector = TrainingDataCollector()
         self.usage_tracker = usage_tracker
@@ -227,6 +228,20 @@ class SectionGenerator:
                         authors_str += " et al."
                     source_texts.append(f"{doc.title} ({authors_str}, {doc.year})")
 
+            from app.services.generation_policy import warning_mode
+
+            dropped_outline_keys = []
+            prompt_outline = None
+            if warning_mode.get():
+                (
+                    prompt_outline,
+                    dropped_outline_keys,
+                ) = self.prompt_builder.outline_for_available_sources(
+                    document.outline,
+                    {s.citation_key for s in source_pack.sources}
+                    if source_pack is not None
+                    else set(),
+                )
             # Step 3: Build prompt with RAG context (closed-book when a pack is set)
             prompt = self.prompt_builder.build_section_prompt(
                 document=document,
@@ -237,6 +252,9 @@ class SectionGenerator:
                 additional_requirements=additional_requirements,
                 source_pack_block=source_pack_block,
                 target_word_count=target_word_count,
+                **(
+                    {"outline_for_prompt": prompt_outline} if warning_mode.get() else {}
+                ),
             )
 
             # Step 4: Generate section content using AI with automatic fallback
@@ -260,6 +278,15 @@ class SectionGenerator:
             # canonical marker view below is what grounding evaluates after
             # deterministic key-variant resolution.
             raw_content_with_markers = section_content
+            from app.services.standard_references import render_standard_references
+
+            standard_bibliography, standard_references = [], []
+            if warning_mode.get():
+                (
+                    section_content,
+                    standard_bibliography,
+                    standard_references,
+                ) = render_standard_references(section_content, citation_style)
             content_with_markers = section_content
 
             # Store prompt for training data collection
@@ -271,7 +298,7 @@ class SectionGenerator:
             )
 
             # Step 6: Build bibliography from the source set.
-            bibliography = []
+            bibliography = list(standard_bibliography)
             citation_map: dict[str, SourceDoc] = {}
             pack_keys_used: list[str] = []
             unresolved_pack_markers: list[str] = []
@@ -285,6 +312,7 @@ class SectionGenerator:
                     section_content,
                     source_pack,
                     citation_style=citation_style,
+                    render_unresolved=warning_mode.get(),
                 )
                 content_with_markers = conversion.content_with_markers
                 section_content = conversion.content
@@ -367,6 +395,9 @@ class SectionGenerator:
                 "writer_actual": f"{actual_writer[0]}/{actual_writer[1]}",
                 "writer_fallback_used": actual_writer != (provider, model),
             }
+            if warning_mode.get():
+                result["standard_references"] = standard_references
+                result["discarded_outline_keys"] = dropped_outline_keys
 
             # Grounding gate input (ADDITIVE): the pack keys actually cited in
             # this section, plus the writer's verbatim draft with [Key]
@@ -673,7 +704,7 @@ class SectionGenerator:
         try:
             import openai
 
-            if not settings.OPENAI_API_KEY:
+            if not sdk_key(settings.OPENAI_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "OpenAI API key not configured",
@@ -681,7 +712,7 @@ class SectionGenerator:
                 )
 
             client = openai.AsyncOpenAI(
-                api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
+                api_key=sdk_key(settings.OPENAI_API_KEY), timeout=600.0, max_retries=0
             )
             recovery = ModelResponseRecovery(
                 section_output_budget(prompt, model), model_output_ceiling(model)
@@ -775,7 +806,7 @@ class SectionGenerator:
         try:
             import anthropic
 
-            if not settings.ANTHROPIC_API_KEY:
+            if not sdk_key(settings.ANTHROPIC_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "Anthropic API key not configured",
@@ -783,7 +814,9 @@ class SectionGenerator:
                 )
 
             client = anthropic.AsyncAnthropic(
-                api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
+                api_key=sdk_key(settings.ANTHROPIC_API_KEY),
+                timeout=600.0,
+                max_retries=0,
             )
             recovery = ModelResponseRecovery(section_output_budget(prompt, model))
 

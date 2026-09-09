@@ -27,6 +27,8 @@ def digest(value: Any) -> str:
 
 
 def academic_context(document: Any) -> dict[str, Any]:
+    from app.services.generation_policy import warning_mode
+
     work_type = str(document.work_type or DEFAULT_WORK_TYPE)
     return {
         "policy_version": ACADEMIC_POLICY_VERSION,
@@ -41,11 +43,17 @@ def academic_context(document: Any) -> dict[str, Any]:
         "research_design": "literature-based analysis of the available evidence; no primary data collection is implied",
         "required_functions": list(ACADEMIC_FUNCTIONS),
         "structure_constraints": str(document.additional_requirements or ""),
-        "evidence_rule": "Only frozen abstracts or page-anchored excerpts support claims. Identity metadata alone does not.",
+        "evidence_rule": (
+            "Use retrieved evidence for study findings; standard textbooks, taxonomies and guidelines outside the pack may support standard subject matter and require manager verification. Never invent details or verification."
+            if warning_mode.get()
+            else "Only frozen abstracts or page-anchored excerpts support claims. Identity metadata alone does not."
+        ),
     }
 
 
 def academic_directive(document: Any, *, outline: bool = False) -> str:
+    from app.services.generation_policy import warning_mode
+
     text = "\nACADEMIC BRIEF (applies even with a university methodology):\n"
     text += json.dumps(academic_context(document), ensure_ascii=False)
     text += """
@@ -74,6 +82,11 @@ Cover every required function substantively within the permitted structure.
 Do not invent a new chapter to fit a function. If the brief conflicts, explain
 the specific conflict in "academic_plan.conflicts" and leave no false coverage.
 """
+    if warning_mode.get():
+        text = text.replace(
+            "evidence lacks a detail, disclose that limit; do not fill it from memory.",
+            "retrieved study evidence lacks a detail, disclose that limit. Standard subject matter may use identifiable standard sources outside the pack, without invented bibliographic details.",
+        )
     return text
 
 

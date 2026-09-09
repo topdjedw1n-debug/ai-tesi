@@ -9,6 +9,7 @@ from typing import Any
 import httpx
 
 from app.core.config import settings
+from app.services.replay_dependencies import recorded_http
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +95,9 @@ class AIDetectionChecker:
         """
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
+                response = await recorded_http(
+                    client,
+                    "POST",
                     self.gptzero_api_url,
                     json={"document": text},
                     headers={"x-api-key": self.gptzero_api_key},
@@ -153,7 +156,9 @@ class AIDetectionChecker:
         """
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
-                response = await client.post(
+                response = await recorded_http(
+                    client,
+                    "POST",
                     self.originality_api_url,
                     json={"content": text},
                     headers={"X-OAI-API-KEY": self.originality_api_key},

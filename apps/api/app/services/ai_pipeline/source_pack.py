@@ -20,7 +20,6 @@ import json
 import logging
 import re
 from dataclasses import dataclass, field
-from datetime import UTC, datetime
 from typing import Any
 
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
@@ -549,14 +548,56 @@ class SourcePackBuilder:
             domain_terms |= scope
         domain = self._detect_domain(domain_terms)
 
-        queries = self._build_queries(topic, section_titles, language, domain)
+        from app.services.generation_policy import warning_mode
+
+        def scope_query(title, query_topic=topic):
+            # Keep each full scope for ranking, but send a concise search phrase.
+            terms = content_tokens(title)
+            words = [
+                word
+                for word in re.findall(r"\w+", ascii_fold(title).lower())
+                if word in terms
+            ]
+            words = list(dict.fromkeys(words))[:8]
+            anchor = list(
+                dict.fromkeys(
+                    word
+                    for word in re.findall(r"\w+", ascii_fold(query_topic).lower())
+                    if word in content_tokens(query_topic)
+                )
+            )[:3]
+            return " ".join(dict.fromkeys([*words, *anchor]))
+
+        queries = self._build_queries(
+            topic, None if warning_mode.get() else section_titles, language, domain
+        )
+        if warning_mode.get():
+            queries = list(
+                dict.fromkeys(
+                    [
+                        *queries,
+                        *[
+                            scope_query(title)
+                            for title in section_titles or []
+                            if title.strip()
+                        ],
+                    ]
+                )
+            )
         if alt_topic:
             queries += self._build_queries(
                 alt_topic,
-                (alt_section_titles or [])[:_ALT_TITLE_QUERY_CAP],
+                None
+                if warning_mode.get()
+                else (alt_section_titles or [])[:_ALT_TITLE_QUERY_CAP],
                 "en",
                 domain,
             )
+            if warning_mode.get():
+                queries.extend(
+                    scope_query(title, alt_topic)
+                    for title in (alt_section_titles or [])[:_ALT_TITLE_QUERY_CAP]
+                )
             # Merge-dedup preserving order (same pattern as _build_queries).
             seen: set[str] = set()
             merged: list[str] = []
@@ -570,13 +611,17 @@ class SourcePackBuilder:
         raw: list[SourceDoc] = []
         provider_errors: list[str] = []
         retrieval_trace: list[dict[str, Any]] = []
+        from app.services.replay_dependencies import retrieval_time
+
         for query in queries:
             for provider in (self.rag.search_crossref, self.rag.search_openalex):
                 trace = {
                     "provider": getattr(provider, "__name__", "provider"),
                     "query": query,
                     "page": retrieval_page,
-                    "retrieved_at": datetime.now(UTC).isoformat(),
+                    "retrieved_at": await retrieval_time(
+                        query, getattr(provider, "__name__", "provider"), retrieval_page
+                    ),
                 }
                 try:
                     if retrieval_page == 1 and not raise_on_provider_error:

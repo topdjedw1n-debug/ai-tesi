@@ -1017,6 +1017,7 @@ async def enqueue_full_document(
             status="queued",
             progress=0,
             request_payload={
+                "generation_policy": "platform-first-v1",
                 "profile_sha256": generation_profile_sha256(
                     document, int(current_user.id)
                 ),

@@ -9,6 +9,7 @@ from typing import Any
 import httpx
 
 from app.core.config import settings
+from app.services.replay_dependencies import recorded_http
 
 logger = logging.getLogger(__name__)
 
@@ -193,7 +194,9 @@ class PlagiarismChecker:
             }
 
             async with httpx.AsyncClient(timeout=30.0) as client:
-                response = await client.post(f"{self.base_url}/", data=params)
+                response = await recorded_http(
+                    client, "POST", f"{self.base_url}/", data=params
+                )
                 response.raise_for_status()
 
             # Parse Copyscape response (XML format)

@@ -19,6 +19,7 @@ from app.services.generation_operations import (
     recorded_provider_call,
 )
 from app.services.generation_outcomes import GenerationStageError
+from app.services.model_recording import sdk_key
 
 if TYPE_CHECKING:
     from app.services.ai_pipeline.source_pack import SourcePack
@@ -179,11 +180,15 @@ class AIService:
             repair_note = ""
             outline_tokens = 0
             for attempt in range(3):
-                response = await self._call_ai_provider(
-                    provider=str(document.ai_provider),
-                    model=str(document.ai_model),
-                    prompt=outline_prompt + repair_note,
-                )
+                purpose_token = operation_purpose.set("outline")
+                try:
+                    response = await self._call_ai_provider(
+                        provider=str(document.ai_provider),
+                        model=str(document.ai_model),
+                        prompt=outline_prompt + repair_note,
+                    )
+                finally:
+                    operation_purpose.reset(purpose_token)
                 outline_tokens += int(response.get("tokens_used") or 0)
                 try:
                     outline_data = validate_outline(response, generated=True)
@@ -575,7 +580,7 @@ class AIService:
             nonlocal total_tokens
             import openai
 
-            if not settings.OPENAI_API_KEY:
+            if not sdk_key(settings.OPENAI_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "OpenAI API key not configured",
@@ -583,7 +588,7 @@ class AIService:
                 )
 
             client = openai.AsyncOpenAI(
-                api_key=settings.OPENAI_API_KEY, timeout=600.0, max_retries=0
+                api_key=sdk_key(settings.OPENAI_API_KEY), timeout=600.0, max_retries=0
             )
 
             request_kwargs: dict[str, Any] = {
@@ -656,7 +661,7 @@ class AIService:
             nonlocal total_tokens
             import anthropic
 
-            if not settings.ANTHROPIC_API_KEY:
+            if not sdk_key(settings.ANTHROPIC_API_KEY):
                 raise GenerationStageError(
                     "provider_access_required",
                     "Anthropic API key not configured",
@@ -664,7 +669,9 @@ class AIService:
                 )
 
             client = anthropic.AsyncAnthropic(
-                api_key=settings.ANTHROPIC_API_KEY, timeout=600.0, max_retries=0
+                api_key=sdk_key(settings.ANTHROPIC_API_KEY),
+                timeout=600.0,
+                max_retries=0,
             )
 
             request_kwargs: dict[str, Any] = {
@@ -809,6 +816,18 @@ Respond with ONLY the JSON object, no additional text or markdown formatting.
         target_words = max(1, document.target_pages) * words_per_page
         n_sections = max(3, min(10, document.target_pages // 10))
         sources_block = source_pack.prompt_block()
+        from app.services.generation_policy import warning_mode
+
+        source_heading = (
+            "RETRIEVED SOURCES (preserve all required brief subsections even when this pack is incomplete):"
+            if warning_mode.get()
+            else "AVAILABLE SOURCES (plan the outline so every section can be supported by these):"
+        )
+        scope_rule = (
+            "covering the agreed brief. Standard subject matter may use textbooks and guidelines outside the retrieved pack; record evidence gaps as limitations."
+            if warning_mode.get()
+            else "grounded in the AVAILABLE SOURCES above (do not plan sections the sources cannot support)."
+        )
 
         prompt = f"""
 Generate a detailed academic thesis outline for the following topic:
@@ -819,7 +838,7 @@ Target Pages: {document.target_pages}
 
 Additional Requirements: {additional_requirements or "None specified"}
 
-AVAILABLE SOURCES (plan the outline so every section can be supported by these):
+{source_heading}
 {sources_block}
 
 CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
@@ -844,8 +863,7 @@ CRITICAL: You must respond with ONLY a valid JSON object in this EXACT format:
 
 Requirements:
 - Start with {n_sections} main sections appropriate for this topic and
-  grounded in the AVAILABLE SOURCES above (do not plan sections the sources
-  cannot support).
+  {scope_rule}
 - Set "estimated_words" per section so the totals sum to approximately
   {target_words} words (Target Pages × ~250 words/page).
 - No section may exceed 3000 estimated_words. Split longer chapters into more

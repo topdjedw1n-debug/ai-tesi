@@ -67,14 +67,14 @@ async def test_actual_ai_service_retry_records_each_sdk_call(db_session, monkeyp
     assert len(events) == 6
     assert [e.payload["outcome"] for e in events] == [
         "started",
-        "outcome_unknown",
+        "failed",
         "started",
-        "outcome_unknown",
+        "failed",
         "started",
         "received",
     ]
     assert all(e.payload.get("usage") is None for e in events[:-1])
-    assert "synthetic request" not in str([e.payload for e in events])
+    assert "synthetic request" in str([e.payload for e in events])
     assert len({e.payload["input_fingerprint"] for e in events}) == 1
 
 

@@ -1,0 +1,143 @@
+{
+  "stage": "section_generation",
+  "budget_usd": 5,
+  "actual_provider_calls": 2,
+  "usage_based_cost_usd": 0.42,
+  "remaining_budget_usd": 4.58,
+  "total_tokens": 58534,
+  "provider_spend_unknown": false,
+  "full_paid_runs": 0,
+  "server_changes": false,
+  "runs": [
+    {
+      "origin": "real_stage_probe_not_full_generation",
+      "stage": "section_generation",
+      "historical_input_work": 11,
+      "model": "claude-opus-4-8",
+      "budget_usd": 5,
+      "actual_provider_calls": 1,
+      "usage_based_cost_usd": 0.21,
+      "section_index": 3,
+      "section_title": "Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+      "provider_spend_unknown": false,
+      "conservative_cost_ceiling_usd": 0.46149999999999997,
+      "status": "received_and_replayed",
+      "tokens": 29252,
+      "word_count": 1065,
+      "standard_references": [
+        {
+          "id": "nanda-i",
+          "title": "NANDA International Nursing Diagnoses: Definitions and Classification",
+          "authors": [
+            "NANDA International"
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        },
+        {
+          "id": "noc",
+          "title": "Nursing Outcomes Classification (NOC): Measurement of Health Outcomes",
+          "authors": [
+            "Sue Moorhead",
+            "Elizabeth Swanson",
+            "Marion Johnson",
+            "Meridean L. Maas"
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        },
+        {
+          "id": "oms-anc",
+          "title": "WHO recommendations on antenatal care for a positive pregnancy experience",
+          "authors": [
+            "World Health Organization"
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        }
+      ],
+      "replay_live_calls": 0
+    },
+    {
+      "origin": "real_stage_probe_not_full_generation",
+      "stage": "section_generation",
+      "historical_input_work": 11,
+      "model": "claude-opus-4-8",
+      "budget_usd": 5,
+      "previous_stage_spend_usd": 0.21,
+      "actual_provider_calls": 1,
+      "usage_based_cost_usd": 0.21,
+      "section_index": 3,
+      "section_title": "Capitolo 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+      "provider_spend_unknown": false,
+      "conservative_cost_ceiling_usd": 0.460115,
+      "status": "received_and_replayed",
+      "tokens": 29282,
+      "word_count": 1112,
+      "standard_references": [
+        {
+          "id": "whopostnatal",
+          "title": "WHO recommendations on maternal and newborn care for a positive postnatal experience",
+          "authors": [
+            "World Health Organization"
+          ],
+          "year": 2022,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        },
+        {
+          "id": "whonewborn",
+          "title": "WHO recommendations on newborn health",
+          "authors": [
+            "World Health Organization"
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        },
+        {
+          "id": "nandai",
+          "title": "NANDA International Nursing Diagnoses: Definitions and Classification",
+          "authors": [
+            "NANDA International"
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        },
+        {
+          "id": "noc",
+          "title": "Nursing Outcomes Classification (NOC)",
+          "authors": [
+            "Moorhead, Sue",
+            "Swanson, Elizabeth",
+            "Johnson, Marion",
+            "Maas, Meridean L."
+          ],
+          "year": null,
+          "origin": "model_standard_reference",
+          "status": "manager_verification_required",
+          "in_frozen_pack": false,
+          "identity_verified": false
+        }
+      ],
+      "replay_live_calls": 0
+    }
+  ],
+  "note": "Usage-based application rates, rounded USD cents; not a provider invoice. Fable CLI review is separate from the writer-stage allowance."
+}

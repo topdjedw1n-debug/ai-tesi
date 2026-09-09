@@ -14,7 +14,7 @@ from enum import Enum
 from typing import Any, TypeVar
 
 import redis.asyncio as aioredis
-from sqlalchemy import select, update
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import database
@@ -89,6 +89,14 @@ from app.services.generation_outcomes import (
     GenerationStageError,
     failure_reason,
 )
+from app.services.generation_policy import (
+    PLATFORM_FIRST,
+    AdvisoryConfig,
+    RecordingPersistenceError,
+    optional_stage_failure,
+    translation_cache,
+    warning_mode,
+)
 from app.services.generation_worker import (
     GenerationLeaseLostError,
     claim_generation_job_by_id,
@@ -110,11 +118,13 @@ from app.services.generation_worker import (
 )
 from app.services.grammar_checker import GrammarChecker
 from app.services.grounding_gate import GroundingResult, evaluate_grounding
+from app.services.model_recording import operation_section
 from app.services.model_response_recovery import is_permanent_provider_error
 from app.services.plagiarism_checker import PlagiarismChecker
 from app.services.plan_preparation import prepare_final_plan
 from app.services.provenance_service import record_event as _raw_record_provenance
 from app.services.quality_validator import QualityValidator
+from app.services.replay_dependencies import recording_context
 from app.services.source_verification_stage import (
     apply_source_pack_rows as _apply_source_pack_rows,
 )
@@ -789,7 +799,11 @@ async def _check_ai_detection_quality(
 
             # If score too high, try multi-pass humanization (unless the
             # humanizer is disabled — Block-1 measures the raw writer).
-            if ai_score > threshold and settings.HUMANIZER_ENABLED:
+            if (
+                ai_score > threshold
+                and settings.HUMANIZER_ENABLED
+                and not warning_mode.get()
+            ):
                 logger.info(
                     f"AI score {ai_score:.1f}% > {threshold}%, running multi-pass..."
                 )
@@ -870,7 +884,7 @@ async def _run_citation_verification_stage(
         db,
         document_id,
         user_id,
-        config=settings,
+        config=AdvisoryConfig(settings) if warning_mode.get() else settings,
         verifier_factory=CitationVerifier,
         send_progress=_safe_send_progress,
     )
@@ -901,7 +915,7 @@ async def _run_claim_verification_stage(
         db,
         document_id,
         user_id,
-        config=settings,
+        config=AdvisoryConfig(settings) if warning_mode.get() else settings,
         ai_service_factory=ai_service_factory,
         send_progress=_safe_send_progress,
         job_id=job_id,
@@ -1046,14 +1060,33 @@ async def _build_source_pack(
     """
     alt_topic: str | None = None
     alt_titles: list[str] | None = None
+    if warning_mode.get():
+        from app.services.brief_source_scopes import brief_source_scopes
+
+        section_titles = (
+            brief_source_scopes(document.additional_requirements, document.outline)
+            or section_titles
+        )
     if (
         settings.SOURCE_PACK_BILINGUAL_ENABLED
         and ai_service is not None
         and not str(document.language or "").lower().startswith("en")
     ):
-        alt_topic, alt_titles = await _translate_pack_terms(
-            ai_service, str(document.topic), section_titles
+        translated_scopes = (
+            (section_titles or [])[:4] if warning_mode.get() else section_titles
         )
+        cache = translation_cache.get() if warning_mode.get() else None
+        cache_key = json.dumps(
+            [str(document.topic), translated_scopes], ensure_ascii=False
+        )
+        if cache is not None and cache_key in cache:
+            alt_topic, alt_titles = cache[cache_key]
+        else:
+            alt_topic, alt_titles = await _translate_pack_terms(
+                ai_service, str(document.topic), translated_scopes
+            )
+            if cache is not None:
+                cache[cache_key] = (alt_topic, alt_titles)
     builder = SourcePackBuilder()
     return await builder.build(
         topic=str(document.topic),
@@ -1238,6 +1271,22 @@ class BackgroundJobService:
             payload: dict[str, Any] | None = None,
         ) -> None:
             await fence_next_mutation(db)
+            if event_type in {"generation_replay_inputs", "generation_warning"}:
+                try:
+                    db.add(
+                        DocumentProvenance(
+                            document_id=target_document_id,
+                            stage=stage,
+                            event_type=event_type,
+                            payload=payload,
+                        )
+                    )
+                    await db.commit()
+                except Exception as error:
+                    raise RecordingPersistenceError(
+                        "Could not persist generation inputs or warning"
+                    ) from error
+                return
             await _raw_record_provenance(
                 db,
                 target_document_id,
@@ -1245,6 +1294,42 @@ class BackgroundJobService:
                 event_type=event_type,
                 payload=payload,
             )
+
+        async def warn(
+            db: AsyncSession, stage: str, reason: str, **details: Any
+        ) -> None:
+            await _record_provenance(
+                db,
+                document_id,
+                stage=stage,
+                event_type="generation_warning",
+                payload={
+                    "job_id": job_id,
+                    "section_index": operation_section.get(),
+                    "status": "warning",
+                    "reason": reason,
+                    **details,
+                },
+            )
+            await _safe_send_progress(
+                user_id,
+                {
+                    "type": "generation_warning",
+                    "document_id": document_id,
+                    "job_id": job_id,
+                    "stage": stage,
+                    "message": reason,
+                },
+            )
+
+        async def advisory(db: AsyncSession, stage: str, call, fallback=None):
+            try:
+                return await call
+            except Exception as error:
+                if not warnings_only or not optional_stage_failure(error):
+                    raise
+                await warn(db, stage, str(error), error_type=type(error).__name__)
+                return fallback
 
         async def write_job_usage(db: AsyncSession) -> None:
             """Absolute (idempotent) usage write; a crash keeps honest partials."""
@@ -1307,6 +1392,11 @@ class BackgroundJobService:
                     )
 
         async with database.AsyncSessionLocal() as db:
+            translation_token = translation_cache.set({})
+            policy_token = warning_mode.set(False)
+            warnings_only = False
+            section_token = operation_section.set(None)
+            recording_token = recording_context.set(None)
             try:
                 logger.info(
                     f"Starting full document generation for document {document_id}"
@@ -1362,6 +1452,26 @@ class BackgroundJobService:
                             "job_id": job_id,
                             "worker_attempt": usage_row.attempt_count,
                         }
+                        recording_context.set(usage.generation_context)
+                        from app.services.replay_snapshot import snapshot_inputs
+
+                        recorded_job = await db.get(AIGenerationJob, job_id)
+                        warnings_only = (recorded_job.request_payload or {}).get(
+                            "generation_policy"
+                        ) == PLATFORM_FIRST
+                        warning_mode.set(warnings_only)
+                        await _record_provenance(
+                            db,
+                            document_id,
+                            stage="intake",
+                            event_type="generation_replay_inputs",
+                            payload=await snapshot_inputs(
+                                db,
+                                document,
+                                recorded_job,
+                                worker_attempt=usage_row.attempt_count,
+                            ),
+                        )
 
                 # Creation-time intake and the parsed methodology are durable
                 # requirements. A per-run request may add context, but can
@@ -1448,7 +1558,9 @@ class BackgroundJobService:
                     source_blockers, source_warnings = await uploaded_sources_blockers(
                         db, document_id
                     )
-                    if source_blockers:
+                    if source_blockers and warnings_only:
+                        await warn(db, "retrieval", "; ".join(source_blockers))
+                    if source_blockers and not warnings_only:
                         # Unusable mandatory uploads are an unmet brief input,
                         # not an academic verdict about written content.
                         raise GenerationStageError(
@@ -1473,7 +1585,15 @@ class BackgroundJobService:
                         durable_completed_indices or expected_source_pack_sha
                     ):
                         source_pack = await _load_source_pack(db, document_id)
-                        if source_pack is None or not source_pack.sources:
+                        if source_pack is None and warnings_only:
+                            empty_pack = SourcePack(
+                                document_id=document_id, topic=str(document.topic)
+                            )
+                            if empty_pack.sha256() == expected_source_pack_sha:
+                                source_pack = empty_pack
+                        if source_pack is None or (
+                            not source_pack.sources and not warnings_only
+                        ):
                             raise GenerationStageError(
                                 "checkpoint_integrity_error",
                                 stage="checkpoint",
@@ -1485,7 +1605,14 @@ class BackgroundJobService:
                         if uploaded_pack is not None:
                             source_pack.passages = uploaded_pack.passages
                         invalid_keys = invalid_preverified_source_keys(source_pack)
-                        if invalid_keys:
+                        if invalid_keys and warnings_only:
+                            await warn(
+                                db,
+                                "retrieval",
+                                "Неповне підтвердження джерел",
+                                keys=invalid_keys,
+                            )
+                        if invalid_keys and not warnings_only:
                             raise GenerationStageError(
                                 "checkpoint_integrity_error",
                                 stage="checkpoint",
@@ -1634,6 +1761,7 @@ class BackgroundJobService:
                             )
                             if (
                                 insufficient_automatic_pack
+                                and not warnings_only
                                 and source_pack.provider_errors
                             ):
                                 # An outage is not evidence that the topic has
@@ -1645,7 +1773,15 @@ class BackgroundJobService:
                                     "before writing; retry the generation later",
                                     stage="retrieval",
                                 )
-                            if insufficient_automatic_pack:
+                            if insufficient_automatic_pack and warnings_only:
+                                await warn(
+                                    db,
+                                    "retrieval",
+                                    "Недостатньо автоматично дібраних джерел",
+                                    count=citable_count,
+                                    provider_errors=source_pack.provider_errors,
+                                )
+                            if insufficient_automatic_pack and not warnings_only:
                                 detail = (
                                     "Too few relevant sources to start writing "
                                     f"({citable_count}/{MIN_CITABLE_SOURCES}). "
@@ -1842,7 +1978,7 @@ class BackgroundJobService:
                             target_size=settings.SOURCE_PACK_CANDIDATE_RESERVE_SIZE,
                             allow_threshold_relaxation=False,
                             retrieval_page=1,
-                            raise_on_provider_error=True,
+                            raise_on_provider_error=not warnings_only,
                         )
                         # The initial topic pack already passed the same strict
                         # relevance floor and may contain valid broad sources
@@ -1883,7 +2019,7 @@ class BackgroundJobService:
                                 ),
                                 allow_threshold_relaxation=False,
                                 retrieval_page=retrieval_page,
-                                raise_on_provider_error=True,
+                                raise_on_provider_error=not warnings_only,
                             )
                             candidate_pack = _merge_source_packs(
                                 candidate_pack,
@@ -1912,7 +2048,16 @@ class BackgroundJobService:
                             ),
                         )
 
-                        if not preflight.meets_minimum:
+                        if not preflight.meets_minimum and warnings_only:
+                            await warn(
+                                db,
+                                "retrieval",
+                                "Пакет джерел не пройшов попередню перевірку",
+                                **preflight.provenance_payload(
+                                    top_up_attempted=top_up_attempted
+                                ),
+                            )
+                        if not preflight.meets_minimum and not warnings_only:
                             detail = (
                                 "Source preflight found only "
                                 f"{preflight.verified_count} verified source(s); "
@@ -2065,18 +2210,22 @@ class BackgroundJobService:
                         # heartbeat keeps renewing and a cancel completes while
                         # the provider reply is still pending; a reply arriving
                         # after cancel/takeover is fenced out by the guard.
-                        await prepare_final_plan(
+                        await advisory(
                             db,
-                            document,
-                            academic_job,
-                            source_pack,
-                            usage_tracker=usage,
-                            persist_guard=functools.partial(
-                                hold_generation_job_lease,
-                                job_id=job_id,
-                                worker_id=lease_owner,
-                                lease_token=lease_token,
-                                document_id=document_id,
+                            "preparation",
+                            prepare_final_plan(
+                                db,
+                                document,
+                                academic_job,
+                                source_pack,
+                                usage_tracker=usage,
+                                persist_guard=functools.partial(
+                                    hold_generation_job_lease,
+                                    job_id=job_id,
+                                    worker_id=lease_owner,
+                                    lease_token=lease_token,
+                                    document_id=document_id,
+                                ),
                             ),
                         )
                         sections = validate_outline(document.outline)["sections"]
@@ -2097,13 +2246,23 @@ class BackgroundJobService:
                                 kind="outline",
                                 usage_tracker=usage,
                             )
-                        if outline_review["status"] == "unchecked":
+                        if outline_review["status"] != "passed" and warnings_only:
+                            await warn(
+                                db,
+                                "review",
+                                outline_review.get("reason") or "Зауваження до плану",
+                                review=outline_review,
+                            )
+                        if (
+                            outline_review["status"] == "unchecked"
+                            and not warnings_only
+                        ):
                             raise GenerationStageError(
                                 outline_review["reason_code"],
                                 outline_review.get("reason") or "Перевірка недоступна.",
                                 stage="review",
                             )
-                        if outline_review["status"] != "passed":
+                        if outline_review["status"] != "passed" and not warnings_only:
                             await update_generation_document(
                                 db,
                                 job_id=job_id,
@@ -2153,6 +2312,7 @@ class BackgroundJobService:
 
                 total_sections = len(sections)  # Calculate once for progress tracking
                 for idx, section_data in enumerate(sections):
+                    operation_section.set(idx + 1)
                     section_title = section_data.get("title", f"Section {idx + 1}")
                     section_index = idx + 1
 
@@ -2278,7 +2438,9 @@ class BackgroundJobService:
                         section_usage_start = usage.snapshot()
 
                         for attempt in range(
-                            settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
+                            1
+                            if warnings_only
+                            else settings.QUALITY_MAX_REGENERATE_ATTEMPTS + 1
                         ):
                             attempt_num = attempt + 1
                             logger.info(
@@ -2318,7 +2480,39 @@ class BackgroundJobService:
                             await _assert_generation_lease(
                                 job_id, lease_owner, lease_token
                             )
+                            if warnings_only and section_result.get(
+                                "standard_references"
+                            ):
+                                await warn(
+                                    db,
+                                    "sources",
+                                    "Стандартні джерела потребують перевірки менеджером",
+                                    references=section_result["standard_references"],
+                                )
 
+                            if warnings_only and (
+                                section_result.get("discarded_outline_keys")
+                                or section_result.get("unresolved_pack_markers")
+                            ):
+                                await warn(
+                                    db,
+                                    "sources",
+                                    "Посилання не мають відповідного джерела в пакеті",
+                                    details=[
+                                        "Вилучено застарілі ключі з запиту: "
+                                        + ", ".join(
+                                            section_result.get("discarded_outline_keys")
+                                            or []
+                                        ),
+                                        "Непідтверджені цитати в тексті: "
+                                        + ", ".join(
+                                            section_result.get(
+                                                "unresolved_pack_markers"
+                                            )
+                                            or []
+                                        ),
+                                    ],
+                                )
                             # Honest writer trail: a provider outage must never
                             # silently swap the writer (Validation-6: credit
                             # exhaustion replaced Opus with gpt-4 mid-document
@@ -2388,6 +2582,13 @@ class BackgroundJobService:
                                             settings.SOURCE_PACK_MIN_ON_TOPIC_SCORE
                                         ),
                                     )
+                                if not grounding.passed and warnings_only:
+                                    await warn(
+                                        db,
+                                        "grounding",
+                                        grounding.reason or "Непідтверджені твердження",
+                                        offending_keys=grounding.offending_keys,
+                                    )
                                 if not grounding.passed:
                                     if settings.PROVENANCE_LEDGER_ENABLED:
                                         await _record_provenance(
@@ -2408,7 +2609,8 @@ class BackgroundJobService:
                                             },
                                         )
                                     if (
-                                        attempt
+                                        not warnings_only
+                                        and attempt
                                         < settings.QUALITY_MAX_REGENERATE_ATTEMPTS
                                     ):
                                         # Feed the failure back and regenerate
@@ -2432,7 +2634,7 @@ class BackgroundJobService:
                                         )
                                         continue
                                     # Final attempt: strict fails, mark_only ships.
-                                    if (
+                                    if not warnings_only and (
                                         unresolved_markers
                                         or settings.GROUNDING_GATE_POLICY == "strict"
                                     ):
@@ -2471,12 +2673,17 @@ class BackgroundJobService:
                                 logger.info(
                                     f"Humanizing section {section_index}: {section_title}"
                                 )
-                                humanized_content = await humanizer.humanize(
-                                    text=rewrite_input,
-                                    provider=document.ai_provider,
-                                    model=document.ai_model,
-                                    preserve_citations=True,
-                                    language=document.language,
+                                humanized_content = await advisory(
+                                    db,
+                                    "humanization",
+                                    humanizer.humanize(
+                                        text=rewrite_input,
+                                        provider=document.ai_provider,
+                                        model=document.ai_model,
+                                        preserve_citations=True,
+                                        language=document.language,
+                                    ),
+                                    rewrite_input,
                                 )
                             else:
                                 logger.info(
@@ -2494,8 +2701,37 @@ class BackgroundJobService:
                                     humanized_content,
                                     source_pack,
                                     citation_style=document_citation_style,
+                                    render_unresolved=warnings_only,
                                 )
-                                if post_humanizer_conversion.unresolved_keys:
+                                if warnings_only and (
+                                    (
+                                        set(post_humanizer_conversion.unresolved_keys)
+                                        - set(
+                                            section_result.get(
+                                                "unresolved_pack_markers"
+                                            )
+                                            or []
+                                        )
+                                    )
+                                    or set(post_humanizer_conversion.used_keys)
+                                    != set(section_result.get("pack_keys_used") or [])
+                                ):
+                                    await warn(
+                                        db,
+                                        "humanization",
+                                        "Редакторський прохід змінив посилання; збережено початковий текст розділу",
+                                    )
+                                    humanized_content = rewrite_input
+                                    post_humanizer_conversion = convert_pack_markers(
+                                        rewrite_input,
+                                        source_pack,
+                                        citation_style=document_citation_style,
+                                        render_unresolved=warnings_only,
+                                    )
+                                if (
+                                    post_humanizer_conversion.unresolved_keys
+                                    and not warnings_only
+                                ):
                                     raise CitationIntegrityError(
                                         detail=(
                                             "Humanized section contains unresolved "
@@ -2618,8 +2854,12 @@ class BackgroundJobService:
                                     humanized_content,
                                     source_pack,
                                     citation_style=document_citation_style,
+                                    render_unresolved=warnings_only,
                                 )
-                                if post_ai_conversion.unresolved_keys:
+                                if (
+                                    post_ai_conversion.unresolved_keys
+                                    and not warnings_only
+                                ):
                                     raise CitationIntegrityError(
                                         detail=(
                                             "Final rewritten section contains "
@@ -2695,7 +2935,7 @@ class BackgroundJobService:
                             # uncertain claims remain visible for manager review.
                             if (
                                 settings.CLAIM_VERIFICATION_ENABLED
-                                and gates_passed
+                                and (gates_passed or warnings_only)
                                 and claim_verifier is not None
                             ):
                                 try:
@@ -2774,6 +3014,17 @@ class BackgroundJobService:
                                             claim_budget_remaining - claim_llm_used,
                                         )
                                 except Exception as claim_error:
+                                    if warnings_only and not optional_stage_failure(
+                                        claim_error
+                                    ):
+                                        raise
+                                    if warnings_only:
+                                        await warn(
+                                            db,
+                                            "claims",
+                                            "Перевірка тверджень недоступна",
+                                            details=[str(claim_error)],
+                                        )
                                     if settings.PROVENANCE_LEDGER_ENABLED:
                                         await _record_provenance(
                                             db,
@@ -2782,7 +3033,10 @@ class BackgroundJobService:
                                             event_type="claim_verification_error",
                                             payload={"error": str(claim_error)[:500]},
                                         )
-                                    if settings.CLAIM_VERIFICATION_BLOCKING:
+                                    if (
+                                        settings.CLAIM_VERIFICATION_BLOCKING
+                                        and not warning_mode.get()
+                                    ):
                                         if fenced_execution:
                                             await update_generation_document(
                                                 db,
@@ -2813,6 +3067,20 @@ class BackgroundJobService:
                                 incomplete_count = len(
                                     technical_uncertain_claims(attempt_claim_summary)
                                 )
+                                if warnings_only and (
+                                    unsupported_count
+                                    or (attempt_claim_summary or {})
+                                    .get("counts", {})
+                                    .get("uncertain")
+                                ):
+                                    await warn(
+                                        db,
+                                        "claims",
+                                        "Є непідтверджені або неперевірені твердження",
+                                        details=[
+                                            f"Непідтверджених: {unsupported_count}; невизначених: {(attempt_claim_summary or {}).get('counts', {}).get('uncertain', 0)}"
+                                        ],
+                                    )
                                 # A qualitative section may replace the numeric
                                 # heuristic only with an ACTUAL semantic check,
                                 # not merely enabled settings. Sources without
@@ -2855,8 +3123,8 @@ class BackgroundJobService:
                             # anyway, no point reviewing a doomed draft)
                             if (
                                 settings.QUALITY_PANEL_ENABLED
-                                and gates_passed
-                                and not claim_gate_failed
+                                and (gates_passed or warnings_only)
+                                and (not claim_gate_failed or warnings_only)
                             ):
                                 # Reset so a crash here doesn't leave scores/
                                 # reports describing an older attempt's draft
@@ -2911,14 +3179,41 @@ class BackgroundJobService:
 
                             # ========== QUALITY GATES DECISION ==========
 
-                            if (
-                                not settings.QUALITY_GATES_ENABLED or gates_passed
-                            ) and not claim_gate_failed:
+                            if warnings_only or (
+                                (not settings.QUALITY_GATES_ENABLED or gates_passed)
+                                and not claim_gate_failed
+                            ):
+                                if warnings_only:
+                                    findings = {
+                                        k: v
+                                        for k, v in (
+                                            final_check_breakdown or {}
+                                        ).items()
+                                        if v.get("status") != "passed"
+                                    }
+                                    if (
+                                        findings
+                                        or attempt_errors
+                                        or panel_crashed
+                                        or (
+                                            panel_result
+                                            and not panel_result.get("passed")
+                                        )
+                                    ):
+                                        await warn(
+                                            db,
+                                            "quality",
+                                            "Перевірки завершені із зауваженнями",
+                                            checks=findings,
+                                            issues=attempt_errors,
+                                            panel=panel_result,
+                                            panel_unavailable=panel_crashed,
+                                        )
                                 # ALL GATES PASSED or GATES DISABLED ✅
                                 final_content = humanized_content
                                 final_claim_summary = attempt_claim_summary
                                 logger.info(
-                                    f"✅ Section {section_index} passed all quality gates (enabled={settings.QUALITY_GATES_ENABLED})"
+                                    f"Section {section_index} saved (warnings_only={warnings_only}, gates_enabled={settings.QUALITY_GATES_ENABLED})"
                                 )
                                 break  # Exit regeneration loop, save section
 
@@ -3483,6 +3778,7 @@ class BackgroundJobService:
                         # Stop generation to avoid incomplete document
                         raise
 
+                operation_section.set(None)
                 # Step 4: Check if all sections completed
                 await _assert_generation_lease(job_id, lease_owner, lease_token)
                 sections_result = await db.execute(
@@ -3525,7 +3821,7 @@ class BackgroundJobService:
                     logger.error(error_msg)
                     raise QualityThresholdNotMetError(detail=error_msg)
 
-                if settings.SOURCE_PACK_PREFLIGHT_ENABLED:
+                if settings.SOURCE_PACK_PREFLIGHT_ENABLED and not warnings_only:
                     persisted_pack = await _load_source_pack(db, document_id)
                     if persisted_pack is not None and uploaded_pack is not None:
                         persisted_pack.passages = uploaded_pack.passages
@@ -3599,7 +3895,14 @@ class BackgroundJobService:
                 # disabled or regresses.  Preserve the text for diagnosis,
                 # but fail closed instead of deleting the broken citation.
                 leaked_markers = internal_marker_keys(final_content)
-                if leaked_markers:
+                if leaked_markers and warnings_only:
+                    await warn(
+                        db,
+                        "citations",
+                        "Нерозпізнані посилання в тексті",
+                        markers=leaked_markers,
+                    )
+                if leaked_markers and not warnings_only:
                     detail = (
                         "Unresolved internal citation marker(s) remain after "
                         "section assembly: " + ", ".join(leaked_markers[:20])
@@ -3675,10 +3978,25 @@ class BackgroundJobService:
                     )
                     final_checks_reused = any(
                         (e.payload or {}).get("binding") == final_checks_binding
-                        and (e.payload or {}).get("status") == "passed"
+                        and (e.payload or {}).get("status")
+                        in ({"passed", "completed"} if warnings_only else {"passed"})
                         for e in checks
                     )
                 if not final_checks_reused:
+                    final_events_start = (
+                        (
+                            (
+                                await db.execute(
+                                    select(func.max(DocumentProvenance.id)).where(
+                                        DocumentProvenance.document_id == document_id
+                                    )
+                                )
+                            ).scalar()
+                            or 0
+                        )
+                        if warnings_only
+                        else 0
+                    )
                     # Step 4.7: Citation verification + integrity gate
                     # (Academic Quality Engine). Strict policy raises
                     # CitationIntegrityError here, before export. Strict mode is
@@ -3733,6 +4051,47 @@ class BackgroundJobService:
                         # where the verifier's spend is already in the tracker.
                         await write_job_usage(db)
 
+                    if warnings_only:
+                        final_events = (
+                            (
+                                await db.execute(
+                                    select(DocumentProvenance).where(
+                                        DocumentProvenance.document_id == document_id,
+                                        DocumentProvenance.id > final_events_start,
+                                        DocumentProvenance.event_type.in_(
+                                            [
+                                                "citation_gate",
+                                                "verification_error",
+                                                "claim_verification_error",
+                                            ]
+                                        ),
+                                    )
+                                )
+                            )
+                            .scalars()
+                            .all()
+                        )
+                        for event in final_events:
+                            finding = event.payload or {}
+                            if (
+                                event.event_type == "citation_gate"
+                                and finding.get("status") == "passed"
+                            ):
+                                continue
+                            await warn(
+                                db,
+                                "verification",
+                                "Фінальна перевірка джерел має зауваження"
+                                if event.event_type == "citation_gate"
+                                else "Фінальна перевірка недоступна",
+                                details=[
+                                    str(
+                                        finding.get("error")
+                                        or finding.get("counts")
+                                        or finding
+                                    )
+                                ],
+                            )
                     if fenced_execution:
                         assert (
                             job_id is not None
@@ -3749,7 +4108,12 @@ class BackgroundJobService:
                                 db,
                                 document_id,
                                 "generation_final_checks",
-                                {"binding": final_checks_binding, "status": "passed"},
+                                {
+                                    "binding": final_checks_binding,
+                                    "status": "completed"
+                                    if warnings_only
+                                    else "passed",
+                                },
                             )
 
                 # Whole-work failure is internal review evidence, not lost text.
@@ -3777,7 +4141,21 @@ class BackgroundJobService:
                                 kind="whole",
                                 usage_tracker=usage,
                             )
-                        if academic_review_result["status"] == "unchecked":
+                        if (
+                            academic_review_result["status"] != "passed"
+                            and warnings_only
+                        ):
+                            await warn(
+                                db,
+                                "review",
+                                academic_review_result.get("reason")
+                                or "Зауваження до повної роботи",
+                                review=academic_review_result,
+                            )
+                        if (
+                            academic_review_result["status"] == "unchecked"
+                            and not warnings_only
+                        ):
                             raise GenerationStageError(
                                 academic_review_result["reason_code"],
                                 academic_review_result.get("reason")
@@ -3897,7 +4275,7 @@ class BackgroundJobService:
                     logger.warning(f"⚠️ Rollback in cancel handler: {rollback_error}")
                 await write_job_usage_monotonic(db)
                 raise
-            except Exception as e:
+            except (Exception, RecordingPersistenceError) as e:
                 logger.error(
                     f"Critical error in background document generation: {e}",
                     exc_info=True,
@@ -3949,6 +4327,11 @@ class BackgroundJobService:
                         f"Failed to update document {document_id} status to failed"
                     )
                 raise
+            finally:
+                translation_cache.reset(translation_token)
+                warning_mode.reset(policy_token)
+                operation_section.reset(section_token)
+                recording_context.reset(recording_token)
 
     @staticmethod
     @background_task_error_handler("generate_full_document_async")
@@ -4103,7 +4486,7 @@ class BackgroundJobService:
                 await db.rollback()
                 logger.warning("Stopped stale generation executor for job %s", job_id)
                 raise
-            except Exception as error:
+            except (Exception, RecordingPersistenceError) as error:
                 await db.rollback()
                 terminal = isinstance(
                     error, CitationIntegrityError | QualityThresholdNotMetError

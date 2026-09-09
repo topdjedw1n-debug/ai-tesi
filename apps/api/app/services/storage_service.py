@@ -30,6 +30,7 @@ from minio.error import S3Error
 from urllib3 import PoolManager, Retry, Timeout
 
 from app.core.config import settings
+from app.services.replay_dependencies import recorded_dependency
 
 logger = logging.getLogger(__name__)
 
@@ -141,6 +142,7 @@ class StorageService:
                 status_code=500, detail=f"Failed to upload file: {str(e)}"
             ) from e
 
+    @recorded_dependency("input_file", codec="bytes")
     async def download_file(self, file_path: str) -> bytes:
         """
         Download file from MinIO.

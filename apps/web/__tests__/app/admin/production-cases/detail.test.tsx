@@ -209,4 +209,16 @@ describe('ProductionCaseDetailPage QA evidence', () => {
       expect(within(current).getByLabelText('Збережений звіт Compilatio')).toHaveValue(replaced ? '' : '8')
     })
   })
+  it('shows generation findings and standard references while keeping release blocked', async () => {
+    ;(adminApiClient.getProductionCase as jest.Mock).mockResolvedValue({ ...productionCase,
+      generation_warnings: [{ id: 1, stage: 'sources', section_index: 2,
+        reason: 'Стандартні джерела потребують перевірки менеджером',
+        references: [{ title: 'WHO standard manual', authors: ['WHO'], year: null }] }] })
+    render(<ProductionCaseDetailPage />)
+    expect(await screen.findByRole('heading', { name: 'Зауваження під час написання' })).toBeInTheDocument()
+    expect(screen.getByText(/WHO standard manual/)).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Дозволити видачу' })).toBeDisabled()
+    expect(screen.getByTestId('internal-review-download')).toBeEnabled()
+  })
+
 })

@@ -5,6 +5,7 @@ export interface GenerationRecovery {
 }
 
 const REASON_GUIDANCE: Record<string, string> = {
+  recording_storage_unavailable: 'Не вдалося зберегти запис відповіді. Після відновлення сховища можна продовжити зі збереженого прогресу.',
   provider_temporarily_unavailable: 'Зовнішній сервіс тимчасово недоступний. Збережені джерела й завершені розділи можна використати при продовженні.',
   review_temporarily_unavailable: 'Рецензент тимчасово недоступний. Потрібно повторити перевірку; завершений текст збережено.',
   provider_access_required: 'Потрібно відновити доступ або поповнити баланс AI-сервісу, а потім підтвердити продовження.',

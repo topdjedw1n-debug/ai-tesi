@@ -1464,3 +1464,61 @@ async def test_source_availability_gate_no_data_blocks_release(client):
     )
     assert release_response.status_code == 409
     assert "source_availability" in release_response.json()["detail"]["blockers"]
+
+
+@pytest.mark.asyncio
+async def test_case_api_returns_current_generation_warnings_without_raw_recordings(
+    client,
+):
+    admin = await _create_user(
+        email="warning-admin@example.invalid", is_admin=True, is_super_admin=True
+    )
+    customer = await _create_user(email="warning-client@example.invalid")
+    document = await _create_document(int(customer.id))
+    case = await _create_case(client, admin, document)
+    async with AsyncSessionLocal() as session:
+        old = AIGenerationJob(
+            user_id=customer.id,
+            document_id=document.id,
+            job_type="full_document",
+            status="failed",
+        )
+        current = AIGenerationJob(
+            user_id=customer.id,
+            document_id=document.id,
+            job_type="full_document",
+            status="completed",
+        )
+        session.add_all([old, current])
+        await session.flush()
+        session.add_all(
+            [
+                DocumentProvenance(
+                    document_id=document.id,
+                    stage="review",
+                    event_type="generation_warning",
+                    payload={"job_id": old.id, "reason": "Old job finding"},
+                ),
+                DocumentProvenance(
+                    document_id=document.id,
+                    stage="review",
+                    event_type="generation_warning",
+                    payload={
+                        "job_id": current.id,
+                        "reason": "Current review finding",
+                        "review": {"issues": [{"reason": "Missing comparison"}]},
+                        "retrieval_trace": ["internal raw trace"],
+                        "request": {"messages": ["private full prompt"]},
+                    },
+                ),
+            ]
+        )
+        await session.commit()
+    response = await client.get(
+        f"/api/v1/admin/production-cases/{case['id']}", headers=_auth_headers(admin)
+    )
+    assert response.status_code == 200
+    warnings = response.json()["generation_warnings"]
+    assert len(warnings) == 1 and warnings[0]["reason"] == "Current review finding"
+    assert warnings[0]["details"] == ["Missing comparison"]
+    assert not {"review", "retrieval_trace", "request"} & warnings[0].keys()

@@ -233,6 +233,7 @@ async def stripe_webhook(
                     status="queued",
                     progress=0,
                     request_payload={
+                        "generation_policy": "platform-first-v1",
                         "profile_sha256": generation_profile_sha256(
                             document, int(payment.user_id)
                         ),

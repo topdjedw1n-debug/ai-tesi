@@ -46,6 +46,7 @@ class PromptBuilder:
         additional_requirements: str | None = None,
         source_pack_block: str | None = None,
         target_word_count: int | None = None,
+        outline_for_prompt: dict[str, Any] | None = None,
     ) -> str:
         """
         Build prompt for section generation with RAG context
@@ -69,6 +70,8 @@ class PromptBuilder:
             Formatted prompt string
         """
         context_text = previous_analysis(context_sections)
+        from app.services.generation_policy import warning_mode
+        from app.services.standard_references import STANDARD_SOURCE_RULES
 
         # Sources block + citation rules: closed-book (pack) vs legacy (top-5).
         if source_pack_block:
@@ -142,6 +145,11 @@ class PromptBuilder:
         }
         lang_name = language_names.get(document.language, document.language)
 
+        if warning_mode.get():
+            sources_text = "\n\nRETRIEVED SOURCES:\n" + (
+                source_pack_block or "No retrieved source evidence available."
+            )
+            citation_rules = STANDARD_SOURCE_RULES
         prompt = f"""CRITICAL INSTRUCTION - READ CAREFULLY:
 You MUST write this ENTIRE response in {lang_name}.
 Using ANY other language (especially English) is STRICTLY FORBIDDEN.
@@ -156,7 +164,7 @@ Target Pages: {document.target_pages}
 {PromptBuilder._length_instruction(target_word_count)}{context_text}
 {sources_text}
 {academic_directive(document)}
-APPROVED OUTLINE AND FUNCTION MAPPING: {document.outline}
+APPROVED OUTLINE AND FUNCTION MAPPING: {document.outline if outline_for_prompt is None else outline_for_prompt}
 Please write this section with:
 - Academic tone and style
 - Proper structure and flow
@@ -169,6 +177,33 @@ Please provide only the section content without any meta-commentary."""
         return prompt.strip()
 
     @staticmethod
+    def outline_for_available_sources(outline, available_keys):
+        """Copy the agreed structure; omit stale evidence links only in the prompt."""
+        from copy import deepcopy
+
+        copied = deepcopy(outline)
+        dropped = set()
+
+        def visit(value):
+            if isinstance(value, dict):
+                keys = value.get("evidence_keys")
+                if isinstance(keys, list):
+                    dropped.update(
+                        str(key) for key in keys if key not in available_keys
+                    )
+                    value["evidence_keys"] = [
+                        key for key in keys if key in available_keys
+                    ]
+                for child in value.values():
+                    visit(child)
+            elif isinstance(value, list):
+                for child in value:
+                    visit(child)
+
+        visit(copied)
+        return copied, sorted(dropped)
+
+    @staticmethod
     def _citation_precedence_rule(has_source_pack: bool) -> str:
         """Re-assert the [Key] marker contract AFTER the requirements block.
 
@@ -179,6 +214,10 @@ Please provide only the section content without any meta-commentary."""
         'no grounded citation in section'). The style named in the
         requirements is applied downstream by the citation formatter.
         """
+        from app.services.generation_policy import warning_mode
+
+        if warning_mode.get():
+            return "\nCITATION FORMAT PRECEDENCE: even when the brief names APA or another style, use exact [Key] markers for retrieved sources and [STD:identifier] for standard sources listed in STANDARD_REFERENCES_JSON. Do not write author-year citations yourself; the system applies the chosen style.\n"
         if not has_source_pack:
             return ""
         return (

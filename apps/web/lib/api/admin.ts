@@ -64,6 +64,15 @@ export interface CostAnalysisResponse {
 }
 
 export interface ProductionCase {
+  generation_warnings?: Array<{
+    id: number
+    stage: string
+    section_index?: number | null
+    reason: string
+    details?: string[]
+    references?: Array<{ title?: string; authors?: string[]; year?: number | null; issue?: string }>
+    checks?: Record<string, { status?: string; reason?: string | null }>
+  }>
   id: number
   document_id: number
   client_user_id: number

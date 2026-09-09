@@ -108,12 +108,14 @@ def convert_pack_markers(
     pack: Any,
     *,
     citation_style: Any,
+    render_unresolved: bool = False,
 ) -> MarkerConversion:
     """Resolve and render every deterministic source-pack marker in ``text``.
 
     Resolution is deliberately exact after normalization.  Author-surname
     aliases are accepted only when they point to one pack source; collisions
-    remain unresolved and therefore block the section later in the pipeline.
+    remain unresolved. Warning mode can render their existing labels neutrally;
+    they still remain in unresolved_keys and never become verified sources.
     """
 
     sources_by_key = {
@@ -150,10 +152,10 @@ def convert_pack_markers(
         raw_keys = _parse_group(match.group(1))
         if raw_keys is None:
             return match.group(0)
-        resolved_parts: list[tuple[_MarkerPart, str]] = []
+        resolved_parts: list[tuple[_MarkerPart, str | None]] = []
         for part in raw_keys:
             resolved = resolve(part.key)
-            if resolved is None:
+            if resolved is None and not render_unresolved:
                 return match.group(0)
             resolved_parts.append((part, resolved))
 
@@ -164,7 +166,13 @@ def convert_pack_markers(
             authors = list(getattr(source, "authors", None) or [])
             year = getattr(source, "year", None)
             if not authors or not year:
-                unresolved.append(canonical_key)
+                unresolved.append(canonical_key or part.key)
+                if render_unresolved:
+                    label = re.sub(r"(\d{4}[a-z]*)$", r", \1", part.key)
+                    label = re.sub(r"nd$", ", s.d.", label)
+                    # Only the existing label/year; no source identity or page claim.
+                    formatted.append("(" + label + ")")
+                    continue
                 return match.group(0)
             year_suffix = year_suffix_from_citation_key(canonical_key)
             formatted.append(

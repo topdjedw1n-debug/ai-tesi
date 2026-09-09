@@ -1099,6 +1099,55 @@ class ProductionCaseService:
         ).one()
         ai_total_tokens = int(usage_row[0] or 0)
         ai_cost_usd_cents = int(usage_row[1] or 0)
+        latest_job_id = (
+            await self.db.execute(
+                select(AIGenerationJob.id)
+                .where(
+                    AIGenerationJob.document_id == case.document_id,
+                    AIGenerationJob.job_type == "full_document",
+                )
+                .order_by(AIGenerationJob.id.desc())
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+        warning_events = (
+            (
+                await self.db.execute(
+                    select(DocumentProvenance)
+                    .where(
+                        DocumentProvenance.document_id == case.document_id,
+                        DocumentProvenance.event_type == "generation_warning",
+                    )
+                    .order_by(DocumentProvenance.id)
+                )
+            )
+            .scalars()
+            .all()
+        )
+        generation_warnings = []
+        for event in warning_events:
+            payload = event.payload or {}
+            if payload.get("job_id") != latest_job_id:
+                continue
+            details = list(payload.get("details") or payload.get("issues") or [])
+            for issue in (payload.get("review") or {}).get("issues") or []:
+                details.append(
+                    issue.get("reason") if isinstance(issue, dict) else str(issue)
+                )
+            generation_warnings.append(
+                {
+                    "id": event.id,
+                    "stage": event.stage,
+                    **{
+                        key: value
+                        for key, value in payload.items()
+                        if key
+                        in {"job_id", "section_index", "reason", "references", "checks"}
+                    },
+                    "details": [str(detail) for detail in details if detail],
+                }
+            )
+
         return {
             "id": case.id,
             "document_id": case.document_id,
@@ -1120,6 +1169,7 @@ class ProductionCaseService:
             "cost_cents": case.cost_cents,
             "ai_total_tokens": ai_total_tokens,
             "ai_cost_usd_cents": ai_cost_usd_cents,
+            "generation_warnings": generation_warnings,
             "ai_cost_eur_cents": round(ai_cost_usd_cents * settings.USD_TO_EUR_RATE),
             "release_notes": case.release_notes,
             "released_docx_path": case.released_docx_path,

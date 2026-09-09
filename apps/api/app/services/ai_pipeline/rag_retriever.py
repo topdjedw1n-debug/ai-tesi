@@ -23,6 +23,7 @@ from app.services.ai_pipeline.source_identity import (
     normalize_title,
     sources_equivalent,
 )
+from app.services.replay_dependencies import recorded_dependency
 
 logger = logging.getLogger(__name__)
 
@@ -115,6 +116,7 @@ class RAGRetriever:
             except Exception as e:
                 logger.warning(f"Failed to initialize Tavily client: {e}")
 
+    @recorded_dependency("semantic_scholar_sources", codec="sources")
     async def retrieve(
         self,
         query: str,
@@ -319,6 +321,7 @@ class RAGRetriever:
             logger.warning(f"Failed to load cache: {e}")
             return None
 
+    @recorded_dependency("perplexity_sources", codec="sources")
     async def search_perplexity(self, query: str) -> list[SourceDoc]:
         """
         Search using Perplexity API for real-time search results
@@ -406,6 +409,7 @@ class RAGRetriever:
             logger.warning(f"Error retrieving from Perplexity: {e}")
             return []
 
+    @recorded_dependency("tavily_sources", codec="sources")
     async def search_tavily(self, query: str, max_results: int = 10) -> list[SourceDoc]:
         """
         Search using Tavily API for academic and web sources
@@ -488,6 +492,7 @@ class RAGRetriever:
         # Use existing retrieve method
         return await self.retrieve(query, limit=10)
 
+    @recorded_dependency("serper_sources", codec="sources")
     async def search_serper(self, query: str) -> list[SourceDoc]:
         """
         Search using Serper API for Google search results
@@ -575,6 +580,7 @@ class RAGRetriever:
     _POLITE_MAILTO = "research@thesica.ai"
 
     @staticmethod
+    @recorded_dependency("scholarly_http", codec="json")
     async def _scholarly_json(
         url: str, params: dict, *, headers: dict[str, str] | None = None
     ) -> dict:

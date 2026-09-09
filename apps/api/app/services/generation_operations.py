@@ -1,15 +1,18 @@
 """Durable receipts for each SDK call, inside every existing retry layer.
 
-Only request/response digests are stored, never prompts or credentials. A started
-receipt without a confirmed response is unknown spend, including process death.
+Full request/response data is retained before parsing or quality decisions; SDK
+credentials are excluded. A started receipt without a confirmed response is
+unknown spend, including process death.
 This journal is observational: late provider receipts do not mutate work or leases.
 """
 
 from __future__ import annotations
 
 import asyncio
+import time
 from collections.abc import Awaitable, Callable
 from contextvars import ContextVar
+from datetime import UTC, datetime
 from typing import Any, TypeVar
 from uuid import uuid4
 
@@ -20,6 +23,14 @@ from app.models.document import DocumentProvenance
 from app.services.academic_context import digest
 from app.services.cost_estimator import UsageTracker
 from app.services.generation_outcomes import failure_reason
+from app.services.generation_policy import RecordingPersistenceError
+from app.services.model_recording import (
+    RECORDING_VERSION,
+    active_replay,
+    json_value,
+    operation_section,
+    recorded_request,
+)
 
 T = TypeVar("T")
 
@@ -47,19 +58,29 @@ def _stage_for_purpose(purpose: str) -> str:
     )
 
 
-async def _append(context: dict[str, Any], payload: dict[str, Any]) -> None:
+async def _append(
+    context: dict[str, Any],
+    payload: dict[str, Any],
+    *,
+    event_type: str = "generation_provider_attempt",
+) -> None:
     # No job/document lock here: the caller can already hold a fenced stage lock.
     # Provenance has only a Document FK; this cannot commit the caller's work.
-    async with database.AsyncSessionLocal() as db:
-        db.add(
-            DocumentProvenance(
-                document_id=context["document_id"],
-                stage="provider",
-                event_type="generation_provider_attempt",
-                payload={**context, **payload},
+    try:
+        async with database.AsyncSessionLocal() as db:
+            db.add(
+                DocumentProvenance(
+                    document_id=context["document_id"],
+                    stage="provider",
+                    event_type=event_type,
+                    payload={**context, **payload},
+                )
             )
-        )
-        await db.commit()
+            await db.commit()
+    except Exception as error:
+        raise RecordingPersistenceError(
+            "Could not persist the generation recording"
+        ) from error
 
 
 async def recorded_provider_call(
@@ -71,20 +92,38 @@ async def recorded_provider_call(
     usage_tracker: UsageTracker | None,
     purpose: str,
 ) -> T:
+    purpose = operation_purpose.get() or purpose
+    tape = active_replay.get()
+    if tape is not None:
+        return tape.response(
+            provider=provider, model=model, stage=purpose, request=request
+        )
     context = getattr(usage_tracker, "generation_context", None)
     if not isinstance(context, dict):
         return await call(**request)
-    purpose = operation_purpose.get() or purpose
+    safe_request = recorded_request(request)
+    started = time.monotonic()
     base = {
+        "recording_version": RECORDING_VERSION,
         "attempt_id": str(uuid4()),
         "stage": purpose,
         "provider": provider,
         "model": model,
-        "input_fingerprint": digest(request),
+        "input_fingerprint": digest(safe_request),
         "output_reference": None,
+        "section_index": operation_section.get(),
     }
     # If the journal cannot commit, do not begin a paid external operation.
-    await _append(context, {**base, "outcome": "started", "usage": None})
+    await _append(
+        context,
+        {
+            **base,
+            "outcome": "started",
+            "usage": None,
+            "request": safe_request,
+            "started_at": datetime.now(UTC).isoformat(),
+        },
+    )
     try:
         response = await call(**request)
     except BaseException as error:
@@ -95,9 +134,21 @@ async def recorded_provider_call(
                 context,
                 {
                     **base,
-                    "outcome": "outcome_unknown",
+                    "outcome": "failed"
+                    if isinstance(error, Exception)
+                    else "outcome_unknown",
                     "reason_code": reason,
                     "usage": None,
+                    "provider_spend_unknown": True,
+                    "error": {
+                        "type": type(error).__name__,
+                        "module": type(error).__module__,
+                        "message": str(error),
+                        "status_code": getattr(error, "status_code", None),
+                        "body": json_value(getattr(error, "body", None)),
+                    },
+                    "finished_at": datetime.now(UTC).isoformat(),
+                    "elapsed_seconds": time.monotonic() - started,
                 },
             )
         )
@@ -131,6 +182,9 @@ async def recorded_provider_call(
             "outcome": "received",
             "output_reference": response_id if isinstance(response_id, str) else None,
             "usage": confirmed,
+            "response": json_value(response),
+            "finished_at": datetime.now(UTC).isoformat(),
+            "elapsed_seconds": time.monotonic() - started,
         },
     )
     return response

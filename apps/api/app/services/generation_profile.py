@@ -11,6 +11,9 @@ from app.services.academic_context import ACADEMIC_POLICY_VERSION, digest
 
 PIPELINE_VERSION = "stability-v1"
 PROFILE_SETTINGS = (
+    "METHODOLOGY_REQUIRED_FOR_GENERATION",
+    "AI_RETRY_DELAYS",
+    "PROVENANCE_LEDGER_ENABLED",
     "AI_ENABLE_FALLBACK",
     "AI_MAX_RETRIES",
     "PARTIAL_COMPLETION_ENABLED",
@@ -54,6 +57,8 @@ PROMPT_FILES = (
     "academic_context.py",
     "academic_review.py",
     "plan_preparation.py",
+    "generation_policy.py",
+    "standard_references.py",
     "ai_service.py",
     "ai_pipeline/prompt_builder.py",
     "ai_pipeline/humanizer.py",

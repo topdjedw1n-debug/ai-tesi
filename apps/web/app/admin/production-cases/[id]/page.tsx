@@ -204,6 +204,27 @@ export default function ProductionCaseDetailPage() {
         </div>
       </div>
 
+      {!!productionCase.generation_warnings?.length && (
+        <section className="rounded-lg border border-amber-200 bg-amber-50 p-4" aria-labelledby="generation-warnings-heading">
+          <h2 id="generation-warnings-heading" className="text-lg font-semibold text-amber-900">Зауваження під час написання</h2>
+          <p className="mt-2 text-sm text-amber-900">Ці зауваження не зупиняють підготовку DOCX. Перегляньте їх перед перевіркою та видачею роботи.</p>
+          <ul className="mt-3 space-y-3 text-sm text-amber-950">
+            {productionCase.generation_warnings.map(warning => (
+              <li key={warning.id}>
+                <p>{warning.section_index ? `Розділ ${warning.section_index}. ` : ''}{warning.reason}</p>
+                {warning.details?.map((detail, index) => <p key={`detail-${index}`} className="mt-1">{detail}</p>)}
+                {warning.references?.map((reference, index) => (
+                  <p key={index} className="mt-1">{reference.title ? `${reference.authors?.join('; ') || ''}. ${reference.title}${reference.year ? ` (${reference.year})` : ''}. Потребує перевірки.` : 'Бібліографічні дані потребують уточнення.'}</p>
+                ))}
+                {Object.entries(warning.checks || {}).map(([check, finding]) => (
+                  <p key={check} className="mt-1">{({ grammar: 'Мова', plagiarism: 'Збіги тексту', ai_detection: 'Оцінка ШІ' } as Record<string, string>)[check] || 'Перевірка'}: {finding.reason || 'Є зауваження або перевірка недоступна.'}</p>
+                ))}
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {needsGenerationRetry && (
         <section className="rounded-lg border border-amber-200 bg-amber-50 p-4" aria-labelledby="generation-stopped-heading">
           <h2 id="generation-stopped-heading" className="text-lg font-semibold text-amber-900">Попереднє написання зупинилося</h2>

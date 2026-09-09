@@ -23,6 +23,7 @@ TEMPORARY_REASONS = frozenset(
         "provider_temporarily_unavailable",
         "review_temporarily_unavailable",
         "artifact_temporarily_unavailable",
+        "recording_storage_unavailable",
     }
 )
 MANUAL_REASONS = TEMPORARY_REASONS | {"provider_access_required", "cancelled_by_user"}
@@ -73,10 +74,14 @@ class GenerationQualityError(QualityThresholdNotMetError):
 
 
 def failure_reason(error: BaseException, *, stage: str = "generation") -> str:
+    from app.services.generation_policy import RecordingPersistenceError
+
     cause: BaseException | None = error
     seen: set[int] = set()
     while cause is not None and id(cause) not in seen:
         seen.add(id(cause))
+        if isinstance(cause, RecordingPersistenceError):
+            return "recording_storage_unavailable"
         if isinstance(cause, GenerationStageError | GenerationQualityError):
             return cause.reason_code
         if isinstance(cause, IncompleteModelResponse):

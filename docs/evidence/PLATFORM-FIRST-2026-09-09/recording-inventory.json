@@ -1,0 +1,57 @@
+[
+  {
+    "work": 7,
+    "snapshot": ".scratch/m0-11-20260908/order-7-after.json",
+    "historical_job_status": "completed",
+    "persisted_outline": true,
+    "persisted_sections": 6,
+    "provider_receipts": null,
+    "full_sdk_responses": 0,
+    "complete_replay_available": false,
+    "limitation": "Persisted outputs/diagnostics only; exact SDK prompts and full raw responses absent."
+  },
+  {
+    "work": 8,
+    "snapshot": ".scratch/m0-12-m1-q01-20260908/control-terminal.json",
+    "historical_job_status": "failed",
+    "persisted_outline": true,
+    "persisted_sections": 0,
+    "provider_receipts": null,
+    "full_sdk_responses": 0,
+    "complete_replay_available": false,
+    "limitation": "Persisted outputs/diagnostics only; exact SDK prompts and full raw responses absent."
+  },
+  {
+    "work": 9,
+    "snapshot": ".scratch/stability-20260908/release/control-db-terminal.json",
+    "historical_job_status": "failed",
+    "persisted_outline": true,
+    "persisted_sections": 0,
+    "provider_receipts": 6,
+    "full_sdk_responses": 0,
+    "complete_replay_available": false,
+    "limitation": "Persisted outputs/diagnostics only; exact SDK prompts and full raw responses absent."
+  },
+  {
+    "work": 10,
+    "snapshot": ".scratch/stability-20260908/release-control10/control-db-terminal.json",
+    "historical_job_status": "failed",
+    "persisted_outline": true,
+    "persisted_sections": 0,
+    "provider_receipts": 6,
+    "full_sdk_responses": 0,
+    "complete_replay_available": false,
+    "limitation": "Persisted outputs/diagnostics only; exact SDK prompts and full raw responses absent."
+  },
+  {
+    "work": 11,
+    "snapshot": ".scratch/stability-20260908/release-control11/control-db-terminal.json",
+    "historical_job_status": "failed",
+    "persisted_outline": true,
+    "persisted_sections": 0,
+    "provider_receipts": 4,
+    "full_sdk_responses": 0,
+    "complete_replay_available": false,
+    "limitation": "Persisted outputs/diagnostics only; exact SDK prompts and full raw responses absent."
+  }
+]

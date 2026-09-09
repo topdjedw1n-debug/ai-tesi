@@ -183,7 +183,7 @@ async def test_receipts_carry_the_business_purpose_of_the_call(db_session, monke
     )
     assert [e.payload["outcome"] for e in events] == [
         "started",
-        "outcome_unknown",
+        "failed",
         "started",
         "received",
     ]
