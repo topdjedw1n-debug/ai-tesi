@@ -27,6 +27,10 @@ WARNING_CODES = {
         "info",
         "Обрізану відповідь моделі відновлено додатковим зверненням.",
     ),
+    "output_truncated_kept": (
+        "warning",
+        "Розділ двічі обірвано; збережено текст до останнього повного речення.",
+    ),
     "citation_unresolved": (
         "warning",
         "Невідоме позначення джерела прибрано з тексту.",
@@ -82,6 +86,10 @@ class ExecutionStop(Exception):
             "section_index": section_index,
         }
         super().__init__(message)
+
+
+def unusable(message, **fields):
+    return ExecutionStop("provider_unusable_response", message, **fields)
 
 
 def warning(code, stage, *, section_index=None, detail=""):

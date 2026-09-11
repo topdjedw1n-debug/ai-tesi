@@ -192,6 +192,7 @@ def test_spec_guardrails():
         "standard_reference_used",
         "outline_scope_unmapped",
         "output_truncated_retried",
+        "output_truncated_kept",
         "citation_unresolved",
         "length_off_target",
         "reference_replaced",
@@ -223,7 +224,7 @@ async def test_s1_s3_recorded_truncation_and_coverage(db_session, monkeypatch):
     finally:
         recording_context.reset(token)
     assert len(pack.sources) == 2
-    assert sum(s["target_words"] for s in outline) == 500
+    assert sum(s["target_words"] for s in outline) == 2 * POLICY["words_per_page"]
     assert [s["section_index"] for s in outline] == [1]
     assert {
         "source_coverage_gap",

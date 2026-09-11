@@ -1,0 +1,189 @@
+{
+ "origin": "real job14 (document 12) recording, 2026-09-09",
+ "recording_sha256": "f7880069645fe2b2d1e6b66c6d8a0e4f18c59ea8cc02a110c42b356c095047c4",
+ "language": "it",
+ "words_per_page_at_run": 250,
+ "tokens_per_word_at_run": 1.6,
+ "calls": [
+  {
+   "section_index": 1,
+   "target_words": 228,
+   "output_tokens": 475,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 1,
+   "target_words": 228,
+   "output_tokens": 798,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 2,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 2,
+   "target_words": 274,
+   "output_tokens": 671,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 3,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 3,
+   "target_words": 274,
+   "output_tokens": 813,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 4,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 4,
+   "target_words": 274,
+   "output_tokens": 650,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 5,
+   "target_words": 201,
+   "output_tokens": 419,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 5,
+   "target_words": 201,
+   "output_tokens": 735,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 6,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 6,
+   "target_words": 274,
+   "output_tokens": 742,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 7,
+   "target_words": 292,
+   "output_tokens": 608,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 7,
+   "target_words": 292,
+   "output_tokens": 878,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 8,
+   "target_words": 292,
+   "output_tokens": 608,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 8,
+   "target_words": 292,
+   "output_tokens": 622,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 9,
+   "target_words": 201,
+   "output_tokens": 419,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 9,
+   "target_words": 201,
+   "output_tokens": 644,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 10,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 10,
+   "target_words": 274,
+   "output_tokens": 676,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 11,
+   "target_words": 274,
+   "output_tokens": 570,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 11,
+   "target_words": 274,
+   "output_tokens": 717,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 12,
+   "target_words": 164,
+   "output_tokens": 342,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 12,
+   "target_words": 164,
+   "output_tokens": 502,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 13,
+   "target_words": 228,
+   "output_tokens": 475,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 13,
+   "target_words": 228,
+   "output_tokens": 612,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 14,
+   "target_words": 228,
+   "output_tokens": 475,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 14,
+   "target_words": 228,
+   "output_tokens": 513,
+   "stop_reason": "end_turn"
+  },
+  {
+   "section_index": 15,
+   "target_words": 201,
+   "output_tokens": 419,
+   "stop_reason": "max_tokens"
+  },
+  {
+   "section_index": 15,
+   "target_words": 201,
+   "output_tokens": 838,
+   "stop_reason": "max_tokens"
+  }
+ ]
+}

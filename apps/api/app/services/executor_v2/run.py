@@ -32,7 +32,7 @@ from app.services.task_contract import contract_confirmation_error
 from app.services.uploaded_sources import load_document_passages
 
 from .budgets import POLICY
-from .warnings import ExecutionStop, warning
+from .warnings import ExecutionStop, unusable, warning
 
 
 class Context:
@@ -193,8 +193,7 @@ class Context:
             + POLICY["extra_calls"]
         )
         if self.calls >= ceiling:
-            raise ExecutionStop(
-                "provider_unusable_response",
+            raise unusable(
                 "Досягнуто межі кількості звернень до моделі.",
                 budget=True,
             )
@@ -205,8 +204,7 @@ class Context:
             + output_tokens * PRICING_OUTPUT["anthropic"][self.model]
         ) / 10000
         if self.usage.cost_usd_cents() + estimated > POLICY["cost_ceiling_cents"]:
-            raise ExecutionStop(
-                "provider_unusable_response",
+            raise unusable(
                 "Наступне звернення перевищить бюджет цієї роботи.",
                 budget=True,
             )
@@ -221,8 +219,7 @@ class Context:
         )
         await self.progress("Відповідь моделі записано.")
         if totals.cost_usd_cents() > POLICY["cost_ceiling_cents"]:
-            raise ExecutionStop(
-                "provider_unusable_response",
+            raise unusable(
                 "Досягнуто бюджету цієї роботи.",
                 budget=True,
             )

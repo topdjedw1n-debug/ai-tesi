@@ -4,7 +4,7 @@ import json
 import re
 
 from .budgets import json_call, output_budget
-from .warnings import ExecutionStop
+from .warnings import unusable
 
 
 def flatten(nodes):
@@ -60,9 +60,7 @@ BRIEF:\n"""
 
     def validate(items):
         if not isinstance(items, list) or not items:
-            raise ExecutionStop(
-                "provider_unusable_response", "Модель не повернула структуру вимог."
-            )
+            raise unusable("Модель не повернула структуру вимог.")
         for node in items:
             if (
                 not isinstance(node, dict)
@@ -70,8 +68,7 @@ BRIEF:\n"""
                 or not node["title"].strip()
                 or not isinstance(node.get("required"), bool)
             ):
-                raise ExecutionStop(
-                    "provider_unusable_response",
+                raise unusable(
                     "Структура вимог має непридатний формат.",
                 )
             for name in ("terms_local", "terms_en"):
@@ -80,8 +77,7 @@ BRIEF:\n"""
                     or not node[name]
                     or not all(isinstance(x, str) and x.strip() for x in node[name])
                 ):
-                    raise ExecutionStop(
-                        "provider_unusable_response",
+                    raise unusable(
                         "У структурі відсутні двомовні терміни.",
                     )
             node["children"] = node.get("children") or []

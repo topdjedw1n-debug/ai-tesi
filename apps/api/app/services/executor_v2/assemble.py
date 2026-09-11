@@ -20,7 +20,7 @@ from app.services.generation_worker import (
 )
 
 from .budgets import POLICY, json_call
-from .warnings import ExecutionStop
+from .warnings import ExecutionStop, unusable
 
 
 async def assemble(ctx, sections, bibliography, pack):
@@ -100,7 +100,7 @@ async def assemble(ctx, sections, bibliography, pack):
         )
         verdict, notes = review.get("verdict"), review.get("notes")
         if verdict not in ("PASS", "FAIL") or not isinstance(notes, str):
-            raise ExecutionStop("provider_unusable_response", "Хибний формат огляду.")
+            raise unusable("Хибний формат огляду.")
         text = verdict + "\n" + notes
         await ctx.emit("executor_review", {"text": text, "truncated": False})
         if verdict == "FAIL" or notes.strip():

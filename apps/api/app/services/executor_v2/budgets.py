@@ -8,7 +8,7 @@ from app.services.generation_operations import recorded_provider_call
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import operation_section
 
-from .warnings import ExecutionStop
+from .warnings import ExecutionStop, unusable
 
 POLICY = {
     "placeholder_phrases": (
@@ -33,8 +33,10 @@ POLICY = {
     "json_multiplier": 2,
     "json_attempts": 2,
     "json_stages": ("S1", "S3", "S6"),
-    "tokens_per_word": 1.6,
-    "output_margin": 1.3,
+    "tokens_per_word": {"it": 3.2, "en": 1.6, "default": 3.0},
+    "output_margin": 2.0,
+    "section_min_tokens": 2000,
+    "min_kept_words": 120,
     "truncation_multiplier": 2,
     "provider_attempts": 3,
     "retry_seconds": (5, 20, 60),
@@ -43,7 +45,7 @@ POLICY = {
     "extra_calls": 6,
     "heartbeat_seconds": 15,
     "provider_timeout_seconds": 240,
-    "words_per_page": 250,
+    "words_per_page": 340,
     "short_ratio": 0.7,
     "long_ratio": 1.4,
     "summary_chars": 1200,
@@ -54,13 +56,18 @@ POLICY = {
 _PENDING = set()
 
 
-def output_budget(stage, size):
+def output_budget(stage, size, language=None):
     if stage in {"S1", "S3"}:
         return max(
             POLICY["json_min_tokens"],
             POLICY["json_multiplier"] * size * POLICY["structure_tokens_per_node"],
         )
-    return max(1, math.ceil(size * POLICY["tokens_per_word"] * POLICY["output_margin"]))
+    rates = POLICY["tokens_per_word"]
+    rate = rates.get((language or "")[:2].lower(), rates["default"])
+    return max(
+        POLICY["section_min_tokens"],
+        math.ceil(size * rate * POLICY["output_margin"]),
+    )
 
 
 def _observe_late(task):
@@ -97,28 +104,22 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
                 raise
             except Exception as error:
                 status = getattr(error, "status_code", None)
-                if (
-                    status in {401, 403}
-                    or status == 400
-                    and any(
-                        w in str(error).lower()
-                        for w in ("balance", "credit", "billing")
-                    )
-                ):
+                billing = status == 400 and any(
+                    w in str(error).lower() for w in ("balance", "credit", "billing")
+                )
+                if status in {401, 403} or billing:
                     raise ExecutionStop(
                         "provider_access",
                         "Недоступний обліковий запис моделі або вичерпано баланс.",
                     ) from error
                 temporary = (
                     status in {408, 409, 429}
-                    or status is not None
-                    and status >= 500
+                    or (status or 0) >= 500
                     or isinstance(error, ConnectionError | TimeoutError)
                     or type(error).__name__ in {"APIConnectionError", "APITimeoutError"}
                 )
                 if not temporary or attempt + 1 == POLICY["provider_attempts"]:
-                    raise ExecutionStop(
-                        "provider_unusable_response",
+                    raise unusable(
                         "Модель не повернула придатної відповіді після обмежених спроб.",
                     ) from error
                 await asyncio.sleep(POLICY["retry_seconds"][attempt])
@@ -128,9 +129,7 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
                 b.text for b in response.content if getattr(b, "type", None) == "text"
             ).strip()
             if not text and purpose not in POLICY["json_stages"]:
-                raise ExecutionStop(
-                    "provider_unusable_response", "Модель повернула порожню відповідь."
-                )
+                raise unusable("Модель повернула порожню відповідь.")
             return text, response.stop_reason == "max_tokens"
     finally:
         operation_section.reset(token)
@@ -159,4 +158,4 @@ async def json_call(ctx, prompt, *, budget, purpose):
             budget *= POLICY["truncation_multiplier"]
             retried_truncation = True
         prompt += "\nReturn only a JSON object, without explanations."
-    raise ExecutionStop("provider_unusable_response", "Немає JSON після повтору.")
+    raise unusable("Немає JSON після повтору.")

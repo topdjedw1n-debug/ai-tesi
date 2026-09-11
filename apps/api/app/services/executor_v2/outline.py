@@ -4,7 +4,7 @@ import json
 
 from .budgets import json_call, output_budget
 from .scopes import flatten
-from .warnings import ExecutionStop
+from .warnings import unusable
 
 
 async def build_outline(ctx, scopes, pack):
@@ -36,9 +36,7 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
     )
     sections = parsed.get("sections")
     if not isinstance(sections, list) or not sections:
-        raise ExecutionStop(
-            "provider_unusable_response", "Модель не повернула розділи плану."
-        )
+        raise unusable("Модель не повернула розділи плану.")
     covered = set()
     for i, section in enumerate(sections, 1):
         if (
@@ -48,16 +46,12 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
             or not isinstance(section.get("target_words"), int)
             or section["target_words"] <= 0
         ):
-            raise ExecutionStop(
-                "provider_unusable_response", "Розділи плану мають непридатний формат."
-            )
+            raise unusable("Розділи плану мають непридатний формат.")
         for key in ("scope_ids", "evidence_keys", "main_points"):
             if not isinstance(section.get(key), list) or not all(
                 isinstance(x, str) for x in section[key]
             ):
-                raise ExecutionStop(
-                    "provider_unusable_response", "Поля плану мають непридатний формат."
-                )
+                raise unusable("Поля плану мають непридатний формат.")
         covered.update(section["scope_ids"])
         unknown = set(section["evidence_keys"]) - set(pack.keys())
         if unknown:
@@ -81,8 +75,7 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
     target = ctx.inputs["brief"]["target_words"]
     # A scale mismatch is corrected locally, never sent through a quality loop.
     if len(sections) > target:
-        raise ExecutionStop(
-            "provider_unusable_response",
+        raise unusable(
             "План містить більше розділів, ніж слів у завданні.",
         )
     remaining = target - len(sections)
