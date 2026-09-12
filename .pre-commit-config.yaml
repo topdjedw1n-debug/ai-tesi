@@ -3,7 +3,9 @@ repos:
     rev: v4.5.0
     hooks:
       - id: trailing-whitespace
+        exclude: ^apps/api/tests/fixtures/executor_v2/.*\.txt$  # raw model responses stay byte-exact
       - id: end-of-file-fixer
+        exclude: ^apps/api/tests/fixtures/executor_v2/.*\.txt$
       - id: check-yaml
       - id: check-json
       - id: check-added-large-files
