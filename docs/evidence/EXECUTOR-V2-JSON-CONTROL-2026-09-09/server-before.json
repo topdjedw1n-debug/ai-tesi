@@ -1,0 +1,48 @@
+{
+  "at": "2026-09-09T20:05:57.271639+00:00",
+  "revision": "6e432a497fae8afbece0eb49834e127e00725702",
+  "release_marker": "6e432a497fae8afbece0eb49834e127e00725702",
+  "source_files": 513,
+  "source_mismatches": [],
+  "runtime_python": {
+    "files": 138,
+    "mismatches": []
+  },
+  "containers": [
+    {
+      "name": "/ai-thesis-api",
+      "image": "sha256:3730eeeacb9ada0483abbf5f70cb389a78e10105a0f27e9088af01f0b910604e",
+      "started": "2026-09-09T16:15:43.222365834Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "/ai-thesis-web",
+      "image": "sha256:db2f8f472f9e7db4b8453a9dcd78c37f2a8d9accb467937643693e2f9477b0cf",
+      "started": "2026-09-09T16:15:49.146658653Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "/docker-operator-bot-1",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "started": "2026-09-09T12:03:15.828045665Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    }
+  ],
+  "bot_unchanged": true,
+  "compose_config_sha256": "10f6fa821c57f8416f80b7de7dcc4c8c68bb37778cdab040bd1add20d3d06d39",
+  "compose_config_unchanged": true,
+  "backup": {
+    "path": "/opt/thesica/backups/pre-deploy-20260909-161454.sql",
+    "bytes": 26168848,
+    "sha256": "d3127ee11f71a00e1d0f1e46889bc1e054138a61077d2d459f885736fab50d4e",
+    "complete": true,
+    "source_path": "/opt/thesica/backups/executor-v2-before-6e432a4/source-6ff8c5c.tar.gz",
+    "source_sha256": "b82bc7ba9b173e62cf0b209516132d204d4576156f2bbe001d8d3e67225b1cbb"
+  }
+}

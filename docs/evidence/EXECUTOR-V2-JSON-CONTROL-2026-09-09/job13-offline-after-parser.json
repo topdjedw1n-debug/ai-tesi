@@ -1,0 +1,23 @@
+{
+  "status": "incomplete",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "origin": "live-cabinet-document12-job13-executor-v2-6e432a4",
+  "consumed": [
+    {
+      "attempt_id": "eafa7a0d-301f-4be2-9706-cb79c6404ec7",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "d31a2846-c2aa-4975-8839-697af4f2cfed",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "profile_changed": true,
+  "reason": "No model recording for stage=S4, section=1",
+  "recorded_model_calls": 2
+}

@@ -1,0 +1,20 @@
+{
+  "code_images_configuration_unchanged_since_install": true,
+  "previous_rows_changed": {
+    "documents": [],
+    "document_sections": [],
+    "document_sources": [],
+    "document_provenance": [],
+    "ai_generation_jobs": [],
+    "production_cases": []
+  },
+  "only_new_job_ids": [
+    "14"
+  ],
+  "active_jobs": [],
+  "generation_pause": null,
+  "old_document12_job13_unchanged": true,
+  "old_document12_provenance_rows_verified": 2821,
+  "old_document12_provenance_changes": [],
+  "scope_note": "Generic row hashes cover other documents and all old jobs; direct comparison additionally covers every original document12 provenance event and job13. Current document12 source rows and document state belong to the new attempt; the previous version is preserved in history."
+}

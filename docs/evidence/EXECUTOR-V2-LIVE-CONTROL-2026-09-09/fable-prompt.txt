@@ -1,0 +1,54 @@
+Fable: receive and independently review the actual authorized executor v2 control result. Current founder goal is a working platform that reaches DOCX; quality warnings are advisory during generation. Owner authorized variant A: create a new draft through the cabinet from exact saved document11 inputs, compare every field, requirements, methodology and contract SHA, then ONE paid run, no code/server changes. Acceptance: DOCX, full recording, exact replay, all references verified, zero placeholders. Deliver outcome and evidence to owner and Fable.
+
+We created document12 via cabinet; exact contract equality is proven. One paid job13 ran on unchanged server revision6e432a4 and FAILED at S3. DO NOT launch anything, change code/data, run skills, request extra paid calls or use Bash/Edit/Write. Read-only tools only. Assess direction first, then causal diagnosis, recording/replay evidence boundaries, and the smallest next action. Do not imply the absent DOCX passes references/placeholders, and do not call this complete full-document replay. Do not expand to general architecture or academic-quality audit.
+
+Evidence folder: /Users/maxmaxvel/AI TESI/docs/evidence/EXECUTOR-V2-LIVE-CONTROL-2026-09-09
+Full, unaltered export: document12-job13-recording.json.gz and uncompressed document12-job13-recording.json (42 MB; available in full, avoid dumping the entire file into context). Both actual model requests/responses are also separated as call-1/2-request.json and call-1/2-response.txt. Source pack and all2798 dependency records are in the full export. No DOCX exists.
+
+Please inspect at least README.md, result.json, contract-copy-verification.json, call-2-response.txt, replay-exact-job13/report.json, server-freeze-and-history-verification.json and relevant unchanged parser/outline code in /Users/maxmaxvel/AI TESI/.scratch/executor-v2-20260909/apps/api/app/services/executor_v2/. Full recording is the primary artifact; verify selected original receipt portions as necessary using focused Grep/Read, without assuming a path alone proves content. The paid run has exactly2 request/response pairs and zero unknown attempts. End_turn S3 contains367charactersofprose then a valid JSONobject; originalresponseisunchanged. Return concise verdict in Ukrainian with next action and explicit acceptance limits.
+
+Summary:
+# Контроль executor v2: документ №12 / спроба №13
+
+**Вердикт: контроль не пройдено — DOCX не створено.**
+
+## Перенесення завдання і запуск
+
+За окремим дозволом власника в кабінеті manager1 створено нову чернетку №12 із повним завданням №11. Поля, повний текст вимог (6625 символів), текст методички, модель і політика джерел збігаються. SHA контракту в обох документах: `d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e`. Методичку завантажено через штатний вибір файла як TXT зі збереженим текстом; після збереження повний текст вимог збігається байт у байт.
+
+Виконано рівно один запуск через кнопку «Підтвердити і запустити»: документ №12, job13, `executor_version=2`, модель `claude-opus-4-8`. Початок 2026-09-09 19:26:21 UTC, зупинка 19:33:06 UTC. Витрати за журналом застосунку: **$0.30**, **41 696 токенів**, **2 завершені звернення**; невідомих спроб провайдера — 0. Це розрахунок за usage та тарифами застосунку, не окрема звірка рахунку провайдера.
+
+## Результат
+
+S1 і S2 завершені. Заморожено 40 перевірених джерел; у 32 є читабельний текст, для 8 збережено `source_no_readable_text`. На S3 модель повернула завершену відповідь (`end_turn`): 367 символів пояснення, потім синтаксично правильний JSON із 4 розділами.
+
+`executor_v2/budgets.py:137` прибирає лише зовнішню Markdown-огорожу й передає весь залишок у `json.loads`. Текст перед JSON спричинив `provider_unusable_response` на етапі `outline`. Відповідь не обрізана; повтор при обрізанні не застосовувався. Код, запит, запис або стан спроби не виправлялися.
+
+| Критерій | Факт |
+|---|---|
+| DOCX | Не створено; до S4–S6 не дійшло |
+| Повний запис | Збережено обидва повні запити/відповіді, usage, початковий знімок і 2798 записів зовнішніх залежностей |
+| Точне відтворення | Штатний офлайн-CLI відтворив ту саму зупинку S3; обидва запити незмінні, зовнішніх викликів і витрат — 0. Точне відтворення DOCX не доведено, бо DOCX немає |
+| Усі посилання перевірені | 40/40 джерел пакета перевірені; фінальних посилань і бібліографії ще немає, критерій готового DOCX не перевірений |
+| Нуль заглушок | Текст розділів не написано; критерій готового DOCX не перевірений |
+
+Офлайн-CLI завершився з кодом 2 і `status=failed`, а не `incomplete`; він спожив усі необхідні записи та відтворив однаковий код/етап/повідомлення зупинки. `profile_changed=true` спричинено невідновленим старим параметром `PARTIAL_COMPLETION_ENABLED` (live=false, replay=true); `executor_v2` його не використовує. Цю відмінність залишено у звіті, код replay не змінено.
+
+## Незмінність і межі
+
+Сервер лишається на `6e432a497fae8afbece0eb49834e127e00725702`. Файли, образи, час старту контейнерів і конфігурація збігаються з перевіркою перед прогоном. Старі документи, спроби й історія не переписані. Черга порожня. Повторний платний запуск не виконувався.
+
+Мінімальний наступний крок для окремого доручення: перевірити на цій реальній відповіді точкове приймання одного завершеного JSON після службового пояснення, зберігши строгі перевірки змісту. Це лише діагноз і пропозиція; виправлення та перевстановлення не виконувались.
+
+## Артефакти
+
+- [Повний запис, JSON.gz](document12-job13-recording.json.gz)
+- [Машинний результат](result.json)
+- [Звірка контракту](contract-copy-verification.json)
+- [Штатне офлайн-відтворення](replay-exact-job13/report.json)
+- [Оригінальна відповідь S3](call-2-response.txt)
+- [Оригінальний запит S3](call-2-request.json)
+- [Стан кабінету](cabinet-terminal.txt)
+- [Незмінність сервера та історії](server-freeze-and-history-verification.json)
+
+Новий DOCX відсутній. Старий файл job12 не підставляється замість нього.

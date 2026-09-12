@@ -1,6 +1,4 @@
-# Thesica Documentation
-
-Поточний локальний результат 09.09.2026: [platform-first PF01–PF05](evidence/PLATFORM-FIRST-2026-09-09/IMPLEMENTATION.md), Fable `LOCAL_IMPLEMENTATION_READY`. $0.42 за два виклики одного зміненого етапу; сервер і повні платні прогони потребують окремого дозволу. Нижче — попередня історія.
+# Thesica — документація
 
 <!-- M0-12-M1-Q01 status 2026-09-08 -->
 Оновлення 08.09.2026, 15:11 UTC: **M0-12 / M1-Q01 — DELIVERED / VERIFIED
@@ -23,6 +21,11 @@
 не змінює модель писаря, Humanize або пороги. Нижче збережені попередні рішення.
 <!-- /M0-12-M1-Q01 status -->
 
+08.09.2026: завершено спільне дослідження Humanize з Fable і Grok —
+[висновки та докази](research/humanize-2026-09-08/README.md),
+[M1-H01: запропонована реалізація й експеримент](plans/M1-H01-HUMANIZE.md).
+Код редактора, прапорець і production цим дослідженням не змінено.
+
 Оновлення за відгуком менеджера, 08.09.2026: зміст №7 не прийнято як
 магістерський (номер на скриншоті не вказаний, прив'язка — за контекстом).
 Підтверджено `tesi_magistrale`, відсутній опис методу огляду, слабкі
@@ -38,101 +41,83 @@ LibreOffice показав 16 сторінок за цілі 18. Код/файл
 зміни → регресії → перевірений реліз → один контрольний результат.
 Це передача роботи; реалізацію й нову генерацію цим кроком не виконано.
 
-M0-11 **VERIFIED**, 08.09.2026, 12:58 UTC: `7249e50` встановлено
-на API, web і боті. Нестача кредитів Anthropic припиняє беззмістовні
-повтори, сайт і бот пояснюють причину; базові команди працюють без AI.
-1244 API, 209 web, 31 bot і 71 тест серверного образу пройшли; є живий
-браузер і canary бота. Доступ Anthropic після поповнення підтверджено.
+Додано **M1-Q02 — PLANNED**: після виправлення вимог порівняти Astra,
+GPT-5.6 Sol, Opus 5 та Fable 5.1 з поточною Opus 4.8. Каталоги під
+ключами Thesica підтверджені; платних тестів і зміни писаря ще немає.
+[Протокол порівняння моделей](plans/M1-Q02-MODEL-BENCHMARK.md).
 
-Реальна **№7 / job7** завершилася ще на API `db9f887` о 12:31 UTC:
-одна спроба, 6 розділів, цілісний DOCX завантажується. У справі збережено
-similarity **3%**, AI **47%**; 15 тверджень недостатньо підтверджені
-джерелами, огляду/no-rewrite немає. Видача заблокована. №7 відрізняється
-від №5 типом і додатковими вимогами, тому не є тотожним повтором SHORT-001.
-Наступна задача виконавця — якість доказових джерел і тексту №7 та розбір
-його Compilatio. Старі №5/№6 навмання не повторювати. M0/M1 загалом не
-закрито. [Докази M0-11](evidence/M0-11-2026-09-08.md).
+Уточнення фаундера 08.09: окремо фіксувати **similarity ≤10%, AI ≤10%
+та академічну якість щодо заданого рівня** на одному фінальному DOCX.
+Потрібне одночасне проходження всіх трьох; середнього між ними немає.
+Повні файли порівнюємо для всіх технічно придатних кандидатів, а не лише
+двох, обраних за фрагментами. Рубрика Q, картка результату й цикл
+поліпшення визначені у протоколі; нових виміряних результатів ще немає.
 
-Попередні датовані знімки нижче є історією; наступна дія визначена вище.
+Оновлено 08.09.2026: M0-11 VERIFIED — баланс і команди бота виправлені; №7 має готовий DOCX, наступний крок — M0-12 (DOCX), потім M1-Q01 (якість джерел і тексту).
+Поточний етап — повноцінний внутрішній продукт для агенції.
 
-M0-10 **VERIFIED**, 08.09.2026: повідомлення про №5 звірено з БД і
-журналом. Є лише job5 від 07.09 о 14:16 UTC, до встановлення виправлень;
-нової спроби після M0-09 немає. Web `b85d28b` встановлено й перевірено
-08.09 о 11:41 UTC: зрозумілий перехід до повтору та форма перед старими
-розділами. API лишається `db9f887`. 208 web-тестів пройшли, 1 пропущено;
-живий браузер і незмінність №5 підтверджені. Наступна дія — штатно
-підтвердити одну нову спробу №5, потім приймати якість її готового DOCX.
-M0/M1 загалом не закрито. [Докази M0-10](evidence/M0-10-2026-09-08.md).
+## Де живе кожне рішення
 
-Операційне оновлення 07.09.2026: **M0-09 VERIFIED**, `db9f887` встановлено.
-Пріоритет фаундера — спочатку справна технічна генерація для агенції,
-потім якість тексту, AI та плагіат. Три DOCX зі справжніми провайдерами
-в ізольованому стеку, 9/9 відновлень, 1194 API-тести й живі перевірки
-підтверджені. №5 має історичний FAIL, нового production-прогону не було.
-Наступна дія — один штатний прогін №5, потім якість того самого DOCX.
-Тестові завершення не є M1 PASS; менеджери не тестують технічні дефекти.
-[Звіт і докази M0-09](evidence/M0-09-2026-09-07.md).
-
-This folder contains the maintained operational docs. The current founder brief for AI agents is [AGENT_SYNC.md](./AGENT_SYNC.md). Product strategy lives at the repository root in [THESICA-PLAN.md](../THESICA-PLAN.md); design rules live in [DESIGN.md](../DESIGN.md).
-
-## Quick Navigation
-
-| Need | File |
+| Документ | Єдине призначення |
 |---|---|
-| **Agent brief (read first)** | [AGENT_SYNC.md](./AGENT_SYNC.md) |
-| Local setup | [QUICK_START.md](./QUICK_START.md) |
-| Admin/frontend implementation plan | [ADMIN_FRONTEND_EXECUTION_PLAN.md](./ADMIN_FRONTEND_EXECUTION_PLAN.md) |
-| Rendered execution board | [ADMIN_FRONTEND_EXECUTION_PLAN.html](./ADMIN_FRONTEND_EXECUTION_PLAN.html) |
-| Phase 0 readiness record | [PHASE0_READINESS_RECORD.md](./PHASE0_READINESS_RECORD.md) |
-| Phase 1 run report template | [PHASE1_RUN_REPORT_TEMPLATE.md](./PHASE1_RUN_REPORT_TEMPLATE.md) |
-| Phase 1 go/no-go status | [PHASE1_GO_NO_GO_DECISION.md](./PHASE1_GO_NO_GO_DECISION.md) |
-| Phase 1 proof run reports | [phase1-runs/](./phase1-runs/) |
-| Production deployment checklist | [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md) |
-| Email setup | [Email/EMAIL_SETUP.md](./Email/EMAIL_SETUP.md) |
-| Decision log | [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md) |
+| [AGENT_SYNC](AGENT_SYNC.md) | Чинні рішення фаундера, межі, правила якості та фактичний знімок стану. |
+| [THESICA-PLAN](../THESICA-PLAN.md) | Цілі, роадмап M0–M3, критерії завершення. |
+| [PRE-RUN-001-TASKS](PRE-RUN-001-TASKS.md) | Поточна черга, власники, докази виконання. Історичну назву збережено. |
+| [DESIGN](../DESIGN.md) | Візуальна система й пріоритети робочого інтерфейсу. |
 
-## Reading Order
+Не створювати ще одну конкуруючу версію стратегії або роадмапу.
+Зміна фаундера спочатку фіксується в брифі, потім узгоджується з планом
+і задачами. Не переписувати історичні результати під нові цілі.
 
-1. [AGENT_SYNC.md](./AGENT_SYNC.md) - current founder brief, pass bar, and work queue.
-2. [../THESICA-PLAN.md](../THESICA-PLAN.md) - product direction and phase gates.
-3. [../DESIGN.md](../DESIGN.md) - UI and brand constraints.
-4. [QUICK_START.md](./QUICK_START.md) - run the project locally.
-5. [ADMIN_FRONTEND_EXECUTION_PLAN.md](./ADMIN_FRONTEND_EXECUTION_PLAN.md) - implement the internal QA-first workflow.
-6. [PHASE0_READINESS_RECORD.md](./PHASE0_READINESS_RECORD.md) and [phase1-runs/](./phase1-runs/) - record proof-run evidence.
+## Виконання та перевірки
 
-## Structure
+| Потреба | Документ |
+|---|---|
+| Локальний запуск | [QUICK_START](QUICK_START.md) |
+| Telegram-помічник Тані: права, перевірки й активація | [TELEGRAM_OPERATOR_BOT](setup/TELEGRAM_OPERATOR_BOT.md) |
+| Реліз, живі перевірки, відновлення | [PRODUCTION_DEPLOYMENT_PLAN](setup/PRODUCTION_DEPLOYMENT_PLAN.md) |
+| Звірка коду, сервера, схеми, worker та CI від 04.09.2026 | [M0-01 — звіт і докази](evidence/M0-01-2026-09-04.md) |
+| Доступ Тані, вибрана чернетка та перевірки 05.09.2026 | [M0-02 — звіт і докази](evidence/M0-02-2026-09-05.md) |
+| Обов'язкові правила видачі, збережені звіти та no-rewrite | [M0-03 — звіт і докази](evidence/M0-03-2026-09-05.md) |
+| Автоматичні джерела без PDF, відновлення та живий пошук | [M0-04 — звіт і докази](evidence/M0-04-2026-09-05.md) |
+| Кабінет менеджера: прогрес, огляд, обидва показники й той самий DOCX | [M0-05 — звіт і докази](evidence/M0-05-2026-09-05.md) |
+| Перевірений релізний пакет, незалежне рев'ю, резервні копії й відкат | [M0-06 — звіт, маніфест і патч](evidence/M0-06-2026-09-07.md) |
+| Фактично встановлений 585a415, живі перевірки та доступ Тані | [M0-06 — реліз VERIFIED](evidence/M0-06-RELEASE-2026-09-07.md) |
+| Дев’ять виправлень, відмови служб, браузерні переривання й повний шлях до видачі | [M0-08 — технічний QA](evidence/M0-08-2026-09-07.md) |
+| Баланс Anthropic, незалежні від AI команди бота, справжній DOCX №7 і межа якості | [M0-11 — реліз і докази](evidence/M0-11-2026-09-08.md) |
+| Діагностика скриншота №5, форма повтору та живий web b85d28b | [M0-10 — повтор після зупинки](evidence/M0-10-2026-09-08.md) |
+| Три DOCX зі справжніми провайдерами, 9 сценаріїв відновлення, встановлений db9f887 | [M0-09 — завершення генерації](evidence/M0-09-2026-09-07.md) |
+| №5 FAIL; окремий кандидат №7 GENERATED / QUALITY BLOCKED, similarity 3%, AI 47% | [SHORT-001](phase1-runs/SHORT-001.md) |
+| Перший шлях Тані та активація виробничого доступу після релізу | [TANYA_FIRST_RUN](setup/TANYA_FIRST_RUN.md) |
+| Один доказовий прогін | [Шаблон звіту](PHASE1_RUN_REPORT_TEMPLATE.md) |
+| Правила журналу й наявні докази | [phase1-runs](phase1-runs/README.md) |
+| Історична довідка з налаштування пошти | [EMAIL_SETUP](Email/EMAIL_SETUP.md) |
 
-```text
-docs/
-├── README.md
-├── AGENT_SYNC.md
-├── QUICK_START.md
-├── ADMIN_FRONTEND_EXECUTION_PLAN.md
-├── ADMIN_FRONTEND_EXECUTION_PLAN.html
-├── PHASE0_READINESS_RECORD.md
-├── PHASE1_RUN_REPORT_TEMPLATE.md
-├── PHASE1_GO_NO_GO_DECISION.md
-├── phase1-runs/
-├── setup/
-│   └── PRODUCTION_DEPLOYMENT_PLAN.md
-├── Email/
-│   └── EMAIL_SETUP.md
-└── sec/
-    └── DECISIONS_LOG.md
-```
+## Операційний знімок старого формату
 
-## Maintenance Rule
+[PHASE0_READINESS_RECORD](PHASE0_READINESS_RECORD.md) читає й записує
+адмінська форма застосунку. Не редагувати вручну та не перейменовувати.
 
-Keep docs current, narrow, and tied to decisions or repeatable operations. One-off smoke reports, stale release checklists, and old self-serve-first plans belong in git history, not in active navigation.
+Його старі поля щодо бюджету редактора, власника RUN-001, університету
+або серверної версії не перекривають чинний бриф. Доступність детекторів
+і стан сервера підтверджуються окремо. Якщо цей екран потрібен Тані,
+його узгодження з поточними правилами виконується як сумісна задача коду.
 
-## Internal release — 07.09.2026
+## Історія
 
-[Verified M0-06 release](evidence/M0-06-RELEASE-2026-09-07.md): code 585a415
-was committed, pushed and installed with founder approval. manager1 production
-access is active; API/web, bot connectivity and release restrictions are verified.
-The same record contains exact runtime hashes, backups, rollback and test limits.
+[Архів](archive/README.md) зберігає старі плани, рішення й звіти.
+[Знімок до перепланування](archive/strategy-before-2026-09-04-refresh/SNAPSHOT.md)
+містить 17 попередніх документів, включно з наявними незакоміченими правками.
 
-[SHORT-001](phase1-runs/SHORT-001.md) records the existing document 5 for the
-first short M1 run. It is READY / PENDING REAL RUN DATA; Tanya has not started
-generation or accepted an academic result. Real Compilatio and no-rewrite proof
-remain required on the final DOCX.
+Звіти контрольних запусків та тексти робіт лишаються історичними фактами.
+Порожній шаблон не є виконаним прогоном. Успіх тестів не є доказом якості
+роботи або самостійності менеджера.
+
+## Як підтримувати документацію
+
+- Віху закривати лише з посиланнями на відповідні докази.
+- Для статусу коду/сервера вказувати дату й версію перевірки.
+- Майбутні можливості відділяти від уже реалізованих.
+- Після релізу оновлювати стан задач; після замовлення — звіт прогону.
+- Для технічної документації підсистем актуальний код і новий прогін
+  важливіші за старі числа чи позначки готовності в README.

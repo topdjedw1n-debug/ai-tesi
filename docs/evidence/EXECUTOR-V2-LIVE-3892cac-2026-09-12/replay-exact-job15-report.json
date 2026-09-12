@@ -1,0 +1,760 @@
+{
+  "status": "completed",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "origin": "real_full_job",
+  "consumed": [
+    {
+      "attempt_id": "3fb69b05-c3ab-4a46-8603-0087266332ce",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "c16fc06e-2af6-47e9-b455-06638f8013e5",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "58477191-34e0-468c-bdaa-d3f432281e91",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "556314bf-89bd-481a-855d-42551f811134",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ad871351-3036-4ac6-acbb-4fb9c020e618",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "00494b62-84b9-4ed7-89ac-12d2bdc5d6d0",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "564bb506-b894-47cd-ab75-87ec52b27299",
+      "stage": "S4",
+      "section_index": 5,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "d33eb7d5-4469-4da0-938c-1ca09193f5ff",
+      "stage": "S4",
+      "section_index": 6,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "77fa974a-79c8-42cf-9a4b-55121e3863bf",
+      "stage": "S4",
+      "section_index": 7,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "9c83a239-8c8c-4d7c-8abf-8aa9b8cdb008",
+      "stage": "S4",
+      "section_index": 8,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "42535a6b-f606-40a2-a227-3ea5a7d05fa4",
+      "stage": "S4",
+      "section_index": 9,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "f2f096e5-1692-4ec7-9700-a05a218b2fec",
+      "stage": "S4",
+      "section_index": 10,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "39cb7906-6f20-41f3-b4ff-455cd5334096",
+      "stage": "S4",
+      "section_index": 11,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "c4d3c1e1-1df1-4e79-9210-94af705a90f2",
+      "stage": "S4",
+      "section_index": 12,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "bdede840-0b74-4aed-b7d4-34ffa41cc374",
+      "stage": "S4",
+      "section_index": 13,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "0a876688-9d16-4692-9aa1-0a2a4732ea5b",
+      "stage": "S4",
+      "section_index": 14,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5dc028c4-6c57-4e82-9a07-d5f776f87c53",
+      "stage": "S4",
+      "section_index": 15,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "68469467-8d78-4e52-baa9-d298ff59f6b4",
+      "stage": "S4",
+      "section_index": 16,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5c9edb69-0d6d-4ffa-ba1b-444a3d9cb76a",
+      "stage": "S4",
+      "section_index": 17,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "538c0454-c02a-43ba-96df-f5535b237595",
+      "stage": "S4",
+      "section_index": 18,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "c0db4ae0-eac4-428a-b554-d88cf14c3249",
+      "stage": "S6",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "profile_changed": true,
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 206,
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/182b2f7c-f901-408d-b904-5646196a2e74/scratchpad/replay15/a4e217c052a13ddb117809cc897705fd31c738d23880006d23d2a6fc9fbe9fdd.docx",
+      "sha256": "a4e217c052a13ddb117809cc897705fd31c738d23880006d23d2a6fc9fbe9fdd",
+      "bytes": 53603
+    }
+  ],
+  "warnings": [
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K574e48e65bce",
+      "created_at": "2026-09-09T19:32:40.907745+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K7443d2776b7d",
+      "created_at": "2026-09-09T19:32:40.926680+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K915635404bc1",
+      "created_at": "2026-09-09T19:32:40.941802+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K72e90a02a0b0",
+      "created_at": "2026-09-09T19:32:40.951513+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6243007990a1",
+      "created_at": "2026-09-09T19:32:40.959608+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K08d4304a676d",
+      "created_at": "2026-09-09T19:32:40.969686+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K9fc65d46d721",
+      "created_at": "2026-09-09T19:32:40.980130+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 13,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Ka178d27dd89c",
+      "created_at": "2026-09-09T19:32:40.990744+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K574e48e65bce",
+      "created_at": "2026-09-09T20:14:59.429249+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K7443d2776b7d",
+      "created_at": "2026-09-09T20:14:59.446266+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K915635404bc1",
+      "created_at": "2026-09-09T20:14:59.462631+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K72e90a02a0b0",
+      "created_at": "2026-09-09T20:14:59.479523+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6243007990a1",
+      "created_at": "2026-09-09T20:14:59.497623+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K08d4304a676d",
+      "created_at": "2026-09-09T20:14:59.510223+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K9fc65d46d721",
+      "created_at": "2026-09-09T20:14:59.521199+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Ka178d27dd89c",
+      "created_at": "2026-09-09T20:14:59.531593+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 1,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:16:24.136165+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 1,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "421 / 228",
+      "created_at": "2026-09-09T20:16:24.149195+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 2,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:16:47.827021+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "426 / 274",
+      "created_at": "2026-09-09T20:16:47.835545+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 3,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:17:16.245741+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "464 / 274",
+      "created_at": "2026-09-09T20:17:16.253792+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 4,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:17:39.833066+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 4,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "413 / 274",
+      "created_at": "2026-09-09T20:17:39.845711+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 5,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:18:00.126654+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 5,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "386 / 201",
+      "created_at": "2026-09-09T20:18:00.140226+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 6,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:18:26.175084+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 6,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "424 / 274",
+      "created_at": "2026-09-09T20:18:26.192995+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 7,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:18:54.910703+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 7,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "502 / 292",
+      "created_at": "2026-09-09T20:18:54.922715+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 8,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:19:20.566372+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 8,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "444 / 292",
+      "created_at": "2026-09-09T20:19:20.582554+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 9,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:19:42.433754+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 9,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "364 / 201",
+      "created_at": "2026-09-09T20:19:42.449319+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 10,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:20:05.121057+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 10,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "418 / 274",
+      "created_at": "2026-09-09T20:20:05.137201+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 11,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:20:29.671052+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 11,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "431 / 274",
+      "created_at": "2026-09-09T20:20:29.683761+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 12,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:20:49.572244+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 12,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "285 / 164",
+      "created_at": "2026-09-09T20:20:49.585316+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 13,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:21:12.003658+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 13,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "381 / 228",
+      "created_at": "2026-09-09T20:21:12.016970+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "output_truncated_retried",
+      "severity": "info",
+      "section_index": 14,
+      "message_uk": "Обрізану відповідь моделі відновлено додатковим зверненням.",
+      "detail": "",
+      "created_at": "2026-09-09T20:21:31.631319+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 14,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 14,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "340 / 228",
+      "created_at": "2026-09-09T20:21:31.643564+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K574e48e65bce",
+      "created_at": "2026-09-12T13:14:37.971268+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K915635404bc1",
+      "created_at": "2026-09-12T13:14:37.978200+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K7443d2776b7d",
+      "created_at": "2026-09-12T13:14:37.983329+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K72e90a02a0b0",
+      "created_at": "2026-09-12T13:14:37.987653+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6243007990a1",
+      "created_at": "2026-09-12T13:14:37.992049+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K9fc65d46d721",
+      "created_at": "2026-09-12T13:14:37.998580+00:00"
+    },
+    {
+      "document_id": 12,
+      "job_id": 15,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nAcademic work maintains rigorous, consistent scholarly standard throughout. Notable strength: consistent and explicit declaration of transferability limits for each source, distinguishing empirical from conceptual/editorial evidence, and avoiding overstatement of inferences. Coherent structure across chapters with logical progression. Minor concerns: some citation dates appear anomalous (Mazzucco 2026, Orsi 2026, Cangelosi 2026, Bembich 1969) and DOI/year mismatches exist (e.g., Buffon 2018 with 2010 DOI, Geatti 2018 with 2010 DOI), but these don't undermine the argumentation. The work appropriately acknowledges its own evidentiary gaps rather than fabricating support. Nursing scope correctly delimited per D.M. 740/1994. Overall methodologically sound and intellectually honest.",
+      "created_at": "2026-09-12T13:14:38.545744+00:00"
+    }
+  ],
+  "recorded_model_calls": 21
+}

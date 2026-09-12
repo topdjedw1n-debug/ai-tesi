@@ -1,0 +1,263 @@
+{
+  "date": "2026-09-08T16:28:48.474812+00:00",
+  "status": "consultations_completed; implementation_not_performed",
+  "scope": "User-requested independent Grok and Fable advice on reliability and academic quality; no product generation, deployment, or change to acceptance policy.",
+  "input": "same evidence packet for both; no cross-review round",
+  "runs": [
+    {
+      "provider": "fable",
+      "started_at": "2026-09-08T16:20:22.523895+00:00",
+      "finished_at": "2026-09-08T16:23:33.540433+00:00",
+      "duration_seconds": 191.02,
+      "exit_code": 0,
+      "argv": [
+        "claude",
+        "-p",
+        "--model",
+        "claude-fable-5-1",
+        "--output-format",
+        "json",
+        "--disable-slash-commands",
+        "--tools",
+        "",
+        "--allowedTools",
+        "Read,Grep,Glob",
+        "--disallowedTools",
+        "Bash,Edit,Write",
+        "--strict-mcp-config",
+        "--setting-sources",
+        ""
+      ],
+      "packet_sha256": "71e21ad27904d5886490b20703d74497f3cce36f03786752210d3d24c2b697a8",
+      "response_bytes": 16047,
+      "response_sha256": "46f6fbcb081e115885f140966f973d043c2e92e4379ef5a3175afa88a5ebd460",
+      "session_id": "e57bda3d-a56d-473a-92fd-1b1e807b1bc7",
+      "request_id": null,
+      "is_error": false,
+      "stop_reason": "success",
+      "model_usage": {
+        "claude-haiku-4-5-20251001": {
+          "inputTokens": 25561,
+          "outputTokens": 16,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 0,
+          "webSearchRequests": 0,
+          "costUSD": 0.025641,
+          "contextWindow": 200000,
+          "maxOutputTokens": 32000,
+          "thinkingTokens": 0,
+          "canonicalModel": "claude-haiku-4-5",
+          "provider": "firstParty",
+          "costBasis": "list"
+        },
+        "claude-fable-5-1": {
+          "inputTokens": 2,
+          "outputTokens": 10022,
+          "cacheReadInputTokens": 0,
+          "cacheCreationInputTokens": 38081,
+          "webSearchRequests": 0,
+          "costUSD": 1.26274,
+          "contextWindow": 1000000,
+          "maxOutputTokens": 64000,
+          "thinkingTokens": 6647,
+          "canonicalModel": "claude-fable-5-1",
+          "provider": "firstParty",
+          "costBasis": "list"
+        }
+      },
+      "reported_cost_usd": 1.288381,
+      "answer_chars": 7897
+    },
+    {
+      "provider": "grok",
+      "started_at": "2026-09-08T16:20:22.524093+00:00",
+      "finished_at": "2026-09-08T16:21:18.352789+00:00",
+      "duration_seconds": 55.83,
+      "exit_code": 1,
+      "argv": [
+        "grok",
+        "--prompt-file",
+        "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908/packet.md",
+        "--output-format",
+        "json",
+        "--tools",
+        "",
+        "--no-subagents",
+        "--disable-web-search",
+        "--max-turns",
+        "2"
+      ],
+      "packet_sha256": "71e21ad27904d5886490b20703d74497f3cce36f03786752210d3d24c2b697a8",
+      "response_bytes": 1365,
+      "response_sha256": "e4803b01c05963ffe18935bd3d3059f599226b677fb1c447a25ea44fb199a9b6",
+      "session_id": "01a081d2-123e-7430-ba24-bf52c5783c03",
+      "request_id": "e4bbec6f-08d4-4460-a12a-642490aed82f",
+      "is_error": null,
+      "stop_reason": "cancelled",
+      "model_usage": {
+        "grok-4.6-build": {
+          "inputTokens": 41956,
+          "outputTokens": 455,
+          "cacheReadInputTokens": 42240,
+          "cacheCreationInputTokens": 0,
+          "modelCalls": 2,
+          "costUSD": 0.01831954
+        }
+      },
+      "reported_cost_usd": 0.01831954,
+      "answer_chars": 202
+    },
+    {
+      "provider": "grok-resumed",
+      "started_at": "2026-09-08T16:23:34.825158+00:00",
+      "finished_at": "2026-09-08T16:26:45.546059+00:00",
+      "duration_seconds": 190.72,
+      "exit_code": 0,
+      "argv": [
+        "grok",
+        "--resume",
+        "01a081d2-123e-7430-ba24-bf52c5783c03",
+        "--prompt-file",
+        "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908/grok-continue.md",
+        "--output-format",
+        "json",
+        "--tools",
+        "read_file",
+        "--allow",
+        "read_file",
+        "--no-subagents",
+        "--disable-web-search",
+        "--max-turns",
+        "8"
+      ],
+      "packet_sha256": "71e21ad27904d5886490b20703d74497f3cce36f03786752210d3d24c2b697a8",
+      "response_bytes": 22026,
+      "response_sha256": "20a0074b218d9c638d76fe5bd55000b13af16a7d57a65b06ca547b8f50c62a24",
+      "session_id": "01a081d2-123e-7430-ba24-bf52c5783c03",
+      "request_id": "eca3cb29-e3de-4f49-b671-8519bc7c1df3",
+      "is_error": null,
+      "stop_reason": "end_turn",
+      "model_usage": {
+        "grok-4.6-build": {
+          "inputTokens": 52672,
+          "outputTokens": 7899,
+          "cacheReadInputTokens": 93824,
+          "cacheCreationInputTokens": 0,
+          "modelCalls": 3,
+          "costUSD": 0.0339405
+        }
+      },
+      "reported_cost_usd": 0.0339405,
+      "answer_chars": 9809
+    }
+  ],
+  "total_reported_cost_usd": 1.34064104,
+  "cost_limit": "CLI-reported/list estimates, not independently verified billing; excludes Codex usage",
+  "source_files_unchanged": [
+    {
+      "file": "/Users/maxmaxvel/AI TESI/docs/evidence/WORK-008-CONTROL-2026-09-08.md",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/docs/evidence/M0-12-M1-Q01-2026-09-08.md",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/docs/evidence/M0-09-2026-09-07.md",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_context.py",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_review.py",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/background_jobs.py",
+      "unchanged": true
+    },
+    {
+      "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_academic_quality_pipeline.py",
+      "unchanged": true
+    }
+  ],
+  "grok_tool_activity": [
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/.claude/skills/karpathy-guidelines/SKILL.md"
+      }
+    },
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/.grok/sessions/%2FUsers%2Fmaxmaxvel%2FAI%20TESI%2F.scratch%2Fstability-consultation-20260908/01a081d2-123e-7430-ba24-bf52c5783c03/prompts/prompt_0.txt",
+        "limit": 400
+      }
+    },
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/.grok/sessions/%2FUsers%2Fmaxmaxvel%2FAI%20TESI%2F.scratch%2Fstability-consultation-20260908/01a081d2-123e-7430-ba24-bf52c5783c03/prompts/prompt_0.txt",
+        "offset": 400,
+        "limit": 500
+      }
+    },
+    {
+      "name": "list_dir",
+      "read_only": true,
+      "input": {
+        "target_directory": "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908"
+      }
+    },
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908/packet.md",
+        "offset": 890,
+        "limit": 500
+      }
+    },
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908/packet.md",
+        "offset": 1380,
+        "limit": 400
+      }
+    },
+    {
+      "name": "read_file",
+      "read_only": true,
+      "input": {
+        "target_file": "/Users/maxmaxvel/AI TESI/.scratch/stability-consultation-20260908/packet.md",
+        "offset": 1,
+        "limit": 80
+      }
+    }
+  ],
+  "grok_activity_all_read_only": true,
+  "grok_initial_interruption": "max_turns=2 reached while reading packet; incomplete output is not an opinion. Same session resumed with read_file allowlist and max_turns=8.",
+  "cli_tools_note": "Claude received --tools empty, disabling its tools. In this Grok CLI, --tools empty did not disable defaults; initial recorded calls were read_file/list_dir only. Continuation explicitly allowed read_file only.",
+  "outputs": {
+    "fable.md": {
+      "sha256": "18e5578920f8d0e838a885d19b2fc0c357fdedc38621f7a25b70e3b00b0eb7b3",
+      "bytes": 13909
+    },
+    "grok.md": {
+      "sha256": "81cfa129f818eccec50f748fe5da9f26f3f15064b7498a3947aeab169f215c0e",
+      "bytes": 16953
+    },
+    "evidence-packet.md": {
+      "sha256": "71e21ad27904d5886490b20703d74497f3cce36f03786752210d3d24c2b697a8",
+      "bytes": 94963
+    }
+  }
+}

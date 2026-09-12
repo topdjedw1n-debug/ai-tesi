@@ -1,95 +1,105 @@
-# Phase 1 Quality Run Report Template
+# Звіт контрольного замовлення Thesica
 
-Use one copy of this template per real internal proof run. Do not include client names, private files, detector account details, secrets, or raw private instructions.
+Статус: PENDING REAL RUN DATA.
+Шаблон узгоджено з [чинним брифом](AGENT_SYNC.md) та
+[роадмапом](../THESICA-PLAN.md), 04.09.2026.
 
-## Run Metadata
+Не включати персональні дані клієнта, приватні інструкції, облікові дані
+детектора чи секрети. Приватні файли зберігаються у визначеному сховищі,
+у звіті — внутрішній ідентифікатор та посилання з відповідним доступом.
+
+## 1. Замовлення та версія
 
 - Run ID:
-- Date:
-- Manager:
-- Editor:
-- Document ID:
-- Order type:
-- Country / university context:
-- Language:
-- Target pages:
-- Citation style:
-- Deadline:
-- Model / provider:
-- `MVP_FREE_GENERATION_MAX_PAGES` at run time:
-- `DAILY_TOKEN_LIMIT` at run time:
+- Віха: M1 / M2 / M3.
+- Реальне замовлення / максимально близький контрольний кейс:
+- Дата:
+- Оператор: Таня / інший призначений менеджер.
+- Document ID / job ID:
+- Версія коду, релізу та перевіреного профілю:
+- Модель / провайдер: заплановані та фактичні.
+- Мова / дисципліна / тип / стиль цитування:
+- Цільовий обсяг і правила його вимірювання:
+- Дедлайн замовлення:
 
-## Intake
+## 2. Вхід і очікуваний результат
 
-- Topic:
-- Required structure:
-- Client files used:
-- Known university rules:
-- Detector thresholds:
-  - Plagiarism pass threshold:
-  - AI-risk pass threshold:
-- Human-minutes budget:
+- Узагальнена тема без приватних даних:
+- Погоджені вимоги та припущення:
+- Підтвердження умов перед запуском, версія/відбиток:
+- Методичка: так / ні.
+- Готові PDF-джерела: так / ні; кількість.
+- Хто добирав джерела: система / менеджер / обидва.
+- Чи входить замовлення в підтримуваний набір:
+- Очікувані частини роботи та критерії змістовної перевірки:
 
-## Generation Result
+## 3. Усі спроби
 
-- Final document status:
-- Generation elapsed time:
-- Sections generated:
-- Word count:
-- Tokens used:
-- Estimated AI cost:
-- Failed/retried sections:
-- Export formats produced:
+| Спроба | Версія | Результат | Причина зупинки | Що змінено перед повтором | Час | Витрати |
+|---|---|---|---|---|---|---|
 
-## QA Evidence
+Не приховувати невдалі спроби. Незмінений повтор не рахується виправленням.
 
-- Citation gate:
-  - Policy:
-  - Total sources:
-  - Verified:
-  - Not found:
-  - Mismatched:
-  - Failed/unresolvable:
-- Claim support:
-  - Checked:
-  - Supported:
-  - Unsupported:
-  - Uncertain:
-- Quality gates:
-  - Passed sections:
-  - Failed sections:
-  - Critical findings:
-- Reviewer panel:
-  - Enabled:
-  - Passed:
-  - Failed:
-  - Critical overrides:
-- External detector results:
-  - Plagiarism checker used:
-  - Plagiarism result:
-  - AI detector used:
-  - AI-risk result:
+## 4. Джерела та генерація
 
-## Human Work
+- Знайдено кандидатів / придатних / перевірених:
+- Доказ перевірки пакета до написання секцій:
+- Джерела стосуються теми та підтримують використані твердження:
+- Частини роботи згенеровані повністю:
+- Фактичний обсяг за погодженим форматуванням:
+- Сирі маркери, зламані посилання, дефекти бібліографії:
+- Непідтверджені твердження / критичні зауваження:
+- Висновок менеджера щодо змісту, логіки, структури та оформлення:
+- Тривалість / токени / фактична вартість і валюта:
+- Застосовані повтори / зміни моделі / ручне втручання:
 
-- Setup minutes:
-- Reading/review minutes:
-- Editing minutes:
-- Detector/rerun minutes:
-- Delivery prep minutes:
-- Total human minutes:
-- Within budget: yes / no
+## 5. Точний фінальний файл
 
-## Decision
+- Формат: DOCX.
+- Внутрішній ідентифікатор або шлях у сховищі:
+- SHA-256 байтів:
+- Дата завершення експорту:
+- Чи змінювався файл після експорту/перевірок:
+- Яка версія реально дозволена до видачі:
 
-- Final decision: pass / fail / repeat
-- Fail reason category: generation / citations / claims / plagiarism / AI-risk / editor time / export-runtime / other
-- Remediation:
-- Client delivery status:
-- Follow-up date:
+## 6. Compilatio на цьому самому DOCX
 
-## Notes
+| Перевірка | Відсоток | Поріг | Час перевірки | Посилання на звіт | SHA-256 перевіреного файла |
+|---|---|---|---|---|---|
+| Similarity | | ≤10% | | | |
+| AI | | ≤10% | | | |
 
-- What broke:
-- What worked:
-- What must change before the next run:
+- Обидва результати належать одному фінальному DOCX: так / ні.
+- Звіт доступний відповідальному за видачу: так / ні.
+- Інші детектори, якщо застосовувалися: лише діагностична примітка.
+
+## 7. Втручання людини та самостійність
+
+- Людина переписувала зміст для придатності результату: так / ні.
+- Хто підтвердив це і коли:
+- На якій версії/файлі підтверджено:
+- Дії менеджера: вимоги / перевірка / Compilatio / дозвіл на файл / інше.
+- Чи довелося менеджеру збирати джерела замість системи:
+- Допомога розробника для штатного проходження: так / ні; яка саме.
+- Ручні дії в API, БД, терміналі або поза передбаченим UI:
+- Операційний час, якщо вимірювався: довідкова метрика, не бюджет редактора.
+
+## 8. Рішення
+
+- PASS / FAIL / REPEAT / BLOCKED:
+- Якість змісту та оформлення прийнята:
+- Джерела й цитування прийняті:
+- Similarity ≤10%:
+- AI ≤10%:
+- Обидва результати прив'язані до точного фінального DOCX:
+- No-rewrite підтверджено:
+- Файл дозволений до видачі; ким і коли:
+- Причина відмови або повтору:
+- Наступна дія та відповідальний:
+- До яких віх можна зарахувати результат:
+- Таня прийняла самостійний процес для цього замовлення:
+
+PASS потребує всіх умов якості. Для M3 додатково потрібне реальне
+замовлення і повний штатний цикл без втручання розробника. Переписування
+людиною, відсутність одного звіту або зміна перевіреного файла не сумісні
+з PASS. Старий звіт не переноситься на новий файл.

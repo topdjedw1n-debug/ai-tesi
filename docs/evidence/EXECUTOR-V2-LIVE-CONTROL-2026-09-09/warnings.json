@@ -1,0 +1,98 @@
+[
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K574e48e65bce",
+    "created_at": "2026-09-09T19:32:40.907745+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K7443d2776b7d",
+    "created_at": "2026-09-09T19:32:40.926680+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K915635404bc1",
+    "created_at": "2026-09-09T19:32:40.941802+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K72e90a02a0b0",
+    "created_at": "2026-09-09T19:32:40.951513+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K6243007990a1",
+    "created_at": "2026-09-09T19:32:40.959608+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K08d4304a676d",
+    "created_at": "2026-09-09T19:32:40.969686+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K9fc65d46d721",
+    "created_at": "2026-09-09T19:32:40.980130+00:00"
+  },
+  {
+    "document_id": 12,
+    "job_id": 13,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "Ka178d27dd89c",
+    "created_at": "2026-09-09T19:32:40.990744+00:00"
+  }
+]

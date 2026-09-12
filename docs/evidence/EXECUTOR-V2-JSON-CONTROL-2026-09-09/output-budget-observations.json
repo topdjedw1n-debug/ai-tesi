@@ -1,0 +1,121 @@
+{
+  "completed_sections": [
+    {
+      "section": 1,
+      "words": 421,
+      "output_tokens": 1273,
+      "tokens_per_saved_word": 3.024,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 2,
+      "words": 426,
+      "output_tokens": 1241,
+      "tokens_per_saved_word": 2.913,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 3,
+      "words": 464,
+      "output_tokens": 1383,
+      "tokens_per_saved_word": 2.981,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 4,
+      "words": 413,
+      "output_tokens": 1220,
+      "tokens_per_saved_word": 2.954,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 5,
+      "words": 386,
+      "output_tokens": 1154,
+      "tokens_per_saved_word": 2.99,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 6,
+      "words": 424,
+      "output_tokens": 1312,
+      "tokens_per_saved_word": 3.094,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 7,
+      "words": 502,
+      "output_tokens": 1486,
+      "tokens_per_saved_word": 2.96,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 8,
+      "words": 444,
+      "output_tokens": 1230,
+      "tokens_per_saved_word": 2.77,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 9,
+      "words": 364,
+      "output_tokens": 1063,
+      "tokens_per_saved_word": 2.92,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 10,
+      "words": 418,
+      "output_tokens": 1246,
+      "tokens_per_saved_word": 2.981,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 11,
+      "words": 431,
+      "output_tokens": 1287,
+      "tokens_per_saved_word": 2.986,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 12,
+      "words": 285,
+      "output_tokens": 844,
+      "tokens_per_saved_word": 2.961,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 13,
+      "words": 381,
+      "output_tokens": 1087,
+      "tokens_per_saved_word": 2.853,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    },
+    {
+      "section": 14,
+      "words": 340,
+      "output_tokens": 988,
+      "tokens_per_saved_word": 2.906,
+      "first_stop": "max_tokens",
+      "continuation_stop": "end_turn"
+    }
+  ],
+  "stop_reasons": {
+    "max_tokens": 16,
+    "end_turn": 14
+  },
+  "note": "Descriptive measurements of this stopped run; includes raw markers and continuation overhead. No new budget or successful changed-generation outcome is asserted."
+}

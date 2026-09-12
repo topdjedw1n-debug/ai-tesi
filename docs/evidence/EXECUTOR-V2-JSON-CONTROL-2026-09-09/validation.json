@@ -1,0 +1,19 @@
+{
+  "revision": "61a4912f53a55850fcc2fa9666f785bbe9090757",
+  "api": {
+    "passed": 1398,
+    "skipped": 23,
+    "failed": 0,
+    "total": 1421
+  },
+  "web": {
+    "passed": 210,
+    "skipped": 1,
+    "failed": 0,
+    "total": 211,
+    "suites": 30
+  },
+  "typescript": "passed",
+  "package_lines": 1499,
+  "fixture_note": "Original job13 response bytes retained; EOF normalization hook skipped only to preserve recording fidelity. Other hooks passed."
+}

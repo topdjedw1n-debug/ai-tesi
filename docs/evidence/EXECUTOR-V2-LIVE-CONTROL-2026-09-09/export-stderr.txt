@@ -1,0 +1,1 @@
+Slow query (625.1 ms): SELECT row_to_json(t) FROM document_provenance t WHERE document_id=12 ORDER BY id

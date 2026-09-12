@@ -1,0 +1,964 @@
+Fable: owner requested delivery of deployment/control evidence to you. Review this current runtime result read-only, with no tool calls or proposed bypasses. Respond in Ukrainian, direction verdict first. Current goal: a working platform that finishes DOCX; quality is warnings during generation. Exact owner authorization: install approved 6e432a4 by standard procedure with backup at empty queue; after server verification allow ONE paid control for existing DOCUMENT 11 using the new executor THROUGH THE CABINET; DOCX, full recording, exact replay, all references verified, zero placeholders. NOTHING may change between installation and the run.
+
+Deployment is complete and verified; paid generation has NOT started. Existing document11 is completed from legacy job12. The sole UI generation entry TaskContractPanel is rendered only for empty draft or failed/failed_quality/cancelled. There is no generation button for this completed document; DOM observation and backend recovery state are below. Backend allows new_version for this legacy completed job. No hidden UI, status mutation, direct POST, code change, or paid call was attempted. Prior job12 DOCX must not be presented as v2 output.
+
+Confirm whether this is a real blocker for the authorized end-to-end cabinet control. If so, state the smallest candidate correction and validation, while recognizing that changing/reinstalling needs a NEW owner exception to the explicit freeze. Do not claim missing run acceptance or restate READY_FOR_INSTALL as runtime control PASS. No API/web tests were rerun or modified this turn. Your review is delivery of the current result to Fable, not permission to change anything.
+
+
+EVIDENCE server-accepted-before-run.json
+{
+  "at": "2026-09-09T16:21:02.506305+00:00",
+  "revision": "6e432a497fae8afbece0eb49834e127e00725702",
+  "release_marker": "6e432a497fae8afbece0eb49834e127e00725702",
+  "source_files": 513,
+  "source_mismatches": [],
+  "runtime_python": {
+    "files": 138,
+    "mismatches": []
+  },
+  "containers": [
+    {
+      "name": "/ai-thesis-api",
+      "image": "sha256:3730eeeacb9ada0483abbf5f70cb389a78e10105a0f27e9088af01f0b910604e",
+      "started": "2026-09-09T16:15:43.222365834Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "/ai-thesis-web",
+      "image": "sha256:db2f8f472f9e7db4b8453a9dcd78c37f2a8d9accb467937643693e2f9477b0cf",
+      "started": "2026-09-09T16:15:49.146658653Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    },
+    {
+      "name": "/docker-operator-bot-1",
+      "image": "sha256:0f3d60a7b3123a3b1922bfbf14614045207b827da38043879cd6c46463a212f9",
+      "started": "2026-09-09T12:03:15.828045665Z",
+      "status": "running",
+      "health": "healthy",
+      "restarts": 0
+    }
+  ],
+  "bot_unchanged": true,
+  "compose_config_sha256": "10f6fa821c57f8416f80b7de7dcc4c8c68bb37778cdab040bd1add20d3d06d39",
+  "compose_config_unchanged": true,
+  "backup": {
+    "path": "/opt/thesica/backups/pre-deploy-20260909-161454.sql",
+    "bytes": 26168848,
+    "sha256": "d3127ee11f71a00e1d0f1e46889bc1e054138a61077d2d459f885736fab50d4e",
+    "complete": true,
+    "source_path": "/opt/thesica/backups/executor-v2-before-6e432a4/source-6ff8c5c.tar.gz",
+    "source_sha256": "b82bc7ba9b173e62cf0b209516132d204d4576156f2bbe001d8d3e67225b1cbb"
+  }
+}
+
+
+EVIDENCE no-generation-or-drift.json
+{
+  "at": "2026-09-09T16:23:51.539582+00:00",
+  "paid_generation_jobs_started": 0,
+  "document11_unchanged": true,
+  "history": {
+    "documents": {
+      "changed": [],
+      "added": []
+    },
+    "document_sections": {
+      "changed": [],
+      "added": []
+    },
+    "document_sources": {
+      "changed": [],
+      "added": []
+    },
+    "document_provenance": {
+      "changed": [],
+      "added": []
+    },
+    "ai_generation_jobs": {
+      "changed": [],
+      "added": []
+    },
+    "production_cases": {
+      "changed": [],
+      "added": []
+    }
+  },
+  "active_jobs": [],
+  "pause": null,
+  "release_unchanged": true,
+  "containers_unchanged": true,
+  "compose_config_unchanged": true,
+  "source_mismatches": [],
+  "runtime_python": {
+    "files": 138,
+    "mismatches": []
+  }
+}
+
+EVIDENCE cabinet-blocker-server.json
+{
+  "at": "2026-09-09T16:23:20.549218+00:00",
+  "document_id": 11,
+  "document_status": "completed",
+  "jobs": [
+    {
+      "id": 11,
+      "status": "failed",
+      "executor_version": null,
+      "started_at": "2026-09-09 07:58:12.750677+00:00",
+      "completed_at": "2026-09-09 08:01:21.504529+00:00"
+    },
+    {
+      "id": 12,
+      "status": "completed",
+      "executor_version": null,
+      "started_at": "2026-09-09 12:04:34.448782+00:00",
+      "completed_at": "2026-09-09 12:19:54.400899+00:00"
+    }
+  ],
+  "recovery": {
+    "stage": "review",
+    "outcome": "completed",
+    "attempt_id": "a4dd7cf9-d3bb-4025-9d63-feac44f79a88",
+    "reason_code": "academic_content_rejected",
+    "retryability": "none",
+    "output_reference": "a4dd7cf9-d3bb-4025-9d63-feac44f79a88",
+    "input_fingerprint": "9898fb0638f2c6209077cc834b3ef6dff30e6f3489b3066ba03524b21be676b7",
+    "allowed_actions": [
+      "new_version"
+    ],
+    "expected_fingerprint": "fc6a79cecacbc6bec8edd4526d4e1177cff5a50108a980ba9d98f5248a1e1c62"
+  }
+}
+
+
+EVIDENCE cabinet-observation.json
+{
+  "url": "https://app.thesica.co/dashboard/documents/11",
+  "authenticated_user": "manager1",
+  "reloaded_after_install": true,
+  "buttons": [
+    "manager1",
+    "Open sidebar",
+    "Назад",
+    "Завантажити DOCX",
+    "Надіслати фідбек"
+  ],
+  "contractPanelPresent": false,
+  "generation_start_clicks": 0
+}
+
+CODE apps/web/app/dashboard/documents/[id]/page.tsx
+1: 'use client'
+2:
+3: import { useEffect, useState, useCallback } from 'react'
+4: import { useParams, useRouter } from 'next/navigation'
+5: import Link from 'next/link'
+6: import { useAuth } from '@/components/providers/AuthProvider'
+7: import { DashboardLayout } from '@/components/layout/DashboardLayout'
+8: import { GenerationProgress } from '@/components/GenerationProgress'
+9: import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
+10: import { DocumentSources } from '@/components/dashboard/DocumentSources'
+11: import { DocumentFeedback } from '@/components/dashboard/DocumentFeedback'
+12: import { DocumentSourceFiles } from '@/components/dashboard/DocumentSourceFiles'
+13: import { TaskContractPanel } from '@/components/dashboard/TaskContractPanel'
+14: import { apiClient, API_ENDPOINTS, getAccessToken } from '@/lib/api'
+15: import { documentStatus } from '@/lib/document-status'
+16: import { downloadDocumentDocx } from '@/lib/download'
+17: import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+18: import { Button } from '@/components/ui/Button'
+19: import toast from 'react-hot-toast'
+20: import {
+21:   DocumentTextIcon,
+22:   ArrowLeftIcon,
+23:   ArrowDownTrayIcon,
+24: } from '@heroicons/react/24/outline'
+25:
+26: interface Document {
+27:   id: number
+28:   title: string
+29:   topic: string
+30:   status: string
+31:   status_label?: string
+32:   executor_version?: number
+33:   warnings_count?: number
+34:   release_status: string
+35:   production_case_id: number | null
+36:   content: string | null
+37:   outline: any
+38:   word_count: number
+39:   target_pages: number
+40:   ai_provider: string
+41:   ai_model: string
+42:   work_type: string | null
+43:   created_at: string
+44:   updated_at: string
+45:   sections: Array<{
+46:     id: number
+47:     title: string
+48:     section_index: number
+49:     content: string | null
+50:     word_count: number
+51:     status: string
+52:     status_label?: string
+53:   }>
+54: }
+55:
+56: export default function DocumentDetailPage() {
+57:   const params = useParams()
+58:   const router = useRouter()
+59:   const { user } = useAuth()
+60:   const documentId = parseInt(params.id as string, 10)
+61:
+62:   const [document, setDocument] = useState<Document | null>(null)
+63:   const [isLoading, setIsLoading] = useState(true)
+64:   const [isGenerating, setIsGenerating] = useState(false)
+65:   const [isDownloading, setIsDownloading] = useState(false)
+66:   const [isCancelling, setIsCancelling] = useState(false)
+67:   const [draftRevision, setDraftRevision] = useState(0)
+68:   const [ownerRecovery, setOwnerRecovery] = useState(false)
+69:
+70:   const fetchDocument = useCallback(async () => {
+71:     try {
+72:       setIsLoading(true)
+73:       const data = await apiClient.get(API_ENDPOINTS.DOCUMENTS.GET(documentId))
+74:       setDocument(data)
+75:
+76:       // Check if document is generating
+77:       if (['queued', 'generating', 'payment_pending'].includes(data.status)) {
+78:         setIsGenerating(true)
+79:       } else {
+80:         setIsGenerating(false)
+81:       }
+82:     } catch (error: any) {
+83:       console.error('Failed to fetch document:', error)
+84:       toast.error('Не вдалося завантажити роботу')
+85:       router.push('/dashboard')
+86:     } finally {
+87:       setIsLoading(false)
+88:     }
+89:   }, [documentId, router])
+90:
+91:   useEffect(() => {
+92:     // Check if user is authenticated
+93:     const token = getAccessToken()
+94:     if (!token) {
+95:       toast.error('Увійдіть, щоб переглядати роботи')
+96:       router.push('/')
+97:       return
+98:     }
+99:
+100:     fetchDocument()
+101:   }, [documentId, router, fetchDocument])
+102:
+103:   const handleGenerationComplete = () => {
+104:     setIsGenerating(false)
+105:     toast.success('Генерацію завершено!')
+106:     fetchDocument() // Refresh document data
+107:   }
+108:
+109:   const handleGenerationError = () => {
+110:     setIsGenerating(false)
+111:     toast.error('Написання зупинилося. Причина та подальші дії збережені у роботі.')
+112:     fetchDocument() // Refresh to get updated status
+113:   }
+114:
+115:   const handleCancelGeneration = async () => {
+116:     if (!window.confirm('Зупинити поточну спробу? Нова спроба написання потребуватиме окремого підтвердження.')) {
+117:       return
+118:     }
+119:     setIsCancelling(true)
+120:     try {
+121:       await apiClient.post(API_ENDPOINTS.GENERATE.CANCEL(documentId))
+122:       toast.success('Генерацію скасовано')
+123:       setIsGenerating(false)
+124:       fetchDocument()
+125:     } catch (error: any) {
+126:       toast.error(error?.message || 'Не вдалося скасувати генерацію')
+127:     } finally {
+128:       setIsCancelling(false)
+129:     }
+130:   }
+131:
+132:   const handleDownload = async () => {
+133:     setIsDownloading(true)
+134:     try {
+135:       if (user?.can_access_production && document?.release_status !== 'released') {
+136:         const result = await apiClient.post<{ download_url: string }>(`/api/v1/admin/documents/${documentId}/download`, { format: 'docx' })
+137:         window.open(new URL(result.download_url, process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000').toString(), '_blank', 'noopener,noreferrer')
+138:       } else await downloadDocumentDocx(documentId)
+139:     } catch (error: any) {
+140:       toast.error(error?.message || 'Не вдалося завантажити файл')
+141:     } finally {
+142:       setIsDownloading(false)
+143:     }
+144:   }
+145:
+146:   if (isLoading) {
+147:     return (
+148:       <DashboardLayout>
+149:         <div className="flex items-center justify-center h-64">
+150:           <LoadingSpinner />
+151:         </div>
+152:       </DashboardLayout>
+153:     )
+154:   }
+155:
+156:   if (!document) {
+157:     return (
+158:       <DashboardLayout>
+159:         <div className="text-center py-12">
+160:           <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
+161:           <h3 className="mt-2 text-sm font-medium text-gray-900">Роботу не знайдено</h3>
+162:           <p className="mt-1 text-sm text-gray-500">Такої роботи не існує або її видалено.</p>
+163:           <div className="mt-6">
+164:             <Button onClick={() => router.push('/dashboard')}>
+165:               <ArrowLeftIcon className="h-4 w-4 mr-2" />
+166:               До моїх робіт
+167:             </Button>
+168:           </div>
+169:         </div>
+170:       </DashboardLayout>
+171:     )
+172:   }
+173:
+174:   const isGeneratingStatus = ['queued', 'generating', 'payment_pending'].includes(document.status)
+175:   const status = { ...documentStatus(document.status, document.release_status), ...(document.status_label ? { label: document.status_label } : {}) }
+176:   const failed = ['failed', 'failed_quality', 'cancelled'].includes(document.status)
+177:   // Until assembly, document.word_count can still describe the original brief.
+178:   const partialWordCount = document.sections.reduce((total, section) => (
+179:     section.status === 'completed' ? total + section.word_count : total
+180:   ), 0)
+181:   const showPartialCount = document.status !== 'completed' && partialWordCount > 0
+182:   const displayedWordCount = document.status === 'completed' ? document.word_count : partialWordCount
+183:
+184:   return (
+185:     <DashboardLayout>
+186:       <div className="space-y-6">
+187:         {/* Header */}
+188:         <div className="flex items-center justify-between">
+189:           <div className="flex items-center gap-4">
+190:             <Button
+191:               variant="ghost"
+192:               onClick={() => router.push('/dashboard')}
+193:             >
+194:               <ArrowLeftIcon className="h-4 w-4 mr-2" />
+195:               Назад
+196:             </Button>
+197:             <div>
+198:               <h1 className="text-2xl font-bold text-gray-900 font-serif">{document.title}</h1>
+199:               <p className="mt-1 text-sm text-gray-500">{document.topic}</p>
+200:             </div>
+201:           </div>
+202:           <div className="flex items-center gap-2">
+203:             {document.status === 'completed' && (document.release_status === 'released' || user?.can_access_production) && (
+204:               <Button onClick={handleDownload} disabled={isDownloading} data-testid="download-docx-button">
+205:                 {isDownloading ? (
+206:                   <LoadingSpinner className="h-4 w-4 mr-2" />
+207:                 ) : (
+208:                   <ArrowDownTrayIcon className="h-4 w-4 mr-2" />
+209:                 )}
+210:                 Завантажити DOCX
+211:               </Button>
+212:             )}
+213:           </div>
+214:         </div>
+215:
+216:         {/* Status Badge */}
+217:         <div className="flex items-center gap-2">
+218:           <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${status.badgeClass}`}>
+219:             {status.label}
+220:           </span>
+221:           {displayedWordCount > 0 && (
+222:             <span className="text-sm text-gray-500">
+223:               {displayedWordCount.toLocaleString('uk-UA')} слів{showPartialCount ? ' у збережених розділах' : ''}
+224:             </span>
+225:           )}
+226:         </div>
+227:
+228:         {user?.can_access_production && document.production_case_id && (
+229:           <Link href={`/dashboard/production-cases/${document.production_case_id}`} className="inline-flex rounded-md border border-primary-200 bg-primary-50 px-4 py-2 text-sm font-medium text-primary-800">
+230:             Перевірка та видача цієї роботи →
+231:           </Link>
+232:         )}
+233:
+234:         {/* Persisted progress is also readable after a failed attempt or refresh. */}
+235:         {(isGeneratingStatus || isGenerating || failed) && (
+236:           <>
+237:             <GenerationProgress
+238:               documentId={documentId}
+239:               active={!failed}
+240:               onOwnerAction={() => setOwnerRecovery(true)}
+241:               onCancelled={() => { setIsGenerating(false); fetchDocument(); }}
+242:               onComplete={failed ? undefined : handleGenerationComplete}
+243:               onError={failed ? undefined : handleGenerationError}
+244:             />
+245:             {(['queued', 'generating'].includes(document.status) || isGenerating) && (
+246:               <div className="flex justify-end">
+247:                 <button
+248:                   type="button"
+249:                   onClick={handleCancelGeneration}
+250:                   disabled={isCancelling}
+251:                   className="text-sm text-red-700 border border-red-300 rounded-md px-3 py-1.5 hover:bg-red-50 disabled:opacity-50"
+252:                 >
+253:                   {isCancelling ? 'Скасовуємо…' : 'Скасувати генерацію'}
+254:                 </button>
+255:               </div>
+256:             )}
+257:           </>
+258:         )}
+259:
+260:         {/* Draft review: contract, uploaded sources, estimate, explicit start */}
+261:         {((document.status === 'draft' && !document.content) || failed) && (
+262:           <TaskContractPanel
+263:             documentId={documentId}
+264:             targetPages={document.target_pages}
+265:             provider={document.ai_provider || 'anthropic'}
+266:             model={document.ai_model || 'claude-opus-4-8'}
+267:             refreshKey={draftRevision}
+268:             retry={failed}
+269:             ownerRecoveryAllowed={ownerRecovery}
+270:             onGenerationStarted={() => {
+271:               setOwnerRecovery(false)
+272:               setIsGenerating(true)
+273:               fetchDocument()
+274:             }}
+275:           >
+276:             <DocumentSourceFiles
+277:               documentId={documentId}
+278:               editable
+279:               onChanged={() => setDraftRevision((current) => current + 1)}
+280:             />
+281:           </TaskContractPanel>
+282:         )}
+283:
+284:         {/* Sources certificate: cited sources with verification statuses */}
+285:         {!isGeneratingStatus && document.status !== 'draft' && (
+286:           <>
+287:             <DocumentQualityEvidence documentId={documentId} productionCaseId={user?.can_access_production ? document.production_case_id : undefined} />
+288:             <DocumentSources documentId={documentId} />
+289:           </>
+290:         )}
+291:
+292:         {/* Manager feedback — always available once generation has run */}
+293:         {!isGeneratingStatus && document.status !== 'draft' && (
+294:           <DocumentFeedback documentId={documentId} />
+295:         )}
+296:
+297:         {/* Document Content */}
+298:         {document.status === 'completed' && document.content && (
+299:           <div className="bg-white shadow rounded-lg p-6">
+300:             <h2 className="text-lg font-semibold text-gray-900 mb-4">Текст роботи</h2>
+301:             <div className="prose max-w-none">
+302:               <div className="whitespace-pre-wrap text-gray-700 font-serif leading-relaxed">
+303:                 {document.content}
+304:               </div>
+305:             </div>
+306:           </div>
+307:         )}
+308:
+309:         {/* Sections */}
+310:         {document.sections && document.sections.length > 0 && (
+311:           <div className="bg-white shadow rounded-lg p-6">
+312:             <h2 className="text-lg font-semibold text-gray-900 mb-4">Розділи</h2>
+313:             <div className="space-y-4">
+314:               {document.sections
+315:                 .sort((a, b) => a.section_index - b.section_index)
+316:                 .map((section) => (
+317:                   <div key={section.id} className="border border-gray-200 rounded-lg p-4">
+318:                     <div className="flex items-center justify-between mb-2">
+319:                       <h3 className="font-medium text-gray-900">
+320:                         {section.section_index}. {section.title}
+321:                       </h3>
+322:                       <span className={`text-xs px-2 py-1 rounded ${documentStatus(section.status).badgeClass}`}>
+323:                         {section.status_label || documentStatus(section.status).label}
+324:                       </span>
+325:                     </div>
+326:                     {section.content && (
+327:                       <div className="mt-2 text-sm text-gray-700 whitespace-pre-wrap">
+328:                         {section.content}
+329:                       </div>
+330:                     )}
+331:                     {section.word_count > 0 && (
+332:                       <div className="mt-2 text-xs text-gray-500">
+333:                         {section.word_count.toLocaleString('uk-UA')} слів
+334:                       </div>
+335:                     )}
+336:                   </div>
+337:                 ))}
+338:             </div>
+339:           </div>
+340:         )}
+341:       </div>
+342:     </DashboardLayout>
+343:   )
+344: }
+
+CODE apps/web/components/dashboard/TaskContractPanel.tsx
+1: 'use client'
+2:
+3: import { ReactNode, useCallback, useEffect, useState, useRef } from 'react'
+4: import {
+5:   CheckCircleIcon,
+6:   ExclamationTriangleIcon,
+7: } from '@heroicons/react/24/outline'
+8: import { apiClient, API_ENDPOINTS } from '@/lib/api'
+9: import { Button } from '@/components/ui/Button'
+10: import { LoadingSpinner } from '@/components/ui/LoadingSpinner'
+11: import toast from 'react-hot-toast'
+12: import { GenerationRecovery, generationStopGuidance } from '@/lib/generation-status'
+13:
+14: interface TaskContractRule {
+15:   key: string
+16:   value: unknown
+17:   source: string
+18:   status: 'explicit' | 'assumed' | 'confirmed' | string
+19:   note?: string
+20: }
+21:
+22: interface TaskContract {
+23:   version: number
+24:   document_id: number
+25:   basis: string
+26:   basis_label: string
+27:   rules: TaskContractRule[]
+28:   assumptions: TaskContractRule[]
+29:   confirmation_required: boolean
+30:   sha256: string
+31:   confirmed: boolean
+32:   confirmed_at: string | null
+33: }
+34:
+35: interface CostEstimate {
+36:   estimated_cost_usd: number
+37:   estimated_total_tokens?: number
+38:   currency?: string
+39: }
+40:
+41: interface TaskContractPanelProps {
+42:   documentId: number
+43:   targetPages: number
+44:   provider: string
+45:   model: string
+46:   refreshKey?: number
+47:   retry?: boolean
+48:   ownerRecoveryAllowed?: boolean
+49:   onGenerationStarted?: () => void
+50:   children?: ReactNode
+51: }
+52:
+53: const RULE_LABELS: Record<string, string> = {
+54:   topic: 'Тема',
+55:   language: 'Мова',
+56:   target_pages: 'Обсяг',
+57:   citation_style: 'Стиль цитування',
+58:   work_type: 'Тип роботи',
+59:   structure: 'Структура',
+60:   sources_policy: 'Політика джерел',
+61: }
+62:
+63: const WORK_TYPE_LABELS: Record<string, string> = {
+64:   tesi_triennale: 'Дипломна (бакалавр)',
+65:   tesi_magistrale: 'Магістерська',
+66:   report: 'Курсова',
+67:   essay: 'Есе / реферат',
+68:   diploma: 'Дипломна',
+69: }
+70:
+71: const LANGUAGE_LABELS: Record<string, string> = {
+72:   it: 'Італійська',
+73:   uk: 'Українська',
+74:   en: 'Англійська',
+75:   de: 'Німецька',
+76:   fr: 'Французька',
+77:   es: 'Іспанська',
+78: }
+79:
+80: const SOURCE_LABELS: Record<string, string> = {
+81:   intake: 'введено менеджером',
+82:   methodology: 'з методички',
+83:   system_default: 'стандартне правило системи',
+84: }
+85:
+86: function formatRuleValue(rule: TaskContractRule): string {
+87:   if (rule.key === 'language' && typeof rule.value === 'string') {
+88:     return LANGUAGE_LABELS[rule.value] ?? rule.value
+89:   }
+90:   if (rule.key === 'citation_style' && typeof rule.value === 'string') {
+91:     return rule.value.toUpperCase()
+92:   }
+93:   if (rule.key === 'work_type' && typeof rule.value === 'string') {
+94:     return WORK_TYPE_LABELS[rule.value] ?? rule.value
+95:   }
+96:   if (rule.key === 'target_pages') return `${String(rule.value)} сторінок`
+97:   if (rule.key === 'structure') {
+98:     return rule.value === 'university_methodology'
+99:       ? 'За завантаженою методичкою'
+100:       : 'Стандартна академічна структура для обраного типу роботи'
+101:   }
+102:   if (
+103:     rule.key === 'sources_policy' &&
+104:     rule.value &&
+105:     typeof rule.value === 'object'
+106:   ) {
+107:     const policy = rule.value as {
+108:       mode?: string
+109:       mandatory_files?: string[]
+110:       supplementary_files?: string[]
+111:     }
+112:     if (policy.mode === 'auto') return 'Автоматичний пошук академічних джерел'
+113:     const mandatory = policy.mandatory_files?.length ?? 0
+114:     const supplementary = policy.supplementary_files?.length ?? 0
+115:     return `Завантажені + автоматично знайдені · обов’язкових ${mandatory} · додаткових ${supplementary}`
+116:   }
+117:   return String(rule.value ?? '—')
+118: }
+119:
+120: function RuleStatus({ rule }: { rule: TaskContractRule }) {
+121:   const assumed = rule.status === 'assumed'
+122:   return (
+123:     <span
+124:       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+125:         assumed
+126:           ? 'bg-amber-100 text-amber-800'
+127:           : 'bg-green-100 text-green-800'
+128:       }`}
+129:     >
+130:       {assumed ? 'Припущення' : 'Явно задано'}
+131:     </span>
+132:   )
+133: }
+134:
+135: export function TaskContractPanel({
+136:   documentId,
+137:   targetPages,
+138:   provider,
+139:   model,
+140:   refreshKey = 0,
+141:   retry = false,
+142:   ownerRecoveryAllowed = false,
+143:   onGenerationStarted,
+144:   children,
+145: }: TaskContractPanelProps) {
+146:   const [contract, setContract] = useState<TaskContract | null>(null)
+147:   const [cost, setCost] = useState<CostEstimate | null>(null)
+148:   const [isLoading, setIsLoading] = useState(true)
+149:   const [loadFailed, setLoadFailed] = useState(false)
+150:   const [acknowledged, setAcknowledged] = useState(false)
+151:   const [causeResolved, setCauseResolved] = useState(false)
+152:   const [isStarting, setIsStarting] = useState(false)
+153:   const [recovery, setRecovery] = useState<GenerationRecovery | null>(null)
+154:   const [replacementReason, setReplacementReason] = useState('')
+155:   const intent = useRef<{ fingerprint: string; id: string } | null>(null)
+156:   const v2 = recovery?.executor_version === 2
+157:   const ownerRequired = v2 && retry && !!recovery?.stop && recovery.stop.next_action !== 'retry_now'
+158:   const resuming = !v2 && retry && !!recovery?.allowed_actions.includes('resume')
+159:   const replacing = retry && !!recovery?.allowed_actions.includes('new_version')
+160:   const recoveryReady = !retry || !!recovery && (resuming || replacing) && (!replacing || v2 || replacementReason.trim().length >= 3)
+161:
+162:   const loadContract = useCallback(async () => {
+163:     setIsLoading(true)
+164:     setLoadFailed(false)
+165:     setAcknowledged(false)
+166:     setCauseResolved(false)
+167:     try {
+168:       const [contractResponse, costResponse, jobResponse] = await Promise.all([
+169:         apiClient.get<TaskContract>(
+170:           API_ENDPOINTS.DOCUMENTS.TASK_CONTRACT(documentId)
+171:         ),
+172:         apiClient
+173:           .get<CostEstimate>(
+174:             API_ENDPOINTS.GENERATE.ESTIMATE_COST({
+175:               provider,
+176:               model,
+177:               targetPages,
+178:               includeRag: true,
+179:               includeHumanization: false,
+180:             })
+181:           )
+182:           .catch((error) => {
+183:             console.error('Failed to load cost estimate:', error)
+184:             return null
+185:           }),
+186:         retry ? apiClient.get<GenerationRecovery | null>(`${API_ENDPOINTS.GENERATE.FULL}/${documentId}/recovery`) : Promise.resolve(null),
+187:       ])
+188:       setRecovery(jobResponse || null)
+189:       setContract(contractResponse)
+190:       setCost(costResponse)
+191:     } catch (error) {
+192:       console.error('Failed to load task contract:', error)
+193:       setContract(null)
+194:       setCost(null)
+195:       setLoadFailed(true)
+196:     } finally {
+197:       setIsLoading(false)
+198:     }
+199:   }, [documentId, model, provider, targetPages, retry])
+200:
+201:   useEffect(() => {
+202:     loadContract()
+203:   }, [loadContract, refreshKey])
+204:
+205:   const handleConfirmAndStart = async () => {
+206:     if (!contract || !acknowledged || isStarting || !recoveryReady || (retry && !v2 && !causeResolved)) return
+207:     setIsStarting(true)
+208:     let confirmed = contract.confirmed
+209:     try {
+210:       if (!confirmed && !resuming) {
+211:         await apiClient.post(
+212:           API_ENDPOINTS.DOCUMENTS.CONFIRM_TASK_CONTRACT(documentId)
+213:         )
+214:         confirmed = true
+215:         setContract((current) =>
+216:           current ? { ...current, confirmed: true } : current
+217:         )
+218:       }
+219:       const fingerprint = recovery?.expected_fingerprint || 'initial'
+220:       if (!intent.current || intent.current.fingerprint !== fingerprint) {
+221:         intent.current = { fingerprint, id: crypto.randomUUID() }
+222:       }
+223:       if (resuming && recovery) {
+224:         await apiClient.post(API_ENDPOINTS.GENERATE.FULL + '/' + documentId + '/resume', {
+225:           intent_id: intent.current.id,
+226:           expected_fingerprint: recovery.expected_fingerprint,
+227:           confirm_paid: true,
+228:           confirm_access_restored: causeResolved,
+229:         })
+230:       } else {
+231:         await apiClient.post(API_ENDPOINTS.GENERATE.FULL, {
+232:           document_id: documentId,
+233:           intent_id: intent.current.id,
+234:           ...(replacing && recovery ? {
+235:             mode: 'new_version',
+236:             confirm_replace: true,
+237:             expected_fingerprint: recovery.expected_fingerprint,
+238:             replacement_reason: v2 ? 'Нова спроба після технічної зупинки або скасування' : replacementReason.trim(),
+239:           } : {}),
+240:         })
+241:       }
+242:       toast.success(resuming ? 'Продовження підтверджено — збережені матеріали використає система' : 'Умови підтверджено — написання почалось')
+243:       onGenerationStarted?.()
+244:     } catch (error: any) {
+245:       toast.error(
+246:         error?.message ||
+247:           (confirmed
+248:             ? 'Умови підтверджено, але початок написання не підтверджений. Оновіть сторінку й перевірте стан перед новим запуском.'
+249:             : 'Не вдалося підтвердити умови роботи')
+250:       )
+251:       setAcknowledged(false)
+252:       setCauseResolved(false)
+253:     } finally {
+254:       setIsStarting(false)
+255:     }
+256:   }
+257:
+258:   if (isLoading) {
+259:     return (
+260:       <div className="rounded-lg bg-white p-6 shadow" data-testid="task-contract-loading">
+261:         <div className="flex h-28 items-center justify-center">
+262:           <LoadingSpinner />
+263:         </div>
+264:       </div>
+265:     )
+266:   }
+267:
+268:   if (loadFailed || !contract) {
+269:     return (
+270:       <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+271:         <h2 className="font-semibold text-red-900">Контракт не завантажився</h2>
+272:         <p className="mt-1 text-sm text-red-700">
+273:           Генерація недоступна, доки правила роботи не можна перевірити.
+274:         </p>
+275:         <Button className="mt-4" variant="outline" onClick={loadContract}>
+276:           Спробувати ще раз
+277:         </Button>
+278:       </div>
+279:     )
+280:   }
+281:
+282:   if (v2 && retry && (!recovery?.allowed_actions.includes('new_version') || (ownerRequired && !ownerRecoveryAllowed))) return null
+283:
+284:   return (
+285:     <div className="space-y-6" data-testid="task-contract-flow">
+286:       <section
+287:         className="rounded-lg bg-white p-6 shadow"
+288:         aria-labelledby="task-contract-heading"
+289:       >
+290:         <div className="flex items-start justify-between gap-4">
+291:           <div>
+292:             <h2 id="task-contract-heading" className="text-lg font-semibold text-gray-900">
+293:               Контракт роботи
+294:             </h2>
+295:             <p className="mt-1 text-sm text-gray-500">
+296:               Перевір, що саме система вважатиме завданням перед початком написання.
+297:             </p>
+298:           </div>
+299:           <span
+300:             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
+301:               contract.basis === 'university_methodology'
+302:                 ? 'bg-green-100 text-green-800'
+303:                 : 'bg-amber-100 text-amber-800'
+304:             }`}
+305:           >
+306:             {contract.basis === 'university_methodology'
+307:               ? 'На основі методички'
+308:               : 'Стандартні академічні правила'}
+309:           </span>
+310:         </div>
+311:
+312:         {contract.assumptions.length > 0 && (
+313:           <div className="mt-4 flex gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+314:             <ExclamationTriangleIcon className="h-5 w-5 flex-shrink-0" aria-hidden="true" />
+315:             <p>
+316:               Методички немає, тому система позначила припущення. Перевір їх особливо уважно.
+317:             </p>
+318:           </div>
+319:         )}
+320:
+321:         <dl className="mt-4 divide-y divide-gray-100">
+322:           {contract.rules.map((rule) => (
+323:             <div key={rule.key} className="grid gap-2 py-3 sm:grid-cols-[11rem_1fr_auto] sm:items-start">
+324:               <dt className="text-sm font-medium text-gray-700">
+325:                 {RULE_LABELS[rule.key] ?? rule.key}
+326:               </dt>
+327:               <dd className="text-sm text-gray-900">
+328:                 <p>{formatRuleValue(rule)}</p>
+329:                 <p className="mt-0.5 text-xs text-gray-500">
+330:                   {SOURCE_LABELS[rule.source] ?? rule.source}
+331:                 </p>
+332:               </dd>
+333:               <dd><RuleStatus rule={rule} /></dd>
+334:             </div>
+335:           ))}
+336:         </dl>
+337:       </section>
+338:
+339:       {children}
+340:
+341:       <section className="rounded-lg bg-white p-6 shadow" aria-labelledby="generation-start-heading">
+342:         <h2 id="generation-start-heading" className="text-lg font-semibold text-gray-900">
+343:           {v2 && retry ? 'Нова спроба' : resuming ? 'Продовжити з місця зупинки' : retry ? 'Почати заново після виправлення причини' : 'Перевірка перед запуском'}
+344:         </h2>
+345:
+346:         {retry && !v2 ? (
+347:           <label className="mt-4 flex items-start gap-3 rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+348:             <input type="checkbox" checked={causeResolved} onChange={(event) => setCauseResolved(event.target.checked)} className="mt-1" />
+349:             <span>{resuming ? 'Причину зупинки усунуто. Я підтверджую платне продовження зі збереженими джерелами й завершеними розділами.' : 'Причину зупинки усунуто. Я підтверджую нову платну генерацію із заміною попередніх робочих матеріалів і перевірок. Історія спроб і витрат збережеться.'}</span>
+350:           </label>
+351:         ) : (
+352:           <p className="mt-3 text-sm text-gray-600">До натискання кнопки нижче написання не починається. Справа для перевірок створиться автоматично разом із першим запуском.</p>
+353:         )}
+354:
+355:         {retry && <p className="mt-3 text-sm text-gray-700">{v2 ? recovery?.stop?.message_uk : generationStopGuidance(recovery?.reason_code)}</p>}
+356:         {retry && !recovery && <p className="mt-3 text-sm text-amber-700">Не вдалося підтвердити доступні дії. Оновіть стан перед запуском.</p>}
+357:         {replacing && !v2 && (
+358:           <label className="mt-4 block text-sm text-gray-700">
+359:             Причина нового запуску
+360:             <textarea value={replacementReason} onChange={(event) => setReplacementReason(event.target.value)} maxLength={500} className="mt-1 block w-full rounded-md border border-gray-300 p-2" />
+361:           </label>
+362:         )}
+363:         {resuming && <p className="mt-3 text-sm text-gray-600">Продовження використовує готові частини. Сума нижче — оцінка повного написання; остаточні витрати залежать від фактичних звернень до сервісів.</p>}
+364:         <div className="mt-4 rounded-lg bg-gray-50 p-4">
+365:           <p className="text-sm font-medium text-gray-700">Орієнтовна вартість повної генерації</p>
+366:           {cost ? (
+367:             <div className="mt-1 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+368:               <span className="text-2xl font-semibold text-gray-900">
+369:                 ${cost.estimated_cost_usd.toFixed(2)}
+370:               </span>
+371:               {typeof cost.estimated_total_tokens === 'number' && (
+372:                 <span className="text-sm text-gray-500">
+373:                   близько {cost.estimated_total_tokens.toLocaleString('uk-UA')} токенів
+374:                 </span>
+375:               )}
+376:             </div>
+377:           ) : (
+378:             <p className="mt-1 text-sm text-amber-700">
+379:               Оцінка тимчасово недоступна. Це не змінює ліміти запуску.
+380:             </p>
+381:           )}
+382:         </div>
+383:
+384:         <label className="mt-5 flex items-start gap-3 rounded-md border border-gray-200 p-4 text-sm text-gray-800">
+385:           <input
+386:             type="checkbox"
+387:             checked={acknowledged}
+388:             onChange={(event) => setAcknowledged(event.target.checked)}
+389:             className="mt-0.5 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+390:             data-testid="task-contract-confirmation"
+391:           />
+392:           <span>
+393:             {ownerRequired ? 'Власник відновив доступ або усунув помилку. Підтверджую нову спробу зі збереженням попередніх матеріалів в історії.' : v2 && retry ? 'Підтверджую нову спробу. Попередні розділи збережуться в історії; робота буде написана заново.' : 'Я перевірив(ла) тему, тип роботи, обсяг і вимоги й підтверджую це завдання.'}
+394:           </span>
+395:         </label>
+396:
+397:         {contract.confirmed && (
+398:           <p className="mt-3 flex items-center gap-2 text-sm text-green-700">
+399:             <CheckCircleIcon className="h-5 w-5" aria-hidden="true" />
+400:             Поточну версію контракту вже було підтверджено.
+401:           </p>
+402:         )}
+403:
+404:         <div className="mt-5 flex justify-end">
+405:           <Button
+406:             onClick={handleConfirmAndStart}
+407:             disabled={!acknowledged || isStarting || !recoveryReady || (retry && !v2 && !causeResolved)}
+408:             data-testid="confirm-and-start-button"
+409:           >
+410:             {isStarting && <LoadingSpinner size="sm" className="mr-2" />}
+411:             {isStarting ? 'Запускаємо…' : v2 && retry ? 'Нова спроба' : resuming ? 'Підтвердити продовження' : retry ? 'Почати заново' : 'Підтвердити і запустити'}
+412:           </Button>
+413:         </div>
+414:       </section>
+415:     </div>
+416:   )
+417: }
+
+CODE apps/api/app/services/generation_recovery.py
+139:     db: Any, document: Any, job: Any, case: Any = None
+140: ) -> dict[str, Any]:
+141:     payload = job.request_payload or {}
+142:     if payload.get("executor_version") == 2:
+143:         stop = (payload.get("execution") or {}).get("stop")
+144:         return {
+145:             "executor_version": 2,
+146:             "stop": stop,
+147:             "allowed_actions": (
+148:                 ["new_version"] if job.status in {"failed", "cancelled"} else []
+149:             ),
+150:             "expected_fingerprint": terminal_fingerprint(job),
+151:         }
+152:     result = dict(payload.get("last_outcome") or {})
+153:     reason = result.get("reason_code") or (
+154:         "cancelled_by_user" if job.status == "cancelled" else "legacy_unknown"
+155:     )
+156:     if job.status in {"queued", "running"}:
+157:         return {
+158:             **result,
+159:             "allowed_actions": [],
+160:             "expected_fingerprint": terminal_fingerprint(job),
+161:         }
+162:     if job.status == "completed":
+163:         # Only the outcome written at completion describes a finished job; a
+164:         # failure that preceded a resume/retry is history in provenance. An
+165:         # actual failed whole-work review is kept as academic_content_rejected.
+166:         current = result if result.get("outcome") == "completed" else {}
+167:         return {
+168:             **current,
+169:             "reason_code": current.get("reason_code"),
+170:             "allowed_actions": ["new_version"],
+171:             "expected_fingerprint": terminal_fingerprint(job),
+172:         }
+173:     if not payload.get("profile_sha256"):
+174:         reason = "legacy_unknown"
+175:     elif payload["profile_sha256"] != generation_profile_sha256(document, job.user_id):
+176:         reason = "contract_or_profile_mismatch"
+177:     elif payload.get("generation_contract_sha256") != generation_contract_sha256(
+178:         document,
+179:         case,
+180:         payload.get("additional_requirements"),
+181:         await uploaded_sources_digest(db, int(document.id)),
+182:     ):

@@ -1,0 +1,96 @@
+[
+  {
+    "file": "/Users/maxmaxvel/AI TESI/docs/evidence/WORK-008-CONTROL-2026-09-08.md",
+    "sha256": "d9f586eea4d2851feffc676c064a0508b6266a794786660555139d1c2355aed7",
+    "line_ranges": [
+      [
+        1,
+        88
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/docs/evidence/M0-12-M1-Q01-2026-09-08.md",
+    "sha256": "faa60bc8e303320771d429ba31414c650c136a01890fc9ae7977f42c501c1bad",
+    "line_ranges": [
+      [
+        1,
+        113
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/docs/evidence/M0-09-2026-09-07.md",
+    "sha256": "b10f600f58bd5f631367c5ab35d96c2212dbb50e7876a7a66f5c9b6e41fb3f21",
+    "line_ranges": [
+      [
+        1,
+        145
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_context.py",
+    "sha256": "8d0c7b5a72a43f633ba086a6dacd0a8f87bef64888b339988b54058bd5696137",
+    "line_ranges": [
+      [
+        1,
+        93
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_review.py",
+    "sha256": "6d01ec11b2357231b0f1305a2a29ccf5c6ebdf819a0393977669cc1760ebf768",
+    "line_ranges": [
+      [
+        1,
+        135
+      ],
+      [
+        205,
+        355
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/background_jobs.py",
+    "sha256": "e9a293341e5ae381388f25117514bd054b0dde445d3abe182c74855a74d436ac",
+    "line_ranges": [
+      [
+        1400,
+        1425
+      ],
+      [
+        1645,
+        1730
+      ],
+      [
+        1760,
+        1910
+      ],
+      [
+        1960,
+        2055
+      ],
+      [
+        3610,
+        3710
+      ]
+    ]
+  },
+  {
+    "file": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_academic_quality_pipeline.py",
+    "sha256": "b1fb7bc8cb3847f489c592ac9d69370b96861a477d97f2b14f2747055b4c45da",
+    "line_ranges": [
+      [
+        1,
+        182
+      ]
+    ]
+  },
+  {
+    "packet_sha256": "71e21ad27904d5886490b20703d74497f3cce36f03786752210d3d24c2b697a8",
+    "packet_bytes": 94963
+  }
+]

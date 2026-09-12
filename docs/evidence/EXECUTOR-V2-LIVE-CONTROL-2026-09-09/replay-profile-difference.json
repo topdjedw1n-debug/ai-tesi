@@ -1,0 +1,7 @@
+[
+  {
+    "field": "settings.PARTIAL_COMPLETION_ENABLED",
+    "live": false,
+    "replay": true
+  }
+]

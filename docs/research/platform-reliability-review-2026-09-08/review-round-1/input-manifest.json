@@ -1,0 +1,87 @@
+[
+  {
+    "label": "docs/research/platform-reliability-review-2026-09-08/README.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/research/platform-reliability-review-2026-09-08/README.md",
+    "sha256": "fb1d789f26862ab7c698e0c6a3e30a7e0e4208f48355552662c63898ae642014"
+  },
+  {
+    "label": "docs/research/platform-reliability-review-2026-09-08/DESIGN.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/research/platform-reliability-review-2026-09-08/DESIGN.md",
+    "sha256": "8af8f21829a0736a9df1fc9d1bac90affcd013f6b88b3ae2a9a1d16c31ad68b8"
+  },
+  {
+    "label": "docs/research/platform-reliability-review-2026-09-08/FAILURE_REGISTER.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/research/platform-reliability-review-2026-09-08/FAILURE_REGISTER.md",
+    "sha256": "781f6d77ed86aa12598c8d3ef7e7d09329dc23142d9776ee64f8fd8c127b62c7"
+  },
+  {
+    "label": "docs/research/platform-reliability-review-2026-09-08/EVIDENCE.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/research/platform-reliability-review-2026-09-08/EVIDENCE.md",
+    "sha256": "8921ad7da07a2f19e46cdfc044fbf1e73ec137dd94223c4ccc1eb9da804cf853"
+  },
+  {
+    "label": "docs/evidence/WORK-008-CONTROL-2026-09-08.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/evidence/WORK-008-CONTROL-2026-09-08.md",
+    "sha256": "d9f586eea4d2851feffc676c064a0508b6266a794786660555139d1c2355aed7"
+  },
+  {
+    "label": "docs/evidence/WORK-007-MANAGER-FEEDBACK-2026-09-08.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/evidence/WORK-007-MANAGER-FEEDBACK-2026-09-08.md",
+    "sha256": "228714f1feb6b8cb036440d43455a827356009727f0ba74a3384697aa031c9b4"
+  },
+  {
+    "label": "docs/AGENT_SYNC.md",
+    "path": "/Users/maxmaxvel/AI TESI/docs/AGENT_SYNC.md",
+    "sha256": "4d0f2b731146c84dfd1ef1fbbb42c84d7f058fce266faa86d03e30d5ce62adbd"
+  },
+  {
+    "label": "apps/api/app/api/v1/endpoints/generate.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/api/v1/endpoints/generate.py",
+    "sha256": "02dedbb7d05e0fcd0001c9d419e5128464a078b4e58f0983699926f5c592b921"
+  },
+  {
+    "label": "apps/api/app/services/generation_contract.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/generation_contract.py",
+    "sha256": "a3fa83ceb38135100a1240022725aa56302c3482a565d8028de743231873dcc4"
+  },
+  {
+    "label": "apps/api/app/services/generation_worker.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/generation_worker.py",
+    "sha256": "447b14533386a771d834df268eaa3db0ec9934a551d92927a661423362aa2923"
+  },
+  {
+    "label": "apps/api/app/services/background_jobs.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/background_jobs.py",
+    "sha256": "e9a293341e5ae381388f25117514bd054b0dde445d3abe182c74855a74d436ac"
+  },
+  {
+    "label": "apps/api/app/services/academic_review.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_review.py",
+    "sha256": "6d01ec11b2357231b0f1305a2a29ccf5c6ebdf819a0393977669cc1760ebf768"
+  },
+  {
+    "label": "apps/web/lib/generation-status.ts",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/web/lib/generation-status.ts",
+    "sha256": "babb692c25b2c0df1bd7d84f65413874687ce6c5c2df5efc2a622e61494da2de"
+  },
+  {
+    "label": "apps/api/app/models/document.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/models/document.py",
+    "sha256": "fcae8a4754a30a49548c1bcf69dfd28bacaf174d04d4058b52b92545ac2bb06b"
+  },
+  {
+    "label": "apps/api/main.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/main.py",
+    "sha256": "001c17412a88ffc91377ca8c684d360fe0b4ba892c35198e1a0535106cc7746e"
+  },
+  {
+    "label": "apps/api/tests/test_academic_quality_pipeline.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_academic_quality_pipeline.py",
+    "sha256": "b1fb7bc8cb3847f489c592ac9d69370b96861a477d97f2b14f2747055b4c45da"
+  },
+  {
+    "label": "apps/api/tests/test_release_evidence_postgres.py",
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_release_evidence_postgres.py",
+    "sha256": "2d2d94c6ee112721b51570392967faac2e8c2e6d43bc1f1d35620ccaaf2855ee"
+  }
+]

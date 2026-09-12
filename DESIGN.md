@@ -5,7 +5,7 @@
 > **Living component + infographic library:** [`thesica-brandbook.html`](thesica-brandbook.html) — open in a browser to see every token, element, and data-viz pattern rendered (light + dark). DESIGN.md is the spec; the brandbook is the proof.
 
 ## Brand Name & Logo
-- **Name:** **Thesica** (was working name "Thesica"). Latin/academic feel; `-ica` suffix reads as a discipline (*logica, musica, etica*) across IT/ES/CZ/EN; root "thes-" carries *thesis*. Chosen for universality + clean domain/trademark runway (the literal "Thes-" tools like Thesify/ThesisAI are all taken; abstract picks like Laude/Accredo had conflicts).
+- **Name:** **Thesica** (was working name "TesiGo"). Latin/academic feel; `-ica` suffix reads as a discipline (*logica, musica, etica*) across IT/ES/CZ/EN; root "thes-" carries *thesis*. Chosen for universality + clean domain/trademark runway (the literal "Thes-" tools like Thesify/ThesisAI are all taken; abstract picks like Laude/Accredo had conflicts).
 - **Domain:** primary **thesica.ai** (free, registered); defensive **getthesica.com** (free). `thesica.com` is taken.
 - **Wordmark:** "Thesica" set in **Literata 600** (the brand display serif). Optional `θ`-initial variant (theta = θέσις) kept as a backup motif.
 - **Mark:** **bookmark ribbon** — a notched ribbon = a marked / finished / distinguished document. Distinctive silhouette, holds down to 16px.
@@ -15,9 +15,13 @@
 
 ## Product Context
 - **What this is:** Thesica — AI-генерація академічних робіт (дипломні/магістерські), де ядро цінності не «дешевше», а «дешево **і реально приймається** університетом» (плагіат + AI-детектор + наукрук).
-- **Who it's for:** (1) **редактор/менеджер агенції** у внутрішній консолі — пріоритетна поверхня; (2) студент, який інакше заплатив би агенції ~€100 за готову роботу, якій критично пройти універ-гейт.
+- **Who it's for:** Таня та менеджери агенції. Перший етап — самостійне виробництво першої готової роботи; клієнтський продукт відкладений за рішенням 04.09.2026.
 - **Space/industry:** AI-academic-writing / scholarly tools. Peers: Jenni AI, Paperpal, Scribbr, Consensus.
-- **Project type:** internal tool (консоль редактора) + web product (лендінг + кабінет). Stack: FastAPI + Next.js 14 + Tailwind.
+- **Project type:** internal academic production tool. CRM, оплати й загальна комунікація залишаються в чинних інструментах агенції. Stack: FastAPI + Next.js 14 + Tailwind.
+
+## Поточний сценарій (04.09.2026)
+
+Створення чернетки не запускає генерацію. Менеджер бачить умови й припущення, може додати необов'язкові PDF/методичку, підтверджує запуск, стежить за результатом і проходить перевірку файла. Автоматичні джерела мають бути повноцінним основним шляхом. Робота за коментарями клієнта та інтерфейси продажів — наступні етапи. Критерії віх — у [THESICA-PLAN.md](THESICA-PLAN.md).
 
 ## The One Memorable Thing
 **«Це справжня наукова робота, їй можна довіряти».**
@@ -85,7 +89,7 @@
 
 ## Layout
 - **Approach:** hybrid — grid-disciplined для консолі/кабінету (передбачуване вирівнювання, дані), editorial-теплота для лендінгу.
-- **Internal console (пріоритет):** двоколонковий робочий простір; картка роботи з gate-панеллю (AND: цитати + плагіат + AI-детектор) і лічильником хвилин редактора (31/45) як першокласним елементом — це операційне ядро з office-hours.
+- **Internal console (пріоритет):** робочий простір менеджера: вимоги та припущення → джерела → явний запуск → стан і причина зупинки → докази якості → фінальний DOCX. Планка Compilatio та стан дозволу на файл помітні. Бюджет хвилин редактора не є продуктовим елементом; переписування змісту людиною означає провал.
 - **Grid:** 12-кол, gutter 24px. Mobile 4-кол.
 - **Max content width:** app 1180px · reading-прев'ю прози 720px (оптимальна довжина рядка) · marketing 1240px.
 - **Border radius (ієрархічний):** sm 6px (pill-теги, інпути) · md 10px (кнопки, дрібні картки) · lg 14px (картки, консоль, панелі) · xl 18px (великі секції) · full 999px (статус-pills, аватари).
@@ -98,7 +102,7 @@
 - Бібліотека framer-motion уже в проекті — використовувати ощадливо.
 
 ## Implementation Mapping (Tailwind / Next.js)
-Поточний `apps/web/tailwind.config.js` має дефолтний синій `primary` (#3b82f6) і Inter скрізь — **це і є generic-вигляд, який відстроюємось; його треба замінити.**
+Очікуваний мапінг токенів у `apps/web/tailwind.config.js` і `globals.css` наведено нижче. Перед зміною перевіряти поточний код; історична примітка про синій дефолт не є заявою про актуальний стан.
 - `primary` → зелена шкала навколо `#0f6e56` (500), `#0a4d3c` (700), `#e4f1ea` (50).
 - `secondary` (slate) → тепла нейтраль навколо `#1c1b19`/`#8a877f`/`#e6e1d6`.
 - `fontFamily.sans` → `['Source Sans 3', ...]`; додати `display: ['Literata', 'serif']`, `read: ['Literata','serif']`; `mono: ['JetBrains Mono', ...]` (вже є).
@@ -115,3 +119,5 @@
 | 2026-06-21 | Пріоритет поверхні — внутрішня консоль редактора | Обраний клин з office-hours (concierge-модель); self-serve лендінг — після доведення моату |
 | 2026-06-21 | Дефолтний Tailwind `primary` синій позначено deprecated | Замінити на зелену шкалу (див. Implementation Mapping) |
 | 2026-06-21 | Систему вживлено в `apps/web` | `tailwind.config.js` (primary→зелений, gray→тепла нейтраль, шрифти), `globals.css` (Literata+Source Sans 3+JetBrains Mono, serif-заголовки), `layout.tsx` (lang=uk, теплі тости). Зметено 238 жорстких `blue/indigo/purple` класів → `primary` у 46 файлах; видалено pink→indigo slop-градієнт у Hero. Перевірено живим рендером лендінга + auth |
+
+| 2026-09-04 | Пріоритет уточнено: перша готова робота для агенції, автоматичні джерела та самостійний менеджерський цикл | Рішення фаундера; прибрано бюджет редактора з поточного продуктового сценарію. Візуальні токени збережені. |

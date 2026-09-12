@@ -1,0 +1,9 @@
+{
+  "model": "claude-fable-5-1",
+  "session_id": "e2429d3b-903d-4fb8-8f4e-5b38c5583411",
+  "exit_code": 0,
+  "reviewed_result": "CONTROL_FAILED",
+  "recording_path": "/Users/maxmaxvel/AI TESI/docs/evidence/EXECUTOR-V2-LIVE-CONTROL-2026-09-09/document12-job13-recording.json.gz",
+  "recording_sha256": "fc26075a3e7a9ecfb443e4283ad48001054b4a63a69165da5ebf724847011771",
+  "docx_exists": false
+}

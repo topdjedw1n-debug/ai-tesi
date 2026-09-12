@@ -1,718 +1,198 @@
-# План тестування та деплою на зовнішньому сервері
-
-**Дата створення:** 31 жовтня 2025
-**Оновлено:** 23 лютого 2026
-**Статус:** 🟢 Active (Strict Go-Live)
-
-> **Важливо:** Для актуального release-рішення використовуйте:
-> - `THESICA-PLAN.md`
-> - `docs/PHASE0_READINESS_RECORD.md`
-> - `docs/PHASE1_GO_NO_GO_DECISION.md`
-> - `docs/ADMIN_FRONTEND_EXECUTION_PLAN.md`
-
----
-
-## 📅 Коли можемо тестувати на зовнішньому сервері?
-
-### ✅ Поточний підхід (Strict Go-Live):
-- Спочатку green mandatory gates (backend + web).
-- Потім runtime smoke в prod-like Docker.
-- Потім manual UI smoke sign-off.
-
-### ⏱️ Орієнтовний час:
-- **Підготовка до staging:** 2-4 години
-- **Налаштування сервера:** 1-2 години
-- **Деплой та первинне тестування:** 1-2 години
-- **Повноцінне тестування:** 1-2 дні
-
-**Загалом:** Можемо почати тестування на зовнішньому сервері **через 4-8 годин після початку підготовки**
-
----
-
-## ✅ Поточний стан готовності
-
-### Що вже готово:
-
-#### Backend
-- ✅ Dockerfile для production
-- ✅ Health checks налаштовані
-- ✅ Production конфігурація (`ENVIRONMENT=production`)
-- ✅ Валідація production вимог (SECRET_KEY, DATABASE_URL, тощо)
-- ✅ Безпека (rate limiting, CSRF, CORS, TrustedHost)
-- ✅ Моніторинг (Prometheus metrics)
-- ✅ Audit logging
-- ✅ Structured error handling
-
-#### Frontend
-- ✅ Dockerfile для production
-- ✅ Next.js production build налаштований
-- ✅ Environment variables для production
-- ✅ Health check endpoint
-
-#### Інфраструктура
-- ✅ `docker-compose.prod.yml` для production
-- ✅ Налаштування для PostgreSQL, Redis, MinIO
-- ✅ Скрипт `setup-prod.sh` для запуску
-
-#### Безпека
-- ✅ Валідація API ключів у production
-- ✅ Перевірка SECRET_KEY
-- ✅ CORS налаштування для production
-- ✅ Rate limiting
-- ✅ CSRF protection
-
----
-
-## 🔧 Що потрібно зробити перед деплоєм
-
-### 1. Актуальні pre-deploy дії (високий пріоритет)
-
-#### ⚠️ Release gates
-- [ ] `pytest tests/ -q` (backend)
-- [ ] `npm run lint` (web)
-- [ ] `npm run type-check` (web)
-- [ ] `npm run test -- --runInBand` (web)
-- [ ] `npm run build` (web)
-- [ ] Runtime smoke (`scripts/runtime_smoke.sh`) у prod-like Docker
-
-#### 🔒 Канонічний backend release profile
-
-Ці значення зафіксовані як літерали в `docker-compose.prod.yml`. Серверний
-`.env` не може їх тихо перевизначити. Зміна профілю потребує зміни compose,
-тестів контракту і цього списку в одному коміті.
-
-```env
-MVP_FREE_GENERATION_ENABLED=true
-MVP_FREE_GENERATION_MAX_PAGES=50
-MVP_FREE_GENERATION_DAILY_USER_LIMIT=2
-GLOBAL_DAILY_TOKEN_LIMIT=6000000
-PUBLIC_REGISTRATION_ENABLED=false
-METHODOLOGY_REQUIRED_FOR_GENERATION=false
-LEGACY_GENERATION_ENDPOINTS_ENABLED=false
-AI_ENABLE_FALLBACK=false
-GENERATION_WORKER_ENABLED=true
-QUALITY_GATES_ENABLED=true
-PARTIAL_COMPLETION_ENABLED=false
-PROVENANCE_LEDGER_ENABLED=true
-SOURCE_GROUNDING_ENABLED=true
-SOURCE_PACK_PREFLIGHT_ENABLED=true
-SOURCE_PACK_TARGET_SIZE=24
-SOURCE_PACK_CANDIDATE_RESERVE_SIZE=48
-SOURCE_PACK_MIN_VERIFIED=18
-SOURCE_PACK_MIN_ON_TOPIC_SCORE=0.35
-GROUNDING_GATE_ENABLED=true
-GROUNDING_GATE_POLICY=strict
-CITATION_VERIFICATION_ENABLED=true
-CITATION_VERIFICATION_POLICY=strict
-CLAIM_VERIFICATION_ENABLED=true
-CLAIM_VERIFICATION_BLOCKING=true
-HUMANIZER_FREEZE_CITATIONS=true
-HUMANIZER_ENABLED=false
-QUALITY_PANEL_ENABLED=true
-AI_DETECTION_ENABLED=true
-AI_DETECTION_BLOCKING=false
-```
-
-**Час:** ~30-60 хв після готового середовища
-
-#### 🔧 Safety checks
-- [ ] Переконатися, що kill-switch env flags явно задані для релізу:
-  - `NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW`
-  - `NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW`
-- [ ] Перевірити відсутність backup/artefact/secret файлів у diff.
-- [ ] Оновити release report і Go/No-Go статус.
-
-### 2. Налаштування для production
-
-#### 📝 Environment Variables
-Потрібно створити `.env` файл на сервері з такими змінними:
-
-```env
-# Environment
-ENVIRONMENT=production
-DEBUG=false
-
-# Database
-DATABASE_URL=postgresql+asyncpg://user:password@host:5432/dbname
-POSTGRES_DB=ai_thesis_platform
-POSTGRES_USER=your_user
-POSTGRES_PASSWORD=strong_password
-
-# Security (ОБОВ'ЯЗКОВО!)
-SECRET_KEY=generate-strong-random-key-min-32-chars
-JWT_SECRET=generate-strong-random-key-min-32-chars
-JWT_ISS=https://your-domain.com
-JWT_AUD=https://your-domain.com
-
-# CORS (ОБОВ'ЯЗКОВО!)
-CORS_ALLOWED_ORIGINS=https://your-domain.com,https://www.your-domain.com
-
-# AI Providers (хоча б один)
-OPENAI_API_KEY=sk-your-openai-key
-# АБО
-ANTHROPIC_API_KEY=sk-ant-your-anthropic-key
-
-# Redis
-REDIS_URL=redis://redis:6379
-
-# MinIO/S3 (ОБОВ'ЯЗКОВО змінити!)
-MINIO_ENDPOINT=minio:9000
-MINIO_ACCESS_KEY=your-secure-access-key
-MINIO_SECRET_KEY=your-secure-secret-key-min-8-chars
-MINIO_BUCKET=ai-thesis-documents
-MINIO_SECURE=false
-
-# Email (якщо планується використання)
-SMTP_HOST=smtp.example.com
-SMTP_PORT=587
-SMTP_USER=your-email@example.com
-SMTP_PASSWORD=your-smtp-password
-SMTP_TLS=true
-EMAILS_FROM_EMAIL=noreply@your-domain.com
-EMAILS_FROM_NAME=AI Thesis Platform
-
-# Monitoring (опціонально)
-SENTRY_DSN=https://your-sentry-dsn
-ENABLE_METRICS=true
-
-# Rate Limiting
-RATE_LIMIT_PER_MINUTE=60
-RATE_LIMIT_MAGIC_LINK_PER_HOUR=3
-DISABLE_RATE_LIMIT=false
-
-# Next.js Frontend
-NEXT_PUBLIC_API_URL=https://api.your-domain.com
-```
-
-**Час:** ~30 хвилин
-
-#### 🔐 Генерація секретних ключів
-
-```bash
-# Генерація SECRET_KEY
-python -c 'import secrets; print(secrets.token_urlsafe(48))'
-
-# Генерація JWT_SECRET
-python -c 'import secrets; print(secrets.token_urlsafe(48))'
-
-# Генерація MinIO credentials
-python -c 'import secrets; print(secrets.token_urlsafe(16))'
-```
-
-**Час:** ~5 хвилин
-
-### 3. Серверні вимоги
-
-#### Мінімальні вимоги:
-- **CPU:** 2 cores
-- **RAM:** 4GB
-- **Disk:** 20GB SSD
-- **OS:** Ubuntu 22.04 LTS або Debian 12 (рекомендовано)
-
-#### Рекомендовані вимоги:
-- **CPU:** 4 cores
-- **RAM:** 8GB
-- **Disk:** 50GB SSD
-- **OS:** Ubuntu 22.04 LTS
-
-#### Потрібне ПЗ:
-- ✅ Docker 24.0+
-- ✅ Docker Compose v2.0+
-- ✅ Git
-- ✅ Налаштований firewall (ufw або iptables)
-
-**Час налаштування сервера:** ~1-2 години
-
-### 4. Додаткові налаштування
-
-#### 🌐 Domain & SSL
-- [ ] Зареєструвати домен (наприклад: `ai-thesis.com`)
-- [ ] Налаштувати DNS записи (A record до IP сервера)
-- [ ] Налаштувати SSL сертифікат (Let's Encrypt через certbot)
-- [ ] Налаштувати Nginx або Traefik як reverse proxy
-
-**Час:** ~1 година
-
-#### 🔒 Безпека сервера
-- [ ] Налаштувати firewall (дозволити порти 80, 443, 22)
-- [ ] Налаштувати SSH key-based authentication
-- [ ] Відключити password authentication для SSH
-- [ ] Налаштувати fail2ban для захисту від brute force
-- [ ] Налаштувати автоматичні оновлення безпеки
-
-**Час:** ~1 година
-
-#### 📊 Моніторинг
-- [ ] Налаштувати Prometheus exporter (якщо окремий сервер моніторингу)
-- [ ] Налаштувати логування (ELK stack або подібне)
-- [ ] Налаштувати алерти (якщо використовується Sentry)
-
-**Час:** ~2-4 години (опціонально)
-
----
-
-## 🚀 Кроки для деплою на staging сервер
-
-### Крок 1: Підготовка сервера
-
-```bash
-# 1. Підключитися до сервера
-ssh user@your-server-ip
-
-# 2. Оновити систему
-sudo apt update && sudo apt upgrade -y
-
-# 3. Встановити Docker
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-
-# 4. Встановити Docker Compose
-sudo apt install docker-compose-plugin -y
-
-# 5. Додати користувача до групи docker
-sudo usermod -aG docker $USER
-# Потрібно вийти і зайти знову
-
-# 6. Налаштувати firewall
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-```
-
-**Час:** ~30 хвилин
-
-### Крок 2: Клонування репозиторію
-
-```bash
-# 1. Клонувати репозиторій
-git clone https://github.com/your-org/ai-thesis-platform.git
-cd ai-thesis-platform
-
-# 2. Перейти до production конфігурації
-cd infra/docker
-```
-
-**Час:** ~5 хвилин
-
-### Крок 3: Налаштування environment variables
-
-```bash
-# Створити .env файл
-nano .env
-
-# Вставити всі необхідні змінні (див. вище)
-# Зберегти та вийти (Ctrl+O, Enter, Ctrl+X)
-```
-
-**Час:** ~15 хвилин
-
-### Крок 4: Білд та запуск
-
-```bash
-# 1. Створити Docker images
-cd ../../apps/api
-docker build -t ai-thesis-api:latest .
-
-cd ../web
-docker build -t ai-thesis-web:latest .
-
-# 2. Повернутися до docker директорії
-cd ../../infra/docker
-
-# 3. Запустити production stack
-export API_IMAGE=ai-thesis-api:latest
-export WEB_IMAGE=ai-thesis-web:latest
-./setup-prod.sh
-```
-
-**Час:** ~15-30 хвилин (залежить від швидкості інтернету)
-
-### Крок 5: Перевірка
-
-```bash
-# Перевірити статус контейнерів
-docker compose -f docker-compose.prod.yml ps
-
-# Перевірити логи
-docker compose -f docker-compose.prod.yml logs api
-docker compose -f docker-compose.prod.yml logs web
-
-# Перевірити health check
-curl http://localhost:8000/health
-curl http://localhost:3000/api/health
-```
-
-**Час:** ~10 хвилин
-
-### Крок 6: Налаштування Nginx (reverse proxy)
-
-```bash
-# Встановити Nginx
-sudo apt install nginx -y
-
-# Створити конфігурацію
-sudo nano /etc/nginx/sites-available/ai-thesis
-```
-
-```nginx
-# /etc/nginx/sites-available/ai-thesis
-server {
-    listen 80;
-    server_name your-domain.com www.your-domain.com;
-
-    # Frontend
-    location / {
-        proxy_pass http://localhost:3000;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Backend API
-    location /api {
-        proxy_pass http://localhost:8000;
-        proxy_http_version 1.1;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-
-    # Health check
-    location /health {
-        proxy_pass http://localhost:8000/health;
-    }
-}
-```
-
-```bash
-# Активувати конфігурацію
-sudo ln -s /etc/nginx/sites-available/ai-thesis /etc/nginx/sites-enabled/
-sudo nginx -t
-sudo systemctl reload nginx
-
-# Налаштувати SSL (Let's Encrypt)
-sudo apt install certbot python3-certbot-nginx -y
-sudo certbot --nginx -d your-domain.com -d www.your-domain.com
-```
-
-**Час:** ~30 хвилин
-
----
-
-## ✅ Чек-лист перед повноцінним тестуванням
-
-### Підготовка
-- [ ] Виправлено критичні баги (rate_limit.py, exceptions.py)
-- [ ] Виправлено форматування коду
-- [ ] Оновлено критичні вразливості
-- [ ] Створено `.env` файл з усіма змінними
-- [ ] Згенеровано сильні секретні ключі
-- [ ] Налаштовано домен та DNS
-- [ ] Налаштовано SSL сертифікат
-
-### Сервер
-- [ ] Docker та Docker Compose встановлено
-- [ ] Firewall налаштовано
-- [ ] SSH безпека налаштована
-- [ ] Репозиторій склоновано
-- [ ] Docker images збудовано
-- [ ] Сервіси запущені та працюють
-
-### Функціональність
-- [ ] Health checks проходять
-- [ ] Аутентифікація працює
-- [ ] Створення документів працює
-- [ ] Генерація структури працює
-- [ ] Генерація розділів працює
-- [ ] Експорт документів працює
-- [ ] Rate limiting працює
-- [ ] CORS працює правильно
-
-### Безпека
-- [ ] API ключі налаштовані
-- [ ] SECRET_KEY не використовує placeholder
-- [ ] MinIO credentials змінені з дефолтних
-- [ ] CORS налаштований правильно
-- [ ] Rate limiting активний
-- [ ] SSL/TLS працює
-
----
-
-## 🧪 План тестування на зовнішньому сервері
-
-### Етап 1: Smoke Tests (1-2 години)
-
-**Мета:** Перевірити базову функціональність
-
-1. **Health Checks**
-   ```bash
-   curl https://your-domain.com/health
-   curl https://your-domain.com/api/health
-   ```
-
-2. **Аутентифікація**
-   - Запит magic link
-   - Верифікація magic link
-   - Отримання токену
-   - Перевірка `/api/v1/auth/me`
-
-3. **Створення документа**
-   ```bash
-   POST /api/v1/documents
-   {
-     "title": "Test Document",
-     "topic": "AI in Education",
-     "language": "en",
-     "target_pages": 5
-   }
-   ```
-
-4. **Генерація структури**
-   ```bash
-   POST /api/v1/generate/outline
-   {
-     "document_id": 1
-   }
-   ```
-
-**Очікуваний результат:** Всі тести проходять успішно
-
----
-
-### Етап 2: Функціональне тестування (4-8 годин)
-
-**Мета:** Перевірити повний цикл генерації
-
-1. **Повний цикл генерації**
-   - Створити документ
-   - Згенерувати структуру
-   - Згенерувати 2-3 розділи
-   - Експортувати в DOCX
-   - Експортувати в PDF
-
-2. **Різні сценарії**
-   - Різні мови (en, uk, ru)
-   - Різні AI провайдери (OpenAI, Anthropic)
-   - Різні моделі (gpt-4, gpt-3.5-turbo, claude-3-5-sonnet)
-   - Різні довжини документів (5, 10, 20 сторінок)
-
-3. **Edge cases**
-   - Довгі теми
-   - Спеціальні символи
-   - Великі додаткові вимоги
-   - Множинні одночасні запити
-
-**Очікуваний результат:** Всі сценарії працюють коректно
-
----
-
-### Етап 3: Навантажувальне тестування (2-4 години)
-
-**Мета:** Перевірити продуктивність та стабільність
-
-1. **Rate Limiting**
-   - Перевищити rate limits
-   - Перевірити блокування
-
-2. **Одночасні запити**
-   - 10 користувачів одночасно
-   - 50 запитів на хвилину
-   - Довгі генерації (20+ сторінок)
-
-3. **Навантаження на БД**
-   - Створення багатьох документів
-   - Читання великої кількості документів
-   - Перевірка продуктивності запитів
-
-4. **Навантаження на storage**
-   - Створення великих файлів
-   - Експорт багатьох документів
-   - Перевірка MinIO продуктивності
-
-**Очікуваний результат:** Система стабільно працює під навантаженням
-
----
-
-### Етап 4: Тестування безпеки (2-4 години)
-
-**Мета:** Перевірити всі аспекти безпеки
-
-1. **Авторизація**
-   - Доступ без токену → 401
-   - Доступ з невалідним токеном → 401
-   - Доступ до чужих документів → 403
-
-2. **XSS та SQL Injection**
-   - Спроби XSS атак
-   - Спроби SQL injection
-   - Перевірка санітизації
-
-3. **CORS**
-   - Запити з недозволених доменів → блокується
-   - Запити з дозволених доменів → працює
-
-4. **Rate Limiting**
-   - Швидкі послідовні запити → блокується
-   - Нормальне використання → працює
-
-**Очікуваний результат:** Всі перевірки безпеки проходять
-
----
-
-### Етап 5: Моніторинг та логування (1-2 години)
-
-**Мета:** Перевірити моніторинг та логи
-
-1. **Prometheus Metrics**
-   ```bash
-   curl https://your-domain.com/metrics
-   ```
-   - Перевірити наявність метрик
-   - Перевірити правильність значень
-
-2. **Audit Logging**
-   ```bash
-   # Перевірити audit.log
-   docker compose -f docker-compose.prod.yml exec api tail -f logs/audit.log
-   ```
-   - Перевірити логування подій
-   - Перевірити формат JSON
-
-3. **Application Logs**
-   ```bash
-   docker compose -f docker-compose.prod.yml logs api
-   ```
-   - Перевірити помилки
-   - Перевірити warnings
-
-**Очікуваний результат:** Моніторинг та логування працюють правильно
-
----
-
-### Етап 6: Тестування відновлення після збоїв (1-2 години)
-
-**Мета:** Перевірити стійкість системи
-
-1. **Перезапуск контейнерів**
-   ```bash
-   docker compose -f docker-compose.prod.yml restart api
-   ```
-
-2. **Перезапуск БД**
-   ```bash
-   docker compose -f docker-compose.prod.yml restart postgres
-   ```
-
-3. **Перезапуск Redis**
-   ```bash
-   docker compose -f docker-compose.prod.yml restart redis
-   ```
-
-4. **Повний перезапуск**
-   ```bash
-   docker compose -f docker-compose.prod.yml down
-   docker compose -f docker-compose.prod.yml up -d
-   ```
-
-**Очікуваний результат:** Система коректно відновлюється
-
----
-
-## 📊 Метрики успішності
-
-### Мінімальні вимоги для production:
-- ✅ Uptime > 99%
-- ✅ Response time < 2 секунд для більшості запитів
-- ✅ Success rate > 99.5%
-- ✅ Rate limiting працює коректно
-- ✅ Всі security checks проходять
-- ✅ Логування та моніторинг працюють
-
----
-
-## 🔄 Після тестування
-
-### Якщо все працює:
-1. ✅ Фіксуємо версію (git tag)
-2. ✅ Документуємо конфігурацію
-3. ✅ Налаштовуємо автоматичні backup
-4. ✅ Налаштовуємо моніторинг та алерти
-5. ✅ Готуємо до production release
-
-### Якщо є проблеми:
-1. ⚠️ Фіксуємо баги
-2. ⚠️ Виправляємо критичні проблеми
-3. ⚠️ Повторюємо тестування
-4. ⚠️ Ітераційно покращуємо
-
----
-
-## 📅 Рекомендований план
-
-### Тиждень 1: Підготовка
-- **День 1-2:** Виправлення багів та покращення якості коду
-- **День 3:** Налаштування staging сервера
-- **День 4-5:** Деплой та smoke tests
-
-### Тиждень 2: Тестування
-- **День 1-2:** Функціональне тестування
-- **День 3:** Навантажувальне тестування
-- **День 4:** Тестування безпеки
-- **День 5:** Фінальні перевірки та виправлення
-
-### Тиждень 3: Production
-- **День 1:** Фінальна підготовка
-- **День 2:** Production деплой
-- **День 3-5:** Моніторинг та виправлення проблем
-
----
-
-## 🆘 Troubleshooting
-
-### Часті проблеми:
-
-1. **Сервіси не запускаються**
-   ```bash
-   # Перевірити логи
-   docker compose -f docker-compose.prod.yml logs
-
-   # Перевірити environment variables
-   docker compose -f docker-compose.prod.yml config
-   ```
-
-2. **Помилки підключення до БД**
-   - Перевірити DATABASE_URL
-   - Перевірити доступність PostgreSQL
-   - Перевірити credentials
-
-3. **CORS помилки**
-   - Перевірити CORS_ALLOWED_ORIGINS
-   - Перевірити формат (comma-separated)
-
-4. **Rate limiting не працює**
-   - Перевірити REDIS_URL
-   - Перевірити DISABLE_RATE_LIMIT=false
-
----
-
-## 📞 Контакти та підтримка
-
-**При проблемах:**
-1. Перевірити логи: `docker compose -f docker-compose.prod.yml logs`
-2. Перевірити health checks
-3. Перевірити конфігурацію
-
----
-
-**Останнє оновлення:** 31 жовтня 2025
-**Статус:** 🟡 Готово до підготовки, потребує виконання чек-листу
+# Thesica — підготовка та перевірка внутрішнього релізу
+
+Оновлено 07.09.2026.
+Продуктові рішення: [AGENT_SYNC](../AGENT_SYNC.md).
+Черга: [M0](../PRE-RUN-001-TASKS.md).
+Реліз не закриває M1–M3: якість і самостійність доводяться замовленнями.
+
+Цільове середовище за наявною інфраструктурою: app.thesica.co,
+каталог /opt/thesica, Docker Compose та зовнішній reverse proxy.
+Живий стан звірено 04.09.2026 у [M0-01](../evidence/M0-01-2026-09-04.md):
+runtime API та доставлені web/infra відповідають 67ef46d, 29/29 значень
+profile збігаються, потрібна схема вже є. Web runtime окремо ідентифіковано
+image/build ID. Повторний реліз цих самих змін не потрібен.
+Застарілий серверний .release-sha не використовувати як доказ версії.
+
+Після цього виконано [окремий реліз бота](../evidence/TELEGRAM-BOT-RELEASE-2026-09-05.md).
+05.09 у M0-02 повторно перевірено: 6 healthy служб, restart=unless-stopped;
+web-образ не змінився. M0-02 додає локально перевірений виробничий доступ;
+активація PRODUCTION_OPERATOR_USER_IDS=[1] та потрібні canary описані в
+[інструкції](TANYA_FIRST_RUN.md). Це наступний реліз, не вже виконана дія.
+
+07.09 підготовлено конкретний [пакет M0-06](../evidence/M0-06-2026-09-07.md):
+53 файли, відтворюваний патч, незалежне рев'ю та перевірки. Свіжі копії
+збережено, базу відновлено окремо; робочий сайт ще не оновлено. До активації
+використовувати точний маніфест цього пакета та погодження фаундера.
+
+Пізніше 07.09 фаундер дозволив коміт, push і деплой. Код 585a415
+встановлено, operator allowlist=[1], усі 6 служб healthy; актуальні образи,
+маніфест, резервні копії й живі перевірки — у
+[релізному записі M0-06](../evidence/M0-06-RELEASE-2026-09-07.md).
+Повторно встановлювати цей пакет або активувати той самий доступ не потрібно.
+
+## 1. Межі релізу
+
+Реліз потрібний лише для погодженого внутрішнього сценарію.
+Публічна реєстрація та клієнтська оплата залишаються закритими.
+Поточна робота з документацією сама по собі не є дозволом на реліз
+або платний прогін.
+
+Визначити точну версію коду й diff, результати перевірок, потрібні зміни
+схеми та спосіб повернення. Наявну авторизацію не просити повторно.
+
+## 2. Перед релізом
+
+- Перевірити вибраний код і незалежне рев'ю суттєвих змін.
+- API: тести та lint у середовищі з актуальними залежностями.
+- Web: lint, type-check, Jest, build та окремий тест створення/підтвердження.
+- Перевірити саме контейнерний API-образ: Anthropic Messages API й
+  OpenAI max_completion_tokens мають бути доступні.
+- Записати стан CI, включно з наявним боргом типізації. Невдалу перевірку
+  не називати успішною; нові регресії порівнювати з вибраною базою.
+- Перевірити схему. Поточний deploy.sh застосовує 024–027 та передбачає
+  вже наявну попередню схему, а не порожню базу.
+- Перевірити, що Таня має потрібні права для повного внутрішнього циклу.
+- Не включати сторонні незакомічені зміни в релізний пакет.
+
+## 3. Канонічний runtime profile
+
+Власники конкретних технічних значень:
+infra/docker/docker-compose.prod.yml та apps/api/tests/release_profile.py.
+Список нижче синхронізовано з ними під час перепланування.
+Зміна профілю потребує узгодженої зміни конфігурації, тестів і цієї довідки.
+
+    MVP_FREE_GENERATION_ENABLED=true
+    MVP_FREE_GENERATION_MAX_PAGES=50
+    MVP_FREE_GENERATION_DAILY_USER_LIMIT=2
+    GLOBAL_DAILY_TOKEN_LIMIT=6000000
+    PUBLIC_REGISTRATION_ENABLED=false
+    METHODOLOGY_REQUIRED_FOR_GENERATION=false
+    LEGACY_GENERATION_ENDPOINTS_ENABLED=false
+    AI_ENABLE_FALLBACK=false
+    GENERATION_WORKER_ENABLED=true
+    QUALITY_GATES_ENABLED=true
+    PARTIAL_COMPLETION_ENABLED=false
+    PROVENANCE_LEDGER_ENABLED=true
+    SOURCE_GROUNDING_ENABLED=true
+    SOURCE_PACK_PREFLIGHT_ENABLED=true
+    SOURCE_PACK_TARGET_SIZE=24
+    SOURCE_PACK_CANDIDATE_RESERVE_SIZE=48
+    SOURCE_PACK_MIN_VERIFIED=18
+    SOURCE_PACK_MIN_ON_TOPIC_SCORE=0.35
+    GROUNDING_GATE_ENABLED=true
+    GROUNDING_GATE_POLICY=strict
+    CITATION_VERIFICATION_ENABLED=true
+    CITATION_VERIFICATION_POLICY=strict
+    CLAIM_VERIFICATION_ENABLED=true
+    CLAIM_VERIFICATION_BLOCKING=true
+    HUMANIZER_FREEZE_CITATIONS=true
+    HUMANIZER_ENABLED=false
+    QUALITY_PANEL_ENABLED=true
+    AI_DETECTION_ENABLED=true
+    AI_DETECTION_BLOCKING=false
+
+Compilatio ≤10/≤10 є окремою обов'язковою продуктовою умовою.
+AI_DETECTION_BLOCKING=false стосується автоматичної діагностики
+поточних допоміжних інтеграцій і не скасовує фінальну планку Compilatio.
+Самі прапорці не доводять повноти серверного забезпечення цих умов.
+
+## 4. Збереження стану й відновлення
+
+Поточний infra/deploy.sh:
+1. Створює дамп PostgreSQL і перевіряє розмір та маркер завершення.
+2. Зберігає попередні API/web образи під rollback-тегами.
+3. Застосовує 024–027.
+4. Будує образи та перевіряє SDK до запуску нового API.
+5. Перезапускає API/web і чекає health.
+6. Перевіряє публічні маршрути та HTTPS-поведінку.
+
+Виправлення M0-06: перед будь-якими змінами скрипт перевіряє Compose.
+Якщо встановлено конфігурацію бота, усі дії використовують також
+docker-compose.operator-bot.yml і project docker. Бот без API-конфігурації
+зупиняє реліз. `up -d --no-deps api web` зберігає поточні backing services;
+команди відкату використовують ті самі Compose-файли.
+
+Межі поточної процедури:
+- Вона не створює резервну копію всіх файлів MinIO. Резервування
+  завантажень і фінальних DOCX потрібно забезпечити окремо до релізу.
+- Код на сервері копіюється окремо; потрібен збережений попередній пакет.
+- Надрукована команда відновлення SQL поверх чинної бази не є
+  перевіреним повним сценарієм відновлення.
+- Стару прогалину restart policy=no вже усунено релізом бота; M0-02
+  повторно підтвердив unless-stopped у всіх шести контейнерів. Фізичний
+  reboot не проводився. Відновлення дампа в окремій базі та читання
+  архівів коду/MinIO зафіксовано у звіті релізу; до нового релізу
+  зберегти актуальні копії, не видавати старий дамп за новий.
+- Перевірка health не доводить роботу worker, потрібної схеми й видачі.
+
+Перед застосуванням змін має бути придатний план відкату коду.
+Якщо зміни схеми сумісні зі старим кодом, відкат образів не повинен
+необґрунтовано стирати нові дані. Відновлення бази з дампа — окрема
+операція: визначити точку відновлення, зупинити записи та перевірити
+процедуру в ізольованому середовищі.
+
+## 5. Доставка вибраного коду
+
+Спочатку зберегти попередній серверний код. Передавати лише перевірений
+набір apps/ та infra/ із вибраного checkout/релізного пакета.
+Локальні .env, кеші, логи, залежності й Git-стан не передавати.
+
+Приклад складу виключень для rsync, який треба звірити з конкретним пакетом:
+
+    rsync -rlc --exclude='.env*' --exclude='node_modules' --exclude='.next' \
+      --exclude='.git' --exclude='__pycache__' --exclude='*.pyc' \
+      --exclude='venv' --exclude='.venv' --exclude='qa_venv' \
+      --exclude='.ruff_cache' --exclude='.pytest_cache' --exclude='.mypy_cache' \
+      --exclude='.coverage' --exclude='htmlcov' --exclude='logs' \
+      apps infra thesica:/opt/thesica/
+
+Спочатку перевірити той самий набір через --dry-run. Автоматичне видалення
+серверних файлів через --delete до цього сценарію не входить.
+Якщо на сервері немає git checkout, версію підтверджувати за доставленим
+пакетом і його контрольними сумами, а не вигаданим серверним HEAD.
+
+Запуск погодженого релізу:
+
+    ssh thesica 'bash /opt/thesica/infra/deploy.sh'
+
+## 6. Перевірка живого середовища
+
+Перевірити й записати тільки потрібні безпечні значення, без дампу
+секретів, токенів, клієнтських даних або повного environment:
+
+- API/web відповідають, потрібна схема доступна, worker працює.
+- Релізний профіль відповідає таблиці; межі внутрішнього запуску
+  відповідають підтримуваному обсягу.
+- API/web порти слухають localhost; робочий HTTPS проходить через proxy.
+- Створення документа зі слешем доходить до авторизації; редирект
+  без слеша зберігає HTTPS.
+- Самореєстрація закрита; парольний вхід Тані працює.
+- Клієнтські payment/refund flow вимкнені.
+- Вхід, створення чернетки та перегляд умов проходять у браузері.
+- Видача не дозволяє обійти обов'язкову якість.
+
+Чинний canary очікує 302 для сторінки реєстрації та 403 для magic-link
+на рівні проксі. Зняття проксі-правил потребує одночасного узгодження
+нових очікувань і перевірки захисту в застосунку. Не змінювати проксі
+як побічну дію оновлення коду.
+
+SMTP перевіряти, якщо поштовий вхід потрібний обраному внутрішньому
+сценарію. Парольний вхід може бути достатнім для першого етапу.
+
+## 7. Релізний запис
+
+Зафіксувати:
+- дату, виконавця й підставу авторизації;
+- версію коду та доставленого пакета;
+- тести, рев'ю, схему та runtime profile;
+- місце резервних копій без секретів;
+- перевірений шлях відкату й актуальні rollback-теги;
+- результати живих перевірок і відомі обмеження;
+- рішення, чи можна проводити наступний погоджений контрольний запуск.
+
+Оновити стан [задач](../PRE-RUN-001-TASKS.md).
+Для M1/M2 потрібний окремий [звіт замовлення](../PHASE1_RUN_REPORT_TEMPLATE.md)
+із Compilatio на кінцевому файлі. Релізний запис його не заміняє.
 
 ### Перевірка архівного web payload — M0-10, 08.09.2026
 

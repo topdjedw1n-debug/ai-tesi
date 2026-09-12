@@ -1,0 +1,112 @@
+{
+  "at": "2026-09-09T20:18:01.300633+00:00",
+  "document_status": "generating",
+  "docx_path": null,
+  "docx_sha256": null,
+  "jobs": [
+    {
+      "id": 13,
+      "status": "failed",
+      "progress": 25,
+      "model": "claude-opus-4-8",
+      "executor_version": 2,
+      "execution": {
+        "stop": {
+          "code": "provider_unusable_response",
+          "stage": "outline",
+          "retryable": true,
+          "message_uk": "Структуру відповіді моделі не вдалося прочитати.",
+          "next_action": "retry_now",
+          "section_index": null,
+          "next_action_label": "Нова спроба"
+        },
+        "stage": "outline",
+        "progress": 25,
+        "last_signal": "Відповідь моделі записано.",
+        "sections_done": 0,
+        "tokens_so_far": 41696,
+        "sections_total": 0,
+        "warnings_count": 8,
+        "cost_cents_so_far": 30
+      },
+      "started_at": "2026-09-09 19:26:21.971248+00:00",
+      "completed_at": "2026-09-09 19:33:06.876353+00:00",
+      "confirmed_cost_cents": 30,
+      "confirmed_tokens": 41696,
+      "unknown_provider_attempts": 0,
+      "error": "Структуру відповіді моделі не вдалося прочитати."
+    },
+    {
+      "id": 14,
+      "status": "running",
+      "progress": 49,
+      "model": "claude-opus-4-8",
+      "executor_version": 2,
+      "execution": {
+        "stage": "writing",
+        "progress": 49,
+        "last_signal": "Розділ збережено.",
+        "sections_done": 5,
+        "tokens_so_far": 149113,
+        "sections_total": 18,
+        "warnings_count": 18,
+        "cost_cents_so_far": 102
+      },
+      "started_at": "2026-09-09 20:09:49.782543+00:00",
+      "completed_at": "None",
+      "confirmed_cost_cents": 102,
+      "confirmed_tokens": 149113,
+      "unknown_provider_attempts": 1,
+      "error": null
+    }
+  ],
+  "events": {
+    "executor_section": 5,
+    "executor_source_pack": 2,
+    "generation_replay_inputs": 2,
+    "executor_step_started": 7,
+    "generation_warning": 26,
+    "generation_previous_snapshot": 1,
+    "executor_scopes": 2,
+    "executor_step_completed": 5,
+    "task_contract_confirmed": 1,
+    "generation_replacement": 1,
+    "generation_provider_attempt": 29,
+    "generation_dependency": 5588,
+    "generation_intent_receipt": 2,
+    "generation_run_started": 2,
+    "executor_outline": 1
+  },
+  "sections": [
+    {
+      "index": 1,
+      "title": "CAPITOLO 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+      "status": "completed",
+      "words": 421
+    },
+    {
+      "index": 2,
+      "title": "1.1 Monitoraggio della salute materno-fetale: richiami fisiologici e indicatori perinatali di interesse infermieristico",
+      "status": "completed",
+      "words": 426
+    },
+    {
+      "index": 3,
+      "title": "1.2 L'accertamento infermieristico nei servizi territoriali: identificazione precoce e stratificazione dei fattori di rischio clinico, assistenziale e stili di vita",
+      "status": "completed",
+      "words": 464
+    },
+    {
+      "index": 4,
+      "title": "1.3 L'educazione alla salute in epoca gestazionale: pianificazione assistenziale preventiva e percorsi di presa in carico",
+      "status": "completed",
+      "words": 413
+    },
+    {
+      "index": 5,
+      "title": "CAPITOLO 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+      "status": "completed",
+      "words": 386
+    }
+  ]
+}

@@ -1,0 +1,79 @@
+{
+  "at": "2026-09-09T20:10:49.422207+00:00",
+  "document_status": "generating",
+  "docx_path": null,
+  "docx_sha256": null,
+  "jobs": [
+    {
+      "id": 13,
+      "status": "failed",
+      "progress": 25,
+      "model": "claude-opus-4-8",
+      "executor_version": 2,
+      "execution": {
+        "stop": {
+          "code": "provider_unusable_response",
+          "stage": "outline",
+          "retryable": true,
+          "message_uk": "Структуру відповіді моделі не вдалося прочитати.",
+          "next_action": "retry_now",
+          "section_index": null,
+          "next_action_label": "Нова спроба"
+        },
+        "stage": "outline",
+        "progress": 25,
+        "last_signal": "Відповідь моделі записано.",
+        "sections_done": 0,
+        "tokens_so_far": 41696,
+        "sections_total": 0,
+        "warnings_count": 8,
+        "cost_cents_so_far": 30
+      },
+      "started_at": "2026-09-09 19:26:21.971248+00:00",
+      "completed_at": "2026-09-09 19:33:06.876353+00:00",
+      "confirmed_cost_cents": 30,
+      "confirmed_tokens": 41696,
+      "unknown_provider_attempts": 0,
+      "error": "Структуру відповіді моделі не вдалося прочитати."
+    },
+    {
+      "id": 14,
+      "status": "running",
+      "progress": 5,
+      "model": "claude-opus-4-8",
+      "executor_version": 2,
+      "execution": {
+        "stage": "sources",
+        "progress": 5,
+        "last_signal": "Пошук джерел",
+        "sections_done": 0,
+        "tokens_so_far": 8605,
+        "sections_total": 0,
+        "warnings_count": 0,
+        "cost_cents_so_far": 9
+      },
+      "started_at": "2026-09-09 20:09:49.782543+00:00",
+      "completed_at": "None",
+      "confirmed_cost_cents": 9,
+      "confirmed_tokens": 8605,
+      "unknown_provider_attempts": 0,
+      "error": null
+    }
+  ],
+  "events": {
+    "executor_source_pack": 1,
+    "generation_replay_inputs": 2,
+    "executor_step_started": 5,
+    "generation_warning": 8,
+    "generation_previous_snapshot": 1,
+    "executor_scopes": 2,
+    "executor_step_completed": 3,
+    "task_contract_confirmed": 1,
+    "generation_replacement": 1,
+    "generation_provider_attempt": 6,
+    "generation_dependency": 2981,
+    "generation_intent_receipt": 2,
+    "generation_run_started": 2
+  },
+  "sections": []
+}

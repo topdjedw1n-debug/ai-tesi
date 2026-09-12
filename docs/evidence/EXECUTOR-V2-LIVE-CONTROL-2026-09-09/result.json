@@ -1,0 +1,85 @@
+{
+  "document_id": 12,
+  "job_id": 13,
+  "executor_version": 2,
+  "status": "failed",
+  "stop": {
+    "code": "provider_unusable_response",
+    "stage": "outline",
+    "retryable": true,
+    "message_uk": "Структуру відповіді моделі не вдалося прочитати.",
+    "next_action": "retry_now",
+    "section_index": null,
+    "next_action_label": "Нова спроба"
+  },
+  "started_at": "2026-09-09T19:26:21.971248+00:00",
+  "completed_at": "2026-09-09T19:33:06.876353+00:00",
+  "paid_jobs": 1,
+  "model_calls": 2,
+  "model_receipts": 2,
+  "all_calls_have_full_request_response": true,
+  "all_calls_have_usage": true,
+  "usage": {
+    "confirmed_tokens": 41696,
+    "confirmed_cost_cents": 30,
+    "unknown_provider_attempts": 0
+  },
+  "dependencies": 2798,
+  "dependency_kinds": {
+    "executor_inputs": 1,
+    "semantic_scholar_sources": 72,
+    "executor_search": 216,
+    "scholarly_http": 144,
+    "citation_cache": 673,
+    "citation_http": 1019,
+    "executor_verify": 673
+  },
+  "initial_snapshots": 1,
+  "steps_completed": [
+    "S1",
+    "S2"
+  ],
+  "source_pack": {
+    "sha256": "a9beb873c17e97cf418cbcc1c58bbd7c27d5ff072653d92a9dccfce80e32d07c",
+    "sources": 40,
+    "verified": 40,
+    "readable": 32
+  },
+  "warnings": {
+    "source_no_readable_text": 8
+  },
+  "docx_created": false,
+  "written_sections": 0,
+  "replay": {
+    "status": "failed",
+    "exit_code": 2,
+    "same_stop": true,
+    "actual_spend_usd": 0,
+    "live_provider_calls": 0,
+    "requests_changed": 0,
+    "model_calls_consumed": 2,
+    "profile_changed": true,
+    "profile_difference": [
+      {
+        "field": "settings.PARTIAL_COMPLETION_ENABLED",
+        "live": false,
+        "replay": true
+      }
+    ],
+    "artifacts": [],
+    "executor_source_pack_equal": true,
+    "executor_scopes_equal": true
+  },
+  "s3_diagnostic": {
+    "response_complete": true,
+    "leading_prose_chars": 367,
+    "contained_json_valid": true,
+    "contained_sections": 4,
+    "raw_response_modified": false
+  },
+  "recording": {
+    "compressed_bytes": 9839490,
+    "compressed_sha256": "fc26075a3e7a9ecfb443e4283ad48001054b4a63a69165da5ebf724847011771",
+    "full_json_bytes": 42089004
+  }
+}

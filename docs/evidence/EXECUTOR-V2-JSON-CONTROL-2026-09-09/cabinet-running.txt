@@ -1,0 +1,25 @@
+Browser tab: 2, Title: "Thesica — академічні роботи, що проходять", URL: "https://app.thesica.co/dashboard/documents/12".
+0 AXWebArea Thesica — академічні роботи, що проходять, URL: app.thesica.co/dashboard/documents/12
+	1 button Open sidebar
+	2 container
+		3 button Назад
+		4 heading Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato, Value: 1
+			5 text Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato
+		6 text Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato У черзі
+		7 link Description: Перевірка та видача цієї роботи →, Value: app.thesica.co/dashboard/production-cases/14
+		8 container Хід генерації
+			9 heading Хід генерації, Value: 3
+				10 text Хід генерації
+			11 text Виконується
+			12 text Написання розділів
+			13 container
+				14 text Розділів збережено:  12  із  18
+			15 text Відповідь моделі записано.
+			16 progress indicator 68
+			17 container
+				18 text 68 %
+			19 container
+				20 text 345 025  токенів · $ 2.18  ·  32  попереджень
+		21 button Скасувати генерацію
+
+The focused UI element is 0 AXWebArea Thesica — академічні роботи, що проходять, URL: app.thesica.co/dashboard/documents/12

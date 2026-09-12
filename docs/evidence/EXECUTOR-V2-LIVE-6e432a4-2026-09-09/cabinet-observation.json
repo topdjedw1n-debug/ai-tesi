@@ -1,0 +1,14 @@
+{
+  "url": "https://app.thesica.co/dashboard/documents/11",
+  "authenticated_user": "manager1",
+  "reloaded_after_install": true,
+  "buttons": [
+    "manager1",
+    "Open sidebar",
+    "Назад",
+    "Завантажити DOCX",
+    "Надіслати фідбек"
+  ],
+  "contractPanelPresent": false,
+  "generation_start_clicks": 0
+}

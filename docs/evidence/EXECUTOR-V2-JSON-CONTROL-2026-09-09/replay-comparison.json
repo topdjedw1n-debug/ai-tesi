@@ -1,0 +1,193 @@
+{
+  "profile_equal": true,
+  "all_model_requests_equal": true,
+  "all_recorded_model_calls_consumed": true,
+  "all_recorded_dependencies_consumed": true,
+  "stop_equal": true,
+  "stop": {
+    "code": "provider_unusable_response",
+    "stage": "writing",
+    "retryable": true,
+    "message_uk": "Модель двічі обірвала текст розділу.",
+    "next_action": "retry_now",
+    "section_index": 15,
+    "next_action_label": "Нова спроба"
+  },
+  "outline_equal": true,
+  "source_pack_equal": true,
+  "sections": [
+    {
+      "section_index": 1,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "e94912cf5d347794a2df9eab72676f3e7735b9ed700fe7fa6be12adb5381ebae"
+    },
+    {
+      "section_index": 2,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "d10f2ab718e9447d80070decac84173410eb04ec32dc85f67e380fd40743ddec"
+    },
+    {
+      "section_index": 3,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "23594fed57a7a52582c8707905ba31e0d18dd1f974bae41a6768d71640520c2b"
+    },
+    {
+      "section_index": 4,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "5dfed375a9140e4cb0b26a880d8d0aca3977362b950661fa14f3e10bab707662"
+    },
+    {
+      "section_index": 5,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "4f8ff39932c1420b5f9f5dc65cc0cf1dc9e332e8d4963a170e3f8ee192f35f0a"
+    },
+    {
+      "section_index": 6,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "dde203a563ffba1d85f46b505fb4877cbe00545f368f2ebef0ce72006487e6a5"
+    },
+    {
+      "section_index": 7,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "4ce6167df086b780a0fba17204b084361255db604f3d2a54fa172f0164a1557e"
+    },
+    {
+      "section_index": 8,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "5af3275300b5ed0ecd71802f12f02581d0b382862daef5d3a8841e088401b64e"
+    },
+    {
+      "section_index": 9,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "0b131f14fb93413bc8702c4b1af9d1433ec2f66bf10de7b146f939726da6f3e1"
+    },
+    {
+      "section_index": 10,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "528196e16dc9c49d7f1756d552268e06545bf459d9f7254c27773fbe8e58eab0"
+    },
+    {
+      "section_index": 11,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "082bee4ac085d4662e5fae42d2f9a05e92db902642febdada5b67347b0a56772"
+    },
+    {
+      "section_index": 12,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "97ad1011a730e3fa288fd4dcbbdbd49c9b423b5b31749c326b5d8211e05800d3"
+    },
+    {
+      "section_index": 13,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "4cdcbef71ce930a63a5da3f0153eb4843489e693ba6e6710e6ef727afe71b8ff"
+    },
+    {
+      "section_index": 14,
+      "fields_equal": {
+        "section_index": true,
+        "title": true,
+        "content": true,
+        "word_count": true,
+        "status": true,
+        "bibliography": true
+      },
+      "content_sha256": "6de167961093ecccdf8421573f2c81e1a1218ca90237b6a2e70d422541a77809"
+    }
+  ],
+  "docx_exists": false,
+  "replayed_status": "failed",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "note": "Exact reproduction of the observed failure and saved sections, not a completed DOCX. The local harness restores the recorded legacy PARTIAL_COMPLETION_ENABLED value before invoking the unchanged runner."
+}

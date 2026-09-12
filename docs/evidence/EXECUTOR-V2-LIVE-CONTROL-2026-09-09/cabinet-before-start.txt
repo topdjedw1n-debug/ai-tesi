@@ -1,0 +1,3 @@
+Browser tab: 2, Title: "Thesica — академічні роботи, що проходять", URL: "https://app.thesica.co/dashboard/documents/12".
+There has been no change in the accessibility tree.
+The focused UI element is 0 AXWebArea Thesica — академічні роботи, що проходять, URL: app.thesica.co/dashboard/documents/12

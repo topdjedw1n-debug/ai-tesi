@@ -1,0 +1,68 @@
+{
+  "selected_calls": [
+    {
+      "stage": "S1",
+      "section": null,
+      "max_tokens": 14400,
+      "stop": "end_turn",
+      "usage": {
+        "input_tokens": 6055,
+        "output_tokens": 2550
+      },
+      "tail": "nterventi educativi\",\"counseling\",\"evidence-based nursing\",\"allattamento al seno\"],\"terms_en\":[\"educational interventions\",\"counseling\",\"evidence-based nursing\",\"breastfeeding\"],\"children\":[]}]}]}\n```"
+    },
+    {
+      "stage": "S3",
+      "section": null,
+      "max_tokens": 14400,
+      "stop": "end_turn",
+      "usage": {
+        "input_tokens": 29836,
+        "output_tokens": 5101
+      },
+      "tail": "ento e ruolo dei servizi\",\"Raccomandazioni WHO/UNICEF e formazione dei professionisti\"],\"scope_ids\":[\"scope-18\"],\"evidence_keys\":[\"K236775ca3d03\",\"K6698b4db5ab8\",\"K6a5439fab67b\"],\"target_words\":300}]}"
+    },
+    {
+      "stage": "S4",
+      "section": 15,
+      "max_tokens": 419,
+      "stop": "max_tokens",
+      "usage": {
+        "input_tokens": 15197,
+        "output_tokens": 419
+      },
+      "tail": " raccomanda infatti il mantenimento del neonato sano a termine in contatto cutaneo con la madre il prima possibile dopo la nascita e la permanenza congiunta nella stessa stanza durante le ventiquattro"
+    },
+    {
+      "stage": "S4",
+      "section": 15,
+      "max_tokens": 838,
+      "stop": "max_tokens",
+      "usage": {
+        "input_tokens": 15638,
+        "output_tokens": 838
+      },
+      "tail": "a rileva un problema organizzativo e comunicativo senza isolare il contributo differenziale dell'infermiere [K236775ca3d03], e l'indicazione sul contatto precoce si colloca in un contributo di rifless"
+    }
+  ],
+  "section15": {
+    "title": "CAPITOLO 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+    "purpose": "Introdurre il ruolo di leadership infermieristica nel post-partum per la promozione dell'attachment precoce e dell'allattamento.",
+    "main_points": [
+      "Concetto di Nursing Care Leadership nel post-partum",
+      "Promozione dell'attachment precoce come obiettivo assistenziale",
+      "Ruolo dell'infermiere nel sostegno all'allattamento",
+      "Impostazione del capitolo e collegamento con le evidenze"
+    ],
+    "scope_ids": [
+      "scope-15"
+    ],
+    "evidence_keys": [
+      "K6a5439fab67b",
+      "K236775ca3d03"
+    ],
+    "target_words": 201,
+    "section_index": 15
+  },
+  "saved_words": 5699
+}

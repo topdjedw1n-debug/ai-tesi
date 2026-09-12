@@ -1,0 +1,24 @@
+{
+ "revision": "3892cac1ae8fccc261f04d0d35c64c5d4f6d3d49",
+ "delivered_files": 519,
+ "delivery_mismatches": 0,
+ "container_python_files": 138,
+ "container_mismatches": 0,
+ "source_backup": "/opt/thesica/backups/executor-v2-before-3892cac/source-61a4912.tar.gz",
+ "source_backup_sha256": "0aaf2ea78a288037282782d2add3cf5b3cd1942c70dd6c1bbf667005f7fad140",
+ "db_backup": "/opt/thesica/backups/pre-deploy-20260912-105107.sql",
+ "db_backup_bytes": 106296494,
+ "deploy_exit_code": 0,
+ "api_started_at": "2026-09-12T10:51:15Z",
+ "services_healthy": [
+  "api",
+  "web",
+  "operator-bot",
+  "postgres",
+  "redis",
+  "minio"
+ ],
+ "active_jobs_before_and_after": 0,
+ "pause_barrier": "set before rsync (system_settings generation.paused=true); removal blocked by tool permissions, pending founder",
+ "executor_by": "Fable (Codex unavailable)"
+}

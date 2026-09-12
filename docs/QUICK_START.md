@@ -1,221 +1,151 @@
-# 🚀 QUICK START - Thesica
+# Thesica — локальне середовище
 
-> Запустити проект за 5 хвилин
+Оновлено 04.09.2026 за поточною структурою репозиторію.
+Команди нижче — інструкція; свіжий запуск нового середовища в межах
+перепланування не виконувався.
 
----
+Спочатку прочитати [бриф](AGENT_SYNC.md) і
+[поточні задачі](PRE-RUN-001-TASKS.md). Локальна доступність застосунку
+не означає його готовності до реальних замовлень.
 
-## Prerequisites
+## 1. Передумови
 
-- Docker & Docker Compose
-- Python 3.11+
-- Node.js 18+
-- 8GB RAM minimum
-- 10GB free disk space
+Потрібні Python 3.11, Node.js 20, npm, Docker із Docker Compose.
+Працювати з наявним checkout; адресу репозиторію брати з його git remote,
+а не з історичного прикладу.
 
----
+Наведений режим: PostgreSQL, Redis та MinIO у Docker; API й web на хості.
+Якщо локальні сервіси вже працюють, спочатку перевірити їхні порти й
+середовище, не створювати другий набір і не скидати дані.
 
-## 🎯 5-Minute Setup
+## 2. Інфраструктура
 
-### Step 1: Clone & Navigate
-```bash
-git clone https://github.com/thesica/thesica-app.git
-cd thesica-app
-```
+Із кореня репозиторію:
 
-### Step 2: Start Infrastructure (2 min)
-```bash
-cd infra/docker
-docker-compose up -d
+    docker compose -f infra/docker/docker-compose.yml up -d postgres redis minio
+    docker compose -f infra/docker/docker-compose.yml run --rm minio-setup
+    docker compose -f infra/docker/docker-compose.yml ps
 
-# Wait for healthy status
-docker-compose ps
-```
+Поточні локальні значення цього compose:
 
-### Step 3: Configure Environment (1 min)
-```bash
-# Backend
-cd ../../apps/api
-cp .env.example .env
-# Edit .env - add your OpenAI/Anthropic keys
+| Сервіс | Адреса / база |
+|---|---|
+| PostgreSQL | localhost:5432; база ai_thesis_platform, користувач postgres, локальний пароль password |
+| Redis | localhost:6379 |
+| MinIO | localhost:9000; консоль localhost:9001; локальні minioadmin/minioadmin |
+| Bucket | ai-thesis-documents |
 
-# Frontend
-cd ../web
-cp .env.local.example .env.local
-```
+Це лише локальні значення з compose, не реквізити робочого сервера.
 
-### Step 4: Start Backend (1 min)
-```bash
-cd ../api
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-```
+Для нової бази потрібна відповідна схема й міграції з apps/api/migrations.
+Спочатку визначити початкову схему та вже застосовані зміни; не запускати
+сліпо всі історичні SQL поверх існуючої бази. Код наразі очікує зміни
+до 027_verified_source_pack.sql включно. Релізна процедура застосовує
+лише 024–027 і не є ініціалізатором порожньої бази.
 
-### Step 5: Start Frontend (1 min)
-```bash
-# New terminal
-cd apps/web
-npm install
-npm run dev
-```
+## 3. API
 
-### ✅ Done!
-Open http://localhost:3000
+У apps/api створити окреме віртуальне середовище й установити залежності:
 
----
+    python3.11 -m venv .venv
+    source .venv/bin/activate
+    python -m pip install -r requirements.txt
 
-## 🔑 Default Credentials
+Наявний .env зберегти. Якщо його немає, взяти .env.example як початок,
+а не як готовий релізний профіль: приклад містить інші назви локальної
+бази/bucket та послаблені діагностичні налаштування.
 
-### MinIO (File Storage)
-- URL: http://localhost:9001
-- Username: `minioadmin`
-- Password: `minioadmin`
+Для описаного локального compose узгодити:
 
-### PostgreSQL
-- Host: `localhost:5432`
-- Database: `thesica_db`
-- Username: `thesica_user`
-- Password: `thesica_password`
+    DATABASE_URL=postgresql+asyncpg://postgres:password@localhost:5432/ai_thesis_platform
+    REDIS_URL=redis://localhost:6379
+    MINIO_ENDPOINT=localhost:9000
+    MINIO_BUCKET=ai-thesis-documents
+    MINIO_ACCESS_KEY=minioadmin
+    MINIO_SECRET_KEY=minioadmin
+    MINIO_SECURE=false
+    ENVIRONMENT=development
+    PUBLIC_REGISTRATION_ENABLED=false
+    HUMANIZER_ENABLED=false
+    AI_ENABLE_FALLBACK=false
+    METHODOLOGY_REQUIRED_FOR_GENERATION=false
 
-### Redis
-- URL: `redis://localhost:6379`
-- No auth required (local)
+Налаштувати стабільні унікальні SECRET_KEY/JWT_SECRET та потрібні
+провайдерські ключі. Не переносити приклади ключів у робоче середовище.
+Для доказового прогону використовувати
+[релізний профіль](setup/PRODUCTION_DEPLOYMENT_PLAN.md), а не послаблені
+локальні значення.
 
----
+Запуск із apps/api:
 
-## 🧪 Test the Setup
+    python -m uvicorn main:app --reload --host 127.0.0.1 --port 8000
 
-### 1. Check Health
-```bash
-# Backend health
-curl http://localhost:8000/health
+## 4. Web
 
-# Frontend health
-curl http://localhost:3000/api/health
-```
+У apps/web:
 
-### 2. Create Test User
-```bash
-# Request magic link
-curl -X POST http://localhost:8000/api/v1/auth/magic-link \
-  -H "Content-Type: application/json" \
-  -d '{"email": "test@example.com"}'
-```
+    npm ci
 
-### 3. Check Logs
-```bash
-# Backend logs
-tail -f apps/api/logs/app.log
+Наявний .env.local зберегти. За його відсутності використати .env.example
+як довідку й створити .env.local із налаштуваннями локального API.
+Файла .env.local.example у поточному репозиторії немає.
 
-# Docker logs
-docker-compose logs -f
-```
+    NEXT_PUBLIC_API_URL=http://localhost:8000
+    NEXT_PUBLIC_ENABLE_USER_PAYMENT_FLOW=false
+    NEXT_PUBLIC_ENABLE_USER_REFUND_FLOW=false
 
----
+    npm run dev
 
-## 🛠️ Common Issues
+Відкрити http://localhost:3000. API health: http://localhost:8000/health.
+Web health: http://localhost:3000/api/health.
 
-### Port Already in Use
-```bash
-# Find process
-lsof -i :8000
-# Kill it
-kill -9 <PID>
-```
+## 5. Вхід і перший сценарій
 
-### Docker Permission Denied
-```bash
-sudo usermod -aG docker $USER
-newgrp docker
-```
+Використовувати виданий внутрішній логін. Самореєстрація не є шляхом
+внутрішнього пілота.
 
-### Database Connection Error
-```bash
-docker-compose restart postgres
-docker-compose logs postgres
-```
+Скрипт scripts/create-managers.py може створити менеджерські логіни,
+але повторний запуск змінює паролі наявних користувачів. Це окрема
+операція підготовки локальних облікових записів, не healthcheck.
+Він створює звичайного користувача, тому сам по собі не надає доступу
+до адміністративної видачі; права Тані перевіряються в M0-02.
 
-### Module Not Found
-```bash
-# Recreate virtual environment
-python -m venv venv
-source venv/bin/activate  # or `venv\Scripts\activate` on Windows
-pip install -r requirements.txt
-```
+Перший безкоштовний сценарій перевірки UI — створити чернетку та
+переглянути умови. Натискання запуску генерації може витрачати кошти
+AI-провайдерів навіть у внутрішньому режимі без оплати замовлення.
 
----
+## 6. Перевірки
 
-## 📝 Environment Variables
+У підготовленому тестовому середовищі apps/api:
 
-### Minimal .env for Backend
-```env
-# Required
-DATABASE_URL=postgresql://thesica_user:thesica_password@localhost/thesica_db
-SECRET_KEY=your-secret-key-min-32-chars-long-change-this
-JWT_SECRET=another-secret-key-min-32-chars-change-this
+    python -m pytest tests --asyncio-mode=auto -q
 
-# AI (at least one required)
-OPENAI_API_KEY=sk-...
-# ANTHROPIC_API_KEY=sk-ant-...
+У apps/web:
 
-# Optional for local
-ENVIRONMENT=development
-DEBUG=true
-```
+    npm run lint
+    npm run type-check
+    npm run test -- --runInBand
+    npm run build
 
-### Minimal .env.local for Frontend
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
+Тест explicit draft → confirm → generate лежить у папці, яку звичайний
+Jest пропускає. Запускати його окремо:
 
----
+    npm test -- --runInBand --watch=false --testPathIgnorePatterns='/node_modules/|/.next/' --runTestsByPath __tests__/e2e/document-creation-flow.test.tsx
 
-## 🚦 Next Steps
+Цей тест перевіряє взаємодію компонентів із підміненими відповідями API;
+він не заміняє реальний браузерний цикл чи Compilatio.
 
-1. **Read product direction:** [../THESICA-PLAN.md](../THESICA-PLAN.md)
-2. **Read design rules:** [../DESIGN.md](../DESIGN.md)
-3. **Understand decisions:** [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md)
-4. **Setup production:** [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md)
-5. **Run tests:** `pytest tests/`
+Для контейнерних перевірок використовувати поточний перевірений образ
+і ізольовані тимчасові дані. Тести API створюють локальні тестові файли;
+не запускати їх проти бойової бази або файлового сховища.
 
----
+## 7. Типові розбіжності
 
-## 💡 Quick Commands
+- Порт зайнятий: спочатку визначити, який чинний процес його використовує.
+- API не бачить базу: звірити схему URL, назву бази й середовище з compose.
+- Файл не доступний: звірити MinIO endpoint, bucket і локальні ключі.
+- Схема не відповідає коду: визначити відсутні міграції.
+- Генерація не стартує: перевірити умови, доступи й профіль; не вимикати
+  перевірки як спосіб отримати доказ готовності.
 
-```bash
-# Start everything
-./scripts/start-local.sh
-
-# Stop everything
-docker-compose down
-
-# Reset database
-docker-compose down -v
-docker-compose up -d
-
-# View all logs
-docker-compose logs -f
-
-# Run tests
-pytest tests/ -v
-
-# Format code
-ruff format .
-
-# Type check
-mypy app/
-```
-
----
-
-## 🆘 Getting Help
-
-1. Check [../THESICA-PLAN.md](../THESICA-PLAN.md) for product scope and phase gates.
-2. Search in [sec/DECISIONS_LOG.md](./sec/DECISIONS_LOG.md) for reasoning.
-3. Check Docker logs: `docker-compose logs <service>`.
-4. Check app logs: `tail -f apps/api/logs/app.log`.
-
----
-
-**Time to first request: ~5 minutes**
-**Production readiness:** see [PHASE0_READINESS_RECORD.md](./PHASE0_READINESS_RECORD.md), [PHASE1_GO_NO_GO_DECISION.md](./PHASE1_GO_NO_GO_DECISION.md), and [setup/PRODUCTION_DEPLOYMENT_PLAN.md](./setup/PRODUCTION_DEPLOYMENT_PLAN.md).
+Подальша черга — [M0](PRE-RUN-001-TASKS.md).

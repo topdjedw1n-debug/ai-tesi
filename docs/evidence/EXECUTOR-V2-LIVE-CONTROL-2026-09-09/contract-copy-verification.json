@@ -1,0 +1,25 @@
+{
+  "at": "2026-09-09T19:26:06.181208+00:00",
+  "source_document_id": 11,
+  "new_document_id": 12,
+  "fields_match": {
+    "title": true,
+    "topic": true,
+    "language": true,
+    "target_pages": true,
+    "work_type": true,
+    "citation_style": true,
+    "additional_requirements": true,
+    "requirements_file_processed": true,
+    "custom_requirements_file_path": true,
+    "ai_provider": true,
+    "ai_model": true
+  },
+  "source_files_match": true,
+  "requirements_chars": 6625,
+  "requirements_sha256": "cb270bdb2c34a9a7008a394882fcc49978beb2fe0b4a757175f48d36ab3858e7",
+  "contract_sha256_before": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+  "contract_sha256_new": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+  "contract_sha256_equal": true,
+  "contract_rules_equal": true
+}

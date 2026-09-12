@@ -128,3 +128,7 @@ external/
 
 # Session scratch
 tmp/
+
+# Uncompressed provenance recordings are exact duplicates of the committed .gz files
+docs/evidence/**/*-recording.json
+docs/evidence/**/*-recording.json.gz

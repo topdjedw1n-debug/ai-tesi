@@ -1,0 +1,2249 @@
+{
+  "document_id": 12,
+  "job_id": 14,
+  "worker_attempt": 1,
+  "stage": "sources",
+  "sha256": "ffe88a1d31a4b866f68eb30b56befd153f124fc8e8bdf7814f060f8cfb792369",
+  "sources": [
+    {
+      "source": {
+        "title": "Biomarcatori e prevenzione cardiovascolare primaria: razionale, premesse e promesse",
+        "authors": [
+          "Francesca Muscente",
+          "Raffaele De Caterina"
+        ],
+        "year": 2017,
+        "abstract": "La malattia cardiovascolare è la principale causa di morte del mondo e questo sottolinea l’importanza della prevenzione cardiovascolare primaria, prima che si manifestino eventi clinici cardiovascolari. Gli sforzi per migliorare l’identificazione dei soggetti a maggior rischio di sviluppare un primo evento cardiovascolare si sono in gran parte concentrati su nuovi parametri – biomarcatori – che possano essere aggiunti ai punteggi di rischio tradizionali per migliorare la previsione di malattia. Ad oggi sono stati proposti centinaia di biomarcatori, la maggior parte dei quali derivanti dalla misurazione dei livelli plasmatici di alcune sostanze. Molti di essi hanno mostrato una buona associazione statistica con l’incidenza di eventi successivi, ma in generale, solo un modesto miglioramento del valore predittivo dei punteggi attuali. Al contrario, la valutazione dell’aterosclerosi subclinica, con varie modalità, ha chiaramente dimostrato un beneficio aggiuntivo sostanziale. Questa rassegna rivisita qui criticamente la letteratura relativa agli studi che hanno valutato il valore aggiuntivo dei nuovi biomarcatori rispetto ai punteggi di rischio tradizionali nella prevenzione primaria della malattia cardiovascolare soprattutto per quanto riguarda la loro combinazione in profili multi-marcatore, e con particolare attenzione ai marcatori di imaging non invasivo per l’aterosclerosi subclinica.",
+        "paper_id": "10.1714/2663.27296",
+        "venue": "Giornale Italiano di Cardiologia",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1714/2663.27296",
+        "doi": "10.1714/2663.27296",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1714/2663.27296",
+          "title": "Biomarcatori e prevenzione cardiovascolare primaria: razionale, premesse e promesse",
+          "year": 2017,
+          "authors": [
+            "Francesca Muscente",
+            "Raffaele De Caterina"
+          ],
+          "venue": "Giornale Italiano di Cardiologia",
+          "abstract": "La malattia cardiovascolare è la principale causa di morte del mondo e questo sottolinea l’importanza della prevenzione cardiovascolare primaria, prima che si manifestino eventi clinici cardiovascolari. Gli sforzi per migliorare l’identificazione dei soggetti a maggior rischio di sviluppare un primo evento cardiovascolare si sono in gran parte concentrati su nuovi parametri – biomarcatori – che possano essere aggiunti ai punteggi di rischio tradizionali per migliorare la previsione di malattia. Ad oggi sono stati proposti centinaia di biomarcatori, la maggior parte dei quali derivanti dalla misurazione dei livelli plasmatici di alcune sostanze. Molti di essi hanno mostrato una buona associazione statistica con l’incidenza di eventi successivi, ma in generale, solo un modesto miglioramento del valore predittivo dei punteggi attuali. Al contrario, la valutazione dell’aterosclerosi subclinica, con varie modalità, ha chiaramente dimostrato un beneficio aggiuntivo sostanziale. Questa rassegna rivisita qui criticamente la letteratura relativa agli studi che hanno valutato il valore aggiuntivo dei nuovi biomarcatori rispetto ai punteggi di rischio tradizionali nella prevenzione primaria della malattia cardiovascolare soprattutto per quanto riguarda la loro combinazione in profili multi-marcatore, e con particolare attenzione ai marcatori di imaging non invasivo per l’aterosclerosi subclinica.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "La malattia cardiovascolare è la principale causa di morte del mondo e questo sottolinea l’importanza della prevenzione cardiovascolare primaria, prima che si manifestino eventi clinici cardiovascolari. Gli sforzi per migliorare l’identificazione dei soggetti a maggior rischio di sviluppare un primo evento cardiovascolare si sono in gran parte concentrati su nuovi parametri – biomarcatori – che possano essere aggiunti ai punteggi di rischio tradizionali per migliorare la previsione di malattia. Ad oggi sono stati proposti centinaia di biomarcatori, la maggior parte dei quali derivanti dalla misurazione dei livelli plasmatici di alcune sostanze. Molti di essi hanno mostrato una buona associazione statistica con l’incidenza di eventi successivi, ma in generale, solo un modesto miglioramento del valore predittivo dei punteggi attuali. Al contrario, la valutazione dell’aterosclerosi subclinica, con varie modalità, ha chiaramente dimostrato un beneficio aggiuntivo sostanziale. Questa rassegna rivisita qui criticamente la letteratura relativa agli studi che hanno valutato il valore aggiuntivo dei nuovi biomarcatori rispetto ai punteggi di rischio tradizionali nella prevenzione primaria della malattia cardiovascolare soprattutto per quanto riguarda la loro combinazione in profili multi-marcatore, e con particolare attenzione ai marcatori di imaging non invasivo per l’aterosclerosi subclinica.",
+            "sha256": "1bf9832b9773bbddfee284973330bce4ed2f5c145d66c701f94b4311fb2719ec",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1714/2663.27296",
+                "paper_id": "10.1714/2663.27296"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kedf93d15e640",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "\"Libera-mente\" Progetto Pilota di prevenzione primaria delle dipendenze patologiche nelle scuole medie inferiori di Andria",
+        "authors": [
+          "Gianfranco Mansi",
+          "Nicola A. Corvasce",
+          "Giusi Merra",
+          "Barbara Saccotelli",
+          "Antonella Zotti"
+        ],
+        "year": 2010,
+        "abstract": "\"Libera-Mente\" č un Progetto Pilota attuato dal SerT di Andria, DDP (Dipartimento per le Dipendenze Patologiche) dell'ASL BAT all'interno di n.3 Istituti di Scuola Media Inferiore della Cittŕ di Andria. Esso si pone sul fronte della Prevenzione Primaria in relazione ai fenomeni di abuso di sostanze quali fumo, alcool e droghe in una popolazione di studenti compresi tra gli 11 ed i 13 anni. A tal scopo č stata utilizzata la metodica di \"Peer Education\" (Educazione tra pari) per la promozione di \"Life Skills\" (Stili di vita corretti). Sono state raccolte le domande aperte avanzate in anonimato da un gruppo di n. 854 soggetti adolescenti, successivamente raggruppate in quattro ambiti tematici. Per quanto riguarda il tabagismo e l'alcolismo, sembra scarsamente evidente agli studenti la consapevolezza della relazione sostanza-dipendenza patologica confermando l'accettabilitŕ sociale di alcool e sigaretta. Rispetto alle droghe ed alle sostanze psicoattive, si rileva invece una maggiore conoscenza degli aspetti legati alla dipendenza e un atteggiamento di interesse per le alterazioni che l'assunzione provoca. Si č resa evidente la necessitŕ di promuovere campagne d'informazione calibrate su specifiche fasce d'etŕ che diano adeguata visibilitŕ all'offerta terapeutica del SerT di Andria.",
+        "paper_id": "10.3280/sap2010-055003",
+        "venue": "S &amp; P SALUTE E PREVENZIONE",
+        "citation_count": 0,
+        "url": "https://doi.org/10.3280/sap2010-055003",
+        "doi": "10.3280/sap2010-055003",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.3280/sap2010-055003",
+          "title": "\"Libera-mente\" Progetto Pilota di prevenzione primaria delle dipendenze patologiche nelle scuole medie inferiori di Andria",
+          "year": 2010,
+          "authors": [
+            "Gianfranco Mansi",
+            "Nicola A. Corvasce",
+            "Giusi Merra",
+            "Barbara Saccotelli",
+            "Antonella Zotti"
+          ],
+          "venue": "S &amp; P SALUTE E PREVENZIONE",
+          "abstract": "\"Libera-Mente\" č un Progetto Pilota attuato dal SerT di Andria, DDP (Dipartimento per le Dipendenze Patologiche) dell'ASL BAT all'interno di n.3 Istituti di Scuola Media Inferiore della Cittŕ di Andria. Esso si pone sul fronte della Prevenzione Primaria in relazione ai fenomeni di abuso di sostanze quali fumo, alcool e droghe in una popolazione di studenti compresi tra gli 11 ed i 13 anni. A tal scopo č stata utilizzata la metodica di \"Peer Education\" (Educazione tra pari) per la promozione di \"Life Skills\" (Stili di vita corretti). Sono state raccolte le domande aperte avanzate in anonimato da un gruppo di n. 854 soggetti adolescenti, successivamente raggruppate in quattro ambiti tematici. Per quanto riguarda il tabagismo e l'alcolismo, sembra scarsamente evidente agli studenti la consapevolezza della relazione sostanza-dipendenza patologica confermando l'accettabilitŕ sociale di alcool e sigaretta. Rispetto alle droghe ed alle sostanze psicoattive, si rileva invece una maggiore conoscenza degli aspetti legati alla dipendenza e un atteggiamento di interesse per le alterazioni che l'assunzione provoca. Si č resa evidente la necessitŕ di promuovere campagne d'informazione calibrate su specifiche fasce d'etŕ che diano adeguata visibilitŕ all'offerta terapeutica del SerT di Andria.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "\"Libera-Mente\" č un Progetto Pilota attuato dal SerT di Andria, DDP (Dipartimento per le Dipendenze Patologiche) dell'ASL BAT all'interno di n.3 Istituti di Scuola Media Inferiore della Cittŕ di Andria. Esso si pone sul fronte della Prevenzione Primaria in relazione ai fenomeni di abuso di sostanze quali fumo, alcool e droghe in una popolazione di studenti compresi tra gli 11 ed i 13 anni. A tal scopo č stata utilizzata la metodica di \"Peer Education\" (Educazione tra pari) per la promozione di \"Life Skills\" (Stili di vita corretti). Sono state raccolte le domande aperte avanzate in anonimato da un gruppo di n. 854 soggetti adolescenti, successivamente raggruppate in quattro ambiti tematici. Per quanto riguarda il tabagismo e l'alcolismo, sembra scarsamente evidente agli studenti la consapevolezza della relazione sostanza-dipendenza patologica confermando l'accettabilitŕ sociale di alcool e sigaretta. Rispetto alle droghe ed alle sostanze psicoattive, si rileva invece una maggiore conoscenza degli aspetti legati alla dipendenza e un atteggiamento di interesse per le alterazioni che l'assunzione provoca. Si č resa evidente la necessitŕ di promuovere campagne d'informazione calibrate su specifiche fasce d'etŕ che diano adeguata visibilitŕ all'offerta terapeutica del SerT di Andria.",
+            "sha256": "7546fc8ff1c3166e284803aa77631d6225a8b21d728e9e0249db4850084ce1c1",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.3280/sap2010-055003",
+                "paper_id": "10.3280/sap2010-055003"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K239dfeeed425",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "L'attivazione corticale nel neonato associata alle esperienze del dolore e dell'analgesia non farmacologica: uno studio con la topografia ottica",
+        "authors": [
+          "S. Bembich"
+        ],
+        "year": 1969,
+        "abstract": "ricoverato in neonatologia, di difficoltà affettive e cognitive nel medio e lungo termine pag.-Lo sviluppo extra-uterino del neonato pretermine pag.",
+        "paper_id": "https://openalex.org/W1585503735",
+        "venue": "OpenstarTs (Univeristy of Trieste https://www.units.it/)",
+        "citation_count": 0,
+        "url": "https://openalex.org/W1585503735",
+        "doi": null,
+        "provider": "openalex",
+        "source_type": "dissertation",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": null,
+          "title": "L'attivazione corticale nel neonato associata alle esperienze del dolore e dell'analgesia non farmacologica: uno studio con la topografia ottica",
+          "year": 1969,
+          "authors": [
+            "S. Bembich"
+          ],
+          "venue": "",
+          "abstract": null,
+          "provider": "semantic_scholar",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "semantic_scholar",
+          "scope_ids": [
+            "scope-1",
+            "scope-13",
+            "scope-2"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "ricoverato in neonatologia, di difficoltà affettive e cognitive nel medio e lungo termine pag.-Lo sviluppo extra-uterino del neonato pretermine pag.",
+            "sha256": "093a9e4b19327ac8b0ebc5c18ea39b2b4667fcfd7c5534feb6fb61d979150e0c",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": null,
+                "paper_id": "https://openalex.org/W1585503735"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K8488bad5d0b7",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases",
+        "authors": [
+          "Simon Lewin",
+          "Susan Munabi-Babigumira",
+          "Claire Glenton",
+          "Karen Daniels",
+          "Xavier Bosch-Capblanch",
+          "Brian E van Wyk",
+          "Jan Odgaard-Jensen",
+          "Marit Johansen",
+          "Godwin N Aja",
+          "Merrick Zwarenstein",
+          "Inger B Scheel"
+        ],
+        "year": 2010,
+        "abstract": "BACKGROUND: Lay health workers (LHWs) are widely used to provide care for a broad range of health issues. Little is known, however, about the effectiveness of LHW interventions. OBJECTIVES: To assess the effects of LHW interventions in primary and community health care on maternal and child health and the management of infectious diseases. SEARCH STRATEGY: For the current version of this review we searched The Cochrane Central Register of Controlled Trials (including citations uploaded from the EPOC and the CCRG registers) (The Cochrane Library 2009, Issue 1 Online) (searched 18 February 2009); MEDLINE, Ovid (1950 to February Week 1 2009) (searched 17 February 2009); MEDLINE In-Process & Other Non-Indexed Citations, Ovid (February 13 2009) (searched 17 February 2009); EMBASE, Ovid (1980 to 2009 Week 05) (searched 18 February 2009); AMED, Ovid (1985 to February 2009) (searched 19 February 2009); British Nursing Index and Archive, Ovid (1985 to February 2009) (searched 17 February 2009); CINAHL, Ebsco 1981 to present (searched 07 February 2010); POPLINE (searched 25 February 2009); WHOLIS (searched 16 April 2009); Science Citation Index and Social Sciences Citation Index (ISI Web of Science) (1975 to present) (searched 10 August 2006 and 10 February 2010). We also searched the reference lists of all included papers and relevant reviews, and contacted study authors and researchers in the field for additional papers. SELECTION CRITERIA: Randomised controlled trials of any intervention delivered by LHWs (paid or voluntary) in primary or community health care and intended to improve maternal or child health or the management of infectious diseases. A 'lay health worker' was defined as any health worker carrying out functions related to healthcare delivery, trained in some way in the context of the intervention, and having no formal professional or paraprofessional certificate or tertiary education degree. There were no restrictions on care recipients. DATA COLLECTION AND ANALYSIS: Two review authors independently extracted data using a standard form and assessed risk of bias. Studies that compared broadly similar types of interventions were grouped together. Where feasible, the study results were combined and an overall estimate of effect obtained. MAIN RESULTS: Eighty-two studies met the inclusion criteria. These showed considerable diversity in the targeted health issue and the aims, content, and outcomes of interventions. The majority were conducted in high income countries (n = 55) but many of these focused on low income and minority populations. The diversity of included studies limited meta-analysis to outcomes for four study groups. These analyses found evidence of moderate quality of the effectiveness of LHWs in promoting immunisation childhood uptake (RR 1.22, 95% CI 1.10 to 1.37; P = 0.0004); promoting initiation of breastfeeding (RR = 1.36, 95% CI 1.14 to 1.61; P < 0.00001), any breastfeeding (RR 1.24, 95% CI 1.10 to 1.39; P = 0.0004), and exclusive breastfeeding (RR 2.78, 95% CI 1.74 to 4.44; P <0.0001); and improving pulmonary TB cure rates (RR 1.22 (95% CI 1.13 to 1.31) P <0.0001), when compared to usual care. There was moderate quality evidence that LHW support had little or no effect on TB preventive treatment completion (RR 1.00, 95% CI 0.92 to 1.09; P = 0.99). There was also low quality evidence that LHWs may reduce child morbidity (RR 0.86, 95% CI 0.75 to 0.99; P = 0.03) and child (RR 0.75, 95% CI 0.55 to 1.03; P = 0.07) and neonatal (RR 0.76, 95% CI 0.57 to 1.02; P = 0.07) mortality, and increase the likelihood of seeking care for childhood illness (RR 1.33, 95% CI 0.86 to 2.05; P = 0.20). For other health issues, the evidence is insufficient to draw conclusions regarding effectiveness, or to enable the identification of specific LHW training or intervention strategies likely to be most effective. AUTHORS' CONCLUSIONS: LHWs provide promising benefits in promoting immunisation uptake and breastfeeding, improving TB treatment outcomes, and reducing child morbidity and mortality when compared to usual care. For other health issues, evidence is insufficient to draw conclusions about the effects of LHWs.",
+        "paper_id": "https://openalex.org/W1499200948",
+        "venue": "Cochrane Database of Systematic Reviews",
+        "citation_count": 1019,
+        "url": "https://doi.org/10.1002/14651858.cd004015.pub3",
+        "doi": "10.1002/14651858.cd004015.pub3",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1002/14651858.cd004015.pub3",
+          "title": "Lay health workers in primary and community health care for maternal and child health and the management of infectious diseases",
+          "year": 2010,
+          "authors": [
+            "Simon Lewin",
+            "Susan Munabi-Babigumira",
+            "Claire Glenton",
+            "Karen Daniels",
+            "Xavier Bosch-Capblanch",
+            "Brian E van Wyk",
+            "Jan Odgaard-Jensen",
+            "Marit Johansen",
+            "Godwin N Aja",
+            "Merrick Zwarenstein",
+            "Inger B Scheel"
+          ],
+          "venue": "Cochrane Database of Systematic Reviews",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-15",
+            "scope-2"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "BACKGROUND: Lay health workers (LHWs) are widely used to provide care for a broad range of health issues. Little is known, however, about the effectiveness of LHW interventions. OBJECTIVES: To assess the effects of LHW interventions in primary and community health care on maternal and child health and the management of infectious diseases. SEARCH STRATEGY: For the current version of this review we searched The Cochrane Central Register of Controlled Trials (including citations uploaded from the EPOC and the CCRG registers) (The Cochrane Library 2009, Issue 1 Online) (searched 18 February 2009); MEDLINE, Ovid (1950 to February Week 1 2009) (searched 17 February 2009); MEDLINE In-Process & Other Non-Indexed Citations, Ovid (February 13 2009) (searched 17 February 2009); EMBASE, Ovid (1980 to 2009 Week 05) (searched 18 February 2009); AMED, Ovid (1985 to February 2009) (searched 19 February 2009); British Nursing Index and Archive, Ovid (1985 to February 2009) (searched 17 February 2009); CINAHL, Ebsco 1981 to present (searched 07 February 2010); POPLINE (searched 25 February 2009); WHOLIS (searched 16 April 2009); Science Citation Index and Social Sciences Citation Index (ISI Web of Science) (1975 to present) (searched 10 August 2006 and 10 February 2010). We also searched the reference lists of all included papers and relevant reviews, and contacted study authors and researchers in the field for additional papers. SELECTION CRITERIA: Randomised controlled trials of any intervention delivered by LHWs (paid or voluntary) in primary or community health care and intended to improve maternal or child health or the management of infectious diseases. A 'lay health worker' was defined as any health worker carrying out functions related to healthcare delivery, trained in some way in the context of the intervention, and having no formal professional or paraprofessional certificate or tertiary education degree. There were no restrictions on care recipients. DATA COLLECTION AND ANALYSIS: Two review authors independently extracted data using a standard form and assessed risk of bias. Studies that compared broadly similar types of interventions were grouped together. Where feasible, the study results were combined and an overall estimate of effect obtained. MAIN RESULTS: Eighty-two studies met the inclusion criteria. These showed considerable diversity in the targeted heal",
+            "sha256": "5279f7c466442068bede34477663c0d7b6cb90fef8c56ca02a0c21f462fd111c",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.1002/14651858.cd004015.pub3",
+                "paper_id": "https://openalex.org/W1499200948"
+              }
+            ],
+            "truncated": true
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kf79fb21cb30b",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Stratificazione del rischio tromboembolico e profilassi antitrombotica nella fibrillazione atriale",
+        "authors": [
+          "Giuseppe Di Pasquale",
+          "Letizia Riva"
+        ],
+        "year": 2012,
+        "abstract": "La fibrillazione atriale (FA) si associa ad un rischio di ictus ed embolie sistemiche considerevolmente elevato (4.5% per anno). La terapia anticoagulante orale (TAO) con warfarin a dosi adeguate (INR 2.0-3.0) è in grado di ridurre sensibilmente il rischio tromboembolico della FA, mentre l’aspirina ha un’efficacia modesta. La stratificazione del rischio tromboembolico può essere attuata utilizzando sistemi a punteggio quali il CHADS2 score e il CHA2DS2-VASc score. Quest’ultimo stratifica in maniera più accurata i pazienti a rischio tromboembolico medio-basso. Le più recenti linee guida europee ed americane sulla FA hanno ampliato le indicazioni alla TAO, raccomandandola non solo nei pazienti ad alto rischio, ma anche in quelli a rischio intermedio, ovvero con CHADS2 score ≥1. Tuttavia nella pratica clinica in considerazione dei numerosi limiti della TAO si assiste ad un ampio sottoutilizzo, ad una qualità non ottimale dell’anticoagulazione e a frequenti interruzioni del trattamento. Esiste pertanto una forte aspettativa per i nuovi farmaci anticoagulanti orali, l’inibitore diretto della trombina dabigatran etexilato e gli inibitori diretti del fattore Xa rivaroxaban e apixaban, che sono risultati almeno non inferiori per efficacia nei confronti del warfarin e più sicuri, e che sembrano rappresentare una reale alternativa terapeutica al vecchio warfarin.",
+        "paper_id": "10.1714/1179.13062",
+        "venue": "Giornale Italiano di Cardiologia",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1714/1179.13062",
+        "doi": "10.1714/1179.13062",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1714/1179.13062",
+          "title": "Stratificazione del rischio tromboembolico e profilassi antitrombotica nella fibrillazione atriale",
+          "year": 2012,
+          "authors": [
+            "Giuseppe Di Pasquale",
+            "Letizia Riva"
+          ],
+          "venue": "Giornale Italiano di Cardiologia",
+          "abstract": "La fibrillazione atriale (FA) si associa ad un rischio di ictus ed embolie sistemiche considerevolmente elevato (4.5% per anno). La terapia anticoagulante orale (TAO) con warfarin a dosi adeguate (INR 2.0-3.0) è in grado di ridurre sensibilmente il rischio tromboembolico della FA, mentre l’aspirina ha un’efficacia modesta. La stratificazione del rischio tromboembolico può essere attuata utilizzando sistemi a punteggio quali il CHADS2 score e il CHA2DS2-VASc score. Quest’ultimo stratifica in maniera più accurata i pazienti a rischio tromboembolico medio-basso. Le più recenti linee guida europee ed americane sulla FA hanno ampliato le indicazioni alla TAO, raccomandandola non solo nei pazienti ad alto rischio, ma anche in quelli a rischio intermedio, ovvero con CHADS2 score ≥1. Tuttavia nella pratica clinica in considerazione dei numerosi limiti della TAO si assiste ad un ampio sottoutilizzo, ad una qualità non ottimale dell’anticoagulazione e a frequenti interruzioni del trattamento. Esiste pertanto una forte aspettativa per i nuovi farmaci anticoagulanti orali, l’inibitore diretto della trombina dabigatran etexilato e gli inibitori diretti del fattore Xa rivaroxaban e apixaban, che sono risultati almeno non inferiori per efficacia nei confronti del warfarin e più sicuri, e che sembrano rappresentare una reale alternativa terapeutica al vecchio warfarin.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-3"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "La fibrillazione atriale (FA) si associa ad un rischio di ictus ed embolie sistemiche considerevolmente elevato (4.5% per anno). La terapia anticoagulante orale (TAO) con warfarin a dosi adeguate (INR 2.0-3.0) è in grado di ridurre sensibilmente il rischio tromboembolico della FA, mentre l’aspirina ha un’efficacia modesta. La stratificazione del rischio tromboembolico può essere attuata utilizzando sistemi a punteggio quali il CHADS2 score e il CHA2DS2-VASc score. Quest’ultimo stratifica in maniera più accurata i pazienti a rischio tromboembolico medio-basso. Le più recenti linee guida europee ed americane sulla FA hanno ampliato le indicazioni alla TAO, raccomandandola non solo nei pazienti ad alto rischio, ma anche in quelli a rischio intermedio, ovvero con CHADS2 score ≥1. Tuttavia nella pratica clinica in considerazione dei numerosi limiti della TAO si assiste ad un ampio sottoutilizzo, ad una qualità non ottimale dell’anticoagulazione e a frequenti interruzioni del trattamento. Esiste pertanto una forte aspettativa per i nuovi farmaci anticoagulanti orali, l’inibitore diretto della trombina dabigatran etexilato e gli inibitori diretti del fattore Xa rivaroxaban e apixaban, che sono risultati almeno non inferiori per efficacia nei confronti del warfarin e più sicuri, e che sembrano rappresentare una reale alternativa terapeutica al vecchio warfarin.",
+            "sha256": "dfe61edbcb9c61bbd832ac58eaa6089ddeb3f29a2b84d376a621f52fcb55df32",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1714/1179.13062",
+                "paper_id": "10.1714/1179.13062"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kef311da9cf6a",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "La stratificazione del rischio di ictus nella fibrillazione atriale: terapia anticoagulante orale e rischio emorragico nell’anziano",
+        "authors": [
+          "Daniela Poli",
+          "Elisa Grifoni"
+        ],
+        "year": 2011,
+        "abstract": "Una adeguata stratificazione del rischio tromboembolico nel paziente con fibrillazione atriale è essenziale per identificare i pazienti che possono trarre beneficio dalla terapia anticoagulante orale (TAO). Nonostante un aumento del rischio emorragico con l’età, l’efficacia della TAO nella prevenzione dell’ictus si mantiene anche nell’anziano. Un’adeguata gestione della TAO, ottenibile nella pratica clinica in strutture dedicate, consente di mantenere il rischio di complicanze emorragiche accettabilmente basso anche nei pazienti anziani.",
+        "paper_id": "10.1701/545.6471",
+        "venue": "Recenti Progressi in Medicina",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1701/545.6471",
+        "doi": "10.1701/545.6471",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1701/545.6471",
+          "title": "La stratificazione del rischio di ictus nella fibrillazione atriale: terapia anticoagulante orale e rischio emorragico nell’anziano",
+          "year": 2011,
+          "authors": [
+            "Daniela Poli",
+            "Elisa Grifoni"
+          ],
+          "venue": "Recenti Progressi in Medicina",
+          "abstract": "Una adeguata stratificazione del rischio tromboembolico nel paziente con fibrillazione atriale è essenziale per identificare i pazienti che possono trarre beneficio dalla terapia anticoagulante orale (TAO). Nonostante un aumento del rischio emorragico con l’età, l’efficacia della TAO nella prevenzione dell’ictus si mantiene anche nell’anziano. Un’adeguata gestione della TAO, ottenibile nella pratica clinica in strutture dedicate, consente di mantenere il rischio di complicanze emorragiche accettabilmente basso anche nei pazienti anziani.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-3"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Una adeguata stratificazione del rischio tromboembolico nel paziente con fibrillazione atriale è essenziale per identificare i pazienti che possono trarre beneficio dalla terapia anticoagulante orale (TAO). Nonostante un aumento del rischio emorragico con l’età, l’efficacia della TAO nella prevenzione dell’ictus si mantiene anche nell’anziano. Un’adeguata gestione della TAO, ottenibile nella pratica clinica in strutture dedicate, consente di mantenere il rischio di complicanze emorragiche accettabilmente basso anche nei pazienti anziani.",
+            "sha256": "e7c445595e07222220a26e5b5ea8f12d58333c84addee9c2a9959408b7383d7f",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1701/545.6471",
+                "paper_id": "10.1701/545.6471"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kf9d546cf3c3e",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "&lt;p&gt;The Danish health care system and epidemiological research: from health care contacts to database records&lt;/p&gt;",
+        "authors": [
+          "Morten Schmidt",
+          "Sigrun Alba Johannesdottir Schmidt",
+          "Kasper Adelborg",
+          "Jens Sundbøll",
+          "Kristina Laugesen",
+          "Vera Ehrenstein",
+          "Henrik Toft Sørensen"
+        ],
+        "year": 2019,
+        "abstract": "Denmark has a large network of population-based medical databases, which routinely collect high-quality data as a by-product of health care provision. The Danish medical databases include administrative, health, and clinical quality databases. Understanding the full research potential of these data sources requires insight into the underlying health care system. This review describes key elements of the Danish health care system from planning and delivery to record generation. First, it presents the history of the health care system, its overall organization and financing. Second, it details delivery of primary, hospital, psychiatric, and elderly care. Third, the path from a health care contact to a database record is followed. Finally, an overview of the available data sources is presented. This review discusses the data quality of each type of medical database and describes the relative technical ease and cost-effectiveness of exact individual-level linkage among them. It is shown, from an epidemiological point of view, how Denmark's population represents an open dynamic cohort with complete long-term follow-up, censored only at emigration or death. It is concluded that Denmark's constellation of universal health care, long-standing routine registration of most health and life events, and the possibility of exact individual-level data linkage provides unlimited possibilities for epidemiological research.",
+        "paper_id": "https://openalex.org/W2958564402",
+        "venue": "Clinical Epidemiology",
+        "citation_count": 1411,
+        "url": "https://doi.org/10.2147/clep.s179083",
+        "doi": "10.2147/clep.s179083",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.2147/clep.s179083",
+          "title": "&lt;p&gt;The Danish health care system and epidemiological research: from health care contacts to database records&lt;/p&gt;",
+          "year": 2019,
+          "authors": [
+            "Morten Schmidt",
+            "Sigrun Alba Johannesdottir Schmidt",
+            "Kasper Adelborg",
+            "Jens Sundbøll",
+            "Kristina Laugesen",
+            "Vera Ehrenstein",
+            "Henrik Toft Sørensen"
+          ],
+          "venue": "Clinical Epidemiology",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 0.929,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-15",
+            "scope-4"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Denmark has a large network of population-based medical databases, which routinely collect high-quality data as a by-product of health care provision. The Danish medical databases include administrative, health, and clinical quality databases. Understanding the full research potential of these data sources requires insight into the underlying health care system. This review describes key elements of the Danish health care system from planning and delivery to record generation. First, it presents the history of the health care system, its overall organization and financing. Second, it details delivery of primary, hospital, psychiatric, and elderly care. Third, the path from a health care contact to a database record is followed. Finally, an overview of the available data sources is presented. This review discusses the data quality of each type of medical database and describes the relative technical ease and cost-effectiveness of exact individual-level linkage among them. It is shown, from an epidemiological point of view, how Denmark's population represents an open dynamic cohort with complete long-term follow-up, censored only at emigration or death. It is concluded that Denmark's constellation of universal health care, long-standing routine registration of most health and life events, and the possibility of exact individual-level data linkage provides unlimited possibilities for epidemiological research.",
+            "sha256": "59f45ea0569281ebce0cd259222dd1aaba48d0c264a327d7810b5a916e91cb63",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.2147/clep.s179083",
+                "paper_id": "https://openalex.org/W2958564402"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K0c2ddbf7b50b",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Standards of Medical Care in Diabetes—2011",
+        "authors": [],
+        "year": 2011,
+        "abstract": "A. Classification of diabetes B. Diagnosis of diabetes C. Categories of increased risk for diabetes (prediabetes) II.TESTING FOR DIABETES IN ASYMP-TOMATIC PATIENTS, p. S13 A. Testing for type 2 diabetes and risk of future diabetes in adults B. Testing for type 2 diabetes in children C. Screening for type 1 diabetes III.DETECTION AND DIAGNOSIS OF GESTATIONAL DIABETES MELLI-TUS, p. S15 IV.PREVENTION/DELAY OF TYPE 2 DIABETES, p. S16 V. DIABETES CARE, p. S16 A. Initial evaluation B. Management C. Glycemic control 1. Assessment of glycemic control a. Glucose monitoring b.A1C 2. Glycemic goals in adults D. Pharmacologic and overall approaches to treatment 1. Therapy for type 1 diabetes 2. Therapy for type 2 diabetes E. Diabetes self-management education F. Medical nutrition therapy G. Physical activity H. Psychosocial assessment and care I.When treatment goals are not met J. Hypoglycemia K. Intercurrent illness L. Bariatric surgery M.",
+        "paper_id": "https://openalex.org/W2586645431",
+        "venue": "Diabetes Care",
+        "citation_count": 2903,
+        "url": "https://doi.org/10.2337/dc11-s011",
+        "doi": "10.2337/dc11-s011",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.2337/dc11-s011",
+          "title": "Standards of Medical Care in Diabetes—2011",
+          "year": 2011,
+          "authors": [],
+          "venue": "Diabetes Care",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-3",
+            "scope-4"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "A. Classification of diabetes B. Diagnosis of diabetes C. Categories of increased risk for diabetes (prediabetes) II.TESTING FOR DIABETES IN ASYMP-TOMATIC PATIENTS, p. S13 A. Testing for type 2 diabetes and risk of future diabetes in adults B. Testing for type 2 diabetes in children C. Screening for type 1 diabetes III.DETECTION AND DIAGNOSIS OF GESTATIONAL DIABETES MELLI-TUS, p. S15 IV.PREVENTION/DELAY OF TYPE 2 DIABETES, p. S16 V. DIABETES CARE, p. S16 A. Initial evaluation B. Management C. Glycemic control 1. Assessment of glycemic control a. Glucose monitoring b.A1C 2. Glycemic goals in adults D. Pharmacologic and overall approaches to treatment 1. Therapy for type 1 diabetes 2. Therapy for type 2 diabetes E. Diabetes self-management education F. Medical nutrition therapy G. Physical activity H. Psychosocial assessment and care I.When treatment goals are not met J. Hypoglycemia K. Intercurrent illness L. Bariatric surgery M.",
+            "sha256": "a3913d225ad751e9203280bf6a3fce90847d72209a7aff91484771d3342c187f",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.2337/dc11-s011",
+                "paper_id": "https://openalex.org/W2586645431"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kf0eaaa08836e",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "La musica del contenimento. Come e quando rivolgersi ai membri della diade madre-lattante in trattamento psicoanalitico",
+        "authors": [
+          "Salomonsson Bjorn"
+        ],
+        "year": 2011,
+        "abstract": "L'Autore affronta il problema degli interventi dello psicoanalista nel lavoro madrelattante, individuando nel bambino un destinatario importante, ma spesso trascurato. A tal fine, propone un esempio clinico in cui una telefonata nel corso della seduta precedente aveva suscitato uno stato di irrequietezza nella bambina di tre mesi e angoscia nella madre. L'Autore descrive come il livello non verbale dei suoi interventi abbia raggiunto la bambina offrendole contenimento, in maniera analoga al modo di funzionare della musicalitŕ comunicativa che caratterizza il rapporto fra madre e lattante. Viene in tal modo evidenziato un collegamento fra il concetto psicoanalitico bioniano di contenimento e la teoria di Trevarthen della musicalitŕ comunicativa. L'Autore mette, poi, in luce il bisogno di contenimento della madre e discute l'importanza di cogliere i momenti in cui č essenziale focalizzarsi sull'uno o sull'altro partecipante alla terapia. Si tratta di una scelta guidata sia da decisioni esplicite, sia da fattori inconsci, compreso il controtransfert dell'analista; anche se il nostro desiderio di cogliere il controtransfert č spesso ostacolato dalla riluttanza che abbiamo a ricordare la nostra impotenza infantile. Quando i messaggi consci e inconsci della madre sono divergenti, il bambino non puň ricevere cure adeguate: č ciň che accade quando la madre descritta cerca di calmare sua figlia mentre č presa dalla rabbia per l'analista in una misura di cui non č consapevole.",
+        "paper_id": "10.3280/int2011-002004",
+        "venue": "INTERAZIONI",
+        "citation_count": 0,
+        "url": "https://doi.org/10.3280/int2011-002004",
+        "doi": "10.3280/int2011-002004",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.3280/int2011-002004",
+          "title": "La musica del contenimento. Come e quando rivolgersi ai membri della diade madre-lattante in trattamento psicoanalitico",
+          "year": 2011,
+          "authors": [
+            "Salomonsson Bjorn"
+          ],
+          "venue": "INTERAZIONI",
+          "abstract": "L'Autore affronta il problema degli interventi dello psicoanalista nel lavoro madrelattante, individuando nel bambino un destinatario importante, ma spesso trascurato. A tal fine, propone un esempio clinico in cui una telefonata nel corso della seduta precedente aveva suscitato uno stato di irrequietezza nella bambina di tre mesi e angoscia nella madre. L'Autore descrive come il livello non verbale dei suoi interventi abbia raggiunto la bambina offrendole contenimento, in maniera analoga al modo di funzionare della musicalitŕ comunicativa che caratterizza il rapporto fra madre e lattante. Viene in tal modo evidenziato un collegamento fra il concetto psicoanalitico bioniano di contenimento e la teoria di Trevarthen della musicalitŕ comunicativa. L'Autore mette, poi, in luce il bisogno di contenimento della madre e discute l'importanza di cogliere i momenti in cui č essenziale focalizzarsi sull'uno o sull'altro partecipante alla terapia. Si tratta di una scelta guidata sia da decisioni esplicite, sia da fattori inconsci, compreso il controtransfert dell'analista; anche se il nostro desiderio di cogliere il controtransfert č spesso ostacolato dalla riluttanza che abbiamo a ricordare la nostra impotenza infantile. Quando i messaggi consci e inconsci della madre sono divergenti, il bambino non puň ricevere cure adeguate: č ciň che accade quando la madre descritta cerca di calmare sua figlia mentre č presa dalla rabbia per l'analista in una misura di cui non č consapevole.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-5"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "L'Autore affronta il problema degli interventi dello psicoanalista nel lavoro madrelattante, individuando nel bambino un destinatario importante, ma spesso trascurato. A tal fine, propone un esempio clinico in cui una telefonata nel corso della seduta precedente aveva suscitato uno stato di irrequietezza nella bambina di tre mesi e angoscia nella madre. L'Autore descrive come il livello non verbale dei suoi interventi abbia raggiunto la bambina offrendole contenimento, in maniera analoga al modo di funzionare della musicalitŕ comunicativa che caratterizza il rapporto fra madre e lattante. Viene in tal modo evidenziato un collegamento fra il concetto psicoanalitico bioniano di contenimento e la teoria di Trevarthen della musicalitŕ comunicativa. L'Autore mette, poi, in luce il bisogno di contenimento della madre e discute l'importanza di cogliere i momenti in cui č essenziale focalizzarsi sull'uno o sull'altro partecipante alla terapia. Si tratta di una scelta guidata sia da decisioni esplicite, sia da fattori inconsci, compreso il controtransfert dell'analista; anche se il nostro desiderio di cogliere il controtransfert č spesso ostacolato dalla riluttanza che abbiamo a ricordare la nostra impotenza infantile. Quando i messaggi consci e inconsci della madre sono divergenti, il bambino non puň ricevere cure adeguate: č ciň che accade quando la madre descritta cerca di calmare sua figlia mentre č presa dalla rabbia per l'analista in una misura di cui non č consapevole.",
+            "sha256": "c383958482321753137c500e01c16c869e05fe0a043227f2ea8933db48b7456c",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.3280/int2011-002004",
+                "paper_id": "10.3280/int2011-002004"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kb86804ca0c42",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Profili di responsabilità infermieristica in un caso di amputazione dell’avambraccio da errata pratica infusionale in neonato prematuro",
+        "authors": [
+          "Luigi Pais dei Mori"
+        ],
+        "year": 2018,
+        "abstract": "[Nursing responsibility profiles in a case of forearm amputation by wrong infusion practice in a premature newborn]This article refers to the case of a premature newborn twin (23 weeks of gestation + 6). Of the two brothers, only one survived, in a highly compromised state of health that led to a notable and dramatic series of clinical events: infectious complications, chronic renal failure, viscera herniation, intestinal perforation, and thrombocytopenia, treated with various infusions of platelet concentrates.During an infusion of platelet concentrate, an extravasation occurred with important tissue infarction. The lesion created, secondary to ischemic necrosis, evolves into dry necrosis, from the hand to the whole forearm, and leads to the amputation of the right forearm, despite the various attempts, pharmacological and surgical, experienced to avoid the extrema ratio.The purpose of this article is to analyze what happened considering scientific clinical evidence and the profile of responsibilities related to nursing practice.",
+        "paper_id": "10.7175/pmeal.v12i1.1375",
+        "venue": "Pratica Medica &amp; Aspetti Legali",
+        "citation_count": 0,
+        "url": "https://doi.org/10.7175/pmeal.v12i1.1375",
+        "doi": "10.7175/pmeal.v12i1.1375",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.7175/pmeal.v12i1.1375",
+          "title": "Profili di responsabilità infermieristica in un caso di amputazione dell’avambraccio da errata pratica infusionale in neonato prematuro",
+          "year": 2018,
+          "authors": [
+            "Luigi Pais dei Mori"
+          ],
+          "venue": "Pratica Medica &amp; Aspetti Legali",
+          "abstract": "[Nursing responsibility profiles in a case of forearm amputation by wrong infusion practice in a premature newborn]This article refers to the case of a premature newborn twin (23 weeks of gestation + 6). Of the two brothers, only one survived, in a highly compromised state of health that led to a notable and dramatic series of clinical events: infectious complications, chronic renal failure, viscera herniation, intestinal perforation, and thrombocytopenia, treated with various infusions of platelet concentrates.During an infusion of platelet concentrate, an extravasation occurred with important tissue infarction. The lesion created, secondary to ischemic necrosis, evolves into dry necrosis, from the hand to the whole forearm, and leads to the amputation of the right forearm, despite the various attempts, pharmacological and surgical, experienced to avoid the extrema ratio.The purpose of this article is to analyze what happened considering scientific clinical evidence and the profile of responsibilities related to nursing practice.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-10",
+            "scope-5"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "[Nursing responsibility profiles in a case of forearm amputation by wrong infusion practice in a premature newborn]This article refers to the case of a premature newborn twin (23 weeks of gestation + 6). Of the two brothers, only one survived, in a highly compromised state of health that led to a notable and dramatic series of clinical events: infectious complications, chronic renal failure, viscera herniation, intestinal perforation, and thrombocytopenia, treated with various infusions of platelet concentrates.During an infusion of platelet concentrate, an extravasation occurred with important tissue infarction. The lesion created, secondary to ischemic necrosis, evolves into dry necrosis, from the hand to the whole forearm, and leads to the amputation of the right forearm, despite the various attempts, pharmacological and surgical, experienced to avoid the extrema ratio.The purpose of this article is to analyze what happened considering scientific clinical evidence and the profile of responsibilities related to nursing practice.",
+            "sha256": "7c9e444d8d37e881b655c5b02e39ae0cac92d1d0831a39e9c7ab28d3fb7919a1",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.7175/pmeal.v12i1.1375",
+                "paper_id": "10.7175/pmeal.v12i1.1375"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K386a1ae2100c",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "29th Congress of the Italian Society of Neonatology - Lombardy section | Bergamo, 29-30 January 2016",
+        "authors": [
+          "Luciano Musi",
+          "Alessandro Frigiola",
+          "Marcello Giovannini",
+          "Luca Rosti"
+        ],
+        "year": 2016,
+        "abstract": "This abstract book contains the abstracts presented at the 29th Congress of the Italian Society of Neonatology - Lombardy section | Bergamo, 29-30 January 2016.",
+        "paper_id": "https://openalex.org/W2022768074",
+        "venue": "La Pediatria Medica e Chirurgica",
+        "citation_count": 0,
+        "url": "https://doi.org/10.4081/pmc.2016.128",
+        "doi": "10.4081/pmc.2016.128",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.4081/pmc.2016.128",
+          "title": "29th Congress of the Italian Society of Neonatology - Lombardy section | Bergamo, 29-30 January 2016",
+          "year": 2016,
+          "authors": [
+            "Luciano Musi",
+            "Alessandro Frigiola",
+            "Marcello Giovannini",
+            "Luca Rosti"
+          ],
+          "venue": "La Pediatria Medica e Chirurgica",
+          "abstract": "This abstract book contains the abstracts presented at the 29th Congress of the Italian Society of Neonatology - Lombardy section | Bergamo, 29-30 January 2016.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-16",
+            "scope-6",
+            "scope-9"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "This abstract book contains the abstracts presented at the 29th Congress of the Italian Society of Neonatology - Lombardy section | Bergamo, 29-30 January 2016.",
+            "sha256": "439174835ff67c1e5b3d8e393f95a1a71aaeaf3e64d156ae5b82251fcf8e3095",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.4081/pmc.2016.128",
+                "paper_id": "https://openalex.org/W2022768074"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kce08cb82466c",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Localized responses to systemic challenges: A study of primary science teaching in Bhutan",
+        "authors": [
+          "Pema Wangdi",
+          "Som Gurung"
+        ],
+        "year": 2026,
+        "abstract": "This study explores the instructional challenges and adaptive strategies employed by primary science teachers in Bhutan. Using a qualitative phenomenological approach, the research draws on data from semi-structured interviews and classroom observations involving three teachers from government schools. Thematic analysis revealed recurring challenges in teaching abstract scientific concepts, insufficient access to visual and tactile learning materials, and difficulties in differentiating instruction in mixed-ability classrooms. However, the study also highlights significant pedagogical ingenuity, as teachers repurposed locally available materials, employed visual aids and sequencing tasks, and fostered peer collaboration to enhance student engagement and understanding. The findings contribute to the discourse on educational equity and localized curriculum delivery by documenting the lived experiences of teachers working in resource-constrained environments. The study recommends targeted professional development, investment in contextualized teaching aids, and recognition of teacher-led innovations to strengthen science education in Bhutan.",
+        "paper_id": "10.60923/issn.1825-8670/22499",
+        "venue": "Encyclopaideia",
+        "citation_count": 0,
+        "url": "https://doi.org/10.60923/issn.1825-8670/22499",
+        "doi": "10.60923/issn.1825-8670/22499",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.60923/issn.1825-8670/22499",
+          "title": "Localized responses to systemic challenges: A study of primary science teaching in Bhutan",
+          "year": 2026,
+          "authors": [
+            "Pema Wangdi",
+            "Som Gurung"
+          ],
+          "venue": "Encyclopaideia",
+          "abstract": "This study explores the instructional challenges and adaptive strategies employed by primary science teachers in Bhutan. Using a qualitative phenomenological approach, the research draws on data from semi-structured interviews and classroom observations involving three teachers from government schools. Thematic analysis revealed recurring challenges in teaching abstract scientific concepts, insufficient access to visual and tactile learning materials, and difficulties in differentiating instruction in mixed-ability classrooms. However, the study also highlights significant pedagogical ingenuity, as teachers repurposed locally available materials, employed visual aids and sequencing tasks, and fostered peer collaboration to enhance student engagement and understanding. The findings contribute to the discourse on educational equity and localized curriculum delivery by documenting the lived experiences of teachers working in resource-constrained environments. The study recommends targeted professional development, investment in contextualized teaching aids, and recognition of teacher-led innovations to strengthen science education in Bhutan.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-6"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "This study explores the instructional challenges and adaptive strategies employed by primary science teachers in Bhutan. Using a qualitative phenomenological approach, the research draws on data from semi-structured interviews and classroom observations involving three teachers from government schools. Thematic analysis revealed recurring challenges in teaching abstract scientific concepts, insufficient access to visual and tactile learning materials, and difficulties in differentiating instruction in mixed-ability classrooms. However, the study also highlights significant pedagogical ingenuity, as teachers repurposed locally available materials, employed visual aids and sequencing tasks, and fostered peer collaboration to enhance student engagement and understanding. The findings contribute to the discourse on educational equity and localized curriculum delivery by documenting the lived experiences of teachers working in resource-constrained environments. The study recommends targeted professional development, investment in contextualized teaching aids, and recognition of teacher-led innovations to strengthen science education in Bhutan.",
+            "sha256": "63acc31ddb6a32a1f858a821b4c922679970884b97f0a8a2b916803cd5dbdf83",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.60923/issn.1825-8670/22499",
+                "paper_id": "10.60923/issn.1825-8670/22499"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K223cf4f3e8f6",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "The Effect of Three Nursing Interventions on Thermoregulation in Low Birth Weight Infants",
+        "authors": [
+          "Debra A. Lewis",
+          "Lynda P. Sanders",
+          "Dorothy Y. Brockopp"
+        ],
+        "year": 2011,
+        "abstract": "ABSTRACT Purpose: The primary aim of this study was to evaluate the use of three nursing interventions—occlusive wrap, chemical mattress, and regulation of delivery room temperature—singly and in combination in consecutive years on thermo-regulation in six groups of low birth weight infants. Design: A quasi-experimental design was used. Prospective data were collected on 133 infants weighing <1,500 g. Interventions were tested on different groups of infants in each of three years. The control group comprised 295 infants on which retrospective chart data were available over an earlier three-year period. Sample: Infants weighing <1,500 g participated in the study. Main Outcome Variable: The main outcome variable was NICU admission temperatures of infants weighing <1,500 g. For data analysis, infants were divided into two groups: those weighing <1,000 g and those weighing between 1,000 and 1,500 g. Results: For each of the three interventions, the percentage having a normal NICU admission temperature in each intervention group exceeded the control group percentage, but the increase was not significant. Use of each intervention—occlusive wrap alone, occlusive wrap in addition to chemical mattress, and occlusive wrap in addition to chemical mattress and increased delivery room temperature—appeared to influence thermoregulation positively.",
+        "paper_id": "10.1891/0730-0832.30.3.160",
+        "venue": "Neonatal Network",
+        "citation_count": 13,
+        "url": "https://doi.org/10.1891/0730-0832.30.3.160",
+        "doi": "10.1891/0730-0832.30.3.160",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1891/0730-0832.30.3.160",
+          "title": "The Effect of Three Nursing Interventions on Thermoregulation in Low Birth Weight Infants",
+          "year": 2011,
+          "authors": [
+            "Debra A. Lewis",
+            "Lynda P. Sanders",
+            "Dorothy Y. Brockopp"
+          ],
+          "venue": "Neonatal Network",
+          "abstract": "ABSTRACT Purpose: The primary aim of this study was to evaluate the use of three nursing interventions—occlusive wrap, chemical mattress, and regulation of delivery room temperature—singly and in combination in consecutive years on thermo-regulation in six groups of low birth weight infants. Design: A quasi-experimental design was used. Prospective data were collected on 133 infants weighing <1,500 g. Interventions were tested on different groups of infants in each of three years. The control group comprised 295 infants on which retrospective chart data were available over an earlier three-year period. Sample: Infants weighing <1,500 g participated in the study. Main Outcome Variable: The main outcome variable was NICU admission temperatures of infants weighing <1,500 g. For data analysis, infants were divided into two groups: those weighing <1,000 g and those weighing between 1,000 and 1,500 g. Results: For each of the three interventions, the percentage having a normal NICU admission temperature in each intervention group exceeded the control group percentage, but the increase was not significant. Use of each intervention—occlusive wrap alone, occlusive wrap in addition to chemical mattress, and occlusive wrap in addition to chemical mattress and increased delivery room temperature—appeared to influence thermoregulation positively.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-7"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "ABSTRACT Purpose: The primary aim of this study was to evaluate the use of three nursing interventions—occlusive wrap, chemical mattress, and regulation of delivery room temperature—singly and in combination in consecutive years on thermo-regulation in six groups of low birth weight infants. Design: A quasi-experimental design was used. Prospective data were collected on 133 infants weighing <1,500 g. Interventions were tested on different groups of infants in each of three years. The control group comprised 295 infants on which retrospective chart data were available over an earlier three-year period. Sample: Infants weighing <1,500 g participated in the study. Main Outcome Variable: The main outcome variable was NICU admission temperatures of infants weighing <1,500 g. For data analysis, infants were divided into two groups: those weighing <1,000 g and those weighing between 1,000 and 1,500 g. Results: For each of the three interventions, the percentage having a normal NICU admission temperature in each intervention group exceeded the control group percentage, but the increase was not significant. Use of each intervention—occlusive wrap alone, occlusive wrap in addition to chemical mattress, and occlusive wrap in addition to chemical mattress and increased delivery room temperature—appeared to influence thermoregulation positively.",
+            "sha256": "38869ef501579af55ffd3f5336a58db3ed5f04e38384c3147630d7d97119fc6b",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1891/0730-0832.30.3.160",
+                "paper_id": "10.1891/0730-0832.30.3.160"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K4ab85104ef86",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Translational models of stress and resilience: An applied neuroscience methodology review",
+        "authors": [
+          "Zeynep Seda Albayrak",
+          "Andreia Vaz",
+          "Joeri Bordes",
+          "Selen Ünlü",
+          "Milou S.C. Sep",
+          "Christiaan H. Vinkers",
+          "Luisa Pinto",
+          "Hale Yapici-Eser"
+        ],
+        "year": 2024,
+        "abstract": "Stress, encompassing psychological, physical, and physiological challenges, is an important factor affecting an individual's well-being and potentially leading to psychiatric, neurodegenerative, immune, and metabolic disorders. However, not everyone exposed to stress develops these conditions, highlighting the concept of resilience. Resilience is a dynamic process categorized into four dimensions: pre-existing resilience capacity, ongoing resilience processes, post-stress resilience outcomes, and recovery from psychopathologies. These dimensions involve genomic, cellular, and systemic interactions influenced by genetic factors, early life experiences, adult life experiences in addition to community/environmental factors, and health behaviors. The biological response to stress encompasses endocrine, autonomic, immunological, and behavioral components, modulated by stressor characteristics and individual traits. Due to the limitations in studying stress and resilience in humans, translational models using rodents and cell cultures are essential. Rodent models include acute, chronic, and traumatic stress paradigms, aiding the study of stress-related behavioral and molecular outcomes. Additionally, early life stress models, such as prenatal stress and maternal separation, provide insights into developmental impacts. In this review, first, rodent models for lifelong stress exposure will be summarized considering their validity, advantages, and limitations. Subsequently, an overview of models designed to enhance resilience capacity and process in rodents, and later the behavioral models employed to study the outcomes of resilience will be given. Lastly, the focus will be shifted to cell culture and iPSCs models. Finally, future considerations focused on improving translational models used to study stress and resilience will be discussed. It is aimed to provide an overview of designs for translational stress and resilience models to access more effective translational biomarkers associated with stress and resilience. Stress and resilience are complex phenomena influenced by various factors, spanning molecular to behavioral levels. Integrating data across dimensions remains crucial for unraveling the complexities of stress-related disorders and resilience.",
+        "paper_id": "https://openalex.org/W4393948716",
+        "venue": "Neuroscience Applied",
+        "citation_count": 31,
+        "url": "https://doi.org/10.1016/j.nsa.2024.104064",
+        "doi": "10.1016/j.nsa.2024.104064",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1016/j.nsa.2024.104064",
+          "title": "Translational models of stress and resilience: An applied neuroscience methodology review",
+          "year": 2024,
+          "authors": [
+            "Zeynep Seda Albayrak",
+            "Andreia Vaz",
+            "Joeri Bordes",
+            "Selen Ünlü",
+            "Milou S.C. Sep",
+            "Christiaan H. Vinkers",
+            "Luisa Pinto",
+            "Hale Yapici-Eser"
+          ],
+          "venue": "Neuroscience Applied",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-7"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Stress, encompassing psychological, physical, and physiological challenges, is an important factor affecting an individual's well-being and potentially leading to psychiatric, neurodegenerative, immune, and metabolic disorders. However, not everyone exposed to stress develops these conditions, highlighting the concept of resilience. Resilience is a dynamic process categorized into four dimensions: pre-existing resilience capacity, ongoing resilience processes, post-stress resilience outcomes, and recovery from psychopathologies. These dimensions involve genomic, cellular, and systemic interactions influenced by genetic factors, early life experiences, adult life experiences in addition to community/environmental factors, and health behaviors. The biological response to stress encompasses endocrine, autonomic, immunological, and behavioral components, modulated by stressor characteristics and individual traits. Due to the limitations in studying stress and resilience in humans, translational models using rodents and cell cultures are essential. Rodent models include acute, chronic, and traumatic stress paradigms, aiding the study of stress-related behavioral and molecular outcomes. Additionally, early life stress models, such as prenatal stress and maternal separation, provide insights into developmental impacts. In this review, first, rodent models for lifelong stress exposure will be summarized considering their validity, advantages, and limitations. Subsequently, an overview of models designed to enhance resilience capacity and process in rodents, and later the behavioral models employed to study the outcomes of resilience will be given. Lastly, the focus will be shifted to cell culture and iPSCs models. Finally, future considerations focused on improving translational models used to study stress and resilience will be discussed. It is aimed to provide an overview of designs for translational stress and resilience models to access more effective translational biomarkers associated with stress and resilience. Stress and resilience are complex phenomena influenced by various factors, spanning molecular to behavioral levels. Integrating data across dimensions remains crucial for unraveling the complexities of stress-related disorders and resilience.",
+            "sha256": "559326a3126163c117ee2d35af4aa68e8c29cc6abd25ba54fd8e743f71ce5d3d",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.1016/j.nsa.2024.104064",
+                "paper_id": "https://openalex.org/W4393948716"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K6a82836b3f6d",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Il malato cronico e l’odissea della cura: quali soluzioni per migliorare assistenza e qualità di vita?",
+        "authors": [
+          "Antonio Gaudioso"
+        ],
+        "year": 2020,
+        "abstract": "La vita delle persone che soffrono di malattie croniche è resa ancora più difficile dal peso burocratico e amministrativo imposto da un sistema sanitario che non risponde in modo personalizzato ai bisogni dei cittadini. L’origine del problema è nella cultura del Paese e in una mentalità che sembra avere timore delle innovazioni. Un sistema sanitario che si prende cura dei malati cronici dovrebbe aggiornare le classificazioni delle malattie su cui si basa il percorso diagnostico e terapeutico e aggiornare costantemente i livelli essenziali di assistenza (LEA). Anche l’attività regolatoria di terapie e dispositivi dovrebbe garantire che il punto di vista del cittadino sia ascoltato e tenuto in considerazione, come contributo fondamentale per il miglioramento costante dei flussi organizzativi e assistenziali del sistema sanitario.",
+        "paper_id": "10.1701/3474.34577",
+        "venue": "Recenti Progressi in Medicina",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1701/3474.34577",
+        "doi": "10.1701/3474.34577",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1701/3474.34577",
+          "title": "Il malato cronico e l’odissea della cura: quali soluzioni per migliorare assistenza e qualità di vita?",
+          "year": 2020,
+          "authors": [
+            "Antonio Gaudioso"
+          ],
+          "venue": "Recenti Progressi in Medicina",
+          "abstract": "La vita delle persone che soffrono di malattie croniche è resa ancora più difficile dal peso burocratico e amministrativo imposto da un sistema sanitario che non risponde in modo personalizzato ai bisogni dei cittadini. L’origine del problema è nella cultura del Paese e in una mentalità che sembra avere timore delle innovazioni. Un sistema sanitario che si prende cura dei malati cronici dovrebbe aggiornare le classificazioni delle malattie su cui si basa il percorso diagnostico e terapeutico e aggiornare costantemente i livelli essenziali di assistenza (LEA). Anche l’attività regolatoria di terapie e dispositivi dovrebbe garantire che il punto di vista del cittadino sia ascoltato e tenuto in considerazione, come contributo fondamentale per il miglioramento costante dei flussi organizzativi e assistenziali del sistema sanitario.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-8"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "La vita delle persone che soffrono di malattie croniche è resa ancora più difficile dal peso burocratico e amministrativo imposto da un sistema sanitario che non risponde in modo personalizzato ai bisogni dei cittadini. L’origine del problema è nella cultura del Paese e in una mentalità che sembra avere timore delle innovazioni. Un sistema sanitario che si prende cura dei malati cronici dovrebbe aggiornare le classificazioni delle malattie su cui si basa il percorso diagnostico e terapeutico e aggiornare costantemente i livelli essenziali di assistenza (LEA). Anche l’attività regolatoria di terapie e dispositivi dovrebbe garantire che il punto di vista del cittadino sia ascoltato e tenuto in considerazione, come contributo fondamentale per il miglioramento costante dei flussi organizzativi e assistenziali del sistema sanitario.",
+            "sha256": "2ecd3549ba322f605452342958d66e8c29d41de6bef6a6416611c16164c1f8b1",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1701/3474.34577",
+                "paper_id": "10.1701/3474.34577"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K282c237c74ff",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "La digitalizzazione a supporto del processo di implementazione del nuovo modello di assistenza territoriale della ASL di Sassari",
+        "authors": [
+          "Luca Pirisi",
+          "Elisabetta Reginato"
+        ],
+        "year": 2023,
+        "abstract": "L'emergenza pandemica ha accelerato l'adozione delle tecnologie digitali e il potenziamento dell'assistenza territoriale. Il contributo analizza come la ASL di Sassari stia gestendo il processo di digitalizzazione e innovazione dei servizi territoriali, sulla spinta del PNRR e secondo i criteri del D.M. n. 77/2022 e delle direttive regionali. Il caso studio &egrave; particolarmente rilevante in quanto l'azienda &egrave; chiamata a gestire massicci investimenti e profondi cambiamenti di sistema, all'interno di una fase estremamente complessa, derivante dalla riforma regionale in atto e dal conseguente disallineamento dei processi istituzionali, organizzativi e tecnologici. Il lavoro evidenzia come la ASL di Sassari si trovi davanti a una duplice sfida: implementare in modo efficace e rapido le strategie del PNRR, secondo un approccio top-down; sviluppare dal basso l'innovazione dei servizi territoriali collegati all'uso delle nuove tecnologie digitali e al nuovo modello di medicina di prossimit&agrave;.",
+        "paper_id": "10.3280/mesa2022-123oa15599",
+        "venue": "MECOSAN",
+        "citation_count": 3,
+        "url": "https://doi.org/10.3280/mesa2022-123oa15599",
+        "doi": "10.3280/mesa2022-123oa15599",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.3280/mesa2022-123oa15599",
+          "title": "La digitalizzazione a supporto del processo di implementazione del nuovo modello di assistenza territoriale della ASL di Sassari",
+          "year": 2023,
+          "authors": [
+            "Luca Pirisi",
+            "Elisabetta Reginato"
+          ],
+          "venue": "MECOSAN",
+          "abstract": "L'emergenza pandemica ha accelerato l'adozione delle tecnologie digitali e il potenziamento dell'assistenza territoriale. Il contributo analizza come la ASL di Sassari stia gestendo il processo di digitalizzazione e innovazione dei servizi territoriali, sulla spinta del PNRR e secondo i criteri del D.M. n. 77/2022 e delle direttive regionali. Il caso studio &egrave; particolarmente rilevante in quanto l'azienda &egrave; chiamata a gestire massicci investimenti e profondi cambiamenti di sistema, all'interno di una fase estremamente complessa, derivante dalla riforma regionale in atto e dal conseguente disallineamento dei processi istituzionali, organizzativi e tecnologici. Il lavoro evidenzia come la ASL di Sassari si trovi davanti a una duplice sfida: implementare in modo efficace e rapido le strategie del PNRR, secondo un approccio top-down; sviluppare dal basso l'innovazione dei servizi territoriali collegati all'uso delle nuove tecnologie digitali e al nuovo modello di medicina di prossimit&agrave;.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-8"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "L'emergenza pandemica ha accelerato l'adozione delle tecnologie digitali e il potenziamento dell'assistenza territoriale. Il contributo analizza come la ASL di Sassari stia gestendo il processo di digitalizzazione e innovazione dei servizi territoriali, sulla spinta del PNRR e secondo i criteri del D.M. n. 77/2022 e delle direttive regionali. Il caso studio &egrave; particolarmente rilevante in quanto l'azienda &egrave; chiamata a gestire massicci investimenti e profondi cambiamenti di sistema, all'interno di una fase estremamente complessa, derivante dalla riforma regionale in atto e dal conseguente disallineamento dei processi istituzionali, organizzativi e tecnologici. Il lavoro evidenzia come la ASL di Sassari si trovi davanti a una duplice sfida: implementare in modo efficace e rapido le strategie del PNRR, secondo un approccio top-down; sviluppare dal basso l'innovazione dei servizi territoriali collegati all'uso delle nuove tecnologie digitali e al nuovo modello di medicina di prossimit&agrave;.",
+            "sha256": "ece0733bd3972f4be76d6cd0e7d63d7e6bf41ca90b75a62323a81208272335a7",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.3280/mesa2022-123oa15599",
+                "paper_id": "10.3280/mesa2022-123oa15599"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K72d63657faee",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Gestione infermieristica del diabete di tipo 1 tramite tecnologie: competenze, educazione ed equità delle cure",
+        "authors": [
+          "Giovanni Cangelosi"
+        ],
+        "year": 2026,
+        "abstract": "Recent advances in diabetes technologies have transformed the management of Type 1 Diabetes (T1D), making automated insulin delivery systems, continuous glucose monitoring, and connected devices integral components of routine care. Alongside these innovations, nursing responsibilities have expanded beyond traditional therapeutic education to include technology training, long-term support, and the promotion of equitable access to care. However, structured educational pathways that adequately prepare nurses for these evolving roles remain limited. This letter discusses the growing importance of nursing competencies in diabetes technology, highlighting their implications for clinical practice, professional education, and health equity. Strengthening nurses’ technological expertise is essential to ensure that innovation translates into improved clinical outcomes, patient empowerment, and equitable, person-centred diabetes care.",
+        "paper_id": "10.54103/dn/32403",
+        "venue": "Dissertation Nursing",
+        "citation_count": 0,
+        "url": "https://doi.org/10.54103/dn/32403",
+        "doi": "10.54103/dn/32403",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.54103/dn/32403",
+          "title": "Gestione infermieristica del diabete di tipo 1 tramite tecnologie: competenze, educazione ed equità delle cure",
+          "year": 2026,
+          "authors": [
+            "Giovanni Cangelosi"
+          ],
+          "venue": "Dissertation Nursing",
+          "abstract": "Recent advances in diabetes technologies have transformed the management of Type 1 Diabetes (T1D), making automated insulin delivery systems, continuous glucose monitoring, and connected devices integral components of routine care. Alongside these innovations, nursing responsibilities have expanded beyond traditional therapeutic education to include technology training, long-term support, and the promotion of equitable access to care. However, structured educational pathways that adequately prepare nurses for these evolving roles remain limited. This letter discusses the growing importance of nursing competencies in diabetes technology, highlighting their implications for clinical practice, professional education, and health equity. Strengthening nurses’ technological expertise is essential to ensure that innovation translates into improved clinical outcomes, patient empowerment, and equitable, person-centred diabetes care.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-10",
+            "scope-9"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Recent advances in diabetes technologies have transformed the management of Type 1 Diabetes (T1D), making automated insulin delivery systems, continuous glucose monitoring, and connected devices integral components of routine care. Alongside these innovations, nursing responsibilities have expanded beyond traditional therapeutic education to include technology training, long-term support, and the promotion of equitable access to care. However, structured educational pathways that adequately prepare nurses for these evolving roles remain limited. This letter discusses the growing importance of nursing competencies in diabetes technology, highlighting their implications for clinical practice, professional education, and health equity. Strengthening nurses’ technological expertise is essential to ensure that innovation translates into improved clinical outcomes, patient empowerment, and equitable, person-centred diabetes care.",
+            "sha256": "2d164253544346d3978980fe3907f8a26017f530182e8271ed84ff61e0028483",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.54103/dn/32403",
+                "paper_id": "10.54103/dn/32403"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K2303d3bb1655",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "PREVENZIONE DLLA SORDITA' E DEGLI HANDICAP ASSOCIATI.",
+        "authors": [
+          "F Ottaviani"
+        ],
+        "year": 2013,
+        "abstract": "Allo stato attuale la diagnosi precoce della sordità infantile e l’introduzione nella pratica clinica quotidiana delle possibilità di riabilitazione protesica nelle ipoacusie di ogni entità e fascia di età, ha ridotto la disabilità comunicativa conseguente alla sordità, con la scomparsa del ricorso a metodiche comunicative alternative al linguaggio orale (comunicazione gestuale), ad eccezione di casi assolutamente rari. La situazione italiana è lungi dall’essere ideale perché, pur esistendo nel nostro paese tutte le competenze tecnico-professionali, persistono gravi zone d’ombra dal punto di vista organizzativo, con una situazione a macchia di leopardo. Non crediamo che l’investimento richiesto sia tale da scoraggiare un’iniziativa del genere, almeno per quanto riguarda le apparecchiature; diverso il discorso per il personale paramedico. Adesso l’esecuzione delle otoemissioni acustiche è affidata alle infermiere e/o ostetriche del nido, che abbiano ricevuto una preparazione specifica, anche se sarebbe auspicabile fosse affidata alla figura professionale dedicata e, cioè, al tecnico audiometrista. I risultati dello screening andrebbero poi raccolti e valutati, per definirne la reale efficacia e andrebbe impostato un data-base regionale per controllare i risultati dello screening, la sua efficienza e le caratteristiche dell’iter terapeutico-riabilitativo. In Italia, e in altre nazioni, la protesizzazione acustica non è attuata nelle strutture pubbliche ma devoluta ai privati dotati, nella stragrande maggioranza dei casi, di una qualifica universitaria. Andrebbe, quindi, valutata la possibilità che le strutture del SSN entrino in questo settore, anche per favorire una riduzione dei costi. L’impianto cocleare è destinato a vedere sempre più esteso il proprio campo di applicazione, anche se in Italia esistono con aree di maggior concentrazione e altre ancora sofferenti. Bisognerebbe, probabilmente, favorire una razionalizzazione delle strutture, ricordando ",
+        "paper_id": "https://openalex.org/W2286322198",
+        "venue": "Cineca Institutional Research Information System (Tor Vergata University)",
+        "citation_count": 0,
+        "url": "https://openalex.org/W2286322198",
+        "doi": null,
+        "provider": "openalex",
+        "source_type": "conference-paper",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": null,
+          "title": "PREVENZIONE DLLA SORDITA' E DEGLI HANDICAP ASSOCIATI.",
+          "year": 2013,
+          "authors": [
+            "F Ottaviani"
+          ],
+          "venue": "Cineca Institutional Research Information System (Tor Vergata University)",
+          "abstract": "Allo stato attuale la diagnosi precoce della sordità infantile e l’introduzione nella pratica clinica quotidiana delle possibilità di riabilitazione protesica nelle ipoacusie di ogni entità e fascia di età, ha ridotto la disabilità comunicativa conseguente alla sordità, con la scomparsa del ricorso a metodiche comunicative alternative al linguaggio orale (comunicazione gestuale), ad eccezione di casi assolutamente rari. La situazione italiana è lungi dall’essere ideale perché, pur esistendo nel nostro paese tutte le competenze tecnico-professionali, persistono gravi zone d’ombra dal punto di vista organizzativo, con una situazione a macchia di leopardo. Non crediamo che l’investimento richiesto sia tale da scoraggiare un’iniziativa del genere, almeno per quanto riguarda le apparecchiature; diverso il discorso per il personale paramedico. Adesso l’esecuzione delle otoemissioni acustiche è affidata alle infermiere e/o ostetriche del nido, che abbiano ricevuto una preparazione specifica, anche se sarebbe auspicabile fosse affidata alla figura professionale dedicata e, cioè, al tecnico audiometrista. I risultati dello screening andrebbero poi raccolti e valutati, per definirne la reale efficacia e andrebbe impostato un data-base regionale per controllare i risultati dello screening, la sua efficienza e le caratteristiche dell’iter terapeutico-riabilitativo. In Italia, e in altre nazioni, la protesizzazione acustica non è attuata nelle strutture pubbliche ma devoluta ai privati dotati, nella stragrande maggioranza dei casi, di una qualifica universitaria. Andrebbe, quindi, valutata la possibilità che le strutture del SSN entrino in questo settore, anche per favorire una riduzione dei costi. L’impianto cocleare è destinato a vedere sempre più esteso il proprio campo di applicazione, anche se in Italia esistono con aree di maggior concentrazione e altre ancora sofferenti. Bisognerebbe, probabilmente, favorire una razionalizzazione delle strutture, ricordando ",
+          "provider": "openalex",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "openalex",
+          "scope_ids": [
+            "scope-11",
+            "scope-16",
+            "scope-4"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Allo stato attuale la diagnosi precoce della sordità infantile e l’introduzione nella pratica clinica quotidiana delle possibilità di riabilitazione protesica nelle ipoacusie di ogni entità e fascia di età, ha ridotto la disabilità comunicativa conseguente alla sordità, con la scomparsa del ricorso a metodiche comunicative alternative al linguaggio orale (comunicazione gestuale), ad eccezione di casi assolutamente rari. La situazione italiana è lungi dall’essere ideale perché, pur esistendo nel nostro paese tutte le competenze tecnico-professionali, persistono gravi zone d’ombra dal punto di vista organizzativo, con una situazione a macchia di leopardo. Non crediamo che l’investimento richiesto sia tale da scoraggiare un’iniziativa del genere, almeno per quanto riguarda le apparecchiature; diverso il discorso per il personale paramedico. Adesso l’esecuzione delle otoemissioni acustiche è affidata alle infermiere e/o ostetriche del nido, che abbiano ricevuto una preparazione specifica, anche se sarebbe auspicabile fosse affidata alla figura professionale dedicata e, cioè, al tecnico audiometrista. I risultati dello screening andrebbero poi raccolti e valutati, per definirne la reale efficacia e andrebbe impostato un data-base regionale per controllare i risultati dello screening, la sua efficienza e le caratteristiche dell’iter terapeutico-riabilitativo. In Italia, e in altre nazioni, la protesizzazione acustica non è attuata nelle strutture pubbliche ma devoluta ai privati dotati, nella stragrande maggioranza dei casi, di una qualifica universitaria. Andrebbe, quindi, valutata la possibilità che le strutture del SSN entrino in questo settore, anche per favorire una riduzione dei costi. L’impianto cocleare è destinato a vedere sempre più esteso il proprio campo di applicazione, anche se in Italia esistono con aree di maggior concentrazione e altre ancora sofferenti. Bisognerebbe, probabilmente, favorire una razionalizzazione delle strutture, ricordando",
+            "sha256": "adc989b2e0c24751d7d8df63f00e9aa95501b6b6c1f081975ea32df8184b5cf9",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": null,
+                "paper_id": "https://openalex.org/W2286322198"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kba2e9f627c9e",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Dalla Terapia Intensiva Neonatale alla Pediatria di famiglia",
+        "authors": [
+          "Salvatore Aversa",
+          "Francesco Maria Risso"
+        ],
+        "year": 2023,
+        "abstract": "Discharge planning of preterm infants and transition from the neonatologist to the primary care paediatrician are key components of family-centred Neonatal Intensive Care Unit care. Growth support and monitoring, feeding choices, management of gastroesophageal reflux, neurodevelopmental issues, clinical follow-up and monitoring at home, screening and recommended vaccinations are issues that the primary care paediatrician will face in caring for these children. Many of the problems extremely preterm infants face are not yet resolved at the time of hospital discharge and will require continued outpatient management by the neonatologist, primary care paediatrician and other members of the multidisciplinary team. Parents will need to participate in a comprehensive discharge planning programme tailored to their infant’s individual needs and family resources. This article discusses the main clinical problems that primary care paediatricians have to face from the day of discharge and the successive care of the preterm infant, which is often very challenging and delicate.",
+        "paper_id": "10.53126/meb42103",
+        "venue": "Medico e Bambino",
+        "citation_count": 0,
+        "url": "https://doi.org/10.53126/meb42103",
+        "doi": "10.53126/meb42103",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.53126/meb42103",
+          "title": "Dalla Terapia Intensiva Neonatale alla Pediatria di famiglia",
+          "year": 2023,
+          "authors": [
+            "Salvatore Aversa",
+            "Francesco Maria Risso"
+          ],
+          "venue": "Medico e Bambino",
+          "abstract": "Discharge planning of preterm infants and transition from the neonatologist to the primary care paediatrician are key components of family-centred Neonatal Intensive Care Unit care. Growth support and monitoring, feeding choices, management of gastroesophageal reflux, neurodevelopmental issues, clinical follow-up and monitoring at home, screening and recommended vaccinations are issues that the primary care paediatrician will face in caring for these children. Many of the problems extremely preterm infants face are not yet resolved at the time of hospital discharge and will require continued outpatient management by the neonatologist, primary care paediatrician and other members of the multidisciplinary team. Parents will need to participate in a comprehensive discharge planning programme tailored to their infant’s individual needs and family resources. This article discusses the main clinical problems that primary care paediatricians have to face from the day of discharge and the successive care of the preterm infant, which is often very challenging and delicate.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-11"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Discharge planning of preterm infants and transition from the neonatologist to the primary care paediatrician are key components of family-centred Neonatal Intensive Care Unit care. Growth support and monitoring, feeding choices, management of gastroesophageal reflux, neurodevelopmental issues, clinical follow-up and monitoring at home, screening and recommended vaccinations are issues that the primary care paediatrician will face in caring for these children. Many of the problems extremely preterm infants face are not yet resolved at the time of hospital discharge and will require continued outpatient management by the neonatologist, primary care paediatrician and other members of the multidisciplinary team. Parents will need to participate in a comprehensive discharge planning programme tailored to their infant’s individual needs and family resources. This article discusses the main clinical problems that primary care paediatricians have to face from the day of discharge and the successive care of the preterm infant, which is often very challenging and delicate.",
+            "sha256": "e688dc1843c46701c90a48d14a8083ef2bc1859afe821948fd1f830466d439cb",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.53126/meb42103",
+                "paper_id": "10.53126/meb42103"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kf60f41921bbb",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "The PRISMA Statement for Reporting Systematic Reviews and Meta-Analyses of Studies That Evaluate Health Care Interventions: Explanation and Elaboration",
+        "authors": [
+          "Alessandro Liberati",
+          "Douglas G. Altman",
+          "Jennifer Tetzlaff",
+          "Cynthia Mulrow",
+          "Peter C. Gøtzsche",
+          "John P. A. Ioannidis",
+          "Mike Clarke",
+          "P. J. Devereaux",
+          "Jos Kleijnen",
+          "David Moher"
+        ],
+        "year": 2009,
+        "abstract": "Systematic reviews and meta-analyses are essential to summarize evidence relating to efficacy and safety of health care interventions accurately and reliably. The clarity and transparency of these reports, however, is not optimal. Poor reporting of systematic reviews diminishes their value to clinicians, policy makers, and other users.Since the development of the QUOROM (QUality Of Reporting Of Meta-analysis) Statement--a reporting guideline published in 1999--there have been several conceptual, methodological, and practical advances regarding the conduct and reporting of systematic reviews and meta-analyses. Also, reviews of published systematic reviews have found that key information about these studies is often poorly reported. Realizing these issues, an international group that included experienced authors and methodologists developed PRISMA (Preferred Reporting Items for Systematic reviews and Meta-Analyses) as an evolution of the original QUOROM guideline for systematic reviews and meta-analyses of evaluations of health care interventions.The PRISMA Statement consists of a 27-item checklist and a four-phase flow diagram. The checklist includes items deemed essential for transparent reporting of a systematic review. In this Explanation and Elaboration document, we explain the meaning and rationale for each checklist item. For each item, we include an example of good reporting and, where possible, references to relevant empirical studies and methodological literature. The PRISMA Statement, this document, and the associated Web site (http://www.prisma-statement.org/) should be helpful resources to improve reporting of systematic reviews and meta-analyses.",
+        "paper_id": "https://openalex.org/W3022903699",
+        "venue": "PLoS Medicine",
+        "citation_count": 28056,
+        "url": "https://doi.org/10.1371/journal.pmed.1000100",
+        "doi": "10.1371/journal.pmed.1000100",
+        "provider": "openalex",
+        "source_type": "review",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1371/journal.pmed.1000100",
+          "title": "The PRISMA Statement for Reporting Systematic Reviews and Meta-Analyses of Studies That Evaluate Health Care Interventions: Explanation and Elaboration",
+          "year": 2009,
+          "authors": [
+            "Alessandro Liberati",
+            "Douglas G. Altman",
+            "Jennifer Tetzlaff",
+            "Cynthia Mulrow",
+            "Peter C. Gøtzsche",
+            "John P. A. Ioannidis",
+            "Mike Clarke",
+            "P. J. Devereaux",
+            "Jos Kleijnen",
+            "David Moher"
+          ],
+          "venue": "PLoS Medicine",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-12",
+            "scope-15"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Systematic reviews and meta-analyses are essential to summarize evidence relating to efficacy and safety of health care interventions accurately and reliably. The clarity and transparency of these reports, however, is not optimal. Poor reporting of systematic reviews diminishes their value to clinicians, policy makers, and other users.Since the development of the QUOROM (QUality Of Reporting Of Meta-analysis) Statement--a reporting guideline published in 1999--there have been several conceptual, methodological, and practical advances regarding the conduct and reporting of systematic reviews and meta-analyses. Also, reviews of published systematic reviews have found that key information about these studies is often poorly reported. Realizing these issues, an international group that included experienced authors and methodologists developed PRISMA (Preferred Reporting Items for Systematic reviews and Meta-Analyses) as an evolution of the original QUOROM guideline for systematic reviews and meta-analyses of evaluations of health care interventions.The PRISMA Statement consists of a 27-item checklist and a four-phase flow diagram. The checklist includes items deemed essential for transparent reporting of a systematic review. In this Explanation and Elaboration document, we explain the meaning and rationale for each checklist item. For each item, we include an example of good reporting and, where possible, references to relevant empirical studies and methodological literature. The PRISMA Statement, this document, and the associated Web site (http://www.prisma-statement.org/) should be helpful resources to improve reporting of systematic reviews and meta-analyses.",
+            "sha256": "5cedaac2a68c5d1ff7d814ce9009926347c086e85780e2f30e62acb4e475d388",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.1371/journal.pmed.1000100",
+                "paper_id": "https://openalex.org/W3022903699"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kf84c745fdcd5",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "The PRISMA statement for reporting systematic reviews and meta-analyses of studies that evaluate health care interventions: explanation and elaboration",
+        "authors": [
+          "Alessandro Liberati",
+          "Douglas G. Altman",
+          "Jennifer Tetzlaff",
+          "Cynthia Mulrow",
+          "Peter C. Gøtzsche",
+          "John P. A. Ioannidis",
+          "Mike Clarke",
+          "P. J. Devereaux",
+          "Jos Kleijnen",
+          "David Moher"
+        ],
+        "year": 2009,
+        "abstract": "Systematic reviews and meta-analyses are essential to summarize evidence relating to efficacy and safetyof health care interventions accurately and reliably. The clarity and transparency of these reports, however,is not optimal. Poor reporting of systematic reviews diminishes their value to clinicians, policy makers, andother users. Since the development of the QUOROM (QUality Of Reporting Of Meta-analysis) Statement—areporting guideline published in 1999—there have been several conceptual, methodological, and practicaladvances regarding the conduct and reporting of systematic reviews and meta-analyses. Also, reviews ofpublished systematic reviews have found that key information about these studies is often poorly reported.Realizing these issues, an international group that included experienced authors and methodologistsdeveloped PRISMA (Preferred Reporting Items for Systematic reviews and Meta-Analyses) as an evolution ofthe original QUOROM guideline for systematic reviews and meta-analyses of evaluations of health careinterventions. The PRISMA Statement consists of a 27-item checklist and a four-phase flow diagram. Thechecklist includes items deemed essential for transparent reporting of a systematic review. In thisExplanation and Elaboration document, we explain the meaning and rationale for each checklist item. Foreach item, we include an example of good reporting and, where possible, references to relevant empiricalstudies and methodological literature. The PRISMA Statement, this document, and the associated Web site(http://www. prisma-statement.org/) should be helpful resources to improve reporting of systematicreviews and meta-analyses.",
+        "paper_id": "https://openalex.org/W4399625654",
+        "venue": "Italian Journal of Public Health",
+        "citation_count": 3481,
+        "url": "https://doi.org/10.2427/5768",
+        "doi": "10.2427/5768",
+        "provider": "openalex",
+        "source_type": "review",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.2427/5768",
+          "title": "The PRISMA statement for reporting systematic reviews and meta-analyses of studies that evaluate health care interventions: explanation and elaboration",
+          "year": 2009,
+          "authors": [
+            "Alessandro Liberati",
+            "Douglas G. Altman",
+            "Jennifer Tetzlaff",
+            "Cynthia Mulrow",
+            "Peter C. Gøtzsche",
+            "John P. A. Ioannidis",
+            "Mike Clarke",
+            "P. J. Devereaux",
+            "Jos Kleijnen",
+            "David Moher"
+          ],
+          "venue": "Italian Journal of Public Health",
+          "abstract": "Systematic reviews and meta-analyses are essential to summarize evidence relating to efficacy and safetyof health care interventions accurately and reliably. The clarity and transparency of these reports, however,is not optimal. Poor reporting of systematic reviews diminishes their value to clinicians, policy makers, andother users. Since the development of the QUOROM (QUality Of Reporting Of Meta-analysis) Statement—areporting guideline published in 1999—there have been several conceptual, methodological, and practicaladvances regarding the conduct and reporting of systematic reviews and meta-analyses. Also, reviews ofpublished systematic reviews have found that key information about these studies is often poorly reported.Realizing these issues, an international group that included experienced authors and methodologistsdeveloped PRISMA (Preferred Reporting Items for Systematic reviews and Meta-Analyses) as an evolution ofthe original QUOROM guideline for systematic reviews and meta-analyses of evaluations of health careinterventions. The PRISMA Statement consists of a 27-item checklist and a four-phase flow diagram. Thechecklist includes items deemed essential for transparent reporting of a systematic review. In thisExplanation and Elaboration document, we explain the meaning and rationale for each checklist item. Foreach item, we include an example of good reporting and, where possible, references to relevant empiricalstudies and methodological literature. The PRISMA Statement, this document, and the associated Web site(http://www. prisma-statement.org/) should be helpful resources to improve reporting of systematicreviews and meta-analyses.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-12",
+            "scope-15"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Systematic reviews and meta-analyses are essential to summarize evidence relating to efficacy and safetyof health care interventions accurately and reliably. The clarity and transparency of these reports, however,is not optimal. Poor reporting of systematic reviews diminishes their value to clinicians, policy makers, andother users. Since the development of the QUOROM (QUality Of Reporting Of Meta-analysis) Statement—areporting guideline published in 1999—there have been several conceptual, methodological, and practicaladvances regarding the conduct and reporting of systematic reviews and meta-analyses. Also, reviews ofpublished systematic reviews have found that key information about these studies is often poorly reported.Realizing these issues, an international group that included experienced authors and methodologistsdeveloped PRISMA (Preferred Reporting Items for Systematic reviews and Meta-Analyses) as an evolution ofthe original QUOROM guideline for systematic reviews and meta-analyses of evaluations of health careinterventions. The PRISMA Statement consists of a 27-item checklist and a four-phase flow diagram. Thechecklist includes items deemed essential for transparent reporting of a systematic review. In thisExplanation and Elaboration document, we explain the meaning and rationale for each checklist item. Foreach item, we include an example of good reporting and, where possible, references to relevant empiricalstudies and methodological literature. The PRISMA Statement, this document, and the associated Web site(http://www. prisma-statement.org/) should be helpful resources to improve reporting of systematicreviews and meta-analyses.",
+            "sha256": "0e78dd6a2b4ad87cbb43af5f45543c4fc075088d3a367ad3fb2cf87e177eb2e0",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.2427/5768",
+                "paper_id": "https://openalex.org/W4399625654"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K1a2ddb2f3c1a",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "XLIII Congresso Nazionale AIEOP | Bologna, 27-29 Maggio 2018",
+        "authors": [
+          "The Editors"
+        ],
+        "year": 2018,
+        "abstract": "Not available",
+        "paper_id": "https://openalex.org/W4214518156",
+        "venue": "Hematology Reports",
+        "citation_count": 0,
+        "url": "https://doi.org/10.4081/hr.2018.7767",
+        "doi": "10.4081/hr.2018.7767",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.4081/hr.2018.7767",
+          "title": "XLIII Congresso Nazionale AIEOP | Bologna, 27-29 Maggio 2018",
+          "year": 2018,
+          "authors": [
+            "The Editors"
+          ],
+          "venue": "Hematology Reports",
+          "abstract": "Not available",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-13"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Not available",
+            "sha256": "67a926f7008e2b0e7f2b3f7a4b37597834830110be1d51138f425d6f3449bc09",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.4081/hr.2018.7767",
+                "paper_id": "https://openalex.org/W4214518156"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K2866a6c2b50e",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Inserimento degli inibitori del checkpoint nell’algoritmo decisionale del carcinoma polmonare non a piccole cellule in stadio avanzato",
+        "authors": [
+          "Gianpiero Fasola",
+          "Elisa De Carlo",
+          "Francesco Grossi"
+        ],
+        "year": 2018,
+        "abstract": "I nuovi immunoterapici inibitori del checkpoint hanno aperto una nuova era nel trattamento del tumore polmonare non a piccole cellule in stadio avanzato (NSCLC), inizialmente sostituendo la chemioterapia standard di seconda linea con docetaxel e successivamente sostituendo la chemioterapia a base di platino in prima linea seppur in pazienti selezionati per un’alta espressione di PD-L1. L’algoritmo decisionale si è quindi modificato radicalmente per i pazienti che non hanno mutazioni attivanti. Tuttavia, siamo solo all’inizio di una nuova era da cui ci aspettiamo, in un immediato futuro, un utilizzo dell’immunoterapia nella maggior parte dei pazienti come prima linea di trattamento in sostituzione o in combinazione alla chemioterapia. Proprio queste strategie sono oggi oggetto di recenti studi che hanno dimostrato un beneficio con l’associazione di chemioterapia a immunoterapia nei pazienti con istotipo non squamoso rispetto alla sola chemioterapia oppure un beneficio in pazienti selezionati per alto carico mutazionale (tumor mutational burden - TMB) con una doppia immunoterapia con anti-PD1 e anti-CTLA-4 rispetto alla sola chemioterapia. Restano, tuttavia, aperte numerose questioni che riguardano l’immunoterapia e che vanno considerate nella pratica clinica, quali: la valutazione della risposta, la validazione di fattori predittivi come il TMB potenzialmente complementare all’espressione di PD-L1, una corretta educazione del paziente e del personale sanitario al pronto riconoscimento e a una gestione adeguata delle tossicità. In questo articolo discutiamo l’attuale algoritmo decisionale e le prospettive future del trattamento con immunoterapia nel NSCLC avanzato.",
+        "paper_id": "10.1701/2932.29487",
+        "venue": "Recenti Progressi in Medicina",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1701/2932.29487",
+        "doi": "10.1701/2932.29487",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1701/2932.29487",
+          "title": "Inserimento degli inibitori del checkpoint nell’algoritmo decisionale del carcinoma polmonare non a piccole cellule in stadio avanzato",
+          "year": 2018,
+          "authors": [
+            "Gianpiero Fasola",
+            "Elisa De Carlo",
+            "Francesco Grossi"
+          ],
+          "venue": "Recenti Progressi in Medicina",
+          "abstract": "I nuovi immunoterapici inibitori del checkpoint hanno aperto una nuova era nel trattamento del tumore polmonare non a piccole cellule in stadio avanzato (NSCLC), inizialmente sostituendo la chemioterapia standard di seconda linea con docetaxel e successivamente sostituendo la chemioterapia a base di platino in prima linea seppur in pazienti selezionati per un’alta espressione di PD-L1. L’algoritmo decisionale si è quindi modificato radicalmente per i pazienti che non hanno mutazioni attivanti. Tuttavia, siamo solo all’inizio di una nuova era da cui ci aspettiamo, in un immediato futuro, un utilizzo dell’immunoterapia nella maggior parte dei pazienti come prima linea di trattamento in sostituzione o in combinazione alla chemioterapia. Proprio queste strategie sono oggi oggetto di recenti studi che hanno dimostrato un beneficio con l’associazione di chemioterapia a immunoterapia nei pazienti con istotipo non squamoso rispetto alla sola chemioterapia oppure un beneficio in pazienti selezionati per alto carico mutazionale (tumor mutational burden - TMB) con una doppia immunoterapia con anti-PD1 e anti-CTLA-4 rispetto alla sola chemioterapia. Restano, tuttavia, aperte numerose questioni che riguardano l’immunoterapia e che vanno considerate nella pratica clinica, quali: la valutazione della risposta, la validazione di fattori predittivi come il TMB potenzialmente complementare all’espressione di PD-L1, una corretta educazione del paziente e del personale sanitario al pronto riconoscimento e a una gestione adeguata delle tossicità. In questo articolo discutiamo l’attuale algoritmo decisionale e le prospettive future del trattamento con immunoterapia nel NSCLC avanzato.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-14"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "I nuovi immunoterapici inibitori del checkpoint hanno aperto una nuova era nel trattamento del tumore polmonare non a piccole cellule in stadio avanzato (NSCLC), inizialmente sostituendo la chemioterapia standard di seconda linea con docetaxel e successivamente sostituendo la chemioterapia a base di platino in prima linea seppur in pazienti selezionati per un’alta espressione di PD-L1. L’algoritmo decisionale si è quindi modificato radicalmente per i pazienti che non hanno mutazioni attivanti. Tuttavia, siamo solo all’inizio di una nuova era da cui ci aspettiamo, in un immediato futuro, un utilizzo dell’immunoterapia nella maggior parte dei pazienti come prima linea di trattamento in sostituzione o in combinazione alla chemioterapia. Proprio queste strategie sono oggi oggetto di recenti studi che hanno dimostrato un beneficio con l’associazione di chemioterapia a immunoterapia nei pazienti con istotipo non squamoso rispetto alla sola chemioterapia oppure un beneficio in pazienti selezionati per alto carico mutazionale (tumor mutational burden - TMB) con una doppia immunoterapia con anti-PD1 e anti-CTLA-4 rispetto alla sola chemioterapia. Restano, tuttavia, aperte numerose questioni che riguardano l’immunoterapia e che vanno considerate nella pratica clinica, quali: la valutazione della risposta, la validazione di fattori predittivi come il TMB potenzialmente complementare all’espressione di PD-L1, una corretta educazione del paziente e del personale sanitario al pronto riconoscimento e a una gestione adeguata delle tossicità. In questo articolo discutiamo l’attuale algoritmo decisionale e le prospettive future del trattamento con immunoterapia nel NSCLC avanzato.",
+            "sha256": "decb1291a50b306fb8d0658b284f64eafa00413f510abfc2742f98bbf86cfa54",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1701/2932.29487",
+                "paper_id": "10.1701/2932.29487"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K608000bb56cb",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Un’introduzione al concetto di apocalisse dialogica. Frantumi, cocci, relitti e scorie degli scambi di battute nella poesia italiana del Novecento",
+        "authors": [
+          "Giulia Martini"
+        ],
+        "year": 2023,
+        "abstract": "The expression «dialogical apocalypse» defines the modalities of dysfunctional communication in twentieth-century Italian poetry, where dialogue does not manifest itself as adherence to mutual communication, but refers to the malfunctioning of communication itself. In lyrical texts, verbal interactions are constantly inserted in a complex network of communication pathologies and dysfunctions. The anti-dialogical function acts on multiple levels: structural (for example, by skipping a turn), pragmatical (as the answers that do not respond), thematic (in particular, the tendency to return to intractable topics, such as death), and relational (the exchange is constituted in conflict and antagonism). The present article aims to frame the anti-dialogical function by proposing a metaphorical juxtaposition between the dialogic process and the Fifteen puzzle, through the comparison between some textual samples (from Gozzano, Caproni, Sereni and Sanguineti) and the main modules of pragmatic incongruity.",
+        "paper_id": "10.36253/oi-15572",
+        "venue": "L'ospite ingrato",
+        "citation_count": 0,
+        "url": "https://doi.org/10.36253/oi-15572",
+        "doi": "10.36253/oi-15572",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.36253/oi-15572",
+          "title": "Un’introduzione al concetto di apocalisse dialogica. Frantumi, cocci, relitti e scorie degli scambi di battute nella poesia italiana del Novecento",
+          "year": 2023,
+          "authors": [
+            "Giulia Martini"
+          ],
+          "venue": "L'ospite ingrato",
+          "abstract": "The expression «dialogical apocalypse» defines the modalities of dysfunctional communication in twentieth-century Italian poetry, where dialogue does not manifest itself as adherence to mutual communication, but refers to the malfunctioning of communication itself. In lyrical texts, verbal interactions are constantly inserted in a complex network of communication pathologies and dysfunctions. The anti-dialogical function acts on multiple levels: structural (for example, by skipping a turn), pragmatical (as the answers that do not respond), thematic (in particular, the tendency to return to intractable topics, such as death), and relational (the exchange is constituted in conflict and antagonism). The present article aims to frame the anti-dialogical function by proposing a metaphorical juxtaposition between the dialogic process and the Fifteen puzzle, through the comparison between some textual samples (from Gozzano, Caproni, Sereni and Sanguineti) and the main modules of pragmatic incongruity.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-14"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "The expression «dialogical apocalypse» defines the modalities of dysfunctional communication in twentieth-century Italian poetry, where dialogue does not manifest itself as adherence to mutual communication, but refers to the malfunctioning of communication itself. In lyrical texts, verbal interactions are constantly inserted in a complex network of communication pathologies and dysfunctions. The anti-dialogical function acts on multiple levels: structural (for example, by skipping a turn), pragmatical (as the answers that do not respond), thematic (in particular, the tendency to return to intractable topics, such as death), and relational (the exchange is constituted in conflict and antagonism). The present article aims to frame the anti-dialogical function by proposing a metaphorical juxtaposition between the dialogic process and the Fifteen puzzle, through the comparison between some textual samples (from Gozzano, Caproni, Sereni and Sanguineti) and the main modules of pragmatic incongruity.",
+            "sha256": "bf86464244da77e91bc0fe3db5df7f65002bf1a7a6fea3631583072a5e14860b",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.36253/oi-15572",
+                "paper_id": "10.36253/oi-15572"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K66ae95cc5d67",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Person-Centered Suicide Prevention in Primary Care Settings",
+        "authors": [
+          "Paul R. Duberstein",
+          "Marsha Wittink",
+          "Wilfred R. Pigeon"
+        ],
+        "year": 2017,
+        "abstract": "The increase in the availability of mental health services in primary care settings in large health systems is a positive development for suicide prevention, but challenges remain. Unhelpful power asymmetries in the patient–primary care physician (PCP) relationship, supply-side economic factors, and the disease-centered (biomedical) model make it difficult for PCPs to elicit patient priorities. Thus many of the drivers of suicide risk are marginalized if not ignored in the patient–PCP encounter. Drawing from self-determination theory and systems theory, this chapter offers a person-centered vision of suicide prevention in primary care. It calls for policy initiatives to that accommodate PCPs’ needs for self-determination and outfit primary care settings with the technological and human resources needed to improve the way PCPs and patients communicate about difficult issues. These initiatives are expected to mitigate suicide risk and improve other patient outcomes as well as PCP job satisfaction.",
+        "paper_id": "10.1093/med:psych/9780199873616.003.0018",
+        "venue": "Handbook of Military and Veteran Suicide",
+        "citation_count": 1,
+        "url": "https://doi.org/10.1093/med:psych/9780199873616.003.0018",
+        "doi": "10.1093/med:psych/9780199873616.003.0018",
+        "provider": "crossref",
+        "source_type": "book-chapter",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1093/med:psych/9780199873616.003.0018",
+          "title": "Person-Centered Suicide Prevention in Primary Care Settings",
+          "year": 2017,
+          "authors": [
+            "Paul R. Duberstein",
+            "Marsha Wittink",
+            "Wilfred R. Pigeon"
+          ],
+          "venue": "Handbook of Military and Veteran Suicide",
+          "abstract": "The increase in the availability of mental health services in primary care settings in large health systems is a positive development for suicide prevention, but challenges remain. Unhelpful power asymmetries in the patient–primary care physician (PCP) relationship, supply-side economic factors, and the disease-centered (biomedical) model make it difficult for PCPs to elicit patient priorities. Thus many of the drivers of suicide risk are marginalized if not ignored in the patient–PCP encounter. Drawing from self-determination theory and systems theory, this chapter offers a person-centered vision of suicide prevention in primary care. It calls for policy initiatives to that accommodate PCPs’ needs for self-determination and outfit primary care settings with the technological and human resources needed to improve the way PCPs and patients communicate about difficult issues. These initiatives are expected to mitigate suicide risk and improve other patient outcomes as well as PCP job satisfaction.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-15"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "The increase in the availability of mental health services in primary care settings in large health systems is a positive development for suicide prevention, but challenges remain. Unhelpful power asymmetries in the patient–primary care physician (PCP) relationship, supply-side economic factors, and the disease-centered (biomedical) model make it difficult for PCPs to elicit patient priorities. Thus many of the drivers of suicide risk are marginalized if not ignored in the patient–PCP encounter. Drawing from self-determination theory and systems theory, this chapter offers a person-centered vision of suicide prevention in primary care. It calls for policy initiatives to that accommodate PCPs’ needs for self-determination and outfit primary care settings with the technological and human resources needed to improve the way PCPs and patients communicate about difficult issues. These initiatives are expected to mitigate suicide risk and improve other patient outcomes as well as PCP job satisfaction.",
+            "sha256": "989ea2a72405797f02be37a0e0e9b4b84217c31bbcd0e585db899859c7a70e7d",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.1093/med:psych/9780199873616.003.0018",
+                "paper_id": "10.1093/med:psych/9780199873616.003.0018"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K2abb4e766c7c",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Review of Medication Use in the Prevention of Migraines",
+        "authors": [
+          "Sarah Hamilton",
+          "Sneed KB",
+          "Yashwant Pathak"
+        ],
+        "year": 2024,
+        "abstract": "Migraines are a neurological disorder that negatively affects the lives of many around the world. This review article will focus on the different medications that are currently used to prevent migraines from occurring, focusing on how they work and if they’re effective. Currently most of the medications used to prevent migraines are repurposed oral medications. Antidepressants that are tricyclic antidepressants, selective serotonin reuptake inhibitors and serotonin-norepinephrine reuptake inhibitors are used. The beta-blockers that are used in migraine prevention are propranolol, metoprolol, and timolol. The anti-epileptics that are used are topiramate and divalproex. Another form of medication that is used is a series of onabotulinumtoxinA injections using the PREEMPT paradigm injection mode. The newest development in migraine preventatives is the CGRP targeting drugs. There are the drugs Galcanezumab, eptinezumab, fremanezumab and erenumab, which use monoclonal antibodies. The second type of CGRP targeting medication uses small molecules and are CGRP receptor antagonists, the only preventive in this category is atogepant. All these medications have evidence that show that they are effective at preventing migraines, but they also all have side effects. When considering which medications are the best option the side effects and a patients other conditions have to take into consideration. Looking at what is currently not understood about migraine pathophysiology and the current direction preventative medication for this condition is headed helps to determine what future trends for this field will be.",
+        "paper_id": "10.33425/2639-9474.1263",
+        "venue": "Nursing &amp; Primary Care",
+        "citation_count": 0,
+        "url": "https://doi.org/10.33425/2639-9474.1263",
+        "doi": "10.33425/2639-9474.1263",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.33425/2639-9474.1263",
+          "title": "Review of Medication Use in the Prevention of Migraines",
+          "year": 2024,
+          "authors": [
+            "Sarah Hamilton",
+            "Sneed KB",
+            "Yashwant Pathak"
+          ],
+          "venue": "Nursing &amp; Primary Care",
+          "abstract": "Migraines are a neurological disorder that negatively affects the lives of many around the world. This review article will focus on the different medications that are currently used to prevent migraines from occurring, focusing on how they work and if they’re effective. Currently most of the medications used to prevent migraines are repurposed oral medications. Antidepressants that are tricyclic antidepressants, selective serotonin reuptake inhibitors and serotonin-norepinephrine reuptake inhibitors are used. The beta-blockers that are used in migraine prevention are propranolol, metoprolol, and timolol. The anti-epileptics that are used are topiramate and divalproex. Another form of medication that is used is a series of onabotulinumtoxinA injections using the PREEMPT paradigm injection mode. The newest development in migraine preventatives is the CGRP targeting drugs. There are the drugs Galcanezumab, eptinezumab, fremanezumab and erenumab, which use monoclonal antibodies. The second type of CGRP targeting medication uses small molecules and are CGRP receptor antagonists, the only preventive in this category is atogepant. All these medications have evidence that show that they are effective at preventing migraines, but they also all have side effects. When considering which medications are the best option the side effects and a patients other conditions have to take into consideration. Looking at what is currently not understood about migraine pathophysiology and the current direction preventative medication for this condition is headed helps to determine what future trends for this field will be.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1",
+            "scope-15"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Migraines are a neurological disorder that negatively affects the lives of many around the world. This review article will focus on the different medications that are currently used to prevent migraines from occurring, focusing on how they work and if they’re effective. Currently most of the medications used to prevent migraines are repurposed oral medications. Antidepressants that are tricyclic antidepressants, selective serotonin reuptake inhibitors and serotonin-norepinephrine reuptake inhibitors are used. The beta-blockers that are used in migraine prevention are propranolol, metoprolol, and timolol. The anti-epileptics that are used are topiramate and divalproex. Another form of medication that is used is a series of onabotulinumtoxinA injections using the PREEMPT paradigm injection mode. The newest development in migraine preventatives is the CGRP targeting drugs. There are the drugs Galcanezumab, eptinezumab, fremanezumab and erenumab, which use monoclonal antibodies. The second type of CGRP targeting medication uses small molecules and are CGRP receptor antagonists, the only preventive in this category is atogepant. All these medications have evidence that show that they are effective at preventing migraines, but they also all have side effects. When considering which medications are the best option the side effects and a patients other conditions have to take into consideration. Looking at what is currently not understood about migraine pathophysiology and the current direction preventative medication for this condition is headed helps to determine what future trends for this field will be.",
+            "sha256": "9764b4cd6062c837faa8c9bac00db8b344d71f1a4433565879a4ef1ec6feb341",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.33425/2639-9474.1263",
+                "paper_id": "10.33425/2639-9474.1263"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K1ff1b09c84f3",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Immigrazione e salute mentale\n Violenza, psicotraumatologia, politiche per la salute e tutela assistenziale",
+        "authors": [
+          "Marco Mazzetti",
+          "Salvatore Geraci"
+        ],
+        "year": 2019,
+        "abstract": "This chapter discusses psychopathological issues related to migration with particular attention to the so-called “forced migrants”, migrants who are forced to flee their countries to save themselves due to violence. As a consequence, they are more at risk for mental health issues due to the lack of a migration project (which is a resilience factor in migrants) and to the psychotraumatic experiences they suffered. We will describe the psychopathological reactions in traumatized persons, the effect of re-traumatization they suffer in transit countries, the role of Post-Migration Living Difficulties occurring in Italy in worsening mental health of asylum seekers. Finally, we will discuss present difficulties of the Italian National Health Service to adequately cure them, and the indication given by the Italian National Guidelines to create services dedicated to these issues.",
+        "paper_id": "10.30687/978-88-6969-358-8/019",
+        "venue": "Tortura e migrazioni | Torture and Migration",
+        "citation_count": 0,
+        "url": "https://doi.org/10.30687/978-88-6969-358-8/019",
+        "doi": "10.30687/978-88-6969-358-8/019",
+        "provider": "crossref",
+        "source_type": "book-chapter",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.30687/978-88-6969-358-8/019",
+          "title": "Immigrazione e salute mentale\n Violenza, psicotraumatologia, politiche per la salute e tutela assistenziale",
+          "year": 2019,
+          "authors": [
+            "Marco Mazzetti",
+            "Salvatore Geraci"
+          ],
+          "venue": "Tortura e migrazioni | Torture and Migration",
+          "abstract": "This chapter discusses psychopathological issues related to migration with particular attention to the so-called “forced migrants”, migrants who are forced to flee their countries to save themselves due to violence. As a consequence, they are more at risk for mental health issues due to the lack of a migration project (which is a resilience factor in migrants) and to the psychotraumatic experiences they suffered. We will describe the psychopathological reactions in traumatized persons, the effect of re-traumatization they suffer in transit countries, the role of Post-Migration Living Difficulties occurring in Italy in worsening mental health of asylum seekers. Finally, we will discuss present difficulties of the Italian National Health Service to adequately cure them, and the indication given by the Italian National Guidelines to create services dedicated to these issues.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-16",
+            "scope-4"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "This chapter discusses psychopathological issues related to migration with particular attention to the so-called “forced migrants”, migrants who are forced to flee their countries to save themselves due to violence. As a consequence, they are more at risk for mental health issues due to the lack of a migration project (which is a resilience factor in migrants) and to the psychotraumatic experiences they suffered. We will describe the psychopathological reactions in traumatized persons, the effect of re-traumatization they suffer in transit countries, the role of Post-Migration Living Difficulties occurring in Italy in worsening mental health of asylum seekers. Finally, we will discuss present difficulties of the Italian National Health Service to adequately cure them, and the indication given by the Italian National Guidelines to create services dedicated to these issues.",
+            "sha256": "00f18ad7028c440a1293943348349f83a0b0f15afbee6d05cb69dc812d576e23",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.30687/978-88-6969-358-8/019",
+                "paper_id": "10.30687/978-88-6969-358-8/019"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K37c34464a11f",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Il rooming in e il contatto pelle a pelle madre-bambino prima e dopo il Covid-19: una riflessione",
+        "authors": [
+          "Anna Arnone"
+        ],
+        "year": 2021,
+        "abstract": "A healthy full-term newborn should be kept in skin-to-skin contact with their mother who has had a vaginal delivery or caesarean section with epidural anesthesia soon after birth or as soon as possible. Rooming in is defined as the stay of the newborn and the mother in the same room for as long as possible during the 24 hours. The purpose of this commentary article is to discuss and generate reflections on the consequences that Covid-19 is generating ad it is changing the life and pre and postnatal experience of many mothers and babies as well as their families by affecting the early contact, the mother-infant dyad, the breastfeeding.",
+        "paper_id": "10.32549/opi-nsc-47",
+        "venue": "Nsc Nursing",
+        "citation_count": 1,
+        "url": "https://doi.org/10.32549/opi-nsc-47",
+        "doi": "10.32549/opi-nsc-47",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.32549/opi-nsc-47",
+          "title": "Il rooming in e il contatto pelle a pelle madre-bambino prima e dopo il Covid-19: una riflessione",
+          "year": 2021,
+          "authors": [
+            "Anna Arnone"
+          ],
+          "venue": "Nsc Nursing",
+          "abstract": "A healthy full-term newborn should be kept in skin-to-skin contact with their mother who has had a vaginal delivery or caesarean section with epidural anesthesia soon after birth or as soon as possible. Rooming in is defined as the stay of the newborn and the mother in the same room for as long as possible during the 24 hours. The purpose of this commentary article is to discuss and generate reflections on the consequences that Covid-19 is generating ad it is changing the life and pre and postnatal experience of many mothers and babies as well as their families by affecting the early contact, the mother-infant dyad, the breastfeeding.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-17"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "A healthy full-term newborn should be kept in skin-to-skin contact with their mother who has had a vaginal delivery or caesarean section with epidural anesthesia soon after birth or as soon as possible. Rooming in is defined as the stay of the newborn and the mother in the same room for as long as possible during the 24 hours. The purpose of this commentary article is to discuss and generate reflections on the consequences that Covid-19 is generating ad it is changing the life and pre and postnatal experience of many mothers and babies as well as their families by affecting the early contact, the mother-infant dyad, the breastfeeding.",
+            "sha256": "e6c458752ae1d2e1db47359b4c73b4bf62a3bda011765187b081e85c661eadfd",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.32549/opi-nsc-47",
+                "paper_id": "10.32549/opi-nsc-47"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K6a5439fab67b",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Identità e alterità nel romanzo \"Amiche per la pelle\" di Laila Wadia",
+        "authors": [
+          "Laura Lazzari"
+        ],
+        "year": 2014,
+        "abstract": "The article focuses on issues related to identity and representation of otherness in Laila Wadia’s novel \"Amiche per la pelle\". In the imaginary building of Via Ungaretti in Trieste, where the story takes place, live different types of people belonging to various nationalities: an Italian man, an Albanian couple, and Bosnian, Chinese and Indian families. The pluralism and diversity that characterize the main characters of the novel picture a complex description of the immigrants that are not defined in a fixed and stereotyped way, but as hybrid, multicultural and evolving personalities. Aspects that define multiple identity of the main characters, the stages and the difficulties encountered in the long process of integration in the Italian society (learning the language and local customs, the difficulty in finding an appropriate accommodation and a suitable work, the racism and prejudices they face, but also the solidarity shown by some Italians) are depicted in detail in the text. In addition to this, prejudices and stereotypes attributed by migrants to the Italian natives and their look towards their new Italian home are also analyzed.",
+        "paper_id": "10.5903/al_uzh-25",
+        "venue": "altrelettere",
+        "citation_count": 4,
+        "url": "https://doi.org/10.5903/al_uzh-25",
+        "doi": "10.5903/al_uzh-25",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.5903/al_uzh-25",
+          "title": "Identità e alterità nel romanzo \"Amiche per la pelle\" di Laila Wadia",
+          "year": 2014,
+          "authors": [
+            "Laura Lazzari"
+          ],
+          "venue": "altrelettere",
+          "abstract": "The article focuses on issues related to identity and representation of otherness in Laila Wadia’s novel \"Amiche per la pelle\". In the imaginary building of Via Ungaretti in Trieste, where the story takes place, live different types of people belonging to various nationalities: an Italian man, an Albanian couple, and Bosnian, Chinese and Indian families. The pluralism and diversity that characterize the main characters of the novel picture a complex description of the immigrants that are not defined in a fixed and stereotyped way, but as hybrid, multicultural and evolving personalities. Aspects that define multiple identity of the main characters, the stages and the difficulties encountered in the long process of integration in the Italian society (learning the language and local customs, the difficulty in finding an appropriate accommodation and a suitable work, the racism and prejudices they face, but also the solidarity shown by some Italians) are depicted in detail in the text. In addition to this, prejudices and stereotypes attributed by migrants to the Italian natives and their look towards their new Italian home are also analyzed.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-17"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "The article focuses on issues related to identity and representation of otherness in Laila Wadia’s novel \"Amiche per la pelle\". In the imaginary building of Via Ungaretti in Trieste, where the story takes place, live different types of people belonging to various nationalities: an Italian man, an Albanian couple, and Bosnian, Chinese and Indian families. The pluralism and diversity that characterize the main characters of the novel picture a complex description of the immigrants that are not defined in a fixed and stereotyped way, but as hybrid, multicultural and evolving personalities. Aspects that define multiple identity of the main characters, the stages and the difficulties encountered in the long process of integration in the Italian society (learning the language and local customs, the difficulty in finding an appropriate accommodation and a suitable work, the racism and prejudices they face, but also the solidarity shown by some Italians) are depicted in detail in the text. In addition to this, prejudices and stereotypes attributed by migrants to the Italian natives and their look towards their new Italian home are also analyzed.",
+            "sha256": "b03f996416e77203a95d335ee918d58e7a3c10544849ab60bd37b25247e5d6fe",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.5903/al_uzh-25",
+                "paper_id": "10.5903/al_uzh-25"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "Kaab5d85ba001",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Allattamento al seno: protezione, incoraggiamento e sostegno. L’importanza dei ruoli dei servizi per la maternità. Indagine osservazionale multicentrica nelle strutture sanitarie campane",
+        "authors": [
+          "A. Guillari",
+          "F. Stile",
+          "G. Gargiulo",
+          "A. Capuano",
+          "C. Serio",
+          "R. Pulpito",
+          "M. Perrone",
+          "G.F. Prussiano",
+          "T. Rea"
+        ],
+        "year": 2020,
+        "abstract": "Introduction: Breastfeeding has always been considered an essential and irreplaceable element, having important positive effects on the health of both the mother and the baby, in the short and long term. WHO/UNICEF recommend breastfeeding babies exclusively for at least the first six months of life, and some organizations recommend continuing breastfeeding for the first two years of life and beyond. However, current breastfeeding models are far from the recommended levels despite the fact that the WHO has constantly promoted this type of nutrition over time. The cause of this gap is the ineffective communication between the health professionals themselves and the new mothers. Objective: assessment of the degree of knowledge and adoption of the joint WHO/UNICEF declaration in Campania health structures. Materials and methods: Multicentric observational study Results: The analysis of the data highlights: that despite the high presence of documents relating to the promotion and support of breastfeeding, 76.7% (UU.OO of Obstetrics) and 86.7% (UU .OO of Neonatologies), the adoption of the WHO/UNICEF Joint Declaration is rather poor in Campania . The use of the bottle for the administration of alternative foods, together with the high number of professionals who have not followed specific training courses, seem to be the main obstacles. Conclusion: Failure to comply with the WHO/UNICEF Joint Declaration found in Campania can have repercussions on the health of mothers and children in the medium and long term. Identifying the main obstacles can facilitate the development of specific intervention programs.",
+        "paper_id": "10.32549/opi-nsc-36",
+        "venue": "Nsc Nursing",
+        "citation_count": 0,
+        "url": "https://doi.org/10.32549/opi-nsc-36",
+        "doi": "10.32549/opi-nsc-36",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.32549/opi-nsc-36",
+          "title": "Allattamento al seno: protezione, incoraggiamento e sostegno. L’importanza dei ruoli dei servizi per la maternità. Indagine osservazionale multicentrica nelle strutture sanitarie campane",
+          "year": 2020,
+          "authors": [
+            "A. Guillari",
+            "F. Stile",
+            "G. Gargiulo",
+            "A. Capuano",
+            "C. Serio",
+            "R. Pulpito",
+            "M. Perrone",
+            "G.F. Prussiano",
+            "T. Rea"
+          ],
+          "venue": "Nsc Nursing",
+          "abstract": "Introduction: Breastfeeding has always been considered an essential and irreplaceable element, having important positive effects on the health of both the mother and the baby, in the short and long term. WHO/UNICEF recommend breastfeeding babies exclusively for at least the first six months of life, and some organizations recommend continuing breastfeeding for the first two years of life and beyond. However, current breastfeeding models are far from the recommended levels despite the fact that the WHO has constantly promoted this type of nutrition over time. The cause of this gap is the ineffective communication between the health professionals themselves and the new mothers. Objective: assessment of the degree of knowledge and adoption of the joint WHO/UNICEF declaration in Campania health structures. Materials and methods: Multicentric observational study Results: The analysis of the data highlights: that despite the high presence of documents relating to the promotion and support of breastfeeding, 76.7% (UU.OO of Obstetrics) and 86.7% (UU .OO of Neonatologies), the adoption of the WHO/UNICEF Joint Declaration is rather poor in Campania . The use of the bottle for the administration of alternative foods, together with the high number of professionals who have not followed specific training courses, seem to be the main obstacles. Conclusion: Failure to comply with the WHO/UNICEF Joint Declaration found in Campania can have repercussions on the health of mothers and children in the medium and long term. Identifying the main obstacles can facilitate the development of specific intervention programs.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-18"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Introduction: Breastfeeding has always been considered an essential and irreplaceable element, having important positive effects on the health of both the mother and the baby, in the short and long term. WHO/UNICEF recommend breastfeeding babies exclusively for at least the first six months of life, and some organizations recommend continuing breastfeeding for the first two years of life and beyond. However, current breastfeeding models are far from the recommended levels despite the fact that the WHO has constantly promoted this type of nutrition over time. The cause of this gap is the ineffective communication between the health professionals themselves and the new mothers. Objective: assessment of the degree of knowledge and adoption of the joint WHO/UNICEF declaration in Campania health structures. Materials and methods: Multicentric observational study Results: The analysis of the data highlights: that despite the high presence of documents relating to the promotion and support of breastfeeding, 76.7% (UU.OO of Obstetrics) and 86.7% (UU .OO of Neonatologies), the adoption of the WHO/UNICEF Joint Declaration is rather poor in Campania . The use of the bottle for the administration of alternative foods, together with the high number of professionals who have not followed specific training courses, seem to be the main obstacles. Conclusion: Failure to comply with the WHO/UNICEF Joint Declaration found in Campania can have repercussions on the health of mothers and children in the medium and long term. Identifying the main obstacles can facilitate the development of specific intervention programs.",
+            "sha256": "d222417a6ce492b8ffaff760375ea1e0d26aeef7427222be717d4aa886021638",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.32549/opi-nsc-36",
+                "paper_id": "10.32549/opi-nsc-36"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K236775ca3d03",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Interventi educativi nel periodo perioperatorio del paziente sottoposto a cardiochirurgia: una scoping review della letteratura",
+        "authors": [
+          "Lucia Filomeno",
+          "Andrea Minciullo",
+          "Silvia Gabellini"
+        ],
+        "year": 2020,
+        "abstract": "Lâ€™assistenza al paziente in cardiochirurgia Ã¨ molto delicata poichÃ© si rivolge ad una persona molto spesso fragile o anziana che ha paura, Ã¨ preoccupata ed ansiosa. Lâ€™esposizione a livelli elevati di stress nel pre e post-operatorio influisce sulla funzionalitÃ corporea e puÃ² aggravare i sintomi della malattia cardiovascolare, sviluppando un disturbo post traumatico da stress che provoca unâ€™estensione dei tempi di recupero, un aumento del dolore post-operatorio, un recupero piÃ¹ lento dallâ€™anestesia, una maggiore richiesta di farmaci e una degenza ospedaliera prolungata. In questo contesto, lâ€™infermiere attua interventi educativi volti a informare e sensibilizzare i pazienti su ciÃ² che sperimenteranno, riducendo cosÃ¬ il senso di ansia, aumentando le loro conoscenze e gettando le basi per un recupero piÃ¹ consapevole.",
+        "paper_id": "10.4081/scenario.2020.434",
+        "venue": "Scenario® - Il Nursing nella sopravvivenza",
+        "citation_count": 1,
+        "url": "https://doi.org/10.4081/scenario.2020.434",
+        "doi": "10.4081/scenario.2020.434",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.4081/scenario.2020.434",
+          "title": "Interventi educativi nel periodo perioperatorio del paziente sottoposto a cardiochirurgia: una scoping review della letteratura",
+          "year": 2020,
+          "authors": [
+            "Lucia Filomeno",
+            "Andrea Minciullo",
+            "Silvia Gabellini"
+          ],
+          "venue": "Scenario® - Il Nursing nella sopravvivenza",
+          "abstract": "Lâ€™assistenza al paziente in cardiochirurgia Ã¨ molto delicata poichÃ© si rivolge ad una persona molto spesso fragile o anziana che ha paura, Ã¨ preoccupata ed ansiosa. Lâ€™esposizione a livelli elevati di stress nel pre e post-operatorio influisce sulla funzionalitÃ corporea e puÃ² aggravare i sintomi della malattia cardiovascolare, sviluppando un disturbo post traumatico da stress che provoca unâ€™estensione dei tempi di recupero, un aumento del dolore post-operatorio, un recupero piÃ¹ lento dallâ€™anestesia, una maggiore richiesta di farmaci e una degenza ospedaliera prolungata. In questo contesto, lâ€™infermiere attua interventi educativi volti a informare e sensibilizzare i pazienti su ciÃ² che sperimenteranno, riducendo cosÃ¬ il senso di ansia, aumentando le loro conoscenze e gettando le basi per un recupero piÃ¹ consapevole.",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-18"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "Lâ€™assistenza al paziente in cardiochirurgia Ã¨ molto delicata poichÃ© si rivolge ad una persona molto spesso fragile o anziana che ha paura, Ã¨ preoccupata ed ansiosa. Lâ€™esposizione a livelli elevati di stress nel pre e post-operatorio influisce sulla funzionalitÃ corporea e puÃ² aggravare i sintomi della malattia cardiovascolare, sviluppando un disturbo post traumatico da stress che provoca unâ€™estensione dei tempi di recupero, un aumento del dolore post-operatorio, un recupero piÃ¹ lento dallâ€™anestesia, una maggiore richiesta di farmaci e una degenza ospedaliera prolungata. In questo contesto, lâ€™infermiere attua interventi educativi volti a informare e sensibilizzare i pazienti su ciÃ² che sperimenteranno, riducendo cosÃ¬ il senso di ansia, aumentando le loro conoscenze e gettando le basi per un recupero piÃ¹ consapevole.",
+            "sha256": "7ce9fd550e849834724d3477997bf2d72a7f0c4749a597b0686cb63dc31a2717",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "crossref",
+                "doi": "10.4081/scenario.2020.434",
+                "paper_id": "10.4081/scenario.2020.434"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K6698b4db5ab8",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Prevenzione primaria: come attuarla?",
+        "authors": [
+          "C. Guastamacchia"
+        ],
+        "year": 2010,
+        "abstract": null,
+        "paper_id": "10.1016/j.pad.2010.06.003",
+        "venue": "Prevenzione &amp; Assistenza Dentale",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1016/j.pad.2010.06.003",
+        "doi": "10.1016/j.pad.2010.06.003",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1016/j.pad.2010.06.003",
+          "title": "Prevenzione primaria: come attuarla?",
+          "year": 2010,
+          "authors": [
+            "C. Guastamacchia"
+          ],
+          "venue": "Prevenzione &amp; Assistenza Dentale",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K574e48e65bce",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Prevenzione primaria: chi deve farla?",
+        "authors": [
+          "C. Guastamacchia"
+        ],
+        "year": 2010,
+        "abstract": null,
+        "paper_id": "10.1016/s0393-9960(10)00121-6",
+        "venue": "Prevenzione &amp; Assistenza Dentale",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1016/s0393-9960(10)00121-6",
+        "doi": "10.1016/s0393-9960(10)00121-6",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1016/s0393-9960(10)00121-6",
+          "title": "Prevenzione primaria: chi deve farla?",
+          "year": 2010,
+          "authors": [
+            "C. Guastamacchia"
+          ],
+          "venue": "Prevenzione &amp; Assistenza Dentale",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K7443d2776b7d",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "WITHDRAWN: Prevenzione primaria: chi deve farla?",
+        "authors": [
+          "C. Guastamacchia"
+        ],
+        "year": 2010,
+        "abstract": null,
+        "paper_id": "10.1016/j.pad.2010.09.003",
+        "venue": "Prevenzione &amp; Assistenza Dentale",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1016/j.pad.2010.09.003",
+        "doi": "10.1016/j.pad.2010.09.003",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1016/j.pad.2010.09.003",
+          "title": "WITHDRAWN: Prevenzione primaria: chi deve farla?",
+          "year": 2010,
+          "authors": [
+            "C. Guastamacchia"
+          ],
+          "venue": "Prevenzione &amp; Assistenza Dentale",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K915635404bc1",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Prevenzione orale in alunni del primo anno della scuola primaria",
+        "authors": [
+          "A. D’Alessandro",
+          "A. Barone",
+          "E. Ortu",
+          "W. Zenobi",
+          "M. Giannoni"
+        ],
+        "year": 2010,
+        "abstract": null,
+        "paper_id": "10.1016/j.pad.2010.06.004",
+        "venue": "Prevenzione &amp; Assistenza Dentale",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1016/j.pad.2010.06.004",
+        "doi": "10.1016/j.pad.2010.06.004",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1016/j.pad.2010.06.004",
+          "title": "Prevenzione orale in alunni del primo anno della scuola primaria",
+          "year": 2010,
+          "authors": [
+            "A. D’Alessandro",
+            "A. Barone",
+            "E. Ortu",
+            "W. Zenobi",
+            "M. Giannoni"
+          ],
+          "venue": "Prevenzione &amp; Assistenza Dentale",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K72e90a02a0b0",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Aspirina e prevenzione cardiovascolare primaria – un aggiornamento",
+        "authors": [
+          "Raffaele De Caterina"
+        ],
+        "year": 2017,
+        "abstract": null,
+        "paper_id": "10.1714/2628.27020",
+        "venue": "Giornale Italiano di Cardiologia",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1714/2628.27020",
+        "doi": "10.1714/2628.27020",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1714/2628.27020",
+          "title": "Aspirina e prevenzione cardiovascolare primaria – un aggiornamento",
+          "year": 2017,
+          "authors": [
+            "Raffaele De Caterina"
+          ],
+          "venue": "Giornale Italiano di Cardiologia",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K6243007990a1",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Prevenzione primaria",
+        "authors": [
+          "M. Chiesa",
+          "S. Ronzitti",
+          "A. Ornaghi",
+          "S. Romanato",
+          "E. Giampieri",
+          "M. Clerici"
+        ],
+        "year": 2013,
+        "abstract": null,
+        "paper_id": "10.1007/978-88-470-2715-2_26",
+        "venue": "Il suicidio oggi",
+        "citation_count": 1,
+        "url": "https://doi.org/10.1007/978-88-470-2715-2_26",
+        "doi": "10.1007/978-88-470-2715-2_26",
+        "provider": "crossref",
+        "source_type": "book-chapter",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1007/978-88-470-2715-2_26",
+          "title": "Prevenzione primaria",
+          "year": 2013,
+          "authors": [
+            "M. Chiesa",
+            "S. Ronzitti",
+            "A. Ornaghi",
+            "S. Romanato",
+            "E. Giampieri",
+            "M. Clerici"
+          ],
+          "venue": "Il suicidio oggi",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K08d4304a676d",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Psicoanalisi e prospettive evoluzionistiche dell’attaccamento: Un progetto di prevenzione per la tutela della salute mentale perinatale",
+        "authors": [
+          "Loredana Cena",
+          "Antonio Imbasciati"
+        ],
+        "year": 2012,
+        "abstract": null,
+        "paper_id": "10.1007/978-88-470-2472-4_11",
+        "venue": "Prendersi cura dei bambini e dei loro genitori",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1007/978-88-470-2472-4_11",
+        "doi": "10.1007/978-88-470-2472-4_11",
+        "provider": "crossref",
+        "source_type": "book-chapter",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1007/978-88-470-2472-4_11",
+          "title": "Psicoanalisi e prospettive evoluzionistiche dell’attaccamento: Un progetto di prevenzione per la tutela della salute mentale perinatale",
+          "year": 2012,
+          "authors": [
+            "Loredana Cena",
+            "Antonio Imbasciati"
+          ],
+          "venue": "Prendersi cura dei bambini e dei loro genitori",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "K9fc65d46d721",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "Aspirina in prevenzione primaria: ARRIVE, ASCEND e ASPREE rimettono tutto in discussione",
+        "authors": [
+          "Stefano Urbinati"
+        ],
+        "year": 2019,
+        "abstract": null,
+        "paper_id": "10.1714/3093.30853",
+        "venue": "Giornale Italiano di Cardiologia",
+        "citation_count": 0,
+        "url": "https://doi.org/10.1714/3093.30853",
+        "doi": "10.1714/3093.30853",
+        "provider": "crossref",
+        "source_type": "journal-article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.1714/3093.30853",
+          "title": "Aspirina in prevenzione primaria: ARRIVE, ASCEND e ASPREE rimettono tutto in discussione",
+          "year": 2019,
+          "authors": [
+            "Stefano Urbinati"
+          ],
+          "venue": "Giornale Italiano di Cardiologia",
+          "abstract": null,
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "evidence_level": "none"
+        }
+      },
+      "citation_key": "Ka178d27dd89c",
+      "on_topic_score": 1.0
+    },
+    {
+      "source": {
+        "title": "L’internista ospedaliero nella gestione del paziente diabetico complesso",
+        "authors": [
+          "Guest Editors: L. Magnani",
+          "G. Beltramello",
+          "D. Brancato",
+          "A. Fontanella",
+          "R. Nardi"
+        ],
+        "year": 2018,
+        "abstract": "L’internista deve occuparsi (e rioccuparsi) del paziente diabetico complesso in OspedaleA. Fontanella, L. MagnaniDiagnosi, classificazione, epidemiologia clinica del diabete mellitoV. Provenzano, D. BrancatoUp-date degli studi disponibiliP. Gnerre, T.M. Attardo, A. Maffettone, G. BeltramelloIl diabete mellito costituisce ancora un equivalente di rischio cardiovascolare?G. Augello, T.M. AttardoLe terapie del diabete tipo 2 sono tutte uguali ai fini della riduzione della morbilità e mortalità cardiovascolare?V. ProvenzanoLe nuove tecnologie nella cura del diabete mellitoD. Brancato, V. ProvenzanoInsuline prandiali e insuline basaliR. PastorelliQuali target nel diabete mellito: il dogma dell’emoglobina glicata è davvero imprescindibile?V. ManicardiIl controllo dell’iperglicemia nel paziente anziano polipatologico: è sempre necessario iniziare l’insulina?G. Gulli, M. NizzoliLa nefropatia diabeticaF. Salvati, D. Manfellotto, M. StornelloCirrosi epatica e diabeteM. Imparato, L. FontanellaLa terapia personalizzata nel diabete di tipo 2A. Maffettone, C. Peirce, M. RinaldiLa gestione dell’iperglicemia nel paziente critico e instabileC. NozzoliLa disfunzione erettile nel paziente diabetico di tipo 2N. Artom, A. Bosio, G. PinnaQuali obiettivi di approccio integrato nella gestione del diabete mellito?E. Romboli, D. PanuccioIperglicemia, normoglicemia ed ipoglicemia nei pazienti anziani fragili: situazioni a rischio, politerapia e comorbilitàA. Greco, M. Greco, D. Sancarlo, F. Addante, G. D’Onofrio, D. Antonacci, S. De CosmoL’impatto clinico-prognostico dell’ipoglicemia nel paziente ospedalizzatoV. Borzì, L. Morbidoni, A. FontanellaL’internista chiamato in consulenza per un diabete gestazionale: quale approccio pragmatico?P. Novati, L. SaliLa frugalità nella gestione del diabete mellito: qualità assistenziale, governo clinico e costi correlatiP. Gnerre, G. Carta, D. MontemurroLa gestione dell’iperglicemia in area medica, ma senza esagerare.L. Magnani, G. BeltramelloAPPENDICE IUn",
+        "paper_id": "https://openalex.org/W2802439880",
+        "venue": "Italian Journal of Medicine",
+        "citation_count": 2,
+        "url": "https://doi.org/10.4081/itjm.q.2018.2",
+        "doi": "10.4081/itjm.q.2018.2",
+        "provider": "openalex",
+        "source_type": "article",
+        "verification_status": "verified",
+        "canonical_metadata": {
+          "status": "verified",
+          "doi": "10.4081/itjm.q.2018.2",
+          "title": "L’internista ospedaliero nella gestione del paziente diabetico complesso",
+          "year": 2018,
+          "authors": [
+            "Guest Editors: L. Magnani",
+            "G. Beltramello",
+            "D. Brancato",
+            "A. Fontanella",
+            "R. Nardi"
+          ],
+          "venue": "Italian Journal of Medicine",
+          "abstract": "L’internista deve occuparsi (e rioccuparsi) del paziente diabetico complesso in OspedaleA. Fontanella, L. MagnaniDiagnosi, classificazione, epidemiologia clinica del diabete mellitoV. Provenzano, D. BrancatoUp-date degli studi disponibiliP. Gnerre, T.M. Attardo, A. Maffettone, G. BeltramelloIl diabete mellito costituisce ancora un equivalente di rischio cardiovascolare?G. Augello, T.M. AttardoLe terapie del diabete tipo 2 sono tutte uguali ai fini della riduzione della morbilità e mortalità cardiovascolare?V. ProvenzanoLe nuove tecnologie nella cura del diabete mellitoD. Brancato, V. ProvenzanoInsuline prandiali e insuline basaliR. PastorelliQuali target nel diabete mellito: il dogma dell’emoglobina glicata è davvero imprescindibile?V. ManicardiIl controllo dell’iperglicemia nel paziente anziano polipatologico: è sempre necessario iniziare l’insulina?G. Gulli, M. NizzoliLa nefropatia diabeticaF. Salvati, D. Manfellotto, M. StornelloCirrosi epatica e diabeteM. Imparato, L. FontanellaLa terapia personalizzata nel diabete di tipo 2A. Maffettone, C. Peirce, M. RinaldiLa gestione dell’iperglicemia nel paziente critico e instabileC. NozzoliLa disfunzione erettile nel paziente diabetico di tipo 2N. Artom, A. Bosio, G. PinnaQuali obiettivi di approccio integrato nella gestione del diabete mellito?E. Romboli, D. PanuccioIperglicemia, normoglicemia ed ipoglicemia nei pazienti anziani fragili: situazioni a rischio, politerapia e comorbilitàA. Greco, M. Greco, D. Sancarlo, F. Addante, G. D’Onofrio, D. Antonacci, S. De CosmoL’impatto clinico-prognostico dell’ipoglicemia nel paziente ospedalizzatoV. Borzì, L. Morbidoni, A. FontanellaL’internista chiamato in consulenza per un diabete gestazionale: quale approccio pragmatico?P. Novati, L. SaliLa frugalità nella gestione del diabete mellito: qualità assistenziale, governo clinico e costi correlatiP. Gnerre, G. Carta, D. MontemurroLa gestione dell’iperglicemia in area medica, ma senza esagerare.L. Magnani, G. BeltramelloAPPENDICE IUn",
+          "provider": "crossref",
+          "match_score": 1.0,
+          "reason": null,
+          "origin": "pack",
+          "verification_provider": "crossref",
+          "scope_ids": [
+            "scope-1"
+          ],
+          "academic_evidence": {
+            "version": "source-evidence-v1",
+            "text": "L’internista deve occuparsi (e rioccuparsi) del paziente diabetico complesso in OspedaleA. Fontanella, L. MagnaniDiagnosi, classificazione, epidemiologia clinica del diabete mellitoV. Provenzano, D. BrancatoUp-date degli studi disponibiliP. Gnerre, T.M. Attardo, A. Maffettone, G. BeltramelloIl diabete mellito costituisce ancora un equivalente di rischio cardiovascolare?G. Augello, T.M. AttardoLe terapie del diabete tipo 2 sono tutte uguali ai fini della riduzione della morbilità e mortalità cardiovascolare?V. ProvenzanoLe nuove tecnologie nella cura del diabete mellitoD. Brancato, V. ProvenzanoInsuline prandiali e insuline basaliR. PastorelliQuali target nel diabete mellito: il dogma dell’emoglobina glicata è davvero imprescindibile?V. ManicardiIl controllo dell’iperglicemia nel paziente anziano polipatologico: è sempre necessario iniziare l’insulina?G. Gulli, M. NizzoliLa nefropatia diabeticaF. Salvati, D. Manfellotto, M. StornelloCirrosi epatica e diabeteM. Imparato, L. FontanellaLa terapia personalizzata nel diabete di tipo 2A. Maffettone, C. Peirce, M. RinaldiLa gestione dell’iperglicemia nel paziente critico e instabileC. NozzoliLa disfunzione erettile nel paziente diabetico di tipo 2N. Artom, A. Bosio, G. PinnaQuali obiettivi di approccio integrato nella gestione del diabete mellito?E. Romboli, D. PanuccioIperglicemia, normoglicemia ed ipoglicemia nei pazienti anziani fragili: situazioni a rischio, politerapia e comorbilitàA. Greco, M. Greco, D. Sancarlo, F. Addante, G. D’Onofrio, D. Antonacci, S. De CosmoL’impatto clinico-prognostico dell’ipoglicemia nel paziente ospedalizzatoV. Borzì, L. Morbidoni, A. FontanellaL’internista chiamato in consulenza per un diabete gestazionale: quale approccio pragmatico?P. Novati, L. SaliLa frugalità nella gestione del diabete mellito: qualità assistenziale, governo clinico e costi correlatiP. Gnerre, G. Carta, D. MontemurroLa gestione dell’iperglicemia in area medica, ma senza esagerare.L. Magnani, G. BeltramelloAPPENDICE IUn",
+            "sha256": "372d466c8ada8a0e4c4fa7991e2e60a16504a3b61e4b623e38198a68730f36da",
+            "origins": [
+              {
+                "kind": "abstract",
+                "provider": "openalex",
+                "doi": "10.4081/itjm.q.2018.2",
+                "paper_id": "https://openalex.org/W2802439880"
+              }
+            ],
+            "truncated": false
+          },
+          "evidence_level": "abstract"
+        }
+      },
+      "citation_key": "K5ca8e4b87288",
+      "on_topic_score": 1.0
+    }
+  ]
+}

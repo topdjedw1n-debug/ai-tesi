@@ -1,0 +1,11 @@
+{
+  "fields_equal": true,
+  "source_files_equal": true,
+  "contract_content_equal": true,
+  "contract_sha_equal": true,
+  "contract_sha256": "d9ee0e1c07c71ffeaf2edbbf8855e1689ced726665a71ad2209241df00176e1e",
+  "only_contract_metadata_difference": {
+    "source_document_id": 11,
+    "target_document_id": 12
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/generation_worker.py",
+    "sha256": "447b14533386a771d834df268eaa3db0ec9934a551d92927a661423362aa2923"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_generation_worker.py",
+    "sha256": "b9351a894431d627a0d29f3803e1539f94cde6fb09bca8048dfbc17ced936f97"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/academic_review.py",
+    "sha256": "6d01ec11b2357231b0f1305a2a29ccf5c6ebdf819a0393977669cc1760ebf768"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/background_jobs.py",
+    "sha256": "e9a293341e5ae381388f25117514bd054b0dde445d3abe182c74855a74d436ac"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/web/components/dashboard/TaskContractPanel.tsx",
+    "sha256": "1614273dfdded6b9955ba335d0c021954219fb0f03682be7f839d36f73438793"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/models/document.py",
+    "sha256": "fcae8a4754a30a49548c1bcf69dfd28bacaf174d04d4058b52b92545ac2bb06b"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/conftest.py",
+    "sha256": "636e447cb9a7ed5b9d0adcac90208453a5798eb53cd5ca2297eef19714d92a7d"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/tests/test_release_evidence_postgres.py",
+    "sha256": "2d2d94c6ee112721b51570392967faac2e8c2e6d43bc1f1d35620ccaaf2855ee"
+  },
+  {
+    "path": "/Users/maxmaxvel/AI TESI/.scratch/m0-12-m1-q01-20260908/worktree/apps/api/app/services/ai_service.py",
+    "sha256": "ac8433be1841e7c1ad3b303f8a093c96ae34dc73a139218a3d8aa6e71c88f51b"
+  }
+]

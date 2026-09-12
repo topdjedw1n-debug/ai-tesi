@@ -1,0 +1,354 @@
+{
+  "document_id": 12,
+  "job_id": 14,
+  "worker_attempt": 1,
+  "stage": "outline",
+  "sections": [
+    {
+      "title": "CAPITOLO 1. Il ruolo dell'infermiere nell'assessment e nella prevenzione primaria in area perinatale",
+      "purpose": "Introdurre il ruolo infermieristico nell'assessment perinatale e nella prevenzione primaria, definendo il quadro concettuale e normativo che circoscrive le competenze dell'infermiere in area materno-neonatale.",
+      "main_points": [
+        "Definizione di area perinatale e collocazione delle competenze infermieristiche generali e territoriali",
+        "Concetto di prevenzione primaria applicato al contesto materno-neonatale",
+        "Ruolo dell'infermiere e degli operatori sanitari nella cura materno-infantile territoriale",
+        "Distinzione tra competenza infermieristica e ambito ostetrico (D.M. 740/1994)"
+      ],
+      "scope_ids": [
+        "scope-1"
+      ],
+      "evidence_keys": [
+        "Kf79fb21cb30b"
+      ],
+      "target_words": 228,
+      "section_index": 1
+    },
+    {
+      "title": "1.1 Monitoraggio della salute materno-fetale: richiami fisiologici e indicatori perinatali di interesse infermieristico",
+      "purpose": "Illustrare i richiami fisiologici e gli indicatori perinatali rilevanti per il monitoraggio infermieristico della salute materno-fetale.",
+      "main_points": [
+        "Richiami fisiologici della gravidanza rilevanti per la sorveglianza infermieristica",
+        "Indicatori perinatali di interesse infermieristico",
+        "Ruolo del monitoraggio nella tutela della salute materno-fetale",
+        "Integrazione degli indicatori nella pratica territoriale"
+      ],
+      "scope_ids": [
+        "scope-2"
+      ],
+      "evidence_keys": [
+        "Kf79fb21cb30b",
+        "Kf0eaaa08836e"
+      ],
+      "target_words": 274,
+      "section_index": 2
+    },
+    {
+      "title": "1.2 L'accertamento infermieristico nei servizi territoriali: identificazione precoce e stratificazione dei fattori di rischio clinico, assistenziale e stili di vita",
+      "purpose": "Descrivere il processo di accertamento infermieristico nei servizi territoriali per l'identificazione precoce e la stratificazione dei fattori di rischio.",
+      "main_points": [
+        "Accertamento infermieristico nei servizi consultoriali e territoriali",
+        "Identificazione precoce dei fattori di rischio clinico e assistenziale",
+        "Stratificazione del rischio applicata al contesto perinatale",
+        "Valutazione degli stili di vita e ruolo della digitalizzazione territoriale"
+      ],
+      "scope_ids": [
+        "scope-3"
+      ],
+      "evidence_keys": [
+        "Kef311da9cf6a",
+        "Kf9d546cf3c3e",
+        "K72d63657faee",
+        "K239dfeeed425"
+      ],
+      "target_words": 274,
+      "section_index": 3
+    },
+    {
+      "title": "1.3 L'educazione alla salute in epoca gestazionale: pianificazione assistenziale preventiva e percorsi di presa in carico",
+      "purpose": "Analizzare gli interventi educativi infermieristici in gravidanza e la pianificazione dei percorsi di presa in carico preventiva.",
+      "main_points": [
+        "Educazione alla salute e promozione di stili di vita corretti",
+        "Pianificazione assistenziale preventiva in epoca gestazionale",
+        "Percorsi di presa in carico e continuità assistenziale",
+        "Ruolo educativo dell'infermiere e strategie di peer education"
+      ],
+      "scope_ids": [
+        "scope-4"
+      ],
+      "evidence_keys": [
+        "K239dfeeed425",
+        "K6698b4db5ab8",
+        "Kf79fb21cb30b"
+      ],
+      "target_words": 274,
+      "section_index": 4
+    },
+    {
+      "title": "CAPITOLO 2. La stabilità omeostatica della diade e la sorveglianza infermieristica",
+      "purpose": "Introdurre il concetto di stabilità omeostatica della diade madre-neonato e il ruolo della sorveglianza infermieristica nel garantirla.",
+      "main_points": [
+        "Concetto di diade madre-neonato e stabilità omeostatica",
+        "Ruolo della sorveglianza infermieristica nella tutela della diade",
+        "Interconnessione tra benessere materno e neonatale",
+        "Impostazione metodologica del capitolo"
+      ],
+      "scope_ids": [
+        "scope-5"
+      ],
+      "evidence_keys": [
+        "Kb86804ca0c42",
+        "Kf79fb21cb30b"
+      ],
+      "target_words": 201,
+      "section_index": 5
+    },
+    {
+      "title": "2.1 Risposte sistemiche materne alla gravidanza: monitoraggio infermieristico dei parametri fisiologici e segni di allarme",
+      "purpose": "Descrivere le risposte sistemiche materne alla gravidanza e il monitoraggio infermieristico dei parametri fisiologici e dei segni di allarme.",
+      "main_points": [
+        "Adattamenti sistemici materni fisiologici alla gravidanza",
+        "Monitoraggio infermieristico dei parametri vitali materni",
+        "Riconoscimento precoce dei segni di allarme",
+        "Interventi di sorveglianza e attivazione del percorso assistenziale"
+      ],
+      "scope_ids": [
+        "scope-6"
+      ],
+      "evidence_keys": [
+        "Kef311da9cf6a",
+        "Kf79fb21cb30b"
+      ],
+      "target_words": 274,
+      "section_index": 6
+    },
+    {
+      "title": "2.2 La termoregolazione come indicatore di stabilità neonatale: meccanismi fisiologici e interventi infermieristici autonomi per la prevenzione dello stress da freddo",
+      "purpose": "Analizzare i meccanismi fisiologici della termoregolazione neonatale e gli interventi infermieristici autonomi per prevenire lo stress da freddo.",
+      "main_points": [
+        "Meccanismi fisiologici della termoregolazione neonatale",
+        "Stress da freddo: fisiopatologia e conseguenze cliniche",
+        "Interventi infermieristici autonomi (wrap occlusivo, materassino, controllo temperatura ambientale)",
+        "Evidenze sull'efficacia delle strategie di prevenzione del calo termico"
+      ],
+      "scope_ids": [
+        "scope-7"
+      ],
+      "evidence_keys": [
+        "K4ab85104ef86",
+        "Kce08cb82466c"
+      ],
+      "target_words": 292,
+      "section_index": 7
+    },
+    {
+      "title": "2.3 Applicazione del Processo di Assistenza (NANDA-I): Diagnosi di Disponibilità a migliorare il processo di maternità, indicatori di efficacia e pianificazione degli obiettivi (NOC)",
+      "purpose": "Applicare il processo di assistenza infermieristica con la diagnosi NANDA-I di disponibilità a migliorare il processo di maternità e la pianificazione degli obiettivi NOC.",
+      "main_points": [
+        "Struttura del processo di assistenza NANDA-I",
+        "Diagnosi di Disponibilità a migliorare il processo di maternità",
+        "Definizione degli indicatori di efficacia",
+        "Pianificazione degli obiettivi assistenziali (NOC)"
+      ],
+      "scope_ids": [
+        "scope-8"
+      ],
+      "evidence_keys": [
+        "K2303d3bb1655",
+        "Kb86804ca0c42"
+      ],
+      "target_words": 292,
+      "section_index": 8
+    },
+    {
+      "title": "CAPITOLO 3. La gestione infermieristica della transizione extrauterina del neonato e pianificazione delle cure",
+      "purpose": "Introdurre la gestione infermieristica della transizione extrauterina del neonato e i principi di pianificazione delle cure.",
+      "main_points": [
+        "Definizione di transizione extrauterina e sfide assistenziali",
+        "Ruolo dell'infermiere nella gestione della transizione neonatale",
+        "Principi di pianificazione delle cure nella fase di adattamento",
+        "Continuità assistenziale dalla nascita alle prime ore di vita"
+      ],
+      "scope_ids": [
+        "scope-9"
+      ],
+      "evidence_keys": [
+        "K8488bad5d0b7",
+        "Kf60f41921bbb"
+      ],
+      "target_words": 201,
+      "section_index": 9
+    },
+    {
+      "title": "3.1 La transizione cardiorespiratoria ed emodinamica del neonato: sorveglianza infermieristica e indici di adattamento immediato (Punteggio di Apgar)",
+      "purpose": "Descrivere la transizione cardiorespiratoria ed emodinamica del neonato e la sorveglianza infermieristica tramite il Punteggio di Apgar.",
+      "main_points": [
+        "Fisiologia della transizione cardiorespiratoria ed emodinamica neonatale",
+        "Il Punteggio di Apgar come indice di adattamento immediato",
+        "Sorveglianza infermieristica dei parametri di adattamento",
+        "Riconoscimento precoce delle difficoltà di transizione"
+      ],
+      "scope_ids": [
+        "scope-10"
+      ],
+      "evidence_keys": [
+        "Kce08cb82466c",
+        "K8488bad5d0b7"
+      ],
+      "target_words": 274,
+      "section_index": 10
+    },
+    {
+      "title": "3.2 Competenze dell'infermiere nell'accoglienza e nel monitoraggio del neonato nelle prime ore di vita (ispezione, parametri vitali e screening)",
+      "purpose": "Illustrare le competenze infermieristiche nell'accoglienza e monitoraggio del neonato nelle prime ore di vita, incluse ispezione, parametri vitali e screening.",
+      "main_points": [
+        "Accoglienza del neonato e valutazione iniziale",
+        "Ispezione e rilevazione dei parametri vitali neonatali",
+        "Programmi di screening neonatale (es. otoemissioni acustiche)",
+        "Ruolo dell'infermiere e responsabilità nella pratica assistenziale neonatale"
+      ],
+      "scope_ids": [
+        "scope-11"
+      ],
+      "evidence_keys": [
+        "Kba2e9f627c9e",
+        "K386a1ae2100c",
+        "Kce08cb82466c"
+      ],
+      "target_words": 274,
+      "section_index": 11
+    },
+    {
+      "title": "3.3 Piani di assistenza infermieristica ed etichette diagnostiche nella transizione",
+      "purpose": "Presentare il quadro dei piani di assistenza infermieristica e delle etichette diagnostiche applicabili alla transizione neonatale.",
+      "main_points": [
+        "Struttura dei piani di assistenza infermieristica",
+        "Uso delle etichette diagnostiche nella transizione neonatale",
+        "Distinzione tra diagnosi infermieristiche e problemi collaborativi",
+        "Introduzione alle diagnosi specifiche trattate nei sottoparagrafi"
+      ],
+      "scope_ids": [
+        "scope-12"
+      ],
+      "evidence_keys": [
+        "K386a1ae2100c",
+        "K2303d3bb1655"
+      ],
+      "target_words": 164,
+      "section_index": 12
+    },
+    {
+      "title": "3.3.1 Diagnosi infermieristica materno-neonatale: Rischio di alterazione del legame di attaccamento",
+      "purpose": "Sviluppare la diagnosi infermieristica di rischio di alterazione del legame di attaccamento nella diade materno-neonatale.",
+      "main_points": [
+        "Definizione della diagnosi di Rischio di alterazione del legame di attaccamento",
+        "Fattori di rischio e indicatori nella diade",
+        "Interventi infermieristici a sostegno del bonding precoce",
+        "Valutazione degli esiti attesi"
+      ],
+      "scope_ids": [
+        "scope-13"
+      ],
+      "evidence_keys": [
+        "Kb86804ca0c42"
+      ],
+      "target_words": 228,
+      "section_index": 13
+    },
+    {
+      "title": "3.3.2 Problema Collaborativo: Rischio di compromissione degli scambi gassosi nel neonato secondario a ritardato riassorbimento del liquido polmonare",
+      "purpose": "Analizzare il problema collaborativo del rischio di compromissione degli scambi gassosi secondario a ritardato riassorbimento del liquido polmonare.",
+      "main_points": [
+        "Fisiopatologia del ritardato riassorbimento del liquido polmonare",
+        "Definizione del problema collaborativo e ruolo interdisciplinare",
+        "Sorveglianza infermieristica degli scambi gassosi",
+        "Interventi di monitoraggio e collaborazione clinica"
+      ],
+      "scope_ids": [
+        "scope-14"
+      ],
+      "evidence_keys": [
+        "Kce08cb82466c",
+        "K8488bad5d0b7"
+      ],
+      "target_words": 228,
+      "section_index": 14
+    },
+    {
+      "title": "CAPITOLO 4. Nursing Care Leadership nel post-partum: promozione dell'attachment precoce e dell'allattamento",
+      "purpose": "Introdurre il ruolo di leadership infermieristica nel post-partum per la promozione dell'attachment precoce e dell'allattamento.",
+      "main_points": [
+        "Concetto di Nursing Care Leadership nel post-partum",
+        "Promozione dell'attachment precoce come obiettivo assistenziale",
+        "Ruolo dell'infermiere nel sostegno all'allattamento",
+        "Impostazione del capitolo e collegamento con le evidenze"
+      ],
+      "scope_ids": [
+        "scope-15"
+      ],
+      "evidence_keys": [
+        "K6a5439fab67b",
+        "K236775ca3d03"
+      ],
+      "target_words": 201,
+      "section_index": 15
+    },
+    {
+      "title": "4.1 La gestione clinica e logistica del Rooming-in: la sorveglianza del neonato sano e la sicurezza assistenziale in reparto",
+      "purpose": "Descrivere la gestione clinica e logistica del Rooming-in con particolare attenzione alla sorveglianza del neonato sano e alla sicurezza assistenziale.",
+      "main_points": [
+        "Definizione e organizzazione del Rooming-in",
+        "Sorveglianza infermieristica del neonato sano in reparto",
+        "Sicurezza assistenziale e prevenzione degli eventi avversi",
+        "Impatto del Covid-19 sull'organizzazione del Rooming-in"
+      ],
+      "scope_ids": [
+        "scope-16"
+      ],
+      "evidence_keys": [
+        "K6a5439fab67b",
+        "K386a1ae2100c"
+      ],
+      "target_words": 274,
+      "section_index": 16
+    },
+    {
+      "title": "4.2 Evidenze scientifiche sul contatto precoce pelle a pelle (Skin-to-skin): stabilità neurocomportamentale, imprinting del microbiota e ruolo di tutela dell'infermiere",
+      "purpose": "Esporre le evidenze scientifiche sul contatto pelle a pelle in relazione alla stabilità neurocomportamentale, all'imprinting del microbiota e al ruolo di tutela dell'infermiere.",
+      "main_points": [
+        "Evidenze sul contatto pelle a pelle precoce",
+        "Effetti sulla stabilità neurocomportamentale del neonato",
+        "Imprinting del microbiota e benefici a lungo termine",
+        "Ruolo di tutela e facilitazione dell'infermiere"
+      ],
+      "scope_ids": [
+        "scope-17"
+      ],
+      "evidence_keys": [
+        "K6a5439fab67b",
+        "K236775ca3d03"
+      ],
+      "target_words": 274,
+      "section_index": 17
+    },
+    {
+      "title": "4.3 Interventi infermieristici educativi e di counseling: implementazione di strategie basate su prove di efficacia (EBN) per il sostegno e la continuità dell'allattamento al seno",
+      "purpose": "Analizzare gli interventi educativi e di counseling infermieristico basati su prove di efficacia (EBN) per il sostegno e la continuità dell'allattamento al seno.",
+      "main_points": [
+        "Interventi educativi e counseling infermieristico sull'allattamento",
+        "Strategie EBN per il sostegno all'allattamento al seno",
+        "Barriere alla continuità dell'allattamento e ruolo dei servizi",
+        "Raccomandazioni WHO/UNICEF e formazione dei professionisti"
+      ],
+      "scope_ids": [
+        "scope-18"
+      ],
+      "evidence_keys": [
+        "K236775ca3d03",
+        "K6698b4db5ab8",
+        "K6a5439fab67b"
+      ],
+      "target_words": 273,
+      "section_index": 18
+    }
+  ],
+  "source_pack_sha256": "ffe88a1d31a4b866f68eb30b56befd153f124fc8e8bdf7814f060f8cfb792369"
+}

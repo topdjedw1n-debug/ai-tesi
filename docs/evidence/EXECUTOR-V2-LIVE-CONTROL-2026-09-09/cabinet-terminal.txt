@@ -1,0 +1,112 @@
+Browser tab: 2, Title: "Thesica — академічні роботи, що проходять", URL: "https://app.thesica.co/dashboard/documents/12".
+0 AXWebArea Thesica — академічні роботи, що проходять, URL: app.thesica.co/dashboard/documents/12
+	1 button Open sidebar
+	2 container
+		3 button Назад
+		4 heading Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato, Value: 1
+			5 text Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato
+		6 text Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato Технічна зупинка
+		7 link Description: Перевірка та видача цієї роботи →, Value: app.thesica.co/dashboard/production-cases/14
+		8 container Хід генерації
+			9 heading Хід генерації, Value: 3
+				10 text Хід генерації
+			11 text Технічна зупинка
+			12 text Побудова плану
+			13 text Відповідь моделі записано.
+			14 container
+				15 text 41 696  токенів · $ 0.30  ·  8  попереджень
+			16 text Структуру відповіді моделі не вдалося прочитати.
+		17 container Контракт роботи
+			18 heading Контракт роботи, Value: 2, ID: task-contract-heading
+				19 text Контракт роботи
+			20 text Перевір, що саме система вважатиме завданням перед початком написання.
+			21 text На основі методички
+			22 definition list
+				23 container Тема
+					24 text Тема
+				25 container
+					26 text Il ruolo dell’infermiere nell’area perinatale e nella transizione extrauterina del neonato введено менеджером
+				27 text Явно задано
+				28 container Мова
+					29 text Мова
+				30 container
+					31 text Італійська введено менеджером
+				32 text Явно задано
+				33 container Обсяг
+					34 text Обсяг
+				35 container
+					36 text 18 сторінок введено менеджером
+				37 text Явно задано
+				38 container Стиль цитування
+					39 text Стиль цитування
+				40 container
+					41 text APA введено менеджером
+				42 text Явно задано
+				43 container Тип роботи
+					44 text Тип роботи
+				45 container
+					46 text Магістерська введено менеджером
+				47 text Явно задано
+				48 container Структура
+					49 text Структура
+				50 container
+					51 text За завантаженою методичкою з методички
+				52 text Явно задано
+				53 container Політика джерел
+					54 text Політика джерел
+				55 container
+					56 text Автоматичний пошук академічних джерел стандартне правило системи
+				57 text Явно задано
+		58 container Джерела клієнта
+			59 heading Джерела клієнта, Value: 2, ID: source-files-heading
+				60 text Джерела клієнта
+			61 text Додай PDF, які система має використати разом з академічними джерелами.
+			62 container
+				63 text Додати PDF
+				64 button Додати PDF
+			65 text Завантажених PDF поки немає. Система шукатиме джерела автоматично.
+		66 container Нова спроба
+			67 heading Нова спроба, Value: 2, ID: generation-start-heading
+				68 text Нова спроба
+			69 text До натискання кнопки нижче написання не починається. Справа для перевірок створиться автоматично разом із першим запуском.
+			70 text Структуру відповіді моделі не вдалося прочитати.
+			71 text Орієнтовна вартість повної генерації
+			72 text $ 0.25 близько  20 520  токенів
+			73 container
+				74 checkbox (settable, integer) Description: Підтверджую нову спробу. Попередні розділи збережуться в історії; робота буде написана заново., Value: 0
+				75 text Підтверджую нову спробу. Попередні розділи збережуться в історії; робота буде написана заново.
+			76 text Поточну версію контракту вже було підтверджено.
+			77 button (disabled) Нова спроба
+		78 heading Докази якості, Value: 2
+			79 text Докази якості
+		80 text Причини довіряти чи не довіряти цій роботі перед видачею РОЗДІЛІВ 0 СЛІВ 0 ТОКЕНІВ 0 Згенеровано моделлю  невідома модель  ( невідомий провайдер ).
+		81 content list
+			82 container
+				83 text Наявність джерел Пак джерел для цього прогону не записано (grounding вимкнено або стара робота). Немає даних
+			84 container
+				85 text Перевірка цитат Верифікація цитат ще не залишила запису по цій роботі. Немає даних
+			86 container
+				87 text Якість розділів По цій роботі немає записів перевірок якості. Немає даних
+			88 container
+				89 text Граматика По цій роботі немає записів перевірок якості. Немає даних
+			90 container
+				91 text Плагіат По цій роботі немає записів перевірок якості. Немає даних
+			92 container
+				93 text AI-детектор По цій роботі немає записів перевірок якості. Немає даних
+			94 container
+				95 text Підкріпленість тверджень Перевірка тверджень недоступна або вимкнена для цього прогону. Немає даних
+			96 container
+				97 text Панель рецензентів Панель рецензентів недоступна або вимкнена для цього прогону. Немає даних
+			98 container
+				99 text Академічна повнота роботи Немає перевірки академічної повноти цілої роботи. Не перевірено
+			100 container
+				101 text Compilatio: збіги тексту Завантажте DOCX для Compilatio, прикріпіть звіт і внесіть результат. Допустимо до 10% включно. Не перевірено
+			102 container
+				103 text Compilatio: показник AI Завантажте DOCX для Compilatio, прикріпіть звіт і внесіть результат. Допустимо до 10% включно. Не перевірено
+		104 heading Фідбек по цій роботі, Value: 2
+			105 text Фідбек по цій роботі
+		106 text Що не так, що покращити — команда бачить це одразу по цій роботі
+		107 text entry area (settable)
+		108 button Надіслати фідбек
+
+The focused UI element is 0 AXWebArea Thesica — академічні роботи, що проходять, URL: app.thesica.co/dashboard/documents/12

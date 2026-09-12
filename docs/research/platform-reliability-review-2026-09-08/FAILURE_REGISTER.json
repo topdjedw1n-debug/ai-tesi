@@ -1,0 +1,1597 @@
+{
+  "date": "2026-09-08",
+  "status": "PROPOSED",
+  "scope": "Internal first accepted work and production recovery; no implementation performed",
+  "evidence_base": "067e90cab8f9dc8f5720cfc6ff3fb948be11b8f9 plus recorded September 8 outcomes",
+  "status_legend": {
+    "C": "Підтверджений дефект/інцидент",
+    "D": "Прогалина контракту за прочитаним кодом",
+    "P": "Є часткові докази; повний сценарій ще не доведений",
+    "U": "Ризик для перевірки; інцидент не встановлено"
+  },
+  "priority_legend": {
+    "G": "Інваріант цілісності, авторизації, обліку або правдивої готовності",
+    "P": "Підтриманий процес і самостійна робота менеджера",
+    "M": "Залишковий/рідкісний ризик: виявлення, відновлення, явне обмеження"
+  },
+  "important": "Not an exhaustive list of future events; not a list of confirmed bugs. Partial tests do not prove entire scenario. Priority is consequence-based, not measured probability.",
+  "scenarios": [
+    {
+      "id": "R001",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E01"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Немає методички, готового плану або PDF",
+      "required_behavior": "Самостійна підготовка в підтриманому наборі; відсутність доповнення не блокує",
+      "falsification_test": "Пройти підготовку без усіх трьох доповнень і порівняти склад обов'язкових виходів",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R002",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E01"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Непідтриманий тип або обсяг роботи",
+      "required_behavior": "До написання назвати конкретну непідтриману вимогу; не обіцяти приховано інший результат",
+      "falsification_test": "Подати завдання з емпіричними даними, яких немає; перевірити відсутність старту писаря",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R003",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E07",
+        "E13"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Подвійне натискання запуску або повтор HTTP після втрати відповіді",
+      "required_behavior": "Повернути ту саму активну задачу для того самого наміру",
+      "falsification_test": "Зафіксувати commit, втратити HTTP-відповідь, повторити запит; у базі одна активна задача",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R004",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E07",
+        "E10"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Бриф змінили між підтвердженням і запуском",
+      "required_behavior": "Відхилити застаріле підтвердження без прихованого старту",
+      "falsification_test": "Змінити одну вимогу після confirmation hash; перевірити явну причину й нуль нових задач",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R005",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E07",
+        "E10"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Два менеджери одночасно змінюють вимоги тієї самої справи",
+      "required_behavior": "Один узгоджений знімок вимог, видимий конфлікт версій",
+      "falsification_test": "Паралельні submit зі старою й новою версією; текст не містить суміші двох брифів",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R006",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E07"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Чужий документ, відсутня роль або прострочена сесія",
+      "required_behavior": "Жодного запуску/доступу поза правами; чинна фонова задача не залежить від браузерної сесії",
+      "falsification_test": "Запустити перевірки іншим користувачем, завершити сесію власника; перевірити обидві властивості",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R007",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E01"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Суперечливі вимоги: фіксовані глави, метод, рівень, обсяг",
+      "required_behavior": "Показати суперечність до написання або коректно розмістити потрібні функції в погодженій структурі",
+      "falsification_test": "Пара: можливий розподіл функцій у чотирьох главах і справді несумісні вимоги",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R008",
+      "group": "A. Вимоги та підтвердження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E01"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Непридатний або завеликий завантажений файл",
+      "required_behavior": "Видима причина для конкретного файла; чернетка збережена; опціональний файл не руйнує справу",
+      "falsification_test": "Пошкоджений PDF, скан без тексту, завеликий файл; жодної невидимої підміни порожнім текстом",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R009",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "429, timeout або недоступний каталог літератури",
+      "required_behavior": "Відрізнити тимчасову недоступність від браку літератури; обмежений повтор",
+      "falsification_test": "Повернути 429, потім релевантний результат; система не оголошує тему недослідженою",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R010",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Пошук повернув нуль або нерелевантні праці",
+      "required_behavior": "Добір за конкретною прогалиною в межах ліміту; після нього змістовна причина",
+      "falsification_test": "Пара: порожній пошук і численний нерелевантний пошук; обидва не дають готовності лише за кількістю",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R011",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Метадані DOI не відповідають знайденому тексту",
+      "required_behavior": "Відхилити неправильну прив'язку; зберегти причину",
+      "falsification_test": "Підставити іншу назву/авторів за DOI; ключ не потрапляє у готовий пакет",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R012",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Джерело реальне, але немає придатного тексту",
+      "required_behavior": "Не видавати метадані за прочитані докази; добір або явна прогалина",
+      "falsification_test": "Повернути тільки бібліографію/платну заглушку; перевірка не підтверджує тверджень із нечитаних сторінок",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R013",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Уривок містить титул або контекст, але не підтримує твердження",
+      "required_behavior": "Оцінювати змістове покриття, а не довжину уривка",
+      "falsification_test": "Пара однакової довжини: титульний текст і релевантний результат; оцінки відрізняються",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R014",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Дублікати праці з різними URL/ключами",
+      "required_behavior": "Єдина ідентичність джерела; кількість не роздута",
+      "falsification_test": "Три копії одного DOI плюс варіант без DOI; перевірити нормалізацію й бібліографію",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R015",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Джерела іншої популяції, мови, дати або рівня доказів",
+      "required_behavior": "Обґрунтована застосовність або конкретне обмеження; не прихований перенос висновків",
+      "falsification_test": "Контрольні пари клінічного/неклінічного джерела й узагальнення; рецензент знаходить недоведений перенос",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R016",
+      "group": "B. Пошук та придатність джерел",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E10"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Джерело або вміст URL змінилися після підготовки",
+      "required_behavior": "Писати з зафіксованого пакета; зміни не застосовуються непомітно",
+      "falsification_test": "Після checkpoint повернути за URL інший текст; хеш і використаний уривок залишаються узгодженими",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R017",
+      "group": "C. План та підготовка до писаря",
+      "priority": "P",
+      "evidence_status": "C",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "План містить ключі джерел, вилучених остаточним відбором",
+      "required_behavior": "Узгодити план із фінальними доказами до семантичного рецензента",
+      "falsification_test": "Відтворити відбір №8; перевірити кожне обґрунтування й ключ на остаточному пакеті",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R018",
+      "group": "C. План та підготовка до писаря",
+      "priority": "P",
+      "evidence_status": "C",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Допустиме обмеження огляду потрапило до блокувальних конфліктів",
+      "required_behavior": "Класифікувати за змістом; допустиме застереження зберегти й продовжити",
+      "falsification_test": "Парні приклади обмеження narrative review та неможливого клінічного висновку",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R019",
+      "group": "C. План та підготовка до писаря",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Реальний брак доказів механічно перейменовано на застереження",
+      "required_behavior": "Зберегти блокування невиконаної вимоги",
+      "falsification_test": "Після видалення критичного джерела не допускається PASS через порожній список conflicts",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R020",
+      "group": "C. План та підготовка до писаря",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Вилучений ключ замінено випадковим наявним",
+      "required_behavior": "Прив'язка має змістове підтвердження",
+      "falsification_test": "Дати валідний DOI на сторонню тему; структурна валідність не завершує перевірку готовності",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R021",
+      "group": "C. План та підготовка до писаря",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "План не містить методу огляду, дискусії чи висновків потрібного рівня",
+      "required_behavior": "Обов'язкові функції покриті в погоджених главах",
+      "falsification_test": "Пара бакалаврського й магістерського брифу з однаковою методичкою; оцінити конкретні відмінності вимог",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R022",
+      "group": "C. План та підготовка до писаря",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "План добрий окремо, але не вміщується в обсяг/структуру",
+      "required_behavior": "До написання реалістичний розподіл секцій; істотну зміну не приховувати",
+      "falsification_test": "План із надмірною кількістю функцій на малий обсяг не проходить без корекції",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R023",
+      "group": "C. План та підготовка до писаря",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E02",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Цільовий добір змінив пакет, але не всі залежні секції плану",
+      "required_behavior": "Повторно узгодити всі залежності; пакет і план зберегти як узгоджений результат",
+      "falsification_test": "Додати/вилучити джерело для двох глав; обидві прив'язки перевірені, не лише перша",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R024",
+      "group": "C. План та підготовка до писаря",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08",
+        "E14"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Пошук і перепланування зациклюються до випадкового PASS",
+      "required_behavior": "Ліміт логічних проходів; збережена причина після вичерпання",
+      "falsification_test": "Послідовно повертати непокриту вимогу; кількість викликів обмежена й облік не обнуляється",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R025",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E04",
+        "E09"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Немає балансу, ключ відкликаний або модель недоступна",
+      "required_behavior": "Конкретна зовнішня перешкода; без безглуздого повторного написання",
+      "falsification_test": "Відповіді billing/auth/model-not-found; збережений checkpoint, коректний відповідальний",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R026",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Тимчасовий 5xx/429, зокрема після кількох успіхів",
+      "required_behavior": "Обмежений повтор тільки незавершеної операції з відкладенням",
+      "falsification_test": "Три успішні секції, потім 429; після відновлення ті самі секції не пишуться повторно",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R027",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E14"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Провайдер виконав/списав кошти, але клієнт отримав timeout",
+      "required_behavior": "Не оголошувати нуль витрат; зберегти невизначений результат і request ID, якщо доступний",
+      "falsification_test": "Емуляція accepted-then-timeout; не більш ніж дозволена кількість повторів, unknown cost видно",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R028",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E14"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Повтори SDK, сервісу й worker перемножилися",
+      "required_behavior": "Загальний бюджет логічної операції враховує вкладені спроби",
+      "falsification_test": "Постійний timeout у трьох шарах; порахувати фактичні зовнішні виклики й верхню межу",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R029",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E08",
+        "E14"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Відповідь порожня, обрізана або має неправильний JSON",
+      "required_behavior": "Валідація до checkpoint; контрольований повтор/зупинка",
+      "falsification_test": "finish_reason length, порожній текст, частковий JSON; жоден не стає готовою секцією",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R030",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E14"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Змінився формат API/usage або потрібна можливість моделі",
+      "required_behavior": "Видима несумісність профілю; непідтверджені usage не вигадуються",
+      "falsification_test": "Підмінити схему відповіді й назви полів; перевірка не повертає фальшивий успіх/нуль",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R031",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E10",
+        "E14"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Писар або параметри змінилися посеред задачі",
+      "required_behavior": "Профіль зафіксований; продовження сумісне або явно призупинене",
+      "falsification_test": "Перезапуск зі зміненою моделлю/промптом; старі й нові секції не змішуються непомітно",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R032",
+      "group": "D. Зовнішній AI та витрати",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E07",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Бюджет вичерпаний або дві задачі одночасно резервують залишок",
+      "required_behavior": "Сумісний із чинною політикою контроль; завершений прогрес збережений",
+      "falsification_test": "Паралельні резервування біля межі; перевірити PostgreSQL, монотонний облік і відсутність обходу повтором",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R033",
+      "group": "E. Написання та академічний зміст",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E04",
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Збій після збереження кількох розділів",
+      "required_behavior": "Продовжити з першого незавершеного розділу",
+      "falsification_test": "Перервати після третього commit; при відновленні перші три байтово тотожні",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R034",
+      "group": "E. Написання та академічний зміст",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Секція обірвана, але позначена завершеною",
+      "required_behavior": "Завершеність і мінімальні структурні вимоги перевірені перед checkpoint",
+      "falsification_test": "Обрізати висновок/речення на token limit; секція не пропускається при продовженні",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R035",
+      "group": "E. Написання та академічний зміст",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Після об'єднання є повтори, суперечності або розрив аргументації",
+      "required_behavior": "Оцінювати весь текст і зв'язки між розділами",
+      "falsification_test": "Дві окремо валідні секції з протилежними числами/висновками; глобальна перевірка знаходить конфлікт",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R036",
+      "group": "E. Написання та академічний зміст",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Твердження/цитата вигадані або не підтримані джерелом",
+      "required_behavior": "Негативний результат на конкретному твердженні; видача не дозволена",
+      "falsification_test": "Вставити неправильне число з валідним посиланням та вигадану цитату; обидві відхилені",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R037",
+      "group": "E. Написання та академічний зміст",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Писар ігнорує рівень, мову, тип методу або структуру",
+      "required_behavior": "Перевірка за фактичним брифом; не загальна оцінка «текст хороший»",
+      "falsification_test": "Італійський магістерський бриф плюс підставний загальний текст іншою мовою; FAIL з конкретними пунктами",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R038",
+      "group": "E. Написання та академічний зміст",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E08"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Ліміт claim checks вичерпаний у середині роботи",
+      "required_behavior": "Облік не скидається повтором; немає помилкового PASS невиконаних перевірок",
+      "falsification_test": "Вичерпати ліміт після checkpoint і перезапустити; перевірити збережені секції та незмінний лічильник",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R039",
+      "group": "E. Написання та академічний зміст",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Контекст обрізав попередні розділи/джерела без видимої ознаки",
+      "required_behavior": "Явна повнота входу або перевірений розподіл; жодної оцінки невиданого тексту",
+      "falsification_test": "Перевищити контекст із важливою суперечністю наприкінці; не допустити неявний повний PASS",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R040",
+      "group": "E. Написання та академічний зміст",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Недогенерація: кількість слів/сторінок замала або текст порожній за змістом",
+      "required_behavior": "Показати конкретну невиконану вимогу; не прирівнювати довжину до академічної якості",
+      "falsification_test": "Парні тексти: короткий змістовний і довгий повторюваний; перевірити обсяг та зміст окремо",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R041",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Два worker претендують на одну задачу",
+      "required_behavior": "Лише один чинний lease і записувач",
+      "falsification_test": "Два паралельні claim у PostgreSQL; одна перемога й один набір ефектів",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R042",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Lease сплив, старий worker повернувся з відповіддю",
+      "required_behavior": "Старий token не може записати секцію, artifact або completed",
+      "falsification_test": "Передати lease новому worker, потім завершити старий виклик; stale write відхилений",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R043",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Процес штатно зупинився або аварійно загинув",
+      "required_behavior": "Штатне звільнення або відновлення після lease; checkpoint чинний",
+      "falsification_test": "Окремо SIGTERM і kill після commit; правильна повторна видача задачі без втрати секцій",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO",
+      "review_note": "Grok suggestion that graceful shutdown consumes retries disproved: release_generation_lease_for_shutdown decrements attempt_count; existing passing test covers it. Abrupt lease expiry is different."
+    },
+    {
+      "id": "R044",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Скасування queued/running збігається з пізньою відповіддю",
+      "required_behavior": "Скасована задача не завершується і не відновлюється сама",
+      "falsification_test": "Cancel до claim та під час AI-виклику; відкладений результат не змінює кінцевий стан",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R045",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Heartbeat живий, але корисний прогрес зупинився",
+      "required_behavior": "Окремо виявляти відсутність прогресу, показувати причину",
+      "falsification_test": "Зависнути всередині етапу зі справним heartbeat; сигнал не залишається «все добре»",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R046",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Довга задача затримала решту або вся черга голодує",
+      "required_behavior": "Вік черги й зайнятість видимі; політика відповідна внутрішньому навантаженню",
+      "falsification_test": "Довга й кілька коротких задач; виміряти очікування до рішення про додатковий worker",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R047",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Збій на межі останнього artifact commit та завершення job",
+      "required_behavior": "Відновлення не створює другу чинну доставку/артефакт",
+      "falsification_test": "Зупинити між persist artifact і complete; replay дає один узгоджений кінцевий результат",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R048",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Постійна помилка повторюється до max_attempts",
+      "required_behavior": "Кінцевий зрозумілий стан; ліміт і причина збережені",
+      "falsification_test": "Завжди повертати одну помилку; після межі немає фонових нових спроб",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R049",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E10",
+        "E13"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Пошкоджений або несумісний контракт збереженої задачі",
+      "required_behavior": "Карантин без виконання на здогаданих входах",
+      "falsification_test": "Змінити contract hash у тестовій задачі; claim не запускає писаря",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO",
+      "subscenarios": [
+        {
+          "id": "R049.a",
+          "failure_mode": "Зміна способу обчислення контракту → карантин старої задачі → новий POST з очищенням checkpoint",
+          "evidence_status": "U",
+          "evidence": [
+            "E07",
+            "E10",
+            "E16"
+          ],
+          "required_behavior": "Несумісність зупиняє виконання зі збереженим прогресом; версійний конфлікт не обходиться автоматичним retry",
+          "falsification_test": "Змінити контракт між checkpoint і claim, потім пройти дозволені дії кабінету; старі результати не видаляються recovery"
+        }
+      ]
+    },
+    {
+      "id": "R050",
+      "group": "F. Задача, черга та конкурентність",
+      "priority": "G",
+      "evidence_status": "D",
+      "evidence": [
+        "E07",
+        "E09"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Кнопка нової спроби очищає корисні секції замість продовження",
+      "required_behavior": "Окремі дії resume і нова версія з чіткими умовами",
+      "falsification_test": "Для failed job із трьома секціями натиснути «продовжити»; секції збережені, нова версія тестується окремо",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO",
+      "subscenarios": [
+        {
+          "id": "R050.a",
+          "failure_mode": "Термінальна невдача до першої секції втрачає оплачений пакет і трасу пошуку при новому POST",
+          "evidence_status": "D",
+          "evidence": [
+            "E07",
+            "E16"
+          ],
+          "required_behavior": "Сумісне авторизоване продовження зберігає підготовку; нові retrieval-виклики лише за конкретної прогалини",
+          "falsification_test": "Failed job з остаточним пакетом і нулем секцій → resume; пакет збережений, пошук не повторюється"
+        }
+      ]
+    },
+    {
+      "id": "R051",
+      "group": "G. База й об'єктне сховище",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E07"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Deadlock, коротка недоступність БД або відхилений commit",
+      "required_behavior": "Транзакційний відкат і обмежений повтор без стороннього неповторного ефекту",
+      "falsification_test": "Відхилити commit після підготовки результату; replay не подвоює рядки/лічильники",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R052",
+      "group": "G. База й об'єктне сховище",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Файл завантажений, але транзакція його прив'язки не завершилась",
+      "required_behavior": "Жодного доступного хибного результату; зайвий файл видалений контрольовано",
+      "falsification_test": "Upload success + DB rollback; перевірити outbox/cleanup та відсутність release path",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R053",
+      "group": "G. База й об'єктне сховище",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E07",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Старий файл видалено до успішної заміни в базі",
+      "required_behavior": "Видалення лише після commit із довговічним наміром очищення",
+      "falsification_test": "DB commit відхилено при заміні; попередній чинний файл доступний",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R054",
+      "group": "G. База й об'єктне сховище",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Cleanup видалив уже прив'язаний до документа файл",
+      "required_behavior": "Захист чинних посилань перед видаленням",
+      "falsification_test": "Запізнілий cancellation cleanup після прив'язки artifact; чинні байти не видалені",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R055",
+      "group": "G. База й об'єктне сховище",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Сховище недоступне або диск заповнився при експорті",
+      "required_behavior": "Текст/секції збережені; повторюється експорт, не весь писар",
+      "falsification_test": "Відмова upload/disk-full після написання; після відновлення нових AI-викликів немає",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R056",
+      "group": "G. База й об'єктне сховище",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Байти файла пошкоджені або об'єкт відсутній за відомим шляхом",
+      "required_behavior": "Немає видачі як готового файла; перевірка hash/існування й конкретне відновлення",
+      "falsification_test": "Змінити один байт і окремо прибрати об'єкт; старий release не обходить перевірку",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R057",
+      "group": "G. База й об'єктне сховище",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Cleanup повторюється або частково не виконався після restart",
+      "required_behavior": "Ідемпотентне очищення з повтором; видимий накопичений залишок",
+      "falsification_test": "Delete timeout після фактичного видалення; повтор без помилки цілісності й з безпечним завершенням",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R058",
+      "group": "G. База й об'єктне сховище",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E07"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Видалення користувача збігається з активним писарем",
+      "required_behavior": "Права/політика видалення не обходяться пізнім записом",
+      "falsification_test": "Відкликати доступ/почати видалення під час AI; пізній результат не відновлює видалені дані",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R059",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E01",
+        "E13"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Текст змінений після позитивної академічної перевірки",
+      "required_behavior": "Старий результат не застосовується до нового тексту",
+      "falsification_test": "Змінити один абзац після PASS; gate закритий до нової чинної перевірки",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R060",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E01",
+        "E13"
+      ],
+      "work_package": "W4",
+      "failure_mode": "DOCX змінений після Compilatio або no-rewrite приймання",
+      "required_behavior": "Старі докази не дозволяють видачу нових байтів",
+      "falsification_test": "Перезібрати файл/змінити байт; навіть ті самі введені відсотки без відповідної прив'язки недостатні",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R061",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E01",
+        "E11"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Негативна перевірка одночасна з операцією release",
+      "required_behavior": "Серіалізація в PostgreSQL; кінцевий стан не видає відхилену версію",
+      "falsification_test": "Реальний race test з двома транзакціями і бар'єром; перевірити байти та release status",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R062",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E01",
+        "E13"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Детектор недоступний або результат ще не внесений",
+      "required_behavior": "«Не перевірено»; відсутність результату не дорівнює нулю відсотків",
+      "falsification_test": "Немає Compilatio, є тільки один показник або timeout; видача закрита",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO",
+      "subscenarios": [
+        {
+          "id": "R062.a",
+          "failure_mode": "Timeout саме рецензента плану повертає unchecked, який стає terminal failed_quality",
+          "evidence_status": "D",
+          "evidence": [
+            "E08",
+            "E16"
+          ],
+          "required_behavior": "Тимчасова недоступність дає обмежений повтор перевірки; великий або відсутній вхід має окрему причину без нескінченного retry",
+          "falsification_test": "Пара timeout→PASS та детерміновано завеликий вхід; тільки перший повторюється, пошук/писання не запускаються повторно"
+        }
+      ]
+    },
+    {
+      "id": "R063",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "P",
+      "evidence": [
+        "E01",
+        "E03"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Один показник добрий, другий вище порога або зміст неприйнятний",
+      "required_behavior": "Одночасність усіх умов; без середнього чи ручного обходу",
+      "falsification_test": "Пари 3/47, 11/5, 5/5 зі слабким змістом; кожний непридатний варіант блокований",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R064",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Перевірка того самого тексту повторно натиснута після timeout",
+      "required_behavior": "Відновити/повернути потрібну спробу; не запускати писаря",
+      "falsification_test": "Повтор ідентичного запиту та явна нова перевірка; ідентифікатори й кількість викликів відповідають наміру",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R065",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E08"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Автоматичний рецензент хибно пропустив слабкий текст або відхилив добрий",
+      "required_behavior": "Вимірювати обидві помилки на парному наборі; gate не послаблювати заради прохідності",
+      "falsification_test": "Засліплений набір прийнятних і неприйнятних прикладів з поясненими еталонними рішеннями",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R066",
+      "group": "H. Перевірки та дозвіл на видачу",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E01"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Менеджер помилково прив'язав чужий/старий Compilatio або no-rewrite",
+      "required_behavior": "Видима ідентичність перевірюваного файла; старий звіт не переноситься мовчки",
+      "falsification_test": "Два DOCX і перехресні звіти; перевірити прив'язку й межу того, що ручний ввід може довести",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO",
+      "subscenarios": [
+        {
+          "id": "R066.a",
+          "failure_mode": "Запропонована нова версія через новий документ розриває привязку виробничої справи та історії приймання",
+          "evidence_status": "U",
+          "evidence": [
+            "E16"
+          ],
+          "required_behavior": "Не використовувати новий документ для recovery; модель справи/версій має окремий контракт перед таким розширенням",
+          "falsification_test": "Два документи однієї логічної роботи: історія й докази не перехрещуються; до підтримки цього сценарію редактор версій поза першим обсягом"
+        }
+      ]
+    },
+    {
+      "id": "R067",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E03"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Експорт має дубльовані заголовки, буквальний Markdown або порожні розділи",
+      "required_behavior": "Перевірений render і семантична структура DOCX",
+      "falsification_test": "Відтворити приклади №7; перевірити текст/XML та зображення сторінок",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R068",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "P",
+      "evidence_status": "P",
+      "evidence": [
+        "E03"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Цільова кількість сторінок не відповідає фактичній",
+      "required_behavior": "Облік фактичного render, а не написаного параметра target_pages",
+      "falsification_test": "Однаковий текст із довгими таблицями/заголовками; зіставити ціль і реальні сторінки",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R069",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E03"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Під час експорту загубились абзаци, цитати або бібліографія",
+      "required_behavior": "Файл відповідає прийнятому тексту й джерелам",
+      "falsification_test": "Вбудувати контрольні фрагменти на межах секцій; порівняти з витягнутим DOCX текстом і render",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R070",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E03"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Особливі символи, довгі URL, таблиці або примітки зламали верстку",
+      "required_behavior": "Коректний відкриваний файл із читабельним змістом",
+      "falsification_test": "Фікстури з італійськими діакритиками, довгими рядками й таблицею через сторінку",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R071",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E06"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Посилання на внутрішню чернетку обходить дозвіл на фінальну видачу",
+      "required_behavior": "Розрізнення внутрішнього перегляду й дозволеного фіналу; перевірка доступу",
+      "falsification_test": "Перевірити URL роллю без прав і після відкликання release; чернетка не показана як дозволений фінал",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R072",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Завантаження обірване після успішної генерації",
+      "required_behavior": "Повторне завантаження того самого файла, без нової генерації",
+      "falsification_test": "Обірвати stream на половині; retry повертає той самий hash, число AI-викликів не змінюється",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R073",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E06"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Кеш/старе посилання віддає іншу версію після зміни приймання",
+      "required_behavior": "Ідентичність версії та права перевіряються; release не неоднозначний",
+      "falsification_test": "Дві версії, старий URL, кешований клієнт; фактично отримані байти зіставлені з дозволом",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R074",
+      "group": "I. DOCX, оформлення та завантаження",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E03",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Різні версії renderer/шрифти дають інші сторінки або непридатний файл",
+      "required_behavior": "Фіксований відтворюваний експортний профіль; зміна перевіряється як зміна кандидата",
+      "falsification_test": "Зібрати контрольний документ тим самим образом двічі й порівняти структуру/render; hash сам по собі не оцінює верстку",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R075",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E09"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Браузер закритий, WebSocket зник або вкладку перезавантажено",
+      "required_behavior": "Задача працює незалежно; кабінет перечитує збережений стан",
+      "falsification_test": "Закрити вкладку під час писання, відкрити знову; відсутні новий запуск і втрачений прогрес",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R076",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E09"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Події прогресу прийшли в неправильному порядку",
+      "required_behavior": "Старе повідомлення не повертає завершену/скасовану задачу в running",
+      "falsification_test": "Доставити delayed running після completed/cancelled; кінцевий екран відповідає БД",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R077",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "P",
+      "evidence_status": "D",
+      "evidence": [
+        "E09"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Regex помилки вибрав неправильну або загальну пораду",
+      "required_behavior": "Причина й доступна дія визначені структурованим контрактом",
+      "falsification_test": "Різні тексти одного reason_code та один текст різних причин; дія не залежить від формулювання",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R078",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "P",
+      "evidence_status": "D",
+      "evidence": [
+        "E07",
+        "E09"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Після звичайної зупинки менеджер мусить звернутися до розробника",
+      "required_behavior": "Для відомого класу є дія в продукті або конкретна операційна залежність",
+      "falsification_test": "Сценарії provider outage, source gap, export retry, check retry проходяться без правки коду",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R079",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E09"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Технічний completed показаний як прийнята робота",
+      "required_behavior": "Окремо виконання, академічний стан і дозвіл на видачу",
+      "falsification_test": "DOCX готовий, Compilatio відсутній; екран не обіцяє готовність до видачі",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R080",
+      "group": "J. Кабінет і самостійна робота менеджера",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E09"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Автоматичне оновлення екрана чи повтор після логіну запускає платну дію",
+      "required_behavior": "Читання стану не породжує виробничих спроб",
+      "falsification_test": "Reload, reconnect, expired-login-return; у журналі немає нових provider-викликів або jobs",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R081",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E10"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Реліз змінив pipeline під час активної задачі",
+      "required_behavior": "Перевірене drain/пауза або доказана сумісність; не мовчазне змішування",
+      "falsification_test": "Активна задача на checkpoint, спроба несумісного релізу; виконання не триває за випадковим профілем",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R082",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E10",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Міграція або rollback коду несумісні з уже записаними даними",
+      "required_behavior": "Перевірена сумісність і план повернення/просування вперед",
+      "falsification_test": "Копія бази старої версії → migration → кандидат; протестувати задекларований rollback, а не лише restore-команду",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R083",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "P",
+      "evidence_status": "D",
+      "evidence": [
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "/health зелений, але worker не працює або черга зависла",
+      "required_behavior": "Окремий сигнал виробничої готовності без платних AI-запитів",
+      "falsification_test": "Відключити polling зі справним HTTP; контроль черги виявляє зупинку",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R084",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Хост перезавантажився; Redis або інша залежність втрачена",
+      "required_behavior": "Відновлення persisted jobs; зрозумілі залежності та порядок готовності",
+      "falsification_test": "Перезапуск стеку, окремо порожній Redis; задачі не зникають і не подвоюються",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R085",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E04",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Backup створено, але відновити базу разом із файлами неможливо",
+      "required_behavior": "Доведене відновлення узгодженого набору в ізоляції",
+      "falsification_test": "Restore на порожній стенд; відкрити конкретний перевірений DOCX і перевірити його release/evidence",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R086",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Повна втрата хоста разом із локальними резервними копіями",
+      "required_behavior": "Відома зовнішня копія/процедура або явно зафіксований залишковий ризик",
+      "falsification_test": "Інвентар незалежних від хоста копій і dry restore; числовий RPO/RTO не вигадувати",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R087",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "P",
+      "evidence_status": "U",
+      "evidence": [
+        "E10",
+        "E11",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Профіль налаштувань або mutable image змінив поведінку",
+      "required_behavior": "Відтворюваний кандидат і перевірка потрібних прапорців",
+      "falsification_test": "Запуск із вимкненим обов'язковим gate/іншим образом; release check виявляє розбіжність",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R088",
+      "group": "K. Релізи, експлуатація й відновлення",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Логи/резервні копії заповнили диск або сигнал не дійшов відповідальному",
+      "required_behavior": "Обмеження накопичення, запас місця, перевірений маршрут операційного сигналу",
+      "falsification_test": "Заповнити тестову квоту; ін'єкція сигналу видима до втрати БД, без реальної розсилки в дослідженні",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R089",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E06"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Стрибок годинника збігся з довгим викликом і lease expiry",
+      "required_behavior": "Навіть за помилкового expiry тільки чинний token записує; таймери не дають безмежного очікування",
+      "falsification_test": "Ін'єкція clock skew плюс delayed response; перевірити fencing та доступність відновлення",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R090",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E07",
+        "E10"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Зміна брифу, подвійний submit і запізнілий старий worker одночасно",
+      "required_behavior": "Жодного змішаного документа або запису поза чинним контрактом",
+      "falsification_test": "Бар'єри для трьох подій; зберігається один допустимий набір входів і результатів",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R091",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E13"
+      ],
+      "work_package": "W3",
+      "failure_mode": "Cancel під час upload, commit і повторного cleanup",
+      "required_behavior": "Відсутні чинний файл без документа та видалення файла, який законно збережений",
+      "falsification_test": "Перебрати порядок cancel/upload/commit; зіставити DB, storage і deletion outbox",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R092",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E12"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Відновлено стару базу, але нові об'єкти/посилання й повідомлення ще існують",
+      "required_behavior": "Старі повідомлення не оживляють чужу версію; ідентичність після restore перевірена",
+      "falsification_test": "Restore snapshot до job, потім replay пізніх подій і старого URL; відсутнє хибне приймання",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R093",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E08"
+      ],
+      "work_package": "W2",
+      "failure_mode": "Текст джерела містить інструкції ігнорувати бриф чи вигадати цитати",
+      "required_behavior": "Зовнішній текст залишається даними; не змінює правила й доступи",
+      "falsification_test": "Підставний PDF з інструкціями моделі; результати оцінюються за брифом, не за текстом атаки",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R094",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E12",
+        "E14"
+      ],
+      "work_package": "W5",
+      "failure_mode": "Одночасний масовий 429, restart і повтори багатьох задач",
+      "required_behavior": "Немає неконтрольованої хвилі повторів; черга й межі витрат видимі",
+      "falsification_test": "Кілька тестових задач із синхронним збоєм; порахувати виклики після рестарту й порядок доступності",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R095",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "M",
+      "evidence_status": "U",
+      "evidence": [
+        "E01",
+        "E08"
+      ],
+      "work_package": "W4",
+      "failure_mode": "Оновлення моделі/детектора погіршило приймання без помилок API",
+      "required_behavior": "Кандидат порівнюється на незмінному контрольному наборі; технічний успіх не маскує падіння якості",
+      "falsification_test": "Парне порівняння профілів і повних файлів; зберегти негативні результати, не вибирати лише успіхи",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    },
+    {
+      "id": "R096",
+      "group": "L. Рідкісні комбінації та невідомі відмови",
+      "priority": "G",
+      "evidence_status": "U",
+      "evidence": [
+        "E06",
+        "E09",
+        "E12"
+      ],
+      "work_package": "W1",
+      "failure_mode": "Нова невідома помилка поза реєстром",
+      "required_behavior": "Обмежений повтор або збережена зупинка; ніякого PASS за замовчуванням, втрати checkpoint чи нескінченного циклу",
+      "falsification_test": "Підняти неочікуваний exception на кожній межі етапу; перевірити стан, прогрес, журнал і кількість спроб",
+      "frequency": "Не виміряна",
+      "verification_state": "NOT_VERIFIED_AS_COMPLETE_SCENARIO"
+    }
+  ],
+  "review_revision": {
+    "date": "2026-09-08",
+    "reviews": [
+      "Fable claude-fable-5-1",
+      "Grok grok-4.6-build"
+    ],
+    "base_scenarios": 96,
+    "clarified_subscenarios": 4,
+    "initial_acceptance": "T01-T10 in REVIEW_DECISIONS.md; not all 90 G/P rows",
+    "implementation": "NOT_STARTED",
+    "deduplication": "Classifier false pass, SQLite evidence limits and clean restart are clarified existing scenarios, not extra new defects. Positive control T01 is acceptance, not a failure row."
+  }
+}
