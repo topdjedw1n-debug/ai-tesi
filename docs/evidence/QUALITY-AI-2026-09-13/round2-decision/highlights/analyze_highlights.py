@@ -42,7 +42,7 @@ def analyze(lines_path, titles):
     # sections: a paragraph whose text equals a title starts a section
     norm = lambda s: re.sub(r"\W+", " ", s).strip().lower()
     title_set = {norm(t): t for t in titles}
-    section = None
+    section = None if titles else "tutto"
     per_section = defaultdict(lambda: [0, 0])
     para_pos = defaultdict(lambda: [0, 0])
     sent_rows = []
@@ -108,8 +108,7 @@ def analyze(lines_path, titles):
 
 if __name__ == "__main__":
     lines_path, report_path, out_path = sys.argv[1:4]
-    report = json.load(open(report_path))
-    titles = [s["title"] for s in report["sections"]]
+    titles = [] if report_path == "-" else [s["title"] for s in json.load(open(report_path))["sections"]]
     result = analyze(lines_path, titles)
     json.dump(result, open(out_path, "w"), ensure_ascii=False, indent=1)
     print(result["file"], "sections", len(result["per_section"]), "share", result["ai_share_in_sections"])
