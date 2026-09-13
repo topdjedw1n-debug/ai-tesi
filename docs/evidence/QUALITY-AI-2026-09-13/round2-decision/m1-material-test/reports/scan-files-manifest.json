@@ -1,0 +1,57 @@
+[
+ {
+  "file": "B-old-sec16-videosorveglianza",
+  "words": 431,
+  "sha256_16": "ada46d82308ffad4"
+ },
+ {
+  "file": "B-old-sec20-cassazione",
+  "words": 390,
+  "sha256_16": "db25c33d553d97d1"
+ },
+ {
+  "file": "B-old-sec17-19-control",
+  "words": 1199,
+  "sha256_16": "b109d4403f044249"
+ },
+ {
+  "file": "D20a-sec20-full-v3",
+  "words": 562,
+  "sha256_16": "7a26bbe31df6210b"
+ },
+ {
+  "file": "D20b-sec20-full-v3",
+  "words": 607,
+  "sha256_16": "b5ab8252ce4cc3aa"
+ },
+ {
+  "file": "C20-sec20-full-production",
+  "words": 526,
+  "sha256_16": "d007b91c05b654cb"
+ },
+ {
+  "file": "B20-sec20-abstracts-v3",
+  "words": 475,
+  "sha256_16": "7e84e7d829739c29"
+ },
+ {
+  "file": "D16-sec16-full-v3",
+  "words": 539,
+  "sha256_16": "6558e528f99c08ce"
+ },
+ {
+  "file": "C16-sec16-full-production",
+  "words": 428,
+  "sha256_16": "599b44faf4924947"
+ },
+ {
+  "file": "PAIR-new-sec16+20-full-v3",
+  "words": 1101,
+  "sha256_16": "818e847ed0603522"
+ },
+ {
+  "file": "PAIR-old-sec16+20",
+  "words": 821,
+  "sha256_16": "9cc99a96a4099d34"
+ }
+]

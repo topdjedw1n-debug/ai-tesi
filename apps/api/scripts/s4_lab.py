@@ -134,10 +134,41 @@ def parse_override(value: str | None) -> dict | None:
     return override
 
 
+def with_instruction(request: dict, production: str, variant: str) -> dict:
+    """Swap the S4 instruction inside an already built prompt (one occurrence)."""
+    messages = []
+    for m in request["messages"]:
+        content = m.get("content")
+        if isinstance(content, str) and production in content:
+            content = content.replace(production, variant, 1)
+        messages.append({**m, "content": content})
+    return {**request, "messages": messages}
+
+
 def writer_request(request: dict, model: str | None, override: dict | None) -> dict:
     """The writer call as actually sent: model and extra parameters applied,
     prompt and budget untouched. Recorded verbatim by the production journal."""
     return {**request, "model": model or request["model"], **(override or {})}
+
+
+def load_section_evidence(path: Path | None) -> dict[int, list[dict]]:
+    """Extra evidence per section: every item becomes a citable pack source."""
+    if path is None:
+        return {}
+    raw = json.loads(path.read_text())
+    result = {}
+    for section, spec in raw.items():
+        items = spec.get("add") if isinstance(spec, dict) else spec
+        if not isinstance(items, list) or not items:
+            raise ValueError(f"section {section}: expected a non-empty 'add' list")
+        for item in items:
+            missing = {"key", "title", "authors", "year", "text"} - set(item)
+            if missing:
+                raise ValueError(f"section {section}: item lacks {sorted(missing)}")
+            if len(item["text"]) > 2400:
+                raise ValueError(f"section {section}: {item['key']} text > 2400 chars")
+        result[int(section)] = items
+    return result
 
 
 def request_chars(request) -> int:
@@ -312,6 +343,14 @@ def main() -> int:
     )
     parser.add_argument("--cost-cap-usd", type=float, help="required in live mode")
     parser.add_argument(
+        "--section-evidence",
+        type=Path,
+        help=(
+            "JSON {section_index: {add: [{key, title, authors, year, url, text}]}} "
+            "adding full-text evidence (each text <= 2400 chars) to those sections"
+        ),
+    )
+    parser.add_argument(
         "--live-sections",
         help="comma-separated section indexes written live (default: all)",
     )
@@ -328,6 +367,7 @@ def main() -> int:
     try:
         args.live_section_set = parse_sections(args.live_sections)
         args.request_override_dict = parse_override(args.request_override)
+        args.section_evidence_map = load_section_evidence(args.section_evidence)
     except ValueError as error:
         parser.error(str(error))
     secrets = read_secrets(args.secrets_file, os.environ) if args.mode == "live" else {}
@@ -431,6 +471,14 @@ async def run(args, secrets):
         },
         "model": {"requested": args.model, "recorded": None, "writer": None},
         "request_override": args.request_override_dict,
+        "section_evidence": {
+            str(k): [i["key"] for i in v] for k, v in args.section_evidence_map.items()
+        },
+        "section_evidence_sha256": (
+            hashlib.sha256(args.section_evidence.read_bytes()).hexdigest()
+            if args.section_evidence
+            else None
+        ),
         "live_sections": (
             (sorted(args.live_section_set) if args.live_section_set else "all")
             if args.mode == "live"
@@ -469,6 +517,9 @@ async def run(args, secrets):
     }
     tape = ledger = None
     store = LocalObjects(args.output)
+    recorded_live = (data.get("lab") or {}).get("live_sections")
+    override_sections = set(recorded_live) if isinstance(recorded_live, list) else None
+    report["recorded_live_sections"] = recorded_live
 
     def no_network(*unused, **kwargs):
         raise ReplayIncomplete(
@@ -541,9 +592,16 @@ async def run(args, secrets):
             # Writer overrides apply to live writer calls, and in exact mode to
             # every writer call so a variant recording replays as it was made.
             # A tape-served call in live mode keeps its recorded model/request.
-            if purpose in LIVE_STAGES and (live or args.mode == "exact"):
+            exact_scope = args.mode == "exact" and (
+                override_sections is None or section_index in override_sections
+            )
+            if purpose in LIVE_STAGES and (live or exact_scope):
                 model = args.model or model
                 request = writer_request(request, model, args.request_override_dict)
+                if purpose == "S4" and instruction != production_instruction:
+                    request = with_instruction(
+                        request, production_instruction, instruction
+                    )
             if not live:
                 return await production_provider_call(
                     call,
@@ -613,13 +671,60 @@ async def run(args, secrets):
             finally:
                 active_replay.reset(token)
 
+        production_write_sections = sections.write_sections
+
+        async def lab_write_sections(ctx, outline, pack):
+            from app.services.ai_pipeline.rag_retriever import SourceDoc
+            from app.services.ai_pipeline.source_pack import PackedSource
+            from app.services.source_evidence import evidence_text, freeze_evidence
+
+            for section in outline:
+                index = section["section_index"]
+                extra = args.section_evidence_map.get(index)
+                # Only sections written in this run receive extra evidence; a
+                # tape-served section must keep its recorded prompt.
+                scoped = (
+                    live_sections is None or index in live_sections
+                    if args.mode == "live"
+                    else override_sections is None or index in override_sections
+                )
+                if not extra or not scoped:
+                    continue
+                for item in extra:
+                    if pack.by_key(item["key"]) is None:
+                        source = SourceDoc(
+                            title=item["title"],
+                            authors=list(item["authors"]),
+                            year=item["year"],
+                            abstract=item["text"],
+                            url=item.get("url"),
+                            provider="lab_full_text",
+                            verification_status="verified",
+                            canonical_metadata={
+                                "origin": "lab_full_text",
+                                "verification_provider": "lab",
+                                "evidence_level": "full_text",
+                            },
+                        )
+                        freeze_evidence(source, [], item["key"])
+                        assert evidence_text(source), item["key"]
+                        pack.sources.append(PackedSource(source, item["key"], 1.0))
+                    if item["key"] not in section["evidence_keys"]:
+                        section["evidence_keys"].append(item["key"])
+            return await production_write_sections(ctx, outline, pack)
+
         patches = [
             replay_models(tape),
             patch("app.services.background_jobs._redis_client", LocalRedis()),
             patch.object(StorageService, "client", property(lambda self: store)),
-            patch.object(sections, "S4_INSTRUCTION", instruction),
         ]
-        if args.model or args.request_override_dict:
+        if args.section_evidence_map:
+            patches.append(patch.object(sections, "write_sections", lab_write_sections))
+        if (
+            args.model
+            or args.request_override_dict
+            or instruction != production_instruction
+        ):
             patches.append(
                 patch.object(budgets, "recorded_provider_call", lab_provider_call)
             )
@@ -649,7 +754,11 @@ async def run(args, secrets):
                 "allowed_hosts": sorted(hosts),
                 "refused": guard.refused,
             }
-            if not (args.model or args.request_override_dict):
+            if not (
+                args.model
+                or args.request_override_dict
+                or instruction != production_instruction
+            ):
                 patches.append(
                     patch.object(budgets, "recorded_provider_call", lab_provider_call)
                 )
@@ -974,6 +1083,7 @@ async def export_variant(
             "writer_model": report["model"]["writer"],
             "s4_instruction_sha256": report["s4_instruction"]["sha256"],
             "request_override": report.get("request_override"),
+            "section_evidence": report.get("section_evidence"),
             "live_sections": report["live_sections"],
             "status": report["status"],
         },

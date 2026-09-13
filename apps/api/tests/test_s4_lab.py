@@ -1,6 +1,7 @@
 """The S4 laboratory's own boundaries: pricing, ceiling, secrets, network."""
 
 import importlib.util
+import json
 import socket
 from pathlib import Path
 from types import SimpleNamespace
@@ -115,3 +116,54 @@ def test_writer_request_and_override_parsing():
     for bad in ("[]", "{}", '{"model": "x"}', '{"max_tokens": 5}'):
         with pytest.raises(ValueError):
             lab.parse_override(bad)
+
+
+def test_section_evidence_and_instruction_swap(tmp_path):
+    path = tmp_path / "ev.json"
+    path.write_text(
+        json.dumps(
+            {
+                "20": {
+                    "add": [
+                        {
+                            "key": "NORM.ART4",
+                            "title": "t",
+                            "authors": ["a"],
+                            "year": 2015,
+                            "text": "x" * 10,
+                        }
+                    ]
+                }
+            }
+        )
+    )
+    loaded = lab.load_section_evidence(path)
+    assert list(loaded) == [20] and loaded[20][0]["key"] == "NORM.ART4"
+    bad = tmp_path / "bad.json"
+    bad.write_text(
+        json.dumps(
+            {
+                "1": {
+                    "add": [
+                        {
+                            "key": "K",
+                            "title": "t",
+                            "authors": [],
+                            "year": 1,
+                            "text": "y" * 2401,
+                        }
+                    ]
+                }
+            }
+        )
+    )
+    with pytest.raises(ValueError):
+        lab.load_section_evidence(bad)
+    request = {
+        "model": "m",
+        "max_tokens": 5,
+        "messages": [{"role": "user", "content": "HEAD\nPROD\nJSON PROD"}],
+    }
+    swapped = lab.with_instruction(request, "PROD", "VAR")
+    assert swapped["messages"][0]["content"] == "HEAD\nVAR\nJSON PROD"
+    assert request["messages"][0]["content"] == "HEAD\nPROD\nJSON PROD"
