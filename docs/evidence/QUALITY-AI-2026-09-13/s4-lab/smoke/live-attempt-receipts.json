@@ -1,0 +1,98 @@
+[
+  {
+    "attempt_id": "b11f79e3-7528-424b-926b-905b66f28958",
+    "stage": "S4",
+    "section_index": 5,
+    "model": "claude-opus-4-8",
+    "outcome": "started",
+    "reason_code": null,
+    "provider_spend_unknown": null,
+    "usage": null,
+    "output_reference": null,
+    "started_at": "2026-09-13T10:38:21.573656+00:00",
+    "finished_at": null,
+    "elapsed_seconds": null
+  },
+  {
+    "attempt_id": "b11f79e3-7528-424b-926b-905b66f28958",
+    "stage": "S4",
+    "section_index": 5,
+    "model": "claude-opus-4-8",
+    "outcome": "failed",
+    "reason_code": "provider_temporarily_unavailable",
+    "provider_spend_unknown": true,
+    "usage": null,
+    "output_reference": null,
+    "started_at": null,
+    "finished_at": "2026-09-13T10:42:21.764379+00:00",
+    "elapsed_seconds": 240.18763158300135,
+    "error": {
+      "type": "APITimeoutError",
+      "module": "anthropic",
+      "message": "Request timed out or interrupted. This could be due to a network timeout, dropped connection, or request cancellation. See https://docs.anthropic.com/en/api/errors#long-requests for more details.",
+      "status_code": null
+    }
+  },
+  {
+    "attempt_id": "a66e0232-5e79-4761-a2e4-bd01da1dae51",
+    "stage": "S4",
+    "section_index": 5,
+    "model": "claude-opus-4-8",
+    "outcome": "started",
+    "reason_code": null,
+    "provider_spend_unknown": null,
+    "usage": null,
+    "output_reference": null,
+    "started_at": "2026-09-13T10:42:26.776473+00:00",
+    "finished_at": null,
+    "elapsed_seconds": null
+  },
+  {
+    "attempt_id": "a66e0232-5e79-4761-a2e4-bd01da1dae51",
+    "stage": "S4",
+    "section_index": 5,
+    "model": "claude-opus-4-8",
+    "outcome": "received",
+    "reason_code": null,
+    "provider_spend_unknown": null,
+    "usage": {
+      "input_tokens": 4976,
+      "output_tokens": 1490
+    },
+    "output_reference": "msg_011Cf1JK87UtTYThfocstZUF",
+    "started_at": null,
+    "finished_at": "2026-09-13T10:42:49.582870+00:00",
+    "elapsed_seconds": 22.806510624999646
+  },
+  {
+    "attempt_id": "a6d5c38c-2ff5-4440-80b8-02f8e9b040ea",
+    "stage": "S6",
+    "section_index": null,
+    "model": "claude-opus-4-8",
+    "outcome": "started",
+    "reason_code": null,
+    "provider_spend_unknown": null,
+    "usage": null,
+    "output_reference": null,
+    "started_at": "2026-09-13T10:42:49.807775+00:00",
+    "finished_at": null,
+    "elapsed_seconds": null
+  },
+  {
+    "attempt_id": "a6d5c38c-2ff5-4440-80b8-02f8e9b040ea",
+    "stage": "S6",
+    "section_index": null,
+    "model": "claude-opus-4-8",
+    "outcome": "received",
+    "reason_code": null,
+    "provider_spend_unknown": null,
+    "usage": {
+      "input_tokens": 18947,
+      "output_tokens": 224
+    },
+    "output_reference": "msg_011Cf1JLpGzKkgxoTbu8okap",
+    "started_at": null,
+    "finished_at": "2026-09-13T10:42:54.353572+00:00",
+    "elapsed_seconds": 4.54594383299991
+  }
+]

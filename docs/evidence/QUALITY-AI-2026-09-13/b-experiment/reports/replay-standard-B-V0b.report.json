@@ -1,0 +1,268 @@
+{
+  "status": "completed",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "origin": "s4-lab:B-V0b:live:live-manager1-three-controls-document14-job17",
+  "consumed": [
+    {
+      "attempt_id": "7d4cbf25-de9a-4353-a4f7-cce0fa0c23de",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "f793b4bd-fdb9-478f-bb9c-e183b6ba9faf",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "01657f12-280b-4007-a361-151bb189beb5",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5f4646f6-fe6c-4e83-b8de-f65a145a7cc1",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "9df6ab88-61f8-4e40-8fc7-18c418ac2754",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ea8fcb77-4ef8-4403-bb07-d79227b1f019",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "be80768f-c9b7-4903-9c4c-620f39e1c438",
+      "stage": "S4",
+      "section_index": 5,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "410f3ddc-be6b-4c1e-8e7c-53e01d011846",
+      "stage": "S4",
+      "section_index": 6,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "4a5444ee-0dae-43c8-9fc4-54a2d9f976de",
+      "stage": "S4",
+      "section_index": 7,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "578b415f-5dec-4ca7-a5be-1d7ea33264af",
+      "stage": "S4",
+      "section_index": 8,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "6a85e315-da6e-4c61-af91-80cc9b39fcf7",
+      "stage": "S4",
+      "section_index": 9,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "dc9ec4ea-65f6-4abd-9471-15dab2c2c059",
+      "stage": "S4",
+      "section_index": 10,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "be7b1aab-3225-417a-817b-fc98ea2a9296",
+      "stage": "S4",
+      "section_index": 11,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "a2124718-404d-4e1d-9a4f-a07e7e472e05",
+      "stage": "S4",
+      "section_index": 12,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "c8b5f9e2-3682-4e2e-923a-c677ffb9547b",
+      "stage": "S4",
+      "section_index": 13,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "6eee15d2-f37c-4d20-90c0-cbb6e3b10813",
+      "stage": "S4",
+      "section_index": 14,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5ec6ad1d-e886-4c4f-b2c8-dc0bafb6a5e8",
+      "stage": "S4",
+      "section_index": 15,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "09a59ca6-b2ee-43bd-9c56-20512e3f40c2",
+      "stage": "S4",
+      "section_index": 16,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "adf25f8a-e8f5-4ba0-a3b0-96582cc3fc07",
+      "stage": "S4",
+      "section_index": 17,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "0813ccd0-74f6-49f9-9822-9a5140974cca",
+      "stage": "S4",
+      "section_index": 18,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "0135ab60-8a7b-4668-9097-5b7ce00b0723",
+      "stage": "S4",
+      "section_index": 19,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "a0eaa7b3-4c9f-4b42-bdd8-fb98cb092ad8",
+      "stage": "S4",
+      "section_index": 20,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "232aaa09-63b0-421a-a03a-fbce1b59e083",
+      "stage": "S4",
+      "section_index": 21,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "0a5e41d4-6a17-4e4a-ada4-32106878e460",
+      "stage": "S4",
+      "section_index": 22,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "187c4c44-030d-4e62-b146-95a3b4539dc4",
+      "stage": "S4",
+      "section_index": 23,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "f9bb4ca6-c423-41a1-8aa5-f1e54578663c",
+      "stage": "S4",
+      "section_index": 24,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "3f066b42-31a4-4ffe-8d8b-9d1be965484f",
+      "stage": "S6",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "profile_changed": true,
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 235,
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/b-experiment/replay-B-V0b/94b19e78c84971e3cba4a63cf034875d2484a72b816f0366ac6afd9f8642db28.docx",
+      "sha256": "94b19e78c84971e3cba4a63cf034875d2484a72b816f0366ac6afd9f8642db28",
+      "bytes": 59524
+    }
+  ],
+  "warnings": [
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6e30de6f5d57",
+      "created_at": "2026-09-13T11:30:56.543310+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K1fe51b91941c",
+      "created_at": "2026-09-13T11:30:56.550446+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K08a616d69b67",
+      "created_at": "2026-09-13T11:30:56.558821+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K3987319cd577",
+      "created_at": "2026-09-13T11:30:56.567369+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6987bec906f6",
+      "created_at": "2026-09-13T11:30:56.576250+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "outline",
+      "code": "outline_scope_unmapped",
+      "severity": "warning",
+      "section_index": null,
+      "message_uk": "План не охоплює частину підтвердженого завдання.",
+      "detail": "Bibliografia",
+      "created_at": "2026-09-13T11:30:56.678413+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nCoherent, well-structured legal thesis on workplace monitoring (Art. 4 Statuto + GDPR). Consistent argumentation, appropriate integration of cited sources, and transparent acknowledgment of source limitations throughout. Citations align with bibliography; the doubled-binary framework is developed consistently across chapters. Minor issues: some in-text citation keys appear as raw identifiers (K99625f475c9f, Ke9df5a146528, K58dde35d9d5d) that should map to author names (Hoofnagle et al., Crespi, Ingrao); inconsistent capitalization of 'VITAGLIANO'; heavy reliance on repeated boilerplate disclaimers about source limits. These do not compromise academic validity.",
+      "created_at": "2026-09-13T11:30:57.660675+00:00"
+    }
+  ],
+  "recorded_model_calls": 27
+}
