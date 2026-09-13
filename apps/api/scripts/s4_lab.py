@@ -121,6 +121,25 @@ def resolve_prices(model, args, pricing_input, pricing_output):
     )
 
 
+def parse_override(value: str | None) -> dict | None:
+    if not value:
+        return None
+    override = json.loads(value)
+    if not isinstance(override, dict) or not override:
+        raise ValueError("--request-override must be a non-empty JSON object")
+    if "messages" in override or "max_tokens" in override or "model" in override:
+        raise ValueError(
+            "--request-override cannot replace messages, max_tokens or model"
+        )
+    return override
+
+
+def writer_request(request: dict, model: str | None, override: dict | None) -> dict:
+    """The writer call as actually sent: model and extra parameters applied,
+    prompt and budget untouched. Recorded verbatim by the production journal."""
+    return {**request, "model": model or request["model"], **(override or {})}
+
+
 def request_chars(request) -> int:
     return sum(
         len(m["content"])
@@ -282,6 +301,13 @@ def main() -> int:
     parser.add_argument("--mode", choices=("exact", "live"), default="exact")
     parser.add_argument("--model", help="writer model for S4-S6 (default: recorded)")
     parser.add_argument(
+        "--request-override",
+        help=(
+            "JSON object merged into writer requests (S4/S6), for example "
+            'a thinking setting: {"thinking": {"type": "disabled"}}'
+        ),
+    )
+    parser.add_argument(
         "--s4-instruction", type=Path, help="file with the S4 instruction text"
     )
     parser.add_argument("--cost-cap-usd", type=float, help="required in live mode")
@@ -301,6 +327,7 @@ def main() -> int:
         parser.error("--live-sections and --secrets-file apply to --mode live only")
     try:
         args.live_section_set = parse_sections(args.live_sections)
+        args.request_override_dict = parse_override(args.request_override)
     except ValueError as error:
         parser.error(str(error))
     secrets = read_secrets(args.secrets_file, os.environ) if args.mode == "live" else {}
@@ -403,6 +430,7 @@ async def run(args, secrets):
             "changed": instruction != production_instruction,
         },
         "model": {"requested": args.model, "recorded": None, "writer": None},
+        "request_override": args.request_override_dict,
         "live_sections": (
             (sorted(args.live_section_set) if args.live_section_set else "all")
             if args.mode == "live"
@@ -509,7 +537,14 @@ async def run(args, secrets):
             call, *, provider, model, request, usage_tracker, purpose
         ):
             section_index = operation_section.get()
-            if not is_live(purpose, section_index):
+            live = is_live(purpose, section_index)
+            # Writer overrides apply to live writer calls, and in exact mode to
+            # every writer call so a variant recording replays as it was made.
+            # A tape-served call in live mode keeps its recorded model/request.
+            if purpose in LIVE_STAGES and (live or args.mode == "exact"):
+                model = args.model or model
+                request = writer_request(request, model, args.request_override_dict)
+            if not live:
                 return await production_provider_call(
                     call,
                     provider=provider,
@@ -578,21 +613,16 @@ async def run(args, secrets):
             finally:
                 active_replay.reset(token)
 
-        production_write_sections = sections.write_sections
-
-        async def lab_write_sections(ctx, outline, pack):
-            if args.model:
-                ctx.model = args.model
-            report["model"]["writer"] = ctx.model
-            return await production_write_sections(ctx, outline, pack)
-
         patches = [
             replay_models(tape),
             patch("app.services.background_jobs._redis_client", LocalRedis()),
             patch.object(StorageService, "client", property(lambda self: store)),
             patch.object(sections, "S4_INSTRUCTION", instruction),
-            patch.object(sections, "write_sections", lab_write_sections),
         ]
+        if args.model or args.request_override_dict:
+            patches.append(
+                patch.object(budgets, "recorded_provider_call", lab_provider_call)
+            )
         if lab_priced:
             patches += [
                 patch.dict(
@@ -619,8 +649,11 @@ async def run(args, secrets):
                 "allowed_hosts": sorted(hosts),
                 "refused": guard.refused,
             }
+            if not (args.model or args.request_override_dict):
+                patches.append(
+                    patch.object(budgets, "recorded_provider_call", lab_provider_call)
+                )
             patches += [
-                patch.object(budgets, "recorded_provider_call", lab_provider_call),
                 patch.object(references, "verify", lab_verify),
                 *guard.patches(),
             ]
@@ -940,6 +973,7 @@ async def export_variant(
             "mode": args.mode,
             "writer_model": report["model"]["writer"],
             "s4_instruction_sha256": report["s4_instruction"]["sha256"],
+            "request_override": report.get("request_override"),
             "live_sections": report["live_sections"],
             "status": report["status"],
         },

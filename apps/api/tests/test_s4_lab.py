@@ -96,3 +96,22 @@ def test_network_guard_refuses_unknown_hosts_and_patches_as_functions():
     with patches[1]:
         with pytest.raises(ConnectionRefusedError):
             socket.socket().connect(("203.0.113.9", 443))
+
+
+def test_writer_request_and_override_parsing():
+    request = {"model": "claude-opus-4-8", "max_tokens": 10, "messages": []}
+    assert lab.writer_request(request, None, None) == request
+    changed = lab.writer_request(
+        request, "claude-opus-5", {"thinking": {"type": "disabled"}}
+    )
+    assert changed["model"] == "claude-opus-5" and changed["max_tokens"] == 10
+    assert (
+        changed["thinking"] == {"type": "disabled"} and request.get("thinking") is None
+    )
+    assert lab.parse_override(None) is None
+    assert lab.parse_override('{"thinking": {"type": "disabled"}}') == {
+        "thinking": {"type": "disabled"}
+    }
+    for bad in ("[]", "{}", '{"model": "x"}', '{"max_tokens": 5}'):
+        with pytest.raises(ValueError):
+            lab.parse_override(bad)
