@@ -1,0 +1,376 @@
+{
+  "assumptions": {
+    "observed_B_production_scores": [
+      33,
+      28,
+      39
+    ],
+    "sigma_hat_from_three_files": 5.51,
+    "file_model": "AI score per generated file ~ Normal(mu, sigma), bar 10 per file; best-of-n = generate n files, scan all, keep the lowest",
+    "repair_model": "24 sections, per-section flagged fraction ~ Normal(mu_s, sigma_s) clipped to [0,100]; each round re-writes the 8 worst sections and keeps the better draw; 3 rounds; assumes the detector reports section-level flags and re-draws are independent (unverified)"
+  },
+  "file_level": [
+    {
+      "mu": 30,
+      "sigma": 4.0,
+      "p_pass_single": 0.0,
+      "p_pass_best_of_3": 0.0,
+      "p_pass_best_of_5": 0.0,
+      "expected_files_per_pass": null
+    },
+    {
+      "mu": 30,
+      "sigma": 5.5,
+      "p_pass_single": 0.0,
+      "p_pass_best_of_3": 0.0,
+      "p_pass_best_of_5": 0.001,
+      "expected_files_per_pass": 7232.9
+    },
+    {
+      "mu": 30,
+      "sigma": 7.0,
+      "p_pass_single": 0.002,
+      "p_pass_best_of_3": 0.006,
+      "p_pass_best_of_5": 0.011,
+      "expected_files_per_pass": 467.9
+    },
+    {
+      "mu": 25,
+      "sigma": 4.0,
+      "p_pass_single": 0.0,
+      "p_pass_best_of_3": 0.0,
+      "p_pass_best_of_5": 0.0,
+      "expected_files_per_pass": 11310.0
+    },
+    {
+      "mu": 25,
+      "sigma": 5.5,
+      "p_pass_single": 0.003,
+      "p_pass_best_of_3": 0.01,
+      "p_pass_best_of_5": 0.016,
+      "expected_files_per_pass": 313.2
+    },
+    {
+      "mu": 25,
+      "sigma": 7.0,
+      "p_pass_single": 0.016,
+      "p_pass_best_of_3": 0.047,
+      "p_pass_best_of_5": 0.078,
+      "expected_files_per_pass": 62.3
+    },
+    {
+      "mu": 20,
+      "sigma": 4.0,
+      "p_pass_single": 0.006,
+      "p_pass_best_of_3": 0.019,
+      "p_pass_best_of_5": 0.031,
+      "expected_files_per_pass": 161.0
+    },
+    {
+      "mu": 20,
+      "sigma": 5.5,
+      "p_pass_single": 0.035,
+      "p_pass_best_of_3": 0.1,
+      "p_pass_best_of_5": 0.161,
+      "expected_files_per_pass": 29.0
+    },
+    {
+      "mu": 20,
+      "sigma": 7.0,
+      "p_pass_single": 0.077,
+      "p_pass_best_of_3": 0.213,
+      "p_pass_best_of_5": 0.329,
+      "expected_files_per_pass": 13.1
+    },
+    {
+      "mu": 15,
+      "sigma": 4.0,
+      "p_pass_single": 0.106,
+      "p_pass_best_of_3": 0.285,
+      "p_pass_best_of_5": 0.428,
+      "expected_files_per_pass": 9.5
+    },
+    {
+      "mu": 15,
+      "sigma": 5.5,
+      "p_pass_single": 0.182,
+      "p_pass_best_of_3": 0.452,
+      "p_pass_best_of_5": 0.633,
+      "expected_files_per_pass": 5.5
+    },
+    {
+      "mu": 15,
+      "sigma": 7.0,
+      "p_pass_single": 0.238,
+      "p_pass_best_of_3": 0.557,
+      "p_pass_best_of_5": 0.742,
+      "expected_files_per_pass": 4.2
+    },
+    {
+      "mu": 12,
+      "sigma": 4.0,
+      "p_pass_single": 0.309,
+      "p_pass_best_of_3": 0.669,
+      "p_pass_best_of_5": 0.842,
+      "expected_files_per_pass": 3.2
+    },
+    {
+      "mu": 12,
+      "sigma": 5.5,
+      "p_pass_single": 0.358,
+      "p_pass_best_of_3": 0.735,
+      "p_pass_best_of_5": 0.891,
+      "expected_files_per_pass": 2.8
+    },
+    {
+      "mu": 12,
+      "sigma": 7.0,
+      "p_pass_single": 0.388,
+      "p_pass_best_of_3": 0.77,
+      "p_pass_best_of_5": 0.914,
+      "expected_files_per_pass": 2.6
+    },
+    {
+      "mu": 10,
+      "sigma": 4.0,
+      "p_pass_single": 0.5,
+      "p_pass_best_of_3": 0.875,
+      "p_pass_best_of_5": 0.969,
+      "expected_files_per_pass": 2.0
+    },
+    {
+      "mu": 10,
+      "sigma": 5.5,
+      "p_pass_single": 0.5,
+      "p_pass_best_of_3": 0.875,
+      "p_pass_best_of_5": 0.969,
+      "expected_files_per_pass": 2.0
+    },
+    {
+      "mu": 10,
+      "sigma": 7.0,
+      "p_pass_single": 0.5,
+      "p_pass_best_of_3": 0.875,
+      "p_pass_best_of_5": 0.969,
+      "expected_files_per_pass": 2.0
+    },
+    {
+      "mu": 8,
+      "sigma": 4.0,
+      "p_pass_single": 0.691,
+      "p_pass_best_of_3": 0.971,
+      "p_pass_best_of_5": 0.997,
+      "expected_files_per_pass": 1.4
+    },
+    {
+      "mu": 8,
+      "sigma": 5.5,
+      "p_pass_single": 0.642,
+      "p_pass_best_of_3": 0.954,
+      "p_pass_best_of_5": 0.994,
+      "expected_files_per_pass": 1.6
+    },
+    {
+      "mu": 8,
+      "sigma": 7.0,
+      "p_pass_single": 0.612,
+      "p_pass_best_of_3": 0.942,
+      "p_pass_best_of_5": 0.991,
+      "expected_files_per_pass": 1.6
+    },
+    {
+      "mu": 5,
+      "sigma": 4.0,
+      "p_pass_single": 0.894,
+      "p_pass_best_of_3": 0.999,
+      "p_pass_best_of_5": 1.0,
+      "expected_files_per_pass": 1.1
+    },
+    {
+      "mu": 5,
+      "sigma": 5.5,
+      "p_pass_single": 0.818,
+      "p_pass_best_of_3": 0.994,
+      "p_pass_best_of_5": 1.0,
+      "expected_files_per_pass": 1.2
+    },
+    {
+      "mu": 5,
+      "sigma": 7.0,
+      "p_pass_single": 0.762,
+      "p_pass_best_of_3": 0.987,
+      "p_pass_best_of_5": 0.999,
+      "expected_files_per_pass": 1.3
+    }
+  ],
+  "section_repair": {
+    "mu_s=30,sigma_s=10": {
+      "pass_prob_by_round": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_by_round": [
+        30.0,
+        26.1,
+        24.0,
+        22.4
+      ]
+    },
+    "mu_s=30,sigma_s=15": {
+      "pass_prob_by_round": [
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      "mean_by_round": [
+        30.1,
+        24.4,
+        21.2,
+        18.9
+      ]
+    },
+    "mu_s=30,sigma_s=20": {
+      "pass_prob_by_round": [
+        0.0,
+        0.0,
+        0.001,
+        0.016
+      ],
+      "mean_by_round": [
+        30.6,
+        23.0,
+        18.8,
+        15.9
+      ]
+    },
+    "mu_s=20,sigma_s=10": {
+      "pass_prob_by_round": [
+        0.0,
+        0.0,
+        0.006,
+        0.05
+      ],
+      "mean_by_round": [
+        20.1,
+        16.2,
+        14.1,
+        12.6
+      ]
+    },
+    "mu_s=20,sigma_s=15": {
+      "pass_prob_by_round": [
+        0.0,
+        0.015,
+        0.184,
+        0.531
+      ],
+      "mean_by_round": [
+        20.6,
+        15.1,
+        12.0,
+        9.9
+      ]
+    },
+    "mu_s=20,sigma_s=20": {
+      "pass_prob_by_round": [
+        0.0,
+        0.066,
+        0.408,
+        0.794
+      ],
+      "mean_by_round": [
+        21.6,
+        14.5,
+        10.7,
+        8.2
+      ]
+    },
+    "mu_s=15,sigma_s=10": {
+      "pass_prob_by_round": [
+        0.002,
+        0.185,
+        0.643,
+        0.914
+      ],
+      "mean_by_round": [
+        15.3,
+        11.6,
+        9.4,
+        8.0
+      ]
+    },
+    "mu_s=15,sigma_s=15": {
+      "pass_prob_by_round": [
+        0.006,
+        0.358,
+        0.849,
+        0.986
+      ],
+      "mean_by_round": [
+        16.2,
+        10.8,
+        8.0,
+        6.1
+      ]
+    },
+    "mu_s=15,sigma_s=20": {
+      "pass_prob_by_round": [
+        0.009,
+        0.406,
+        0.883,
+        0.993
+      ],
+      "mean_by_round": [
+        17.6,
+        10.8,
+        7.2,
+        5.1
+      ]
+    },
+    "mu_s=12,sigma_s=10": {
+      "pass_prob_by_round": [
+        0.087,
+        0.772,
+        0.984,
+        0.999
+      ],
+      "mean_by_round": [
+        12.5,
+        8.8,
+        6.9,
+        5.5
+      ]
+    },
+    "mu_s=12,sigma_s=15": {
+      "pass_prob_by_round": [
+        0.061,
+        0.743,
+        0.983,
+        1.0
+      ],
+      "mean_by_round": [
+        13.9,
+        8.7,
+        6.0,
+        4.3
+      ]
+    },
+    "mu_s=12,sigma_s=20": {
+      "pass_prob_by_round": [
+        0.04,
+        0.708,
+        0.979,
+        0.999
+      ],
+      "mean_by_round": [
+        15.4,
+        8.7,
+        5.5,
+        3.6
+      ]
+    }
+  }
+}

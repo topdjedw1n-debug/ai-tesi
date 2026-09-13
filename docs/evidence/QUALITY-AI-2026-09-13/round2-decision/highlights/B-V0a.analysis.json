@@ -1,0 +1,276 @@
+{
+ "file": "B-V0a.lines.json",
+ "words_in_sections": 9655,
+ "ai_share_in_sections": 0.2865,
+ "per_section": {
+  "Introduzione": {
+   "words": 72,
+   "ai_share": 0.361
+  },
+  "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+   "words": 433,
+   "ai_share": 0.621
+  },
+  "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+   "words": 450,
+   "ai_share": 0.2
+  },
+  "I controlli difensivi e l'elaborazione giurisprudenziale": {
+   "words": 393,
+   "ai_share": 0.445
+  },
+  "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+   "words": 417,
+   "ai_share": 0.053
+  },
+  "Il testo vigente dell'art. 4: presupposti e garanzie": {
+   "words": 451,
+   "ai_share": 0.446
+  },
+  "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+   "words": 459,
+   "ai_share": 0.115
+  },
+  "Il quadro normativo europeo sulla protezione dei dati": {
+   "words": 482,
+   "ai_share": 0.45
+  },
+  "I principi applicabili al trattamento dei dati": {
+   "words": 449,
+   "ai_share": 0.18
+  },
+  "Le basi giuridiche del trattamento nel contesto lavorativo": {
+   "words": 366,
+   "ai_share": 0.164
+  },
+  "Obblighi del datore di lavoro come titolare del trattamento": {
+   "words": 463,
+   "ai_share": 0.0
+  },
+  "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+   "words": 343,
+   "ai_share": 0.0
+  },
+  "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+   "words": 403,
+   "ai_share": 0.3
+  },
+  "Gli strumenti di lavoro e gli strumenti di controllo": {
+   "words": 468,
+   "ai_share": 0.162
+  },
+  "Il controllo della posta elettronica e della navigazione internet": {
+   "words": 421,
+   "ai_share": 0.138
+  },
+  "Videosorveglianza e geolocalizzazione": {
+   "words": 392,
+   "ai_share": 0.612
+  },
+  "Nuove tecnologie: biometria e intelligenza artificiale": {
+   "words": 456,
+   "ai_share": 0.143
+  },
+  "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+   "words": 386,
+   "ai_share": 0.464
+  },
+  "Capitolo IV – Giurisprudenza e prassi del Garante": {
+   "words": 364,
+   "ai_share": 0.423
+  },
+  "La giurisprudenza della Corte di Cassazione": {
+   "words": 403,
+   "ai_share": 0.355
+  },
+  "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+   "words": 391,
+   "ai_share": 0.586
+  },
+  "I provvedimenti e le linee guida del Garante": {
+   "words": 343,
+   "ai_share": 0.157
+  },
+  "Casistica e bilanciamento tra interessi": {
+   "words": 336,
+   "ai_share": 0.753
+  },
+  "Conclusioni": {
+   "words": 514,
+   "ai_share": 0.0
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 1283,
+   "ai_share": 0.231
+  },
+  "ultimo": {
+   "words": 1176,
+   "ai_share": 0.048
+  },
+  "medio": {
+   "words": 7196,
+   "ai_share": 0.335
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.278,
+    87
+   ],
+   "senza": [
+    0.29,
+    335
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.0,
+    19
+   ],
+   "senza": [
+    0.305,
+    403
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.0,
+    23
+   ],
+   "senza": [
+    0.303,
+    399
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.306,
+    147
+   ],
+   "senza": [
+    0.272,
+    275
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.0,
+    5
+   ],
+   "senza": [
+    0.29,
+    417
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.091,
+    8
+   ],
+   "senza": [
+    0.291,
+    414
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    0.081,
+    41
+   ],
+   "senza": [
+    0.315,
+    381
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    0.147,
+    23
+   ],
+   "senza": [
+    0.298,
+    399
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.286,
+    422
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.299,
+    127
+   ],
+   "senza": [
+    0.281,
+    295
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.266,
+   122
+  ],
+  "15-25": [
+   0.292,
+   102
+  ],
+  "25-35": [
+   0.291,
+   120
+  ],
+  "35-50": [
+   0.211,
+   63
+  ],
+  "50-500": [
+   0.515,
+   15
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "tecnologie nelle realtà aziendali ha ampliato il potere di controllo del datore di lavoro dei propri dipendenti, ponendo nuove questioni in tema di tutela della libertà e della riservatezza dei lavoratori» (VITAGLIANO, 2022).",
+   "Il quarto è dedicato alla giurisprudenza e alla prassi del Garante, quali indicatori",
+   "datore di lavoro degenerasse in una sorveglianza occulta e continuativa della persona del lavoratore.",
+   "È in questo scenario che si colloca la riforma operata dal cosiddetto Jobs Act, la quale ha ridefinito il perimetro",
+   "della norma distinguendo tra strumenti utilizzati per rendere la prestazione lavorativa e strumenti installati per finalità di controllo, e riconducendo alla disciplina della protezione dei dati personali la regolazione dell'utilizzabilità delle",
+   "il potere di controllo datoriale, ponendo nuove questioni in tema di tutela della libertà e della riservatezza dei lavoratori, e sollecitando una verifica sull'effettività della tutela dei diritti fondamentali offerta dalla normativa vigente",
+   "‎Le fonti esaminate convergono nel segnalare l'inadeguatezza di un modello puramente statico di tutela, ma occorre rilevare un limite dell'evidenza qui disponibile: gli excerpt richiamati assumono a oggetto le conseguenze e le criticità",
+   "dell'integrazione tra art. 4 e disciplina privacy, mentre non offrono una ricostruzione testuale puntuale delle singole modifiche introdotte dal Jobs Act.",
+   "dei diritti nei luoghi di lavoro, maturata nel quadro dei principi costituzionali che riconoscono il lavoro quale fondamento dell'ordinamento e la persona quale valore da tutelare anche all'interno del rapporto obbligatorio.",
+   "L'impostazione dello Statuto affonda le proprie radici in un ripensamento teorico che aveva già valorizzato la dimensione personale del prestatore d'opera: la ricostruzione del ruolo della persona del lavoratore nell'esecuzione del",
+   "rapporto, condotta a partire dai principi costituzionali, aveva infatti anticipato l'esigenza di ridefinire le conseguenze del coinvolgimento della persona nell'adempimento della prestazione, in contrapposizione alle teorie allora prevalenti",
+   "Il divieto assoluto degli strumenti diretti a controllare l'attività costituiva così il presidio primario contro un esercizio del potere datoriale idoneo"
+  ],
+  "frasi_sottolineate": [
+   "Il terzo affronta il controllo a distanza e gli strumenti tecnologici, analizzando le concrete modalità di sorveglianza e i profili di tutela.",
+   "Nella formulazione originaria, il legislatore statutario aveva scelto una tecnica di tutela di tipo preventivo, fondata su un",
+   "divieto tendenziale di impiego di impianti audiovisivi e di altre apparecchiature per finalità di controllo a distanza dell'attività lavorativa, temperato dall'ammissibilità di quelli richiesti da esigenze organizzative, produttive o di sicurezza",
+   "Questa impostazione riflette una precisa gerarchia di valori: la libertà e la dignità del lavoratore prevalgono sull'interesse",
+   "datoriale al controllo, e la procedimentalizzazione del consenso sindacale opera come garanzia collettiva a presidio di una posizione individuale altrimenti debole.",
+   "La dottrina più recente conferma la centralità di questo modello di tutela collettiva, tanto da prospettare, nella prospettiva della sorveglianza digitale, l'istituzione — per via contrattuale o",
+   "‎L'art. 4 si è progressivamente affermato come cardine sistematico della tutela del lavoratore, ma la sua struttura originaria, concepita in un contesto tecnologico e produttivo profondamente diverso, ha rivelato crescenti tensioni",
+   "La letteratura giuslavoristica italiana individua nell'introduzione diffusa di strumenti tecnologici e informatici a supporto dell'attività lavorativa il fattore che ha reso non più agevole distinguere tra strumenti di lavoro e",
+   "strumenti di controllo, poiché i medesimi dispositivi assolvono simultaneamente entrambe le funzioni (VITAGLIANO, 2022).",
+   "Tale tensione si acuisce nelle forme di organizzazione più recenti: l'analisi dei profili innovativi della disciplina sul lavoro agile evidenzia che un esercizio indiscriminato del potere di controllo può tradursi in una lesione",
+   "dei diritti della persona del lavoratore, con specifico riguardo alla violazione della disciplina sui dati personali (Bellavista, 2018).",
+   "Emerge così il tratto qualificante dell'assetto post-riforma: l'art. 4 non opera più isolatamente come divieto, ma si"
+  ]
+ },
+ "counts": {
+  "sentences": 422,
+  "clean": 228,
+  "fully_flagged": 92
+ }
+}

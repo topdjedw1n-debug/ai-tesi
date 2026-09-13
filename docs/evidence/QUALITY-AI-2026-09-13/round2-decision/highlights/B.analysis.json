@@ -1,0 +1,276 @@
+{
+ "file": "B.lines.json",
+ "words_in_sections": 5234,
+ "ai_share_in_sections": 0.3682,
+ "per_section": {
+  "Introduzione": {
+   "words": 677,
+   "ai_share": 0.44
+  },
+  "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+   "words": 443,
+   "ai_share": 0.239
+  },
+  "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+   "words": 357,
+   "ai_share": 0.725
+  },
+  "I controlli difensivi e l'elaborazione giurisprudenziale": {
+   "words": 294,
+   "ai_share": 0.16
+  },
+  "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+   "words": 325,
+   "ai_share": 0.594
+  },
+  "Il testo vigente dell'art. 4: presupposti e garanzie": {
+   "words": 321,
+   "ai_share": 0.125
+  },
+  "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+   "words": 367,
+   "ai_share": 0.64
+  },
+  "Il quadro normativo europeo sulla protezione dei dati": {
+   "words": 332,
+   "ai_share": 0.208
+  },
+  "I principi applicabili al trattamento dei dati": {
+   "words": 167,
+   "ai_share": 0.054
+  },
+  "Le basi giuridiche del trattamento nel contesto lavorativo": {
+   "words": 172,
+   "ai_share": 0.227
+  },
+  "Obblighi del datore di lavoro come titolare del trattamento": {
+   "words": 139,
+   "ai_share": 0.252
+  },
+  "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+   "words": 85,
+   "ai_share": 0.0
+  },
+  "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+   "words": 91,
+   "ai_share": 0.308
+  },
+  "Gli strumenti di lavoro e gli strumenti di controllo": {
+   "words": 100,
+   "ai_share": 0.54
+  },
+  "Il controllo della posta elettronica e della navigazione internet": {
+   "words": 162,
+   "ai_share": 0.198
+  },
+  "Videosorveglianza e geolocalizzazione": {
+   "words": 155,
+   "ai_share": 0.348
+  },
+  "Nuove tecnologie: biometria e intelligenza artificiale": {
+   "words": 99,
+   "ai_share": 0.121
+  },
+  "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+   "words": 126,
+   "ai_share": 0.357
+  },
+  "Capitolo IV – Giurisprudenza e prassi del Garante": {
+   "words": 101,
+   "ai_share": 0.564
+  },
+  "La giurisprudenza della Corte di Cassazione": {
+   "words": 102,
+   "ai_share": 0.314
+  },
+  "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+   "words": 141,
+   "ai_share": 0.319
+  },
+  "I provvedimenti e le linee guida del Garante": {
+   "words": 132,
+   "ai_share": 0.258
+  },
+  "Casistica e bilanciamento tra interessi": {
+   "words": 101,
+   "ai_share": 0.485
+  },
+  "Conclusioni": {
+   "words": 245,
+   "ai_share": 0.633
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 858,
+   "ai_share": 0.228
+  },
+  "medio": {
+   "words": 3627,
+   "ai_share": 0.436
+  },
+  "ultimo": {
+   "words": 749,
+   "ai_share": 0.2
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.28,
+    47
+   ],
+   "senza": [
+    0.389,
+    217
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.134,
+    15
+   ],
+   "senza": [
+    0.383,
+    249
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.0,
+    8
+   ],
+   "senza": [
+    0.382,
+    256
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.295,
+    72
+   ],
+   "senza": [
+    0.4,
+    192
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.369,
+    3
+   ],
+   "senza": [
+    0.368,
+    261
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.491,
+    8
+   ],
+   "senza": [
+    0.364,
+    256
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    0.203,
+    19
+   ],
+   "senza": [
+    0.385,
+    245
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    0.249,
+    11
+   ],
+   "senza": [
+    0.374,
+    253
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.368,
+    264
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.362,
+    95
+   ],
+   "senza": [
+    0.372,
+    169
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.432,
+   91
+  ],
+  "15-25": [
+   0.357,
+   75
+  ],
+  "25-35": [
+   0.361,
+   75
+  ],
+  "35-50": [
+   0.31,
+   22
+  ],
+  "50-500": [
+   1.0,
+   1
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "lavoro, ridefinendo non soltanto le modalità di esecuzione della prestazione, ma anche i confini stessi del potere direttivo e di controllo del datore di lavoro.",
+   "L'introduzione pervasiva di strumenti tecnologici e informatici a supporto dell'attività lavorativa ha infatti ampliato in misura considerevole la capacità del datore di monitorare i propri dipendenti, ponendo interrogativi inediti in materia di tutela della libertà e della riservatezza dei lavoratori (VITAGLIANO, 2022).",
+   "passato il controllo si esercitava prevalentemente attraverso la presenza fisica e la vigilanza gerarchica diretta, oggi la digitalizzazione consente forme di sorveglianza continua, capillare e potenzialmente occulta, resa possibile dalla stessa strumentazione fornita per lo svolgimento delle mansioni.",
+   "Tale mutamento tecnologico non rappresenta una semplice evoluzione quantitativa delle prerogative datoriali, ma solleva la questione, di natura squisitamente giuridica, se l'attuale",
+   "organizzative, produttive e di sicurezza del datore di lavoro, da un lato, e la tutela della sfera privata e della dignità del dipendente, dall'altro.",
+   "Questa dialettica assume contorni particolarmente critici alla luce delle nuove modalità di svolgimento della prestazione, quali il lavoro agile, ove i margini di esercizio del potere di controllo si dilatano proprio in ragione della delocalizzazione dell'attività e della sua mediazione tecnologica (Bellavista, 2018).",
+   "indiscriminato di tale potere può infatti tradursi in una lesione dei diritti della persona del lavoratore, con specifico riguardo alla violazione della disciplina in materia di dati personali (Bellavista, 2018).",
+   "In termini più generali, la questione centrale si configura come una compressione dei poteri di controllo del datore di lavoro dinanzi al diritto alla privacy del dipendente, il cui punto di equilibrio deve essere ricostruito in via interpretativa (Olivelli, 2013).",
+   "‎Alla luce di tali premesse, la presente tesi si pone l'obiettivo di analizzare le ripercussioni del progresso tecnologico sui rapporti tra datore di lavoro e dipendenti e di verificare se l'attuale normativa garantisca un'effettiva tutela dei diritti fondamentali del lavoratore (VITAGLIANO, 2022).",
+   "La domanda di ricerca può dunque essere così formulata: in che misura il coordinamento tra l'art. 4 dello Statuto dei lavoratori e la disciplina europea sulla protezione dei dati personali",
+   "consente di individuare un punto di equilibrio idoneo a contemperare il potere di controllo datoriale e i diritti di riservatezza del lavoratore nell'era digitale?",
+   "Le conclusioni riprenderanno gli esiti dell'analisi per fornire una risposta ragionata alla domanda di ricerca."
+  ],
+  "frasi_sottolineate": [
+   "‎La chiave di lettura adottata nel presente lavoro muove dalla convinzione che tale equilibrio non possa essere ricercato all'interno di un unico corpo normativo, bensì attraverso l'integrazione di due discipline distinte ma complementari: l'art. 4 dello Statuto dei lavoratori, che regola i limiti del potere di controllo a distanza, e il quadro normativo posto a tutela",
+   "L'integrazione tra queste fonti costituisce il nucleo problematico dell'indagine, poiché è proprio nel loro coordinamento che si giocano le conseguenze pratiche più rilevanti per la posizione del lavoratore.",
+   "In questa prospettiva, la dottrina ha altresì valorizzato il ruolo delle organizzazioni sindacali nella protezione dei lavoratori dalla sorveglianza digitale, giungendo a proporre — mediante la contrattazione collettiva",
+   "e/o l'intervento legislativo — l'istituzione di una figura sindacale di rappresentanza per la protezione dei dati (Ingrao, 2024).",
+   "Tale suggestione testimonia come la questione non si esaurisca sul piano individuale, ma investa anche la dimensione collettiva del rapporto di lavoro.",
+   "Sotto il profilo metodologico, il lavoro si fonda su un'analisi della letteratura giuridica esistente, condotta attraverso la ricognizione critica della dottrina italiana, della normativa dell'Unione europea e dei contributi apparsi su riviste giuridiche specializzate, senza raccolta di dati primari.",
+   "confronto tra le diverse posizioni dottrinali e la ricostruzione dell'evoluzione normativa e applicativa, dando conto, ove necessario, dei limiti di trasferibilità e delle lacune riscontrate nelle fonti esaminate.",
+   "Il primo ricostruisce l'evoluzione dell'art. 4 dello Statuto dei lavoratori, dalla formulazione originaria alle modifiche più recenti.",
+   "Il secondo esamina il GDPR e i principi applicabili al rapporto di lavoro.",
+   "Il terzo affronta il controllo a distanza in relazione agli strumenti tecnologici oggi",
+   "Il quarto analizza la giurisprudenza e la prassi del Garante per la protezione dei dati personali.",
+   "‎Nel tempo l'art. 4 si è consolidato come norma-cardine nel bilanciamento tra il potere di controllo datoriale e i diritti del prestatore, imponendo un metodo procedurale — segnatamente il coinvolgimento delle rappresentanze sindacali o"
+  ]
+ },
+ "counts": {
+  "sentences": 264,
+  "clean": 121,
+  "fully_flagged": 74
+ }
+}

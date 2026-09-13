@@ -1,0 +1,200 @@
+{
+ "file": "C.lines.json",
+ "words_in_sections": 5377,
+ "ai_share_in_sections": 0.3781,
+ "per_section": {
+  "Introduzione": {
+   "words": 842,
+   "ai_share": 0.565
+  },
+  "Fondamenti dei sistemi di raccomandazione": {
+   "words": 1759,
+   "ai_share": 0.337
+  },
+  "Filtraggio collaborativo e approcci content-based": {
+   "words": 1565,
+   "ai_share": 0.293
+  },
+  "Valutazione sperimentale e casi applicativi nell'e-commerce": {
+   "words": 878,
+   "ai_share": 0.434
+  },
+  "Conclusioni": {
+   "words": 333,
+   "ai_share": 0.375
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 197,
+   "ai_share": 0.223
+  },
+  "medio": {
+   "words": 4993,
+   "ai_share": 0.371
+  },
+  "ultimo": {
+   "words": 187,
+   "ai_share": 0.743
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.204,
+    51
+   ],
+   "senza": [
+    0.449,
+    210
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.643,
+    9
+   ],
+   "senza": [
+    0.367,
+    252
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.333,
+    3
+   ],
+   "senza": [
+    0.378,
+    258
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.197,
+    56
+   ],
+   "senza": [
+    0.457,
+    205
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.436,
+    2
+   ],
+   "senza": [
+    0.377,
+    259
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.641,
+    4
+   ],
+   "senza": [
+    0.375,
+    257
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.378,
+    261
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.378,
+    261
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.378,
+    261
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.487,
+    73
+   ],
+   "senza": [
+    0.341,
+    188
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.467,
+   95
+  ],
+  "15-25": [
+   0.384,
+   78
+  ],
+  "25-35": [
+   0.401,
+   56
+  ],
+  "35-50": [
+   0.41,
+   25
+  ],
+  "50-500": [
+   0.0,
+   7
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "mediano l'incontro tra un'offerta di prodotti sempre più ampia e utenti che dispongono di risorse cognitive e temporali limitate.",
+   "La proliferazione dei cataloghi digitali ha reso impraticabile la navigazione manuale dell'intero assortimento,",
+   "spostando il problema centrale delle piattaforme dalla disponibilità del prodotto alla sua scopribilità.",
+   "‎Il ruolo del machine learning in questo contesto consiste nel fornire i metodi con cui i dati comportamentali vengono trasformati in previsioni delle preferenze.",
+   "Le tecniche di apprendimento automatico consentono di stimare la probabilità che un utente apprezzi un elemento non ancora osservato, sfruttando regolarità apprese da grandi quantità di",
+   "La stessa evidenza relativa a Netflix sottolinea come la personalizzazione si fondi sulla raccolta continua di dati comportamentali (Sobremonte, 2026), un principio che presuppone modelli capaci di aggiornarsi con il flusso delle osservazioni.",
+   "‎Il commercio elettronico costituisce il dominio applicativo entro cui questi sistemi operano e da cui traggono valore economico.",
+   "Esso non si esaurisce nella relazione tra impresa e consumatore finale, ma comprende anche scambi tra",
+   "imprese: il commercio elettronico business-to-business è definito come lo scambio di beni e delle relative informazioni tra aziende, supportato da strumenti basati su Internet quali i marketplace elettronici e i negozi online, e offre opportunità di efficienza nei costi lungo la catena di fornitura e di accesso a nuovi mercati (Fritz et al., 2009).",
+   "Questa distinzione tra dimensione B2B e business-to-consumer è utile per delimitare l'ambito del presente lavoro, che si",
+   "concentra sulla raccomandazione rivolta agli utenti finali, pur riconoscendo che le medesime tecnologie informatiche abilitano entrambi i contesti.",
+   "L'evidenza disponibile segnala inoltre che, nonostante la maturità raggiunta dalle tecnologie di commercio elettronico, la loro adozione resta diseguale, con le piccole e medie imprese frenate anche da questioni di fiducia (Fritz et al., 2009)."
+  ],
+  "frasi_sottolineate": [
+   "In questo scenario il sistema di raccomandazione non è un semplice strumento tecnico accessorio, ma un dispositivo che struttura",
+   "L'analisi del sistema di raccomandazione di Netflix mostra chiaramente come tali sistemi possano essere interpretati come dispositivi socio-tecnici capaci di modellare il gusto,",
+   "organizzando la visibilità dei contenuti, creando comunità algoritmiche di gusto e rafforzando la personalizzazione attraverso la raccolta continua di dati comportamentali (Sobremonte, 2026).",
+   "piattaforma di streaming audiovisivo e non un negozio online in senso stretto, essa illustra un meccanismo trasferibile al commercio elettronico, dove la profilazione del comportamento d'acquisto svolge una funzione analoga nel guidare",
+   "La rilevanza dei sistemi di raccomandazione per la personalizzazione risiede dunque nella loro capacità di trasformare tracce comportamentali in suggerimenti mirati, incidendo sia sull'esperienza dell'utente sia sulle",
+   "Nel commercio elettronico questa capacità predittiva sostiene le decisioni di acquisto, riducendo l'incertezza dell'utente e la dispersione della sua attenzione.",
+   "disponibili non descrivono in dettaglio gli algoritmi di apprendimento impiegati né ne quantificano le prestazioni; la letteratura fornita permette di affermare il ruolo generale del machine learning nella personalizzazione, ma non di documentare specifiche architetture o metriche, aspetti che saranno discussi criticamente sulla base delle fonti nei",
+   "‎L'obiettivo di questa tesi è comparativo: confrontare gli approcci di filtraggio collaborativo e gli approcci content-based nei sistemi di raccomandazione basati su machine learning per il commercio elettronico, evidenziandone i presupposti, i",
+   "La domanda di ricerca che guida il lavoro può essere formulata come segue: in che misura, e a quali condizioni, gli approcci collaborativi e quelli content-based risultano adeguati alle esigenze di personalizzazione del commercio elettronico?",
+   "Il metodo adottato è quello dell'analisi ragionata della letteratura scientifica reperita, condotta senza raccolta di dati primari, senza esperimenti né interviste, e limitando",
+   "Va dichiarato sin d'ora che l'insieme di evidenze a disposizione è eterogeneo e in parte tangenziale rispetto al tema specifico, il che impone cautela nel generalizzare e comporta l'esplicitazione dei limiti in ciascun capitolo.",
+   "Il primo capitolo delinea i fondamenti dei sistemi di raccomandazione, chiarendo la loro natura di dispositivi socio-tecnici e il ruolo dei dati comportamentali nella personalizzazione."
+  ]
+ },
+ "counts": {
+  "sentences": 261,
+  "clean": 119,
+  "fully_flagged": 74
+ }
+}

@@ -1,0 +1,276 @@
+{
+ "file": "B-V1a.lines.json",
+ "words_in_sections": 9436,
+ "ai_share_in_sections": 0.2958,
+ "per_section": {
+  "Introduzione": {
+   "words": 32,
+   "ai_share": 0.0
+  },
+  "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+   "words": 66,
+   "ai_share": 0.5
+  },
+  "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+   "words": 173,
+   "ai_share": 0.289
+  },
+  "I controlli difensivi e l'elaborazione giurisprudenziale": {
+   "words": 361,
+   "ai_share": 0.152
+  },
+  "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+   "words": 440,
+   "ai_share": 0.584
+  },
+  "Il testo vigente dell'art. 4: presupposti e garanzie": {
+   "words": 518,
+   "ai_share": 0.579
+  },
+  "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+   "words": 508,
+   "ai_share": 0.421
+  },
+  "Il quadro normativo europeo sulla protezione dei dati": {
+   "words": 518,
+   "ai_share": 0.12
+  },
+  "I principi applicabili al trattamento dei dati": {
+   "words": 408,
+   "ai_share": 0.377
+  },
+  "Le basi giuridiche del trattamento nel contesto lavorativo": {
+   "words": 398,
+   "ai_share": 0.482
+  },
+  "Obblighi del datore di lavoro come titolare del trattamento": {
+   "words": 450,
+   "ai_share": 0.211
+  },
+  "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+   "words": 340,
+   "ai_share": 0.0
+  },
+  "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+   "words": 405,
+   "ai_share": 0.0
+  },
+  "Gli strumenti di lavoro e gli strumenti di controllo": {
+   "words": 466,
+   "ai_share": 0.399
+  },
+  "Il controllo della posta elettronica e della navigazione internet": {
+   "words": 441,
+   "ai_share": 0.519
+  },
+  "Videosorveglianza e geolocalizzazione": {
+   "words": 376,
+   "ai_share": 0.271
+  },
+  "Nuove tecnologie: biometria e intelligenza artificiale": {
+   "words": 449,
+   "ai_share": 0.0
+  },
+  "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+   "words": 418,
+   "ai_share": 0.249
+  },
+  "Capitolo IV – Giurisprudenza e prassi del Garante": {
+   "words": 388,
+   "ai_share": 0.546
+  },
+  "La giurisprudenza della Corte di Cassazione": {
+   "words": 370,
+   "ai_share": 0.127
+  },
+  "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+   "words": 381,
+   "ai_share": 0.234
+  },
+  "I provvedimenti e le linee guida del Garante": {
+   "words": 408,
+   "ai_share": 0.0
+  },
+  "Casistica e bilanciamento tra interessi": {
+   "words": 409,
+   "ai_share": 0.293
+  },
+  "Conclusioni": {
+   "words": 713,
+   "ai_share": 0.407
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 1198,
+   "ai_share": 0.138
+  },
+  "ultimo": {
+   "words": 999,
+   "ai_share": 0.067
+  },
+  "medio": {
+   "words": 7239,
+   "ai_share": 0.354
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.204,
+    67
+   ],
+   "senza": [
+    0.324,
+    352
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.074,
+    32
+   ],
+   "senza": [
+    0.325,
+    387
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.296,
+    419
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.198,
+    113
+   ],
+   "senza": [
+    0.344,
+    306
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.119,
+    8
+   ],
+   "senza": [
+    0.301,
+    411
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.571,
+    3
+   ],
+   "senza": [
+    0.293,
+    416
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    0.203,
+    42
+   ],
+   "senza": [
+    0.311,
+    377
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    0.147,
+    19
+   ],
+   "senza": [
+    0.306,
+    400
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.296,
+    419
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.342,
+    144
+   ],
+   "senza": [
+    0.271,
+    275
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.348,
+   139
+  ],
+  "15-25": [
+   0.343,
+   90
+  ],
+  "25-35": [
+   0.342,
+   106
+  ],
+  "35-50": [
+   0.239,
+   67
+  ],
+  "50-500": [
+   0.166,
+   17
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "‎La rivoluzione digitale ha modificato in profondità la fisionomia del rapporto di lavoro.",
+   "L'introduzione di strumenti tecnologici e informatici a supporto dell'attività lavorativa non ha soltanto trasformato le modalità di esecuzione della",
+   "tecnologici ad avere alimentato l'esigenza di riforma: la fattispecie costruita sul controllo intenzionale e preterintenzionale mal si adattava a tecnologie in cui il tracciamento è un effetto strutturale, e non un fine perseguito.",
+   "L'installazione richiedeva l'accordo con le rappresentanze sindacali; in mancanza di accordo, la valutazione era rimessa all'intervento dell'autorità amministrativa.",
+   "forme invasive di controllo trova continuità nella riflessione dottrinale, che valorizza la funzione del sindacato nella protezione dei lavoratori dalla sorveglianza e prospetta, per rafforzarla, l'istituzione di un rappresentante sindacale per",
+   "La procedura autorizzativa, imperniata sulla contrattazione collettiva, configurava dunque il controllo preterintenzionale come esito di un bilanciamento negoziato fra esigenze dell'impresa e tutela della",
+   "‎Gli estratti disponibili documentano la ratio del divieto e la funzione della garanzia procedurale, ma non riportano il testo letterale dei commi né le pronunce che ne precisarono l'ambito applicativo; l'analisi della loro elaborazione",
+   "‎I controlli difensivi costituiscono una categoria di elaborazione giurisprudenziale, non prevista in via espressa dalla lettera dell'art. 4, sorta per consentire al datore di lavoro la tutela del patrimonio aziendale di fronte a condotte illecite del prestatore.",
+   "La loro configurazione risponde a un'esigenza precisa: sottrarre alla procedura autorizzativa e ai limiti",
+   "sostanziali della disposizione statutaria quei controlli che non sono diretti a verificare l'esatto adempimento dell'obbligazione lavorativa, bensì ad accertare comportamenti che ledono beni giuridici distinti dalla prestazione, quali",
+   "La categoria si colloca dunque, per definizione, al di fuori del perimetro dell'art. 4, e proprio in questa collocazione esterna risiede la sua problematicità.",
+   "La qualificazione di un controllo come difensivo produce, infatti, l'effetto di rendere inoperanti le garanzie procedurali statutarie: se un accertamento è finalizzato alla"
+  ],
+  "frasi_sottolineate": [
+   "condizioni di legittimità della raccolta, mentre la disciplina di protezione dei dati governa il successivo trattamento.",
+   "Se la normativa vigente assicuri, in questa configurazione, un'effettiva tutela dei diritti fondamentali del lavoratore resta la",
+   "corrispondente agli impianti installati allo scopo diretto di sorvegliare l'attività lavorativa, ricadeva nell'area del divieto.",
+   "Il secondo concerneva gli impianti e le apparecchiature richiesti da esigenze diverse — organizzative, produttive o di sicurezza del lavoro — dal cui funzionamento poteva derivare una possibilità di controllo a distanza in via non",
+   "Da qui deriva il rischio, insito nella categoria, che il datore qualifichi",
+   "come difensivo un controllo in realtà diretto sulla prestazione, aggirando così i presidi posti a tutela della persona.",
+   "L'evoluzione degli orientamenti di legittimità si è mossa proprio lungo questa linea di tensione, restringendo",
+   "e circoscritto, non era attrezzata a governare strumenti che, per loro stessa natura, generano un flusso continuo di informazioni sulla prestazione e sulla persona di chi la rende.",
+   "È a questa distanza fra assetto normativo e realtà tecnologica che la riforma intende rispondere.",
+   "Il testo novellato non affida più la legittimità del controllo alla sola alternativa fra accordo sindacale e autorizzazione amministrativa per gli impianti da cui derivi la possibilità di un controllo a distanza, ma",
+   "ridefinisce le condizioni entro cui il potere datoriale può esercitarsi in ragione della funzione dello strumento impiegato.",
+   "Il baricentro si sposta così dalla natura preterintenzionale del controllo alla destinazione dell'apparecchiatura, con un"
+  ]
+ },
+ "counts": {
+  "sentences": 419,
+  "clean": 205,
+  "fully_flagged": 99
+ }
+}

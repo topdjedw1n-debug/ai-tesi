@@ -1,0 +1,276 @@
+{
+ "file": "B-V0b.lines.json",
+ "words_in_sections": 9832,
+ "ai_share_in_sections": 0.4154,
+ "per_section": {
+  "Introduzione": {
+   "words": 58,
+   "ai_share": 0.0
+  },
+  "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+   "words": 544,
+   "ai_share": 0.296
+  },
+  "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+   "words": 471,
+   "ai_share": 0.325
+  },
+  "I controlli difensivi e l'elaborazione giurisprudenziale": {
+   "words": 419,
+   "ai_share": 0.492
+  },
+  "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+   "words": 478,
+   "ai_share": 0.759
+  },
+  "Il testo vigente dell'art. 4: presupposti e garanzie": {
+   "words": 406,
+   "ai_share": 0.15
+  },
+  "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+   "words": 500,
+   "ai_share": 0.396
+  },
+  "Il quadro normativo europeo sulla protezione dei dati": {
+   "words": 458,
+   "ai_share": 0.524
+  },
+  "I principi applicabili al trattamento dei dati": {
+   "words": 421,
+   "ai_share": 0.496
+  },
+  "Le basi giuridiche del trattamento nel contesto lavorativo": {
+   "words": 375,
+   "ai_share": 0.336
+  },
+  "Obblighi del datore di lavoro come titolare del trattamento": {
+   "words": 349,
+   "ai_share": 0.63
+  },
+  "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+   "words": 353,
+   "ai_share": 0.314
+  },
+  "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+   "words": 384,
+   "ai_share": 0.0
+  },
+  "Gli strumenti di lavoro e gli strumenti di controllo": {
+   "words": 468,
+   "ai_share": 0.233
+  },
+  "Il controllo della posta elettronica e della navigazione internet": {
+   "words": 408,
+   "ai_share": 0.65
+  },
+  "Videosorveglianza e geolocalizzazione": {
+   "words": 341,
+   "ai_share": 0.296
+  },
+  "Nuove tecnologie: biometria e intelligenza artificiale": {
+   "words": 424,
+   "ai_share": 0.469
+  },
+  "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+   "words": 339,
+   "ai_share": 0.847
+  },
+  "Capitolo IV – Giurisprudenza e prassi del Garante": {
+   "words": 394,
+   "ai_share": 0.327
+  },
+  "La giurisprudenza della Corte di Cassazione": {
+   "words": 387,
+   "ai_share": 0.597
+  },
+  "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+   "words": 350,
+   "ai_share": 0.277
+  },
+  "I provvedimenti e le linee guida del Garante": {
+   "words": 494,
+   "ai_share": 0.259
+  },
+  "Casistica e bilanciamento tra interessi": {
+   "words": 427,
+   "ai_share": 0.607
+  },
+  "Conclusioni": {
+   "words": 584,
+   "ai_share": 0.396
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 1145,
+   "ai_share": 0.35
+  },
+  "ultimo": {
+   "words": 1092,
+   "ai_share": 0.619
+  },
+  "medio": {
+   "words": 7595,
+   "ai_share": 0.396
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.325,
+    69
+   ],
+   "senza": [
+    0.44,
+    377
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.404,
+    42
+   ],
+   "senza": [
+    0.417,
+    404
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.0,
+    1
+   ],
+   "senza": [
+    0.417,
+    445
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.327,
+    120
+   ],
+   "senza": [
+    0.456,
+    326
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.0,
+    4
+   ],
+   "senza": [
+    0.419,
+    442
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.569,
+    11
+   ],
+   "senza": [
+    0.411,
+    435
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    0.283,
+    40
+   ],
+   "senza": [
+    0.433,
+    406
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    0.085,
+    11
+   ],
+   "senza": [
+    0.43,
+    435
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.415,
+    446
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.428,
+    135
+   ],
+   "senza": [
+    0.409,
+    311
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.415,
+   143
+  ],
+  "15-25": [
+   0.403,
+   110
+  ],
+  "25-35": [
+   0.421,
+   118
+  ],
+  "35-50": [
+   0.477,
+   64
+  ],
+  "50-500": [
+   0.179,
+   11
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "visibili, l'attuale contesto tecnologico consente forme di monitoraggio continuo, capillare e spesso impercettibile, rese possibili da dispositivi informatici, sistemi di geolocalizzazione, software gestionali e strumenti di comunicazione",
+   "personali non operano infatti come discipline alternative, bensì come strumenti che concorrono a definire il perimetro di liceità del monitoraggio.",
+   "norma, dunque, non era la negazione del potere datoriale, ma la sua canalizzazione entro un procedimento partecipato, in cui la rappresentanza collettiva operava come contrappeso all'asimmetria del rapporto di lavoro.",
+   "questa funzione di mediazione la dottrina insiste ancora oggi, valorizzando il ruolo delle organizzazioni sindacali nella tutela dei lavoratori dalla sorveglianza digitale e prospettando la figura di un rappresentante sindacale per la",
+   "‎Il percorso evolutivo dell'art. 4 può essere letto come progressivo adattamento di questo cardine di tutela a un contesto tecnologico profondamente mutato.",
+   "L'introduzione diffusa di strumenti informatici e telematici a supporto dell'attività lavorativa ha ampliato in misura significativa la capacità di controllo del datore di lavoro, generando questioni inedite in",
+   "La dottrina esaminata inquadra tale trasformazione come radicale mutamento del mondo del lavoro nella società della digitalizzazione, ponendo l'interrogativo di fondo",
+   "che attraversa l'intera materia: se la normativa vigente garantisca un'effettiva tutela dei diritti fondamentali del lavoratore di fronte all'espansione del potere di controllo (VITAGLIANO, 2022).",
+   "originario rispetto a strumenti che, per natura, raccolgono dati in via continuativa e spesso indistinguibile dal controllo sulla prestazione ha reso avvertita l'esigenza di riforma, orientata a ridefinire i presupposti di liceità dell'utilizzo di",
+   "‎L'impatto delle nuove tecnologie emerge con particolare nitidezza nelle forme più recenti di organizzazione del lavoro.",
+   "La disciplina del lavoro agile ripropone il problema dei margini di esercizio del potere di controllo in un ambiente in cui",
+   "la prestazione si svolge al di fuori dei locali aziendali, moltiplicando le occasioni di raccolta di dati e i rischi di un esercizio indiscriminato di tale potere sui diritti della persona del lavoratore, con specifico riguardo alla violazione della"
+  ],
+  "frasi_sottolineate": [
+   "‎La formulazione originaria dell'art. 4 della legge n. 300/1970 esprimeva una precisa scelta di politica del diritto: sottrarre il lavoratore a forme di sorveglianza occulta e continuativa, riconoscendo che il controllo a distanza incide non",
+   "solo sulla prestazione, ma sulla sfera di libertà e riservatezza della persona.",
+   "Il divieto di impianti audiovisivi e di altre apparecchiature finalizzate al controllo a distanza dell'attività lavorativa costituiva, in questa prospettiva, un limite",
+   "strutturale al potere direttivo e organizzativo del datore di lavoro, temperato dalla previsione di controlli difensivi legittimi solo entro margini definiti e assistiti dalla garanzia procedurale dell'accordo sindacale.",
+   "riportano il dettaglio testuale delle modifiche introdotte, sicché la ricostruzione delle singole disposizioni riformate non può essere sviluppata oltre quanto le fonti consentono.",
+   "direzione del mutamento: dal divieto tendenzialmente assoluto verso un modello di controllo condizionato, in cui la liceità del trattamento diviene il criterio ultimo di legittimità.",
+   "La funzione di limite propria dell'art. 4 si è affermata dunque come garanzia strutturale, destinata a operare a prescindere",
+   "‎Sul piano tecnico-giuridico, la norma introduceva una distinzione fondamentale tra il controllo intenzionale, direttamente volto a sorvegliare l'attività lavorativa e in quanto tale vietato, e il controllo cosiddetto preterintenzionale,",
+   "derivante dall'impiego di strumenti installati per esigenze diverse — organizzative, produttive o di sicurezza — dai quali potesse tuttavia derivare, in via indiretta, una possibilità di controllo sui lavoratori.",
+   "Ne discende che il modello originario coniugava un divieto sostanziale con un filtro procedurale collettivo, secondo una logica di bilanciamento affidato al confronto tra le parti",
+   "‎Va tuttavia rilevato che gli estratti disponibili non riportano il tenore letterale integrale del testo del 1970 né il dettaglio delle condizioni operative della procedura autorizzativa: la letteratura esaminata consente pertanto di ricostruire la",
+   "ratio e l'architettura complessiva del divieto, ma non di sviluppare oltre l'analisi puntuale delle singole clausole."
+  ]
+ },
+ "counts": {
+  "sentences": 446,
+  "clean": 186,
+  "fully_flagged": 137
+ }
+}

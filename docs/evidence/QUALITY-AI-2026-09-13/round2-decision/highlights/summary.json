@@ -1,0 +1,612 @@
+[
+ {
+  "file": "A",
+  "report_share": 0.1425,
+  "sections_share": 0.1688,
+  "sentences": 201,
+  "cit": "9 % (58) / 20 % (143)",
+  "num": "9 % (62) / 21 % (139)",
+  "norm": "— (0) / 17 % (201)",
+  "giur": "— (0) / 17 % (201)",
+  "meta": "0 % (11) / 18 % (190)",
+  "formula": "0 % (5) / 17 % (196)",
+  "nominal": "10 % (39) / 18 % (162)",
+  "cit_density": 0.29,
+  "num_density": 0.31,
+  "pos": {
+   "primo": {
+    "words": 181,
+    "ai_share": 0.083
+   },
+   "medio": {
+    "words": 3765,
+    "ai_share": 0.166
+   },
+   "ultimo": {
+    "words": 212,
+    "ai_share": 0.297
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 594,
+    "ai_share": 0.106
+   },
+   "Capitolo 1 - Quadro teorico del marketing digitale": {
+    "words": 1358,
+    "ai_share": 0.324
+   },
+   "Capitolo 2 - Social media e customer loyalty nelle PMI": {
+    "words": 1057,
+    "ai_share": 0.054
+   },
+   "Capitolo 3 - Analisi di casi ed evidenze empiriche": {
+    "words": 969,
+    "ai_share": 0.147
+   },
+   "Conclusioni": {
+    "words": 180,
+    "ai_share": 0.0
+   }
+  }
+ },
+ {
+  "file": "B",
+  "report_share": 0.332,
+  "sections_share": 0.3682,
+  "sentences": 264,
+  "cit": "28 % (47) / 39 % (217)",
+  "num": "30 % (72) / 40 % (192)",
+  "norm": "20 % (19) / 38 % (245)",
+  "giur": "25 % (11) / 37 % (253)",
+  "meta": "13 % (15) / 38 % (249)",
+  "formula": "0 % (8) / 38 % (256)",
+  "nominal": "36 % (95) / 37 % (169)",
+  "cit_density": 0.18,
+  "num_density": 0.27,
+  "pos": {
+   "primo": {
+    "words": 858,
+    "ai_share": 0.228
+   },
+   "medio": {
+    "words": 3627,
+    "ai_share": 0.436
+   },
+   "ultimo": {
+    "words": 749,
+    "ai_share": 0.2
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 677,
+    "ai_share": 0.44
+   },
+   "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+    "words": 443,
+    "ai_share": 0.239
+   },
+   "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+    "words": 357,
+    "ai_share": 0.725
+   },
+   "I controlli difensivi e l'elaborazione giurisprudenziale": {
+    "words": 294,
+    "ai_share": 0.16
+   },
+   "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+    "words": 325,
+    "ai_share": 0.594
+   },
+   "Il testo vigente dell'art. 4: presupposti e garanzie": {
+    "words": 321,
+    "ai_share": 0.125
+   },
+   "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+    "words": 367,
+    "ai_share": 0.64
+   },
+   "Il quadro normativo europeo sulla protezione dei dati": {
+    "words": 332,
+    "ai_share": 0.208
+   },
+   "I principi applicabili al trattamento dei dati": {
+    "words": 167,
+    "ai_share": 0.054
+   },
+   "Le basi giuridiche del trattamento nel contesto lavorativo": {
+    "words": 172,
+    "ai_share": 0.227
+   },
+   "Obblighi del datore di lavoro come titolare del trattamento": {
+    "words": 139,
+    "ai_share": 0.252
+   },
+   "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+    "words": 85,
+    "ai_share": 0.0
+   },
+   "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+    "words": 91,
+    "ai_share": 0.308
+   },
+   "Gli strumenti di lavoro e gli strumenti di controllo": {
+    "words": 100,
+    "ai_share": 0.54
+   },
+   "Il controllo della posta elettronica e della navigazione internet": {
+    "words": 162,
+    "ai_share": 0.198
+   },
+   "Videosorveglianza e geolocalizzazione": {
+    "words": 155,
+    "ai_share": 0.348
+   },
+   "Nuove tecnologie: biometria e intelligenza artificiale": {
+    "words": 99,
+    "ai_share": 0.121
+   },
+   "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+    "words": 126,
+    "ai_share": 0.357
+   },
+   "Capitolo IV – Giurisprudenza e prassi del Garante": {
+    "words": 101,
+    "ai_share": 0.564
+   },
+   "La giurisprudenza della Corte di Cassazione": {
+    "words": 102,
+    "ai_share": 0.314
+   },
+   "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+    "words": 141,
+    "ai_share": 0.319
+   },
+   "I provvedimenti e le linee guida del Garante": {
+    "words": 132,
+    "ai_share": 0.258
+   },
+   "Casistica e bilanciamento tra interessi": {
+    "words": 101,
+    "ai_share": 0.485
+   },
+   "Conclusioni": {
+    "words": 245,
+    "ai_share": 0.633
+   }
+  }
+ },
+ {
+  "file": "C",
+  "report_share": 0.3548,
+  "sections_share": 0.3781,
+  "sentences": 261,
+  "cit": "20 % (51) / 45 % (210)",
+  "num": "20 % (56) / 46 % (205)",
+  "norm": "— (0) / 38 % (261)",
+  "giur": "— (0) / 38 % (261)",
+  "meta": "64 % (9) / 37 % (252)",
+  "formula": "33 % (3) / 38 % (258)",
+  "nominal": "49 % (73) / 34 % (188)",
+  "cit_density": 0.2,
+  "num_density": 0.21,
+  "pos": {
+   "primo": {
+    "words": 197,
+    "ai_share": 0.223
+   },
+   "medio": {
+    "words": 4993,
+    "ai_share": 0.371
+   },
+   "ultimo": {
+    "words": 187,
+    "ai_share": 0.743
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 842,
+    "ai_share": 0.565
+   },
+   "Fondamenti dei sistemi di raccomandazione": {
+    "words": 1759,
+    "ai_share": 0.337
+   },
+   "Filtraggio collaborativo e approcci content-based": {
+    "words": 1565,
+    "ai_share": 0.293
+   },
+   "Valutazione sperimentale e casi applicativi nell'e-commerce": {
+    "words": 878,
+    "ai_share": 0.434
+   },
+   "Conclusioni": {
+    "words": 333,
+    "ai_share": 0.375
+   }
+  }
+ },
+ {
+  "file": "B-V0a",
+  "report_share": 0.2815,
+  "sections_share": 0.2865,
+  "sentences": 422,
+  "cit": "28 % (87) / 29 % (335)",
+  "num": "31 % (147) / 27 % (275)",
+  "norm": "8 % (41) / 32 % (381)",
+  "giur": "15 % (23) / 30 % (399)",
+  "meta": "0 % (19) / 30 % (403)",
+  "formula": "0 % (23) / 30 % (399)",
+  "nominal": "30 % (127) / 28 % (295)",
+  "cit_density": 0.21,
+  "num_density": 0.35,
+  "pos": {
+   "primo": {
+    "words": 1283,
+    "ai_share": 0.231
+   },
+   "ultimo": {
+    "words": 1176,
+    "ai_share": 0.048
+   },
+   "medio": {
+    "words": 7196,
+    "ai_share": 0.335
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 72,
+    "ai_share": 0.361
+   },
+   "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+    "words": 433,
+    "ai_share": 0.621
+   },
+   "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+    "words": 450,
+    "ai_share": 0.2
+   },
+   "I controlli difensivi e l'elaborazione giurisprudenziale": {
+    "words": 393,
+    "ai_share": 0.445
+   },
+   "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+    "words": 417,
+    "ai_share": 0.053
+   },
+   "Il testo vigente dell'art. 4: presupposti e garanzie": {
+    "words": 451,
+    "ai_share": 0.446
+   },
+   "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+    "words": 459,
+    "ai_share": 0.115
+   },
+   "Il quadro normativo europeo sulla protezione dei dati": {
+    "words": 482,
+    "ai_share": 0.45
+   },
+   "I principi applicabili al trattamento dei dati": {
+    "words": 449,
+    "ai_share": 0.18
+   },
+   "Le basi giuridiche del trattamento nel contesto lavorativo": {
+    "words": 366,
+    "ai_share": 0.164
+   },
+   "Obblighi del datore di lavoro come titolare del trattamento": {
+    "words": 463,
+    "ai_share": 0.0
+   },
+   "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+    "words": 343,
+    "ai_share": 0.0
+   },
+   "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+    "words": 403,
+    "ai_share": 0.3
+   },
+   "Gli strumenti di lavoro e gli strumenti di controllo": {
+    "words": 468,
+    "ai_share": 0.162
+   },
+   "Il controllo della posta elettronica e della navigazione internet": {
+    "words": 421,
+    "ai_share": 0.138
+   },
+   "Videosorveglianza e geolocalizzazione": {
+    "words": 392,
+    "ai_share": 0.612
+   },
+   "Nuove tecnologie: biometria e intelligenza artificiale": {
+    "words": 456,
+    "ai_share": 0.143
+   },
+   "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+    "words": 386,
+    "ai_share": 0.464
+   },
+   "Capitolo IV – Giurisprudenza e prassi del Garante": {
+    "words": 364,
+    "ai_share": 0.423
+   },
+   "La giurisprudenza della Corte di Cassazione": {
+    "words": 403,
+    "ai_share": 0.355
+   },
+   "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+    "words": 391,
+    "ai_share": 0.586
+   },
+   "I provvedimenti e le linee guida del Garante": {
+    "words": 343,
+    "ai_share": 0.157
+   },
+   "Casistica e bilanciamento tra interessi": {
+    "words": 336,
+    "ai_share": 0.753
+   },
+   "Conclusioni": {
+    "words": 514,
+    "ai_share": 0.0
+   }
+  }
+ },
+ {
+  "file": "B-V0b",
+  "report_share": 0.3895,
+  "sections_share": 0.4154,
+  "sentences": 446,
+  "cit": "32 % (69) / 44 % (377)",
+  "num": "33 % (120) / 46 % (326)",
+  "norm": "28 % (40) / 43 % (406)",
+  "giur": "8 % (11) / 43 % (435)",
+  "meta": "40 % (42) / 42 % (404)",
+  "formula": "0 % (1) / 42 % (445)",
+  "nominal": "43 % (135) / 41 % (311)",
+  "cit_density": 0.15,
+  "num_density": 0.27,
+  "pos": {
+   "primo": {
+    "words": 1145,
+    "ai_share": 0.35
+   },
+   "ultimo": {
+    "words": 1092,
+    "ai_share": 0.619
+   },
+   "medio": {
+    "words": 7595,
+    "ai_share": 0.396
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 58,
+    "ai_share": 0.0
+   },
+   "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+    "words": 544,
+    "ai_share": 0.296
+   },
+   "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+    "words": 471,
+    "ai_share": 0.325
+   },
+   "I controlli difensivi e l'elaborazione giurisprudenziale": {
+    "words": 419,
+    "ai_share": 0.492
+   },
+   "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+    "words": 478,
+    "ai_share": 0.759
+   },
+   "Il testo vigente dell'art. 4: presupposti e garanzie": {
+    "words": 406,
+    "ai_share": 0.15
+   },
+   "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+    "words": 500,
+    "ai_share": 0.396
+   },
+   "Il quadro normativo europeo sulla protezione dei dati": {
+    "words": 458,
+    "ai_share": 0.524
+   },
+   "I principi applicabili al trattamento dei dati": {
+    "words": 421,
+    "ai_share": 0.496
+   },
+   "Le basi giuridiche del trattamento nel contesto lavorativo": {
+    "words": 375,
+    "ai_share": 0.336
+   },
+   "Obblighi del datore di lavoro come titolare del trattamento": {
+    "words": 349,
+    "ai_share": 0.63
+   },
+   "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+    "words": 353,
+    "ai_share": 0.314
+   },
+   "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+    "words": 384,
+    "ai_share": 0.0
+   },
+   "Gli strumenti di lavoro e gli strumenti di controllo": {
+    "words": 468,
+    "ai_share": 0.233
+   },
+   "Il controllo della posta elettronica e della navigazione internet": {
+    "words": 408,
+    "ai_share": 0.65
+   },
+   "Videosorveglianza e geolocalizzazione": {
+    "words": 341,
+    "ai_share": 0.296
+   },
+   "Nuove tecnologie: biometria e intelligenza artificiale": {
+    "words": 424,
+    "ai_share": 0.469
+   },
+   "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+    "words": 339,
+    "ai_share": 0.847
+   },
+   "Capitolo IV – Giurisprudenza e prassi del Garante": {
+    "words": 394,
+    "ai_share": 0.327
+   },
+   "La giurisprudenza della Corte di Cassazione": {
+    "words": 387,
+    "ai_share": 0.597
+   },
+   "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+    "words": 350,
+    "ai_share": 0.277
+   },
+   "I provvedimenti e le linee guida del Garante": {
+    "words": 494,
+    "ai_share": 0.259
+   },
+   "Casistica e bilanciamento tra interessi": {
+    "words": 427,
+    "ai_share": 0.607
+   },
+   "Conclusioni": {
+    "words": 584,
+    "ai_share": 0.396
+   }
+  }
+ },
+ {
+  "file": "B-V1a",
+  "report_share": 0.2978,
+  "sections_share": 0.2958,
+  "sentences": 419,
+  "cit": "20 % (67) / 32 % (352)",
+  "num": "20 % (113) / 34 % (306)",
+  "norm": "20 % (42) / 31 % (377)",
+  "giur": "15 % (19) / 31 % (400)",
+  "meta": "7 % (32) / 32 % (387)",
+  "formula": "— (0) / 30 % (419)",
+  "nominal": "34 % (144) / 27 % (275)",
+  "cit_density": 0.16,
+  "num_density": 0.27,
+  "pos": {
+   "primo": {
+    "words": 1198,
+    "ai_share": 0.138
+   },
+   "ultimo": {
+    "words": 999,
+    "ai_share": 0.067
+   },
+   "medio": {
+    "words": 7239,
+    "ai_share": 0.354
+   }
+  },
+  "sections": {
+   "Introduzione": {
+    "words": 32,
+    "ai_share": 0.0
+   },
+   "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori": {
+    "words": 66,
+    "ai_share": 0.5
+   },
+   "La formulazione originaria dell'art. 4 (legge n. 300/1970)": {
+    "words": 173,
+    "ai_share": 0.289
+   },
+   "I controlli difensivi e l'elaborazione giurisprudenziale": {
+    "words": 361,
+    "ai_share": 0.152
+   },
+   "La riforma del Jobs Act (d.lgs. n. 151/2015)": {
+    "words": 440,
+    "ai_share": 0.584
+   },
+   "Il testo vigente dell'art. 4: presupposti e garanzie": {
+    "words": 518,
+    "ai_share": 0.579
+   },
+   "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro": {
+    "words": 508,
+    "ai_share": 0.421
+   },
+   "Il quadro normativo europeo sulla protezione dei dati": {
+    "words": 518,
+    "ai_share": 0.12
+   },
+   "I principi applicabili al trattamento dei dati": {
+    "words": 408,
+    "ai_share": 0.377
+   },
+   "Le basi giuridiche del trattamento nel contesto lavorativo": {
+    "words": 398,
+    "ai_share": 0.482
+   },
+   "Obblighi del datore di lavoro come titolare del trattamento": {
+    "words": 450,
+    "ai_share": 0.211
+   },
+   "La valutazione d'impatto (DPIA) e il Data Protection Officer": {
+    "words": 340,
+    "ai_share": 0.0
+   },
+   "Capitolo III – Il controllo a distanza e gli strumenti tecnologici": {
+    "words": 405,
+    "ai_share": 0.0
+   },
+   "Gli strumenti di lavoro e gli strumenti di controllo": {
+    "words": 466,
+    "ai_share": 0.399
+   },
+   "Il controllo della posta elettronica e della navigazione internet": {
+    "words": 441,
+    "ai_share": 0.519
+   },
+   "Videosorveglianza e geolocalizzazione": {
+    "words": 376,
+    "ai_share": 0.271
+   },
+   "Nuove tecnologie: biometria e intelligenza artificiale": {
+    "words": 449,
+    "ai_share": 0.0
+   },
+   "L'utilizzabilità dei dati raccolti a fini disciplinari": {
+    "words": 418,
+    "ai_share": 0.249
+   },
+   "Capitolo IV – Giurisprudenza e prassi del Garante": {
+    "words": 388,
+    "ai_share": 0.546
+   },
+   "La giurisprudenza della Corte di Cassazione": {
+    "words": 370,
+    "ai_share": 0.127
+   },
+   "La giurisprudenza della Corte EDU e della Corte di Giustizia UE": {
+    "words": 381,
+    "ai_share": 0.234
+   },
+   "I provvedimenti e le linee guida del Garante": {
+    "words": 408,
+    "ai_share": 0.0
+   },
+   "Casistica e bilanciamento tra interessi": {
+    "words": 409,
+    "ai_share": 0.293
+   },
+   "Conclusioni": {
+    "words": 713,
+    "ai_share": 0.407
+   }
+  }
+ }
+]

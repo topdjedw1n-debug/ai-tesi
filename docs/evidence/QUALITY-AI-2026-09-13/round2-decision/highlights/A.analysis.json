@@ -1,0 +1,200 @@
+{
+ "file": "A.lines.json",
+ "words_in_sections": 4158,
+ "ai_share_in_sections": 0.1688,
+ "per_section": {
+  "Introduzione": {
+   "words": 594,
+   "ai_share": 0.106
+  },
+  "Capitolo 1 - Quadro teorico del marketing digitale": {
+   "words": 1358,
+   "ai_share": 0.324
+  },
+  "Capitolo 2 - Social media e customer loyalty nelle PMI": {
+   "words": 1057,
+   "ai_share": 0.054
+  },
+  "Capitolo 3 - Analisi di casi ed evidenze empiriche": {
+   "words": 969,
+   "ai_share": 0.147
+  },
+  "Conclusioni": {
+   "words": 180,
+   "ai_share": 0.0
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 181,
+   "ai_share": 0.083
+  },
+  "medio": {
+   "words": 3765,
+   "ai_share": 0.166
+  },
+  "ultimo": {
+   "words": 212,
+   "ai_share": 0.297
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.092,
+    58
+   ],
+   "senza": [
+    0.205,
+    143
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.0,
+    11
+   ],
+   "senza": [
+    0.178,
+    190
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.0,
+    5
+   ],
+   "senza": [
+    0.173,
+    196
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.089,
+    62
+   ],
+   "senza": [
+    0.208,
+    139
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.169,
+    201
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.369,
+    6
+   ],
+   "senza": [
+    0.163,
+    195
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.169,
+    201
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.169,
+    201
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.169,
+    201
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.101,
+    39
+   ],
+   "senza": [
+    0.185,
+    162
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.172,
+   56
+  ],
+  "15-25": [
+   0.146,
+   72
+  ],
+  "25-35": [
+   0.214,
+   59
+  ],
+  "35-50": [
+   0.0,
+   11
+  ],
+  "50-500": [
+   0.325,
+   3
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "‎L'avvento delle tecnologie digitali ha ridefinito in profondità le logiche con cui le imprese progettano e attuano le proprie strategie di marketing.",
+   "Il digital marketing può essere inteso come l'attività di promozione di prodotti o servizi realizzata",
+   "attraverso tecnologie digitali, principalmente Internet, ma anche dispositivi mobili, display advertising e ogni altro medium digitale (Desai, 2019).",
+   "La sua evoluzione, avviata negli anni Novanta e consolidatasi nel decennio successivo, ha modificato le modalità con cui marchi e imprese impiegano la tecnologia per comunicare con i propri mercati; man mano che le piattaforme digitali si integrano nei piani di marketing e nella vita quotidiana, e che le persone utilizzano dispositivi digitali in",
+   "luogo della visita ai punti vendita fisici, le campagne di marketing digitale diventano più diffuse ed efficienti (Desai, 2019).",
+   "In questo scenario, la diffusione di Internet e dei social media ha trasformato tanto i comportamenti dei consumatori quanto le modalità operative delle imprese, offrendo opportunità significative in termini di riduzione dei costi, miglioramento della brand awareness e incremento delle vendite, ma esponendo al contempo le organizzazioni a rischi rilevanti, quali il",
+   "‎All'interno di questo quadro, le piccole e medie imprese rappresentano un caso di particolare interesse.",
+   "La ricerca disponibile evidenzia infatti che le PMI tendono a non sfruttare il pieno potenziale dei nuovi strumenti digitali, non traendo beneficio",
+   "dalle opportunità che questi offrono, e solleva l'interrogativo se tali imprese abbiano effettivamente compreso il cambiamento di fondo nella natura della comunicazione indotto dalla digitalizzazione (Taiminen & Karjaluoto, 2015).",
+   "Questa apparente distanza tra potenzialità degli strumenti e capacità effettiva di impiego, attribuita prevalentemente a una carenza di conoscenze specifiche in materia di marketing digitale (Taiminen & Karjaluoto, 2015), costituisce lo sfondo problematico da",
+   "cui muove il presente lavoro, con specifico riferimento al contesto delle PMI italiane, tessuto produttivo caratterizzato da una marcata prevalenza di imprese di dimensioni contenute.",
+   "consentono un dialogo continuativo e bidirezionale tra impresa e consumatore, la costruzione di relazioni durature rappresenta una leva strategica per compensare la limitatezza delle risorse tipica delle PMI."
+  ],
+  "frasi_sottolineate": [
+   "Il primo delinea il quadro teorico del marketing digitale, definendone concetti, evoluzione e strumenti fondamentali.",
+   "Il secondo approfondisce il rapporto tra social media e customer loyalty nelle PMI, esaminando opportunità, rischi e fattori di adozione.",
+   "Il terzo propone un'analisi di casi ed evidenze empiriche desunte dalla letteratura, con particolare attenzione ai limiti di trasferibilità dei risultati.",
+   "In tale prospettiva, i sistemi digitali comprendono, nella loro accezione più ampia, i canali di distribuzione e comunicazione digitali e gli User Generated Content (Mosca, 2014).",
+   "Il riferimento agli User Generated Content è particolarmente significativo, poiché introduce il tema del contenuto prodotto dagli utenti, elemento che sarà centrale nell'analisi dei social media e della fidelizzazione trattata nei capitoli successivi.",
+   "del marketing digitale coincide con un progressivo passaggio da un modello di comunicazione controllato dall'impresa a un modello partecipativo, in cui il consumatore contribuisce attivamente alla costruzione del messaggio.",
+   "Questa osservazione è cruciale per il presente lavoro, poiché colloca le scelte di marketing all'interno di un mutamento organizzativo e competitivo di portata sistemica: l'adozione di strumenti digitali non è una mera decisione tattica, ma si inserisce in una ridefinizione complessiva del modo in cui le imprese creano e distribuiscono valore.",
+   "‎A supporto di una lettura articolata del fenomeno, la letteratura distingue tre stadi della trasformazione digitale: digitization, digitalization e digital transformation (Verhoef et al., 2021).",
+   "La letteratura dedicata al marketing d'impresa nelle PMI descrive l'approccio di tali organizzazioni come prevalentemente intuitivo ed empirico, distante da quello teorico e strategico proprio del marketing management (Petrini, 2018).",
+   "segnala una potenziale distanza tra i modelli teorici del marketing — inclusi gli schemi del marketing mix e delle leve tradizionali — e le pratiche effettivamente adottate dalle piccole realtà imprenditoriali.",
+   "L'implicazione è che l'adozione di strumenti digitali da parte delle PMI possa avvenire in modo non pienamente strutturato, riflettendo la natura empirica del loro approccio complessivo.",
+   "La coesistenza di strumenti tradizionali e digitali all'interno della medesima strategia promozionale conferma che, nelle PMI, il marketing mix si presenta spesso come una combinazione ibrida, in cui i"
+  ]
+ },
+ "counts": {
+  "sentences": 201,
+  "clean": 129,
+  "fully_flagged": 26
+ }
+}
