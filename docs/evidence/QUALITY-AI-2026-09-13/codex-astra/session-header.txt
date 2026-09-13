@@ -1,0 +1,17 @@
+Reading prompt from stdin...
+OpenAI Codex v0.153.4
+--------
+workdir: /Users/maxmaxvel/AI TESI
+model: gpt-6-astra
+provider: openai
+approval: never
+sandbox: read-only
+reasoning effort: xhigh
+reasoning summaries: none
+session id: 01a09a0f-0361-7553-9091-9cf85b1fbd2f
+--------
+# Консультація для Codex (модель Astra): як довести AI-показник Compilatio до ≤10% у Thesica
+
+
+tokens used
+113 666
