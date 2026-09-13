@@ -1,0 +1,66 @@
+{
+ "sec20": {
+  "old_abstracts_production": {
+   "words": 396,
+   "sim": 0,
+   "ai": 39
+  },
+  "B20_abstracts_v3": {
+   "words": 481,
+   "sim": 11,
+   "ai": 67
+  },
+  "C20_full_production": {
+   "words": 532,
+   "sim": 8,
+   "ai": 7
+  },
+  "D20a_full_v3": {
+   "words": 568,
+   "sim": 10,
+   "ai": 0
+  },
+  "D20b_full_v3": {
+   "words": 613,
+   "sim": 5,
+   "ai": 11
+  }
+ },
+ "sec16": {
+  "old_abstracts_production": {
+   "words": null,
+   "sim": null,
+   "ai": null,
+   "note": "не скановано окремо; оцінка з пари ≈ 26 %"
+  },
+  "C16_full_production": {
+   "words": 431,
+   "sim": 3,
+   "ai": 0
+  },
+  "D16_full_v3": {
+   "words": 542,
+   "sim": 15,
+   "ai": 40
+  }
+ },
+ "control_old_sec17_19": {
+  "words": 1219,
+  "sim": 8,
+  "ai": 28
+ },
+ "pairs": {
+  "old_16_20": {
+   "words": 830,
+   "sim": 0,
+   "ai": 32
+  },
+  "new_D16_D20a": {
+   "words": 1110,
+   "sim": 12,
+   "ai": 20
+  }
+ },
+ "scanned_by": "founder, Compilatio Studium, 13.09.2026 late evening",
+ "credits_estimate": "≈ 2–3 per file, 10 files"
+}
