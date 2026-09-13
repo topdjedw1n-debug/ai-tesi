@@ -1,0 +1,6 @@
+{
+  "username": "manager1",
+  "user_id": 1,
+  "evidence": "Profile UI showed manager1; draft 15 persisted user_id=1",
+  "observed_at": "2026-09-13T08:26:21.715215+00:00"
+}

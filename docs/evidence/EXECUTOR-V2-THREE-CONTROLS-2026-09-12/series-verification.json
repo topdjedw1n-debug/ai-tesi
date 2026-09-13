@@ -1,0 +1,100 @@
+{
+  "observed_at": "2026-09-13T08:53:06.334626+00:00",
+  "runtime_revision": "3892cac1ae8fccc261f04d0d35c64c5d4f6d3d49",
+  "controls": [
+    "A",
+    "B",
+    "C"
+  ],
+  "document_ids": [
+    13,
+    14,
+    15
+  ],
+  "job_ids": [
+    16,
+    17,
+    18
+  ],
+  "generation_cost_cents": 411,
+  "confirmed_tokens": 481548,
+  "unknown_provider_attempts": 0,
+  "checks": {
+    "A_one_job_one_attempt": true,
+    "A_manager_default_model": true,
+    "A_v2": true,
+    "A_brief_matches": true,
+    "A_no_pdf": true,
+    "A_recording_hash": true,
+    "A_journal_matches_job": true,
+    "A_replay_exact": true,
+    "A_live_artifact_hash": true,
+    "A_actual_bibliography_verified": true,
+    "A_preflight": true,
+    "A_cost_policy_unchanged": true,
+    "A_one_POST_/api/v1/documents/": true,
+    "A_one_POST_/api/v1/documents/13/task-contract/confirm": true,
+    "A_one_POST_/api/v1/generate/full-document": true,
+    "B_one_job_one_attempt": true,
+    "B_manager_default_model": true,
+    "B_v2": true,
+    "B_brief_matches": true,
+    "B_no_pdf": true,
+    "B_recording_hash": true,
+    "B_journal_matches_job": true,
+    "B_replay_exact": true,
+    "B_live_artifact_hash": true,
+    "B_actual_bibliography_verified": true,
+    "B_preflight": true,
+    "B_cost_policy_unchanged": true,
+    "B_one_POST_/api/v1/documents/": true,
+    "B_one_POST_/api/v1/documents/14/task-contract/confirm": true,
+    "B_one_POST_/api/v1/generate/full-document": true,
+    "C_one_job_one_attempt": true,
+    "C_manager_default_model": true,
+    "C_v2": true,
+    "C_brief_matches": true,
+    "C_no_pdf": true,
+    "C_recording_hash": true,
+    "C_journal_matches_job": true,
+    "C_replay_exact": true,
+    "C_live_artifact_hash": true,
+    "C_actual_bibliography_verified": true,
+    "C_preflight": true,
+    "C_cost_policy_unchanged": true,
+    "C_one_POST_/api/v1/documents/": true,
+    "C_one_POST_/api/v1/documents/15/task-contract/confirm": true,
+    "C_one_POST_/api/v1/generate/full-document": true,
+    "sequential_A_B_C": true,
+    "prior_export_before_next_start": true,
+    "after_zero_active_no_pause_healthy_unchanged": true,
+    "only_three_jobs_today": true,
+    "main_branch": true,
+    "local_application_source_matches_runtime_revision": true,
+    "series_under_15_usd": true
+  },
+  "checks_all_pass": true,
+  "full_recordings_local_not_git": [
+    {
+      "control": "A",
+      "file": "A/document13-job16-recording.json.gz",
+      "compressed_bytes": 15466656,
+      "gzip_sha256": "3b4f388e6caf57e12ffa0c263c628bff52caa98527d083c25ba6137c5c6c4e2a",
+      "json_sha256": "8e6a9f2760d9d8c113667c590efd442fd6f66ed1e54b0a22b17ba6066a1c2ea7"
+    },
+    {
+      "control": "B",
+      "file": "B/document14-job17-recording.json.gz",
+      "compressed_bytes": 15728676,
+      "gzip_sha256": "a50fdbfb913cfd32f93fa160d68dbf2ac82c1d422dc61d78e2578c13f52f8b08",
+      "json_sha256": "a16a59a4b08f6060a6209e9d9ed2e9c77b610b62a07a6bb390f8bb584f023582"
+    },
+    {
+      "control": "C",
+      "file": "C/document15-job18-recording.json.gz",
+      "compressed_bytes": 7672404,
+      "gzip_sha256": "a5db64b2fbb55244ce5357d158001f05ef57034708d376740f293d72c7b959a5",
+      "json_sha256": "de6c72b76de999b299d62c7f878c556d47d565fd2c62f7473252ddb1443ce287"
+    }
+  ]
+}

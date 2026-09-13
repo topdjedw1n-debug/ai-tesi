@@ -1,0 +1,70 @@
+{
+  "observed_at": "2026-09-13T08:27:43.196024+00:00",
+  "source": "ai-thesis-api container logs; sanitized route/status aggregates only",
+  "since": "2026-09-13T07:50:00Z",
+  "until": "2026-09-13T08:25:00Z",
+  "document_id": 14,
+  "job_id": 17,
+  "route_counts": [
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/14",
+      "status": 200,
+      "count": 3
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/14/task-contract",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs/document/14/status",
+      "status": 200,
+      "count": 547
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/14/task-contract/confirm",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generate/full-document",
+      "status": 200,
+      "count": 1
+    }
+  ]
+}

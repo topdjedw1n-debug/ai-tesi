@@ -1,0 +1,22 @@
+{
+  "head_before_evidence_commit": "c2f3cdea7e84e62bfe7142268d5d87f7b2cb6e36",
+  "preexisting_files": {
+    "docs/AGENT_SYNC.md": {
+      "bytes": 63167,
+      "sha256": "b9f6317c1d4c570d010fadf67a11506e1a72007d42145299dec76f0338729e1d"
+    },
+    "docs/PRE-RUN-001-TASKS.md": {
+      "bytes": 73390,
+      "sha256": "a81748c082307729a1c48773de4ab5dba972501fc99db26b3e6e92aad2212baa"
+    },
+    "docs/plans/THESICA-REBUILD-EXECUTOR-2026-09-09.md": {
+      "bytes": 21574,
+      "sha256": "981ceaa2041e54397ad1c13998062eb7cd3a05722620572a89fbb09e2ab36a67"
+    },
+    "docs/plans/CODEX-THREE-CONTROLS-2026-09-12.md": {
+      "bytes": 11673,
+      "sha256": "0938227cb8d7a5b60198a850dde1621a7b4498a4aabe2a6c7068312517497f24"
+    }
+  },
+  "note": "Hashes only; previous plan contents were not used as instructions. Existing canonical edits will remain in the worktree; only this series status append will enter the index. The active three-controls directive is included unchanged as the report basis."
+}

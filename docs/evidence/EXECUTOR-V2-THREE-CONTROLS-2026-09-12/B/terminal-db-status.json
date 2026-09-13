@@ -1,0 +1,672 @@
+{
+  "observed_at": "2026-09-13T08:24:30.579217+00:00",
+  "jobs": [
+    {
+      "id": 17,
+      "user_id": 1,
+      "document_id": 14,
+      "job_type": "full_document",
+      "ai_provider": "anthropic",
+      "ai_model": "claude-opus-4-8",
+      "status": "completed",
+      "progress": 100,
+      "total_tokens": 304834,
+      "cost_cents": 233,
+      "success": true,
+      "error_message": null,
+      "started_at": "2026-09-13T07:55:57.643662+00:00",
+      "completed_at": "2026-09-13T08:24:14.022108+00:00",
+      "request_payload": {
+        "execution": {
+          "stage": "assembling",
+          "result": {
+            "docx": {
+              "size": 59494,
+              "sha256": "69c1bd760520ece7f226209edda4808c93f8865fba49b7541529fed243e77792",
+              "storage_path": "s3://ai-thesis-documents/documents/1/14/14-69c1bd760520ece7.docx",
+              "estimated_pages": 33
+            },
+            "usage": {
+              "calls": [
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 3309,
+                  "outcome": "received",
+                  "attempt_id": "7d4cbf25-de9a-4353-a4f7-cce0fa0c23de",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 32189,
+                  "outcome": "received",
+                  "attempt_id": "f793b4bd-fdb9-478f-bb9c-e183b6ba9faf",
+                  "cost_cents": 28
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 4841,
+                  "outcome": "received",
+                  "attempt_id": "6ea65ddb-ed6d-478e-be46-7aed3e7a82b4",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 5038,
+                  "outcome": "received",
+                  "attempt_id": "04606412-015e-4cfd-b59f-4e826f2aff24",
+                  "cost_cents": 6
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 4749,
+                  "outcome": "received",
+                  "attempt_id": "2066c2fc-38af-4ffc-a8d8-9432cf8f005b",
+                  "cost_cents": 5
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 4904,
+                  "outcome": "received",
+                  "attempt_id": "ac4108b6-da9c-4ce4-ace5-3b8693eee7b7",
+                  "cost_cents": 5
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 6005,
+                  "outcome": "received",
+                  "attempt_id": "80e4256b-419b-4ce0-bf7b-31775227fcee",
+                  "cost_cents": 6
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 7694,
+                  "outcome": "received",
+                  "attempt_id": "a3a94d50-f3f3-4ed7-850b-5e4326a982e0",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 7147,
+                  "outcome": "received",
+                  "attempt_id": "d10ef2dc-485e-4b9f-b76c-8a73d49da0f4",
+                  "cost_cents": 6
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 7532,
+                  "outcome": "received",
+                  "attempt_id": "6c1360df-ce9b-4fd5-9265-f4df29b69621",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 7750,
+                  "outcome": "received",
+                  "attempt_id": "2ca48543-27cb-4980-89f8-559c2d0accf4",
+                  "cost_cents": 6
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 8520,
+                  "outcome": "received",
+                  "attempt_id": "ce6de468-1b04-4bf3-8230-3fd870f344c8",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 9161,
+                  "outcome": "received",
+                  "attempt_id": "cbb5e1dd-5cd6-47b8-9bfd-652b59558de7",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 9313,
+                  "outcome": "received",
+                  "attempt_id": "ab639ea3-9e60-4836-b0aa-b8e1ac5239aa",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 9874,
+                  "outcome": "received",
+                  "attempt_id": "298b2a1c-9b95-4ff4-8d48-2bd10ee343de",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 11031,
+                  "outcome": "received",
+                  "attempt_id": "2e1d3675-edd8-438c-bccc-7f37c876a663",
+                  "cost_cents": 8
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 10784,
+                  "outcome": "received",
+                  "attempt_id": "9d0ad76c-f5a9-47d6-aa99-c98328a231d4",
+                  "cost_cents": 8
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 11726,
+                  "outcome": "received",
+                  "attempt_id": "27df66e4-589c-45bd-a815-0ac82fcb8751",
+                  "cost_cents": 8
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 13177,
+                  "outcome": "received",
+                  "attempt_id": "100b174b-7d8d-4cca-a514-d8093556ed30",
+                  "cost_cents": 9
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 11996,
+                  "outcome": "received",
+                  "attempt_id": "a6ca6373-c709-4adb-80d1-bcf4fd6e737f",
+                  "cost_cents": 8
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 12669,
+                  "outcome": "received",
+                  "attempt_id": "87b914cf-0610-4a23-a711-4229dca59cfe",
+                  "cost_cents": 9
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 12805,
+                  "outcome": "received",
+                  "attempt_id": "46b9988b-58d0-477d-9db4-c0f40e24cc21",
+                  "cost_cents": 9
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 13543,
+                  "outcome": "received",
+                  "attempt_id": "26de9b38-93c1-4fc9-a507-09eefb0982b7",
+                  "cost_cents": 9
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 14442,
+                  "outcome": "received",
+                  "attempt_id": "b679f0e1-beef-44f7-9adf-8defb9fe7471",
+                  "cost_cents": 10
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 14724,
+                  "outcome": "received",
+                  "attempt_id": "3d1f0524-6e41-4f0b-a0cd-5591b13738bf",
+                  "cost_cents": 10
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 16412,
+                  "outcome": "received",
+                  "attempt_id": "7002044b-9cac-4c31-a671-1c5385abe2d6",
+                  "cost_cents": 11
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 33499,
+                  "outcome": "received",
+                  "attempt_id": "6de31eee-7135-42f4-8ea1-9c604051fe9b",
+                  "cost_cents": 17
+                }
+              ],
+              "tokens": 304834,
+              "cost_cents": 233,
+              "unknown_attempts": 0
+            },
+            "sources": [
+              {
+                "key": "Ka0418ffc6496",
+                "origin": "pack"
+              },
+              {
+                "key": "K184e1bb9a955",
+                "origin": "pack"
+              },
+              {
+                "key": "Kc75cc0952029",
+                "origin": "pack"
+              },
+              {
+                "key": "K58dde35d9d5d",
+                "origin": "pack"
+              },
+              {
+                "key": "Keae4ea176a0d",
+                "origin": "pack"
+              },
+              {
+                "key": "K66f7f6a6f0a4",
+                "origin": "pack"
+              },
+              {
+                "key": "Kfb30c760b618",
+                "origin": "pack"
+              },
+              {
+                "key": "K99625f475c9f",
+                "origin": "pack"
+              },
+              {
+                "key": "Ke9df5a146528",
+                "origin": "pack"
+              },
+              {
+                "key": "Keb3f04ff6686",
+                "origin": "pack"
+              },
+              {
+                "key": "Kf452a42db978",
+                "origin": "pack"
+              },
+              {
+                "key": "Kb925177ec80e",
+                "origin": "pack"
+              },
+              {
+                "key": "Ke484ddce5449",
+                "origin": "pack"
+              },
+              {
+                "key": "Kc6a04e74719f",
+                "origin": "pack"
+              }
+            ],
+            "sections": [
+              {
+                "title": "Introduzione",
+                "word_count": 725,
+                "section_index": 1
+              },
+              {
+                "title": "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori",
+                "word_count": 649,
+                "section_index": 2
+              },
+              {
+                "title": "La formulazione originaria dell'art. 4 (legge n. 300/1970)",
+                "word_count": 536,
+                "section_index": 3
+              },
+              {
+                "title": "I controlli difensivi e l'elaborazione giurisprudenziale",
+                "word_count": 439,
+                "section_index": 4
+              },
+              {
+                "title": "La riforma del Jobs Act (d.lgs. n. 151/2015)",
+                "word_count": 511,
+                "section_index": 5
+              },
+              {
+                "title": "Il testo vigente dell'art. 4: presupposti e garanzie",
+                "word_count": 525,
+                "section_index": 6
+              },
+              {
+                "title": "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro",
+                "word_count": 492,
+                "section_index": 7
+              },
+              {
+                "title": "Il quadro normativo europeo sulla protezione dei dati",
+                "word_count": 509,
+                "section_index": 8
+              },
+              {
+                "title": "I principi applicabili al trattamento dei dati",
+                "word_count": 458,
+                "section_index": 9
+              },
+              {
+                "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+                "word_count": 439,
+                "section_index": 10
+              },
+              {
+                "title": "Obblighi del datore di lavoro come titolare del trattamento",
+                "word_count": 432,
+                "section_index": 11
+              },
+              {
+                "title": "La valutazione d'impatto (DPIA) e il Data Protection Officer",
+                "word_count": 360,
+                "section_index": 12
+              },
+              {
+                "title": "Capitolo III – Il controllo a distanza e gli strumenti tecnologici",
+                "word_count": 389,
+                "section_index": 13
+              },
+              {
+                "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+                "word_count": 416,
+                "section_index": 14
+              },
+              {
+                "title": "Il controllo della posta elettronica e della navigazione internet",
+                "word_count": 418,
+                "section_index": 15
+              },
+              {
+                "title": "Videosorveglianza e geolocalizzazione",
+                "word_count": 431,
+                "section_index": 16
+              },
+              {
+                "title": "Nuove tecnologie: biometria e intelligenza artificiale",
+                "word_count": 402,
+                "section_index": 17
+              },
+              {
+                "title": "L'utilizzabilità dei dati raccolti a fini disciplinari",
+                "word_count": 377,
+                "section_index": 18
+              },
+              {
+                "title": "Capitolo IV – Giurisprudenza e prassi del Garante",
+                "word_count": 420,
+                "section_index": 19
+              },
+              {
+                "title": "La giurisprudenza della Corte di Cassazione",
+                "word_count": 390,
+                "section_index": 20
+              },
+              {
+                "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+                "word_count": 385,
+                "section_index": 21
+              },
+              {
+                "title": "I provvedimenti e le linee guida del Garante",
+                "word_count": 428,
+                "section_index": 22
+              },
+              {
+                "title": "Casistica e bilanciamento tra interessi",
+                "word_count": 389,
+                "section_index": 23
+              },
+              {
+                "title": "Conclusioni",
+                "word_count": 501,
+                "section_index": 24
+              }
+            ],
+            "warnings": [
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K6e30de6f5d57",
+                "severity": "info",
+                "created_at": "2026-09-13T08:14:11.443400+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K1fe51b91941c",
+                "severity": "info",
+                "created_at": "2026-09-13T08:14:11.463667+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K08a616d69b67",
+                "severity": "info",
+                "created_at": "2026-09-13T08:14:11.477990+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K3987319cd577",
+                "severity": "info",
+                "created_at": "2026-09-13T08:14:11.497132+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K6987bec906f6",
+                "severity": "info",
+                "created_at": "2026-09-13T08:14:11.509307+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "outline_scope_unmapped",
+                "stage": "outline",
+                "detail": "Bibliografia",
+                "severity": "warning",
+                "created_at": "2026-09-13T08:15:22.226734+00:00",
+                "message_uk": "План не охоплює частину підтвердженого завдання.",
+                "section_index": null
+              },
+              {
+                "code": "review_note",
+                "stage": "assembling",
+                "detail": "PASS\nCoherent, well-structured legal thesis with clear research question, consistent methodology, and honest acknowledgment of source limitations. Citations are used consistently and match the bibliography. Arguments flow logically across chapters and conclusions answer the research question. Minor issues: inconsistent citation formatting (VITAGLIANO in caps vs. others lowercase), one typo ('anchorabile'/'supplita'), and chapters are labeled inconsistently (some as Capitolo, others as standalone sections), but these do not undermine academic soundness.",
+                "severity": "info",
+                "created_at": "2026-09-13T08:24:12.966824+00:00",
+                "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+                "section_index": null
+              }
+            ],
+            "bibliography": [
+              {
+                "key": "Ka0418ffc6496",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "VITAGLIANO, C. (2022).  Potere di controllo datoriale: nuove tecnologie e tutela dei lavoratori nella società digital / Supervisory power of the employer: new technologies and worker protection in the digital society. European Journal of Privacy Law & Technologies. https://doi.org/10.57230/ejplt221cv",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "K184e1bb9a955",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Bellavista, A. (2018).  Il potere di controllo sul lavoratore e la tutela della riservatezza. Nova Science Publishers (Nova Science Publishers, Inc.)",
+                "verification_provider": "openalex"
+              },
+              {
+                "key": "Kc75cc0952029",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Olivelli, F. (2013).  Il difficile bilanciamento tra la tutela della privacy e le esigenze di controllo del datore di lavoro. U-PAD Unimc - Open Digital Publications (University of Macerata)",
+                "verification_provider": "openalex"
+              },
+              {
+                "key": "K58dde35d9d5d",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Ingrao, A. (2024).  Controllo a distanza e diritto alla protezione dei dati. Sulla complementarità dei due sistemi normativi. Studi e saggi. https://doi.org/10.36253/979-12-215-0507-8.38",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Keae4ea176a0d",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Smuraglia, C. (1967).  La persona del prestatore nel rapporto di lavoro. Directory of Open access Books (OAPEN Foundation)",
+                "verification_provider": "openalex"
+              },
+              {
+                "key": "K66f7f6a6f0a4",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Peruzzi, M. (2025).  Governare l’IA nei luoghi di lavoro: traiettorie della contrattazione collettiva aziendale e territoriale. Labour & Law Issues. https://doi.org/10.60923/issn.2421-2695/23634",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kfb30c760b618",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Marchi, G. D. (2017).  Legge, contratti collettivi e accordo tra le parti nella regolamentazione del lavoro agile. Archivio Istituzionale della Ricerca (Universita Degli Studi Di Milano)",
+                "verification_provider": "openalex"
+              },
+              {
+                "key": "K99625f475c9f",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Hoofnagle, C. J., Sloot, B. V. D., & Borgesius, F. Z. (2019).  The European Union general data protection regulation: what it is and what it means. Information & Communications Technology Law. https://doi.org/10.1080/13600834.2019.1573501",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Ke9df5a146528",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Crespi, S. (2015).  Diritti fondamentali, corte di giustizia e riforma del sistema ue di protezione dei dati. BOA (University of Milano-Bicocca)",
+                "verification_provider": "semantic_scholar"
+              },
+              {
+                "key": "Keb3f04ff6686",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Ghionzoli, S. (2025).  Sistemi di IA in ambiente di lavoro: traiettorie giuridiche tra privacy e strategia dei droni 2.0.. European Journal of Privacy Law & Technologies. https://doi.org/10.57230/ejplt25sibgs",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kf452a42db978",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Angiolini, C., & Cremona, E. (2025).  La disciplina dei diversi rapporti che riguardano i dati personali. Strumenti del Dipartimento di Giurisprudenza di Siena. https://doi.org/10.36253/979-12-215-0796-6.09",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kb925177ec80e",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Corea, L. (2026).  Sistemi per il rilevamento delle emozioni e protezione dei dati: prime osservazioni sull’interazione tra GDPR e AI Act. European Journal of Privacy Law & Technologies. https://doi.org/10.57230/ejplt25siblc",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Ke484ddce5449",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Caruso, B., & Zappalà, L. (2022).  Un diritto del lavoro ‘tridimensionale’: valori e tecniche di fronte ai mutamenti dei luoghi di lavoro. Studi e saggi. https://doi.org/10.36253/978-88-5518-484-7.06",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kc6a04e74719f",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "D'Alfonso, G. (2026).  Piattaforme digitali e trattamenti algoritmici dei dati personali. La co-vigilanza delle Autorità di controllo di settore. European Journal of Privacy Law & Technologies. https://doi.org/10.57230/ejpltsi252gda",
+                "verification_provider": "crossref"
+              }
+            ],
+            "recording_id": "executor-v2:job:17"
+          },
+          "progress": 95,
+          "last_signal": "DOCX збережено. Написання завершено.",
+          "sections_done": 24,
+          "tokens_so_far": 304834,
+          "sections_total": 24,
+          "warnings_count": 7,
+          "cost_cents_so_far": 233
+        },
+        "last_outcome": {
+          "stage": "export",
+          "outcome": "completed",
+          "attempt_id": "b1ffa399-de73-479e-94ab-cfbbff519e91",
+          "reason_code": null,
+          "retryability": "none",
+          "output_reference": "b1ffa399-de73-479e-94ab-cfbbff519e91",
+          "input_fingerprint": "71304cf72dde648e02c24e9f2dacb9021858c501d4d523b388fcfa34fb6096de"
+        },
+        "profile_sha256": "5e41e620fc350fba2aa25f77c309748fb111eb1e014d5479718f0694f29e325d",
+        "executor_version": 2,
+        "additional_requirements": null,
+        "superseded_artifact_paths": [],
+        "generation_contract_sha256": "6c3ccbda910301628afe7c7a6c7035ea877ea786b031d1db3cb69692f8f6e90a"
+      },
+      "lease_expires_at": null,
+      "heartbeat_at": "2026-09-13T08:24:14.022108+00:00",
+      "available_at": "2026-09-13T07:55:57.643662+00:00",
+      "attempt_count": 1,
+      "max_attempts": 1,
+      "source_pack_sha256": "780fb146ee2eb012a7e1b4835f8caf454af5c8971421d00d45188d9368685b35",
+      "claim_checks_used": 0
+    }
+  ],
+  "section_count": 24,
+  "provenance_counts": [
+    {
+      "event_type": "executor_artifact",
+      "n": 1
+    },
+    {
+      "event_type": "executor_bibliography",
+      "n": 1
+    },
+    {
+      "event_type": "executor_outline",
+      "n": 1
+    },
+    {
+      "event_type": "executor_review",
+      "n": 1
+    },
+    {
+      "event_type": "executor_scopes",
+      "n": 1
+    },
+    {
+      "event_type": "executor_section",
+      "n": 24
+    },
+    {
+      "event_type": "executor_source_pack",
+      "n": 1
+    },
+    {
+      "event_type": "executor_step_completed",
+      "n": 6
+    },
+    {
+      "event_type": "executor_step_started",
+      "n": 6
+    },
+    {
+      "event_type": "generation_dependency",
+      "n": 6883
+    },
+    {
+      "event_type": "generation_intent_receipt",
+      "n": 1
+    },
+    {
+      "event_type": "generation_provider_attempt",
+      "n": 54
+    },
+    {
+      "event_type": "generation_replay_inputs",
+      "n": 1
+    },
+    {
+      "event_type": "generation_run_started",
+      "n": 1
+    },
+    {
+      "event_type": "generation_warning",
+      "n": 7
+    },
+    {
+      "event_type": "task_contract_confirmed",
+      "n": 1
+    }
+  ],
+  "active_jobs": []
+}

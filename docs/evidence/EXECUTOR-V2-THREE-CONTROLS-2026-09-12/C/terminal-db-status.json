@@ -1,0 +1,440 @@
+{
+  "observed_at": "2026-09-13T08:51:30.377834+00:00",
+  "jobs": [
+    {
+      "id": 18,
+      "user_id": 1,
+      "document_id": 15,
+      "job_type": "full_document",
+      "ai_provider": "anthropic",
+      "ai_model": "claude-opus-4-8",
+      "status": "completed",
+      "progress": 100,
+      "total_tokens": 88040,
+      "cost_cents": 93,
+      "success": true,
+      "error_message": null,
+      "started_at": "2026-09-13T08:26:35.16544+00:00",
+      "completed_at": "2026-09-13T08:51:06.954139+00:00",
+      "request_payload": {
+        "execution": {
+          "stage": "assembling",
+          "result": {
+            "docx": {
+              "size": 54651,
+              "sha256": "d0bf1da2f6f6ee43d9c22f0498616ef1b4eba7214893d2dcf92ae3c01190b68b",
+              "storage_path": "s3://ai-thesis-documents/documents/1/15/15-d0bf1da2f6f6ee43.docx",
+              "estimated_pages": 23
+            },
+            "usage": {
+              "calls": [
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 2356,
+                  "outcome": "received",
+                  "attempt_id": "53708aad-1b12-48a5-8681-672f95ed0df4",
+                  "cost_cents": 4
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 21274,
+                  "outcome": "received",
+                  "attempt_id": "ad6adbc2-33ee-4c88-a86b-8c0464ba6ef5",
+                  "cost_cents": 13
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 5101,
+                  "outcome": "received",
+                  "attempt_id": "8f729e1c-e6d9-49fb-988a-543e17819801",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 9713,
+                  "outcome": "received",
+                  "attempt_id": "02532eb0-136a-4285-a87b-c37831fd9eb8",
+                  "cost_cents": 16
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 11193,
+                  "outcome": "received",
+                  "attempt_id": "c89c549a-c119-4a9c-9e6a-155ade1c41a9",
+                  "cost_cents": 19
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 9200,
+                  "outcome": "received",
+                  "attempt_id": "ba072d42-45cf-44a0-8788-6ff87e40312a",
+                  "cost_cents": 13
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 6434,
+                  "outcome": "received",
+                  "attempt_id": "8317a589-49f6-4443-95c4-ce46adeb8ca7",
+                  "cost_cents": 7
+                },
+                {
+                  "model": "claude-opus-4-8",
+                  "tokens": 22769,
+                  "outcome": "received",
+                  "attempt_id": "7d9159bf-71c1-4840-ab8c-9eeab29bc0e0",
+                  "cost_cents": 12
+                }
+              ],
+              "tokens": 88040,
+              "cost_cents": 93,
+              "unknown_attempts": 0
+            },
+            "sources": [
+              {
+                "key": "K453ccf25cba5",
+                "origin": "pack"
+              },
+              {
+                "key": "K33910286743f",
+                "origin": "pack"
+              },
+              {
+                "key": "K4a848fad6ddd",
+                "origin": "pack"
+              },
+              {
+                "key": "STD:aggarwal2016",
+                "origin": "model_proposal"
+              },
+              {
+                "key": "Kd11a8282dd33",
+                "origin": "pack"
+              },
+              {
+                "key": "Kb93581dc9aa9",
+                "origin": "pack"
+              },
+              {
+                "key": "Kdf202c670025",
+                "origin": "pack"
+              },
+              {
+                "key": "Kb08345bc7543",
+                "origin": "pack"
+              },
+              {
+                "key": "K871fbf17cab6",
+                "origin": "pack"
+              },
+              {
+                "key": "K82451ae8da58",
+                "origin": "pack"
+              },
+              {
+                "key": "Kaa5a24ca7bac",
+                "origin": "pack"
+              },
+              {
+                "key": "Ka929ecf3a906",
+                "origin": "pack"
+              }
+            ],
+            "sections": [
+              {
+                "title": "Introduzione",
+                "word_count": 861,
+                "section_index": 1
+              },
+              {
+                "title": "Fondamenti dei sistemi di raccomandazione",
+                "word_count": 2008,
+                "section_index": 2
+              },
+              {
+                "title": "Filtraggio collaborativo e approcci content-based",
+                "word_count": 2455,
+                "section_index": 3
+              },
+              {
+                "title": "Valutazione sperimentale e casi applicativi nell'e-commerce",
+                "word_count": 1522,
+                "section_index": 4
+              },
+              {
+                "title": "Conclusioni",
+                "word_count": 782,
+                "section_index": 5
+              }
+            ],
+            "warnings": [
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K860bb1be0fb4",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.790169+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K38b573fd9b19",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.806028+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K903725c5918c",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.822387+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K06b3734cce90",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.836003+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "Kc28d3fdd9cd6",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.849199+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "source_no_readable_text",
+                "stage": "sources",
+                "detail": "K37395a0f829e",
+                "severity": "info",
+                "created_at": "2026-09-13T08:45:05.861123+00:00",
+                "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+                "section_index": null
+              },
+              {
+                "code": "outline_scope_unmapped",
+                "stage": "outline",
+                "detail": "Bibliografia",
+                "severity": "warning",
+                "created_at": "2026-09-13T08:45:24.151746+00:00",
+                "message_uk": "План не охоплює частину підтвердженого завдання.",
+                "section_index": null
+              },
+              {
+                "code": "placeholder_text",
+                "stage": "assembling",
+                "detail": "da verificare",
+                "severity": "warning",
+                "created_at": "2026-09-13T08:50:59.180770+00:00",
+                "message_uk": "У розділі залишилися редакторські заглушки.",
+                "section_index": 5
+              },
+              {
+                "code": "review_note",
+                "stage": "assembling",
+                "detail": "PASS\nThe work is a coherent, honestly-scoped literature-based comparative thesis on collaborative filtering vs. content-based recommender systems. Its central methodological stance—transparently distinguishing what the heterogeneous, partly tangential sources support versus what they cannot substantiate—is consistently applied throughout all chapters and conclusions. Citations are used carefully with explicit acknowledgment of analogical vs. direct support (e.g., Netflix streaming context, clinical ML study, real-estate similarity). Structure (intro, 3 chapters, conclusions, bibliography) is complete and internally consistent; research question is posed and answered. Minor concern: Aggarwal (2016) is cited as a fallback standard reference but the text openly admits it is not among the provided extracts, which is handled honestly rather than deceptively. The pervasive hedging is intentional and appropriate given the acknowledged evidence limitations, not a defect. Acceptable as an hones",
+                "severity": "info",
+                "created_at": "2026-09-13T08:51:06.296589+00:00",
+                "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+                "section_index": null
+              }
+            ],
+            "bibliography": [
+              {
+                "key": "K453ccf25cba5",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Sobremonte, A. G. J. L. D. (2026).  GLI ALGORITMI DEL GUSTO: IL SISTEMA DI RACCOMANDAZIONE DI NETFLIX TRA PERSONALIZZAZIONE, CULTURA E LOGICHE ECONOMICHE. L'Idealista. https://doi.org/10.66431/1de4/id59gp/v3m6p",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "K33910286743f",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Fritz, M., Canavari, M., Cantore, N., Deiters, J., & Pignatti, E. (2009).  Commercio elettronico e fiducia: analisi preliminare del potenziale in filiere agro-alimentari internazionali. ECONOMIA AGRO-ALIMENTARE. https://doi.org/10.3280/ecag2009-002004",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "K4a848fad6ddd",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Romano, A. (2022).  Piattaforme prodotto. Strumenti per la didattica e la ricerca. https://doi.org/10.36253/978-88-5518-602-5.08",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "STD:aggarwal2016",
+                "origin": "model_proposal",
+                "verified": true,
+                "formatted": "Aggarwal, C. C. (2016).  Recommender Systems.",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kd11a8282dd33",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Lara-Escamilla, S., Rodríguez-Molina, A., Rueda-Gutiérrez, A. B., & Cano, N. C. S. (2025).  Applicazione dei modelli di apprendimento automatico per la classificazione delle  malattie che richiedono il ricovero ospedaliero: un approccio basato sul NOM-035 e  sull'economia sociale e solidale in Messico. Innovazione interdisciplinare  nell'ingegneria. https://doi.org/10.35429/p.2025.1.89.100",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kb93581dc9aa9",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Maggino, F. (2005).  L'analisi dei dati nell'indagine statistica. Volume 2. Manuali – Scienze Sociali. https://doi.org/10.36253/978-88-6453-240-0",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kdf202c670025",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Ruggiero, M. D., & Salvo, F. (2011).  Misure di similarità negli <em>adjustment grid methods</em>. Aestimum. https://doi.org/10.13128/aestimum-9561",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kb08345bc7543",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Gerla, G. (2012).  4.4. Il Cervino di Varzi: similarità e oggetti vaghi. Rivista di estetica. https://doi.org/10.4000/estetica.1719",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "K871fbf17cab6",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Croci, L., Tala, M. F., & D’Oria, F. (2025).  Sistemi di climatizzazione ibridi e BEMS “Building Energy Management Systems”. QualEnergia Science. https://doi.org/10.63111/qes-2025.1.0016",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "K82451ae8da58",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Rinaldi, F. B. (2009).  Meccanismi e valutazione: un confronto tra approcci. RIV Rassegna Italiana di Valutazione. https://doi.org/10.3280/riv2008-042003",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Kaa5a24ca7bac",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Castoldi, M. (2011).  La valutazione delle istituzioni educative: approcci a confronto. RIV Rassegna Italiana di Valutazione. https://doi.org/10.3280/riv2010-046002",
+                "verification_provider": "crossref"
+              },
+              {
+                "key": "Ka929ecf3a906",
+                "origin": "pack",
+                "verified": true,
+                "formatted": "Applebaum, A. J. (2019).  Conclusions and Future Directions. Cancer Caregivers. https://doi.org/10.1093/med/9780190868567.003.0019",
+                "verification_provider": "crossref"
+              }
+            ],
+            "recording_id": "executor-v2:job:18"
+          },
+          "progress": 95,
+          "last_signal": "DOCX збережено. Написання завершено.",
+          "sections_done": 5,
+          "tokens_so_far": 88040,
+          "sections_total": 5,
+          "warnings_count": 9,
+          "cost_cents_so_far": 93
+        },
+        "last_outcome": {
+          "stage": "export",
+          "outcome": "completed",
+          "attempt_id": "fde68ce6-f46b-45e3-ac59-6115192de137",
+          "reason_code": null,
+          "retryability": "none",
+          "output_reference": "fde68ce6-f46b-45e3-ac59-6115192de137",
+          "input_fingerprint": "5c3e1fa8847199014b1f8f965736a59594bcd5008503670012d4d011f48b2bc9"
+        },
+        "profile_sha256": "5e41e620fc350fba2aa25f77c309748fb111eb1e014d5479718f0694f29e325d",
+        "executor_version": 2,
+        "additional_requirements": null,
+        "superseded_artifact_paths": [],
+        "generation_contract_sha256": "861c9f2b9f4f5b5d18fe91a8383f238fd33fca4657d6ddcdbd953cdb15c64f7f"
+      },
+      "lease_expires_at": null,
+      "heartbeat_at": "2026-09-13T08:51:06.954139+00:00",
+      "available_at": "2026-09-13T08:26:35.16544+00:00",
+      "attempt_count": 1,
+      "max_attempts": 1,
+      "source_pack_sha256": "f9de07e68a764ff8193e69a537343af55eae485dd37eb127ec26fe830807fce8",
+      "claim_checks_used": 0
+    }
+  ],
+  "section_count": 5,
+  "provenance_counts": [
+    {
+      "event_type": "executor_artifact",
+      "n": 1
+    },
+    {
+      "event_type": "executor_bibliography",
+      "n": 1
+    },
+    {
+      "event_type": "executor_outline",
+      "n": 1
+    },
+    {
+      "event_type": "executor_review",
+      "n": 1
+    },
+    {
+      "event_type": "executor_scopes",
+      "n": 1
+    },
+    {
+      "event_type": "executor_section",
+      "n": 5
+    },
+    {
+      "event_type": "executor_source_pack",
+      "n": 1
+    },
+    {
+      "event_type": "executor_step_completed",
+      "n": 6
+    },
+    {
+      "event_type": "executor_step_started",
+      "n": 6
+    },
+    {
+      "event_type": "generation_dependency",
+      "n": 4556
+    },
+    {
+      "event_type": "generation_intent_receipt",
+      "n": 1
+    },
+    {
+      "event_type": "generation_provider_attempt",
+      "n": 16
+    },
+    {
+      "event_type": "generation_replay_inputs",
+      "n": 1
+    },
+    {
+      "event_type": "generation_run_started",
+      "n": 1
+    },
+    {
+      "event_type": "generation_warning",
+      "n": 9
+    },
+    {
+      "event_type": "task_contract_confirmed",
+      "n": 1
+    }
+  ],
+  "active_jobs": []
+}

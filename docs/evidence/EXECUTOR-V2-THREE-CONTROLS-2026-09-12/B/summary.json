@@ -1,0 +1,204 @@
+{
+  "control": "B",
+  "document_id": 14,
+  "job_id": 17,
+  "status": "completed",
+  "started_at": "2026-09-13T07:55:57.643662+00:00",
+  "completed_at": "2026-09-13T08:24:14.022108+00:00",
+  "model": "claude-opus-4-8",
+  "attempt_count": 1,
+  "user_id": 1,
+  "stages_started": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+  ],
+  "stages_completed": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+  ],
+  "sections_done": 24,
+  "sections_total": 24,
+  "words": 11021,
+  "sections": [
+    {
+      "index": 1,
+      "title": "Introduzione",
+      "words": 725
+    },
+    {
+      "index": 2,
+      "title": "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori",
+      "words": 649
+    },
+    {
+      "index": 3,
+      "title": "La formulazione originaria dell'art. 4 (legge n. 300/1970)",
+      "words": 536
+    },
+    {
+      "index": 4,
+      "title": "I controlli difensivi e l'elaborazione giurisprudenziale",
+      "words": 439
+    },
+    {
+      "index": 5,
+      "title": "La riforma del Jobs Act (d.lgs. n. 151/2015)",
+      "words": 511
+    },
+    {
+      "index": 6,
+      "title": "Il testo vigente dell'art. 4: presupposti e garanzie",
+      "words": 525
+    },
+    {
+      "index": 7,
+      "title": "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro",
+      "words": 492
+    },
+    {
+      "index": 8,
+      "title": "Il quadro normativo europeo sulla protezione dei dati",
+      "words": 509
+    },
+    {
+      "index": 9,
+      "title": "I principi applicabili al trattamento dei dati",
+      "words": 458
+    },
+    {
+      "index": 10,
+      "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+      "words": 439
+    },
+    {
+      "index": 11,
+      "title": "Obblighi del datore di lavoro come titolare del trattamento",
+      "words": 432
+    },
+    {
+      "index": 12,
+      "title": "La valutazione d'impatto (DPIA) e il Data Protection Officer",
+      "words": 360
+    },
+    {
+      "index": 13,
+      "title": "Capitolo III – Il controllo a distanza e gli strumenti tecnologici",
+      "words": 389
+    },
+    {
+      "index": 14,
+      "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+      "words": 416
+    },
+    {
+      "index": 15,
+      "title": "Il controllo della posta elettronica e della navigazione internet",
+      "words": 418
+    },
+    {
+      "index": 16,
+      "title": "Videosorveglianza e geolocalizzazione",
+      "words": 431
+    },
+    {
+      "index": 17,
+      "title": "Nuove tecnologie: biometria e intelligenza artificiale",
+      "words": 402
+    },
+    {
+      "index": 18,
+      "title": "L'utilizzabilità dei dati raccolti a fini disciplinari",
+      "words": 377
+    },
+    {
+      "index": 19,
+      "title": "Capitolo IV – Giurisprudenza e prassi del Garante",
+      "words": 420
+    },
+    {
+      "index": 20,
+      "title": "La giurisprudenza della Corte di Cassazione",
+      "words": 390
+    },
+    {
+      "index": 21,
+      "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+      "words": 385
+    },
+    {
+      "index": 22,
+      "title": "I provvedimenti e le linee guida del Garante",
+      "words": 428
+    },
+    {
+      "index": 23,
+      "title": "Casistica e bilanciamento tra interessi",
+      "words": 389
+    },
+    {
+      "index": 24,
+      "title": "Conclusioni",
+      "words": 501
+    }
+  ],
+  "provider_calls": 27,
+  "provider_calls_by_stage": {
+    "S1": 1,
+    "S3": 1,
+    "S4": 24,
+    "S6": 1
+  },
+  "provider_outcomes": {
+    "received": 27
+  },
+  "unmatched_started_calls": 0,
+  "recording_json_sha256": "a16a59a4b08f6060a6209e9d9ed2e9c77b610b62a07a6bb390f8bb584f023582",
+  "recording_gzip_sha256": "a50fdbfb913cfd32f93fa160d68dbf2ac82c1d422dc61d78e2578c13f52f8b08",
+  "recording_events": 6988,
+  "dependency_events": 6883,
+  "journal_usage": {
+    "confirmed_tokens": 304834,
+    "confirmed_cost_cents": 233,
+    "unknown_provider_attempts": 0
+  },
+  "warnings": {
+    "source_no_readable_text": 5,
+    "outline_scope_unmapped": 1,
+    "review_note": 1
+  },
+  "stop": null,
+  "docx": {
+    "document_id": 14,
+    "job_id": 17,
+    "worker_attempt": 1,
+    "stage": "assembling",
+    "sha256": "69c1bd760520ece7f226209edda4808c93f8865fba49b7541529fed243e77792",
+    "size": 59494,
+    "estimated_pages": 33,
+    "storage_path": "s3://ai-thesis-documents/documents/1/14/14-69c1bd760520ece7.docx"
+  },
+  "replay_exact": true,
+  "bibliography_total": 14,
+  "bibliography_verified": 14,
+  "docx_qa": {
+    "zip_integrity": true,
+    "bytes": 59494,
+    "sha256": "69c1bd760520ece7f226209edda4808c93f8865fba49b7541529fed243e77792",
+    "paragraphs": 134,
+    "headings": 29,
+    "duplicate_headings": {},
+    "placeholder_count": 0,
+    "placeholder_examples": [],
+    "literal_markdown_paragraphs": [],
+    "all_text_words": 11569,
+    "estimated_pages": 33
+  }
+}

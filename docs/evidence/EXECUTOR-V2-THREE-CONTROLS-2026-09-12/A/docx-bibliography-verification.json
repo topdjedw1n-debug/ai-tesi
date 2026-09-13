@@ -1,0 +1,22 @@
+{
+  "docx_bibliography_entries": 13,
+  "recorded_entries": 13,
+  "order_and_text_exact": true,
+  "all_actual_entries_recorded": true,
+  "all_recorded_entries_verified": true,
+  "providers": {
+    "K122dffd6ea58": "crossref",
+    "K2755be8fc289": "crossref",
+    "K4258261169a3": "crossref",
+    "K6cb3380c5e7e": "openalex",
+    "Ke0d584bff894": "crossref",
+    "K4a3709b68dc5": "crossref",
+    "K1d0d557770b1": "openalex",
+    "Kd217f4562f2a": "crossref",
+    "K95675a64fe71": "semantic_scholar",
+    "Kdc3a08cc0488": "crossref",
+    "Kea7194b6cd4c": "crossref",
+    "K837f79b28309": "crossref",
+    "Kfcc764527105": "crossref"
+  }
+}

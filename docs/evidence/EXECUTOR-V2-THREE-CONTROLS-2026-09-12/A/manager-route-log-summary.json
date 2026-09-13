@@ -1,0 +1,73 @@
+{
+  "observed_at": "2026-09-13T07:46:18.739274+00:00",
+  "logs_since": "2026-09-13T06:50:00Z",
+  "source": "API container access log; only method, path and status retained",
+  "counts": [
+    {
+      "method": "GET",
+      "path": "/api/v1/auth/me",
+      "status": 200,
+      "count": 3
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/13",
+      "status": 200,
+      "count": 2
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/documents/13/task-contract",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs/document/13/status",
+      "status": 200,
+      "count": 318
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/jobs/document/13/status",
+      "status": 401,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/login",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/auth/refresh",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/documents/13/task-contract/confirm",
+      "status": 200,
+      "count": 1
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/generate/full-document",
+      "status": 200,
+      "count": 1
+    }
+  ]
+}

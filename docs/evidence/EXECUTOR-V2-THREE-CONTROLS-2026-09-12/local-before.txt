@@ -1,0 +1,6 @@
+## main...origin/main
+ M docs/AGENT_SYNC.md
+ M docs/PRE-RUN-001-TASKS.md
+ M docs/plans/THESICA-REBUILD-EXECUTOR-2026-09-09.md
+?? docs/evidence/EXECUTOR-V2-THREE-CONTROLS-2026-09-12/
+?? docs/plans/CODEX-THREE-CONTROLS-2026-09-12.md

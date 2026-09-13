@@ -1,0 +1,7 @@
+{
+  "observed_at": "2026-09-13T08:52:26.894175+00:00",
+  "url": "https://app.thesica.co/dashboard/documents/15",
+  "ui": "Написання завершено 7 871 слів; Завантажити DOCX; 5 saved sections",
+  "observation": "Legacy Докази якості panel shows 0 sections/words/tokens and unknown model/no source pack despite v2 completion. Actual v2 recording and artifact are verified separately.",
+  "action": "No code changes."
+}

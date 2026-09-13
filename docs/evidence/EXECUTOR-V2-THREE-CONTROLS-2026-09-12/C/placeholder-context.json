@@ -1,0 +1,10 @@
+{
+  "observed_at": "2026-09-13T08:53:49.596989+00:00",
+  "literal_policy_matches": 1,
+  "warning_code": "placeholder_text",
+  "matched_phrase": "da verificare",
+  "paragraph": "Da tali limiti discendono, infine, le prospettive future di ricerca. Una prima direzione consiste nel colmare il divario tra principi e misurazione, conducendo valutazioni sperimentali su dataset di e-commerce con protocolli documentati e metriche esplicitate, così da rendere effettivamente comparabili le prestazioni dei diversi approcci. Una seconda direzione riguarda l'integrazione tra la dimensione tecnica e quella socio-tecnica: come suggerisce lo studio dei sistemi di raccomandazione quali produttori di pratiche culturali, la ricerca dovrebbe indagare non solo l'accuratezza ma anche gli effetti di personalizzazione, formazione del gusto e riservatezza dei dati (Sobremonte, 2026). Un ulteriore spunto, mutuato per analogia da altri ambiti applicativi in cui si è affermata l'esigenza di spostare il baricentro da approcci centrati sul singolo verso modelli più contestuali e attenti alle relazioni (Applebaum, 2019), invita a considerare la personalizzazione non come proprietà isolata dell'utente, ma come esito di un contesto relazionale ed economico più ampio; la trasferibilità di questa indicazione al commercio elettronico rimane, allo stato delle fonti, un'ipotesi da verificare empiricamente e non un risultato acquisito.",
+  "relevant_excerpt": "un'ipotesi da verificare empiricamente e non un risultato acquisito",
+  "codex_assessment": "Contextual false positive: ordinary statement about an empirically unverified hypothesis, not an editorial instruction or missing content marker. Raw detector count remains 1; no file, code, or warning was changed. Fable is asked to assess this narrow interpretation.",
+  "academic_quality_assessed": false
+}

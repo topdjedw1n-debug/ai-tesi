@@ -1,0 +1,110 @@
+[
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K860bb1be0fb4",
+    "created_at": "2026-09-13T08:45:05.790169+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K38b573fd9b19",
+    "created_at": "2026-09-13T08:45:05.806028+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K903725c5918c",
+    "created_at": "2026-09-13T08:45:05.822387+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K06b3734cce90",
+    "created_at": "2026-09-13T08:45:05.836003+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "Kc28d3fdd9cd6",
+    "created_at": "2026-09-13T08:45:05.849199+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K37395a0f829e",
+    "created_at": "2026-09-13T08:45:05.861123+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "outline",
+    "code": "outline_scope_unmapped",
+    "severity": "warning",
+    "section_index": null,
+    "message_uk": "План не охоплює частину підтвердженого завдання.",
+    "detail": "Bibliografia",
+    "created_at": "2026-09-13T08:45:24.151746+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "assembling",
+    "code": "placeholder_text",
+    "severity": "warning",
+    "section_index": 5,
+    "message_uk": "У розділі залишилися редакторські заглушки.",
+    "detail": "da verificare",
+    "created_at": "2026-09-13T08:50:59.180770+00:00"
+  },
+  {
+    "document_id": 15,
+    "job_id": 18,
+    "worker_attempt": 1,
+    "stage": "assembling",
+    "code": "review_note",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+    "detail": "PASS\nThe work is a coherent, honestly-scoped literature-based comparative thesis on collaborative filtering vs. content-based recommender systems. Its central methodological stance—transparently distinguishing what the heterogeneous, partly tangential sources support versus what they cannot substantiate—is consistently applied throughout all chapters and conclusions. Citations are used carefully with explicit acknowledgment of analogical vs. direct support (e.g., Netflix streaming context, clinical ML study, real-estate similarity). Structure (intro, 3 chapters, conclusions, bibliography) is complete and internally consistent; research question is posed and answered. Minor concern: Aggarwal (2016) is cited as a fallback standard reference but the text openly admits it is not among the provided extracts, which is handled honestly rather than deceptively. The pervasive hedging is intentional and appropriate given the acknowledged evidence limitations, not a defect. Acceptable as an hones",
+    "created_at": "2026-09-13T08:51:06.296589+00:00"
+  }
+]

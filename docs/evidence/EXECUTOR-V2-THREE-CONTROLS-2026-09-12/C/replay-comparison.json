@@ -1,0 +1,34 @@
+{
+  "live_status": "completed",
+  "replay_status": "completed",
+  "replay_job_status": "completed",
+  "all_recorded_calls_consumed": true,
+  "request_changes": 0,
+  "live_stop": null,
+  "replay_stop": null,
+  "stop_equal": true,
+  "steps_completed_live": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+  ],
+  "steps_completed_replay": [
+    "S1",
+    "S2",
+    "S3",
+    "S4",
+    "S5",
+    "S6"
+  ],
+  "network_calls": 0,
+  "actual_replay_spend_usd": 0,
+  "profile_changed": true,
+  "live_docx_sha256": "d0bf1da2f6f6ee43d9c22f0498616ef1b4eba7214893d2dcf92ae3c01190b68b",
+  "replay_docx_sha256": [
+    "d0bf1da2f6f6ee43d9c22f0498616ef1b4eba7214893d2dcf92ae3c01190b68b"
+  ],
+  "exact": true
+}

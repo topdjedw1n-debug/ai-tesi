@@ -1,0 +1,46 @@
+{
+  "observed_at": "2026-09-13T08:45:49.123538+00:00",
+  "dependencies": [
+    {
+      "kind": "citation_cache",
+      "outcome": "received",
+      "n": 959
+    },
+    {
+      "kind": "citation_http",
+      "outcome": "received",
+      "n": 2274
+    },
+    {
+      "kind": "executor_inputs",
+      "outcome": "received",
+      "n": 1
+    },
+    {
+      "kind": "executor_search",
+      "outcome": "received",
+      "n": 180
+    },
+    {
+      "kind": "executor_verify",
+      "outcome": "received",
+      "n": 959
+    },
+    {
+      "kind": "scholarly_http",
+      "outcome": "failed",
+      "n": 60
+    },
+    {
+      "kind": "scholarly_http",
+      "outcome": "received",
+      "n": 60
+    },
+    {
+      "kind": "semantic_scholar_sources",
+      "outcome": "received",
+      "n": 60
+    }
+  ],
+  "unique_candidates": 959
+}

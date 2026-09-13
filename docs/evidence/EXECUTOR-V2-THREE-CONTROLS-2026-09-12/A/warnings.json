@@ -1,0 +1,122 @@
+[
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "Kd8861107e5fa",
+    "created_at": "2026-09-13T07:11:20.686539+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K7e9c76be6877",
+    "created_at": "2026-09-13T07:11:20.704711+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "Kc5c8b37f19c9",
+    "created_at": "2026-09-13T07:11:20.722479+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K2f047fe94093",
+    "created_at": "2026-09-13T07:11:20.738005+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K44102dc95d32",
+    "created_at": "2026-09-13T07:11:20.753540+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K8a8ecdf73061",
+    "created_at": "2026-09-13T07:11:20.766130+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "sources",
+    "code": "source_no_readable_text",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+    "detail": "K16a9e7814448",
+    "created_at": "2026-09-13T07:11:20.778731+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "outline",
+    "code": "outline_scope_unmapped",
+    "severity": "warning",
+    "section_index": null,
+    "message_uk": "План не охоплює частину підтвердженого завдання.",
+    "detail": "Bibliografia",
+    "created_at": "2026-09-13T07:11:38.438186+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "references",
+    "code": "reference_replaced",
+    "severity": "warning",
+    "section_index": 2,
+    "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+    "detail": "STD:kotler-marketing-management: La letteratura disponibile non fornisce, in questi excerpt, una trattazione sistematica delle quattro leve del marketing mix (prodotto, prezzo, distribuzione, comunicazione) applicate al contesto digitale; tale limite viene qui esplicitato e non colmato con ricostruzioni non supportate dalle fonti [STD:kotler-marketing-management].",
+    "created_at": "2026-09-13T07:16:30.039071+00:00"
+  },
+  {
+    "document_id": 13,
+    "job_id": 16,
+    "worker_attempt": 1,
+    "stage": "assembling",
+    "code": "review_note",
+    "severity": "info",
+    "section_index": null,
+    "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+    "detail": "PASS\nCoherent, well-structured literature-based thesis with clear research question, consistent citation use, and honest acknowledgment of transferability limits. Sources are consistently attributed and claims stay within what excerpts support; limitations explicitly stated throughout. Minor issues: typo 'ruolo mediante' (should be 'mediatore') in conclusions; bibliography entries generally consistent. Overall academically sound for a literature review thesis.",
+    "created_at": "2026-09-13T07:16:34.116651+00:00"
+  }
+]
