@@ -1,0 +1,320 @@
+{
+  "status": "completed",
+  "mode": "live",
+  "variant": "smoke-A-section5",
+  "job_id": 16,
+  "actual_spend_usd": 0.162465,
+  "live_provider_calls": 2,
+  "cost_cap_usd": 0.5,
+  "lab_revision": "867ecb5dd0b1be1a1666e03ab5a2392bc26001cd",
+  "input_recording": {
+    "path": "docs/evidence/EXECUTOR-V2-THREE-CONTROLS-2026-09-12/A/document13-job16-recording.json.gz",
+    "sha256": "3b4f388e6caf57e12ffa0c263c628bff52caa98527d083c25ba6137c5c6c4e2a",
+    "origin": "live-manager1-three-controls-document13-job16",
+    "revision": "3892cac1ae8fccc261f04d0d35c64c5d4f6d3d49"
+  },
+  "s4_instruction": {
+    "source": "production",
+    "sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "production_sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "changed": false
+  },
+  "model": {
+    "requested": null,
+    "recorded": "claude-opus-4-8",
+    "writer": "claude-opus-4-8"
+  },
+  "live_sections": [
+    5
+  ],
+  "live": {
+    "calls": [
+      {
+        "stage": "S4",
+        "section_index": 5,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3840,
+        "input_tokens": 4976,
+        "output_tokens": 1490,
+        "cost_usd": 0.06213,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf1JK87UtTYThfocstZUF",
+        "elapsed_seconds": 22.798
+      },
+      {
+        "stage": "S6",
+        "section_index": null,
+        "model": "claude-opus-4-8",
+        "max_tokens": 8000,
+        "input_tokens": 18947,
+        "output_tokens": 224,
+        "cost_usd": 0.100335,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf1JLpGzKkgxoTbu8okap",
+        "elapsed_seconds": 4.543
+      }
+    ],
+    "input_tokens": 23923,
+    "output_tokens": 1714,
+    "cost_usd": 0.162465,
+    "secrets_present": [
+      "ANTHROPIC_API_KEY",
+      "OPENALEX_API_KEY",
+      "SEMANTIC_SCHOLAR_API_KEY"
+    ]
+  },
+  "consumed": [
+    {
+      "attempt_id": "7cc1e57d-ae87-4451-88e2-39b8ab8d8f64",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "e5850d3f-1e82-4de8-8a9e-7fda59d8856e",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ce69848e-65b7-4e63-acb6-2be8dc238b5c",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "1e133eba-6f16-460d-bc5f-7f5b145d5be9",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "524d9b01-b5ec-42f7-8364-656ec9f15a9b",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "63e35cae-87de-42ae-a454-760534dc23ca",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    }
+  ],
+  "replaced_recorded_calls": [
+    {
+      "attempt_id": "aa802661-cc2b-4670-b206-f75fc1c3d787",
+      "stage": "S4",
+      "section_index": 5
+    },
+    {
+      "attempt_id": "f04e820f-3354-4726-b66d-2e4475cc580e",
+      "stage": "S6",
+      "section_index": null
+    }
+  ],
+  "warnings": [
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kd8861107e5fa",
+      "created_at": "2026-09-13T10:38:21.325530+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K7e9c76be6877",
+      "created_at": "2026-09-13T10:38:21.331541+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kc5c8b37f19c9",
+      "created_at": "2026-09-13T10:38:21.337935+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K2f047fe94093",
+      "created_at": "2026-09-13T10:38:21.343124+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K44102dc95d32",
+      "created_at": "2026-09-13T10:38:21.348130+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K8a8ecdf73061",
+      "created_at": "2026-09-13T10:38:21.353764+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K16a9e7814448",
+      "created_at": "2026-09-13T10:38:21.358332+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "outline",
+      "code": "outline_scope_unmapped",
+      "severity": "warning",
+      "section_index": null,
+      "message_uk": "План не охоплює частину підтвердженого завдання.",
+      "detail": "Bibliografia",
+      "created_at": "2026-09-13T10:38:21.427025+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "references",
+      "code": "reference_replaced",
+      "severity": "warning",
+      "section_index": 2,
+      "message_uk": "Посилання, яке не вдалося підтвердити, прибрано з тексту.",
+      "detail": "STD:kotler-marketing-management: La letteratura disponibile non fornisce, in questi excerpt, una trattazione sistematica delle quattro leve del marketing mix (prodotto, prezzo, distribuzione, comunicazione) applicate al contesto digitale; tale limite viene qui esplicitato e non colmato con ricostruzioni non supportate dalle fonti [STD:kotler-marketing-management].",
+      "created_at": "2026-09-13T10:42:49.624902+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nCoherent literature-based thesis with clear research question, well-structured three chapters plus intro/conclusions. Claims are consistently tied to cited sources, and limits of transferability are explicitly and repeatedly acknowledged (Finnish/Turkish/single-case sources vs. Italian SME focus). Citations match bibliography. Appropriate scholarly caution throughout; no unsupported fabrication of findings. Minor limitation: heavy reliance on a small set of sources and some tangential citations (e.g., network contracts, crowdsourcing), but these are handled transparently. Acceptable for a literature-review thesis.",
+      "created_at": "2026-09-13T10:42:54.368329+00:00"
+    }
+  ],
+  "sections": [
+    {
+      "section_index": 1,
+      "title": "Introduzione",
+      "target_words": 601,
+      "word_count": 636,
+      "tokens_used": 4502,
+      "written": "recorded"
+    },
+    {
+      "section_index": 2,
+      "title": "Capitolo 1 - Quadro teorico del marketing digitale",
+      "target_words": 1900,
+      "word_count": 1686,
+      "tokens_used": 9249,
+      "written": "recorded"
+    },
+    {
+      "section_index": 3,
+      "title": "Capitolo 2 - Social media e customer loyalty nelle PMI",
+      "target_words": 1999,
+      "word_count": 1642,
+      "tokens_used": 11929,
+      "written": "recorded"
+    },
+    {
+      "section_index": 4,
+      "title": "Capitolo 3 - Analisi di casi ed evidenze empiriche",
+      "target_words": 1700,
+      "word_count": 1504,
+      "tokens_used": 12025,
+      "written": "recorded"
+    },
+    {
+      "section_index": 5,
+      "title": "Conclusioni",
+      "target_words": 600,
+      "word_count": 540,
+      "tokens_used": 6466,
+      "written": "live"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/smoke-live-A-s5/7c46d18b91b1b810ce28af1929b5c57a222e6988a7d4ac6a46e22b7eb862b0c4.docx",
+      "sha256": "7c46d18b91b1b810ce28af1929b5c57a222e6988a7d4ac6a46e22b7eb862b0c4",
+      "bytes": 51623
+    }
+  ],
+  "pricing_usd_per_1m": {
+    "model": "claude-opus-4-8",
+    "input": 5.0,
+    "output": 25.0,
+    "source": "production"
+  },
+  "profile_changed": true,
+  "network": {
+    "allowed_hosts": [
+      "api.anthropic.com",
+      "api.crossref.org",
+      "api.openalex.org",
+      "api.semanticscholar.org",
+      "export.arxiv.org",
+      "openlibrary.org"
+    ],
+    "refused": []
+  },
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 85,
+  "recorded_model_calls": 8,
+  "journal": {
+    "confirmed_tokens": 88771,
+    "confirmed_cost_cents": 85,
+    "unknown_provider_attempts": 1
+  },
+  "export": {
+    "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/smoke-live-A-s5/smoke-A-section5-job16-recording.json.gz",
+    "sha256": "c4ae2ba5390518a6349eaa34ded504eff17eb84d126bf7a6c7903adda513a1bd",
+    "consumed_dependency_events": 6005,
+    "provenance_rows": 55
+  }
+}
