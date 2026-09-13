@@ -1,0 +1,536 @@
+{
+  "status": "completed",
+  "mode": "exact",
+  "variant": "replay-B-V1b",
+  "job_id": 17,
+  "actual_spend_usd": 0.0,
+  "live_provider_calls": 0,
+  "cost_cap_usd": null,
+  "lab_revision": "791fc1dc9c8b607b26145c1348c9f7f5ba67b476",
+  "input_recording": {
+    "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/b-experiment/B-V1b/B-V1b-job17-recording.json.gz",
+    "sha256": "29bd0d34dbcc07d1e30b386caadc80c79f66723a8a25f5d8f324b3d949b86307",
+    "origin": "s4-lab:B-V1b:live:live-manager1-three-controls-document14-job17",
+    "revision": "791fc1dc9c8b607b26145c1348c9f7f5ba67b476"
+  },
+  "s4_instruction": {
+    "source": "docs/evidence/QUALITY-AI-2026-09-13/s4-lab/s4-instruction-variant-v1.txt",
+    "sha256": "5377e13fdb927ae5aaebb8ded44ecaf21fbde014cf93ba3aef5db828e1a94ea3",
+    "production_sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "changed": true
+  },
+  "model": {
+    "requested": null,
+    "recorded": "claude-opus-4-8",
+    "writer": "claude-opus-4-8"
+  },
+  "live_sections": null,
+  "live": {
+    "calls": [],
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0,
+    "secrets_present": [],
+    "received": 0,
+    "failed": 0,
+    "unknown_spend_estimate_usd": 0.0
+  },
+  "consumed": [
+    {
+      "attempt_id": "7d4cbf25-de9a-4353-a4f7-cce0fa0c23de",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "f793b4bd-fdb9-478f-bb9c-e183b6ba9faf",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "72426a9e-f982-45b7-888e-bfc352bbcb65",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "de50b025-f4dd-47aa-a03d-ec325c652a0e",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "85c8e271-cbd2-4057-ab2a-c236a35fff8f",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "15f23a95-65b3-42ef-9814-013811320b84",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "d8a7274f-fe75-40df-a68b-0302a1238ffe",
+      "stage": "S4",
+      "section_index": 5,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "85ff94e0-a753-474a-a02c-003004af8cf9",
+      "stage": "S4",
+      "section_index": 6,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "293f8b23-df30-4449-9ecd-986afd5bde8d",
+      "stage": "S4",
+      "section_index": 7,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "63aed268-955e-4cb3-a2e8-90b6297c980a",
+      "stage": "S4",
+      "section_index": 8,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "9e208ad4-2028-47a8-a18a-c193a4d53e95",
+      "stage": "S4",
+      "section_index": 9,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "26d1cc33-4193-4806-a5c7-08a258965e55",
+      "stage": "S4",
+      "section_index": 10,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "728ff890-4f66-451e-9672-9f32a47de351",
+      "stage": "S4",
+      "section_index": 11,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5cd87b09-1df0-477c-89b5-d449260ca1d5",
+      "stage": "S4",
+      "section_index": 12,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "586eca09-91a7-40d5-aea6-0e6e78bd458b",
+      "stage": "S4",
+      "section_index": 13,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "3ab77e77-32c4-4f87-99b6-d53a9ae942bd",
+      "stage": "S4",
+      "section_index": 14,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5871a4f8-9792-4799-ac1b-df7c1d99ba4a",
+      "stage": "S4",
+      "section_index": 15,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "61dd035f-c17e-4df6-9b58-03936d80e274",
+      "stage": "S4",
+      "section_index": 16,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "20b651fc-2f92-42a0-8513-17b7c768ea94",
+      "stage": "S4",
+      "section_index": 17,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ccfd6ac4-0411-4f45-ab9a-f0f0d1c75b56",
+      "stage": "S4",
+      "section_index": 18,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "b33e820b-639e-4c01-9c30-0f6307684441",
+      "stage": "S4",
+      "section_index": 19,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "6d02e215-9cb7-4371-a8f4-1710a7902ba2",
+      "stage": "S4",
+      "section_index": 20,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "9c38da1f-38ef-4a07-b383-aae2b7e36435",
+      "stage": "S4",
+      "section_index": 21,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "5dccbbf6-60f7-4f41-94ba-96a0c561ec65",
+      "stage": "S4",
+      "section_index": 22,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "a3525e82-ef50-4232-82cf-ec130bdfa821",
+      "stage": "S4",
+      "section_index": 23,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "442bca99-86d8-483f-b225-3c0a7bf62311",
+      "stage": "S4",
+      "section_index": 24,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "d2032b29-7c6f-4994-82e6-36c6264df8bb",
+      "stage": "S6",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "replaced_recorded_calls": [],
+  "warnings": [
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6e30de6f5d57",
+      "created_at": "2026-09-13T11:31:44.755033+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K1fe51b91941c",
+      "created_at": "2026-09-13T11:31:44.762237+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K08a616d69b67",
+      "created_at": "2026-09-13T11:31:44.769559+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K3987319cd577",
+      "created_at": "2026-09-13T11:31:44.775827+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K6987bec906f6",
+      "created_at": "2026-09-13T11:31:44.782519+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "outline",
+      "code": "outline_scope_unmapped",
+      "severity": "warning",
+      "section_index": null,
+      "message_uk": "План не охоплює частину підтвердженого завдання.",
+      "detail": "Bibliografia",
+      "created_at": "2026-09-13T11:31:44.873750+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 17,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "566 / 370",
+      "created_at": "2026-09-13T11:31:45.271107+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "length_off_target",
+      "severity": "warning",
+      "section_index": 19,
+      "message_uk": "Обсяг розділу відрізняється від запланованого.",
+      "detail": "474 / 333",
+      "created_at": "2026-09-13T11:31:45.329113+00:00"
+    },
+    {
+      "document_id": 14,
+      "job_id": 17,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nCoherent doctrinal thesis on Art. 4 Statuto dei lavoratori and GDPR integration. Well-structured across four chapters with consistent argumentation, appropriate citations, and complete bibliography. Notably transparent about source limitations, repeatedly flagging where claims are systematically reconstructed vs. textually supported by available extracts. Minor issues: inconsistent citation capitalization (VITAGLIANO), one typo ('contpropotere'), and some redundancy across sections. Chapter structure slightly irregular (some sections stand outside chapter headings). These do not undermine the work's academic validity.",
+      "created_at": "2026-09-13T11:31:45.796963+00:00"
+    }
+  ],
+  "sections": [
+    {
+      "section_index": 1,
+      "title": "Introduzione",
+      "target_words": 665,
+      "word_count": 695,
+      "tokens_used": 5151,
+      "written": "recorded"
+    },
+    {
+      "section_index": 2,
+      "title": "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori",
+      "target_words": 517,
+      "word_count": 558,
+      "tokens_used": 5164,
+      "written": "recorded"
+    },
+    {
+      "section_index": 3,
+      "title": "La formulazione originaria dell'art. 4 (legge n. 300/1970)",
+      "target_words": 480,
+      "word_count": 519,
+      "tokens_used": 5080,
+      "written": "recorded"
+    },
+    {
+      "section_index": 4,
+      "title": "I controlli difensivi e l'elaborazione giurisprudenziale",
+      "target_words": 443,
+      "word_count": 525,
+      "tokens_used": 5497,
+      "written": "recorded"
+    },
+    {
+      "section_index": 5,
+      "title": "La riforma del Jobs Act (d.lgs. n. 151/2015)",
+      "target_words": 480,
+      "word_count": 488,
+      "tokens_used": 6247,
+      "written": "recorded"
+    },
+    {
+      "section_index": 6,
+      "title": "Il testo vigente dell'art. 4: presupposti e garanzie",
+      "target_words": 517,
+      "word_count": 580,
+      "tokens_used": 8225,
+      "written": "recorded"
+    },
+    {
+      "section_index": 7,
+      "title": "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro",
+      "target_words": 443,
+      "word_count": 597,
+      "tokens_used": 7813,
+      "written": "recorded"
+    },
+    {
+      "section_index": 8,
+      "title": "Il quadro normativo europeo sulla protezione dei dati",
+      "target_words": 443,
+      "word_count": 554,
+      "tokens_used": 7987,
+      "written": "recorded"
+    },
+    {
+      "section_index": 9,
+      "title": "I principi applicabili al trattamento dei dati",
+      "target_words": 443,
+      "word_count": 518,
+      "tokens_used": 8328,
+      "written": "recorded"
+    },
+    {
+      "section_index": 10,
+      "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+      "target_words": 407,
+      "word_count": 502,
+      "tokens_used": 9064,
+      "written": "recorded"
+    },
+    {
+      "section_index": 11,
+      "title": "Obblighi del datore di lavoro come titolare del trattamento",
+      "target_words": 407,
+      "word_count": 490,
+      "tokens_used": 9647,
+      "written": "recorded"
+    },
+    {
+      "section_index": 12,
+      "title": "La valutazione d'impatto (DPIA) e il Data Protection Officer",
+      "target_words": 333,
+      "word_count": 444,
+      "tokens_used": 9857,
+      "written": "recorded"
+    },
+    {
+      "section_index": 13,
+      "title": "Capitolo III – Il controllo a distanza e gli strumenti tecnologici",
+      "target_words": 370,
+      "word_count": 456,
+      "tokens_used": 10368,
+      "written": "recorded"
+    },
+    {
+      "section_index": 14,
+      "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+      "target_words": 407,
+      "word_count": 446,
+      "tokens_used": 11460,
+      "written": "recorded"
+    },
+    {
+      "section_index": 15,
+      "title": "Il controllo della posta elettronica e della navigazione internet",
+      "target_words": 407,
+      "word_count": 500,
+      "tokens_used": 11309,
+      "written": "recorded"
+    },
+    {
+      "section_index": 16,
+      "title": "Videosorveglianza e geolocalizzazione",
+      "target_words": 406,
+      "word_count": 463,
+      "tokens_used": 12163,
+      "written": "recorded"
+    },
+    {
+      "section_index": 17,
+      "title": "Nuove tecnologie: biometria e intelligenza artificiale",
+      "target_words": 370,
+      "word_count": 566,
+      "tokens_used": 14012,
+      "written": "recorded"
+    },
+    {
+      "section_index": 18,
+      "title": "L'utilizzabilità dei dati raccolti a fini disciplinari",
+      "target_words": 370,
+      "word_count": 412,
+      "tokens_used": 12404,
+      "written": "recorded"
+    },
+    {
+      "section_index": 19,
+      "title": "Capitolo IV – Giurisprudenza e prassi del Garante",
+      "target_words": 333,
+      "word_count": 474,
+      "tokens_used": 13173,
+      "written": "recorded"
+    },
+    {
+      "section_index": 20,
+      "title": "La giurisprudenza della Corte di Cassazione",
+      "target_words": 406,
+      "word_count": 541,
+      "tokens_used": 13510,
+      "written": "recorded"
+    },
+    {
+      "section_index": 21,
+      "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+      "target_words": 333,
+      "word_count": 416,
+      "tokens_used": 13934,
+      "written": "recorded"
+    },
+    {
+      "section_index": 22,
+      "title": "I provvedimenti e le linee guida del Garante",
+      "target_words": 370,
+      "word_count": 457,
+      "tokens_used": 14884,
+      "written": "recorded"
+    },
+    {
+      "section_index": 23,
+      "title": "Casistica e bilanciamento tra interessi",
+      "target_words": 370,
+      "word_count": 408,
+      "tokens_used": 15049,
+      "written": "recorded"
+    },
+    {
+      "section_index": 24,
+      "title": "Conclusioni",
+      "target_words": 480,
+      "word_count": 503,
+      "tokens_used": 16706,
+      "written": "recorded"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/b-experiment/replay-lab-exact-B-V1b/eca471b87625f16b16dc694a53a3f5af979d008ea91f2168c108f57e88bc4784.docx",
+      "sha256": "eca471b87625f16b16dc694a53a3f5af979d008ea91f2168c108f57e88bc4784",
+      "bytes": 61590
+    }
+  ],
+  "pricing_usd_per_1m": {
+    "model": "claude-opus-4-8",
+    "input": 5.0,
+    "output": 25.0,
+    "source": "production"
+  },
+  "profile_changed": true,
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 245,
+  "recorded_model_calls": 27,
+  "journal": {
+    "confirmed_tokens": 318689,
+    "confirmed_cost_cents": 245,
+    "unknown_provider_attempts": 0
+  },
+  "export": {
+    "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/ce7a1b86-e211-4b28-b5ff-9d298599fe2b/scratchpad/s4-lab/b-experiment/replay-lab-exact-B-V1b/replay-B-V1b-job17-recording.json.gz",
+    "sha256": "91420491693c411199cebb8f1c1fd005f0e8b7681baf24fc19cc56a1513c0ab6",
+    "consumed_dependency_events": 6883,
+    "provenance_rows": 109
+  }
+}

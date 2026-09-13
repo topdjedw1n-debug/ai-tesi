@@ -1,0 +1,23 @@
+{
+  "status": "incomplete",
+  "actual_spend_usd": 0,
+  "live_provider_calls": 0,
+  "origin": "s4-lab:B-V1b:live:live-manager1-three-controls-document14-job17",
+  "consumed": [
+    {
+      "attempt_id": "7d4cbf25-de9a-4353-a4f7-cce0fa0c23de",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "f793b4bd-fdb9-478f-bb9c-e183b6ba9faf",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "profile_changed": true,
+  "reason": "Request differs at S4; recorded text is not evidence for a changed prompt",
+  "recorded_model_calls": 27
+}

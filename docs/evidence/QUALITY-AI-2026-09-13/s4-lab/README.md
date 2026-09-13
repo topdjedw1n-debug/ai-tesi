@@ -119,6 +119,8 @@ apps/api/venv/bin/python apps/api/scripts/replay_generation.py \
 
 ## 6. Наступний крок — дослід на B після окремого «так» фаундера
 
+**Виконано 13.09.2026 після «так» фаундера — див. [../b-experiment/README.md](../b-experiment/README.md).**
+
 Чотири файли за QUALITY-AI-ROUND1 §4 з одного запису B (job17): `B-V0a`, `B-V0b` — виробнича інструкція; `B-V1a`, `B-V1b` — варіант v1; модель `claude-opus-4-8`; усі розділи наживо (без `--live-sections`), S1–S3 зі стрічки. Орієнтовна вартість письма і огляду ≈ $2–2,5 на файл, стеля `--cost-cap-usd 3`; разом ≈ $8–10 плюс 4 перевірки Compilatio за кредити. Далі — сліпа оцінка Q, потім Compilatio на точних файлах.
 
 ```bash
