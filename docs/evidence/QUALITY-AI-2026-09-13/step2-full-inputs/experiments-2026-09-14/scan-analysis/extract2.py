@@ -1,4 +1,4 @@
-"""Compilatio underline extraction with per-colour flags (AI = cyan, similarity = brown)."""
+"""Compilatio underline extraction with per-colour flags (AI = cyan, quotes = brown (legend verified on page 1: Similitudini = teal (0.0,0.52,0.55), IA = cyan (0.0,0.75,1.0), Testi tra virgolette = brown (0.63,0.43,0.42)))."""
 import json, sys
 from collections import Counter, defaultdict
 import pymupdf
@@ -25,6 +25,6 @@ def extract(path):
             for c in set(flagged.values()): colours[c]+=sum(1 for w in ws if flagged.get(w[7])==c)
             total+=len(ws)
             records.append({"page":pno+1,"block":key[0],"y":round(y0,1),"text":" ".join(w[4] for w in ws),"words":len(ws),
-                "ai_flags":[1 if flagged.get(w[7])==CYAN else 0 for w in ws],"sim_flags":[1 if flagged.get(w[7])==BROWN else 0 for w in ws]})
+                "ai_flags":[1 if flagged.get(w[7])==CYAN else 0 for w in ws],"quotes_flags":[1 if flagged.get(w[7])==BROWN else 0 for w in ws]})
     return {"file":path,"total_words":total,"shares":{str(k):round(v/total,4) for k,v in colours.items()},"lines":records}
 out=extract(sys.argv[1]); json.dump(out,open(sys.argv[2],"w"),ensure_ascii=False,indent=1); print(out["total_words"],out["shares"])
