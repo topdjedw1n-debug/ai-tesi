@@ -29,6 +29,7 @@ from app.services.ai_pipeline.citation_formatter import (
 from app.services.ai_pipeline.citation_keys import internal_marker_keys
 from app.services.docx_export import (
     DEFAULT_DOCX_PROFILE,
+    add_table_of_contents,
     append_markdown,
     apply_academic_profile,
     assemble_section,
@@ -972,6 +973,7 @@ class DocumentService:
 
                 apply_academic_profile(docx)
                 docx.add_heading(document.title, 0)
+                add_table_of_contents(docx, str(document.language or ""))
 
                 if document.content:
                     append_markdown(docx, str(document.content))

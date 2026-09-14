@@ -8,10 +8,9 @@ from sqlalchemy import select
 
 from app.core import database
 from app.models.document import DocumentProvenance
-from app.services.ai_pipeline.citation_formatter import bibliography_heading
 from app.services.cost_estimator import UsageTracker
 from app.services.document_service import DocumentService
-from app.services.docx_export import assemble_section
+from app.services.docx_export import assemble_document
 from app.services.generation_operations import journal_usage
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.generation_worker import (
@@ -43,12 +42,7 @@ async def assemble(ctx, sections, bibliography, pack):
                 section_index=section["section_index"],
                 detail="; ".join(sorted({m.casefold() for m in matches})),
             )
-    content = "\n\n".join(assemble_section(s["title"], s["content"]) for s in sections)
-    if bibliography:
-        content += "\n\n" + assemble_section(
-            bibliography_heading(ctx.inputs["brief"]["language"]),
-            "\n\n".join(r["formatted"] for r in bibliography),
-        )
+    content = assemble_document(sections, bibliography, ctx.inputs["brief"]["language"])
     try:
         async with database.AsyncSessionLocal() as db:
             await update_generation_document(

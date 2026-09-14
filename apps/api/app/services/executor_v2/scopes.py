@@ -13,6 +13,12 @@ def flatten(nodes):
     ]
 
 
+def mark_levels(nodes, depth=1):
+    for node in nodes:
+        node["level"] = depth
+        mark_levels(node.get("children", []), depth + 1)
+
+
 def fixed_index(requirements):
     # Numbered lines are authoritative; prose outside the index remains in the brief.
     lines = [
@@ -125,5 +131,6 @@ BRIEF:\n"""
             parents[number] = node
     for i, node in enumerate(flatten(nodes), 1):
         node["scope_id"] = f"scope-{i}"
+    mark_levels(nodes)
     await ctx.emit("executor_scopes", {"nodes": nodes, "supervisor_index": index})
     return nodes

@@ -201,6 +201,8 @@ def test_spec_guardrails():
         "review_note",
         "detector_unchecked",
         "placeholder_text",
+        "bibliography_suspect",
+        "quote_without_page",
     }
     from app.services.background_jobs import BackgroundJobService
 

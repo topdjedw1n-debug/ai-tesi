@@ -68,6 +68,10 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
         ]
         section.pop("id", None)
         section["section_index"] = i
+        levels = {n["scope_id"]: n.get("level", 1) for n in nodes}
+        section["level"] = min(
+            (levels[s] for s in section["scope_ids"] if s in levels), default=1
+        )
     for node in nodes:
         if node["required"] and node["scope_id"] not in covered:
             await ctx.warn("outline_scope_unmapped", detail=node["title"])

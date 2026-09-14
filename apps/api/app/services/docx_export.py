@@ -5,9 +5,13 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
 from docx.shared import Cm, Pt, RGBColor
 from markdown_it import MarkdownIt
+
+from app.services.ai_pipeline.citation_formatter import bibliography_heading
 
 _PARSER = MarkdownIt("commonmark", {"html": False})
 DEFAULT_DOCX_PROFILE = {
@@ -27,7 +31,7 @@ def _heading_identity(value: str) -> str:
     return " ".join(value.strip("*_ ").split()).replace("’", "'").casefold()
 
 
-def assemble_section(title: str, content: str | None) -> str:
+def assemble_section(title: str, content: str | None, level: int = 1) -> str:
     """Remove only repeated title lines at the beginning; preserve body headings."""
     lines = str(content or "").strip().splitlines()
     while lines and _heading_identity(lines[0]) == _heading_identity(title):
@@ -35,7 +39,118 @@ def assemble_section(title: str, content: str | None) -> str:
         while lines and not lines[0].strip():
             lines.pop(0)
     body = "\n".join(lines)
-    return f"# {title}\n\n{body}".rstrip()
+    return f"{'#' * max(1, min(int(level), 3))} {title}\n\n{body}".rstrip()
+
+
+TOC_HEADINGS = {"it": "Indice", "en": "Contents", "uk": "Зміст"}
+LEGAL_HEADINGS = {
+    "it": "Normativa e giurisprudenza",
+    "en": "Legislation and case law",
+    "uk": "Нормативні акти та судова практика",
+}
+_FRAME_TITLES = re.compile(
+    r"^\s*(?:introduzione|introduction|premessa|conclusioni|conclusion[s]?|"
+    r"вступ|висновки|abstract|sommario|ringraziamenti)\b",
+    re.I,
+)
+_NUMBERED = re.compile(
+    r"^\s*(?:(?:capitolo|chapter|розділ)\s+\S+|\d+(?:\.\d+)*[.)]?\s)", re.I
+)
+
+
+def normalize_typography(text: str) -> str:
+    """Word-like Italian typography: ’ inside words, «…» quotes, en dashes.
+
+    A reviewer reads straight apostrophes and long dashes as machine output;
+    the writer's markers and URLs are not touched (no spaces, no letters
+    around the apostrophe in a DOI).
+    """
+    text = re.sub(r"(?<=\w)'\s?(?=\w)", "’", text)
+    text = re.sub(r'"([^"\n]{1,400})"', r"«\1»", text)
+    text = re.sub(r"\s*—\s*", " – ", text)
+    return re.sub(r"[ \t]{2,}", " ", text)
+
+
+def assemble_document(
+    sections: list[dict[str, Any]], bibliography: list[dict[str, Any]], language: str
+) -> str:
+    """The whole work as the Markdown the exporter renders: numbered chapters
+    and sub-sections by plan level, normalized typography, an alphabetical
+    bibliography and a separate list of legislation and case law."""
+    parts: list[str] = []
+    chapter = sub = 0
+    for section in sections:
+        level = max(1, min(int(section.get("level") or 1), 3))
+        original = " ".join(str(section["title"]).split())
+        title = original
+        if level == 1 and not _FRAME_TITLES.match(title):
+            # A supervisor-numbered chapter ("Capitolo I", "2.") keeps its title
+            # but still counts, so its sub-sections are numbered under it.
+            chapter, sub = chapter + 1, 0
+            if not _NUMBERED.match(title):
+                title = f"{chapter}. {title}"
+        elif level >= 2 and chapter and not _NUMBERED.match(title):
+            sub += 1
+            title = f"{chapter}.{sub} {title}"
+        body = assemble_section(
+            original, normalize_typography(section["content"]), level
+        )
+        head, _, rest = body.partition("\n")
+        lines = []
+        for line in rest.split("\n"):
+            inner = re.match(r"^##\s+(.*)$", line)
+            if inner and chapter and level == 1:
+                # Sub-headings the writer put inside a chapter join the same
+                # numbering as the planned sub-sections that follow.
+                sub += 1
+                heading = re.sub(r"^\d+(?:\.\d+)*[.)]?\s+", "", inner.group(1))
+                line = f"## {chapter}.{sub} {heading}"
+            lines.append(line)
+        parts.append(
+            f"{'#' * level} {title}" + ("\n" + "\n".join(lines) if rest else "")
+        )
+    prefix = (language or "").lower()[:2]
+    for kind, heading in (
+        ("academic", bibliography_heading(language)),
+        ("legal", LEGAL_HEADINGS.get(prefix, LEGAL_HEADINGS["en"])),
+    ):
+        rows = sorted(
+            (r for r in bibliography if r.get("kind", "academic") == kind),
+            key=lambda r: r.get("sort_key") or r["formatted"].casefold(),
+        )
+        if rows:
+            parts.append(
+                assemble_section(heading, "\n\n".join(r["formatted"] for r in rows))
+            )
+    return "\n\n".join(parts)
+
+
+def add_table_of_contents(docx: Any, language: str | None) -> None:
+    """A TOC field (levels 1-3) that Word fills in when the file is opened."""
+    label = docx.add_paragraph()
+    run = label.add_run(TOC_HEADINGS.get((language or "").lower()[:2], "Contents"))
+    run.bold, run.font.size = True, Pt(14)
+    paragraph = docx.add_paragraph()
+    for tag, attrs, text in (
+        ("w:fldChar", {"w:fldCharType": "begin"}, None),
+        ("w:instrText", {"xml:space": "preserve"}, 'TOC \\o "1-3" \\h \\z \\u'),
+        ("w:fldChar", {"w:fldCharType": "separate"}, None),
+        ("w:t", {}, "…"),
+        ("w:fldChar", {"w:fldCharType": "end"}, None),
+    ):
+        run = paragraph.add_run()
+        element = OxmlElement(tag)
+        for name, value in attrs.items():
+            element.set(qn(name), value)
+        if text is not None:
+            element.text = text
+        run._r.append(element)
+    settings = docx.settings.element
+    if settings.find(qn("w:updateFields")) is None:
+        update = OxmlElement("w:updateFields")
+        update.set(qn("w:val"), "true")
+        settings.append(update)
+    docx.add_page_break()
 
 
 def apply_academic_profile(docx: Any) -> None:
@@ -73,6 +188,7 @@ def apply_academic_profile(docx: Any) -> None:
             style.font.bold = True
             style.paragraph_format.keep_with_next = True
     docx.styles["Normal"].paragraph_format.widow_control = True
+    docx.styles["Normal"].paragraph_format.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
 
 
 def append_markdown(docx: Any, text: str) -> None:
