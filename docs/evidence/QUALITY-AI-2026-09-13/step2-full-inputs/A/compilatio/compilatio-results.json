@@ -1,0 +1,126 @@
+{
+ "file": "A-economia-PMI-social-media-2026-09-14.txt",
+ "words": 7584,
+ "suspect_total_pct": 14,
+ "similarity_pct": 4,
+ "ai_pct": 11,
+ "quotes_pct": 19,
+ "scan_date": "2026-09-14",
+ "per_section": {
+  "1": {
+   "title": "Introduzione",
+   "words": 555,
+   "ai_flagged_words": 235,
+   "ai_pct": 42.3,
+   "full_text_windows": 0
+  },
+  "2": {
+   "title": "Quadro teorico del marketing digitale",
+   "words": 575,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 0
+  },
+  "3": {
+   "title": "Evoluzione dal marketing tradizionale al marketing digitale",
+   "words": 574,
+   "ai_flagged_words": 206,
+   "ai_pct": 35.9,
+   "full_text_windows": 0
+  },
+  "4": {
+   "title": "Strumenti e canali del marketing digitale",
+   "words": 624,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 19
+  },
+  "5": {
+   "title": "Il marketing digitale nelle piccole e medie imprese",
+   "words": 559,
+   "ai_flagged_words": 152,
+   "ai_pct": 27.2,
+   "full_text_windows": 0
+  },
+  "6": {
+   "title": "Social media e customer loyalty nelle PMI",
+   "words": 549,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 26
+  },
+  "7": {
+   "title": "Il ruolo dei social media nelle strategie di marketing",
+   "words": 486,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 23
+  },
+  "8": {
+   "title": "Concetti di fidelizzazione e customer engagement",
+   "words": 572,
+   "ai_flagged_words": 65,
+   "ai_pct": 11.4,
+   "full_text_windows": 25
+  },
+  "9": {
+   "title": "Social media come leva di fidelizzazione nelle PMI",
+   "words": 510,
+   "ai_flagged_words": 64,
+   "ai_pct": 12.5,
+   "full_text_windows": 25
+  },
+  "10": {
+   "title": "Analisi di casi ed evidenze empiriche",
+   "words": 427,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 24
+  },
+  "11": {
+   "title": "Metodologia di analisi",
+   "words": 442,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 5
+  },
+  "12": {
+   "title": "Casi di studio di PMI italiane",
+   "words": 478,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 27
+  },
+  "13": {
+   "title": "Discussione dei risultati",
+   "words": 459,
+   "ai_flagged_words": 62,
+   "ai_pct": 13.5,
+   "full_text_windows": 24
+  },
+  "14": {
+   "title": "Conclusioni",
+   "words": 495,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 17
+  },
+  "99": {
+   "title": "Bibliografia",
+   "words": 279,
+   "ai_flagged_words": 0,
+   "ai_pct": 0.0,
+   "full_text_windows": 0
+  }
+ },
+ "with_full_text": {
+  "sections": 10,
+  "words": 5042,
+  "ai_pct": 3.8
+ },
+ "without_full_text": {
+  "sections": 4,
+  "words": 2263,
+  "ai_pct": 26.2
+ }
+}

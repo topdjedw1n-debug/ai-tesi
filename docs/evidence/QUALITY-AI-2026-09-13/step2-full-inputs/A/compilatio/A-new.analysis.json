@@ -1,0 +1,220 @@
+{
+ "file": "A-new.lines.json",
+ "words_in_sections": 4704,
+ "ai_share_in_sections": 0.0551,
+ "per_section": {
+  "Quadro teorico del marketing digitale": {
+   "words": 72,
+   "ai_share": 0.0
+  },
+  "Strumenti e canali del marketing digitale": {
+   "words": 272,
+   "ai_share": 0.0
+  },
+  "Il marketing digitale nelle piccole e medie imprese": {
+   "words": 494,
+   "ai_share": 0.233
+  },
+  "Social media e customer loyalty nelle PMI": {
+   "words": 522,
+   "ai_share": 0.0
+  },
+  "Il ruolo dei social media nelle strategie di marketing": {
+   "words": 422,
+   "ai_share": 0.0
+  },
+  "Concetti di fidelizzazione e customer engagement": {
+   "words": 418,
+   "ai_share": 0.117
+  },
+  "Social media come leva di fidelizzazione nelle PMI": {
+   "words": 442,
+   "ai_share": 0.12
+  },
+  "Analisi di casi ed evidenze empiriche": {
+   "words": 348,
+   "ai_share": 0.0
+  },
+  "Metodologia di analisi": {
+   "words": 348,
+   "ai_share": 0.0
+  },
+  "Casi di studio di PMI italiane": {
+   "words": 396,
+   "ai_share": 0.0
+  },
+  "Discussione dei risultati": {
+   "words": 401,
+   "ai_share": 0.105
+  },
+  "Conclusioni": {
+   "words": 569,
+   "ai_share": 0.0
+  }
+ },
+ "paragraph_position": {
+  "primo": {
+   "words": 477,
+   "ai_share": 0.0
+  },
+  "ultimo": {
+   "words": 421,
+   "ai_share": 0.076
+  },
+  "medio": {
+   "words": 3806,
+   "ai_share": 0.06
+  }
+ },
+ "sentence_features": {
+  "cita_(Autore, anno)": {
+   "con": [
+    0.04,
+    60
+   ],
+   "senza": [
+    0.063,
+    165
+   ]
+  },
+  "menziona_estratti/excerpt/abstract": {
+   "con": [
+    0.0,
+    6
+   ],
+   "senza": [
+    0.057,
+    219
+   ]
+  },
+  "formula_non_consente": {
+   "con": [
+    0.0,
+    9
+   ],
+   "senza": [
+    0.058,
+    216
+   ]
+  },
+  "cifre": {
+   "con": [
+    0.047,
+    76
+   ],
+   "senza": [
+    0.061,
+    149
+   ]
+  },
+  "virgolette_«»": {
+   "con": [
+    0.042,
+    96
+   ],
+   "senza": [
+    0.071,
+    129
+   ]
+  },
+  "connettivo_iniziale": {
+   "con": [
+    0.659,
+    3
+   ],
+   "senza": [
+    0.05,
+    222
+   ]
+  },
+  "norma_(art./comma/d.lgs./legge)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.055,
+    225
+   ]
+  },
+  "giurisprudenza_(Cass./Corte/sent.)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.055,
+    225
+   ]
+  },
+  "prima_persona_(riteniamo/nostr)": {
+   "con": [
+    null,
+    0
+   ],
+   "senza": [
+    0.055,
+    225
+   ]
+  },
+  "nominalizzazioni_>=12%": {
+   "con": [
+    0.081,
+    34
+   ],
+   "senza": [
+    0.051,
+    191
+   ]
+  }
+ },
+ "sentence_length_bins": {
+  "0-15": [
+   0.106,
+   73
+  ],
+  "15-25": [
+   0.053,
+   59
+  ],
+  "25-35": [
+   0.056,
+   68
+  ],
+  "35-50": [
+   0.027,
+   22
+  ],
+  "50-500": [
+   0.031,
+   3
+  ]
+ },
+ "examples": {
+  "frasi_pulite": [
+   "comportamento dei consumatori e le modalità con cui le imprese conducono la propria attività» (Dwivedi et al., 2021).",
+   "Questa affermazione colloca il cambiamento su un duplice piano: da un lato le pratiche di acquisto e di interazione",
+   "Questa impostazione, fondata sulla sintesi di prospettive di diversi esperti, ha il pregio di restituire una visione bilanciata, in cui il potenziale relazionale ed economico degli strumenti digitali è temperato",
+   "La ricerca di Moretti e Tuan si propone infatti di definire «gli elementi operativi concernenti la distinzione tra Relationship Marketing e Social Media Marketing», affinché il decisore d'impresa possa identificare gli elementi",
+   "‎Quanto al content management e al mobile marketing, la letteratura li individua tra le aree specifiche che caratterizzano l'ecosistema digitale contemporaneo.",
+   "specifiche, tra cui l'intelligenza artificiale, il marketing in realtà aumentata, la gestione dei contenuti digitali, il mobile marketing e la pubblicità» (Dwivedi et al., 2021), collocando dunque il content management e il mobile marketing come",
+   "In coerenza con ciò, la produzione e la gestione dei contenuti assumono un ruolo attivo: la letteratura descrive i social media come ambiti in cui gli utenti «non sono più partecipanti",
+   "passivi ma svolgono un ruolo attivo nel processo mediatico, essendo divenuti una fonte importante e produttiva di contenuti sul Web» (MORETTI & TUAN, 2018) p. 7, con la conseguenza che la gestione dei contenuti presuppone la",
+   "‎Nel complesso, gli strumenti e i canali analizzati configurano un sistema integrato in cui componente tecnologica e componente manageriale risultano inscindibili.",
+   "strumenti in termini prevalentemente generali e, nel caso di Moretti e Tuan, dichiaratamente riferiti a una «prima fase di una ricerca più ampia» incentrata sull'analisi della letteratura sul Relationship Marketing (MORETTI & TUAN, 2018) p.",
+   "1; la letteratura consultata non consente pertanto di quantificare l'effettiva diffusione di ciascun canale né di specificarne le modalità applicative nel tessuto delle piccole e medie imprese italiane, aspetto che sarà ripreso nei",
+   "‎L'analisi delle specificità del marketing digitale nelle piccole e medie imprese richiede, preliminarmente, di identificare le condizioni strutturali che caratterizzano tali organizzazioni e ne condizionano la capacità di adozione."
+  ],
+  "frasi_sottolineate": [
+   "non direttamente verificata dalla fonte, il cui disegno di ricerca è circoscritto a un campione limitato e a un oggetto d'indagine differente.",
+   "Ne consegue che le fonti consultate delineano con chiarezza la struttura dei vincoli — deficit di",
+   "dati, comunicazione e cognizione, dipendenza da risorse eccedenti e da processi di apprendimento — ma non offrono misurazioni dirette della loro incidenza sull'adozione del marketing digitale nelle PMI italiane, lacuna che condiziona",
+   "Il territorio si configura così come risorsa distintiva che alimenta contenuti autentici e rafforza il legame con la clientela."
+  ]
+ },
+ "counts": {
+  "sentences": 225,
+  "clean": 155,
+  "fully_flagged": 4
+ }
+}
