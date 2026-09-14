@@ -1,0 +1,793 @@
+{
+ "A": {
+  "rewritten": [
+   1,
+   3,
+   5
+  ],
+  "rows": [
+   {
+    "index": 1,
+    "title": "Introduzione",
+    "live": true,
+    "old": {
+     "words": 554,
+     "ai": 235,
+     "sim": 0,
+     "ai_pct": 42.4,
+     "sim_pct": 0.0
+    },
+    "new": {
+     "words": 590,
+     "ai": 161,
+     "sim": 92,
+     "ai_pct": 27.3,
+     "sim_pct": 15.6
+    },
+    "text_ratio": 0.217
+   },
+   {
+    "index": 2,
+    "title": "Quadro teorico del marketing digitale",
+    "live": false,
+    "old": {
+     "words": 570,
+     "ai": 0,
+     "sim": 120,
+     "ai_pct": 0.0,
+     "sim_pct": 21.1
+    },
+    "new": {
+     "words": 570,
+     "ai": 91,
+     "sim": 120,
+     "ai_pct": 16.0,
+     "sim_pct": 21.1
+    },
+    "text_ratio": 1.0
+   },
+   {
+    "index": 3,
+    "title": "Evoluzione dal marketing tradizionale al marketing digitale",
+    "live": true,
+    "old": {
+     "words": 567,
+     "ai": 199,
+     "sim": 84,
+     "ai_pct": 35.1,
+     "sim_pct": 14.8
+    },
+    "new": {
+     "words": 538,
+     "ai": 0,
+     "sim": 146,
+     "ai_pct": 0.0,
+     "sim_pct": 27.1
+    },
+    "text_ratio": 0.052
+   },
+   {
+    "index": 4,
+    "title": "Strumenti e canali del marketing digitale",
+    "live": false,
+    "old": {
+     "words": 618,
+     "ai": 0,
+     "sim": 97,
+     "ai_pct": 0.0,
+     "sim_pct": 15.7
+    },
+    "new": {
+     "words": 618,
+     "ai": 0,
+     "sim": 97,
+     "ai_pct": 0.0,
+     "sim_pct": 15.7
+    },
+    "text_ratio": 0.981
+   },
+   {
+    "index": 5,
+    "title": "Il marketing digitale nelle piccole e medie imprese",
+    "live": true,
+    "old": {
+     "words": 551,
+     "ai": 152,
+     "sim": 87,
+     "ai_pct": 27.6,
+     "sim_pct": 15.8
+    },
+    "new": {
+     "words": 566,
+     "ai": 54,
+     "sim": 95,
+     "ai_pct": 9.5,
+     "sim_pct": 16.8
+    },
+    "text_ratio": 0.041
+   },
+   {
+    "index": 6,
+    "title": "Social media e customer loyalty nelle PMI",
+    "live": false,
+    "old": {
+     "words": 542,
+     "ai": 0,
+     "sim": 164,
+     "ai_pct": 0.0,
+     "sim_pct": 30.3
+    },
+    "new": {
+     "words": 542,
+     "ai": 0,
+     "sim": 164,
+     "ai_pct": 0.0,
+     "sim_pct": 30.3
+    },
+    "text_ratio": 0.961
+   },
+   {
+    "index": 7,
+    "title": "Il ruolo dei social media nelle strategie di marketing",
+    "live": false,
+    "old": {
+     "words": 476,
+     "ai": 0,
+     "sim": 192,
+     "ai_pct": 0.0,
+     "sim_pct": 40.3
+    },
+    "new": {
+     "words": 476,
+     "ai": 33,
+     "sim": 192,
+     "ai_pct": 6.9,
+     "sim_pct": 40.3
+    },
+    "text_ratio": 0.979
+   },
+   {
+    "index": 8,
+    "title": "Concetti di fidelizzazione e customer engagement",
+    "live": false,
+    "old": {
+     "words": 565,
+     "ai": 65,
+     "sim": 162,
+     "ai_pct": 11.5,
+     "sim_pct": 28.7
+    },
+    "new": {
+     "words": 565,
+     "ai": 92,
+     "sim": 162,
+     "ai_pct": 16.3,
+     "sim_pct": 28.7
+    },
+    "text_ratio": 0.947
+   },
+   {
+    "index": 9,
+    "title": "Social media come leva di fidelizzazione nelle PMI",
+    "live": false,
+    "old": {
+     "words": 502,
+     "ai": 64,
+     "sim": 136,
+     "ai_pct": 12.7,
+     "sim_pct": 27.1
+    },
+    "new": {
+     "words": 502,
+     "ai": 65,
+     "sim": 135,
+     "ai_pct": 12.9,
+     "sim_pct": 26.9
+    },
+    "text_ratio": 0.958
+   },
+   {
+    "index": 10,
+    "title": "Analisi di casi ed evidenze empiriche",
+    "live": false,
+    "old": {
+     "words": 421,
+     "ai": 0,
+     "sim": 61,
+     "ai_pct": 0.0,
+     "sim_pct": 14.5
+    },
+    "new": {
+     "words": 421,
+     "ai": 0,
+     "sim": 61,
+     "ai_pct": 0.0,
+     "sim_pct": 14.5
+    },
+    "text_ratio": 0.957
+   },
+   {
+    "index": 11,
+    "title": "Metodologia di analisi",
+    "live": false,
+    "old": {
+     "words": 439,
+     "ai": 0,
+     "sim": 73,
+     "ai_pct": 0.0,
+     "sim_pct": 16.6
+    },
+    "new": {
+     "words": 439,
+     "ai": 0,
+     "sim": 73,
+     "ai_pct": 0.0,
+     "sim_pct": 16.6
+    },
+    "text_ratio": 0.959
+   },
+   {
+    "index": 12,
+    "title": "Casi di studio di PMI italiane",
+    "live": false,
+    "old": {
+     "words": 472,
+     "ai": 0,
+     "sim": 133,
+     "ai_pct": 0.0,
+     "sim_pct": 28.2
+    },
+    "new": {
+     "words": 472,
+     "ai": 0,
+     "sim": 133,
+     "ai_pct": 0.0,
+     "sim_pct": 28.2
+    },
+    "text_ratio": 0.956
+   },
+   {
+    "index": 13,
+    "title": "Discussione dei risultati",
+    "live": false,
+    "old": {
+     "words": 452,
+     "ai": 62,
+     "sim": 55,
+     "ai_pct": 13.7,
+     "sim_pct": 12.2
+    },
+    "new": {
+     "words": 452,
+     "ai": 140,
+     "sim": 55,
+     "ai_pct": 31.0,
+     "sim_pct": 12.2
+    },
+    "text_ratio": 0.96
+   },
+   {
+    "index": 14,
+    "title": "Conclusioni",
+    "live": false,
+    "old": {
+     "words": 494,
+     "ai": 0,
+     "sim": 55,
+     "ai_pct": 0.0,
+     "sim_pct": 11.1
+    },
+    "new": {
+     "words": 494,
+     "ai": 123,
+     "sim": 54,
+     "ai_pct": 24.9,
+     "sim_pct": 10.9
+    },
+    "text_ratio": 0.988
+   },
+   {
+    "index": 15,
+    "title": "Bibliografia",
+    "live": false,
+    "old": {
+     "words": 271,
+     "ai": 0,
+     "sim": 0,
+     "ai_pct": 0.0,
+     "sim_pct": 0.0
+    },
+    "new": {
+     "words": 253,
+     "ai": 0,
+     "sim": 0,
+     "ai_pct": 0.0,
+     "sim_pct": 0.0
+    },
+    "text_ratio": 0.454
+   }
+  ]
+ },
+ "B": {
+  "rewritten": [
+   1,
+   14
+  ],
+  "rows": [
+   {
+    "index": 1,
+    "title": "Introduzione",
+    "live": true,
+    "old": {
+     "words": 665,
+     "ai": 318,
+     "sim": 158,
+     "ai_pct": 47.8,
+     "sim_pct": 23.8
+    },
+    "new": {
+     "words": 832,
+     "ai": 297,
+     "sim": 77,
+     "ai_pct": 35.7,
+     "sim_pct": 9.3
+    },
+    "text_ratio": 0.17
+   },
+   {
+    "index": 2,
+    "title": "Evoluzione dell'art. 4 dello Statuto dei lavoratori",
+    "live": false,
+    "old": {
+     "words": 490,
+     "ai": 63,
+     "sim": 150,
+     "ai_pct": 12.9,
+     "sim_pct": 30.6
+    },
+    "new": {
+     "words": 523,
+     "ai": 63,
+     "sim": 150,
+     "ai_pct": 12.0,
+     "sim_pct": 28.7
+    },
+    "text_ratio": 0.932
+   },
+   {
+    "index": 3,
+    "title": "La formulazione originaria dell'art. 4 (L. 300/1970)",
+    "live": false,
+    "old": {
+     "words": 617,
+     "ai": 105,
+     "sim": 194,
+     "ai_pct": 17.0,
+     "sim_pct": 31.4
+    },
+    "new": {
+     "words": 675,
+     "ai": 116,
+     "sim": 195,
+     "ai_pct": 17.2,
+     "sim_pct": 28.9
+    },
+    "text_ratio": 0.904
+   },
+   {
+    "index": 4,
+    "title": "La riforma del Jobs Act (D.Lgs. 151/2015)",
+    "live": false,
+    "old": {
+     "words": 575,
+     "ai": 90,
+     "sim": 157,
+     "ai_pct": 15.7,
+     "sim_pct": 27.3
+    },
+    "new": {
+     "words": 602,
+     "ai": 252,
+     "sim": 156,
+     "ai_pct": 41.9,
+     "sim_pct": 25.9
+    },
+    "text_ratio": 0.945
+   },
+   {
+    "index": 5,
+    "title": "Accordo sindacale e autorizzazione amministrativa",
+    "live": false,
+    "old": {
+     "words": 542,
+     "ai": 45,
+     "sim": 107,
+     "ai_pct": 8.3,
+     "sim_pct": 19.7
+    },
+    "new": {
+     "words": 559,
+     "ai": 170,
+     "sim": 105,
+     "ai_pct": 30.4,
+     "sim_pct": 18.8
+    },
+    "text_ratio": 0.93
+   },
+   {
+    "index": 6,
+    "title": "Il GDPR e i principi applicabili al rapporto di lavoro",
+    "live": false,
+    "old": {
+     "words": 461,
+     "ai": 0,
+     "sim": 70,
+     "ai_pct": 0.0,
+     "sim_pct": 15.2
+    },
+    "new": {
+     "words": 449,
+     "ai": 134,
+     "sim": 68,
+     "ai_pct": 29.8,
+     "sim_pct": 15.1
+    },
+    "text_ratio": 0.969
+   },
+   {
+    "index": 7,
+    "title": "Ambito di applicazione e definizioni",
+    "live": false,
+    "old": {
+     "words": 423,
+     "ai": 136,
+     "sim": 46,
+     "ai_pct": 32.2,
+     "sim_pct": 10.9
+    },
+    "new": {
+     "words": 411,
+     "ai": 262,
+     "sim": 46,
+     "ai_pct": 63.7,
+     "sim_pct": 11.2
+    },
+    "text_ratio": 0.942
+   },
+   {
+    "index": 8,
+    "title": "Principi di liceità, minimizzazione e trasparenza",
+    "live": false,
+    "old": {
+     "words": 531,
+     "ai": 0,
+     "sim": 159,
+     "ai_pct": 0.0,
+     "sim_pct": 29.9
+    },
+    "new": {
+     "words": 525,
+     "ai": 186,
+     "sim": 157,
+     "ai_pct": 35.4,
+     "sim_pct": 29.9
+    },
+    "text_ratio": 0.89
+   },
+   {
+    "index": 9,
+    "title": "Basi giuridiche del trattamento nel rapporto di lavoro",
+    "live": false,
+    "old": {
+     "words": 462,
+     "ai": 106,
+     "sim": 71,
+     "ai_pct": 22.9,
+     "sim_pct": 15.4
+    },
+    "new": {
+     "words": 450,
+     "ai": 249,
+     "sim": 73,
+     "ai_pct": 55.3,
+     "sim_pct": 16.2
+    },
+    "text_ratio": 0.969
+   },
+   {
+    "index": 10,
+    "title": "Accountability e valutazione d'impatto (DPIA)",
+    "live": false,
+    "old": {
+     "words": 498,
+     "ai": 78,
+     "sim": 144,
+     "ai_pct": 15.7,
+     "sim_pct": 28.9
+    },
+    "new": {
+     "words": 480,
+     "ai": 201,
+     "sim": 141,
+     "ai_pct": 41.9,
+     "sim_pct": 29.4
+    },
+    "text_ratio": 0.939
+   },
+   {
+    "index": 11,
+    "title": "Il coordinamento tra GDPR e Codice privacy (D.Lgs. 196/2003)",
+    "live": false,
+    "old": {
+     "words": 500,
+     "ai": 0,
+     "sim": 117,
+     "ai_pct": 0.0,
+     "sim_pct": 23.4
+    },
+    "new": {
+     "words": 495,
+     "ai": 130,
+     "sim": 117,
+     "ai_pct": 26.3,
+     "sim_pct": 23.6
+    },
+    "text_ratio": 0.929
+   },
+   {
+    "index": 12,
+    "title": "Il controllo a distanza e gli strumenti tecnologici",
+    "live": false,
+    "old": {
+     "words": 447,
+     "ai": 0,
+     "sim": 92,
+     "ai_pct": 0.0,
+     "sim_pct": 20.6
+    },
+    "new": {
+     "words": 459,
+     "ai": 54,
+     "sim": 91,
+     "ai_pct": 11.8,
+     "sim_pct": 19.8
+    },
+    "text_ratio": 0.879
+   },
+   {
+    "index": 13,
+    "title": "Strumenti di lavoro e controlli difensivi",
+    "live": false,
+    "old": {
+     "words": 657,
+     "ai": 184,
+     "sim": 157,
+     "ai_pct": 28.0,
+     "sim_pct": 23.9
+    },
+    "new": {
+     "words": 732,
+     "ai": 91,
+     "sim": 146,
+     "ai_pct": 12.4,
+     "sim_pct": 19.9
+    },
+    "text_ratio": 0.89
+   },
+   {
+    "index": 14,
+    "title": "Videosorveglianza sul luogo di lavoro",
+    "live": true,
+    "old": {
+     "words": 489,
+     "ai": 218,
+     "sim": 50,
+     "ai_pct": 44.6,
+     "sim_pct": 10.2
+    },
+    "new": {
+     "words": 500,
+     "ai": 80,
+     "sim": 105,
+     "ai_pct": 16.0,
+     "sim_pct": 21.0
+    },
+    "text_ratio": 0.192
+   },
+   {
+    "index": 15,
+    "title": "Posta elettronica, internet e dispositivi aziendali",
+    "live": false,
+    "old": {
+     "words": 567,
+     "ai": 67,
+     "sim": 123,
+     "ai_pct": 11.8,
+     "sim_pct": 21.7
+    },
+    "new": {
+     "words": 576,
+     "ai": 122,
+     "sim": 122,
+     "ai_pct": 21.2,
+     "sim_pct": 21.2
+    },
+    "text_ratio": 0.884
+   },
+   {
+    "index": 16,
+    "title": "Geolocalizzazione, biometria e nuove tecnologie",
+    "live": false,
+    "old": {
+     "words": 478,
+     "ai": 0,
+     "sim": 111,
+     "ai_pct": 0.0,
+     "sim_pct": 23.2
+    },
+    "new": {
+     "words": 495,
+     "ai": 92,
+     "sim": 111,
+     "ai_pct": 18.6,
+     "sim_pct": 22.4
+    },
+    "text_ratio": 0.878
+   },
+   {
+    "index": 17,
+    "title": "Il lavoro agile e il controllo da remoto",
+    "live": false,
+    "old": {
+     "words": 386,
+     "ai": 60,
+     "sim": 63,
+     "ai_pct": 15.5,
+     "sim_pct": 16.3
+    },
+    "new": {
+     "words": 393,
+     "ai": 61,
+     "sim": 62,
+     "ai_pct": 15.5,
+     "sim_pct": 15.8
+    },
+    "text_ratio": 0.986
+   },
+   {
+    "index": 18,
+    "title": "Giurisprudenza e prassi del Garante",
+    "live": false,
+    "old": {
+     "words": 385,
+     "ai": 205,
+     "sim": 35,
+     "ai_pct": 53.2,
+     "sim_pct": 9.1
+    },
+    "new": {
+     "words": 392,
+     "ai": 207,
+     "sim": 31,
+     "ai_pct": 52.8,
+     "sim_pct": 7.9
+    },
+    "text_ratio": 0.963
+   },
+   {
+    "index": 19,
+    "title": "La giurisprudenza della Corte di Cassazione",
+    "live": false,
+    "old": {
+     "words": 576,
+     "ai": 0,
+     "sim": 159,
+     "ai_pct": 0.0,
+     "sim_pct": 27.6
+    },
+    "new": {
+     "words": 646,
+     "ai": 148,
+     "sim": 159,
+     "ai_pct": 22.9,
+     "sim_pct": 24.6
+    },
+    "text_ratio": 0.894
+   },
+   {
+    "index": 20,
+    "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+    "live": false,
+    "old": {
+     "words": 606,
+     "ai": 65,
+     "sim": 131,
+     "ai_pct": 10.7,
+     "sim_pct": 21.6
+    },
+    "new": {
+     "words": 662,
+     "ai": 76,
+     "sim": 131,
+     "ai_pct": 11.5,
+     "sim_pct": 19.8
+    },
+    "text_ratio": 0.883
+   },
+   {
+    "index": 21,
+    "title": "I provvedimenti e le Linee guida del Garante",
+    "live": false,
+    "old": {
+     "words": 500,
+     "ai": 0,
+     "sim": 161,
+     "ai_pct": 0.0,
+     "sim_pct": 32.2
+    },
+    "new": {
+     "words": 509,
+     "ai": 40,
+     "sim": 160,
+     "ai_pct": 7.9,
+     "sim_pct": 31.4
+    },
+    "text_ratio": 0.852
+   },
+   {
+    "index": 22,
+    "title": "Conclusioni",
+    "live": false,
+    "old": {
+     "words": 687,
+     "ai": 262,
+     "sim": 70,
+     "ai_pct": 38.1,
+     "sim_pct": 10.2
+    },
+    "new": {
+     "words": 701,
+     "ai": 281,
+     "sim": 71,
+     "ai_pct": 40.1,
+     "sim_pct": 10.1
+    },
+    "text_ratio": 0.947
+   },
+   {
+    "index": 23,
+    "title": "Bibliografia",
+    "live": false,
+    "old": {
+     "words": 536,
+     "ai": 4,
+     "sim": 0,
+     "ai_pct": 0.7,
+     "sim_pct": 0.0
+    },
+    "new": {
+     "words": 271,
+     "ai": 2,
+     "sim": 0,
+     "ai_pct": 0.7,
+     "sim_pct": 0.0
+    },
+    "text_ratio": 0.151
+   },
+   {
+    "index": 24,
+    "title": "Normativa e giurisprudenza",
+    "live": false,
+    "old": {},
+    "new": {
+     "words": 202,
+     "ai": 0,
+     "sim": 0,
+     "ai_pct": 0.0,
+     "sim_pct": 0.0
+    },
+    "text_ratio": null
+   }
+  ]
+ }
+}
