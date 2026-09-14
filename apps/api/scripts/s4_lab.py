@@ -251,6 +251,65 @@ def uploaded_inputs(specs: list[dict], base_path: Path) -> tuple[list, list, lis
     return rows, passages, report
 
 
+async def fresh_uploads(
+    db, specs: list[dict], base_path: Path, document_id: int
+) -> list:
+    """Insert manager-style uploads into the local database (fresh mode): the
+    same rows the upload endpoint writes, parsed by the same code."""
+    from app.models.document import DocumentSourceFile, SourceFilePage
+    from app.services.uploaded_sources import MIN_TEXT_CHARS_PER_PAGE, extract_pdf_pages
+
+    report = []
+    for spec in specs:
+        pdf = Path(spec["pdf"])
+        if not pdf.exists():
+            pdf = base_path / spec["pdf"]
+        data = pdf.read_bytes()
+        pages = extract_pdf_pages(data)
+        text_chars = sum(len(p) for p in pages)
+        has_text = (
+            bool(pages) and text_chars / max(1, len(pages)) >= MIN_TEXT_CHARS_PER_PAGE
+        )
+        digest_hex = hashlib.sha256(data).hexdigest()
+        row = DocumentSourceFile(
+            document_id=document_id,
+            filename=pdf.name[:255],
+            citation_key=spec["key"],
+            title=spec["title"],
+            authors="; ".join(spec["authors"]) or None,
+            year=int(spec["year"]),
+            storage_path=f"lab://uploads/{digest_hex[:16]}.pdf",
+            sha256=digest_hex,
+            page_count=len(pages),
+            text_chars=text_chars,
+            status="parsed" if has_text else "no_text_layer",
+            metadata_incomplete=False,
+            mandatory=bool(spec.get("mandatory")),
+        )
+        db.add(row)
+        await db.flush()
+        if has_text:
+            for number, text in enumerate(pages, start=1):
+                if text.strip():
+                    db.add(
+                        SourceFilePage(
+                            source_file_id=int(row.id), page_number=number, text=text
+                        )
+                    )
+        report.append(
+            {
+                "key": spec["key"],
+                "file": pdf.name,
+                "sha256": digest_hex,
+                "pages": len(pages),
+                "chars": text_chars,
+                "status": row.status,
+            }
+        )
+    await db.commit()
+    return report
+
+
 def request_chars(request) -> int:
     return sum(
         len(m["content"])
@@ -409,7 +468,17 @@ def main() -> int:
     parser.add_argument("output", type=Path)
     parser.add_argument("--job-id", type=int, required=True)
     parser.add_argument("--variant", required=True)
-    parser.add_argument("--mode", choices=("exact", "live"), default="exact")
+    parser.add_argument(
+        "--mode",
+        choices=("exact", "live", "fresh"),
+        default="exact",
+        help=(
+            "exact: replay only; live: S1-S3 from the tape, writing live; fresh: a"
+            " new run of the recorded document (S1-S6 live, every external input"
+            " fetched and journaled), uploads inserted into the local database"
+            " like a manager upload"
+        ),
+    )
     parser.add_argument("--model", help="writer model for S4-S6 (default: recorded)")
     parser.add_argument(
         "--request-override",
@@ -460,10 +529,18 @@ def main() -> int:
     parser.add_argument("--price-input-usd-per-1m", type=float)
     parser.add_argument("--price-output-usd-per-1m", type=float)
     args = parser.parse_args()
-    if args.mode == "live" and not (args.cost_cap_usd and args.cost_cap_usd > 0):
-        parser.error("--cost-cap-usd (positive USD) is required in live mode")
+    if args.mode in ("live", "fresh") and not (
+        args.cost_cap_usd and args.cost_cap_usd > 0
+    ):
+        parser.error(
+            "--cost-cap-usd (positive USD) is required in live and fresh modes"
+        )
     if args.mode == "exact" and (args.live_sections or args.secrets_file):
         parser.error("--live-sections and --secrets-file apply to --mode live only")
+    if args.mode == "fresh" and (args.live_sections or args.recorded_outline):
+        parser.error(
+            "--live-sections and --recorded-outline do not apply to fresh mode"
+        )
     try:
         args.live_section_set = parse_sections(args.live_sections)
         args.request_override_dict = parse_override(args.request_override)
@@ -471,10 +548,12 @@ def main() -> int:
         args.uploaded_source_specs = load_uploaded_sources(args.uploaded_sources)
     except ValueError as error:
         parser.error(str(error))
-    secrets = read_secrets(args.secrets_file, os.environ) if args.mode == "live" else {}
-    if args.mode == "live" and "ANTHROPIC_API_KEY" not in secrets:
+    secrets = (
+        read_secrets(args.secrets_file, os.environ) if args.mode != "exact" else {}
+    )
+    if args.mode != "exact" and "ANTHROPIC_API_KEY" not in secrets:
         parser.error(
-            "live mode needs ANTHROPIC_API_KEY (environment or --secrets-file)"
+            "live and fresh modes need ANTHROPIC_API_KEY (environment or --secrets-file)"
         )
     # Refuse to reuse a directory: no historical file or DB can be overwritten.
     args.output = args.output.resolve()
@@ -582,7 +661,7 @@ async def run(args, secrets):
         ),
         "live_sections": (
             (sorted(args.live_section_set) if args.live_section_set else "all")
-            if args.mode == "live"
+            if args.mode in ("live", "fresh")
             else None
         ),
         "uploaded_sources": [],
@@ -619,6 +698,7 @@ async def run(args, secrets):
         "source": "lab" if lab_priced else "production",
     }
     tape = ledger = None
+    fresh = args.mode == "fresh"
     store = LocalObjects(args.output)
     recorded_live = (data.get("lab") or {}).get("live_sections")
     override_sections = set(recorded_live) if isinstance(recorded_live, list) else None
@@ -630,14 +710,18 @@ async def run(args, secrets):
         )
 
     try:
-        tape = ReplayTape.from_events(
-            events,
-            job_id=snapshot["job_id"],
-            worker_attempt=snapshot["worker_attempt"],
-            allow_request_changes=False,
-            persist_receipts=True,
+        tape = (
+            ReplayTape([], persist_receipts=True)
+            if fresh
+            else ReplayTape.from_events(
+                events,
+                job_id=snapshot["job_id"],
+                worker_attempt=snapshot["worker_attempt"],
+                allow_request_changes=False,
+                persist_receipts=True,
+            )
         )
-        if args.uploaded_source_specs:
+        if args.uploaded_source_specs and not fresh:
             rows, extra_passages, report["uploaded_sources"] = uploaded_inputs(
                 args.uploaded_source_specs, args.uploaded_sources.parent
             )
@@ -693,6 +777,42 @@ async def run(args, secrets):
             generation_profile_sha256=generation_profile_sha256,
             report=report,
         )
+        if fresh:
+            from app.models.document import ProductionCase
+            from app.services.generation_contract import generation_contract_sha256
+            from app.services.task_contract import task_contract_sha256
+            from app.services.uploaded_sources import uploaded_sources_digest
+
+            async with database.AsyncSessionLocal() as db:
+                document_id = snapshot["document"]["id"]
+                if args.uploaded_source_specs:
+                    report["uploaded_sources"] = await fresh_uploads(
+                        db,
+                        args.uploaded_source_specs,
+                        args.uploaded_sources.parent,
+                        document_id,
+                    )
+                # What the cabinet does after an upload: the manager confirms
+                # the task contract again and the job binds to it.
+                document = await db.get(Document, document_id)
+                job = await db.get(AIGenerationJob, snapshot["job_id"])
+                case = (
+                    await db.execute(
+                        select(ProductionCase).where(
+                            ProductionCase.document_id == document_id
+                        )
+                    )
+                ).scalar_one_or_none()
+                document.contract_confirmed_sha256 = task_contract_sha256(document)
+                payload = dict(job.request_payload or {})
+                payload["generation_contract_sha256"] = generation_contract_sha256(
+                    document,
+                    case,
+                    payload.get("additional_requirements"),
+                    await uploaded_sources_digest(db, document_id),
+                )
+                job.request_payload = payload
+                await db.commit()
         for row in tape.dependencies:
             if row.get("kind") == "input_file" and row.get("outcome") == "received":
                 key = StorageService()._parse_path(row["request"]["file_path"])
@@ -709,6 +829,8 @@ async def run(args, secrets):
         live_sections = args.live_section_set
 
         def is_live(stage, section_index):
+            if fresh:
+                return True
             if args.mode != "live" or stage not in LIVE_STAGES:
                 return False
             return (
@@ -854,10 +976,11 @@ async def run(args, secrets):
             return await production_write_sections(ctx, outline, pack)
 
         patches = [
-            replay_models(tape),
             patch("app.services.background_jobs._redis_client", LocalRedis()),
             patch.object(StorageService, "client", property(lambda self: store)),
         ]
+        if not fresh:
+            patches.insert(0, replay_models(tape))
         if args.section_evidence_map:
             patches.append(patch.object(sections, "write_sections", lab_write_sections))
         if (
@@ -878,7 +1001,7 @@ async def run(args, secrets):
                     {writer_model: prices[1]},
                 ),
             ]
-        if args.mode == "live":
+        if args.mode in ("live", "fresh"):
             hosts = (
                 set(MODEL_PROVIDER_HOSTS)
                 | {
@@ -895,7 +1018,7 @@ async def run(args, secrets):
             )
             guard = NetworkGuard(hosts)
             report["network"] = {
-                "allowed_hosts": sorted(hosts),
+                "allowed_hosts": "*" if "*" in hosts else sorted(hosts),
                 "refused": guard.refused,
             }
             if not (
@@ -909,7 +1032,7 @@ async def run(args, secrets):
             patches += [
                 patch.object(references, "verify", lab_verify),
                 patch.object(full_text_sources, "full_text", lab_full_text),
-                *guard.patches(),
+                *([] if "*" in hosts else guard.patches()),
             ]
         else:
             patches += [
@@ -929,6 +1052,12 @@ async def run(args, secrets):
             )
         if args.mode == "exact":
             tape.assert_complete()
+        if fresh:
+            report["explanation"] = (
+                "fresh mode: a new run of the recorded document; every model call"
+                " and external input was live and journaled, so the exported"
+                " recording stands on its own"
+            )
         async with database.AsyncSessionLocal() as db:
             job = await db.get(AIGenerationJob, snapshot["job_id"])
             document = await db.get(Document, snapshot["document"]["id"])
@@ -1215,8 +1344,11 @@ async def export_variant(
         and (e.get("payload") or {}).get("job_id") == snapshot["job_id"]
         and (e.get("payload") or {}).get("worker_attempt") == snapshot["worker_attempt"]
     ]
-    assert len(dependency_events) == len(tape.dependencies)
-    consumed_events = [dependency_events[i] for i in sorted(used)]
+    if args.mode == "fresh":
+        consumed_events = []  # every external input was journaled by this run
+    else:
+        assert len(dependency_events) == len(tape.dependencies)
+        consumed_events = [dependency_events[i] for i in sorted(used)]
     export = {
         "origin": f"s4-lab:{args.variant}:{args.mode}:{data.get('origin', 'recorded_export')}",
         "exported_at": datetime.now(UTC).isoformat(),

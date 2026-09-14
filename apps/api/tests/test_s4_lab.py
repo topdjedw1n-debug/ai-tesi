@@ -213,3 +213,48 @@ def test_uploaded_sources_spec_is_validated_and_parsed_by_production_code(tmp_pa
     )
     with pytest.raises(ValueError):
         lab.load_uploaded_sources(missing)
+
+
+@pytest.mark.asyncio
+async def test_fresh_uploads_write_the_rows_an_upload_would(db_session, tmp_path):
+    from app.models.document import DocumentSourceFile, SourceFilePage
+    from tests.test_executor_v2 import seed
+    from tests.test_uploaded_sources import _make_pdf
+
+    claimed, _, doc, _ = await seed(db_session)
+    pdf = tmp_path / "norma.pdf"
+    pdf.write_bytes(_make_pdf(["Articolo 4 comma 1 testo " * 20, ""]))
+    specs = [
+        {
+            "pdf": "norma.pdf",
+            "key": "ART4",
+            "title": "Statuto, art. 4",
+            "authors": ["Repubblica Italiana"],
+            "year": 2015,
+            "mandatory": True,
+        }
+    ]
+    report = await lab.fresh_uploads(db_session, specs, tmp_path, doc.id)
+    assert report[0]["status"] == "parsed" and report[0]["pages"] == 2
+    rows = list(
+        (
+            await db_session.execute(
+                __import__("sqlalchemy")
+                .select(DocumentSourceFile)
+                .where(DocumentSourceFile.document_id == doc.id)
+            )
+        ).scalars()
+    )
+    assert [r.citation_key for r in rows] == ["ART4"]
+    assert rows[0].mandatory is True and rows[0].metadata_incomplete is False
+    pages = list(
+        (
+            await db_session.execute(
+                __import__("sqlalchemy")
+                .select(SourceFilePage)
+                .where(SourceFilePage.source_file_id == rows[0].id)
+            )
+        ).scalars()
+    )
+    # An empty page is not stored, exactly like the upload endpoint.
+    assert [p.page_number for p in pages] == [1]
