@@ -92,6 +92,16 @@ def parse_sections(value: str | None) -> set[int] | None:
     return indexes
 
 
+def parse_section_documents(values: list[str]) -> dict[int, list[str]]:
+    result: dict[int, list[str]] = {}
+    for value in values:
+        section, _, keys = value.partition("=")
+        if not section.strip().isdigit() or not keys.strip():
+            raise ValueError("--section-documents needs N=KEY,KEY")
+        result[int(section)] = [k.strip() for k in keys.split(",") if k.strip()]
+    return result
+
+
 def read_secrets(path: Path | None, environment: dict[str, str]) -> dict[str, str]:
     values = {n: environment[n] for n in LIVE_SECRET_NAMES if environment.get(n)}
     if path is None:
@@ -521,6 +531,31 @@ def main() -> int:
         help="serve the recorded S3 plan although the S3 request changed",
     )
     parser.add_argument(
+        "--recorded-sections",
+        action="store_true",
+        help=(
+            "serve recorded S4 answers for sections not written live although"
+            " their request changed (previous summaries after a live rewrite)"
+        ),
+    )
+    parser.add_argument(
+        "--section-documents",
+        action="append",
+        default=[],
+        metavar="N=KEY,KEY",
+        help=(
+            "restrict a live section to these pack documents (planned keys and"
+            " the pool for out-of-plan windows); repeatable"
+        ),
+    )
+    parser.add_argument(
+        "--summaries-from-recorded",
+        help=(
+            "comma-separated live sections whose previous_summaries are taken from"
+            " the recorded texts of all other sections (write the introduction last)"
+        ),
+    )
+    parser.add_argument(
         "--allow-host",
         action="append",
         default=[],
@@ -546,6 +581,8 @@ def main() -> int:
         args.request_override_dict = parse_override(args.request_override)
         args.section_evidence_map = load_section_evidence(args.section_evidence)
         args.uploaded_source_specs = load_uploaded_sources(args.uploaded_sources)
+        args.section_documents_map = parse_section_documents(args.section_documents)
+        args.summaries_from_recorded_set = parse_sections(args.summaries_from_recorded)
     except ValueError as error:
         parser.error(str(error))
     secrets = (
@@ -666,6 +703,13 @@ async def run(args, secrets):
         ),
         "uploaded_sources": [],
         "recorded_outline": args.recorded_outline,
+        "recorded_sections": args.recorded_sections,
+        "section_documents": {str(k): v for k, v in args.section_documents_map.items()},
+        "summaries_from_recorded": (
+            sorted(args.summaries_from_recorded_set)
+            if args.summaries_from_recorded_set
+            else []
+        ),
         "live": {
             "calls": [],
             "input_tokens": 0,
@@ -734,13 +778,17 @@ async def run(args, secrets):
             inputs_row["response"]["passages"] = (
                 inputs_row["response"]["passages"] + extra_passages
             )
-        if args.recorded_outline:
+        relaxed = {"S3"} if args.recorded_outline else set()
+        if args.recorded_sections:
+            relaxed.add("S4")
+        if relaxed:
             recorded_response = tape.response
 
-            def outline_response(**call):
-                # The recorded plan is reused although the pack changed; the
-                # consumed entry shows request_changed for S3.
-                if call.get("stage") != "S3":
+            def relaxed_response(**call):
+                # The recorded answer is reused although the request changed
+                # (plan after new uploads, sections after a live rewrite);
+                # every consumed entry shows request_changed.
+                if call.get("stage") not in relaxed:
                     return recorded_response(**call)
                 tape.allow_request_changes = True
                 try:
@@ -748,7 +796,7 @@ async def run(args, secrets):
                 finally:
                     tape.allow_request_changes = False
 
-            tape.response = outline_response
+            tape.response = relaxed_response
         for name, value in snapshot.get(
             "replay_settings", snapshot["profile"]["settings"]
         ).items():
@@ -827,6 +875,35 @@ async def run(args, secrets):
 
         ledger = Ledger(args.cost_cap_usd or 0.0, prices_for, POLICY["chars_per_token"])
         live_sections = args.live_section_set
+        recorded_sections = {}
+        for event in events:
+            payload = event.get("payload") or {}
+            if (
+                event.get("event_type") == "executor_section"
+                and payload.get("job_id") == snapshot["job_id"]
+                and payload.get("section_index") not in recorded_sections
+            ):
+                recorded_sections[payload["section_index"]] = payload
+
+        def with_recorded_summaries(request, section_index):
+            """previous_summaries of a live section = the recorded texts of all
+            other sections, in plan order: the introduction written last."""
+            content = request["messages"][0]["content"]
+            start = content.index('{"forbidden_placeholders"')
+            body = json.loads(content[start:])
+            body["previous_summaries"] = [
+                {
+                    "title": row["title"],
+                    "summary": row["content"][-POLICY["summary_chars"] :],
+                }
+                for index, row in sorted(recorded_sections.items())
+                if index != section_index
+            ]
+            message = content[:start] + json.dumps(body, ensure_ascii=False)
+            return {
+                **request,
+                "messages": [{**request["messages"][0], "content": message}],
+            }
 
         def is_live(stage, section_index):
             if fresh:
@@ -855,6 +932,13 @@ async def run(args, secrets):
                     request = with_instruction(
                         request, production_instruction, instruction
                     )
+                if (
+                    purpose == "S4"
+                    and live
+                    and args.summaries_from_recorded_set
+                    and section_index in args.summaries_from_recorded_set
+                ):
+                    request = with_recorded_summaries(request, section_index)
             if not live:
                 return await production_provider_call(
                     call,
@@ -975,10 +1059,38 @@ async def run(args, secrets):
                         section["evidence_keys"].append(item["key"])
             return await production_write_sections(ctx, outline, pack)
 
+        production_section_evidence = sections.section_evidence
+
+        def lab_section_evidence(pack, section, nodes):
+            from types import SimpleNamespace
+
+            keys = args.section_documents_map.get(section.get("section_index"))
+            index = section.get("section_index")
+            scoped = (
+                live_sections is None or index in live_sections
+                if args.mode == "live"
+                else override_sections is None or index in override_sections
+            )
+            if not keys or not scoped:
+                return production_section_evidence(pack, section, nodes)
+            narrow = SimpleNamespace(
+                sources=[s for s in pack.sources if s.citation_key in keys],
+                passages=[p for p in (pack.passages or []) if p.citation_key in keys],
+                by_key=lambda key: pack.by_key(key) if key in keys else None,
+            )
+            planned = [k for k in keys if pack.by_key(k) is not None]
+            return production_section_evidence(
+                narrow, {**section, "evidence_keys": planned}, nodes
+            )
+
         patches = [
             patch("app.services.background_jobs._redis_client", LocalRedis()),
             patch.object(StorageService, "client", property(lambda self: store)),
         ]
+        if args.section_documents_map:
+            patches.append(
+                patch.object(sections, "section_evidence", lab_section_evidence)
+            )
         if not fresh:
             patches.insert(0, replay_models(tape))
         if args.section_evidence_map:

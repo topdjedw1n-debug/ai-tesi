@@ -13,10 +13,14 @@ def flatten(nodes):
     ]
 
 
-def mark_levels(nodes, depth=1):
+def scope_levels(nodes, depth=1, levels=None):
+    """Depth of every scope (chapter 1, sub-section 2 ...) without touching
+    the nodes: the S3 prompt carries the tree exactly as S1 produced it."""
+    levels = {} if levels is None else levels
     for node in nodes:
-        node["level"] = depth
-        mark_levels(node.get("children", []), depth + 1)
+        levels[node["scope_id"]] = depth
+        scope_levels(node.get("children", []), depth + 1, levels)
+    return levels
 
 
 def fixed_index(requirements):
@@ -131,6 +135,5 @@ BRIEF:\n"""
             parents[number] = node
     for i, node in enumerate(flatten(nodes), 1):
         node["scope_id"] = f"scope-{i}"
-    mark_levels(nodes)
     await ctx.emit("executor_scopes", {"nodes": nodes, "supervisor_index": index})
     return nodes

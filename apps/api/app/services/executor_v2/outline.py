@@ -3,7 +3,7 @@
 import json
 
 from .budgets import json_call, output_budget
-from .scopes import flatten
+from .scopes import flatten, scope_levels
 from .warnings import unusable
 
 
@@ -68,7 +68,7 @@ The target_words values must sum exactly to the brief target_words. No bibliogra
         ]
         section.pop("id", None)
         section["section_index"] = i
-        levels = {n["scope_id"]: n.get("level", 1) for n in nodes}
+        levels = scope_levels(scopes)
         section["level"] = min(
             (levels[s] for s in section["scope_ids"] if s in levels), default=1
         )
