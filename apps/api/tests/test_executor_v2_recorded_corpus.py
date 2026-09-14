@@ -187,7 +187,15 @@ async def test_recorded_job12_to_docx_and_replay(db_session, monkeypatch, tmp_pa
         response(json.dumps({"nodes": model_scopes()}, ensure_ascii=False)),
         response(json.dumps(model_plan(), ensure_ascii=False)),
     ]
-    for writer in FIXTURE["writers"]:
+    # The writer now takes the body first and the framing sections last; the
+    # recorded texts are served in that order and land on their own sections.
+    from app.services.section_material import writing_order
+
+    plan_sections = [
+        {**s, "position": i} for i, s in enumerate(model_plan()["sections"])
+    ]
+    for ordered in writing_order(plan_sections):
+        writer = FIXTURE["writers"][ordered["position"]]
         recorded = copy.deepcopy(writer["response"])
         for block in recorded["content"]:
             if block.get("type") == "text":

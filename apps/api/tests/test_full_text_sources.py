@@ -148,8 +148,9 @@ def test_section_evidence_planned_windows_then_relevant_documents():
     passages += document_windows(
         "KPLAN", "https://doc.test/plan", ["Testo del piano. " * 30]
     )
-    # A fetched open-access article that S3 did not plan stays out even when
-    # relevant: nobody vetted it. Uploads are the manager's choice.
+    # A fetched open-access article that S3 did not plan joins the section when
+    # its best window covers the section's own wording (the same gate as an
+    # upload): no section is written from abstracts while a document exists.
     passages += document_windows("KOAOFF", "u", law_pages)
     pack = pack_with(
         (
@@ -191,29 +192,32 @@ def test_section_evidence_planned_windows_then_relevant_documents():
     assert len(queries) == 2 and queries[1] == "remote monitoring"
     assert "controllo a distanza" in queries[0] and "remote" not in queries[0]
     items, report = section_evidence(pack, section, nodes)
-    assert [i["key"] for i in items] == ["KPLAN", "KABS", "KLAW"]
+    # Documents with relevant windows come first, most relevant first; the
+    # off-topic upload fails the gate on the section's own wording.
+    assert [i["key"] for i in items] == ["KLAW", "KOAOFF", "KPLAN", "KABS"]
+    law = report[0]
+    assert law["planned"] is False and law["score"] >= MIN_RELEVANCE
+    assert (
+        law["pages"] == [1] and law["gap"] is False
+    )  # page 2 is below the relative floor
+    assert items[0]["text"].startswith("[page 1] Art. 4.")
+    assert "KBRIDGE" not in [i["key"] for i in items]
     # A planned full-text document without a relevant window keeps its frozen
     # excerpt (never less than before) and is reported as a gap.
-    assert items[0]["text"] == evidence_text(pack.by_key("KPLAN").source)
-    assert report[0]["windows"] == 0 and report[0]["gap"] is True
+    assert items[2]["text"] == evidence_text(pack.by_key("KPLAN").source)
+    assert report[2]["windows"] == 0 and report[2]["gap"] is True
     # Abstract-only evidence keeps the frozen excerpt exactly as before.
-    assert items[1]["text"] == evidence_text(pack.by_key("KABS").source)
-    assert report[1] == {
+    assert items[3]["text"] == evidence_text(pack.by_key("KABS").source)
+    assert report[3] == {
         "key": "KABS",
         "planned": True,
         "windows": 0,
         "pages": [],
-        "chars": len(items[1]["text"]),
+        "chars": len(items[3]["text"]),
         "score": 0.0,
         "gap": False,
+        "capped": False,
     }
-    law = report[2]
-    assert law["planned"] is False and law["score"] >= MIN_RELEVANCE
-    assert "KOAOFF" not in [i["key"] for i in items]
-    assert (
-        law["pages"] == [1] and law["gap"] is False
-    )  # page 2 is below the relative floor
-    assert items[2]["text"].startswith("[page 1] Art. 4.")
     assert sum(r["chars"] for r in report) <= SECTION_EVIDENCE_CHARS + 2400
     # Without any full text the shape is the historical one: planned keys, excerpts.
     plain = pack_with(
@@ -306,3 +310,36 @@ def test_split_passages_windows_are_the_fragment_unit():
         source_file_id=0, citation_key="K", filename="u", pages=[(1, "a b c " * 400)]
     )
     assert len(windows) > 1 and all(len(w.text) <= 1000 for w in windows)
+
+
+def test_section_evidence_keeps_at_most_four_documents_by_relevance():
+    from app.services.section_material import MAX_SECTION_DOCUMENTS
+
+    text = "Controllo a distanza dei lavoratori e impianti audiovisivi. " * 6
+    passages = []
+    specs = []
+    for n in range(6):
+        key = f"KDOC{n}"
+        # Later documents repeat the section wording more often: more relevant.
+        passages += document_windows(key, f"u{n}", [text + "impianti " * n])
+        specs.append((key, f"Documento {n}", "Sintesi.", f"u{n}"))
+    pack = pack_with(*specs, passages=passages)
+    section = {
+        "title": "Il controllo a distanza dei lavoratori",
+        "purpose": "impianti audiovisivi",
+        "main_points": [],
+        "scope_ids": [],
+        "evidence_keys": [f"KDOC{n}" for n in range(6)],
+    }
+    items, report = section_evidence(pack, section, [])
+    windowed = [r for r in report if r["windows"]]
+    assert len(windowed) == MAX_SECTION_DOCUMENTS == 4
+    assert [r["score"] for r in windowed] == sorted(
+        (r["score"] for r in windowed), reverse=True
+    )
+    # The two planned documents below the cap keep their excerpts, marked capped.
+    rest = [r for r in report if not r["windows"]]
+    assert len(rest) == 2 and all(r["capped"] and not r["gap"] for r in rest)
+    assert [i["text"] for i in items[4:]] == [
+        evidence_text(pack.by_key(r["key"]).source) for r in rest
+    ]

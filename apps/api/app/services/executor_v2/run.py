@@ -221,11 +221,11 @@ class Context:
                     "tokens_used": section.get("tokens_used", 0),
                 },
             )
+        done = self.state.get("sections_done", 0) + 1
         await self.progress(
             "Розділ збережено.",
-            sections_done=section["section_index"],
-            progress=35
-            + round(50 * section["section_index"] / self.state["sections_total"]),
+            sections_done=done,
+            progress=35 + round(50 * done / self.state["sections_total"]),
         )
 
     async def step(self, name, stage, call, *args):

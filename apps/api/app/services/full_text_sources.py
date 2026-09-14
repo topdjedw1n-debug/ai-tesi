@@ -18,6 +18,7 @@ import httpx
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
+from app.services.section_material import MAX_SECTION_DOCUMENTS
 from app.services.source_evidence import evidence_text, freeze_evidence
 from app.services.uploaded_sources import (
     MAX_SOURCE_FILE_BYTES,
@@ -41,6 +42,8 @@ MIN_RELEVANCE = 0.30
 MIN_MATCHED_TERMS = 5
 # Within one document, windows far below its best match are padding.
 RELATIVE_FLOOR = 0.5
+# The plan's judgment counts a little when documents tie on relevance.
+PLANNED_BONUS = 0.05
 # Overlapping windows share at most this many leading words.
 MAX_OVERLAP_WORDS = 40
 FETCH_TIMEOUT_SECONDS = 30.0
@@ -296,15 +299,17 @@ def section_evidence(
 ) -> tuple[list[dict[str, str]], list[dict[str, Any]]]:
     """Prompt evidence for one section and the selection report behind it.
 
-    Planned documents (S3 order) come first, then manager-uploaded documents
-    the plan did not assign when one of their windows covers the section's own
-    wording well enough (fetched open-access texts count only where the plan
-    put them: their relevance is not vetted by anyone). Windows are
-    allocated round-robin across the documents, most relevant first, so every
-    document keeps a minimal share before any of them expands (M1: the
-    judgment needed many windows next to a one-page statute). A planned
-    document without a relevant window keeps its frozen excerpt exactly as
-    before and is reported as a gap; documents without full text keep it too.
+    The section is written from at most ``MAX_SECTION_DOCUMENTS`` documents:
+    the planned ones (S3) and any other full-text document of the pack whose
+    best window covers the section's own wording (title, purpose, main
+    points) well enough, ranked by relevance with a small bonus for the plan.
+    Depth over breadth: windows are allocated round-robin across the chosen
+    documents, most relevant first, so every document keeps a minimal share
+    before any of them expands (M1: the judgment needed many windows next to
+    a one-page statute). A planned document without a relevant window keeps
+    its frozen excerpt exactly as before and is reported as a gap; a planned
+    document ranked below the cap keeps its excerpt and is reported as
+    capped; documents without full text keep their excerpt too.
     """
     windows: dict[str, list[SourcePassage]] = {}
     for passage in getattr(pack, "passages", None) or []:
@@ -312,25 +317,22 @@ def section_evidence(
     queries = section_queries(section, nodes)
     specific = (section_queries(section, []) or [""])[0]
     specific_terms = set(content_terms(specific))
-    order: list[tuple[str, bool, list, float, str | None]] = []
     planned: list[str] = []
-    for key in section["evidence_keys"]:
+    excerpts: dict[str, str] = {}
+    scored: list[tuple[float, int, str, bool, list, float]] = []
+    for position, key in enumerate(section["evidence_keys"]):
         packed = pack.by_key(key)
         excerpt = evidence_text(packed.source) if packed else None
         if not excerpt:
             continue
         planned.append(packed.citation_key)
+        excerpts[packed.citation_key] = excerpt
         ranked, best = _ranked(windows.get(packed.citation_key, []), queries)
-        order.append((key, True, ranked, best, excerpt))
-    candidates = []
+        if ranked:
+            scored.append((-(best + PLANNED_BONUS), position, key, True, ranked, best))
     for key, rows in windows.items():
         packed = pack.by_key(key)
-        if (
-            key in planned
-            or packed is None
-            or packed.source.provider != "uploaded"
-            or not evidence_text(packed.source)
-        ):
+        if key in planned or packed is None or not evidence_text(packed.source):
             continue
         gate, _, window = max(
             (score_passage(specific, w.text), -i, w) for i, w in enumerate(rows)
@@ -338,16 +340,17 @@ def section_evidence(
         matched = len(specific_terms & set(content_terms(window.text)))
         ranked, best = _ranked(rows, queries)
         if ranked and gate >= MIN_RELEVANCE and matched >= MIN_MATCHED_TERMS:
-            candidates.append((-gate, key, ranked, best))
-    for _, key, ranked, best in sorted(candidates, key=lambda t: (t[0], t[1])):
-        order.append((key, False, ranked, best, None))
-    queues = {key: list(ranked) for key, _, ranked, _, _ in order}
+            scored.append((-best, len(planned), key, False, ranked, best))
+    scored.sort(key=lambda t: (t[0], t[1], t[2]))
+    chosen_docs = scored[:MAX_SECTION_DOCUMENTS]
+    capped = {key for _, _, key, *_ in scored[MAX_SECTION_DOCUMENTS:]}
+    queues = {key: list(ranked) for _, _, key, _, ranked, _ in chosen_docs}
     taken: dict[str, list[tuple[int, SourcePassage]]] = {key: [] for key in queues}
     doc_chars = dict.fromkeys(queues, 0)
     used = 0
     while used < SECTION_EVIDENCE_CHARS:
         progressed = False
-        for key, *_ in order:
+        for key in queues:
             queue = queues[key]
             if not queue:
                 continue
@@ -368,14 +371,8 @@ def section_evidence(
             break
     items: list[dict[str, str]] = []
     report: list[dict[str, Any]] = []
-    for key, is_planned, _, best, excerpt in order:
-        chosen = sorted(taken[key], key=lambda t: t[0])
-        if chosen:
-            text = render_windows(chosen)
-        elif is_planned:
-            text = excerpt
-        else:
-            continue
+
+    def add(key: str, is_planned: bool, text: str, chosen: list, best: float) -> None:
         items.append({"key": key, "text": text})
         report.append(
             {
@@ -385,7 +382,22 @@ def section_evidence(
                 "pages": sorted({w.page_number for _, w in chosen}),
                 "chars": len(text),
                 "score": round(best, 4),
-                "gap": is_planned and bool(windows.get(key)) and not chosen,
+                "gap": is_planned
+                and bool(windows.get(key))
+                and not chosen
+                and key not in capped,
+                "capped": key in capped,
             }
         )
+
+    for _, _, key, is_planned, _, best in chosen_docs:
+        chosen = sorted(taken[key], key=lambda t: t[0])
+        if chosen:
+            add(key, is_planned, render_windows(chosen), chosen, best)
+        elif is_planned:
+            add(key, True, excerpts[key], [], best)
+    for key in planned:
+        if key not in {r["key"] for r in report}:
+            _, best = _ranked(windows.get(key, []), queries)
+            add(key, True, excerpts[key], [], best)
     return items, report

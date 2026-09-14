@@ -190,6 +190,7 @@ def test_spec_guardrails():
         "source_coverage_gap",
         "source_no_readable_text",
         "source_full_text_unavailable",
+        "section_without_documents",
         "standard_reference_used",
         "outline_scope_unmapped",
         "output_truncated_retried",
@@ -1255,3 +1256,70 @@ async def test_full_text_fetches_replay_from_the_recording_without_network(
     } == first
     assert replayed.sha256() == pack.sha256()
     assert [w["code"] for w in replay.warnings] == [w["code"] for w in ctx.warnings]
+
+
+@pytest.mark.asyncio
+async def test_framing_sections_are_written_last_from_the_finished_chapters(
+    db_session, monkeypatch
+):
+    from app.services.executor_v2.sections import write_sections
+    from app.services.section_material import FRAME_RULE
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    mock_sources(monkeypatch)
+    plan = copy.deepcopy(PLAN)
+    ctx.provider = AsyncMock(
+        side_effect=[
+            response(json.dumps({"nodes": NODES})),
+            response(json.dumps(plan)),
+        ]
+    )
+    token = recording_context.set(ctx.recording)
+    try:
+        pack, outline = await prepare(ctx)
+        keys = [s.citation_key for s in pack.sources]
+        template = {**outline[0], "evidence_keys": keys, "target_words": 300}
+        outline = [
+            {**template, "section_index": 1, "title": "Introduzione"},
+            {**template, "section_index": 2, "title": "Il sonno in reparto"},
+            {**template, "section_index": 3, "title": "Conclusioni e prospettive"},
+        ]
+        ctx.state["sections_total"] = 3
+        ctx.provider.side_effect = [
+            response("Corpo del capitolo con [" + keys[0] + "]. Fine."),
+            response("Introduzione scritta per ultima. Fine."),
+            response("Conclusioni dalle evidenze. Fine."),
+        ]
+        result = await write_sections(ctx, outline, pack)
+    finally:
+        recording_context.reset(token)
+    prompts = [
+        c.kwargs["messages"][0]["content"] for c in ctx.provider.await_args_list[-3:]
+    ]
+    bodies = [json.loads(p[p.index('{"forbidden_placeholders"') :]) for p in prompts]
+    # Writing order: the body first, then the framing sections in plan order.
+    assert [b["section"]["section_index"] for b in bodies] == [2, 1, 3]
+    assert FRAME_RULE.strip() not in prompts[0] and "chapter_material" not in bodies[0]
+    assert FRAME_RULE.strip() in prompts[1] and FRAME_RULE.strip() in prompts[2]
+    assert bodies[1]["previous_summaries"] == []
+    assert [c["title"] for c in bodies[1]["chapter_material"]] == [
+        "Il sonno in reparto"
+    ]
+    assert bodies[1]["chapter_material"][0]["text"].startswith("Corpo del capitolo")
+    # The conclusions see the finished introduction as well.
+    assert [c["title"] for c in bodies[2]["chapter_material"]] == [
+        "Introduzione",
+        "Il sonno in reparto",
+    ]
+    # The result keeps the plan order whatever the writing order.
+    assert [s["section_index"] for s in result] == [1, 2, 3]
+    assert result[0]["content"].startswith("Introduzione scritta")
+    # A subject section written without any full-text document is flagged for
+    # the manager; framing sections are not (they write from the chapters).
+    flagged = [w for w in ctx.warnings if w["code"] == "section_without_documents"]
+    assert [(w["section_index"], w["detail"]) for w in flagged] == [
+        (2, "Il sonno in reparto")
+    ]
+    assert flagged[0]["severity"] == "warning"
+    assert ctx.state["sections_done"] == 3
