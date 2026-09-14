@@ -1,0 +1,380 @@
+{
+ "A": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "docs": 1,
+   "windows": 14,
+   "words": 504,
+   "ai": 65,
+   "quotes": 121,
+   "ai_pct": 12.9,
+   "quotes_pct": 24.0
+  },
+  {
+   "index": 2,
+   "title": "Definizione ed evoluzione del marketing digitale",
+   "docs": 1,
+   "windows": 20,
+   "words": 668,
+   "ai": 159,
+   "quotes": 140,
+   "ai_pct": 23.8,
+   "quotes_pct": 21.0
+  },
+  {
+   "index": 3,
+   "title": "Gli strumenti del marketing digitale",
+   "docs": 3,
+   "windows": 24,
+   "words": 633,
+   "ai": 72,
+   "quotes": 70,
+   "ai_pct": 11.4,
+   "quotes_pct": 11.1
+  },
+  {
+   "index": 4,
+   "title": "Il marketing digitale nelle piccole e medie imprese",
+   "docs": 1,
+   "windows": 17,
+   "words": 648,
+   "ai": 56,
+   "quotes": 90,
+   "ai_pct": 8.6,
+   "quotes_pct": 13.9
+  },
+  {
+   "index": 5,
+   "title": "Il contesto delle PMI italiane",
+   "docs": 2,
+   "windows": 27,
+   "words": 691,
+   "ai": 0,
+   "quotes": 274,
+   "ai_pct": 0.0,
+   "quotes_pct": 39.7
+  },
+  {
+   "index": 6,
+   "title": "I social media come canale di marketing",
+   "docs": 1,
+   "windows": 17,
+   "words": 620,
+   "ai": 0,
+   "quotes": 159,
+   "ai_pct": 0.0,
+   "quotes_pct": 25.6
+  },
+  {
+   "index": 7,
+   "title": "Il concetto di fidelizzazione del cliente",
+   "docs": 0,
+   "windows": 0,
+   "words": 506,
+   "ai": 117,
+   "quotes": 33,
+   "ai_pct": 23.1,
+   "quotes_pct": 6.5
+  },
+  {
+   "index": 8,
+   "title": "Social media e customer engagement",
+   "docs": 1,
+   "windows": 5,
+   "words": 471,
+   "ai": 0,
+   "quotes": 121,
+   "ai_pct": 0.0,
+   "quotes_pct": 25.7
+  },
+  {
+   "index": 9,
+   "title": "Strategie di social media per la fidelizzazione nelle PMI",
+   "docs": 0,
+   "windows": 0,
+   "words": 508,
+   "ai": 130,
+   "quotes": 91,
+   "ai_pct": 25.6,
+   "quotes_pct": 17.9
+  },
+  {
+   "index": 10,
+   "title": "Metodologia dell'analisi",
+   "docs": 4,
+   "windows": 23,
+   "words": 421,
+   "ai": 66,
+   "quotes": 106,
+   "ai_pct": 15.7,
+   "quotes_pct": 25.2
+  },
+  {
+   "index": 11,
+   "title": "Casi di studio di PMI italiane",
+   "docs": 1,
+   "windows": 2,
+   "words": 499,
+   "ai": 84,
+   "quotes": 149,
+   "ai_pct": 16.8,
+   "quotes_pct": 29.9
+  },
+  {
+   "index": 12,
+   "title": "Evidenze empiriche sulla fidelizzazione tramite social media",
+   "docs": 0,
+   "windows": 0,
+   "words": 465,
+   "ai": 174,
+   "quotes": 94,
+   "ai_pct": 37.4,
+   "quotes_pct": 20.2
+  },
+  {
+   "index": 13,
+   "title": "Discussione dei risultati",
+   "docs": 1,
+   "windows": 15,
+   "words": 429,
+   "ai": 225,
+   "quotes": 52,
+   "ai_pct": 52.4,
+   "quotes_pct": 12.1
+  },
+  {
+   "index": 14,
+   "title": "Conclusioni",
+   "docs": 2,
+   "windows": 23,
+   "words": 361,
+   "ai": 162,
+   "quotes": 46,
+   "ai_pct": 44.9,
+   "quotes_pct": 12.7
+  },
+  {
+   "index": 15,
+   "title": "Bibliografia",
+   "docs": null,
+   "windows": null,
+   "words": 278,
+   "ai": 0,
+   "quotes": 0,
+   "ai_pct": 0.0,
+   "quotes_pct": 0.0
+  }
+ ],
+ "B": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "docs": 4,
+   "windows": 23,
+   "words": 641,
+   "ai": 261,
+   "quotes": 60,
+   "ai_pct": 40.7,
+   "quotes_pct": 9.4
+  },
+  {
+   "index": 2,
+   "title": "La formulazione originaria dell'art. 4 dello Statuto dei lavoratori",
+   "docs": 4,
+   "windows": 22,
+   "words": 820,
+   "ai": 57,
+   "quotes": 279,
+   "ai_pct": 7.0,
+   "quotes_pct": 34.0
+  },
+  {
+   "index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. n. 151/2015)",
+   "docs": 4,
+   "windows": 23,
+   "words": 728,
+   "ai": 0,
+   "quotes": 146,
+   "ai_pct": 0.0,
+   "quotes_pct": 20.1
+  },
+  {
+   "index": 4,
+   "title": "I presupposti di legittimità del controllo e l'accordo sindacale",
+   "docs": 4,
+   "windows": 23,
+   "words": 857,
+   "ai": 255,
+   "quotes": 215,
+   "ai_pct": 29.8,
+   "quotes_pct": 25.1
+  },
+  {
+   "index": 5,
+   "title": "I principi generali del trattamento dei dati personali",
+   "docs": 4,
+   "windows": 23,
+   "words": 735,
+   "ai": 130,
+   "quotes": 233,
+   "ai_pct": 17.7,
+   "quotes_pct": 31.7
+  },
+  {
+   "index": 6,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "docs": 4,
+   "windows": 23,
+   "words": 568,
+   "ai": 62,
+   "quotes": 106,
+   "ai_pct": 10.9,
+   "quotes_pct": 18.7
+  },
+  {
+   "index": 7,
+   "title": "Il ruolo del datore di lavoro come titolare del trattamento",
+   "docs": 4,
+   "windows": 23,
+   "words": 666,
+   "ai": 224,
+   "quotes": 194,
+   "ai_pct": 33.6,
+   "quotes_pct": 29.1
+  },
+  {
+   "index": 8,
+   "title": "Il coordinamento tra GDPR e normativa nazionale (d.lgs. 196/2003)",
+   "docs": 4,
+   "windows": 24,
+   "words": 639,
+   "ai": 213,
+   "quotes": 172,
+   "ai_pct": 33.3,
+   "quotes_pct": 26.9
+  },
+  {
+   "index": 9,
+   "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+   "docs": 4,
+   "windows": 23,
+   "words": 701,
+   "ai": 188,
+   "quotes": 125,
+   "ai_pct": 26.8,
+   "quotes_pct": 17.8
+  },
+  {
+   "index": 10,
+   "title": "I controlli difensivi del datore di lavoro",
+   "docs": 4,
+   "windows": 22,
+   "words": 760,
+   "ai": 127,
+   "quotes": 177,
+   "ai_pct": 16.7,
+   "quotes_pct": 23.3
+  },
+  {
+   "index": 11,
+   "title": "Geolocalizzazione, videosorveglianza e dispositivi biometrici",
+   "docs": 4,
+   "windows": 23,
+   "words": 684,
+   "ai": 182,
+   "quotes": 112,
+   "ai_pct": 26.6,
+   "quotes_pct": 16.4
+  },
+  {
+   "index": 12,
+   "title": "Il lavoro agile e le nuove forme di controllo",
+   "docs": 2,
+   "windows": 22,
+   "words": 571,
+   "ai": 285,
+   "quotes": 85,
+   "ai_pct": 49.9,
+   "quotes_pct": 14.9
+  },
+  {
+   "index": 13,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "docs": 4,
+   "windows": 22,
+   "words": 739,
+   "ai": 55,
+   "quotes": 203,
+   "ai_pct": 7.4,
+   "quotes_pct": 27.5
+  },
+  {
+   "index": 14,
+   "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+   "docs": 4,
+   "windows": 23,
+   "words": 838,
+   "ai": 47,
+   "quotes": 59,
+   "ai_pct": 5.6,
+   "quotes_pct": 7.0
+  },
+  {
+   "index": 15,
+   "title": "I provvedimenti del Garante per la protezione dei dati personali",
+   "docs": 3,
+   "windows": 26,
+   "words": 864,
+   "ai": 63,
+   "quotes": 155,
+   "ai_pct": 7.3,
+   "quotes_pct": 17.9
+  },
+  {
+   "index": 16,
+   "title": "Il bilanciamento tra potere di controllo e tutela della riservatezza",
+   "docs": 3,
+   "windows": 22,
+   "words": 727,
+   "ai": 127,
+   "quotes": 167,
+   "ai_pct": 17.5,
+   "quotes_pct": 23.0
+  },
+  {
+   "index": 17,
+   "title": "Conclusioni",
+   "docs": 4,
+   "windows": 25,
+   "words": 536,
+   "ai": 154,
+   "quotes": 59,
+   "ai_pct": 28.7,
+   "quotes_pct": 11.0
+  },
+  {
+   "index": 18,
+   "title": "Bibliografia",
+   "docs": null,
+   "windows": null,
+   "words": 157,
+   "ai": 0,
+   "quotes": 0,
+   "ai_pct": 0.0,
+   "quotes_pct": 0.0
+  },
+  {
+   "index": 19,
+   "title": "Normativa e giurisprudenza",
+   "docs": null,
+   "windows": null,
+   "words": 223,
+   "ai": 0,
+   "quotes": 7,
+   "ai_pct": 0.0,
+   "quotes_pct": 3.1
+  }
+ ]
+}
