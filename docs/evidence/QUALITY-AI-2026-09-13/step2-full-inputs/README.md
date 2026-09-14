@@ -71,6 +71,38 @@ s4_lab.py …/B/document14-job17-recording.json.gz OUT --job-id 17 --variant fre
 
 Наступний важіль для A — не інструкція і не цитати, а повний текст для теоретичних розділів: завантажити менеджером 1–2 підручникові/оглядові джерела з теорії digital marketing (або відкриті огляди), щоб кожен розділ мав вікна. Скан B (новий файл `B-diritto-controllo-a-distanza-2026-09-14.docx`) ще не зроблено — фаундер надіслав звіт старого §16 від 13.09 (19 %, 434 слова, уже в доказах М1).
 
+## 7. Compilatio — робота B (скан фаундера 14.09, [звіт](B/compilatio/detailed-report-B-2026-09-14.pdf), [числа](B/compilatio/compilatio-results.json))
+
+**Similarity 14 %, AI 19 %** (разом «підозрілих» 31 %); у лапках 21 % (не рахується). Проти серії 13.09 (B: similarity 5 %, AI 33 %; чотири версії 28–39 %) AI впав на 14 пунктів, але similarity виросла втричі: дослівні витяги постанов, норм і ліній Garante індексуються (головні джерела збігів — тексти Cass. 34092, 32283, «controlli difensivi», Garante, EJPLT, архів FIOM з лініями 2007). Обидві планки не взято.
+
+| § | Розділ | Слів | Док/вікон | У лапках | AI |
+|---|---|---:|---:|---:|---:|
+| 1 | Introduzione | 672 | 13/24 | 23.5 % | **47.5 %** |
+| 2 | Evoluzione dell'art. 4 dello Statuto dei lav | 497 | 9/24 | 30.2 % | **14.1 %** |
+| 3 | La formulazione originaria dell'art. 4 (L. 3 | 635 | 11/24 | 30.6 % | **16.5 %** |
+| 4 | La riforma del Jobs Act (D.Lgs. 151/2015) | 590 | 9/23 | 26.6 % | **15.3 %** |
+| 5 | Accordo sindacale e autorizzazione amministr | 547 | 8/22 | 19.6 % | **8.2 %** |
+| 6 | Il GDPR e i principi applicabili al rapporto | 478 | 8/24 | 14.6 % | **0.0 %** |
+| 7 | Ambito di applicazione e definizioni | 431 | 7/23 | 10.7 % | **31.6 %** |
+| 8 | Principi di liceità, minimizzazione e traspa | 537 | 7/22 | 29.6 % | **0.0 %** |
+| 9 | Basi giuridiche del trattamento nel rapporto | 478 | 9/23 | 14.9 % | **22.2 %** |
+| 10 | Accountability e valutazione d'impatto (DPIA | 507 | 5/25 | 28.4 % | **16.4 %** |
+| 11 | Il coordinamento tra GDPR e Codice privacy ( | 509 | 7/25 | 23.0 % | **0.0 %** |
+| 12 | Il controllo a distanza e gli strumenti tecn | 460 | 7/23 | 20.0 % | **0.0 %** |
+| 13 | Strumenti di lavoro e controlli difensivi | 672 | 7/24 | 23.4 % | **27.4 %** |
+| 14 | Videosorveglianza sul luogo di lavoro | 494 | 11/23 | 10.1 % | **45.1 %** |
+| 15 | Posta elettronica, internet e dispositivi az | 577 | 4/25 | 21.3 % | **11.6 %** |
+| 16 | Geolocalizzazione, biometria e nuove tecnolo | 495 | 7/24 | 22.4 % | **0.0 %** |
+| 17 | Il lavoro agile e il controllo da remoto | 394 | 8/23 | 16.0 % | **15.2 %** |
+| 18 | Giurisprudenza e prassi del Garante | 392 | 3/22 | 8.9 % | **52.3 %** |
+| 19 | La giurisprudenza della Corte di Cassazione | 1206 | 5/23 | 24.0 % | **5.4 %** |
+| 21 | I provvedimenti e le Linee guida del Garante | 510 | 7/24 | 31.6 % | **0.0 %** |
+| 22 | Conclusioni | 694 | 8/23 | 10.1 % | **37.8 %** |
+
+(§20 «Corte EDU» злився з §19 у витягу за заголовком; сума слів збігається зі звітом: 12 321 проти 12 233.) Кореляція «частка в лапках → AI» по розділах −0,55: де писар цитує дослівно, детектор мовчить, але росте similarity. 8 з 21 розділів ≤ 10 % AI; медіана 15 %. Найвищі: §18 вступ до глави IV (52 %), §1 вступ (48 %), §14 відеонагляд (45 %), §22 висновки (38 %), §7 «ambito di applicazione» (32 %) — вступ, висновки і «рамкові» вступи до глав, тобто той самий однорідний шар рамки з розбору раунду 2, і він не лікується матеріалом (§1 мав 13 документів і 24 вікна).
+
+**Що це означає для планки.** Матеріал дав приблизно половину шляху (A: 3,8 % у розділах з повними текстами; B: −14 пунктів). Далі два різні важелі: (1) similarity — бюджет дослівних цитат у писаря (зараз 21 % слів; правило «короткі фрази» без числа писар не виконав) з дорадчим попередженням про перевищення; (2) AI у рамкових розділах — окреме правило для вступу, висновків і вступів до глав (без дорожньої карти й мета-опису, лише зміст), яке можна дешево перевірити лабораторією на записі цієї роботи (переписати §1, §14, §18, §22 наживо ≈ $0,5 і сканувати короткими файлами). Обидва — після рішення фаундера.
+
 ## 5. Файли
 
 `A/`, `B/`: DOCX, `lab-report.json` (звіт лабораторії: звернення, токени, вартість, попередження), `run-summary.txt` (пакет, повні тексти, докази на розділ, бібліографія, огляд), `fabrication-check.json`, `docx-text.txt`, `replay-report.json`; повні записи `*-recording.json.gz` лежать поруч поза git (з експорту вилучено сіяну копію початкового знімка входів — те саме правило тепер у лабораторії, `export_variant`). `B/uploads/` — 11 зібраних PDF і специфікація; три сторонні PDF за адресами в [B/uploads/README.md](B/uploads/README.md).

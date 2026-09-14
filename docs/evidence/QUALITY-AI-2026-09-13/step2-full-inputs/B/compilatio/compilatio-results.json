@@ -1,0 +1,187 @@
+{
+ "file": "B-diritto-controllo-a-distanza-2026-09-14.txt",
+ "words": 12233,
+ "suspect_total_pct": 31,
+ "similarity_pct": 14,
+ "ai_pct": 19,
+ "quotes_pct": 21,
+ "scan_date": "2026-09-14",
+ "per_section": {
+  "1": {
+   "title": "Introduzione",
+   "words": 672,
+   "ai_pct": 47.5,
+   "quoted_pct": 23.5,
+   "docs": 13,
+   "windows": 24
+  },
+  "2": {
+   "title": "Evoluzione dell'art. 4 dello Statuto dei lavoratori",
+   "words": 497,
+   "ai_pct": 14.1,
+   "quoted_pct": 30.2,
+   "docs": 9,
+   "windows": 24
+  },
+  "3": {
+   "title": "La formulazione originaria dell'art. 4 (L. 300/1970)",
+   "words": 635,
+   "ai_pct": 16.5,
+   "quoted_pct": 30.6,
+   "docs": 11,
+   "windows": 24
+  },
+  "4": {
+   "title": "La riforma del Jobs Act (D.Lgs. 151/2015)",
+   "words": 590,
+   "ai_pct": 15.3,
+   "quoted_pct": 26.6,
+   "docs": 9,
+   "windows": 23
+  },
+  "5": {
+   "title": "Accordo sindacale e autorizzazione amministrativa",
+   "words": 547,
+   "ai_pct": 8.2,
+   "quoted_pct": 19.6,
+   "docs": 8,
+   "windows": 22
+  },
+  "6": {
+   "title": "Il GDPR e i principi applicabili al rapporto di lavoro",
+   "words": 478,
+   "ai_pct": 0.0,
+   "quoted_pct": 14.6,
+   "docs": 8,
+   "windows": 24
+  },
+  "7": {
+   "title": "Ambito di applicazione e definizioni",
+   "words": 431,
+   "ai_pct": 31.6,
+   "quoted_pct": 10.7,
+   "docs": 7,
+   "windows": 23
+  },
+  "8": {
+   "title": "Principi di liceità, minimizzazione e trasparenza",
+   "words": 537,
+   "ai_pct": 0.0,
+   "quoted_pct": 29.6,
+   "docs": 7,
+   "windows": 22
+  },
+  "9": {
+   "title": "Basi giuridiche del trattamento nel rapporto di lavoro",
+   "words": 478,
+   "ai_pct": 22.2,
+   "quoted_pct": 14.9,
+   "docs": 9,
+   "windows": 23
+  },
+  "10": {
+   "title": "Accountability e valutazione d'impatto (DPIA)",
+   "words": 507,
+   "ai_pct": 16.4,
+   "quoted_pct": 28.4,
+   "docs": 5,
+   "windows": 25
+  },
+  "11": {
+   "title": "Il coordinamento tra GDPR e Codice privacy (D.Lgs. 196/2003)",
+   "words": 509,
+   "ai_pct": 0.0,
+   "quoted_pct": 23.0,
+   "docs": 7,
+   "windows": 25
+  },
+  "12": {
+   "title": "Il controllo a distanza e gli strumenti tecnologici",
+   "words": 460,
+   "ai_pct": 0.0,
+   "quoted_pct": 20.0,
+   "docs": 7,
+   "windows": 23
+  },
+  "13": {
+   "title": "Strumenti di lavoro e controlli difensivi",
+   "words": 672,
+   "ai_pct": 27.4,
+   "quoted_pct": 23.4,
+   "docs": 7,
+   "windows": 24
+  },
+  "14": {
+   "title": "Videosorveglianza sul luogo di lavoro",
+   "words": 494,
+   "ai_pct": 45.1,
+   "quoted_pct": 10.1,
+   "docs": 11,
+   "windows": 23
+  },
+  "15": {
+   "title": "Posta elettronica, internet e dispositivi aziendali",
+   "words": 577,
+   "ai_pct": 11.6,
+   "quoted_pct": 21.3,
+   "docs": 4,
+   "windows": 25
+  },
+  "16": {
+   "title": "Geolocalizzazione, biometria e nuove tecnologie",
+   "words": 495,
+   "ai_pct": 0.0,
+   "quoted_pct": 22.4,
+   "docs": 7,
+   "windows": 24
+  },
+  "17": {
+   "title": "Il lavoro agile e il controllo da remoto",
+   "words": 394,
+   "ai_pct": 15.2,
+   "quoted_pct": 16.0,
+   "docs": 8,
+   "windows": 23
+  },
+  "18": {
+   "title": "Giurisprudenza e prassi del Garante",
+   "words": 392,
+   "ai_pct": 52.3,
+   "quoted_pct": 8.9,
+   "docs": 3,
+   "windows": 22
+  },
+  "19": {
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 1206,
+   "ai_pct": 5.4,
+   "quoted_pct": 24.0,
+   "docs": 5,
+   "windows": 23
+  },
+  "21": {
+   "title": "I provvedimenti e le Linee guida del Garante",
+   "words": 510,
+   "ai_pct": 0.0,
+   "quoted_pct": 31.6,
+   "docs": 7,
+   "windows": 24
+  },
+  "22": {
+   "title": "Conclusioni",
+   "words": 694,
+   "ai_pct": 37.8,
+   "quoted_pct": 10.1,
+   "docs": 8,
+   "windows": 23
+  },
+  "99": {
+   "title": "Bibliografia",
+   "words": 546,
+   "ai_pct": 0.9,
+   "quoted_pct": 0.0,
+   "docs": 0,
+   "windows": 0
+  }
+ }
+}
