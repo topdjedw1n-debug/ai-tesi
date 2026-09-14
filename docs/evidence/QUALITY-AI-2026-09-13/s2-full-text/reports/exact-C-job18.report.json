@@ -1,0 +1,276 @@
+{
+  "status": "completed",
+  "mode": "exact",
+  "variant": "exact-C",
+  "job_id": 18,
+  "actual_spend_usd": 0.0,
+  "live_provider_calls": 0,
+  "cost_cap_usd": null,
+  "lab_revision": "fe7151630c4321cfe343969af0dcff3a36321f8c",
+  "input_recording": {
+    "path": "docs/evidence/EXECUTOR-V2-THREE-CONTROLS-2026-09-12/C/document15-job18-recording.json.gz",
+    "sha256": "a5db64b2fbb55244ce5357d158001f05ef57034708d376740f293d72c7b959a5",
+    "origin": "live-manager1-three-controls-document15-job18",
+    "revision": "3892cac1ae8fccc261f04d0d35c64c5d4f6d3d49"
+  },
+  "s4_instruction": {
+    "source": "production",
+    "sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "production_sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "changed": false
+  },
+  "model": {
+    "requested": null,
+    "recorded": "claude-opus-4-8",
+    "writer": "claude-opus-4-8"
+  },
+  "request_override": null,
+  "section_evidence": {},
+  "section_evidence_sha256": null,
+  "live_sections": null,
+  "uploaded_sources": [],
+  "recorded_outline": false,
+  "live": {
+    "calls": [],
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0,
+    "secrets_present": [],
+    "received": 0,
+    "failed": 0,
+    "unknown_spend_estimate_usd": 0.0
+  },
+  "consumed": [
+    {
+      "attempt_id": "53708aad-1b12-48a5-8681-672f95ed0df4",
+      "stage": "S1",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ad6adbc2-33ee-4c88-a86b-8c0464ba6ef5",
+      "stage": "S3",
+      "section_index": null,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "8f729e1c-e6d9-49fb-988a-543e17819801",
+      "stage": "S4",
+      "section_index": 1,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "02532eb0-136a-4285-a87b-c37831fd9eb8",
+      "stage": "S4",
+      "section_index": 2,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "c89c549a-c119-4a9c-9e6a-155ade1c41a9",
+      "stage": "S4",
+      "section_index": 3,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "ba072d42-45cf-44a0-8788-6ff87e40312a",
+      "stage": "S4",
+      "section_index": 4,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "8317a589-49f6-4443-95c4-ce46adeb8ca7",
+      "stage": "S4",
+      "section_index": 5,
+      "request_changed": false
+    },
+    {
+      "attempt_id": "7d9159bf-71c1-4840-ab8c-9eeab29bc0e0",
+      "stage": "S6",
+      "section_index": null,
+      "request_changed": false
+    }
+  ],
+  "replaced_recorded_calls": [],
+  "warnings": [
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K860bb1be0fb4",
+      "created_at": "2026-09-14T09:30:00.855734+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K38b573fd9b19",
+      "created_at": "2026-09-14T09:30:00.860805+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K903725c5918c",
+      "created_at": "2026-09-14T09:30:00.864192+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K06b3734cce90",
+      "created_at": "2026-09-14T09:30:00.867790+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kc28d3fdd9cd6",
+      "created_at": "2026-09-14T09:30:00.871614+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K37395a0f829e",
+      "created_at": "2026-09-14T09:30:00.875318+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "outline",
+      "code": "outline_scope_unmapped",
+      "severity": "warning",
+      "section_index": null,
+      "message_uk": "План не охоплює частину підтвердженого завдання.",
+      "detail": "Bibliografia",
+      "created_at": "2026-09-14T09:30:00.934547+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 5,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-14T09:30:01.046728+00:00"
+    },
+    {
+      "document_id": 15,
+      "job_id": 18,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nThe work is a coherent, honestly-scoped literature-based comparative thesis on collaborative filtering vs. content-based recommender systems. Its central methodological stance—transparently distinguishing what the heterogeneous, partly tangential sources support versus what they cannot substantiate—is consistently applied throughout all chapters and conclusions. Citations are used carefully with explicit acknowledgment of analogical vs. direct support (e.g., Netflix streaming context, clinical ML study, real-estate similarity). Structure (intro, 3 chapters, conclusions, bibliography) is complete and internally consistent; research question is posed and answered. Minor concern: Aggarwal (2016) is cited as a fallback standard reference but the text openly admits it is not among the provided extracts, which is handled honestly rather than deceptively. The pervasive hedging is intentional and appropriate given the acknowledged evidence limitations, not a defect. Acceptable as an hones",
+      "created_at": "2026-09-14T09:30:01.114991+00:00"
+    }
+  ],
+  "sections": [
+    {
+      "section_index": 1,
+      "title": "Introduzione",
+      "target_words": 801,
+      "word_count": 852,
+      "tokens_used": 5101,
+      "written": "recorded"
+    },
+    {
+      "section_index": 2,
+      "title": "Fondamenti dei sistemi di raccomandazione",
+      "target_words": 2500,
+      "word_count": 1960,
+      "tokens_used": 9713,
+      "written": "recorded"
+    },
+    {
+      "section_index": 3,
+      "title": "Filtraggio collaborativo e approcci content-based",
+      "target_words": 2599,
+      "word_count": 2385,
+      "tokens_used": 11193,
+      "written": "recorded"
+    },
+    {
+      "section_index": 4,
+      "title": "Valutazione sperimentale e casi applicativi nell'e-commerce",
+      "target_words": 1800,
+      "word_count": 1508,
+      "tokens_used": 9200,
+      "written": "recorded"
+    },
+    {
+      "section_index": 5,
+      "title": "Conclusioni",
+      "target_words": 800,
+      "word_count": 779,
+      "tokens_used": 6434,
+      "written": "recorded"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/exact-C/d0bf1da2f6f6ee43d9c22f0498616ef1b4eba7214893d2dcf92ae3c01190b68b.docx",
+      "sha256": "d0bf1da2f6f6ee43d9c22f0498616ef1b4eba7214893d2dcf92ae3c01190b68b",
+      "bytes": 54651
+    }
+  ],
+  "pricing_usd_per_1m": {
+    "model": "claude-opus-4-8",
+    "input": 5.0,
+    "output": 25.0,
+    "source": "production"
+  },
+  "recorded_live_sections": null,
+  "profile_changed": true,
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 93,
+  "recorded_model_calls": 8,
+  "journal": {
+    "confirmed_tokens": 88040,
+    "confirmed_cost_cents": 93,
+    "unknown_provider_attempts": 0
+  },
+  "export": {
+    "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/exact-C/exact-C-job18-recording.json.gz",
+    "sha256": "15516b61c3f0fc25eed2b8b6f33f15b3ffabfcb7bd0c07d12fb3f1b10bfa738e",
+    "consumed_dependency_events": 4556,
+    "provenance_rows": 57
+  }
+}

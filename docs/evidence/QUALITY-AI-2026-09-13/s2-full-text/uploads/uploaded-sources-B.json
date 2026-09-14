@@ -1,0 +1,35 @@
+[
+ {
+  "pdf": "statuto-art4.pdf",
+  "key": "ART4",
+  "title": "Legge 20 maggio 1970, n. 300 (Statuto dei lavoratori), art. 4 «Impianti audiovisivi e altri strumenti di controllo», testo vigente",
+  "authors": [
+   "Repubblica Italiana"
+  ],
+  "year": 2015,
+  "mandatory": true,
+  "url": "https://www.normattiva.it/uri-res/N2Ls?urn:nir:stato:legge:1970-05-20;300~art4"
+ },
+ {
+  "pdf": "cass-25732-2021.pdf",
+  "key": "CASS25732",
+  "title": "Corte di Cassazione, sezione lavoro, sentenza 22 settembre 2021, n. 25732",
+  "authors": [
+   "Corte di Cassazione"
+  ],
+  "year": 2021,
+  "mandatory": true,
+  "url": "https://www.misterlex.it/cassazione-civile/2021/25732/"
+ },
+ {
+  "pdf": "ghionzoli-2025.pdf",
+  "key": "GHIONZOLI2025",
+  "title": "Sistemi di IA in ambiente di lavoro: traiettorie giuridiche tra privacy e strategia dei droni 2.0",
+  "authors": [
+   "Ghionzoli, Sara"
+  ],
+  "year": 2025,
+  "mandatory": false,
+  "url": "https://doi.org/10.57230/ejplt25sibgs"
+ }
+]

@@ -1,0 +1,83 @@
+[
+ {
+  "document_id": 14,
+  "job_id": 17,
+  "worker_attempt": 1,
+  "stage": "writing",
+  "section_index": 1,
+  "evidence": [
+   {
+    "key": "Ka0418ffc6496",
+    "planned": true,
+    "windows": 0,
+    "pages": [],
+    "chars": 1289,
+    "score": 0.0,
+    "gap": false
+   },
+   {
+    "key": "K184e1bb9a955",
+    "planned": true,
+    "windows": 0,
+    "pages": [],
+    "chars": 432,
+    "score": 0.0,
+    "gap": false
+   },
+   {
+    "key": "K58dde35d9d5d",
+    "planned": true,
+    "windows": 0,
+    "pages": [],
+    "chars": 457,
+    "score": 0.0,
+    "gap": false
+   },
+   {
+    "key": "Kc75cc0952029",
+    "planned": true,
+    "windows": 0,
+    "pages": [],
+    "chars": 148,
+    "score": 0.0,
+    "gap": false
+   },
+   {
+    "key": "GHIONZOLI2025",
+    "planned": false,
+    "windows": 12,
+    "pages": [
+     2,
+     14,
+     16,
+     17,
+     18,
+     20,
+     26,
+     28,
+     36
+    ],
+    "chars": 10076,
+    "score": 0.4791,
+    "gap": false
+   },
+   {
+    "key": "CASS25732",
+    "planned": false,
+    "windows": 12,
+    "pages": [
+     2,
+     4,
+     5,
+     6,
+     8,
+     9,
+     11
+    ],
+    "chars": 8659,
+    "score": 0.3395,
+    "gap": false
+   }
+  ]
+ }
+]

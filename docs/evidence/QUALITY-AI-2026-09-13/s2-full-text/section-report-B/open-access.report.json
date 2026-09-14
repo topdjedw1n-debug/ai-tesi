@@ -1,0 +1,1566 @@
+{
+ "recording": "docs/evidence/EXECUTOR-V2-THREE-CONTROLS-2026-09-12/B/document14-job17-recording.json.gz",
+ "job_id": 17,
+ "sections": 24,
+ "pack_sources": 40,
+ "uploaded_sources": [],
+ "open_access": [
+  {
+   "key": "K58dde35d9d5d",
+   "url": "https://media.fupress.com/files/pdf/24/15509/43120"
+  },
+  {
+   "key": "Kc6a04e74719f",
+   "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2254/1803"
+  },
+  {
+   "key": "Ke484ddce5449",
+   "url": "https://media.fupress.com/files/pdf/24/10676/27542"
+  },
+  {
+   "key": "Ke62eb478240c",
+   "url": "http://hdl.handle.net/11585/517865"
+  },
+  {
+   "key": "Ka0418ffc6496",
+   "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/1580/1088"
+  },
+  {
+   "key": "K40a5977328dd",
+   "url": "https://openyls.law.yale.edu/bitstream/20.500.13051/9377/2/11_111YaleLJ1_October2001_.pdf"
+  },
+  {
+   "key": "Kc46d4cf8d446",
+   "url": "https://doi.org/10.1596/33635"
+  },
+  {
+   "key": "K198857969958",
+   "url": "https://media.fupress.com/files/pdf/24/10679/27545"
+  },
+  {
+   "key": "K99625f475c9f",
+   "url": "https://www.tandfonline.com/doi/pdf/10.1080/13600834.2019.1573501?needAccess=true"
+  },
+  {
+   "key": "Kf452a42db978",
+   "url": "https://doi.org/10.36253/979-12-215-0796-6.09"
+  },
+  {
+   "key": "K99275327773b",
+   "url": "https://doi.org/10.36253/979-12-215-0796-6.08"
+  },
+  {
+   "key": "K66f7f6a6f0a4",
+   "url": "https://labourlaw.unibo.it/article/download/23634/20526"
+  },
+  {
+   "key": "Kb8ad3d321cde",
+   "url": "https://doi.org/10.3390/app16105096"
+  },
+  {
+   "key": "K6d276b5caed8",
+   "url": "https://journal.sketchingscience.org/doi/pdf/10.22541/au.159136840.03196485"
+  },
+  {
+   "key": "K49471a32f045",
+   "url": "http://hdl.handle.net/2434/465777"
+  },
+  {
+   "key": "Keb3f04ff6686",
+   "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2200/1760"
+  },
+  {
+   "key": "K8e27279e10a6",
+   "url": "https://riviste.unimi.it/index.php/statoechiese/article/download/23623/20996"
+  },
+  {
+   "key": "Ke4af2259fe90",
+   "url": "https://buponline.com/?pid=7588&did=4687662e-f4a3-4235-88f0-69a9e82a3d1a&oaf=1"
+  },
+  {
+   "key": "Kd8d5dc56c59a",
+   "url": "https://media.fupress.com/files/pdf/24/7116/27592"
+  },
+  {
+   "key": "Ke5eab267664b",
+   "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/1984/1507"
+  },
+  {
+   "key": "Kb925177ec80e",
+   "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2243/1797"
+  },
+  {
+   "key": "Kdfff504378b9",
+   "url": "https://www.sciencedirect.com/science/article/pii/S0268401222000767/pdf"
+  },
+  {
+   "key": "K52c761d1d176",
+   "url": "https://zenodo.org/record/7144806"
+  },
+  {
+   "key": "Kbf7f289b488a",
+   "url": "https://doi.org/10.54103/2531-5994/31098"
+  },
+  {
+   "key": "K08a616d69b67",
+   "url": "http://books.openedition.org/ledizioni/11381"
+  },
+  {
+   "key": "Ke268c55d5037",
+   "url": "https://www.giornaledicardiologia.it/r.php?&v=2729&a=27821&l=331623&f=allegati/02729_2017_07/fulltext/04 Linee_guida_CVD (547-612).pdf"
+  }
+ ],
+ "per_section": [
+  {
+   "section_index": 1,
+   "title": "Introduzione",
+   "evidence": [
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      1,
+      2,
+      3,
+      5,
+      7,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14
+     ],
+     "chars": 14875,
+     "score": 0.5023,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 15912,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 2,
+   "title": "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori",
+   "evidence": [
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      2,
+      3,
+      4,
+      5,
+      10,
+      12,
+      13,
+      15
+     ],
+     "chars": 13991,
+     "score": 0.525,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 14880,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 3,
+   "title": "La formulazione originaria dell'art. 4 (legge n. 300/1970)",
+   "evidence": [
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Keae4ea176a0d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 501,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 958,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 4,
+   "title": "I controlli difensivi e l'elaborazione giurisprudenziale",
+   "evidence": [
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 580,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 5,
+   "title": "La riforma del Jobs Act (d.lgs. n. 151/2015)",
+   "evidence": [
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      2,
+      4,
+      5,
+      6,
+      7,
+      9,
+      10,
+      12,
+      13,
+      15
+     ],
+     "chars": 14927,
+     "score": 0.5494,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 15384,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 6,
+   "title": "Il testo vigente dell'art. 4: presupposti e garanzie",
+   "evidence": [
+    {
+     "key": "K66f7f6a6f0a4",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      1,
+      3,
+      7,
+      10,
+      11,
+      12,
+      14,
+      15,
+      17,
+      18,
+      19,
+      20,
+      22,
+      25
+     ],
+     "chars": 15483,
+     "score": 0.4848,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Kfb30c760b618",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 17940,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 7,
+   "title": "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ke9df5a146528",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 952,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 2768,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 8,
+   "title": "Il quadro normativo europeo sulla protezione dei dati",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ke9df5a146528",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 952,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 2311,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 9,
+   "title": "I principi applicabili al trattamento dei dati",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1816,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 10,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ke9df5a146528",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 952,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 2743,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 11,
+   "title": "Obblighi del datore di lavoro come titolare del trattamento",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Keb3f04ff6686",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      2,
+      4,
+      13,
+      16,
+      17,
+      20,
+      23,
+      25,
+      26,
+      28,
+      37,
+      38,
+      39
+     ],
+     "chars": 15145,
+     "score": 0.5972,
+     "gap": false
+    },
+    {
+     "key": "Kf452a42db978",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 550,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 17054,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 12,
+   "title": "La valutazione d'impatto (DPIA) e il Data Protection Officer",
+   "evidence": [
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Keb3f04ff6686",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      2,
+      4,
+      13,
+      16,
+      17,
+      18,
+      19,
+      23,
+      26,
+      29,
+      35,
+      36,
+      38
+     ],
+     "chars": 15319,
+     "score": 0.4327,
+     "gap": false
+    }
+   ],
+   "chars": 16678,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 13,
+   "title": "Capitolo III – Il controllo a distanza e gli strumenti tecnologici",
+   "evidence": [
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 17,
+     "pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      13,
+      14,
+      15
+     ],
+     "chars": 14478,
+     "score": 0.575,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 15367,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 14,
+   "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+   "evidence": [
+    {
+     "key": "K66f7f6a6f0a4",
+     "planned": true,
+     "windows": 17,
+     "pages": [
+      2,
+      3,
+      6,
+      11,
+      13,
+      14,
+      15,
+      18,
+      19,
+      22,
+      25,
+      26
+     ],
+     "chars": 14118,
+     "score": 0.3843,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 6,
+     "pages": [
+      1,
+      5,
+      6,
+      10,
+      12
+     ],
+     "chars": 5432,
+     "score": 0.8133,
+     "gap": false
+    }
+   ],
+   "chars": 20007,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 15,
+   "title": "Il controllo della posta elettronica e della navigazione internet",
+   "evidence": [
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1939,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 16,
+   "title": "Videosorveglianza e geolocalizzazione",
+   "evidence": [
+    {
+     "key": "Keb3f04ff6686",
+     "planned": true,
+     "windows": 18,
+     "pages": [
+      2,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      25,
+      26,
+      28,
+      32,
+      36,
+      37,
+      39
+     ],
+     "chars": 15578,
+     "score": 0.4483,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 17394,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 17,
+   "title": "Nuove tecnologie: biometria e intelligenza artificiale",
+   "evidence": [
+    {
+     "key": "K66f7f6a6f0a4",
+     "planned": true,
+     "windows": 7,
+     "pages": [
+      2,
+      14,
+      22,
+      25,
+      26
+     ],
+     "chars": 5427,
+     "score": 0.9333,
+     "gap": false
+    },
+    {
+     "key": "Kb925177ec80e",
+     "planned": true,
+     "windows": 8,
+     "pages": [
+      2,
+      4,
+      7,
+      9,
+      11,
+      16
+     ],
+     "chars": 7255,
+     "score": 0.5949,
+     "gap": false
+    },
+    {
+     "key": "Keb3f04ff6686",
+     "planned": true,
+     "windows": 8,
+     "pages": [
+      2,
+      18,
+      20,
+      34,
+      35,
+      37,
+      39
+     ],
+     "chars": 7083,
+     "score": 0.5232,
+     "gap": false
+    },
+    {
+     "key": "Ke484ddce5449",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1542,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 21307,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 18,
+   "title": "L'utilizzabilità dei dati raccolti a fini disciplinari",
+   "evidence": [
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1037,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 19,
+   "title": "Capitolo IV – Giurisprudenza e prassi del Garante",
+   "evidence": [
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ke9df5a146528",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 952,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1557,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 20,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "evidence": [
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 580,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 21,
+   "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+   "evidence": [
+    {
+     "key": "Ke9df5a146528",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 952,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1409,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 22,
+   "title": "I provvedimenti e le linee guida del Garante",
+   "evidence": [
+    {
+     "key": "Kc6a04e74719f",
+     "planned": true,
+     "windows": 17,
+     "pages": [
+      1,
+      8,
+      9,
+      10,
+      11,
+      34,
+      38,
+      40,
+      41,
+      42,
+      43,
+      44
+     ],
+     "chars": 15060,
+     "score": 0.5478,
+     "gap": false
+    },
+    {
+     "key": "K99625f475c9f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1359,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 16567,
+   "full_text_rule": true
+  },
+  {
+   "section_index": 23,
+   "title": "Casistica e bilanciamento tra interessi",
+   "evidence": [
+    {
+     "key": "Kc75cc0952029",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 148,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "K184e1bb9a955",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 432,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Keae4ea176a0d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 501,
+     "score": 0.0,
+     "gap": false
+    }
+   ],
+   "chars": 1538,
+   "full_text_rule": false
+  },
+  {
+   "section_index": 24,
+   "title": "Conclusioni",
+   "evidence": [
+    {
+     "key": "K58dde35d9d5d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 457,
+     "score": 0.0,
+     "gap": false
+    },
+    {
+     "key": "Ka0418ffc6496",
+     "planned": true,
+     "windows": 13,
+     "pages": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      11,
+      13,
+      14,
+      15
+     ],
+     "chars": 11245,
+     "score": 0.3812,
+     "gap": false
+    },
+    {
+     "key": "K66f7f6a6f0a4",
+     "planned": true,
+     "windows": 9,
+     "pages": [
+      3,
+      10,
+      11,
+      15,
+      25,
+      26
+     ],
+     "chars": 7871,
+     "score": 0.6062,
+     "gap": false
+    }
+   ],
+   "chars": 19573,
+   "full_text_rule": true
+  }
+ ],
+ "fetch": {
+  "sources": [
+   {
+    "key": "K58dde35d9d5d",
+    "url": "https://media.fupress.com/files/pdf/24/15509/43120",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Kc6a04e74719f",
+    "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2254/1803",
+    "pages": 48,
+    "windows": 270,
+    "reason": null
+   },
+   {
+    "key": "Ke484ddce5449",
+    "url": "https://media.fupress.com/files/pdf/24/10676/27542",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Ke62eb478240c",
+    "url": "http://hdl.handle.net/11585/517865",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Ka0418ffc6496",
+    "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/1580/1088",
+    "pages": 15,
+    "windows": 72,
+    "reason": null
+   },
+   {
+    "key": "K40a5977328dd",
+    "url": "https://openyls.law.yale.edu/bitstream/20.500.13051/9377/2/11_111YaleLJ1_October2001_.pdf",
+    "pages": 0,
+    "windows": 0,
+    "reason": "not_pdf"
+   },
+   {
+    "key": "Kc46d4cf8d446",
+    "url": "https://doi.org/10.1596/33635",
+    "pages": 0,
+    "windows": 0,
+    "reason": "not_pdf"
+   },
+   {
+    "key": "K198857969958",
+    "url": "https://media.fupress.com/files/pdf/24/10679/27545",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "K99625f475c9f",
+    "url": "https://www.tandfonline.com/doi/pdf/10.1080/13600834.2019.1573501?needAccess=true",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Kf452a42db978",
+    "url": "https://doi.org/10.36253/979-12-215-0796-6.09",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "K99275327773b",
+    "url": "https://doi.org/10.36253/979-12-215-0796-6.08",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "K66f7f6a6f0a4",
+    "url": "https://labourlaw.unibo.it/article/download/23634/20526",
+    "pages": 26,
+    "windows": 132,
+    "reason": null
+   },
+   {
+    "key": "Kb8ad3d321cde",
+    "url": "https://doi.org/10.3390/app16105096",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "K6d276b5caed8",
+    "url": "https://journal.sketchingscience.org/doi/pdf/10.22541/au.159136840.03196485",
+    "pages": 0,
+    "windows": 0,
+    "reason": "transport_error"
+   },
+   {
+    "key": "K49471a32f045",
+    "url": "http://hdl.handle.net/2434/465777",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Keb3f04ff6686",
+    "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2200/1760",
+    "pages": 40,
+    "windows": 169,
+    "reason": null
+   },
+   {
+    "key": "K8e27279e10a6",
+    "url": "https://riviste.unimi.it/index.php/statoechiese/article/download/23623/20996",
+    "pages": 67,
+    "windows": 306,
+    "reason": null
+   },
+   {
+    "key": "Ke4af2259fe90",
+    "url": "https://buponline.com/?pid=7588&did=4687662e-f4a3-4235-88f0-69a9e82a3d1a&oaf=1",
+    "pages": 387,
+    "windows": 1510,
+    "reason": null
+   },
+   {
+    "key": "Kd8d5dc56c59a",
+    "url": "https://media.fupress.com/files/pdf/24/7116/27592",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "Ke5eab267664b",
+    "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/1984/1507",
+    "pages": 19,
+    "windows": 118,
+    "reason": null
+   },
+   {
+    "key": "Kb925177ec80e",
+    "url": "https://universitypress.unisob.na.it/ojs/index.php/ejplt/article/download/2243/1797",
+    "pages": 18,
+    "windows": 106,
+    "reason": null
+   },
+   {
+    "key": "Kdfff504378b9",
+    "url": "https://www.sciencedirect.com/science/article/pii/S0268401222000767/pdf",
+    "pages": 0,
+    "windows": 0,
+    "reason": "http_403"
+   },
+   {
+    "key": "K52c761d1d176",
+    "url": "https://zenodo.org/record/7144806",
+    "pages": 58,
+    "windows": 187,
+    "reason": null
+   },
+   {
+    "key": "Kbf7f289b488a",
+    "url": "https://doi.org/10.54103/2531-5994/31098",
+    "pages": 6,
+    "windows": 32,
+    "reason": null
+   },
+   {
+    "key": "K08a616d69b67",
+    "url": "http://books.openedition.org/ledizioni/11381",
+    "pages": 0,
+    "windows": 0,
+    "reason": "not_pdf"
+   },
+   {
+    "key": "Ke268c55d5037",
+    "url": "https://www.giornaledicardiologia.it/r.php?&v=2729&a=27821&l=331623&f=allegati/02729_2017_07/fulltext/04 Linee_guida_CVD (547-612).pdf",
+    "pages": 66,
+    "windows": 573,
+    "reason": null
+   }
+  ],
+  "unavailable": [
+   "K58dde35d9d5d",
+   "Ke484ddce5449",
+   "Ke62eb478240c",
+   "K40a5977328dd",
+   "Kc46d4cf8d446",
+   "K198857969958",
+   "K99625f475c9f",
+   "Kf452a42db978",
+   "K99275327773b",
+   "Kb8ad3d321cde",
+   "K6d276b5caed8",
+   "K49471a32f045",
+   "Kd8d5dc56c59a",
+   "Kdfff504378b9",
+   "K08a616d69b67"
+  ]
+ },
+ "pack": [
+  {
+   "key": "K58dde35d9d5d",
+   "title": "Controllo a distanza e diritto alla protezione dei dati. Sulla complementarità dei due sistemi normativi",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 457
+  },
+  {
+   "key": "Kc6a04e74719f",
+   "title": "Piattaforme digitali e trattamenti algoritmici dei dati personali. La co-vigilanza delle Autorità di controllo di settore",
+   "evidence_level": "pdf",
+   "windows": 270,
+   "excerpt_chars": 2367
+  },
+  {
+   "key": "Ke484ddce5449",
+   "title": "Un diritto del lavoro ‘tridimensionale’: valori e tecniche di fronte ai mutamenti dei luoghi di lavoro",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1542
+  },
+  {
+   "key": "Ke62eb478240c",
+   "title": "Il lavoro digitale su piattaforma",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1955
+  },
+  {
+   "key": "K184e1bb9a955",
+   "title": "Il potere di controllo sul lavoratore e la tutela della riservatezza",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 432
+  },
+  {
+   "key": "Ka0418ffc6496",
+   "title": "Potere di controllo datoriale: nuove tecnologie e tutela dei lavoratori nella società digital / Supervisory power of the employer: new technologies and worker protection in the digital society",
+   "evidence_level": "pdf",
+   "windows": 72,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "K40a5977328dd",
+   "title": "The Rise of Dispersed Ownership: The Roles of Law and the State in the Separation of Ownership and Control",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1921
+  },
+  {
+   "key": "K65cb1ab523b2",
+   "title": "Controlli sul mercato finanziario e responsabilità penale",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1414
+  },
+  {
+   "key": "Kc46d4cf8d446",
+   "title": "Social Protection and Jobs Responses to COVID-19: A Real-Time Review of Country Measures",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1674
+  },
+  {
+   "key": "Kfb30c760b618",
+   "title": "Legge, contratti collettivi e accordo tra le parti nella regolamentazione del lavoro agile",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 2000
+  },
+  {
+   "key": "K198857969958",
+   "title": "Il ‘diritto dei valori’. La tirannia dei valori economici e il lavoro nella Costituzione e nelle fonti europee",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 2000
+  },
+  {
+   "key": "K99625f475c9f",
+   "title": "The European Union general data protection regulation: what it is and what it means",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1359
+  },
+  {
+   "key": "Kf452a42db978",
+   "title": "La disciplina dei diversi rapporti che riguardano i dati personali",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 550
+  },
+  {
+   "key": "K99275327773b",
+   "title": "Le intersezioni fra disciplina in materia di dati personali e diritto dei consumatori",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 491
+  },
+  {
+   "key": "Keae4ea176a0d",
+   "title": "La persona del prestatore nel rapporto di lavoro",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 501
+  },
+  {
+   "key": "K171f78d29c04",
+   "title": "Fascicolo sanitario elettronico e protezione dei dati personali",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 2000
+  },
+  {
+   "key": "K66f7f6a6f0a4",
+   "title": "Governare l’IA nei luoghi di lavoro: traiettorie della contrattazione collettiva aziendale e territoriale",
+   "evidence_level": "pdf",
+   "windows": 132,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "Kb8ad3d321cde",
+   "title": "Multitemporal Geodetic and TLS Survey of the Bridge ‘Ponte della Costituzione’ in Venice for High-Precision Deformation Monitoring",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 2000
+  },
+  {
+   "key": "K6d276b5caed8",
+   "title": "La sostenibilità energetico-ambientale degli impianti di trattamento delle acque reflue urbane: strumenti di misura e controllo ",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 643
+  },
+  {
+   "key": "K38ce577dd220",
+   "title": "Gli strumenti di controllo orientati al cliente: un'analisi sistemica",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 709
+  },
+  {
+   "key": "Kc75cc0952029",
+   "title": "Il difficile bilanciamento tra la tutela della privacy e le esigenze di controllo del datore di lavoro",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 148
+  },
+  {
+   "key": "K49471a32f045",
+   "title": "LINKING E COMUNICAZIONE AL PUBBLICO NEL SISTEMA DELLA CORTE DI GIUSTIZIA DELL'UNIONE EUROPEA",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 953
+  },
+  {
+   "key": "Keb3f04ff6686",
+   "title": "Sistemi di IA in ambiente di lavoro: traiettorie giuridiche tra privacy e strategia dei droni 2.0.",
+   "evidence_level": "pdf",
+   "windows": 169,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "K8e27279e10a6",
+   "title": "La «supremazia» del principio di laicità nei percorsi giurisprudenziali: il giudice ordinario",
+   "evidence_level": "pdf",
+   "windows": 306,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "Ke9df5a146528",
+   "title": "Diritti fondamentali, corte di giustizia e riforma del sistema ue di protezione dei dati",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 952
+  },
+  {
+   "key": "Ke4af2259fe90",
+   "title": "La corte nel contesto",
+   "evidence_level": "pdf",
+   "windows": 1510,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "Kd8d5dc56c59a",
+   "title": "Valori e tecniche nel diritto del lavoro",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 792
+  },
+  {
+   "key": "Ke5eab267664b",
+   "title": "Le nuove prassi valutative del merito creditizio tra GDPR, CCD II e AI Act",
+   "evidence_level": "pdf",
+   "windows": 118,
+   "excerpt_chars": 1945
+  },
+  {
+   "key": "Kb925177ec80e",
+   "title": "Sistemi per il rilevamento delle emozioni e protezione dei dati: prime osservazioni sull’interazione tra GDPR e AI Act",
+   "evidence_level": "pdf",
+   "windows": 106,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "Kdfff504378b9",
+   "title": "Metaverse beyond the hype: Multidisciplinary perspectives on emerging challenges, opportunities, and agenda for research, practice and policy",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 1937
+  },
+  {
+   "key": "Ka45f31e97d19",
+   "title": "Qualificazione e regime giuridico degli atti amministrativi generali",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 2000
+  },
+  {
+   "key": "K52c761d1d176",
+   "title": "LA DISCIPLINA GIURIDICA DELLE PIATTAFORME ONLINE PER LA RISTORAZIONE",
+   "evidence_level": "pdf",
+   "windows": 187,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "K6e30de6f5d57",
+   "title": "L’ammissibilità degli strumenti di captazione dei dati personali tra standard di tutela della privacy e onde eversive",
+   "evidence_level": "none",
+   "windows": 0,
+   "excerpt_chars": 0
+  },
+  {
+   "key": "Kbf7f289b488a",
+   "title": "Il rapporto costo/beneficio dalla pratica medica alla tutela dei dati personali",
+   "evidence_level": "pdf",
+   "windows": 32,
+   "excerpt_chars": 2400
+  },
+  {
+   "key": "K1fe51b91941c",
+   "title": "Riservatezza e tutela dei dati personali. Profili comparativi, giurisprudenza europea e interazioni ordinamentali",
+   "evidence_level": "none",
+   "windows": 0,
+   "excerpt_chars": 0
+  },
+  {
+   "key": "K08a616d69b67",
+   "title": "L’autorità di controllo cd. “capofila” nel trattamento transfrontaliero di dati personali: criteri per l’individuazione della competenza territoriale e limiti dell’attuale quadro normativo alla luce del Regolamento UE/2016/679",
+   "evidence_level": "none",
+   "windows": 0,
+   "excerpt_chars": 0
+  },
+  {
+   "key": "K3987319cd577",
+   "title": "Sicurezza e linguaggio dell’odio. Tutela della persona e protezione dei dati personali: i diritti nell’era dei social media",
+   "evidence_level": "none",
+   "windows": 0,
+   "excerpt_chars": 0
+  },
+  {
+   "key": "K6987bec906f6",
+   "title": "Sicurezza e linguaggio dell’odio. Tutela della persona e protezione dei dati personali: i diritti nell’era dei social media",
+   "evidence_level": "none",
+   "windows": 0,
+   "excerpt_chars": 0
+  },
+  {
+   "key": "Ke268c55d5037",
+   "title": "Linee guida europee 2016 sulla prevenzione delle malattie cardiovascolari nella pratica clinica. Sesta Task Force congiunta della Società Europea di Cardiologia e di altre Società sulla Prevenzione delle Malattie Cardiovascolari nella Pratica Clinica (costituita da rappresentanti di 10 società e da esperti invitati). Redatte con il contributo straordinario dell’Associazione Europea per la Prevenzione e Riabilitazione Cardiovascolare (EACPR)",
+   "evidence_level": "pdf",
+   "windows": 573,
+   "excerpt_chars": 2044
+  },
+  {
+   "key": "Kc8127d772caa",
+   "title": "La Grande Guerra degli italiani",
+   "evidence_level": "abstract",
+   "windows": 0,
+   "excerpt_chars": 138
+  }
+ ],
+ "passages_total": 3475
+}
