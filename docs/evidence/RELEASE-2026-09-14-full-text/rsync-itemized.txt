@@ -29,3 +29,6 @@
 <f+++++++ apps/api/tests/test_citation_render.py
 <fcsT.... apps/api/tests/test_executor_v2.py
 <f+++++++ apps/api/tests/test_thesis_formatting.py
+<fcsT.... apps/api/app/services/executor_v2/outline.py
+<fcsT.... apps/api/app/services/executor_v2/scopes.py
+<fcsT.... apps/api/scripts/s4_lab.py
