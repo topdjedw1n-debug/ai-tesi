@@ -265,7 +265,7 @@ class CitationFormatter:
 
         return bool(
             re.search(
-                r"\b(?:Organization|Organisation|Association|University|Institute|Ministry|Department|Agency|Council|Committee|Group|Society|WHO|NANDA|UNICEF|UNESCO|Organizzazione|Ministero|Istituto|Асоціація|Міністерство)\b",
+                r"\b(?:Organization|Organisation|Association|University|Institute|Ministry|Department|Agency|Council|Committee|Group|Society|WHO|NANDA|UNICEF|UNESCO|Organizzazione|Ministero|Istituto|Corte|Cassazione|Tribunale|Consiglio|Repubblica|Parlamento|Commissione|Garante|Autorità|Court|Parliament|Commission|Асоціація|Міністерство)\b",
                 value,
             )
         )

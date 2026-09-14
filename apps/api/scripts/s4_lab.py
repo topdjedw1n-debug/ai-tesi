@@ -4,6 +4,7 @@ Usage:
   python scripts/s4_lab.py RECORDING.json.gz NEW_OUTPUT_DIRECTORY --job-id N --variant NAME
       [--mode exact|live] [--model MODEL] [--s4-instruction FILE]
       [--cost-cap-usd USD] [--live-sections 5,6] [--secrets-file apps/api/.env]
+      [--uploaded-sources SPEC.json] [--recorded-outline] [--allow-host HOST]
       [--price-input-usd-per-1m X --price-output-usd-per-1m Y]
 
 Frozen from the recording: brief, requirements, source pack, evidence excerpts,
@@ -20,6 +21,11 @@ live: S1-S3 and their external inputs come from the recording. S4 sections are
   runs a new advisory review; production code assembles the DOCX. Every live
   call is recorded like in production into the local database, and the variant
   recording is exported for scripts/replay_generation.py.
+--uploaded-sources adds manager-style PDF uploads to the recorded executor
+  inputs (parsed by the production uploaded-sources code); the pack, the
+  section evidence and the S4 prompt then follow the production path.
+--recorded-outline serves the recorded S3 plan although the S3 request changed
+  (the pack now holds the uploads); the report marks S3 as request_changed.
 Output (new empty directory): DOCX, report.json, s4-instruction.txt, the exported
 variant recording and replay.db. No product database, storage or account is used.
 """
@@ -169,6 +175,80 @@ def load_section_evidence(path: Path | None) -> dict[int, list[dict]]:
                 raise ValueError(f"section {section}: {item['key']} text > 2400 chars")
         result[int(section)] = items
     return result
+
+
+def load_uploaded_sources(path: Path | None) -> list[dict]:
+    """Manager-style uploads for the recorded inputs: every PDF is parsed by
+    the production code, so S2 and S4 see exactly what an upload would give."""
+    if path is None:
+        return []
+    specs = json.loads(path.read_text())
+    if not isinstance(specs, list) or not specs:
+        raise ValueError("--uploaded-sources: expected a non-empty JSON list")
+    for spec in specs:
+        missing = {"pdf", "key", "title", "authors", "year"} - set(spec)
+        if missing:
+            raise ValueError(f"uploaded source lacks {sorted(missing)}")
+        if not isinstance(spec["authors"], list) or not isinstance(spec["year"], int):
+            raise ValueError(f"{spec['key']}: authors must be a list, year an int")
+        if not (path.parent / spec["pdf"]).exists() and not Path(spec["pdf"]).exists():
+            raise ValueError(f"{spec['key']}: PDF not found: {spec['pdf']}")
+        if ":" in spec["key"]:
+            raise ValueError(f"{spec['key']}: keys must not contain ':'")
+    return specs
+
+
+def uploaded_inputs(specs: list[dict], base_path: Path) -> tuple[list, list, list]:
+    """(uploaded_sources rows, passages, report) built with production parsing."""
+    from dataclasses import asdict
+
+    from app.services.uploaded_sources import (
+        executor_source_rows,
+        extract_pdf_pages,
+        split_passages,
+    )
+
+    rows, passages, report = [], [], []
+    for offset, spec in enumerate(specs):
+        pdf = Path(spec["pdf"])
+        if not pdf.exists():
+            pdf = base_path / spec["pdf"]
+        data = pdf.read_bytes()
+        pages = extract_pdf_pages(data)
+        file_id = 900001 + offset
+        windows = split_passages(
+            source_file_id=file_id,
+            citation_key=spec["key"],
+            filename=pdf.name,
+            pages=list(enumerate(pages, 1)),
+        )
+        rows += executor_source_rows(
+            [
+                {
+                    "id": file_id,
+                    "citation_key": spec["key"],
+                    "title": spec["title"],
+                    "authors": "; ".join(spec["authors"]),
+                    "year": spec["year"],
+                    "mandatory": bool(spec.get("mandatory")),
+                    "metadata_incomplete": False,
+                    "status": "parsed",
+                    "filename": pdf.name,
+                }
+            ]
+        )
+        passages += [asdict(w) for w in windows]
+        report.append(
+            {
+                "key": spec["key"],
+                "file": pdf.name,
+                "sha256": hashlib.sha256(data).hexdigest(),
+                "pages": len(pages),
+                "windows": len(windows),
+                "chars": sum(len(w.text) for w in windows),
+            }
+        )
+    return rows, passages, report
 
 
 def request_chars(request) -> int:
@@ -357,6 +437,26 @@ def main() -> int:
     parser.add_argument(
         "--secrets-file", type=Path, help="KEY=VALUE file; only provider keys are read"
     )
+    parser.add_argument(
+        "--uploaded-sources",
+        type=Path,
+        help=(
+            "JSON list [{pdf, key, title, authors, year, mandatory, url}]: PDFs parsed"
+            " by the production uploaded-sources code and added to the recorded"
+            " executor inputs as manager-uploaded files"
+        ),
+    )
+    parser.add_argument(
+        "--recorded-outline",
+        action="store_true",
+        help="serve the recorded S3 plan although the S3 request changed",
+    )
+    parser.add_argument(
+        "--allow-host",
+        action="append",
+        default=[],
+        help="additional host allowed in live mode (repeatable)",
+    )
     parser.add_argument("--price-input-usd-per-1m", type=float)
     parser.add_argument("--price-output-usd-per-1m", type=float)
     args = parser.parse_args()
@@ -368,6 +468,7 @@ def main() -> int:
         args.live_section_set = parse_sections(args.live_sections)
         args.request_override_dict = parse_override(args.request_override)
         args.section_evidence_map = load_section_evidence(args.section_evidence)
+        args.uploaded_source_specs = load_uploaded_sources(args.uploaded_sources)
     except ValueError as error:
         parser.error(str(error))
     secrets = read_secrets(args.secrets_file, os.environ) if args.mode == "live" else {}
@@ -409,7 +510,7 @@ async def run(args, secrets):
     from app.core.config import settings
     from app.models.auth import User
     from app.models.document import AIGenerationJob, Document, DocumentProvenance
-    from app.services import cost_estimator
+    from app.services import cost_estimator, full_text_sources
     from app.services.academic_context import digest
     from app.services.background_jobs import BackgroundJobService
     from app.services.executor_v2 import budgets, references, sections
@@ -484,6 +585,8 @@ async def run(args, secrets):
             if args.mode == "live"
             else None
         ),
+        "uploaded_sources": [],
+        "recorded_outline": args.recorded_outline,
         "live": {
             "calls": [],
             "input_tokens": 0,
@@ -534,6 +637,34 @@ async def run(args, secrets):
             allow_request_changes=False,
             persist_receipts=True,
         )
+        if args.uploaded_source_specs:
+            rows, extra_passages, report["uploaded_sources"] = uploaded_inputs(
+                args.uploaded_source_specs, args.uploaded_sources.parent
+            )
+            inputs_row = next(
+                r for r in tape.dependencies if r.get("kind") == "executor_inputs"
+            )
+            inputs_row["response"]["uploaded_sources"] = (
+                inputs_row["response"]["uploaded_sources"] + rows
+            )
+            inputs_row["response"]["passages"] = (
+                inputs_row["response"]["passages"] + extra_passages
+            )
+        if args.recorded_outline:
+            recorded_response = tape.response
+
+            def outline_response(**call):
+                # The recorded plan is reused although the pack changed; the
+                # consumed entry shows request_changed for S3.
+                if call.get("stage") != "S3":
+                    return recorded_response(**call)
+                tape.allow_request_changes = True
+                try:
+                    return recorded_response(**call)
+                finally:
+                    tape.allow_request_changes = False
+
+            tape.response = outline_response
         for name, value in snapshot.get(
             "replay_settings", snapshot["profile"]["settings"]
         ).items():
@@ -651,25 +782,34 @@ async def run(args, secrets):
             finally:
                 active_replay.reset(token)
 
-        production_verify = references.verify
-        verify_signature = inspect.signature(production_verify)
+        def live_when_unrecorded(kind, production):
+            """A dependency the tape holds is served from it; a new one goes
+            live and is journaled by the production recorder."""
+            signature = inspect.signature(production)
 
-        async def lab_verify(*call_args, **call_kwargs):
-            bound = verify_signature.bind(*call_args, **call_kwargs)
-            bound.apply_defaults()
-            fingerprint = digest(dependency_request(dict(bound.arguments)))
-            recorded = any(
-                row.get("kind") == "executor_verify"
-                and row.get("input_fingerprint") == fingerprint
-                for row in tape.dependencies
-            )
-            if recorded:
-                return await production_verify(*call_args, **call_kwargs)
-            token = active_replay.set(None)
-            try:
-                return await production_verify(*call_args, **call_kwargs)
-            finally:
-                active_replay.reset(token)
+            async def wrapper(*call_args, **call_kwargs):
+                bound = signature.bind(*call_args, **call_kwargs)
+                bound.apply_defaults()
+                fingerprint = digest(dependency_request(dict(bound.arguments)))
+                recorded = any(
+                    row.get("kind") == kind
+                    and row.get("input_fingerprint") == fingerprint
+                    for row in tape.dependencies
+                )
+                if recorded:
+                    return await production(*call_args, **call_kwargs)
+                token = active_replay.set(None)
+                try:
+                    return await production(*call_args, **call_kwargs)
+                finally:
+                    active_replay.reset(token)
+
+            return wrapper
+
+        lab_verify = live_when_unrecorded("executor_verify", references.verify)
+        lab_full_text = live_when_unrecorded(
+            "executor_full_text", full_text_sources.full_text
+        )
 
         production_write_sections = sections.write_sections
 
@@ -739,16 +879,20 @@ async def run(args, secrets):
                 ),
             ]
         if args.mode == "live":
-            hosts = set(MODEL_PROVIDER_HOSTS) | {
-                urlparse(url).hostname
-                for url in (
-                    settings.CROSSREF_API_URL,
-                    settings.OPENALEX_API_URL,
-                    settings.SEMANTIC_SCHOLAR_API_URL,
-                    settings.ARXIV_API_URL,
-                    "https://openlibrary.org",
-                )
-            }
+            hosts = (
+                set(MODEL_PROVIDER_HOSTS)
+                | {
+                    urlparse(url).hostname
+                    for url in (
+                        settings.CROSSREF_API_URL,
+                        settings.OPENALEX_API_URL,
+                        settings.SEMANTIC_SCHOLAR_API_URL,
+                        settings.ARXIV_API_URL,
+                        "https://openlibrary.org",
+                    )
+                }
+                | set(args.allow_host)
+            )
             guard = NetworkGuard(hosts)
             report["network"] = {
                 "allowed_hosts": sorted(hosts),
@@ -764,6 +908,7 @@ async def run(args, secrets):
                 )
             patches += [
                 patch.object(references, "verify", lab_verify),
+                patch.object(full_text_sources, "full_text", lab_full_text),
                 *guard.patches(),
             ]
         else:

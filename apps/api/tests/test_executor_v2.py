@@ -189,6 +189,7 @@ def test_spec_guardrails():
     assert set(WARNING_CODES) == {
         "source_coverage_gap",
         "source_no_readable_text",
+        "source_full_text_unavailable",
         "standard_reference_used",
         "outline_scope_unmapped",
         "output_truncated_retried",
@@ -949,3 +950,306 @@ async def test_missing_writer_receipt_blocks_completion_after_docx(
     assert (
         job.status == "failed" and status_fields(job)["stop"]["code"] == "storage_or_db"
     )
+
+
+@pytest.mark.asyncio
+async def test_open_access_full_text_reaches_the_writer_as_page_windows(
+    db_session, monkeypatch
+):
+    from app.services import full_text_sources
+    from app.services.executor_v2 import sources
+    from app.services.executor_v2.sections import FULL_TEXT_RULE, write_sections
+    from app.services.replay_dependencies import recorded_dependency
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    pages = [
+        "Sleep evidence in nursing: compare sleep findings across studies. " * 10,
+        "Second page on sleep evidence and nursing comparisons. " * 10,
+    ]
+    fetched = []
+
+    async def search_impl(provider, query):
+        return [
+            {
+                "title": "Sleep evidence 1",
+                "authors": ["Rossi, Maria"],
+                "year": 2024,
+                "doi": "10.1234/sleep1",
+                "abstract": "Sleep nursing findings.",
+                "provider": provider,
+                "canonical_metadata": (
+                    {"open_access_url": "https://oa.test/sleep1.pdf"}
+                    if provider == "openalex"
+                    else None
+                ),
+            },
+            {
+                "title": "Sleep evidence 2",
+                "authors": ["Bianchi, Anna"],
+                "year": 2023,
+                "doi": "10.1234/sleep2",
+                "abstract": "Sleep nursing findings two.",
+                "provider": provider,
+                "canonical_metadata": (
+                    {"open_access_url": "https://oa.test/wall"}
+                    if provider == "openalex"
+                    else None
+                ),
+            },
+        ]
+
+    async def verify_impl(candidate):
+        return {**candidate, "status": "verified", "provider": "crossref"}
+
+    async def full_text_impl(url):
+        fetched.append(url)
+        if url.endswith("wall"):
+            return {"url": url, "final_url": url, "pages": [], "reason": "http_403"}
+        return {"url": url, "final_url": url, "pages": pages, "reason": None}
+
+    monkeypatch.setattr(
+        sources, "search", recorded_dependency("executor_search")(search_impl)
+    )
+    monkeypatch.setattr(
+        sources, "verify", recorded_dependency("executor_verify")(verify_impl)
+    )
+    monkeypatch.setattr(
+        full_text_sources,
+        "full_text",
+        recorded_dependency("executor_full_text")(full_text_impl),
+    )
+    from app.services.academic_context import digest
+
+    planned_key = (
+        "K"
+        + digest({"doi": "10.1234/sleep1", "title": "Sleep evidence 1", "year": 2024})[
+            :12
+        ]
+    )
+    plan = copy.deepcopy(PLAN)
+    plan["sections"][0]["evidence_keys"] = [planned_key]
+    ctx.provider = AsyncMock(
+        side_effect=[
+            response(json.dumps({"nodes": NODES})),
+            response(json.dumps(plan)),
+            response("Il sonno è documentato [KEY] p. 1. Fine."),
+        ]
+    )
+    token = recording_context.set(ctx.recording)
+    try:
+        pack, outline = await prepare(ctx)
+        # The open-access link came from the search row; the fetch was recorded.
+        assert fetched == ["https://oa.test/sleep1.pdf", "https://oa.test/wall"]
+        key1 = next(
+            s.citation_key for s in pack.sources if s.source.doi == "10.1234/sleep1"
+        )
+        key2 = next(
+            s.citation_key for s in pack.sources if s.source.doi == "10.1234/sleep2"
+        )
+        meta = pack.by_key(key1).source.canonical_metadata
+        assert meta["evidence_level"] == "pdf" and meta["full_text"]["pages"] == 2
+        assert meta["open_access_url"] == "https://oa.test/sleep1.pdf"
+        assert {p.citation_key for p in pack.passages} == {key1}
+        assert all(
+            p.source_file_id == 0 and p.page_number in (1, 2) for p in pack.passages
+        )
+        assert (
+            pack.by_key(key2).source.canonical_metadata["evidence_level"] == "abstract"
+        )
+        assert [
+            w["code"]
+            for w in ctx.warnings
+            if w["code"] == "source_full_text_unavailable"
+        ] == ["source_full_text_unavailable"]
+        assert ctx.warnings[-1]["detail"] == key2
+        assert outline[0]["evidence_keys"] == [key1] == [planned_key]
+        ctx.provider.side_effect = [
+            response(f"Il sonno è documentato [{key1}] p. 1. Fine.")
+        ]
+        result = await write_sections(ctx, outline, pack)
+    finally:
+        recording_context.reset(token)
+    prompt = ctx.provider.await_args.kwargs["messages"][0]["content"]
+    assert FULL_TEXT_RULE.strip() in prompt
+    body = json.loads(prompt[prompt.index('{"forbidden_placeholders"') :])
+    assert [e["key"] for e in body["evidence"]] == [key1]
+    assert body["evidence"][0]["text"].startswith("[page 1] Sleep evidence")
+    assert "[page 2]" in body["evidence"][0]["text"]
+    assert result[0]["pack_keys_used"] == [key1]
+    events = list((await db_session.execute(select(DocumentProvenance))).scalars())
+    kinds = {
+        e.payload["kind"] for e in events if e.event_type == "generation_dependency"
+    }
+    assert "executor_full_text" in kinds
+    selection = [e for e in events if e.event_type == "executor_section_evidence"]
+    assert selection[0].payload["evidence"][0]["planned"] is True
+    assert selection[0].payload["evidence"][0]["pages"] == [1, 2]
+    full_text_events = [e for e in events if e.event_type == "executor_full_text"]
+    assert [s["reason"] for s in full_text_events[0].payload["sources"]] == [
+        None,
+        "http_403",
+    ]
+
+
+@pytest.mark.asyncio
+async def test_abstract_only_packs_keep_the_historical_writer_prompt(
+    db_session, monkeypatch
+):
+    from app.services.executor_v2.sections import FULL_TEXT_RULE, write_sections
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    mock_sources(monkeypatch)
+    plan = copy.deepcopy(PLAN)
+    ctx.provider = AsyncMock(
+        side_effect=[
+            response(json.dumps({"nodes": NODES})),
+            response(json.dumps(plan)),
+        ]
+    )
+    token = recording_context.set(ctx.recording)
+    try:
+        pack, outline = await prepare(ctx)
+        keys = [s.citation_key for s in pack.sources]
+        outline[0]["evidence_keys"] = keys
+        ctx.provider.side_effect = [response("Testo con [" + keys[0] + "]. Fine.")]
+        await write_sections(ctx, outline, pack)
+    finally:
+        recording_context.reset(token)
+    prompt = ctx.provider.await_args.kwargs["messages"][0]["content"]
+    assert FULL_TEXT_RULE.strip() not in prompt
+    body = json.loads(prompt[prompt.index('{"forbidden_placeholders"') :])
+    assert body["evidence"] == [
+        {"key": k, "text": "Sleep nursing findings."} for k in keys
+    ]
+
+
+@pytest.mark.asyncio
+async def test_full_text_fetches_replay_from_the_recording_without_network(
+    db_session, monkeypatch
+):
+    from app.services import full_text_sources
+    from app.services.executor_v2 import sources
+    from app.services.model_recording import ReplayTape, replay_models
+    from app.services.replay_dependencies import recorded_dependency
+    from app.services.replay_snapshot import row_data
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    pages = ["Sleep evidence in nursing: compare sleep findings. " * 12]
+    links = {
+        "10.1234/sleep1": "https://oa.test/sleep1.pdf",
+        "10.1234/sleep2": "https://oa.test/wall",
+        "10.1234/sleep3": "https://oa.test/down",
+    }
+
+    async def search_impl(provider, query):
+        return [
+            {
+                "title": f"Sleep evidence {i}",
+                "authors": ["Rossi, Maria"],
+                "year": 2024,
+                "doi": doi,
+                "abstract": "Sleep nursing findings.",
+                "provider": provider,
+                "canonical_metadata": (
+                    {"open_access_url": links[doi]} if provider == "openalex" else None
+                ),
+            }
+            for i, doi in enumerate(links, 1)
+        ]
+
+    async def verify_impl(candidate):
+        return {**candidate, "status": "verified", "provider": "crossref"}
+
+    calls = []
+
+    async def full_text_impl(url):
+        calls.append(url)
+        if url.endswith("down"):
+            raise httpx.ConnectError("no route")
+        if url.endswith("wall"):
+            return {"url": url, "final_url": url, "pages": [], "reason": "http_403"}
+        return {"url": url, "final_url": url, "pages": pages, "reason": None}
+
+    monkeypatch.setattr(
+        sources, "search", recorded_dependency("executor_search")(search_impl)
+    )
+    monkeypatch.setattr(
+        sources, "verify", recorded_dependency("executor_verify")(verify_impl)
+    )
+    monkeypatch.setattr(
+        full_text_sources,
+        "full_text",
+        recorded_dependency("executor_full_text")(full_text_impl),
+    )
+    ctx.provider = AsyncMock(
+        side_effect=[
+            response(json.dumps({"nodes": NODES})),
+            response(json.dumps(PLAN)),
+        ]
+    )
+    token = recording_context.set(ctx.recording)
+    try:
+        pack, _ = await prepare(ctx)
+    finally:
+        recording_context.reset(token)
+    assert len(calls) == 3
+    first = {
+        s.citation_key: (
+            s.source.canonical_metadata.get("evidence_level"),
+            s.source.canonical_metadata.get("full_text"),
+        )
+        for s in pack.sources
+    }
+    assert sorted(v[0] for v in first.values()) == ["abstract", "abstract", "pdf"]
+    assert [
+        w["detail"] for w in ctx.warnings if w["code"] == "source_full_text_unavailable"
+    ]
+    events = [
+        row_data(e)
+        for e in (await db_session.execute(select(DocumentProvenance))).scalars()
+    ]
+    tape = ReplayTape.from_events(events, job_id=claimed.id)
+    kinds = [d["kind"] for d in tape.dependencies]
+    assert kinds.count("executor_full_text") == 3
+    failed = [
+        d
+        for d in tape.dependencies
+        if d["kind"] == "executor_full_text" and d.get("outcome") == "failed"
+    ]
+    assert len(failed) == 1 and failed[0]["error"] == "ConnectError"
+
+    async def forbidden(self, **request):
+        raise AssertionError("Replay contacted the model")
+
+    async def offline(url):
+        raise AssertionError("Replay fetched a PDF")
+
+    monkeypatch.setattr(Context, "provider", forbidden)
+    monkeypatch.setattr(
+        full_text_sources,
+        "full_text",
+        recorded_dependency("executor_full_text")(offline),
+    )
+    replay = Context(claimed)
+    token = recording_context.set(replay.recording)
+    try:
+        with replay_models(tape):
+            replayed, _ = await prepare(replay)
+            tape.assert_complete()
+    finally:
+        recording_context.reset(token)
+    assert [(p.citation_key, p.page_number, p.text) for p in replayed.passages] == [
+        (p.citation_key, p.page_number, p.text) for p in pack.passages
+    ]
+    assert {
+        s.citation_key: (
+            s.source.canonical_metadata.get("evidence_level"),
+            s.source.canonical_metadata.get("full_text"),
+        )
+        for s in replayed.sources
+    } == first
+    assert replayed.sha256() == pack.sha256()
+    assert [w["code"] for w in replay.warnings] == [w["code"] for w in ctx.warnings]

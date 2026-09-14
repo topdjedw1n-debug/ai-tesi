@@ -5,8 +5,10 @@ from dataclasses import asdict
 
 from app.services.academic_context import digest
 from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+from app.services.ai_pipeline.source_identity import sources_equivalent
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.citation_verifier import CitationVerifier, SourceInput
+from app.services.full_text_sources import attach_full_text, open_access_link
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
@@ -41,6 +43,7 @@ async def verify(candidate):
 async def build_sources(ctx, scopes):
     nodes = flatten(scopes)
     semaphore = asyncio.Semaphore(POLICY["search_concurrency"])
+    topic = ctx.inputs["brief"]["topic"]
 
     async def fetch(node, provider, query):
         async with semaphore:
@@ -69,10 +72,11 @@ async def build_sources(ctx, scopes):
             if identity not in candidates:
                 candidates[identity] = {"source": row, "scopes": set()}
             candidates[identity]["scopes"].add(scope_id)
-            if not candidates[identity]["source"].get("abstract") and row.get(
-                "abstract"
-            ):
-                candidates[identity]["source"]["abstract"] = row["abstract"]
+            first = candidates[identity]["source"]
+            if not first.get("abstract") and row.get("abstract"):
+                first["abstract"] = row["abstract"]
+            if not open_access_link(first) and open_access_link(row):
+                first["canonical_metadata"] = {"open_access_url": open_access_link(row)}
 
     async def checked(item):
         async with semaphore:
@@ -101,6 +105,10 @@ async def build_sources(ctx, scopes):
             "verification_provider": metadata["provider"],
             "scope_ids": sorted(item["scopes"]),
         }
+        if open_access_link(item["source"]):
+            source.canonical_metadata["open_access_url"] = open_access_link(
+                item["source"]
+            )
         key = (
             "K"
             + digest({"doi": source.doi, "title": source.title, "year": source.year})[
@@ -114,11 +122,7 @@ async def build_sources(ctx, scopes):
         return PackedSource(source, key, 1.0)
 
     checked_rows = [
-        row
-        for row in await asyncio.gather(
-            *(checked(item) for item in candidates.values())
-        )
-        if row
+        r for r in await asyncio.gather(*map(checked, candidates.values())) if r
     ]
     passages = [SourcePassage(**p) for p in ctx.inputs["passages"]]
     for row in ctx.inputs["uploaded_sources"] + ctx.inputs["library"]:
@@ -132,7 +136,7 @@ async def build_sources(ctx, scopes):
             "origin": row["origin"],
             "verification_provider": row["verification_provider"],
         }
-        freeze_evidence(source, passages, key, query=ctx.inputs["brief"]["topic"])
+        freeze_evidence(source, passages, key, query=topic)
         # Only relevant local matches contribute to a node's coverage.
         searchable = (source.title + " " + (evidence_text(source) or "")).casefold()
         source.canonical_metadata["scope_ids"] = [
@@ -144,6 +148,14 @@ async def build_sources(ctx, scopes):
             row["origin"] if evidence_text(source) else "none"
         )
         checked_rows.insert(0, PackedSource(source, key, 1.0))
+    # A found record of an uploaded work would add a second key and entry.
+    uploads = [r for r in checked_rows if r.source.provider == "uploaded"]
+    checked_rows = [
+        r
+        for r in checked_rows
+        if r in uploads
+        or not any(sources_equivalent(u.source, r.source) for u in uploads)
+    ]
     # Allocate coverage before filling the remaining slots; DOI aliases count once.
     selected, identities = [], set()
 
@@ -164,12 +176,14 @@ async def build_sources(ctx, scopes):
             add(row)
     for row in checked_rows:
         add(row)
+
+    summary, unavailable = await attach_full_text(selected, passages, semaphore, topic)
+    if summary:
+        await ctx.emit("executor_full_text", {"sources": summary})
+    if unavailable:
+        await ctx.warn("source_full_text_unavailable", detail=", ".join(unavailable))
     pack = SourcePack(
-        ctx.job.document_id,
-        ctx.inputs["brief"]["topic"],
-        sources=selected,
-        bilingual=True,
-        passages=passages,
+        ctx.job.document_id, topic, sources=selected, bilingual=True, passages=passages
     )
     for node in nodes:
         count = sum(

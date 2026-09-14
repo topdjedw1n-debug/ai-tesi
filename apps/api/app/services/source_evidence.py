@@ -1,4 +1,8 @@
-"""The same immutable evidence text is used by writers and claim checkers."""
+"""The same immutable evidence text is used by writers and claim checkers.
+
+The frozen excerpt stays within EVIDENCE_LIMIT; full-text windows for the
+writer live in the pack passages (see full_text_sources.section_evidence).
+"""
 
 from __future__ import annotations
 
@@ -47,12 +51,13 @@ def freeze_evidence(
         )
     selected = [p for p in passages if p.citation_key == citation_key]
     selection = "provided_order"
-    if uploaded:
+    if selected:
         from app.services.uploaded_sources import select_passages
 
+        # Uploaded and fetched full texts alike: the excerpt shows the pages
+        # closest to the topic. Token matching cannot align different
+        # languages, so keep actual page text when it finds nothing.
         relevant = select_passages(selected, query or source.title)
-        # Token matching cannot align different languages. Keep actual page
-        # text when it finds nothing, instead of silently dropping the file.
         selection = "lexical_relevance" if relevant else "page_order_fallback"
         selected = relevant or sorted(selected, key=lambda p: p.page_number)
     for passage in selected:
@@ -61,7 +66,7 @@ def freeze_evidence(
         chunks.append(f"[page {passage.page_number}] {passage.text}")
         origins.append(
             {
-                "kind": "uploaded_excerpt",
+                "kind": "uploaded_excerpt" if uploaded else "full_text_excerpt",
                 "source_file_id": passage.source_file_id,
                 "page_number": passage.page_number,
                 "selection": selection,

@@ -167,3 +167,49 @@ def test_section_evidence_and_instruction_swap(tmp_path):
     swapped = lab.with_instruction(request, "PROD", "VAR")
     assert swapped["messages"][0]["content"] == "HEAD\nVAR\nJSON PROD"
     assert request["messages"][0]["content"] == "HEAD\nPROD\nJSON PROD"
+
+
+def test_uploaded_sources_spec_is_validated_and_parsed_by_production_code(tmp_path):
+    from tests.test_uploaded_sources import _make_pdf
+
+    pdf = tmp_path / "norma.pdf"
+    pdf.write_bytes(_make_pdf(["Articolo 4 comma 1 testo " * 20, "Comma 2 " * 30]))
+    spec = tmp_path / "uploads.json"
+    spec.write_text(
+        json.dumps(
+            [
+                {
+                    "pdf": "norma.pdf",
+                    "key": "ART4",
+                    "title": "Statuto, art. 4",
+                    "authors": ["Repubblica Italiana"],
+                    "year": 1970,
+                    "mandatory": True,
+                }
+            ]
+        )
+    )
+    specs = lab.load_uploaded_sources(spec)
+    rows, passages, report = lab.uploaded_inputs(specs, tmp_path)
+    assert rows[0]["key"] == "ART4" and rows[0]["verification_status"] == "verified"
+    assert rows[0]["source"]["paper_id"] == "uploaded:900001"
+    assert {p["citation_key"] for p in passages} == {"ART4"}
+    assert {p["page_number"] for p in passages} == {1, 2}
+    assert report[0]["pages"] == 2 and report[0]["windows"] == len(passages)
+    assert lab.load_uploaded_sources(None) == []
+    bad = tmp_path / "bad.json"
+    bad.write_text(
+        json.dumps(
+            [{"pdf": "norma.pdf", "key": "A:1", "title": "t", "authors": [], "year": 1}]
+        )
+    )
+    with pytest.raises(ValueError):
+        lab.load_uploaded_sources(bad)
+    missing = tmp_path / "missing.json"
+    missing.write_text(
+        json.dumps(
+            [{"pdf": "nope.pdf", "key": "A", "title": "t", "authors": [], "year": 1}]
+        )
+    )
+    with pytest.raises(ValueError):
+        lab.load_uploaded_sources(missing)

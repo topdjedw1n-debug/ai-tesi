@@ -29,7 +29,7 @@ from app.services.model_recording import ReplayIncomplete, active_replay
 from app.services.replay_dependencies import recording_context
 from app.services.replay_snapshot import snapshot_inputs
 from app.services.task_contract import contract_confirmation_error
-from app.services.uploaded_sources import load_document_passages
+from app.services.uploaded_sources import executor_source_rows, load_document_passages
 
 from .budgets import POLICY
 from .warnings import ExecutionStop, unusable, warning
@@ -114,34 +114,7 @@ class Context:
             library_rows = copy.deepcopy(library.value if library else [])
             if not isinstance(library_rows, list):
                 raise RecordingPersistenceError("Standard library must contain a list")
-            uploaded = []
-            for item in snapshot["tables"]["document_source_files"]:
-                uploaded.append(
-                    {
-                        "key": item["citation_key"],
-                        "origin": "pdf",
-                        "mandatory": item["mandatory"],
-                        "verification_provider": "PDF",
-                        "verification_status": (
-                            "verified"
-                            if not item["metadata_incomplete"]
-                            and item["status"] == "parsed"
-                            else "unverified"
-                        ),
-                        "source": {
-                            "title": item["title"] or item["filename"],
-                            "authors": [
-                                s.strip()
-                                for s in (item["authors"] or "").split(";")
-                                if s.strip()
-                            ],
-                            "year": item["year"],
-                            "provider": "uploaded",
-                            "paper_id": f'uploaded:{item["id"]}',
-                            "abstract": None,
-                        },
-                    }
-                )
+            uploaded = executor_source_rows(snapshot["tables"]["document_source_files"])
             brief = {
                 k: getattr(document, k)
                 for k in (
@@ -270,11 +243,12 @@ class Context:
 
 async def prepare(ctx):
     from .outline import build_outline
-    from .scopes import build_scopes
+    from .scopes import build_scopes, flatten
     from .sources import build_sources
 
     await ctx.initialize()
     scopes = await ctx.step("S1", "sources", build_scopes)
+    ctx.scopes = flatten(scopes)
     pack = await ctx.step("S2", "sources", build_sources, scopes)
     outline = await ctx.step("S3", "outline", build_outline, scopes, pack)
     return pack, outline

@@ -23,6 +23,7 @@ from app.services.ai_pipeline.source_identity import (
     normalize_title,
     sources_equivalent,
 )
+from app.services.full_text_sources import open_access_metadata
 from app.services.replay_dependencies import recorded_dependency
 
 logger = logging.getLogger(__name__)
@@ -165,6 +166,7 @@ class RAGRetriever:
                     "url",
                     "doi",
                     "publicationTypes",
+                    "openAccessPdf",
                 ],
             }
 
@@ -227,6 +229,7 @@ class RAGRetriever:
                     doi=paper.get("doi"),
                     provider="semantic_scholar",
                     source_type=source_type,
+                    canonical_metadata=open_access_metadata(paper, "semantic_scholar"),
                 )
                 source_docs.append(source_doc)
 
@@ -269,6 +272,7 @@ class RAGRetriever:
                         "doi": doc.doi,
                         "provider": doc.provider,
                         "source_type": doc.source_type,
+                        "canonical_metadata": doc.canonical_metadata,
                     }
                     for doc in source_docs
                 ],
@@ -311,6 +315,7 @@ class RAGRetriever:
                     doi=s.get("doi"),
                     provider=s.get("provider"),
                     source_type=s.get("source_type"),
+                    canonical_metadata=s.get("canonical_metadata"),
                 )
                 for s in cache_data.get("sources", [])
             ]
@@ -778,6 +783,7 @@ class RAGRetriever:
                             doi=doi,
                             provider="openalex",
                             source_type=w.get("type"),
+                            canonical_metadata=open_access_metadata(w, "openalex"),
                         )
                     )
                 except (AttributeError, TypeError, ValueError, IndexError):

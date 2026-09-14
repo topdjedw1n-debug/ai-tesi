@@ -66,6 +66,11 @@ def _terms(text: str) -> list[str]:
     return [t for t in _WORD_RE.findall(_normalize(text)) if t not in _STOPWORDS]
 
 
+def content_terms(text: str) -> list[str]:
+    """Retrieval terms of a text: the same tokens score_passage matches on."""
+    return _terms(text)
+
+
 @dataclass(frozen=True)
 class SourcePassage:
     """One retrievable excerpt with its exact provenance."""
@@ -318,6 +323,38 @@ async def load_document_passages(
             )
         )
     return passages
+
+
+def executor_source_rows(files: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Executor v2 input rows for the snapshot's uploaded files."""
+    rows: list[dict[str, Any]] = []
+    for item in files:
+        rows.append(
+            {
+                "key": item["citation_key"],
+                "origin": "pdf",
+                "mandatory": item["mandatory"],
+                "verification_provider": "PDF",
+                "verification_status": (
+                    "verified"
+                    if not item["metadata_incomplete"] and item["status"] == "parsed"
+                    else "unverified"
+                ),
+                "source": {
+                    "title": item["title"] or item["filename"],
+                    "authors": [
+                        s.strip()
+                        for s in (item["authors"] or "").split(";")
+                        if s.strip()
+                    ],
+                    "year": item["year"],
+                    "provider": "uploaded",
+                    "paper_id": f'uploaded:{item["id"]}',
+                    "abstract": None,
+                },
+            }
+        )
+    return rows
 
 
 async def uploaded_sources_digest(db: AsyncSession, document_id: int) -> str | None:
