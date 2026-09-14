@@ -1,0 +1,602 @@
+{
+  "status": "completed",
+  "mode": "fresh",
+  "variant": "fresh-A-fulltext",
+  "job_id": 16,
+  "actual_spend_usd": 1.575935,
+  "live_provider_calls": 17,
+  "cost_cap_usd": 3.0,
+  "lab_revision": "97c9f8d4c305d6d8538b98770e495d1a09f1a753",
+  "input_recording": {
+    "path": "docs/evidence/EXECUTOR-V2-THREE-CONTROLS-2026-09-12/A/document13-job16-recording.json.gz",
+    "sha256": "3b4f388e6caf57e12ffa0c263c628bff52caa98527d083c25ba6137c5c6c4e2a",
+    "origin": "live-manager1-three-controls-document13-job16",
+    "revision": "3892cac1ae8fccc261f04d0d35c64c5d4f6d3d49"
+  },
+  "s4_instruction": {
+    "source": "production",
+    "sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "production_sha256": "cbc764f5f67ba2569b18ab6e9af8e4997be694867e2ef08bdb3fb2764dff015f",
+    "changed": false
+  },
+  "model": {
+    "requested": null,
+    "recorded": "claude-opus-4-8",
+    "writer": "claude-opus-4-8"
+  },
+  "request_override": null,
+  "section_evidence": {},
+  "section_evidence_sha256": null,
+  "live_sections": "all",
+  "uploaded_sources": [],
+  "recorded_outline": false,
+  "live": {
+    "calls": [
+      {
+        "stage": "S1",
+        "section_index": null,
+        "model": "claude-opus-4-8",
+        "max_tokens": 8000,
+        "outcome": "received",
+        "input_tokens": 733,
+        "output_tokens": 1167,
+        "cost_usd": 0.03284,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf39yDVhc2SHzj9Tmsr55",
+        "elapsed_seconds": 11.564
+      },
+      {
+        "stage": "S3",
+        "section_index": null,
+        "model": "claude-opus-4-8",
+        "max_tokens": 12000,
+        "outcome": "received",
+        "input_tokens": 28027,
+        "output_tokens": 2607,
+        "cost_usd": 0.20531,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3B1t1sk9HK4aBUvnNxk",
+        "elapsed_seconds": 31.799
+      },
+      {
+        "stage": "S4",
+        "section_index": 1,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 2215,
+        "output_tokens": 1538,
+        "cost_usd": 0.049525,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3B4EA9t8FFUqU2XDzwT",
+        "elapsed_seconds": 22.469
+      },
+      {
+        "stage": "S4",
+        "section_index": 2,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 2703,
+        "output_tokens": 1600,
+        "cost_usd": 0.053515,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3B5tnsVb3Q16f2sBgkR",
+        "elapsed_seconds": 26.768
+      },
+      {
+        "stage": "S4",
+        "section_index": 3,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 3206,
+        "output_tokens": 1579,
+        "cost_usd": 0.055505,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3B7s8ECuvRb8iS1zkAQ",
+        "elapsed_seconds": 27.251
+      },
+      {
+        "stage": "S4",
+        "section_index": 4,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 8995,
+        "output_tokens": 1706,
+        "cost_usd": 0.087625,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3B9tWNsopJkjXPeaBYC",
+        "elapsed_seconds": 27.116
+      },
+      {
+        "stage": "S4",
+        "section_index": 5,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 4915,
+        "output_tokens": 1557,
+        "cost_usd": 0.0635,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BBucedWxFLMCo9NZEA",
+        "elapsed_seconds": 27.488
+      },
+      {
+        "stage": "S4",
+        "section_index": 6,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2944,
+        "outcome": "received",
+        "input_tokens": 12430,
+        "output_tokens": 1492,
+        "cost_usd": 0.09945,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BDw9jMy9XFVXNw4M88",
+        "elapsed_seconds": 23.046
+      },
+      {
+        "stage": "S4",
+        "section_index": 7,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2944,
+        "outcome": "received",
+        "input_tokens": 12241,
+        "output_tokens": 1291,
+        "cost_usd": 0.09348,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BFdn2Ac4rfsLb7tpa5",
+        "elapsed_seconds": 22.002
+      },
+      {
+        "stage": "S4",
+        "section_index": 8,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2944,
+        "outcome": "received",
+        "input_tokens": 14425,
+        "output_tokens": 1643,
+        "cost_usd": 0.1132,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BHGyfo25DdshuCodzX",
+        "elapsed_seconds": 25.204
+      },
+      {
+        "stage": "S4",
+        "section_index": 9,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2944,
+        "outcome": "received",
+        "input_tokens": 14131,
+        "output_tokens": 1310,
+        "cost_usd": 0.103405,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BK9EPjmU7cfHS8HCx4",
+        "elapsed_seconds": 20.792
+      },
+      {
+        "stage": "S4",
+        "section_index": 10,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2356,
+        "outcome": "received",
+        "input_tokens": 14222,
+        "output_tokens": 1196,
+        "cost_usd": 0.10101,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BLghWpgKm1Mc6eDfms",
+        "elapsed_seconds": 22.331
+      },
+      {
+        "stage": "S4",
+        "section_index": 11,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2356,
+        "outcome": "received",
+        "input_tokens": 8598,
+        "output_tokens": 1275,
+        "cost_usd": 0.074865,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BNLLiR9Hx3BuRPFEXa",
+        "elapsed_seconds": 18.927
+      },
+      {
+        "stage": "S4",
+        "section_index": 12,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2938,
+        "outcome": "received",
+        "input_tokens": 15280,
+        "output_tokens": 1304,
+        "cost_usd": 0.109,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BPkaGKvrx9rcSKxqg3",
+        "elapsed_seconds": 20.052
+      },
+      {
+        "stage": "S4",
+        "section_index": 13,
+        "model": "claude-opus-4-8",
+        "max_tokens": 2938,
+        "outcome": "received",
+        "input_tokens": 15896,
+        "output_tokens": 1264,
+        "cost_usd": 0.11108,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BREkhfQnyLksoV38J8",
+        "elapsed_seconds": 21.995
+      },
+      {
+        "stage": "S4",
+        "section_index": 14,
+        "model": "claude-opus-4-8",
+        "max_tokens": 3527,
+        "outcome": "received",
+        "input_tokens": 14387,
+        "output_tokens": 1445,
+        "cost_usd": 0.10806,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BSsWKQy8hqCcsfXwth",
+        "elapsed_seconds": 24.028
+      },
+      {
+        "stage": "S6",
+        "section_index": null,
+        "model": "claude-opus-4-8",
+        "max_tokens": 8000,
+        "outcome": "received",
+        "input_tokens": 21643,
+        "output_tokens": 254,
+        "cost_usd": 0.114565,
+        "stop_reason": "end_turn",
+        "response_id": "msg_011Cf3BUfNsp4btnSnrguZG1",
+        "elapsed_seconds": 5.135
+      }
+    ],
+    "input_tokens": 194047,
+    "output_tokens": 24228,
+    "cost_usd": 1.575935,
+    "secrets_present": [
+      "ANTHROPIC_API_KEY",
+      "OPENALEX_API_KEY",
+      "SEMANTIC_SCHOLAR_API_KEY"
+    ],
+    "received": 17,
+    "failed": 0,
+    "unknown_spend_estimate_usd": 0.0
+  },
+  "consumed": [],
+  "replaced_recorded_calls": [],
+  "warnings": [
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_full_text_unavailable",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Повний текст частини джерел не отримано автоматично; використано анотації. За потреби завантажте PDF.",
+      "detail": "Kd7bb6122eb18, K6cb3380c5e7e, Kee5538374a0f, K2755be8fc289, K2ade22aa87f4, K1d5b54c36b71, K25292ed681b5, K4c9bf82d4123",
+      "created_at": "2026-09-14T10:27:56.260333+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kc5c8b37f19c9",
+      "created_at": "2026-09-14T10:27:56.267869+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K2f047fe94093",
+      "created_at": "2026-09-14T10:27:56.274567+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K8a8ecdf73061",
+      "created_at": "2026-09-14T10:27:56.280172+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kce617db31cc6",
+      "created_at": "2026-09-14T10:27:56.288841+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K980165be06a6",
+      "created_at": "2026-09-14T10:27:56.294107+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K44102dc95d32",
+      "created_at": "2026-09-14T10:27:56.300384+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kd899d8b2094e",
+      "created_at": "2026-09-14T10:27:56.306485+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Kc68656e54666",
+      "created_at": "2026-09-14T10:27:56.311039+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "K5cafc1c50f70",
+      "created_at": "2026-09-14T10:27:56.317555+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "sources",
+      "code": "source_no_readable_text",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Джерело підтверджено, але його текст недоступний для написання.",
+      "detail": "Ke110c391499a",
+      "created_at": "2026-09-14T10:27:56.323839+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "outline",
+      "code": "outline_scope_unmapped",
+      "severity": "warning",
+      "section_index": null,
+      "message_uk": "План не охоплює частину підтвердженого завдання.",
+      "detail": "Bibliografia",
+      "created_at": "2026-09-14T10:28:28.323668+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "writing",
+      "code": "citation_unresolved",
+      "severity": "warning",
+      "section_index": 9,
+      "message_uk": "Невідоме позначення джерела прибрано з тексту.",
+      "detail": "in",
+      "created_at": "2026-09-14T10:32:11.530020+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "placeholder_text",
+      "severity": "warning",
+      "section_index": 3,
+      "message_uk": "У розділі залишилися редакторські заглушки.",
+      "detail": "da verificare",
+      "created_at": "2026-09-14T10:33:59.761097+00:00"
+    },
+    {
+      "document_id": 13,
+      "job_id": 16,
+      "worker_attempt": 1,
+      "stage": "assembling",
+      "code": "review_note",
+      "severity": "info",
+      "section_index": null,
+      "message_uk": "Академічний огляд залишив зауваження до готової роботи.",
+      "detail": "PASS\nCoherent literature-review thesis on digital marketing/social media and customer loyalty in Italian SMEs. Strong methodological self-awareness: consistently and honestly flags transferability limits, absence of primary data, and gaps in SME-specific evidence. Citations are integrated and match the bibliography. Minor issues: some source titles show garbled characters (Bann?, MORETTI & TUAN dated 2014 in DOI but cited 2018, Benelli 2026 future-dated and used loosely), and a truncated sentence in the Kerse quote ('mediating role  CC fit's effect'). Repetitive limit-disclaimers across chapters, but structurally sound, well-argued, and academically acceptable.",
+      "created_at": "2026-09-14T10:34:05.005058+00:00"
+    }
+  ],
+  "sections": [
+    {
+      "section_index": 1,
+      "title": "Introduzione",
+      "target_words": 551,
+      "word_count": 546,
+      "tokens_used": 3753,
+      "written": "live"
+    },
+    {
+      "section_index": 2,
+      "title": "Quadro teorico del marketing digitale",
+      "target_words": 551,
+      "word_count": 568,
+      "tokens_used": 4303,
+      "written": "live"
+    },
+    {
+      "section_index": 3,
+      "title": "Evoluzione dal marketing tradizionale al marketing digitale",
+      "target_words": 551,
+      "word_count": 562,
+      "tokens_used": 4785,
+      "written": "live"
+    },
+    {
+      "section_index": 4,
+      "title": "Strumenti e canali del marketing digitale",
+      "target_words": 551,
+      "word_count": 596,
+      "tokens_used": 10701,
+      "written": "live"
+    },
+    {
+      "section_index": 5,
+      "title": "Il marketing digitale nelle piccole e medie imprese",
+      "target_words": 551,
+      "word_count": 540,
+      "tokens_used": 6472,
+      "written": "live"
+    },
+    {
+      "section_index": 6,
+      "title": "Social media e customer loyalty nelle PMI",
+      "target_words": 460,
+      "word_count": 525,
+      "tokens_used": 13922,
+      "written": "live"
+    },
+    {
+      "section_index": 7,
+      "title": "Il ruolo dei social media nelle strategie di marketing",
+      "target_words": 460,
+      "word_count": 455,
+      "tokens_used": 13532,
+      "written": "live"
+    },
+    {
+      "section_index": 8,
+      "title": "Concetti di fidelizzazione e customer engagement",
+      "target_words": 460,
+      "word_count": 542,
+      "tokens_used": 16068,
+      "written": "live"
+    },
+    {
+      "section_index": 9,
+      "title": "Social media come leva di fidelizzazione nelle PMI",
+      "target_words": 460,
+      "word_count": 481,
+      "tokens_used": 15441,
+      "written": "live"
+    },
+    {
+      "section_index": 10,
+      "title": "Analisi di casi ed evidenze empiriche",
+      "target_words": 368,
+      "word_count": 399,
+      "tokens_used": 15418,
+      "written": "live"
+    },
+    {
+      "section_index": 11,
+      "title": "Metodologia di analisi",
+      "target_words": 368,
+      "word_count": 418,
+      "tokens_used": 9873,
+      "written": "live"
+    },
+    {
+      "section_index": 12,
+      "title": "Casi di studio di PMI italiane",
+      "target_words": 459,
+      "word_count": 451,
+      "tokens_used": 16584,
+      "written": "live"
+    },
+    {
+      "section_index": 13,
+      "title": "Discussione dei risultati",
+      "target_words": 459,
+      "word_count": 433,
+      "tokens_used": 17160,
+      "written": "live"
+    },
+    {
+      "section_index": 14,
+      "title": "Conclusioni",
+      "target_words": 551,
+      "word_count": 484,
+      "tokens_used": 15832,
+      "written": "live"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-A/e6b4ea2495d438565b42f6d9e741e9e62eef5199045d1081cf7c3eb8445850fd.docx",
+      "sha256": "e6b4ea2495d438565b42f6d9e741e9e62eef5199045d1081cf7c3eb8445850fd",
+      "bytes": 53748
+    }
+  ],
+  "pricing_usd_per_1m": {
+    "model": "claude-opus-4-8",
+    "input": 5.0,
+    "output": 25.0,
+    "source": "production"
+  },
+  "recorded_live_sections": null,
+  "profile_changed": true,
+  "network": {
+    "allowed_hosts": "*",
+    "refused": []
+  },
+  "explanation": "fresh mode: a new run of the recorded document; every model call and external input was live and journaled, so the exported recording stands on its own",
+  "job_status": "completed",
+  "document_status": "completed",
+  "simulated_cost_cents": 158,
+  "recorded_model_calls": 0,
+  "journal": {
+    "confirmed_tokens": 218275,
+    "confirmed_cost_cents": 158,
+    "unknown_provider_attempts": 0
+  },
+  "export": {
+    "path": "/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-A/fresh-A-fulltext-job16-recording.json.gz",
+    "sha256": "e1fc76c0fa65736aa33d5af5301fcebaa5951285ca5a68ce251f8eecb1356dd2",
+    "consumed_dependency_events": 0,
+    "provenance_rows": 4407
+  }
+}

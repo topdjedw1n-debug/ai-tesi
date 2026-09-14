@@ -138,3 +138,4 @@ Astra (`codex exec -m gpt-6-astra -s read-only`, xhigh, ізольована т�
 ## 14. Статус (оновлюється)
 
 - 14.09, ранок: проєкт написано; рев'ю Astra отримано; код і докази — [evidence/QUALITY-AI-2026-09-13/s2-full-text](../evidence/QUALITY-AI-2026-09-13/s2-full-text/README.md).
+- 14.09, день: крок 2 виконано за «так» фаундера — дві повні роботи (A $1,58, B $3,12 з 14 завантаженими текстами), обидві дійшли до DOCX і відтворюються побайтово; Compilatio чекає на фаундера — [step2-full-inputs](../evidence/QUALITY-AI-2026-09-13/step2-full-inputs/README.md).

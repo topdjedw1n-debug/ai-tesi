@@ -1,6 +1,6 @@
 # Промпт для нової сесії Fable — матеріал на вході (S2) після досліду М1
 
-> **Статус 14.09.2026 (Fable):** крок 1 виконано без платних прогонів — проєкт [S2-FULL-TEXT-EVIDENCE-2026-09-14](S2-FULL-TEXT-EVIDENCE-2026-09-14.md) (з рев'ю Astra, §13), реалізація і докази — [evidence/QUALITY-AI-2026-09-13/s2-full-text](../evidence/QUALITY-AI-2026-09-13/s2-full-text/README.md). Крок 2 (повна робота B з повних входів + один скан) чекає окремого «так».
+> **Статус 14.09.2026 (Fable):** крок 1 виконано без платних прогонів — проєкт [S2-FULL-TEXT-EVIDENCE-2026-09-14](S2-FULL-TEXT-EVIDENCE-2026-09-14.md) (з рев'ю Astra, §13), реалізація і докази — [evidence/QUALITY-AI-2026-09-13/s2-full-text](../evidence/QUALITY-AI-2026-09-13/s2-full-text/README.md). Крок 2 виконано 14.09 за «так» фаундера (дві роботи, A і B) — [step2-full-inputs](../evidence/QUALITY-AI-2026-09-13/step2-full-inputs/README.md); Compilatio — за фаундером.
 
 14.09.2026. Фаундер: продовжити етап якості новою сесією Claude Code в папці проєкту. Нижче текст для вставки першим повідомленням.
 

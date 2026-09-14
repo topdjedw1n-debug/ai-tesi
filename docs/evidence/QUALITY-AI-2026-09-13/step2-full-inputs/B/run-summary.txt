@@ -1,0 +1,37 @@
+{'status': 'completed', 'reason': None, 'mode': 'fresh', 'actual_spend_usd': 3.1239, 'live_provider_calls': 25, 'export_error': None}
+live: {'received': 25, 'failed': 0, 'input_tokens': 422105, 'output_tokens': 40535, 'cost_usd': 3.1239, 'unknown_spend_estimate_usd': 0.0}
+artifacts: [{'path': '/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-B/00f5a2ff4374992564f4975e0bae398fb566ac0776820729c324605717d7ea1a.docx', 'sha256': '00f5a2ff4374992564f4975e0bae398fb566ac0776820729c324605717d7ea1a', 'bytes': 62477}]
+export: {'path': '/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-B/fresh-B-fulltext-job17-recording.json.gz', 'sha256': 'd64947ccca34eaa2ff8cf66830c7ecfd8bf28eb18cdb7bdc2cc6de9d60793944', 'consumed_dependency_events': 0, 'provenance_rows': 5665}
+journal: {'confirmed_tokens': 462640, 'confirmed_cost_cents': 312, 'unknown_provider_attempts': 0}
+uploaded: [('DLGS151ART23', 2, 'parsed'), ('CODPRIV114', 1, 'parsed'), ('ART8', 1, 'parsed'), ('GARANTE2007', 13, 'parsed'), ('GARANTE2010', 23, 'parsed'), ('CASS25732', 10, 'parsed'), ('CASS15391', 6, 'parsed'), ('CASS19922', 4, 'parsed'), ('CASSPEN4331', 2, 'parsed'), ('GDPR2016', 17, 'parsed'), ('ART4', 1, 'parsed'), ('BARBULESCU2017', 58, 'parsed'), ('LOPEZRIBALDA2019', 57, 'parsed'), ('GHIONZOLI2025', 40, 'parsed')]
+calls by stage: {'S1': 1, 'S3': 1, 'S4': 22, 'S6': 1}
+warnings: {'source_full_text_unavailable': 1, 'source_no_readable_text': 5, 'outline_scope_unmapped': 1, 'citation_unresolved': 3, 'review_note': 1}
+execution: {'stage': 'assembling', 'sections_done': 22, 'sections_total': 22, 'cost_cents_so_far': 312, 'tokens_so_far': 462640, 'stop': None}
+full text: 6/17 fetched; [('K66f7f6a6f0a4', 26), ('Kbf7f289b488a', 6), ('Kf152398afd8c', 18), ('K59f7b1a55174', 49), ('Keae4ea176a0d', 340), ('Ke268c55d5037', 66)]
+  reasons: Counter({'http_403': 8, 'not_pdf': 2, 'transport_error': 1})
+pack: 40 evidence levels: {'pdf': 20, 'abstract': 15, 'none': 5} | uploaded keys: ['GHIONZOLI2025', 'ART4', 'CASSPEN4331', 'GDPR2016', 'CODPRIV114', 'CASS19922', 'CASS25732', 'GARANTE2010', 'GARANTE2007', 'DLGS151ART23', 'CASS15391', 'LOPEZRIBALDA2019', 'BARBULESCU2017', 'ART8']
+sections written: 22 words 10966
+  § 1: docs 13 full-text 10 chars  22108 | GHIONZOLI2025:3w, GARANTE2007+:3w, DLGS151ART23+:3w, CASS25732+:3w, ART8+:1w, CODPRIV114+:1w, CASS15391+:3w, GARANTE2010+:3w, CASS19922+:2w, GDPR2016+:2w
+  § 2: docs 9 full-text 8 chars  19894 | ART4:1w, DLGS151ART23:3w, CASSPEN4331:4w, CASS25732+:4w, GHIONZOLI2025+:4w, CASS19922+:3w, ART8+:1w, GARANTE2007+:4w
+  § 3: docs 11 full-text 11 chars  19091 | ART4:1w, ART8:1w, CASSPEN4331:3w, DLGS151ART23+:3w, GARANTE2007+:3w, CASS19922+:3w, CASS25732+:3w, CASS15391+:2w, GARANTE2010+:2w, GHIONZOLI2025+:2w, CODPRIV114+:1w
+  § 4: docs 9 full-text 9 chars  19048 | DLGS151ART23:2w, ART4:3w, GHIONZOLI2025:3w, CASS25732+:3w, GARANTE2007+:3w, GARANTE2010+:3w, CASS15391+:2w, GDPR2016+:2w, CASSPEN4331+:2w
+  § 5: docs 8 full-text 8 chars  19607 | ART4:2w, CASSPEN4331:2w, K66f7f6a6f0a4:4w, GHIONZOLI2025:3w, CASS25732+:3w, DLGS151ART23+:2w, GARANTE2010+:3w, GARANTE2007+:3w
+  § 6: docs 8 full-text 7 chars  21317 | GDPR2016:5w, GHIONZOLI2025:4w, GARANTE2007+:4w, GARANTE2010+:4w, CASS25732+:4w, ART8+:1w, DLGS151ART23+:2w
+  § 7: docs 7 full-text 5 chars  21905 | GDPR2016:6w, GHIONZOLI2025+:6w, GARANTE2007+:1w, GARANTE2010+:5w, CASS25732+:5w
+  § 8: docs 7 full-text 7 chars  19380 | GDPR2016:4w, GHIONZOLI2025:3w, GARANTE2007:3w, GARANTE2010+:3w, CASS15391+:3w, CASS25732+:3w, CASS19922+:3w
+  § 9: docs 9 full-text 7 chars  21265 | GDPR2016:4w, GHIONZOLI2025+:4w, GARANTE2007+:5w, ART8+:1w, CASS15391+:3w, CASS25732+:3w, GARANTE2010+:3w
+  §10: docs 5 full-text 5 chars  19141 | GDPR2016:6w, K59f7b1a55174:6w, K66f7f6a6f0a4:3w, GHIONZOLI2025+:5w, GARANTE2007+:5w
+  §11: docs 7 full-text 6 chars  19905 | CODPRIV114:1w, GDPR2016:6w, GARANTE2007:5w, GHIONZOLI2025+:5w, GARANTE2010+:5w, DLGS151ART23+:3w
+  §12: docs 7 full-text 6 chars  20402 | GHIONZOLI2025:4w, GARANTE2007:4w, CASS25732+:4w, CASS19922+:4w, GARANTE2010+:4w, CASS15391+:3w
+  §13: docs 7 full-text 7 chars  18740 | CASS25732:4w, CASS15391:4w, DLGS151ART23:3w, GHIONZOLI2025:4w, GARANTE2007+:3w, ART4+:3w, CASS19922+:3w
+  §14: docs 11 full-text 11 chars  19424 | GARANTE2010:3w, ART4:2w, CASSPEN4331:2w, GHIONZOLI2025+:3w, GARANTE2007+:2w, GDPR2016+:2w, CASS25732+:2w, CODPRIV114+:1w, CASS19922+:2w, CASS15391+:2w, DLGS151ART23+:2w
+  §15: docs 4 full-text 4 chars  19817 | GARANTE2007:7w, GHIONZOLI2025:7w, GDPR2016:4w, GARANTE2010+:7w
+  §16: docs 7 full-text 7 chars  19666 | CASS19922:4w, K66f7f6a6f0a4:4w, GHIONZOLI2025:3w, K59f7b1a55174:4w, GARANTE2007+:3w, GDPR2016+:3w, CASS25732+:3w
+  §17: docs 8 full-text 5 chars  22856 | GARANTE2010+:5w, GHIONZOLI2025+:5w, CASS25732+:5w, GARANTE2007+:4w, CASS15391+:4w
+  §18: docs 3 full-text 2 chars  19086 | CASS25732:11w, GARANTE2010:11w
+  §19: docs 5 full-text 5 chars  19034 | CASS25732:5w, CASS15391:5w, CASS19922:5w, GHIONZOLI2025+:4w, GARANTE2007+:4w
+  §20: docs 8 full-text 7 chars  20724 | BARBULESCU2017:4w, LOPEZRIBALDA20:4w, CASS25732+:3w, GHIONZOLI2025+:3w, GARANTE2007+:3w, GARANTE2010+:3w, CASS15391+:3w
+  §21: docs 7 full-text 5 chars  20283 | GARANTE2010:5w, GARANTE2007:6w, GHIONZOLI2025+:5w, GDPR2016+:4w, CASS25732+:4w
+  §22: docs 8 full-text 6 chars  21350 | K66f7f6a6f0a4:4w, GHIONZOLI2025:4w, CASS25732+:4w, GARANTE2007+:4w, CASS15391+:3w, GDPR2016+:4w
+bibliography entries: 25 Counter({'pdf': 14, 'pack': 11})
+review: PASS | Coherent, well-structured legal analysis with consistent citations to sources (Cassazione, Garante, GDPR, dottrina). Claims are supported and appropriately hedged where evidence is limited. Research question stated in intro and answered in conclusions. Bibliography matches in-text citations. Minor: some acknowledged limits on empirical data, but appropriately flagged rather than overclaimed. No fabrication or internal contradictions detected.

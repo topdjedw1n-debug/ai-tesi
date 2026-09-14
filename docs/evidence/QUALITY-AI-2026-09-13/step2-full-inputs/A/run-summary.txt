@@ -1,0 +1,29 @@
+{'status': 'completed', 'reason': None, 'mode': 'fresh', 'actual_spend_usd': 1.575935, 'live_provider_calls': 17, 'export_error': None}
+live: {'received': 17, 'failed': 0, 'input_tokens': 194047, 'output_tokens': 24228, 'cost_usd': 1.575935, 'unknown_spend_estimate_usd': 0.0}
+artifacts: [{'path': '/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-A/e6b4ea2495d438565b42f6d9e741e9e62eef5199045d1081cf7c3eb8445850fd.docx', 'sha256': 'e6b4ea2495d438565b42f6d9e741e9e62eef5199045d1081cf7c3eb8445850fd', 'bytes': 53748}]
+export: {'path': '/private/tmp/claude-502/-Users-maxmaxvel-AI-TESI/1b8d9554-341b-49b6-bd86-c13897ee8d22/scratchpad/fresh-A/fresh-A-fulltext-job16-recording.json.gz', 'sha256': 'e1fc76c0fa65736aa33d5af5301fcebaa5951285ca5a68ce251f8eecb1356dd2', 'consumed_dependency_events': 0, 'provenance_rows': 4407}
+journal: {'confirmed_tokens': 218275, 'confirmed_cost_cents': 158, 'unknown_provider_attempts': 0}
+uploaded: []
+calls by stage: {'S1': 1, 'S3': 1, 'S4': 14, 'S6': 1}
+warnings: {'source_full_text_unavailable': 1, 'source_no_readable_text': 10, 'outline_scope_unmapped': 1, 'citation_unresolved': 1, 'placeholder_text': 1, 'review_note': 1}
+execution: {'stage': 'assembling', 'sections_done': 14, 'sections_total': 14, 'cost_cents_so_far': 158, 'tokens_so_far': 218275, 'stop': None}
+full text: 12/20 fetched; [('K2e093c0b1986', 65), ('K0ee0954e9b5f', 59), ('K35b7b83359bd', 21), ('K3382bcbd9143', 27), ('Kafde0e0f0f50', 24), ('Kd1a8a0c1a7a7', 15), ('K837f79b28309', 20), ('Kfd6da65cec37', 11), ('K2f4230e37ac9', 382), ('K5f2bfc9025e4', 13), ('K82dcddb197b8', 36), ('K7630ea1f7b20', 17)]
+  reasons: Counter({'http_403': 5, 'http_404': 2, 'not_pdf': 1})
+pack: 40 evidence levels: {'pdf': 12, 'abstract': 18, 'none': 10} | uploaded keys: []
+sections written: 14 words 7000
+  § 1: docs 3 full-text 0 chars   1657 |
+  § 2: docs 3 full-text 0 chars   1657 |
+  § 3: docs 3 full-text 0 chars   1657 |
+  § 4: docs 3 full-text 1 chars  16779 | Kafde0e0f0f50:19w
+  § 5: docs 3 full-text 0 chars   3366 |
+  § 6: docs 3 full-text 2 chars  19807 | Kafde0e0f0f50:13w, Kd1a8a0c1a7a7:13w
+  § 7: docs 3 full-text 2 chars  20014 | Kafde0e0f0f50:16w, K35b7b83359bd:7w
+  § 8: docs 3 full-text 2 chars  21106 | Kd1a8a0c1a7a7:13w, K3382bcbd9143:12w
+  § 9: docs 3 full-text 2 chars  20348 | Kafde0e0f0f50:14w, Kd1a8a0c1a7a7:11w
+  §10: docs 3 full-text 2 chars  19574 | K3382bcbd9143:12w, K837f79b28309:12w
+  §11: docs 3 full-text 2 chars   4732 | K3382bcbd9143:2w, K837f79b28309:3w
+  §12: docs 3 full-text 3 chars  19352 | K837f79b28309:9w, K3382bcbd9143:9w, Kafde0e0f0f50:9w
+  §13: docs 3 full-text 2 chars  20552 | K3382bcbd9143:10w, K837f79b28309:14w
+  §14: docs 3 full-text 2 chars  15071 | Kafde0e0f0f50:2w, Kd1a8a0c1a7a7:15w
+bibliography entries: 11 Counter({'pack': 11})
+review: PASS | Coherent literature-review thesis on digital marketing/social media and customer loyalty in Italian SMEs. Strong methodological self-awareness: consistently and honestly flags transferability limits, absence of primary data, and gaps in SME-specific evidence. Citations are integrated and match the bibliography. Minor issues: some source titles show garbled characters (Bann?, MORETTI & TUAN dated 2014 in DOI but cited 2018, Benelli 2026 future-dated and used loosely), and a truncated sentence in the Kerse quote ('mediating role  CC fit's effect'). Repetitive limit-disclaimers across chapte
