@@ -1346,6 +1346,16 @@ async def export_variant(
     ]
     if args.mode == "fresh":
         consumed_events = []  # every external input was journaled by this run
+        # The seeded copy of the source snapshot precedes the run's own one;
+        # the standard replay requires exactly one, the run's.
+        snapshots = [
+            i
+            for i, r in enumerate(provenance_rows)
+            if r.get("event_type") == "generation_replay_inputs"
+        ]
+        provenance_rows = [
+            r for i, r in enumerate(provenance_rows) if i not in snapshots[:-1]
+        ]
     else:
         assert len(dependency_events) == len(tape.dependencies)
         consumed_events = [dependency_events[i] for i in sorted(used)]
