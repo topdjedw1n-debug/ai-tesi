@@ -634,3 +634,25 @@ def test_normalize_title(raw, expected):
 )
 def test_normalize_doi(raw, expected):
     assert normalize_doi(raw) == expected
+
+
+@pytest.mark.asyncio
+async def test_default_limiters_are_shared_across_verifiers_in_one_process():
+    """Every job on the server shares one allowance per catalogue: two
+    verifiers with default limits space their calls through the same
+    limiter, while explicit limits stay private to the instance."""
+    import time
+
+    from app.services.citation_verifier import shared_limiter
+
+    first = CitationVerifier(cache_enabled=False)
+    second = CitationVerifier(cache_enabled=False)
+    assert first._limiter("openalex") is second._limiter("openalex")
+    assert first._limiter("openalex") is not first._limiter("crossref")
+    private = CitationVerifier(cache_enabled=False, rate_limits_rps={"openalex": 50.0})
+    assert private._limiter("openalex") is not first._limiter("openalex")
+    limiter = shared_limiter("test-catalogue", 50.0)
+    started = time.monotonic()
+    for _ in range(3):
+        await limiter.acquire()
+    assert time.monotonic() - started >= 0.04

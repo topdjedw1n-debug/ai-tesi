@@ -343,3 +343,21 @@ def test_section_evidence_keeps_at_most_four_documents_by_relevance():
     assert [i["text"] for i in items[4:]] == [
         evidence_text(pack.by_key(r["key"]).source) for r in rest
     ]
+
+
+def test_catalogue_limits_follow_the_provider_settings():
+    from app.core.config import settings
+    from app.services.ai_pipeline.rag_retriever import _catalogue_limits
+
+    assert _catalogue_limits("https://api.openalex.org/works?search=x") == (
+        "openalex",
+        settings.OPENALEX_RATE_LIMIT_RPS,
+    )
+    assert _catalogue_limits("https://api.crossref.org/works")[0] == "crossref"
+    assert _catalogue_limits("https://export.arxiv.org/api/query") == (
+        "arxiv",
+        settings.ARXIV_RATE_LIMIT_RPS,
+    )
+    assert _catalogue_limits("https://api.semanticscholar.org/graph/v1/x")[0] == (
+        "semantic_scholar"
+    )

@@ -269,6 +269,21 @@ class _MinIntervalLimiter:
             self._next_allowed = max(now, self._next_allowed) + self._interval
 
 
+_SHARED_LIMITERS: dict[tuple[int, str, float], _MinIntervalLimiter] = {}
+
+
+def shared_limiter(provider: str, rps: float) -> _MinIntervalLimiter:
+    """One limiter per provider for the whole process, bound to the running
+    loop: every job on this server shares the provider's allowance instead
+    of multiplying it (14.09: three parallel works tripled the rate and
+    every catalogue answered 429). Must be called inside a running loop."""
+    key = (id(asyncio.get_running_loop()), provider, rps)
+    limiter = _SHARED_LIMITERS.get(key)
+    if limiter is None:
+        limiter = _SHARED_LIMITERS[key] = _MinIntervalLimiter(rps)
+    return limiter
+
+
 @dataclass
 class _ProviderOutcome:
     """matched: candidate passed matching rules; errored: transport/5xx
@@ -320,8 +335,14 @@ class CitationVerifier:
         }
         if rate_limits_rps:
             rps.update(rate_limits_rps)
-        # Instance-level (not module-level): test isolation + loop safety
-        self._limiters = {p: _MinIntervalLimiter(r) for p, r in rps.items()}
+        self._rps = rps
+        # Explicit limits stay instance-level (tests); the defaults are shared
+        # by every verifier in the process, see shared_limiter().
+        self._own_limiters = (
+            {p: _MinIntervalLimiter(r) for p, r in rps.items()}
+            if rate_limits_rps
+            else None
+        )
         self._semaphore = asyncio.Semaphore(self.max_concurrency)
 
         self.cache_enabled = cache_enabled
@@ -643,6 +664,11 @@ class CitationVerifier:
     # HTTP with retry/backoff
     # ------------------------------------------------------------------
 
+    def _limiter(self, provider: str) -> _MinIntervalLimiter:
+        if self._own_limiters is not None:
+            return self._own_limiters[provider]
+        return shared_limiter(provider, self._rps.get(provider, 1.0))
+
     @recorded_dependency("citation_http", codec="http")
     async def _fetch(
         self,
@@ -662,7 +688,7 @@ class CitationVerifier:
         if headers:
             merged_headers.update(headers)
         while True:
-            await self._limiters[provider].acquire()
+            await self._limiter(provider).acquire()
             error: str
             retryable: bool
             try:

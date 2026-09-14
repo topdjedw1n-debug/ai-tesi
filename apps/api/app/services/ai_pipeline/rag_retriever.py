@@ -23,6 +23,7 @@ from app.services.ai_pipeline.source_identity import (
     normalize_title,
     sources_equivalent,
 )
+from app.services.citation_verifier import shared_limiter
 from app.services.full_text_sources import open_access_metadata
 from app.services.replay_dependencies import recorded_dependency
 
@@ -73,6 +74,21 @@ class SourceDoc:
             doi=self.doi,
             url=self.url,
         )
+
+
+def _catalogue_limits(url: str) -> tuple[str, float]:
+    """Provider name and allowed rate for a catalogue URL; all jobs on the
+    server share one limiter per provider (see citation_verifier)."""
+    host = httpx.URL(url).host or ""
+    if "openalex" in host:
+        return "openalex", settings.OPENALEX_RATE_LIMIT_RPS
+    if "crossref" in host:
+        return "crossref", settings.CROSSREF_RATE_LIMIT_RPS
+    if "semanticscholar" in host:
+        return "semantic_scholar", settings.SEMANTIC_SCHOLAR_RATE_LIMIT_RPS
+    if "arxiv" in host:
+        return "arxiv", settings.ARXIV_RATE_LIMIT_RPS
+    return host or "unknown", 5.0
 
 
 class RAGRetriever:
@@ -184,6 +200,9 @@ class RAGRetriever:
                 headers["x-api-key"] = self.api_key
 
             async with httpx.AsyncClient(timeout=30.0) as client:
+                await shared_limiter(
+                    "semantic_scholar", settings.SEMANTIC_SCHOLAR_RATE_LIMIT_RPS
+                ).acquire()
                 response = await client.get(
                     f"{self.base_url}/paper/search", params=params, headers=headers
                 )
@@ -592,9 +611,11 @@ class RAGRetriever:
         only for connection errors, rate limits and server errors. Credentials
         are sent in headers, never in URLs that may appear in error logs.
         """
+        provider, rps = _catalogue_limits(url)
         async with httpx.AsyncClient(timeout=30.0) as client:
             for attempt in range(3):
                 try:
+                    await shared_limiter(provider, rps).acquire()
                     response = await client.get(url, params=params, headers=headers)
                     response.raise_for_status()
                     payload = response.json()
