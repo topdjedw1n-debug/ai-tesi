@@ -1,0 +1,1169 @@
+{
+ "sections": [
+  {
+   "section_index": 1,
+   "title": "Introduzione",
+   "words": 578,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "non sono più partecipanti passivi ma svolgono un ruolo attivo nel processo mediatico, essendo divenuti una fonte importante e produttiva di contenuti sul Web",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "opportunità significative alle organizzazioni attraverso costi inferiori, maggiore consapevolezza del marchio e vendite incrementate",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sfide rilevanti derivanti dal passaparola elettronico negativo e da una presenza online invasiva e irritante",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i bisogni e i comportamenti di ciascuno di noi sono oggi fortemente influenzati dalle nuove abitudini digitali",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "incremento delle vendite, riduzione dei costi, raccomandazioni del brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "snowball method in order to identify related references",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 2,
+   "title": "Quadro teorico del marketing digitale",
+   "words": 568,
+   "checks": [
+    {
+     "kind": "quote",
+     "text": "nell'accezione più ampia, comprendono i canali di distribuzione e comunicazione digitali e gli User Generated Content",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'uso di internet e dei social media ha modificato il comportamento dei consumatori e le modalità con cui le imprese conducono la propria attività",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i bisogni e i comportamenti di ciascuno di noi sono oggi fortemente influenzati dalle nuove abitudini digitali",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il linguaggio, le aspettative e i bisogni è oggi indispensabile per ripensare modalità, tono di voce e contenuti della comunicazione",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il marketing sociale e digitale offre significative opportunità alle organizzazioni attraverso costi inferiori, una migliore brand awareness e un incremento del",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esistono sfide rilevanti derivanti dal passaparola elettronico negativo e da una presenza online invasiva e irritante",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 3,
+   "title": "Evoluzione dal marketing tradizionale al marketing digitale",
+   "words": 507,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "advertising, personal selling, public relations and publicity, direct marketing and sales promotion",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "orientato a superare la visione deterministica e meccanicistica che caratterizza il marketing tradizionale, dominato dalla centralità del bene",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'inefficacia dei mass media nell'assistere i processi decisionali dei clienti e nel creare dialoghi utili",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'impatto che le tecnologie hanno sulla gestione delle imprese nella creazione di valore e di vantaggio competitivo",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "un gruppo di applicazioni internet-based che si fondano sui presupposti ideologici e tecnologici del Web 2.0 e che consentono la creazione e lo scambio di User ",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il potere sembra essersi spostato dai marketing manager verso gli individui e le comunità",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nuovo elemento ibrido del promotion mix",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i marketing manager non possono controllare il contenuto e la frequenza",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "più un cambiamento organizzativo e una cultura dell'ascolto e della condivisione che una cultura di vendita",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 4,
+   "title": "Strumenti e canali del marketing digitale",
+   "words": 596,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "i canali di distribuzione e comunicazione digitali e gli User Generated Content",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "gli elementi operativi concernenti la distinzione tra Relationship Marketing e Social Media Marketing",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "con particolare riguardo agli strumenti operativi (ICT e manageriali)",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "strumenti strategici utili per la gestione generale dell'impresa",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "su questioni più specifiche, tra cui l'intelligenza artificiale, il marketing in realtà aumentata, la gestione dei contenuti digitali, il mobile marketing e la ",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non sono più partecipanti passivi ma svolgono un ruolo attivo nel processo mediatico, essendo divenuti una fonte importante e produttiva di contenuti sul Web",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "prima fase di una ricerca più ampia",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 5,
+   "title": "Il marketing digitale nelle piccole e medie imprese",
+   "words": 545,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "nel ruolo delle risorse umane, negli investimenti materiali e immateriali, nell'analisi della domanda, nel processo di comunicazione e nel ruolo del territorio",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "rimangono ancora ampi spazi per l'avanzamento della ricerca nell'approccio manageriale dal punto di vista dell'organizzazione aziendale, delle risorse dedicate,",
+     "found": false,
+     "partial": "rimangono ancora ampi spazi per l'avanzamento della ricerca"
+    },
+    {
+     "kind": "quote",
+     "text": "lo sviluppo del digital si possano ottenere un'esposizione e una reach molto più ampie rispetto al passato",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "puoi essere engaging con i frullatori, con l'elettronica, con il caffè solubile […] non hai l'esclusiva dell'engagement",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ampliamento del campione e […] studio di altri contesti territoriali",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 6,
+   "title": "Social media e customer loyalty nelle PMI",
+   "words": 525,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 15",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "una politica aziendale di CRM che utilizza i servizi Web 2.0 per creare engagement tra clienti e impresa",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la customer retention è connessa al CRM perché il CRM riguarda tradizionalmente il mantenimento del cliente, mentre il customer involvement è connesso al Web 2.",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i Social Media sono strumenti utilizzati per lo più nel B2C piuttosto che nel B2B",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ha offerto contributi importanti riguardo alla customer loyalty e alla customer satisfaction, concetti rilevanti anche nella letteratura sui Social Media",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la maggior parte dei criteri del Relationship Marketing sono confermati anche per il Social Media Marketing",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il Social Media Marketing è un sottoinsieme di strumenti all'interno della prospettiva relazionale del marketing",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la prospettiva strategica della co-creazione di valore",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "incremento delle vendite, riduzione dei costi, raccomandazioni del brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "disaffezione nei confronti di concetti come brand awareness, qualità percepita del servizio, customer satisfaction, retention, loyalty",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "scarsamente predittivi dei comportamenti futuri dei consumatori",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esclusivamente centrati sulle componenti cognitive della relazione con il brand",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 7,
+   "title": "Il ruolo dei social media nelle strategie di marketing",
+   "words": 455,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "il processo che consente agli individui di promuovere i propri siti web ottenendo attenzione attraverso i siti di Social Media e attingendo a una comunità più a",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "di norma incentrati su sforzi volti a creare contenuti per attrarre attenzione e incoraggiare i lettori a condividerli attraverso i propri social network",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "verso un approccio più fondato sulle relazioni piuttosto che su una piattaforma di vendita basata sulla transazione",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la maggior parte dei criteri del Relationship Marketing sono confermati anche per il Social Media Marketing",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'oggetto principale è dato dalle relazioni",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "si concentra anche sulle attività pre-vendita oltre che post-vendita, perché lo scopo dei Social Media è stabilire una connessione non solo con i clienti ma anc",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "co-produttore e co-creatore del valore dell'impresa",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non solo strumenti di comunicazione ma strumenti strategici utili per la gestione generale dell'impresa",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "opportunità significative alle organizzazioni attraverso costi inferiori, maggiore consapevolezza del marchio e vendite incrementate",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sfide rilevanti derivanti dal passaparola elettronico negativo",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il modello socio-economico del word of mouth 2.0",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "offrire enormi potenzialità alla comunicazione in termini di visibilità e disseminazione",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 8,
+   "title": "Concetti di fidelizzazione e customer engagement",
+   "words": 542,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "crescente disaffezione nei confronti di concetti come brand awareness, qualità percepita del servizio, customer satisfaction, retention, loyalty",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "scarsamente predittivi dei comportamenti futuri dei consumatori",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esclusivamente centrati sulle componenti cognitive della relazione con il brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "intensità della partecipazione e della connessione",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "insieme delle azioni poste in essere dai clienti […] che vanno al di là dell'acquisto e che derivano da driver motivazionali",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "uno stato psicologico che si verifica nell'ambito di esperienze interattive del consumatore",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "concetto multi-dimensionale, che abbraccia le dimensioni cognitive, affettive, comportamentali e sociali",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "buzzword […] che tuttavia presenta contorni ancora piuttosto incerti",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "incremento delle vendite, fidelizzazione del cliente, riduzione dei costi, raccomandazioni del brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ha un impatto su loyalty e fiducia verso il brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il cliente percepisce un senso di appartenenza all'universo del brand e si lega alla marca nel tempo",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "finiscono comunque per scegliere al momento dell'acquisto […] i tablet e gli smartphone proposti dal principale concorrente",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "customer commitment plays a mediating role",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "manca ancora […] una chiara definizione del concetto",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 9,
+   "title": "Social media come leva di fidelizzazione nelle PMI",
+   "words": 481,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 15",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "Social Media Marketing is a subset of instruments within the relational perspective of marketing",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the strategic perspective of co-creation of value […] thanks to the interaction of clients who become co-producers of the value of the firm",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "is to speed up communication and to increase direct interaction, dialog and participation across organizations and various stakeholders […] first of all the cus",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "mutual engagement between partners, sharing of information, willingness to mutual adjustment and mutual trust",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "provides the strategies and the tools for new levels of customer insight, which allow customers to personalize their interactions and experiences with companies",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "to a new level, which is more personal and intimate",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "di connessione azienda-consumatore che vanno al di là del semplice liking",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "customer commitment plays a mediating role  CC fit's effect on customer voice behavior",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 10,
+   "title": "Analisi di casi ed evidenze empiriche",
+   "words": 399,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 23",
+     "found": false
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "un importante tratto comune inter-categoria, ovvero la priorità della brand loyalty",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "coinvolgendo il consumatore, si cerca di […] fidelizzarlo in maniera forte e duratura",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la natura qualitativa ed esplorativa dello studio",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "otto casi studio di imprese vitivinicole nella provincia di Verona",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "processi intenzionali di sperimentazione e apprendimento",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 11,
+   "title": "Metodologia di analisi",
+   "words": 418,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "un approccio esplorativo ed induttivo di tipo qualitativo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "tramite lo studio di 22 casi aziendali e grazie a un approccio Theory building",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'intervista diretta quale principale strumento di indagine",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i) varietà delle iniziative esperienziali proposte; ii) offerta consolidata di queste ultime; iii) eterogeneità nelle tipologie e nelle dimensioni delle imprese",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 12,
+   "title": "Casi di studio di PMI italiane",
+   "words": 451,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "otto casi studio di imprese vitivinicole nella provincia di Verona",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "favorire il dialogo con il visitatore e la sua crescita culturale, soprattutto con riferimento alla conoscenza del territorio, della tradizione vitivinicola e d",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "far vivere emozioni ed esperienze piacevoli perché siano memorabili",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "si fondano principalmente sul canale digitale (sito internet ed e-mail) e in via sussidiaria tramite i social media",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la maggior parte delle aziende […] presente su Facebook, mentre solo alcune realtà ricorrono anche agli altri social media",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "diffusione dei media digitali e dei social media",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "crescenti livelli di consumer empowerement, iperconnessione e comportamento multicanale",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "allow firms to engage in timely and direct end-consumer contacts at relatively low costs",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 13,
+   "title": "Discussione dei risultati",
+   "words": 433,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "similarità e specificità nelle prospettive manageriali rispetto al CBE in relazione alla categoria di appartenenza e all'orientamento al digital degli intervist",
+     "found": false,
+     "partial": "similarita e specificita nelle prospettive manageriali rispetto al"
+    },
+    {
+     "kind": "quote",
+     "text": "la natura qualitativa ed esplorativa del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "contatto diretto con il cliente finale",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il miglioramento dell'immagine e il contributo alla fidelizzazione del cliente",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "customer commitment plays a mediating role",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 14,
+   "title": "Conclusioni",
+   "words": 484,
+   "checks": [
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "opportunità significative alle organizzazioni attraverso costi inferiori, maggiore consapevolezza del marchio e vendite incrementate",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sfide rilevanti derivanti dal passaparola elettronico negativo",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esclusivamente centrati sulle componenti cognitive della relazione con il brand",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "manca ancora […] una chiara definizione del concetto",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "raccogliere il punto di vista di un'ampia platea di testimoni qualificati",
+     "found": false,
+     "partial": null
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "numbers": 86,
+  "numbers_missing": 1,
+  "quotes": 105,
+  "quotes_missing": 91
+ },
+ "corpus_chars": 82852
+}
