@@ -16,3 +16,16 @@
 <fcsT.... apps/api/tests/test_executor_v2.py
 <f+++++++ apps/api/tests/test_full_text_sources.py
 <f+++++++ apps/api/tests/test_s4_lab.py
+<f+++++++ apps/api/app/services/citation_render.py
+<fcsT.... apps/api/app/services/document_service.py
+<fcsT.... apps/api/app/services/docx_export.py
+<fcsT.... apps/api/app/services/executor_v2/assemble.py
+<fcsT.... apps/api/app/services/executor_v2/outline.py
+<fcsT.... apps/api/app/services/executor_v2/references.py
+<fcsT.... apps/api/app/services/executor_v2/scopes.py
+<fcsT.... apps/api/app/services/executor_v2/warnings.py
+<fcsT.... apps/api/scripts/cabinet_control.py
+<f+++++++ apps/api/scripts/rerender_recording.py
+<f+++++++ apps/api/tests/test_citation_render.py
+<fcsT.... apps/api/tests/test_executor_v2.py
+<f+++++++ apps/api/tests/test_thesis_formatting.py
