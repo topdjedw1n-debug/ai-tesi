@@ -3,6 +3,10 @@
 Usage:
   python scripts/cabinet_control.py BRIEF.json OUT_DIR [--uploads SPEC.json]
          [--base-url https://app.thesica.co] [--credentials ~/.thesica/control1.env]
+
+The credentials file holds either CONTROL_REFRESH_TOKEN (preferred: handed over
+by the manager, exchanged for access tokens through /auth/refresh) or
+CONTROL_LOGIN + CONTROL_PASSWORD for the cabinet's password login.
          [--poll-seconds 20] [--max-minutes 90]
 
 Steps (all standard routes, nothing else): POST /auth/login ->
@@ -63,15 +67,33 @@ def main() -> int:
     }
     api = args.base_url.rstrip("/") + "/api/v1"
     with httpx.Client(timeout=120, follow_redirects=False) as client:
-        token = client.post(
-            f"{api}/auth/login",
-            json={
-                "username": creds["CONTROL_LOGIN"],
-                "password": creds["CONTROL_PASSWORD"],
-            },
-        )
-        token.raise_for_status()
-        client.headers["Authorization"] = "Bearer " + token.json()["access_token"]
+        # Preferred: a refresh token handed over by the manager
+        # (CONTROL_REFRESH_TOKEN, valid for days) is exchanged for short-lived
+        # access tokens; the password login of the cabinet is the fallback.
+        state = {"refresh": creds.get("CONTROL_REFRESH_TOKEN"), "at": 0.0}
+
+        def authenticate():
+            if state["refresh"]:
+                reply = client.post(
+                    f"{api}/auth/refresh", json={"refresh_token": state["refresh"]}
+                )
+                reply.raise_for_status()
+                body = reply.json()
+                state["refresh"] = body.get("refresh_token") or state["refresh"]
+            else:
+                reply = client.post(
+                    f"{api}/auth/login",
+                    json={
+                        "username": creds["CONTROL_LOGIN"],
+                        "password": creds["CONTROL_PASSWORD"],
+                    },
+                )
+                reply.raise_for_status()
+                body = reply.json()
+            client.headers["Authorization"] = "Bearer " + body["access_token"]
+            state["at"] = time.time()
+
+        authenticate()
         created = client.post(f"{api}/documents/", json=brief)
         created.raise_for_status()
         document_id = created.json()["id"]
@@ -131,6 +153,8 @@ def main() -> int:
         deadline = time.time() + args.max_minutes * 60
         last = None
         while time.time() < deadline:
+            if time.time() - state["at"] > 20 * 60:
+                authenticate()  # access tokens live 30 minutes
             status = client.get(f"{api}/jobs/document/{document_id}/status")
             status.raise_for_status()
             row = status.json() or {}
@@ -165,6 +189,7 @@ def main() -> int:
         result = (run.get("final_status") or {}).get("result") or {}
         run["artifact"] = result.get("docx")
         if (run["final_status"] or {}).get("status") == "completed":
+            authenticate()
             export = client.get(f"{api}/documents/{document_id}/export/docx")
             export.raise_for_status()
             url = export.json()["download_url"]
