@@ -28,10 +28,9 @@
  },
  "sec16": {
   "old_abstracts_production": {
-   "words": null,
-   "sim": null,
-   "ai": null,
-   "note": "не скановано окремо; оцінка з пари ≈ 26 %"
+   "words": 434,
+   "sim": 0,
+   "ai": 19
   },
   "C16_full_production": {
    "words": 431,
