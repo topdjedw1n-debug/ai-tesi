@@ -13,16 +13,16 @@
     "old": {
      "words": 554,
      "ai": 235,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 42.4,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "new": {
      "words": 590,
      "ai": 161,
-     "sim": 92,
+     "quotes": 92,
      "ai_pct": 27.3,
-     "sim_pct": 15.6
+     "quotes_pct": 15.6
     },
     "text_ratio": 0.217
    },
@@ -33,16 +33,16 @@
     "old": {
      "words": 570,
      "ai": 0,
-     "sim": 120,
+     "quotes": 120,
      "ai_pct": 0.0,
-     "sim_pct": 21.1
+     "quotes_pct": 21.1
     },
     "new": {
      "words": 570,
      "ai": 91,
-     "sim": 120,
+     "quotes": 120,
      "ai_pct": 16.0,
-     "sim_pct": 21.1
+     "quotes_pct": 21.1
     },
     "text_ratio": 1.0
    },
@@ -53,16 +53,16 @@
     "old": {
      "words": 567,
      "ai": 199,
-     "sim": 84,
+     "quotes": 84,
      "ai_pct": 35.1,
-     "sim_pct": 14.8
+     "quotes_pct": 14.8
     },
     "new": {
      "words": 538,
      "ai": 0,
-     "sim": 146,
+     "quotes": 146,
      "ai_pct": 0.0,
-     "sim_pct": 27.1
+     "quotes_pct": 27.1
     },
     "text_ratio": 0.052
    },
@@ -73,16 +73,16 @@
     "old": {
      "words": 618,
      "ai": 0,
-     "sim": 97,
+     "quotes": 97,
      "ai_pct": 0.0,
-     "sim_pct": 15.7
+     "quotes_pct": 15.7
     },
     "new": {
      "words": 618,
      "ai": 0,
-     "sim": 97,
+     "quotes": 97,
      "ai_pct": 0.0,
-     "sim_pct": 15.7
+     "quotes_pct": 15.7
     },
     "text_ratio": 0.981
    },
@@ -93,16 +93,16 @@
     "old": {
      "words": 551,
      "ai": 152,
-     "sim": 87,
+     "quotes": 87,
      "ai_pct": 27.6,
-     "sim_pct": 15.8
+     "quotes_pct": 15.8
     },
     "new": {
      "words": 566,
      "ai": 54,
-     "sim": 95,
+     "quotes": 95,
      "ai_pct": 9.5,
-     "sim_pct": 16.8
+     "quotes_pct": 16.8
     },
     "text_ratio": 0.041
    },
@@ -113,16 +113,16 @@
     "old": {
      "words": 542,
      "ai": 0,
-     "sim": 164,
+     "quotes": 164,
      "ai_pct": 0.0,
-     "sim_pct": 30.3
+     "quotes_pct": 30.3
     },
     "new": {
      "words": 542,
      "ai": 0,
-     "sim": 164,
+     "quotes": 164,
      "ai_pct": 0.0,
-     "sim_pct": 30.3
+     "quotes_pct": 30.3
     },
     "text_ratio": 0.961
    },
@@ -133,16 +133,16 @@
     "old": {
      "words": 476,
      "ai": 0,
-     "sim": 192,
+     "quotes": 192,
      "ai_pct": 0.0,
-     "sim_pct": 40.3
+     "quotes_pct": 40.3
     },
     "new": {
      "words": 476,
      "ai": 33,
-     "sim": 192,
+     "quotes": 192,
      "ai_pct": 6.9,
-     "sim_pct": 40.3
+     "quotes_pct": 40.3
     },
     "text_ratio": 0.979
    },
@@ -153,16 +153,16 @@
     "old": {
      "words": 565,
      "ai": 65,
-     "sim": 162,
+     "quotes": 162,
      "ai_pct": 11.5,
-     "sim_pct": 28.7
+     "quotes_pct": 28.7
     },
     "new": {
      "words": 565,
      "ai": 92,
-     "sim": 162,
+     "quotes": 162,
      "ai_pct": 16.3,
-     "sim_pct": 28.7
+     "quotes_pct": 28.7
     },
     "text_ratio": 0.947
    },
@@ -173,16 +173,16 @@
     "old": {
      "words": 502,
      "ai": 64,
-     "sim": 136,
+     "quotes": 136,
      "ai_pct": 12.7,
-     "sim_pct": 27.1
+     "quotes_pct": 27.1
     },
     "new": {
      "words": 502,
      "ai": 65,
-     "sim": 135,
+     "quotes": 135,
      "ai_pct": 12.9,
-     "sim_pct": 26.9
+     "quotes_pct": 26.9
     },
     "text_ratio": 0.958
    },
@@ -193,16 +193,16 @@
     "old": {
      "words": 421,
      "ai": 0,
-     "sim": 61,
+     "quotes": 61,
      "ai_pct": 0.0,
-     "sim_pct": 14.5
+     "quotes_pct": 14.5
     },
     "new": {
      "words": 421,
      "ai": 0,
-     "sim": 61,
+     "quotes": 61,
      "ai_pct": 0.0,
-     "sim_pct": 14.5
+     "quotes_pct": 14.5
     },
     "text_ratio": 0.957
    },
@@ -213,16 +213,16 @@
     "old": {
      "words": 439,
      "ai": 0,
-     "sim": 73,
+     "quotes": 73,
      "ai_pct": 0.0,
-     "sim_pct": 16.6
+     "quotes_pct": 16.6
     },
     "new": {
      "words": 439,
      "ai": 0,
-     "sim": 73,
+     "quotes": 73,
      "ai_pct": 0.0,
-     "sim_pct": 16.6
+     "quotes_pct": 16.6
     },
     "text_ratio": 0.959
    },
@@ -233,16 +233,16 @@
     "old": {
      "words": 472,
      "ai": 0,
-     "sim": 133,
+     "quotes": 133,
      "ai_pct": 0.0,
-     "sim_pct": 28.2
+     "quotes_pct": 28.2
     },
     "new": {
      "words": 472,
      "ai": 0,
-     "sim": 133,
+     "quotes": 133,
      "ai_pct": 0.0,
-     "sim_pct": 28.2
+     "quotes_pct": 28.2
     },
     "text_ratio": 0.956
    },
@@ -253,16 +253,16 @@
     "old": {
      "words": 452,
      "ai": 62,
-     "sim": 55,
+     "quotes": 55,
      "ai_pct": 13.7,
-     "sim_pct": 12.2
+     "quotes_pct": 12.2
     },
     "new": {
      "words": 452,
      "ai": 140,
-     "sim": 55,
+     "quotes": 55,
      "ai_pct": 31.0,
-     "sim_pct": 12.2
+     "quotes_pct": 12.2
     },
     "text_ratio": 0.96
    },
@@ -273,16 +273,16 @@
     "old": {
      "words": 494,
      "ai": 0,
-     "sim": 55,
+     "quotes": 55,
      "ai_pct": 0.0,
-     "sim_pct": 11.1
+     "quotes_pct": 11.1
     },
     "new": {
      "words": 494,
      "ai": 123,
-     "sim": 54,
+     "quotes": 54,
      "ai_pct": 24.9,
-     "sim_pct": 10.9
+     "quotes_pct": 10.9
     },
     "text_ratio": 0.988
    },
@@ -293,16 +293,16 @@
     "old": {
      "words": 271,
      "ai": 0,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 0.0,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "new": {
      "words": 253,
      "ai": 0,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 0.0,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "text_ratio": 0.454
    }
@@ -321,16 +321,16 @@
     "old": {
      "words": 665,
      "ai": 318,
-     "sim": 158,
+     "quotes": 158,
      "ai_pct": 47.8,
-     "sim_pct": 23.8
+     "quotes_pct": 23.8
     },
     "new": {
      "words": 832,
      "ai": 297,
-     "sim": 77,
+     "quotes": 77,
      "ai_pct": 35.7,
-     "sim_pct": 9.3
+     "quotes_pct": 9.3
     },
     "text_ratio": 0.17
    },
@@ -341,16 +341,16 @@
     "old": {
      "words": 490,
      "ai": 63,
-     "sim": 150,
+     "quotes": 150,
      "ai_pct": 12.9,
-     "sim_pct": 30.6
+     "quotes_pct": 30.6
     },
     "new": {
      "words": 523,
      "ai": 63,
-     "sim": 150,
+     "quotes": 150,
      "ai_pct": 12.0,
-     "sim_pct": 28.7
+     "quotes_pct": 28.7
     },
     "text_ratio": 0.932
    },
@@ -361,16 +361,16 @@
     "old": {
      "words": 617,
      "ai": 105,
-     "sim": 194,
+     "quotes": 194,
      "ai_pct": 17.0,
-     "sim_pct": 31.4
+     "quotes_pct": 31.4
     },
     "new": {
      "words": 675,
      "ai": 116,
-     "sim": 195,
+     "quotes": 195,
      "ai_pct": 17.2,
-     "sim_pct": 28.9
+     "quotes_pct": 28.9
     },
     "text_ratio": 0.904
    },
@@ -381,16 +381,16 @@
     "old": {
      "words": 575,
      "ai": 90,
-     "sim": 157,
+     "quotes": 157,
      "ai_pct": 15.7,
-     "sim_pct": 27.3
+     "quotes_pct": 27.3
     },
     "new": {
      "words": 602,
      "ai": 252,
-     "sim": 156,
+     "quotes": 156,
      "ai_pct": 41.9,
-     "sim_pct": 25.9
+     "quotes_pct": 25.9
     },
     "text_ratio": 0.945
    },
@@ -401,16 +401,16 @@
     "old": {
      "words": 542,
      "ai": 45,
-     "sim": 107,
+     "quotes": 107,
      "ai_pct": 8.3,
-     "sim_pct": 19.7
+     "quotes_pct": 19.7
     },
     "new": {
      "words": 559,
      "ai": 170,
-     "sim": 105,
+     "quotes": 105,
      "ai_pct": 30.4,
-     "sim_pct": 18.8
+     "quotes_pct": 18.8
     },
     "text_ratio": 0.93
    },
@@ -421,16 +421,16 @@
     "old": {
      "words": 461,
      "ai": 0,
-     "sim": 70,
+     "quotes": 70,
      "ai_pct": 0.0,
-     "sim_pct": 15.2
+     "quotes_pct": 15.2
     },
     "new": {
      "words": 449,
      "ai": 134,
-     "sim": 68,
+     "quotes": 68,
      "ai_pct": 29.8,
-     "sim_pct": 15.1
+     "quotes_pct": 15.1
     },
     "text_ratio": 0.969
    },
@@ -441,16 +441,16 @@
     "old": {
      "words": 423,
      "ai": 136,
-     "sim": 46,
+     "quotes": 46,
      "ai_pct": 32.2,
-     "sim_pct": 10.9
+     "quotes_pct": 10.9
     },
     "new": {
      "words": 411,
      "ai": 262,
-     "sim": 46,
+     "quotes": 46,
      "ai_pct": 63.7,
-     "sim_pct": 11.2
+     "quotes_pct": 11.2
     },
     "text_ratio": 0.942
    },
@@ -461,16 +461,16 @@
     "old": {
      "words": 531,
      "ai": 0,
-     "sim": 159,
+     "quotes": 159,
      "ai_pct": 0.0,
-     "sim_pct": 29.9
+     "quotes_pct": 29.9
     },
     "new": {
      "words": 525,
      "ai": 186,
-     "sim": 157,
+     "quotes": 157,
      "ai_pct": 35.4,
-     "sim_pct": 29.9
+     "quotes_pct": 29.9
     },
     "text_ratio": 0.89
    },
@@ -481,16 +481,16 @@
     "old": {
      "words": 462,
      "ai": 106,
-     "sim": 71,
+     "quotes": 71,
      "ai_pct": 22.9,
-     "sim_pct": 15.4
+     "quotes_pct": 15.4
     },
     "new": {
      "words": 450,
      "ai": 249,
-     "sim": 73,
+     "quotes": 73,
      "ai_pct": 55.3,
-     "sim_pct": 16.2
+     "quotes_pct": 16.2
     },
     "text_ratio": 0.969
    },
@@ -501,16 +501,16 @@
     "old": {
      "words": 498,
      "ai": 78,
-     "sim": 144,
+     "quotes": 144,
      "ai_pct": 15.7,
-     "sim_pct": 28.9
+     "quotes_pct": 28.9
     },
     "new": {
      "words": 480,
      "ai": 201,
-     "sim": 141,
+     "quotes": 141,
      "ai_pct": 41.9,
-     "sim_pct": 29.4
+     "quotes_pct": 29.4
     },
     "text_ratio": 0.939
    },
@@ -521,16 +521,16 @@
     "old": {
      "words": 500,
      "ai": 0,
-     "sim": 117,
+     "quotes": 117,
      "ai_pct": 0.0,
-     "sim_pct": 23.4
+     "quotes_pct": 23.4
     },
     "new": {
      "words": 495,
      "ai": 130,
-     "sim": 117,
+     "quotes": 117,
      "ai_pct": 26.3,
-     "sim_pct": 23.6
+     "quotes_pct": 23.6
     },
     "text_ratio": 0.929
    },
@@ -541,16 +541,16 @@
     "old": {
      "words": 447,
      "ai": 0,
-     "sim": 92,
+     "quotes": 92,
      "ai_pct": 0.0,
-     "sim_pct": 20.6
+     "quotes_pct": 20.6
     },
     "new": {
      "words": 459,
      "ai": 54,
-     "sim": 91,
+     "quotes": 91,
      "ai_pct": 11.8,
-     "sim_pct": 19.8
+     "quotes_pct": 19.8
     },
     "text_ratio": 0.879
    },
@@ -561,16 +561,16 @@
     "old": {
      "words": 657,
      "ai": 184,
-     "sim": 157,
+     "quotes": 157,
      "ai_pct": 28.0,
-     "sim_pct": 23.9
+     "quotes_pct": 23.9
     },
     "new": {
      "words": 732,
      "ai": 91,
-     "sim": 146,
+     "quotes": 146,
      "ai_pct": 12.4,
-     "sim_pct": 19.9
+     "quotes_pct": 19.9
     },
     "text_ratio": 0.89
    },
@@ -581,16 +581,16 @@
     "old": {
      "words": 489,
      "ai": 218,
-     "sim": 50,
+     "quotes": 50,
      "ai_pct": 44.6,
-     "sim_pct": 10.2
+     "quotes_pct": 10.2
     },
     "new": {
      "words": 500,
      "ai": 80,
-     "sim": 105,
+     "quotes": 105,
      "ai_pct": 16.0,
-     "sim_pct": 21.0
+     "quotes_pct": 21.0
     },
     "text_ratio": 0.192
    },
@@ -601,16 +601,16 @@
     "old": {
      "words": 567,
      "ai": 67,
-     "sim": 123,
+     "quotes": 123,
      "ai_pct": 11.8,
-     "sim_pct": 21.7
+     "quotes_pct": 21.7
     },
     "new": {
      "words": 576,
      "ai": 122,
-     "sim": 122,
+     "quotes": 122,
      "ai_pct": 21.2,
-     "sim_pct": 21.2
+     "quotes_pct": 21.2
     },
     "text_ratio": 0.884
    },
@@ -621,16 +621,16 @@
     "old": {
      "words": 478,
      "ai": 0,
-     "sim": 111,
+     "quotes": 111,
      "ai_pct": 0.0,
-     "sim_pct": 23.2
+     "quotes_pct": 23.2
     },
     "new": {
      "words": 495,
      "ai": 92,
-     "sim": 111,
+     "quotes": 111,
      "ai_pct": 18.6,
-     "sim_pct": 22.4
+     "quotes_pct": 22.4
     },
     "text_ratio": 0.878
    },
@@ -641,16 +641,16 @@
     "old": {
      "words": 386,
      "ai": 60,
-     "sim": 63,
+     "quotes": 63,
      "ai_pct": 15.5,
-     "sim_pct": 16.3
+     "quotes_pct": 16.3
     },
     "new": {
      "words": 393,
      "ai": 61,
-     "sim": 62,
+     "quotes": 62,
      "ai_pct": 15.5,
-     "sim_pct": 15.8
+     "quotes_pct": 15.8
     },
     "text_ratio": 0.986
    },
@@ -661,16 +661,16 @@
     "old": {
      "words": 385,
      "ai": 205,
-     "sim": 35,
+     "quotes": 35,
      "ai_pct": 53.2,
-     "sim_pct": 9.1
+     "quotes_pct": 9.1
     },
     "new": {
      "words": 392,
      "ai": 207,
-     "sim": 31,
+     "quotes": 31,
      "ai_pct": 52.8,
-     "sim_pct": 7.9
+     "quotes_pct": 7.9
     },
     "text_ratio": 0.963
    },
@@ -681,16 +681,16 @@
     "old": {
      "words": 576,
      "ai": 0,
-     "sim": 159,
+     "quotes": 159,
      "ai_pct": 0.0,
-     "sim_pct": 27.6
+     "quotes_pct": 27.6
     },
     "new": {
      "words": 646,
      "ai": 148,
-     "sim": 159,
+     "quotes": 159,
      "ai_pct": 22.9,
-     "sim_pct": 24.6
+     "quotes_pct": 24.6
     },
     "text_ratio": 0.894
    },
@@ -701,16 +701,16 @@
     "old": {
      "words": 606,
      "ai": 65,
-     "sim": 131,
+     "quotes": 131,
      "ai_pct": 10.7,
-     "sim_pct": 21.6
+     "quotes_pct": 21.6
     },
     "new": {
      "words": 662,
      "ai": 76,
-     "sim": 131,
+     "quotes": 131,
      "ai_pct": 11.5,
-     "sim_pct": 19.8
+     "quotes_pct": 19.8
     },
     "text_ratio": 0.883
    },
@@ -721,16 +721,16 @@
     "old": {
      "words": 500,
      "ai": 0,
-     "sim": 161,
+     "quotes": 161,
      "ai_pct": 0.0,
-     "sim_pct": 32.2
+     "quotes_pct": 32.2
     },
     "new": {
      "words": 509,
      "ai": 40,
-     "sim": 160,
+     "quotes": 160,
      "ai_pct": 7.9,
-     "sim_pct": 31.4
+     "quotes_pct": 31.4
     },
     "text_ratio": 0.852
    },
@@ -741,16 +741,16 @@
     "old": {
      "words": 687,
      "ai": 262,
-     "sim": 70,
+     "quotes": 70,
      "ai_pct": 38.1,
-     "sim_pct": 10.2
+     "quotes_pct": 10.2
     },
     "new": {
      "words": 701,
      "ai": 281,
-     "sim": 71,
+     "quotes": 71,
      "ai_pct": 40.1,
-     "sim_pct": 10.1
+     "quotes_pct": 10.1
     },
     "text_ratio": 0.947
    },
@@ -761,16 +761,16 @@
     "old": {
      "words": 536,
      "ai": 4,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 0.7,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "new": {
      "words": 271,
      "ai": 2,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 0.7,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "text_ratio": 0.151
    },
@@ -782,9 +782,9 @@
     "new": {
      "words": 202,
      "ai": 0,
-     "sim": 0,
+     "quotes": 0,
      "ai_pct": 0.0,
-     "sim_pct": 0.0
+     "quotes_pct": 0.0
     },
     "text_ratio": null
    }
