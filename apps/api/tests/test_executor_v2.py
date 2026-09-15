@@ -204,6 +204,7 @@ def test_spec_guardrails():
         "placeholder_text",
         "bibliography_suspect",
         "quote_without_page",
+        "page_out_of_range",
     }
     from app.services.background_jobs import BackgroundJobService
 

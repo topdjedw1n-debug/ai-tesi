@@ -3,9 +3,12 @@
 from app.services.ai_pipeline.citation_formatter import CitationStyle
 from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.citation_render import (
+    library_sources,
+    page_counts,
+    pages_out_of_range,
     quotes_without_page,
     render_citations,
-    suspect_metadata,
+    suspect_entries,
 )
 from app.services.source_evidence import evidence_text
 
@@ -15,15 +18,8 @@ from .sources import verify
 
 async def resolve_references(ctx, sections, pack):
     known = {s.citation_key: s.source for s in pack.sources if evidence_text(s.source)}
-    for row in ctx.inputs["library"]:
-        if row.get("verification_status") == "verified":
-            source = SourceDoc(**row["source"])
-            source.canonical_metadata = {
-                **(source.canonical_metadata or {}),
-                "verification_provider": row["verification_provider"],
-                "origin": "library",
-            }
-            known.setdefault(row["key"], source)
+    known = {**library_sources(ctx.inputs["library"]), **known}
+    pages = page_counts(pack)
     bibliography, unpaged = {}, []
     style = CitationStyle(ctx.inputs["brief"]["citation_style"])
     for section in sections:
@@ -74,6 +70,12 @@ async def resolve_references(ctx, sections, pack):
                 )
         if count := quotes_without_page(text):
             unpaged.append(f"§{section['section_index']}: {count}")
+        if bad := pages_out_of_range(section["raw_content"], MARKER, pages):
+            await ctx.warn(
+                "page_out_of_range",
+                section_index=section["section_index"],
+                detail="; ".join(bad),
+            )
         section["content"], section["word_count"] = text, len(text.split())
         section["bibliography"] = [
             r["formatted"]
@@ -82,12 +84,7 @@ async def resolve_references(ctx, sections, pack):
         ]
         await ctx.save_section(section)
     year = int(str(ctx.inputs["exported_at"])[:4])
-    suspects = [
-        f"{key}: {', '.join(reasons)}"
-        for key in bibliography
-        if (reasons := suspect_metadata(known[key], year))
-    ]
-    if suspects:
+    if suspects := suspect_entries(bibliography, known, year):
         await ctx.warn("bibliography_suspect", detail="; ".join(suspects))
     if unpaged:
         await ctx.warn("quote_without_page", detail="; ".join(unpaged))

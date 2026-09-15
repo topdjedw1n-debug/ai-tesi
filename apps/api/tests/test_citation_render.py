@@ -125,3 +125,27 @@ def test_quotes_without_page_are_counted():
         "qui» senza parentesi."
     )
     assert quotes_without_page(text) == 1
+
+
+def test_comma_separated_locator_is_folded_and_out_of_range_pages_are_reported():
+    from types import SimpleNamespace
+
+    from app.services.citation_render import (
+        PAGE_LOCATOR,
+        page_counts,
+        pages_out_of_range,
+    )
+
+    assert PAGE_LOCATOR.match(", p. 15").group(2) == "15"
+    assert PAGE_LOCATOR.match(" pp. 3–5").group(2) == "3–5"
+    pack = SimpleNamespace(
+        passages=[
+            SimpleNamespace(citation_key="KORD", page_number=n) for n in (1, 2, 6)
+        ]
+        + [SimpleNamespace(citation_key="KART", page_number=1)]
+    )
+    counts = page_counts(pack)
+    assert counts == {"KORD": 6, "KART": 1}
+    raw = "Testo [KORD] p. 17 e ancora [KORD], pp. 3–5, poi [KART] p. 13 e [KORD] p. 6."
+    assert pages_out_of_range(raw, None, counts) == ["KORD p. 17 > 6", "KART p. 13 > 1"]
+    assert pages_out_of_range(raw, None, {}) == []

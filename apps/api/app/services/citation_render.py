@@ -30,7 +30,7 @@ LEGAL_TITLES = re.compile(
     r"Garante|Case of|Judgment|[A-ZÀ-Ý][\w' .-]+ v\. )",
     re.I,
 )
-PAGE_LOCATOR = re.compile(r"\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)")
+PAGE_LOCATOR = re.compile(r"\s*,?\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)")
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
 
 
@@ -151,3 +151,56 @@ def suspect_metadata(source: Any, year_now: int) -> list[str]:
     if len(str(getattr(source, "title", "") or "").strip()) < 8:
         reasons.append("назва неповна")
     return reasons
+
+
+def pages_out_of_range(raw: str, marker: Any, page_counts: dict[str, int]) -> list[str]:
+    """Locators beyond the document's last page: a page borrowed from another
+    document (B, 14.09: an order of six pages cited at p. 17 and p. 20)."""
+    found = []
+    pattern = re.compile(
+        r"\[(" + "|".join(map(re.escape, page_counts)) + r")\]" + PAGE_LOCATOR.pattern
+    )
+    if not page_counts:
+        return found
+    for match in pattern.finditer(raw):
+        key, pages = match.group(1), match.group(3)
+        last = max(int(n) for n in re.findall(r"\d+", pages))
+        if last > page_counts[key]:
+            found.append(f"{key} p. {last} > {page_counts[key]}")
+    return found
+
+
+def library_sources(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    """Verified standard-library rows as citable sources."""
+    from app.services.ai_pipeline.rag_retriever import SourceDoc
+
+    known: dict[str, Any] = {}
+    for row in rows:
+        if row.get("verification_status") != "verified":
+            continue
+        source = SourceDoc(**row["source"])
+        source.canonical_metadata = {
+            **(source.canonical_metadata or {}),
+            "verification_provider": row["verification_provider"],
+            "origin": "library",
+        }
+        known[row["key"]] = source
+    return known
+
+
+def suspect_entries(keys: Any, known: dict[str, Any], year: int) -> list[str]:
+    return [
+        f"{key}: {', '.join(reasons)}"
+        for key in keys
+        if (reasons := suspect_metadata(known[key], year))
+    ]
+
+
+def page_counts(pack: Any) -> dict[str, int]:
+    """Last page number of every full-text document in the pack."""
+    counts: dict[str, int] = {}
+    for passage in getattr(pack, "passages", None) or []:
+        counts[passage.citation_key] = max(
+            counts.get(passage.citation_key, 0), passage.page_number
+        )
+    return counts
