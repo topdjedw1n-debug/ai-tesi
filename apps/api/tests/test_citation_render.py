@@ -149,3 +149,38 @@ def test_comma_separated_locator_is_folded_and_out_of_range_pages_are_reported()
     raw = "Testo [KORD] p. 17 e ancora [KORD], pp. 3–5, poi [KART] p. 13 e [KORD] p. 6."
     assert pages_out_of_range(raw, None, counts) == ["KORD p. 17 > 6", "KART p. 13 > 1"]
     assert pages_out_of_range(raw, None, {}) == []
+
+
+def test_statutes_are_cited_by_article_and_judgments_keep_their_page():
+    import re
+    from types import SimpleNamespace
+
+    marker = re.compile(r"\[(STD:[^\[\]\n]+|[\w:./-]+)\]")
+    meta = {"verification_provider": "manager"}
+    statute = SimpleNamespace(
+        title="Legge 20 maggio 1970, n. 300 (Statuto dei lavoratori), art. 4, testo vigente",
+        authors=["Repubblica Italiana"],
+        year=2015,
+        url=None,
+        venue=None,
+        doi=None,
+        canonical_metadata=meta,
+    )
+    judgment = SimpleNamespace(
+        title="Corte di Cassazione, sezione lavoro, ordinanza 3 giugno 2024, n. 15391",
+        authors=["Corte di Cassazione"],
+        year=2024,
+        url=None,
+        venue=None,
+        doi=None,
+        canonical_metadata=meta,
+    )
+    text = "Vieta [ART4] art. 4, comma 1 e [ART4] p. 1; la Corte [CASS], p. 3."
+    out, _, _ = render_citations(
+        text, {"ART4": statute, "CASS": judgment}, "apa", marker
+    )
+    assert "(Legge 20 maggio 1970, n. 300, art. 4, comma 1)" in out
+    assert "n. 300)" in out and "p. 1" not in out
+    assert "n. 15391, p. 3)" in out
+    quoted = "«una citazione lunga abbastanza» (Legge 20 maggio 1970, n. 300, art. 4, comma 1)."
+    assert quotes_without_page(quoted) == 0

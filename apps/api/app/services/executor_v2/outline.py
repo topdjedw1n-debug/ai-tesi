@@ -2,6 +2,8 @@
 
 import json
 
+from app.services import writer_rules as rules
+
 from .budgets import json_call, output_budget
 from .scopes import flatten, scope_levels
 from .warnings import unusable
@@ -9,28 +11,32 @@ from .warnings import unusable
 
 async def build_outline(ctx, scopes, pack):
     nodes = flatten(scopes)
-    prompt = """Build a plan for this academic brief, preserving the required supervisor chapter names and order.
-Return ONLY {"sections":[{"title":"...","purpose":"...","main_points":["..."],"scope_ids":["scope-1"],"evidence_keys":["K..."],"target_words":1000}]}.
+    prompt = (
+        """Build a plan for this academic brief, preserving the required supervisor chapter names and order.
+Return ONLY {"sections":[{"title":"...","purpose":"...","question":"...","main_points":["..."],"scope_ids":["scope-1"],"evidence_keys":["K..."],"evidence_plan":"...","conclusion":"...","target_words":1000}]}.
 Do not return section IDs or indexes. Include each required scope. Use ONLY evidence keys with readable text from the frozen pack.
 The target_words values must sum exactly to the brief target_words. No bibliography section: the server builds it separately.
 No separate chapter-introduction or chapter-summary sections unless the supervisor index requires them; each chapter opens with its first substantive section.
-""" + json.dumps(
-        {
-            "brief": ctx.inputs["brief"],
-            "requirements": ctx.inputs["requirements"],
-            "scopes": scopes,
-            "pack": [
-                {
-                    "key": p.citation_key,
-                    "title": p.source.title,
-                    "evidence": (p.source.canonical_metadata or {}).get(
-                        "academic_evidence"
-                    ),
-                }
-                for p in pack.sources
-            ],
-        },
-        ensure_ascii=False,
+"""
+        + rules.S3_PLAN_RULES
+        + json.dumps(
+            {
+                "brief": ctx.inputs["brief"],
+                "requirements": ctx.inputs["requirements"],
+                "scopes": scopes,
+                "pack": [
+                    {
+                        "key": p.citation_key,
+                        "title": p.source.title,
+                        "evidence": (p.source.canonical_metadata or {}).get(
+                            "academic_evidence"
+                        ),
+                    }
+                    for p in pack.sources
+                ],
+            },
+            ensure_ascii=False,
+        )
     )
     parsed = await json_call(
         ctx, prompt, budget=output_budget("S3", len(nodes)), purpose="S3"

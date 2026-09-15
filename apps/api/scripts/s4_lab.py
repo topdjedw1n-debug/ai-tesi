@@ -526,6 +526,15 @@ def main() -> int:
         ),
     )
     parser.add_argument(
+        "--live-outline",
+        action="store_true",
+        help=(
+            "live mode: build the plan (S3) live with the current prompt on the"
+            " recorded pack (S1-S2 from the tape); every section is then written"
+            " live because the plan changed"
+        ),
+    )
+    parser.add_argument(
         "--recorded-outline",
         action="store_true",
         help="serve the recorded S3 plan although the S3 request changed",
@@ -572,6 +581,10 @@ def main() -> int:
         )
     if args.mode == "exact" and (args.live_sections or args.secrets_file):
         parser.error("--live-sections and --secrets-file apply to --mode live only")
+    if args.live_outline and (args.mode != "live" or args.recorded_outline):
+        parser.error(
+            "--live-outline applies to --mode live and excludes --recorded-outline"
+        )
     if args.mode == "fresh" and (args.live_sections or args.recorded_outline):
         parser.error(
             "--live-sections and --recorded-outline do not apply to fresh mode"
@@ -703,6 +716,7 @@ async def run(args, secrets):
         ),
         "uploaded_sources": [],
         "recorded_outline": args.recorded_outline,
+        "live_outline": bool(getattr(args, "live_outline", False)),
         "recorded_sections": args.recorded_sections,
         "section_documents": {str(k): v for k, v in args.section_documents_map.items()},
         "summaries_from_recorded": (
@@ -908,6 +922,8 @@ async def run(args, secrets):
         def is_live(stage, section_index):
             if fresh:
                 return True
+            if stage == "S3" and args.mode == "live":
+                return bool(args.live_outline)
             if args.mode != "live" or stage not in LIVE_STAGES:
                 return False
             return (

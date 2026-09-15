@@ -16,28 +16,19 @@ from app.services.ai_pipeline.citation_formatter import (
     CitationFormatter,
     SourceDocument,
 )
+from app.services.legal_sources import (  # noqa: F401 (re-exported)
+    LEGAL_AUTHORS,
+    LEGAL_TITLES,
+    STATUTE_TITLES,
+    is_legal_source,
+)
 
-LEGAL_AUTHORS = re.compile(
-    r"\b(?:Corte|Cassazione|Tribunale|Consiglio di Stato|Garante|Repubblica|"
-    r"Parlamento|Commissione|Consiglio dell|Court|Parliament|Commission|"
-    r"Autorità|Autorita)\b",
-    re.I,
-)
-LEGAL_TITLES = re.compile(
-    r"^\s*(?:Legge|L\.|Decreto|D\.\s?Lgs\.?|D\.\s?L\.|D\.P\.R\.|Regolamento|"
-    r"Direttiva|Regulation|Directive|Cass\.|Corte|Sentenza|Ordinanza|"
-    r"Provvedimento|Linee guida|Statuto|Codice|Tribunale|Consiglio di Stato|"
-    r"Garante|Case of|Judgment|[A-ZÀ-Ý][\w' .-]+ v\. )",
-    re.I,
-)
 PAGE_LOCATOR = re.compile(r"\s*,?\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)")
+ARTICLE_LOCATOR = re.compile(
+    r"\s*,?\s*(art(?:t)?\.\s*\d+(?:[\s-]*[a-z](?:ies|er|ter|quater)?)?(?:,\s*comm[ai]\s*\d+(?:\s*e\s*\d+)?)?)",
+    re.I,
+)
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
-
-
-def is_legal_source(source: Any) -> bool:
-    authors = " ".join(getattr(source, "authors", None) or [])
-    title = str(getattr(source, "title", "") or "")
-    return bool(LEGAL_AUTHORS.search(authors)) or bool(LEGAL_TITLES.match(title))
 
 
 def legal_label(title: str) -> str:
@@ -104,13 +95,22 @@ def render_citations(
                 authors, source.year, style=style
             )
 
-        def replace(match, citation=citation):
-            if match.group(1):
+        statute = legal and bool(STATUTE_TITLES.match(source.title or ""))
+
+        def replace(match, citation=citation, statute=statute):
+            if match.group(3):
+                return f"{citation[:-1]}, {match.group(3).strip()})"
+            if match.group(1) and not statute:
                 return with_locator(citation, match.group(1), match.group(2))
             return citation
 
         text = re.sub(
-            re.escape(bracket) + "(?:" + PAGE_LOCATOR.pattern + ")?",
+            re.escape(bracket)
+            + "(?:"
+            + PAGE_LOCATOR.pattern
+            + ")?(?:"
+            + ARTICLE_LOCATOR.pattern
+            + ")?",
             replace,
             text,
         )
@@ -134,7 +134,7 @@ def quotes_without_page(text: str) -> int:
     return sum(
         1
         for m in QUOTED_CITATION.finditer(text)
-        if not re.search(r"\bpp?\.\s*\d", m.group(1))
+        if not re.search(r"\b(?:pp?|artt?)\.\s*\d", m.group(1))
     )
 
 

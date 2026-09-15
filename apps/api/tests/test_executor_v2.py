@@ -503,7 +503,7 @@ async def test_offline_docx_warnings_and_exact_replay(
         if len(replies) == 2:
             prompt = request["messages"][0]["content"]
             assert "Never include editorial placeholders" in prompt
-            assert "la letteratura disponibile non consente di" in prompt
+            assert "Every claim carries a concrete anchor" in prompt
             assert all(phrase in prompt for phrase in POLICY["placeholder_phrases"])
         return replies.pop(0)
 
@@ -1301,15 +1301,16 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     bodies = [json.loads(p[p.index('{"forbidden_placeholders"') :]) for p in prompts]
     # Writing order: the body first, then the framing sections in plan order.
     assert [b["section"]["section_index"] for b in bodies] == [2, 1, 3]
-    assert FRAME_RULE.strip() not in prompts[0] and "chapter_material" not in bodies[0]
+    assert FRAME_RULE.strip() not in prompts[0] and "findings" not in bodies[0]
     assert FRAME_RULE.strip() in prompts[1] and FRAME_RULE.strip() in prompts[2]
+    # The introduction poses the question, the conclusions answer it.
+    assert "pose the research question" in prompts[1]
+    assert "Answer the research question" in prompts[2]
     assert bodies[1]["previous_summaries"] == []
-    assert [c["title"] for c in bodies[1]["chapter_material"]] == [
-        "Il sonno in reparto"
-    ]
-    assert bodies[1]["chapter_material"][0]["text"].startswith("Corpo del capitolo")
+    assert [c["title"] for c in bodies[1]["findings"]] == ["Il sonno in reparto"]
+    assert bodies[1]["findings"][0]["facts"][0].startswith("Corpo del capitolo")
     # The conclusions see the finished introduction as well.
-    assert [c["title"] for c in bodies[2]["chapter_material"]] == [
+    assert [c["title"] for c in bodies[2]["findings"]] == [
         "Introduzione",
         "Il sonno in reparto",
     ]

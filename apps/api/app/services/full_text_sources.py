@@ -16,9 +16,10 @@ from typing import Any
 import httpx
 
 from app.services.generation_policy import RecordingPersistenceError
+from app.services.legal_sources import is_legal_source
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
-from app.services.section_material import MAX_SECTION_DOCUMENTS
+from app.services.section_material import MAX_ACADEMIC_DOCUMENTS, MAX_SECTION_DOCUMENTS
 from app.services.source_evidence import evidence_text, freeze_evidence
 from app.services.uploaded_sources import (
     MAX_SOURCE_FILE_BYTES,
@@ -295,11 +296,17 @@ def render_windows(chosen: list[tuple[int, SourcePassage]]) -> str:
 
 
 def section_evidence(
-    pack: Any, section: dict[str, Any], nodes: list[dict[str, Any]]
+    pack: Any,
+    section: dict[str, Any],
+    nodes: list[dict[str, Any]],
+    commentary: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, str]], list[dict[str, Any]]]:
     """Prompt evidence for one section and the selection report behind it.
 
-    The section is written from at most ``MAX_SECTION_DOCUMENTS`` documents:
+    The section is written from at most ``MAX_SECTION_DOCUMENTS`` documents,
+    primary sources (statutes, judgments, acts) before academic commentary
+    (at most ``MAX_ACADEMIC_DOCUMENTS`` per section, and per ``commentary``
+    budget no commentary document in more than a third of the sections):
     the planned ones (S3) and any other full-text document of the pack whose
     best window covers the section's own wording (title, purpose, main
     points) well enough, ranked by relevance with a small bonus for the plan.
@@ -341,9 +348,28 @@ def section_evidence(
         ranked, best = _ranked(rows, queries)
         if ranked and gate >= MIN_RELEVANCE and matched >= MIN_MATCHED_TERMS:
             scored.append((-best, len(planned), key, False, ranked, best))
-    scored.sort(key=lambda t: (t[0], t[1], t[2]))
-    chosen_docs = scored[:MAX_SECTION_DOCUMENTS]
-    capped = {key for _, _, key, *_ in scored[MAX_SECTION_DOCUMENTS:]}
+    # Primary sources (statutes, judgments, acts) first; academic commentary
+    # after them, at most MAX_ACADEMIC_DOCUMENTS per section and, across the
+    # work, no commentary document in more than a third of the sections.
+    scored.sort(
+        key=lambda t: (not is_legal_source(pack.by_key(t[2]).source), t[0], t[1], t[2])
+    )
+    budget = commentary if commentary is not None else {"cap": 10**6, "used": {}}
+    chosen_docs, academic = [], 0
+    for row in scored:
+        key = row[2]
+        if len(chosen_docs) >= MAX_SECTION_DOCUMENTS:
+            break
+        if not is_legal_source(pack.by_key(key).source):
+            if (
+                academic >= MAX_ACADEMIC_DOCUMENTS
+                or budget["used"].get(key, 0) >= budget["cap"]
+            ):
+                continue
+            academic += 1
+            budget["used"][key] = budget["used"].get(key, 0) + 1
+        chosen_docs.append(row)
+    capped = {key for _, _, key, *_ in scored} - {row[2] for row in chosen_docs}
     queues = {key: list(ranked) for _, _, key, _, ranked, _ in chosen_docs}
     taken: dict[str, list[tuple[int, SourcePassage]]] = {key: [] for key in queues}
     doc_chars = dict.fromkeys(queues, 0)

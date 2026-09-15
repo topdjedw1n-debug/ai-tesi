@@ -333,14 +333,14 @@ def test_section_evidence_keeps_at_most_four_documents_by_relevance():
     }
     items, report = section_evidence(pack, section, [])
     windowed = [r for r in report if r["windows"]]
-    assert len(windowed) == MAX_SECTION_DOCUMENTS == 4
-    assert [r["score"] for r in windowed] == sorted(
-        (r["score"] for r in windowed), reverse=True
-    )
-    # The two planned documents below the cap keep their excerpts, marked capped.
+    # Six academic documents: only MAX_ACADEMIC_DOCUMENTS carry windows.
+    from app.services.section_material import MAX_ACADEMIC_DOCUMENTS
+
+    assert len(windowed) == MAX_ACADEMIC_DOCUMENTS == 2 and MAX_SECTION_DOCUMENTS == 4
+    # The planned documents below the cap keep their excerpts, marked capped.
     rest = [r for r in report if not r["windows"]]
-    assert len(rest) == 2 and all(r["capped"] and not r["gap"] for r in rest)
-    assert [i["text"] for i in items[4:]] == [
+    assert len(rest) == 4 and all(r["capped"] and not r["gap"] for r in rest)
+    assert [i["text"] for i in items[2:]] == [
         evidence_text(pack.by_key(r["key"]).source) for r in rest
     ]
 
@@ -361,3 +361,37 @@ def test_catalogue_limits_follow_the_provider_settings():
     assert _catalogue_limits("https://api.semanticscholar.org/graph/v1/x")[0] == (
         "semantic_scholar"
     )
+
+
+def test_primary_sources_lead_and_commentary_is_rationed_across_the_work():
+    from app.services.section_material import commentary_budget
+
+    text = "Controllo a distanza dei lavoratori e impianti audiovisivi. " * 6
+    passages = document_windows("KLAW", "u1", [text])
+    passages += document_windows("KDOC", "u2", [text + "commento dottrinale "])
+    passages += document_windows("KOTHER", "u3", [text + "altro commento "])
+    pack = pack_with(
+        ("KDOC", "Commento alla disciplina", "Sintesi.", "u2"),
+        ("KLAW", "Legge 20 maggio 1970, n. 300, art. 4", "Norma.", "u1"),
+        ("KOTHER", "Altro commento", "Sintesi.", "u3"),
+        passages=passages,
+    )
+    section = {
+        "title": "Il controllo a distanza dei lavoratori",
+        "purpose": "impianti audiovisivi",
+        "main_points": [],
+        "scope_ids": [],
+        "evidence_keys": ["KDOC", "KLAW", "KOTHER"],
+    }
+    # The statute comes first whatever the plan order; commentary follows.
+    items, report = section_evidence(pack, section, [])
+    assert [r["key"] for r in report if r["windows"]][0] == "KLAW"
+    # A commentary document may carry windows in a third of the sections only:
+    # with a three-section plan that is one section, then it keeps its excerpt.
+    budget = commentary_budget([{}, {}, {}])
+    first = section_evidence(pack, section, [], commentary=budget)[1]
+    second = section_evidence(pack, section, [], commentary=budget)[1]
+    assert budget["cap"] == 1
+    assert [r["key"] for r in first if r["windows"]] == ["KLAW", "KDOC", "KOTHER"]
+    assert [r["key"] for r in second if r["windows"]] == ["KLAW"]
+    assert all(r["capped"] for r in second if r["key"] != "KLAW")
