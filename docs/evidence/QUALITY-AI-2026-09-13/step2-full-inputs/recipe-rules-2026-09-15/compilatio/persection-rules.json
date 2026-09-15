@@ -1,0 +1,202 @@
+[
+ {
+  "index": 1,
+  "title": "Introduzione",
+  "kind": "frame",
+  "words": 704,
+  "ai": 184,
+  "quotes": 187,
+  "ai_pct": 26.1,
+  "quotes_pct": 26.6
+ },
+ {
+  "index": 2,
+  "title": "La formulazione originaria dell'art. 4 (L. 300/1970)",
+  "kind": "case",
+  "words": 721,
+  "ai": 46,
+  "quotes": 222,
+  "ai_pct": 6.4,
+  "quotes_pct": 30.8
+ },
+ {
+  "index": 3,
+  "title": "La riforma del Jobs Act (D.Lgs. 151/2015)",
+  "kind": "case",
+  "words": 744,
+  "ai": 40,
+  "quotes": 225,
+  "ai_pct": 5.4,
+  "quotes_pct": 30.2
+ },
+ {
+  "index": 4,
+  "title": "Accordo sindacale e autorizzazione amministrativa",
+  "kind": "system",
+  "words": 698,
+  "ai": 69,
+  "quotes": 223,
+  "ai_pct": 9.9,
+  "quotes_pct": 31.9
+ },
+ {
+  "index": 5,
+  "title": "Ambito di applicazione e definizioni",
+  "kind": "system",
+  "words": 644,
+  "ai": 112,
+  "quotes": 228,
+  "ai_pct": 17.4,
+  "quotes_pct": 35.4
+ },
+ {
+  "index": 6,
+  "title": "Principi di liceità, minimizzazione e trasparenza",
+  "kind": "system",
+  "words": 683,
+  "ai": 0,
+  "quotes": 219,
+  "ai_pct": 0.0,
+  "quotes_pct": 32.1
+ },
+ {
+  "index": 7,
+  "title": "Basi giuridiche del trattamento nel rapporto di lavoro",
+  "kind": "system",
+  "words": 639,
+  "ai": 42,
+  "quotes": 240,
+  "ai_pct": 6.6,
+  "quotes_pct": 37.6
+ },
+ {
+  "index": 8,
+  "title": "Accountability e valutazione d'impatto (DPIA)",
+  "kind": "system",
+  "words": 551,
+  "ai": 126,
+  "quotes": 213,
+  "ai_pct": 22.9,
+  "quotes_pct": 38.7
+ },
+ {
+  "index": 9,
+  "title": "Il coordinamento tra GDPR e Codice privacy (D.Lgs. 196/2003)",
+  "kind": "system",
+  "words": 592,
+  "ai": 69,
+  "quotes": 245,
+  "ai_pct": 11.7,
+  "quotes_pct": 41.4
+ },
+ {
+  "index": 10,
+  "title": "Strumenti di lavoro e controlli difensivi",
+  "kind": "case",
+  "words": 878,
+  "ai": 82,
+  "quotes": 284,
+  "ai_pct": 9.3,
+  "quotes_pct": 32.3
+ },
+ {
+  "index": 11,
+  "title": "Videosorveglianza sul luogo di lavoro",
+  "kind": "case",
+  "words": 638,
+  "ai": 99,
+  "quotes": 238,
+  "ai_pct": 15.5,
+  "quotes_pct": 37.3
+ },
+ {
+  "index": 12,
+  "title": "Posta elettronica, internet e dispositivi aziendali",
+  "kind": "case",
+  "words": 721,
+  "ai": 92,
+  "quotes": 310,
+  "ai_pct": 12.8,
+  "quotes_pct": 43.0
+ },
+ {
+  "index": 13,
+  "title": "Geolocalizzazione, biometria e nuove tecnologie",
+  "kind": "case",
+  "words": 642,
+  "ai": 0,
+  "quotes": 196,
+  "ai_pct": 0.0,
+  "quotes_pct": 30.5
+ },
+ {
+  "index": 14,
+  "title": "Il lavoro agile e il controllo da remoto",
+  "kind": "system",
+  "words": 538,
+  "ai": 0,
+  "quotes": 186,
+  "ai_pct": 0.0,
+  "quotes_pct": 34.6
+ },
+ {
+  "index": 15,
+  "title": "La giurisprudenza della Corte di Cassazione",
+  "kind": "case",
+  "words": 842,
+  "ai": 87,
+  "quotes": 271,
+  "ai_pct": 10.3,
+  "quotes_pct": 32.2
+ },
+ {
+  "index": 16,
+  "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+  "kind": "case",
+  "words": 967,
+  "ai": 68,
+  "quotes": 271,
+  "ai_pct": 7.0,
+  "quotes_pct": 28.0
+ },
+ {
+  "index": 17,
+  "title": "I provvedimenti e le Linee guida del Garante",
+  "kind": "case",
+  "words": 689,
+  "ai": 0,
+  "quotes": 278,
+  "ai_pct": 0.0,
+  "quotes_pct": 40.3
+ },
+ {
+  "index": 18,
+  "title": "Conclusioni",
+  "kind": "frame",
+  "words": 544,
+  "ai": 65,
+  "quotes": 151,
+  "ai_pct": 11.9,
+  "quotes_pct": 27.8
+ },
+ {
+  "index": 19,
+  "title": "Bibliografia",
+  "kind": "-",
+  "words": 219,
+  "ai": 0,
+  "quotes": 0,
+  "ai_pct": 0.0,
+  "quotes_pct": 0.0
+ },
+ {
+  "index": 20,
+  "title": "Normativa e giurisprudenza",
+  "kind": "-",
+  "words": 202,
+  "ai": 0,
+  "quotes": 0,
+  "ai_pct": 0.0,
+  "quotes_pct": 0.0
+ }
+]
