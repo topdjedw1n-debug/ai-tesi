@@ -19,7 +19,11 @@ from app.services.generation_policy import RecordingPersistenceError
 from app.services.legal_sources import is_legal_source
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
-from app.services.section_material import MAX_ACADEMIC_DOCUMENTS, MAX_SECTION_DOCUMENTS
+from app.services.section_material import (
+    MAX_ACADEMIC_DOCUMENTS,
+    MAX_LEGAL_WINDOWS,
+    MAX_SECTION_DOCUMENTS,
+)
 from app.services.source_evidence import evidence_text, freeze_evidence
 from app.services.uploaded_sources import (
     MAX_SOURCE_FILE_BYTES,
@@ -371,6 +375,7 @@ def section_evidence(
         chosen_docs.append(row)
     capped = {key for _, _, key, *_ in scored} - {row[2] for row in chosen_docs}
     queues = {key: list(ranked) for _, _, key, _, ranked, _ in chosen_docs}
+    legal = {key: is_legal_source(pack.by_key(key).source) for key in queues}
     taken: dict[str, list[tuple[int, SourcePassage]]] = {key: [] for key in queues}
     doc_chars = dict.fromkeys(queues, 0)
     used = 0
@@ -385,6 +390,7 @@ def section_evidence(
             if (
                 doc_chars[key] + size > DOCUMENT_EVIDENCE_CHARS
                 or used + size > SECTION_EVIDENCE_CHARS
+                or (legal[key] and len(taken[key]) >= MAX_LEGAL_WINDOWS)
             ):
                 queue.clear()
                 continue

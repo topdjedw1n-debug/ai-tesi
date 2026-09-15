@@ -1305,7 +1305,7 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     assert FRAME_RULE.strip() not in prompts[0] and "findings" not in bodies[0]
     assert FRAME_RULE.strip() in prompts[1] and FRAME_RULE.strip() in prompts[2]
     # The introduction poses the question, the conclusions answer it.
-    assert "pose the research question" in prompts[1]
+    assert "Pose the research question" in prompts[1]
     assert "Answer the research question" in prompts[2]
     assert bodies[1]["previous_summaries"] == []
     assert [c["title"] for c in bodies[1]["findings"]] == ["Il sonno in reparto"]

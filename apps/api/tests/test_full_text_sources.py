@@ -395,3 +395,34 @@ def test_primary_sources_lead_and_commentary_is_rationed_across_the_work():
     assert [r["key"] for r in first if r["windows"]] == ["KLAW", "KDOC", "KOTHER"]
     assert [r["key"] for r in second if r["windows"]] == ["KLAW"]
     assert all(r["capped"] for r in second if r["key"] != "KLAW")
+
+
+def test_legal_documents_contribute_at_most_three_windows(monkeypatch):
+    from app.services.section_material import MAX_LEGAL_WINDOWS
+
+    text = "Controllo a distanza dei lavoratori: impianti audiovisivi e strumenti. "
+    pages = [f"Punto {n}. " + text * 5 for n in range(1, 9)]
+    passages = document_windows("KGARANTE", "u1", pages)
+    passages += document_windows("KDOC", "u2", [text * 6])
+    pack = pack_with(
+        (
+            "KGARANTE",
+            "Provvedimento in materia di videosorveglianza, 8 aprile 2010",
+            "Atto.",
+            "u1",
+        ),
+        ("KDOC", "Commento", "Sintesi.", "u2"),
+        passages=passages,
+    )
+    section = {
+        "title": "Videosorveglianza sul luogo di lavoro",
+        "purpose": "impianti audiovisivi e strumenti di controllo a distanza",
+        "main_points": [],
+        "scope_ids": [],
+        "evidence_keys": ["KGARANTE", "KDOC"],
+    }
+    monkeypatch.setattr(full_text_sources, "RELATIVE_FLOOR", 0.0)
+    items, report = section_evidence(pack, section, [])
+    act = next(r for r in report if r["key"] == "KGARANTE")
+    assert act["windows"] == MAX_LEGAL_WINDOWS == 3
+    assert next(r for r in report if r["key"] == "KDOC")["windows"] >= 1

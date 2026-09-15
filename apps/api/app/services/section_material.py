@@ -28,6 +28,10 @@ FRAME_TITLES = re.compile(
 )
 FRAME_RULE = rules.FRAME_RULE
 MAX_ACADEMIC_DOCUMENTS = 2
+# A statute, judgment or authority act contributes at most this many windows:
+# more made the writer retell the act sentence by sentence (B rules2, 15.09:
+# similarity 17 % from close paraphrase of Garante guidelines and statutes).
+MAX_LEGAL_WINDOWS = 3
 ANCHORED = re.compile(r"\[[\w:./-]+\]\s*,?\s*(?:pp?\.|art\.)\s*\d|\d")
 
 
