@@ -1,0 +1,132 @@
+{
+ "total_words": 12827,
+ "flagged": 1959,
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 491,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 2,
+   "title": "La versione originaria dell'art. 4 (L. 300/1970)",
+   "words": 570,
+   "sim_pct": 17.7
+  },
+  {
+   "index": 3,
+   "title": "Il divieto di controllo e le esigenze organizzative",
+   "words": 635,
+   "sim_pct": 19.2
+  },
+  {
+   "index": 4,
+   "title": "La riforma del Jobs Act (D.lgs. 151/2015)",
+   "words": 573,
+   "sim_pct": 16.2
+  },
+  {
+   "index": 5,
+   "title": "Il nuovo testo dell'art. 4 e le condizioni di legittimità",
+   "words": 537,
+   "sim_pct": 22.0
+  },
+  {
+   "index": 6,
+   "title": "Il quadro normativo europeo sulla protezione dei dati",
+   "words": 562,
+   "sim_pct": 2.0
+  },
+  {
+   "index": 7,
+   "title": "I principi del trattamento dei dati personali",
+   "words": 580,
+   "sim_pct": 17.8
+  },
+  {
+   "index": 8,
+   "title": "Le basi giuridiche del trattamento nel rapporto di lavoro",
+   "words": 484,
+   "sim_pct": 10.5
+  },
+  {
+   "index": 9,
+   "title": "Ruoli e responsabilità: titolare, responsabile e DPO",
+   "words": 453,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 10,
+   "title": "Il coordinamento tra GDPR e Codice privacy (D.lgs. 196/2003)",
+   "words": 586,
+   "sim_pct": 19.8
+  },
+  {
+   "index": 11,
+   "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+   "words": 518,
+   "sim_pct": 20.8
+  },
+  {
+   "index": 12,
+   "title": "La videosorveglianza sui luoghi di lavoro",
+   "words": 663,
+   "sim_pct": 25.6
+  },
+  {
+   "index": 13,
+   "title": "Il monitoraggio di internet e della posta elettronica",
+   "words": 635,
+   "sim_pct": 29.0
+  },
+  {
+   "index": 14,
+   "title": "Geolocalizzazione e dispositivi mobili",
+   "words": 541,
+   "sim_pct": 20.1
+  },
+  {
+   "index": 15,
+   "title": "Il lavoro agile e i nuovi rischi di controllo",
+   "words": 536,
+   "sim_pct": 6.5
+  },
+  {
+   "index": 16,
+   "title": "La valutazione d'impatto (DPIA)",
+   "words": 490,
+   "sim_pct": 4.1
+  },
+  {
+   "index": 17,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 632,
+   "sim_pct": 12.0
+  },
+  {
+   "index": 18,
+   "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+   "words": 621,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 19,
+   "title": "I provvedimenti del Garante per la protezione dei dati personali",
+   "words": 624,
+   "sim_pct": 37.3
+  },
+  {
+   "index": 20,
+   "title": "Le linee guida e la prassi applicativa",
+   "words": 682,
+   "sim_pct": 19.6
+  },
+  {
+   "index": 21,
+   "title": "Conclusioni",
+   "words": 544,
+   "sim_pct": 10.3
+  }
+ ]
+}
