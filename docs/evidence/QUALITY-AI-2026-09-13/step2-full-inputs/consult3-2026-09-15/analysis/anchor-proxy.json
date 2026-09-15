@@ -1,0 +1,794 @@
+[
+ {
+  "set": "A-recipe",
+  "title": "Introduzione",
+  "ai": 12.9,
+  "unanchored": 27.3,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "A-recipe",
+  "title": "Definizione ed evoluzione del mark",
+  "ai": 23.8,
+  "unanchored": 41.2,
+  "long": 70.6,
+  "n_sent": 17
+ },
+ {
+  "set": "A-recipe",
+  "title": "Gli strumenti del marketing digita",
+  "ai": 11.4,
+  "unanchored": 35.7,
+  "long": 85.7,
+  "n_sent": 14
+ },
+ {
+  "set": "A-recipe",
+  "title": "Il marketing digitale nelle piccol",
+  "ai": 8.6,
+  "unanchored": 26.7,
+  "long": 73.3,
+  "n_sent": 15
+ },
+ {
+  "set": "A-recipe",
+  "title": "Il contesto delle PMI italiane",
+  "ai": 0.0,
+  "unanchored": 35.3,
+  "long": 52.9,
+  "n_sent": 17
+ },
+ {
+  "set": "A-recipe",
+  "title": "I social media come canale di mark",
+  "ai": 0.0,
+  "unanchored": 46.7,
+  "long": 66.7,
+  "n_sent": 15
+ },
+ {
+  "set": "A-recipe",
+  "title": "Il concetto di fidelizzazione del ",
+  "ai": 23.1,
+  "unanchored": 60.0,
+  "long": 33.3,
+  "n_sent": 15
+ },
+ {
+  "set": "A-recipe",
+  "title": "Social media e customer engagement",
+  "ai": 0.0,
+  "unanchored": 45.5,
+  "long": 81.8,
+  "n_sent": 11
+ },
+ {
+  "set": "A-recipe",
+  "title": "Strategie di social media per la f",
+  "ai": 25.6,
+  "unanchored": 50.0,
+  "long": 80.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-recipe",
+  "title": "Metodologia dell'analisi",
+  "ai": 15.7,
+  "unanchored": 37.5,
+  "long": 75.0,
+  "n_sent": 8
+ },
+ {
+  "set": "A-recipe",
+  "title": "Casi di studio di PMI italiane",
+  "ai": 16.8,
+  "unanchored": 36.4,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "A-recipe",
+  "title": "Evidenze empiriche sulla fidelizza",
+  "ai": 37.4,
+  "unanchored": 28.6,
+  "long": 85.7,
+  "n_sent": 7
+ },
+ {
+  "set": "A-recipe",
+  "title": "Discussione dei risultati",
+  "ai": 52.4,
+  "unanchored": 54.5,
+  "long": 54.5,
+  "n_sent": 11
+ },
+ {
+  "set": "A-recipe",
+  "title": "Conclusioni",
+  "ai": 44.9,
+  "unanchored": 60.0,
+  "long": 60.0,
+  "n_sent": 10
+ },
+ {
+  "set": "B-recipe",
+  "title": "Introduzione",
+  "ai": 40.7,
+  "unanchored": 23.1,
+  "long": 76.9,
+  "n_sent": 13
+ },
+ {
+  "set": "B-recipe",
+  "title": "La formulazione originaria dell'ar",
+  "ai": 7.0,
+  "unanchored": 21.4,
+  "long": 71.4,
+  "n_sent": 14
+ },
+ {
+  "set": "B-recipe",
+  "title": "La riforma del Jobs Act (d.lgs. n.",
+  "ai": 0.0,
+  "unanchored": 14.3,
+  "long": 57.1,
+  "n_sent": 14
+ },
+ {
+  "set": "B-recipe",
+  "title": "I presupposti di legittimità del c",
+  "ai": 29.8,
+  "unanchored": 31.6,
+  "long": 63.2,
+  "n_sent": 19
+ },
+ {
+  "set": "B-recipe",
+  "title": "I principi generali del trattament",
+  "ai": 17.7,
+  "unanchored": 7.7,
+  "long": 76.9,
+  "n_sent": 13
+ },
+ {
+  "set": "B-recipe",
+  "title": "Le basi giuridiche del trattamento",
+  "ai": 10.9,
+  "unanchored": 18.2,
+  "long": 81.8,
+  "n_sent": 11
+ },
+ {
+  "set": "B-recipe",
+  "title": "Il ruolo del datore di lavoro come",
+  "ai": 33.6,
+  "unanchored": 16.7,
+  "long": 83.3,
+  "n_sent": 12
+ },
+ {
+  "set": "B-recipe",
+  "title": "Il coordinamento tra GDPR e normat",
+  "ai": 33.3,
+  "unanchored": 0.0,
+  "long": 75.0,
+  "n_sent": 12
+ },
+ {
+  "set": "B-recipe",
+  "title": "Gli strumenti di lavoro e gli stru",
+  "ai": 26.8,
+  "unanchored": 18.2,
+  "long": 90.9,
+  "n_sent": 11
+ },
+ {
+  "set": "B-recipe",
+  "title": "I controlli difensivi del datore d",
+  "ai": 16.7,
+  "unanchored": 0.0,
+  "long": 90.9,
+  "n_sent": 11
+ },
+ {
+  "set": "B-recipe",
+  "title": "Geolocalizzazione, videosorveglian",
+  "ai": 26.6,
+  "unanchored": 28.6,
+  "long": 78.6,
+  "n_sent": 14
+ },
+ {
+  "set": "B-recipe",
+  "title": "Il lavoro agile e le nuove forme d",
+  "ai": 49.9,
+  "unanchored": 45.5,
+  "long": 72.7,
+  "n_sent": 11
+ },
+ {
+  "set": "B-recipe",
+  "title": "La giurisprudenza della Corte di C",
+  "ai": 7.4,
+  "unanchored": 9.1,
+  "long": 100.0,
+  "n_sent": 11
+ },
+ {
+  "set": "B-recipe",
+  "title": "La giurisprudenza della Corte euro",
+  "ai": 5.6,
+  "unanchored": 22.2,
+  "long": 72.2,
+  "n_sent": 18
+ },
+ {
+  "set": "B-recipe",
+  "title": "I provvedimenti del Garante per la",
+  "ai": 7.3,
+  "unanchored": 0.0,
+  "long": 91.7,
+  "n_sent": 12
+ },
+ {
+  "set": "B-recipe",
+  "title": "Il bilanciamento tra potere di con",
+  "ai": 17.5,
+  "unanchored": 30.8,
+  "long": 84.6,
+  "n_sent": 13
+ },
+ {
+  "set": "B-recipe",
+  "title": "Conclusioni",
+  "ai": 28.7,
+  "unanchored": 18.2,
+  "long": 81.8,
+  "n_sent": 11
+ },
+ {
+  "set": "A-morning",
+  "title": "Introduzione",
+  "ai": 42.4,
+  "unanchored": 75.0,
+  "long": 31.2,
+  "n_sent": 16
+ },
+ {
+  "set": "A-morning",
+  "title": "Quadro teorico del marketing digit",
+  "ai": 18.0,
+  "unanchored": 54.2,
+  "long": 62.5,
+  "n_sent": 24
+ },
+ {
+  "set": "A-morning",
+  "title": "Strumenti e canali del marketing d",
+  "ai": 0.0,
+  "unanchored": 36.4,
+  "long": 90.9,
+  "n_sent": 11
+ },
+ {
+  "set": "A-morning",
+  "title": "Il marketing digitale nelle piccol",
+  "ai": 27.6,
+  "unanchored": 54.5,
+  "long": 72.7,
+  "n_sent": 11
+ },
+ {
+  "set": "A-morning",
+  "title": "Social media e customer loyalty ne",
+  "ai": 0.0,
+  "unanchored": 41.7,
+  "long": 66.7,
+  "n_sent": 12
+ },
+ {
+  "set": "A-morning",
+  "title": "Il ruolo dei social media nelle st",
+  "ai": 0.0,
+  "unanchored": 40.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-morning",
+  "title": "Concetti di fidelizzazione e custo",
+  "ai": 11.5,
+  "unanchored": 27.3,
+  "long": 81.8,
+  "n_sent": 11
+ },
+ {
+  "set": "A-morning",
+  "title": "Social media come leva di fidelizz",
+  "ai": 12.7,
+  "unanchored": 30.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-morning",
+  "title": "Analisi di casi ed evidenze empiri",
+  "ai": 0.0,
+  "unanchored": 28.6,
+  "long": 85.7,
+  "n_sent": 7
+ },
+ {
+  "set": "A-morning",
+  "title": "Metodologia di analisi",
+  "ai": 0.0,
+  "unanchored": 50.0,
+  "long": 62.5,
+  "n_sent": 8
+ },
+ {
+  "set": "A-morning",
+  "title": "Casi di studio di PMI italiane",
+  "ai": 0.0,
+  "unanchored": 36.4,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "A-morning",
+  "title": "Discussione dei risultati",
+  "ai": 13.7,
+  "unanchored": 50.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-morning",
+  "title": "Conclusioni",
+  "ai": 0.0,
+  "unanchored": 68.6,
+  "long": 20.0,
+  "n_sent": 35
+ },
+ {
+  "set": "B-morning",
+  "title": "Introduzione",
+  "ai": 47.8,
+  "unanchored": 30.8,
+  "long": 84.6,
+  "n_sent": 13
+ },
+ {
+  "set": "B-morning",
+  "title": "Evoluzione dell'art. 4 dello Statu",
+  "ai": 12.9,
+  "unanchored": 27.3,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "B-morning",
+  "title": "La formulazione originaria dell'ar",
+  "ai": 17.0,
+  "unanchored": 0.0,
+  "long": 91.7,
+  "n_sent": 12
+ },
+ {
+  "set": "B-morning",
+  "title": "La riforma del Jobs Act (D.Lgs. 15",
+  "ai": 15.7,
+  "unanchored": 28.6,
+  "long": 57.1,
+  "n_sent": 14
+ },
+ {
+  "set": "B-morning",
+  "title": "Accordo sindacale e autorizzazione",
+  "ai": 8.3,
+  "unanchored": 23.1,
+  "long": 76.9,
+  "n_sent": 13
+ },
+ {
+  "set": "B-morning",
+  "title": "Il GDPR e i principi applicabili a",
+  "ai": 0.0,
+  "unanchored": 0.0,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "Ambito di applicazione e definizio",
+  "ai": 32.2,
+  "unanchored": 22.2,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "Principi di liceità, minimizzazion",
+  "ai": 0.0,
+  "unanchored": 10.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "B-morning",
+  "title": "Basi giuridiche del trattamento ne",
+  "ai": 22.9,
+  "unanchored": 25.0,
+  "long": 58.3,
+  "n_sent": 12
+ },
+ {
+  "set": "B-morning",
+  "title": "Accountability e valutazione d'imp",
+  "ai": 7.7,
+  "unanchored": 21.1,
+  "long": 73.7,
+  "n_sent": 19
+ },
+ {
+  "set": "B-morning",
+  "title": "Il controllo a distanza e gli stru",
+  "ai": 0.0,
+  "unanchored": 28.6,
+  "long": 71.4,
+  "n_sent": 7
+ },
+ {
+  "set": "B-morning",
+  "title": "Strumenti di lavoro e controlli di",
+  "ai": 28.0,
+  "unanchored": 18.2,
+  "long": 100.0,
+  "n_sent": 11
+ },
+ {
+  "set": "B-morning",
+  "title": "Videosorveglianza sul luogo di lav",
+  "ai": 44.6,
+  "unanchored": 0.0,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "Posta elettronica, internet e disp",
+  "ai": 11.8,
+  "unanchored": 27.3,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "B-morning",
+  "title": "Geolocalizzazione, biometria e nuo",
+  "ai": 0.0,
+  "unanchored": 22.2,
+  "long": 66.7,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "Il lavoro agile e il controllo da ",
+  "ai": 15.5,
+  "unanchored": 28.6,
+  "long": 85.7,
+  "n_sent": 7
+ },
+ {
+  "set": "B-morning",
+  "title": "Giurisprudenza e prassi del Garant",
+  "ai": 53.2,
+  "unanchored": 22.2,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "La giurisprudenza della Corte di C",
+  "ai": 5.4,
+  "unanchored": 9.5,
+  "long": 85.7,
+  "n_sent": 21
+ },
+ {
+  "set": "B-morning",
+  "title": "I provvedimenti e le Linee guida d",
+  "ai": 0.0,
+  "unanchored": 11.1,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-morning",
+  "title": "Conclusioni",
+  "ai": 21.8,
+  "unanchored": 32.7,
+  "long": 21.8,
+  "n_sent": 55
+ },
+ {
+  "set": "A-fix",
+  "title": "Introduzione",
+  "ai": 27.3,
+  "unanchored": 66.7,
+  "long": 53.3,
+  "n_sent": 15
+ },
+ {
+  "set": "A-fix",
+  "title": "Quadro teorico del marketing digit",
+  "ai": 16.0,
+  "unanchored": 46.7,
+  "long": 46.7,
+  "n_sent": 15
+ },
+ {
+  "set": "A-fix",
+  "title": "Evoluzione dal marketing tradizion",
+  "ai": 0.0,
+  "unanchored": 27.3,
+  "long": 100.0,
+  "n_sent": 11
+ },
+ {
+  "set": "A-fix",
+  "title": "Strumenti e canali del marketing d",
+  "ai": 0.0,
+  "unanchored": 36.4,
+  "long": 90.9,
+  "n_sent": 11
+ },
+ {
+  "set": "A-fix",
+  "title": "Il marketing digitale nelle piccol",
+  "ai": 9.5,
+  "unanchored": 53.8,
+  "long": 69.2,
+  "n_sent": 13
+ },
+ {
+  "set": "A-fix",
+  "title": "Social media e customer loyalty ne",
+  "ai": 0.0,
+  "unanchored": 41.7,
+  "long": 66.7,
+  "n_sent": 12
+ },
+ {
+  "set": "A-fix",
+  "title": "Il ruolo dei social media nelle st",
+  "ai": 6.9,
+  "unanchored": 40.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-fix",
+  "title": "Concetti di fidelizzazione e custo",
+  "ai": 16.3,
+  "unanchored": 27.3,
+  "long": 81.8,
+  "n_sent": 11
+ },
+ {
+  "set": "A-fix",
+  "title": "Social media come leva di fidelizz",
+  "ai": 12.9,
+  "unanchored": 30.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-fix",
+  "title": "Analisi di casi ed evidenze empiri",
+  "ai": 0.0,
+  "unanchored": 28.6,
+  "long": 85.7,
+  "n_sent": 7
+ },
+ {
+  "set": "A-fix",
+  "title": "Metodologia di analisi",
+  "ai": 0.0,
+  "unanchored": 50.0,
+  "long": 62.5,
+  "n_sent": 8
+ },
+ {
+  "set": "A-fix",
+  "title": "Casi di studio di PMI italiane",
+  "ai": 0.0,
+  "unanchored": 36.4,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "A-fix",
+  "title": "Discussione dei risultati",
+  "ai": 31.0,
+  "unanchored": 50.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "A-fix",
+  "title": "Conclusioni",
+  "ai": 16.4,
+  "unanchored": 67.6,
+  "long": 20.6,
+  "n_sent": 34
+ },
+ {
+  "set": "B-fix",
+  "title": "Introduzione",
+  "ai": 35.7,
+  "unanchored": 38.9,
+  "long": 61.1,
+  "n_sent": 18
+ },
+ {
+  "set": "B-fix",
+  "title": "Evoluzione dell'art. 4 dello Statu",
+  "ai": 12.0,
+  "unanchored": 27.3,
+  "long": 72.7,
+  "n_sent": 11
+ },
+ {
+  "set": "B-fix",
+  "title": "La formulazione originaria dell'ar",
+  "ai": 17.2,
+  "unanchored": 0.0,
+  "long": 91.7,
+  "n_sent": 12
+ },
+ {
+  "set": "B-fix",
+  "title": "La riforma del Jobs Act (D.Lgs. 15",
+  "ai": 41.9,
+  "unanchored": 28.6,
+  "long": 64.3,
+  "n_sent": 14
+ },
+ {
+  "set": "B-fix",
+  "title": "Accordo sindacale e autorizzazione",
+  "ai": 30.4,
+  "unanchored": 23.1,
+  "long": 76.9,
+  "n_sent": 13
+ },
+ {
+  "set": "B-fix",
+  "title": "Il GDPR e i principi applicabili a",
+  "ai": 29.8,
+  "unanchored": 0.0,
+  "long": 66.7,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "Ambito di applicazione e definizio",
+  "ai": 63.7,
+  "unanchored": 22.2,
+  "long": 66.7,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "Principi di liceità, minimizzazion",
+  "ai": 35.4,
+  "unanchored": 10.0,
+  "long": 70.0,
+  "n_sent": 10
+ },
+ {
+  "set": "B-fix",
+  "title": "Basi giuridiche del trattamento ne",
+  "ai": 55.3,
+  "unanchored": 25.0,
+  "long": 58.3,
+  "n_sent": 12
+ },
+ {
+  "set": "B-fix",
+  "title": "Accountability e valutazione d'imp",
+  "ai": 41.9,
+  "unanchored": 33.3,
+  "long": 66.7,
+  "n_sent": 12
+ },
+ {
+  "set": "B-fix",
+  "title": "Il coordinamento tra GDPR e Codice",
+  "ai": 26.3,
+  "unanchored": 12.5,
+  "long": 75.0,
+  "n_sent": 8
+ },
+ {
+  "set": "B-fix",
+  "title": "Il controllo a distanza e gli stru",
+  "ai": 11.8,
+  "unanchored": 28.6,
+  "long": 71.4,
+  "n_sent": 7
+ },
+ {
+  "set": "B-fix",
+  "title": "Strumenti di lavoro e controlli di",
+  "ai": 12.4,
+  "unanchored": 18.2,
+  "long": 100.0,
+  "n_sent": 11
+ },
+ {
+  "set": "B-fix",
+  "title": "Videosorveglianza sul luogo di lav",
+  "ai": 16.0,
+  "unanchored": 0.0,
+  "long": 100.0,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "Posta elettronica, internet e disp",
+  "ai": 21.2,
+  "unanchored": 27.3,
+  "long": 63.6,
+  "n_sent": 11
+ },
+ {
+  "set": "B-fix",
+  "title": "Geolocalizzazione, biometria e nuo",
+  "ai": 18.6,
+  "unanchored": 22.2,
+  "long": 66.7,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "Il lavoro agile e il controllo da ",
+  "ai": 15.5,
+  "unanchored": 28.6,
+  "long": 85.7,
+  "n_sent": 7
+ },
+ {
+  "set": "B-fix",
+  "title": "Giurisprudenza e prassi del Garant",
+  "ai": 52.8,
+  "unanchored": 22.2,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "La giurisprudenza della Corte di C",
+  "ai": 17.0,
+  "unanchored": 7.4,
+  "long": 70.4,
+  "n_sent": 27
+ },
+ {
+  "set": "B-fix",
+  "title": "I provvedimenti e le Linee guida d",
+  "ai": 7.9,
+  "unanchored": 11.1,
+  "long": 77.8,
+  "n_sent": 9
+ },
+ {
+  "set": "B-fix",
+  "title": "Conclusioni",
+  "ai": 24.1,
+  "unanchored": 41.9,
+  "long": 32.6,
+  "n_sent": 43
+ }
+]
