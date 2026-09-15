@@ -21,6 +21,7 @@
 | Робота | Документ / job | Розділів | Слів | Вартість | Токени | Лапки | Файл (SHA-256) |
 |---|---|---|---|---|---|---|---|
 | B право | 20 / 23 | 21 | 11 959 | $2,80 | 379 548 | 0,6 % | `B-doc20-job23-6833276a.docx`, `6833276a…` |
+| A економіка | 21 / 24 | 14 | 6 996 | $1,81 | 243 278 | 0,5 % | `A-doc21-job24-8e7be06f.docx`, `8e7be06f…` — **не на скан** (гейт: матеріал) |
 
 ### B (право), 19:36–20:21 UTC
 
@@ -34,3 +35,12 @@
 - **Речення:** довгих (>30 слів) ще ~половина — правило про короткі речення виконується слабко; не гейт.
 - **DOCX:** заголовки глав з нумерацією, «Introduzione»/«Conclusioni» без дублювання (markdown-заголовки моделі збірка прибрала), «Bibliografia» + «Normativa e giurisprudenza».
 - Файл у папці фаундера: `Downloads/Thesica-на-скан-6-2026-09-15/B-diritto-cabinet-2026-09-15.docx` (той самий SHA-256).
+
+### A (економіка), 20:21–20:43 UTC — гейт не пройдено, на скан не йде
+
+- **Кроки:** S2 15 хв, S3 2 хв, S4 5 хв. Пакет 40 джерел (20 Crossref, 20 OpenAlex, 0 Semantic Scholar — 65 пошукових запитів до S2 за годину завершилися 429 після повторів); повних текстів 11 із 21 спроб.
+- **Матеріал не про тему.** У пакеті: «Valutazione della ricerca», «Lessico: insegnarlo e impararlo», «Tortura e razzismo», «Copper complexes of synthetic peptides», «Repertori dei movimenti ecclesiali», шість записів без тексту з назвами «Introduzione», «Obiettivi e metodi della ricerca»… Причина видна в S1: пошукові фрази структурних вузлів («introduzione», «metodologia», «evidenze empiriche», «discussione dei risultati», «bibliografia», «riferimenti APA») і підвузлів («engagement», «best practice», «case selection») ідуть у каталоги без прив'язки до теми (`build_sources`: `terms_local`, `terms_en`, назва вузла — по 3 запити на вузол, включно з вступом/висновками/бібліографією). Crossref `query.bibliographic` на такі фрази повертає будь-що; Semantic Scholar, який рятував би, відповідав 429.
+- **Що дісталося розділам (вікна > 0):** релевантний повний текст лише один — «PMI Marketing: modello di business per una startup di digital marketing…» (113 стор., туристичні ПМІ Тоскани) у §2–§6 плюс «Le tre rivoluzioni del management digitale» (§2/§3/§5). §7 і §13 — без документів (`section_without_documents` ×2), §1 вступ — 0 вікон. §8 — педагогічний текст про tone analysis, §9/§10/§11 — музеї aziendali й сайти турагенцій, §10 — «support teachers», §12/§14 — contratto di rete і «riflessività e ricerca sociale».
+- **Текст:** вступ починається з туризму («Il settore turistico italiano…»), §8 переказує іспанську магістерську про побутову техніку BSH з іспанськими словами в тексті (fortalecer, gama blanca); рецензент S6 відзначив речення без підмета і зіпсований ключ (джерело без авторів → `bibliography_suspect`). Лапки 0,5 %, службових ключів 0, `citation_unresolved` 5.
+- **Рішення за гейтом consult4:** предметні розділи без релевантних повних текстів (7 із 12) → провал забезпечення джерелами, скан вимірював би відомий стан «без матеріалу / чужий матеріал», а не перенесення правил. Файл збережено (docs + `Downloads/…/не-на-скан/`), не сканувати.
+- **Наступний $0-крок для S2 (пропозиція, потребує погодження):** не шукати структурні вузли (вступ, висновки, бібліографія, методологія, обговорення), кожен запит прив'язувати до ядра теми (терміни теми + терміни вузла), відкидати кандидатів без збігу з темою до верифікації; полегшити 429 — `mailto` у верифікаторі (34bcd10) і `SEMANTIC_SCHOLAR_RATE_LIMIT_RPS=0.5` у середовищі сервера.
