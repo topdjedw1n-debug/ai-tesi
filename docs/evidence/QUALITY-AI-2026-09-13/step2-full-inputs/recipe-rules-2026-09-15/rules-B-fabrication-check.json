@@ -1,0 +1,3704 @@
+{
+ "sections": [
+  {
+   "section_index": 1,
+   "title": "Introduzione",
+   "words": 685,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "Regolamento (UE) 2016/679",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esigenze organizzative e produttive, per la sicurezza del lavoro e per la tutela del patrimonio aziendale",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nel rispetto di quanto disposto dal decreto legislativo 30 giugno 2003, n. 196",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sono quelli stabiliti dall'art. 4 L. 20 maggio 1970, n. 300, richiamato dagli artt. 113 e 114 del Codice Privacy",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in combinato disposto con gli artt. 5 e 6 GDPR",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nell'osservanza dei principi di cui all'art. 5 del GDPR e in particolare del principio di liceità, secondo cui il trattamento è lecito solo se conforme alle dis",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "which regulates the limits of the employer's remote monitoring power",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "a kind of neo digital Fordism, as does the Amazon model in the logistic sector",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "even if characterised by blurred borders",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the reference to the individual, to her/his life project, and ultimately to her/his dignity",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "brings personal data into a detailed regulatory regime",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 2,
+   "title": "La formulazione originaria dell'art. 4 (L. 300/1970)",
+   "words": 615,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 19",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 179",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 38, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": ", articolava la disciplina su due livelli. Al primo comma poneva un divieto assoluto: ",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " [CASS25732] p. 4. La norma colpiva così il controllo a distanza privo di ragioni inerenti all'impresa.\n\nLa Cassazione ha qualificato questo primo livello come ",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "cd. controllo fine a sé stesso",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ove le ragioni del controllo fossero state riconducibili ad esigenze oggettive dell'impresa",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "richiesti da esigenze organizzative e produttive ovvero dalla sicurezza del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "soltanto previo accordo con le rappresentanze sindacali aziendali, oppure, in mancanza di queste, con la commissione interna",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "su istanza del datore di lavoro, provvede l'Ispettorato del lavoro, dettando, ove occorra, le modalità per l'uso di tali impianti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "entro 30 giorni dalla comunicazione del provvedimento, al Ministro per il lavoro e la previdenza sociale",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "installato un impianto audiovisivo di controllo a distanza dei lavoratori delle casse del suo supermercato senza accordo con le rappresentanze sindacali e senza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "€ 200 di ammenda per il reato di cui all'articolo 4, comma 2, l. 300/1970",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "tuttora vigente pur non trovando più […] sanzione nell'articolo 38, comma 1",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ai fini dell'assunzione, come nel corso dello svolgimento del rapporto di lavoro, di effettuare indagini, anche a mezzo di terzi, sulle opinioni politiche, reli",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "dai principi costituzionali per sviluppare argomentazioni significative",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "le conseguenze del coinvolgimento della persona nell'esecuzione del rapporto di lavoro",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 3,
+   "title": "La riforma del Jobs Act (D.Lgs. 151/2015)",
+   "words": 647,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 171",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 113",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 38",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "L. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "L'articolo 4 della legge 20 maggio 1970, n. 300 è sostituito dal seguente",
+     "found": false,
+     "partial": "l'articolo 4 della legge 20 maggio 1970, n."
+    },
+    {
+     "kind": "quote",
+     "text": "dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esigenze organizzative e produttive, per la sicurezza del lavoro e per la tutela del patrimonio aziendale",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "gli strumenti utilizzati dal lavoratore per rendere la prestazione lavorativa e agli strumenti di registrazione degli accessi e delle presenze",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "rientra nell'ambito applicativo del comma 2 dell'art. 4 L. n. 300/1970 novellato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "direttamente funzionale all'efficienza della singola prestazione",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ai sensi dei commi 1 e 2 sono utilizzabili a tutti i fini connessi al rapporto di lavoro a condizione che sia data al lavoratore adeguata informazione delle mod",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la società non ha dato prova di aver rispettato gli adempimenti indicati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è necessario che la condizione indicata dalla norma sia attuata per ciascuno strumento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "consapevolezza del dipendente sulla presenza dell'apparato Telepass",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nel rispetto di quanto disposto dal decreto legislativo 30 giugno 2003, n. 196",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la violazione delle disposizioni di cui all'articolo 113 e all'articolo 4, primo e secondo comma, della legge 20 maggio 1970, n. 300, è punita con le sanzioni d",
+     "found": false,
+     "partial": "4, primo e secondo comma, della legge 20"
+    },
+    {
+     "kind": "quote",
+     "text": "una norma garantista, che rafforza l'art. 23, 3° co), del D.lgs 151/2015 (già art. 4 dello Statuto)",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 4,
+   "title": "Accordo sindacale e autorizzazione amministrativa",
+   "words": 633,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 4331/2014",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 4331/2014",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esclusivamente per esigenze organizzative e produttive, per la sicurezza del lavoro e per la tutela del patrimonio aziendale",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possono essere installati previo accordo collettivo stipulato dalla rappresentanza sindacale unitaria o dalle rappresentanze sindacali aziendali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ubicate in diverse province della stessa regione ovvero in più regioni, tale accordo può essere stipulato dalle associazioni sindacali comparativamente più rapp",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possono essere installati previa autorizzazione delle sede territoriale dell'Ispettorato nazionale del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la sede centrale dell'Ispettorato nazionale del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non si applica agli strumenti utilizzati dal lavoratore per rendere la prestazione lavorativa e agli strumenti di registrazione degli accessi e delle presenze",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "un impianto audiovisivo di controllo a distanza dei lavoratori delle casse del suo supermercato senza accordo con le rappresentanze sindacali e senza autorizzaz",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "insufficiente sarebbe a integrare il reato la installazione dell'impianto, essendo necessaria anche la verifica della sua idoneità a cagionare concrete consegue",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sede privilegiata per la sperimentazione di modelli di governance condivisa",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una declinazione ancora troppo generica dei contenuti informativi, la scarsa formalizzazione delle valutazioni di impatto, l'insufficiente disciplina della sorv",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una distanza rispetto a modelli più compiuti di accountability algoritmica in chiave partecipata",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 5,
+   "title": "Ambito di applicazione e definizioni",
+   "words": 599,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 51",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 2087",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 25",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 25",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "Regolamento (UE) 2016/679",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "brings personal data into a detailed regulatory regime",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'autorità pubblica indipendente istituita da uno Stato membro ai sensi dell'articolo 51",
+     "found": false,
+     "partial": "l'autorita pubblica indipendente istituita da uno stato membro"
+    },
+    {
+     "kind": "quote",
+     "text": "dal diritto dello Stato membro cui è soggetto il titolare del trattamento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la finalità del trattamento è determinata in tale base giuridica",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "tipologie di dati oggetto del trattamento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possono prevedere, con legge o tramite contratti collettivi, norme più specifiche per assicurare la protezione dei diritti e delle libertà con riguardo al tratt",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "assunzione, esecuzione del contratto di lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "gestione, pianificazione e organizzazione del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "protezione della proprietà del datore di lavoro o del cliente",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "includono misure appropriate e specifiche a salvaguardia della dignità umana, degli interessi legittimi e dei diritti fondamentali degli interessati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i sistemi di monitoraggio sul posto di lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è una formazione sociale nella quale va assicurata la tutela dei diritti, delle libertà fondamentali e della dignità degli interessati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "artt. 2 e 41, secondo comma, Cost.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "oltre all'attività lavorativa, la sfera personale e la vita privata di lavoratori e di terzi",
+     "found": false,
+     "partial": "lavorativa, la sfera personale e la vita privata"
+    },
+    {
+     "kind": "quote",
+     "text": "può essere tracciata a volte solo con difficoltà",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "misure tecniche e organizzative adeguate, quali la pseudonimizzazione",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i principi di protezione dei dati, quali la minimizzazione",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 6,
+   "title": "Principi di liceità, minimizzazione e trasparenza",
+   "words": 615,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "L. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "L. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "trattati in modo lecito, corretto e trasparente nei confronti dell'interessato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è lecito solo se conforme alle discipline di settore applicabili",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "diversi e autonomi livelli di garanzia, costituiti in primis dal Codice della Privacy nonché dall'art. 4 della L. 300/1970 a cui l'art. 88 rinvia, in combinato ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "devono essere configurati riducendo al minimo l´utilizzazione di dati personali e di dati identificativi",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "organizzativa e tecnologica volta a prevenire il rischio di utilizzi impropri",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "da preferire rispetto all´adozione di misure ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "deve essere ispirato ad un canone di trasparenza, come prevede anche la disciplina di settore ( art. 4, secondo comma, Statuto dei lavoratori )",
+     "found": false,
+     "partial": "deve essere ispirato ad un canone di trasparenza,"
+    },
+    {
+     "kind": "quote",
+     "text": "rispettare le procedure di informazione e di consultazione di lavoratori e sindacati in relazione all´introduzione o alla modifica di sistemi automatizzati per ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sulla base del criterio del tempo di conservazione dei log di posta elettronica, che non può superare i 21 giorni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "potrebbero comportare un controllo indiretto a distanza dei lavoratori e quindi essere inquadrati ai sensi del 1° co) dell'art. 4 dello Statuto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "potenzialmente idonei a raccogliere anche informazioni attinenti alla sfera personale o alle opinioni dell'interessato",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 7,
+   "title": "Basi giuridiche del trattamento nel rapporto di lavoro",
+   "words": 608,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "articolo 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 9",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "solo se e nella misura in cui ricorre almeno una delle seguenti condizioni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'interessato ha espresso il consenso al trattamento dei propri dati personali per una o più specifiche finalità",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la possibilità di acquisire il consenso risulta in concreto limitata dalle caratteristiche stesse dei sistemi di rilevazione",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è necessario all'esecuzione di un contratto di cui l'interessato è parte",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è necessario per adempiere un obbligo legale al quale è soggetto il titolare del trattamento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "necessario per il perseguimento del legittimo interesse del titolare del trattamento o di terzi, a condizione che non prevalgano gli interessi o i diritti e le ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "un legittimo interesse al trattamento in applicazione della disciplina sul c.d. bilanciamento di interessi",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "delle garanzie che lo Statuto prevede per il controllo ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " a distanza presupponendo non il consenso degli interessati, ma un accordo con le rappresentanze sindacali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "deve essere stabilita: a) dal diritto dell'Unione; o b) dal diritto dello Stato membro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "con legge o tramite contratti collettivi, norme più specifiche",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esecuzione del contratto di lavoro, compreso l'adempimento degli obblighi stabiliti dalla legge o da contratti collettivi",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "estende la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": false,
+     "partial": "la contrattazione con le parti sociali con specifico"
+    },
+    {
+     "kind": "quote",
+     "text": "può aprire ulteriori e interessanti opportunità di tutela e generare strumenti negoziali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "secondo cui il trattamento è lecito solo se conforme alle discipline di settore applicabili",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the establishment (through collective bargaining and/or legislation) of a trade union representative for data protection",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nella misura in cui sia autorizzato dal diritto dell'Unione o degli Stati membri o da un contratto collettivo",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 8,
+   "title": "Accountability e valutazione d'impatto (DPIA)",
+   "words": 542,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 21",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 21",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 22",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "più idonee, per il raggiungimento dell'obiettivo della gestione del rischio, derivante dal trattamento dei dati personali",
+     "found": false,
+     "partial": "piu idonee, per il raggiungimento dell'obiettivo della gestione"
+    },
+    {
+     "kind": "quote",
+     "text": "quando un tipo di trattamento, allorché prevede in particolare l'uso di nuove tecnologie, considerati la natura, l'oggetto, il contesto e le finalità del tratta",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "può esaminare un insieme di trattamenti simili che presentano rischi elevati analoghi",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "si consulta con il responsabile della protezione dei dati, qualora ne sia designato uno",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "procede a un riesame per valutare se il trattamento dei dati personali sia effettuato conformemente alla valutazione d'impatto sulla protezione dei dati almeno ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non viene previsto che la Data Protection Impact Assessment (DPIA) sia condivisa con le rappresentanze dei lavoratori né che la sua elaborazione avvenga con il ",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "direttiva piattaforme 2024/2831 richiede – pur limitatamente a quel settore – la messa a disposizione della valutazione d'impatto ai rappresentanti dei lavorato",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una integrazione partecipata dei processi di valutazione del rischio",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "emerge solo in via marginale negli accordi integrativi/protocolli analizzati",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "affrontato […] in modo più strutturato",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 9,
+   "title": "Il coordinamento tra GDPR e Codice privacy (D.Lgs. 196/2003)",
+   "words": 548,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "L. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "Garanzie in materia di controllo a distanza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "Resta fermo quanto disposto dall'articolo 4 della legge 20 maggio 1970, n. 300",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nel rispetto di quanto disposto dal decreto legislativo 30 giugno 2003, n. 196",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sono quelli stabiliti dall'art. 4 L. 20 maggio 1970, n. 300, richiamato dagli artt. 113 e 114 del Codice Privacy",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "recano tutele più specifiche rispetto all'art. 88 GDPR",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "tra le condizioni di liceità del trattamento,  il rispetto di quanto previsto dall'art. 4 della Legge n. 300 del 1970",
+     "found": false,
+     "partial": "il rispetto di quanto previsto dall'art. 4 della"
+    },
+    {
+     "kind": "quote",
+     "text": "possono essere utilizzati solo per scopi legati alla produzione e all'organizzazione, per la sicurezza del lavoro e dei beni dell'azienda",
+     "found": false,
+     "partial": "per scopi legati alla produzione e all'organizzazione, per"
+    },
+    {
+     "kind": "quote",
+     "text": "diversi e autonomi livelli di garanzia, costituiti in primis dal Codice della Privacy nonché dall'art. 4 della L. 300/1970 a cui l'art. 88 rinvia, in combinato ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "estende la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": false,
+     "partial": "la contrattazione con le parti sociali con specifico"
+    },
+    {
+     "kind": "quote",
+     "text": "una norma garantista, che rafforza l'art. 23, 3° co), del D.lgs 151/2015 (già art. 4 dello Statuto)",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "Alcune disposizioni di settore, fatte salve dal Codice, prevedono specifici divieti o limiti, come quelli posti dallo Statuto dei lavoratori sul controllo a dis",
+     "found": false,
+     "partial": "alcune disposizioni di settore, fatte salve dal codice,"
+    },
+    {
+     "kind": "quote",
+     "text": "va coordinata con regole di settore riguardanti il rapporto di lavoro e il connesso utilizzo di tecnologie, nelle quali è fatta salva o richiamata espressamente",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "con il combinato disposto dei suoi articoli 114 e 171",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 10,
+   "title": "Strumenti di lavoro e controlli difensivi",
+   "words": 742,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "gli strumenti utilizzati dal lavoratore per rendere la prestazione lavorativa e gli strumenti di registrazione degli accessi e delle presenze",
+     "found": false,
+     "partial": "gli strumenti utilizzati dal lavoratore per rendere la"
+    },
+    {
+     "kind": "quote",
+     "text": "a condizione che sia data al lavoratore adeguata informazione delle modalità d'uso degli strumenti e di effettuazione dei controlli",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "adeguata informazione delle modalità d'uso degli strumenti e di effettuazione dei controlli",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "acquisire per lungo tempo ed ininterrottamente ogni tipologia di dato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "finalizzati alla tutela di beni estranei al rapporto di lavoro o ad evitare comportamenti illeciti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " del datore di lavoro circa comportamenti illeciti di uno o più dipendenti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sempre che il controllo riguardi dati acquisiti successivamente all'insorgere del sospetto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non dovrebbe riferirsi all'esame ed all'analisi di informazioni acquisite in violazione delle prescrizioni di cui all'art. 4 St.lav.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'area del controllo difensivo si estenderebbe a dismisura, con conseguente annientamento della valenza delle predette prescrizioni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "e, poi, invocare la natura mirata (ex post) del controllo incentrato sull'esame ed analisi di quei dati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " del controllo non sana l'illegittimità della raccolta anteriore al sospetto.\n\nIl terzo presupposto è il bilanciamento. Deve essere assicurato «un corretto bila",
+     "found": false,
+     "partial": "corretto bilanciamento tra le esigenze di protezione di"
+    },
+    {
+     "kind": "quote",
+     "text": "mediante il richiamo ai principi di buona fede e correttezza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "tutti i dati relativi all'attività di lavoro svolta dall'insieme dei dipendenti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "predisposto prima ancora dell'emergere di qualsiasi sospetto",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "accertare l'inadempimento delle ordinarie obbligazioni contrattuali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "rischio naturale correlato all'attività imprenditoriale che la legge non consente di limitare",
+     "found": false,
+     "partial": "correlato all'attivita imprenditoriale che la legge non consente"
+    },
+    {
+     "kind": "quote",
+     "text": "sulla base del criterio del tempo di conservazione dei log di posta elettronica, che non può superare i 21 giorni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "potrebbero comportare un controllo indiretto a distanza dei lavoratori e quindi essere inquadrati ai sensi del 1° co) dell'art. 4 dello Statuto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "andrà condotta alla stregua della L. n. 300 del 1970, art. 4, in particolare dei suoi commi 2 e 3",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 11,
+   "title": "Videosorveglianza sul luogo di lavoro",
+   "words": 554,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 4331/2014",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "impianti audiovisivi e gli altri strumenti dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possono essere impiegati esclusivamente per esigenze organizzative e produttive, per la sicurezza del lavoro e per la tutela del patrimonio aziendale",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il divieto di controllo a distanza dell'attività lavorativa",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è vietata l'installazione di apparecchiature specificatamente preordinate alla predetta finalità",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'osservanza dei doveri di diligenza stabiliti per il rispetto dell'orario di lavoro e la correttezza nell'esecuzione della prestazione lavorativa (ad es. orien",
+     "found": false,
+     "partial": "dei doveri di diligenza stabiliti per il rispetto"
+    },
+    {
+     "kind": "quote",
+     "text": "è resa necessaria da esigenze organizzative o produttive, ovvero è richiesta per la sicurezza del lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possono essere installati previo accordo collettivo stipulato dalla rappresentanza sindacale unitaria o dalle rappresentanze sindacali aziendali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "gli impianti e gli strumenti di cui al primo periodo possono essere installati previa autorizzazione delle sede territoriale dell'Ispettorato nazionale del lavo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "oltre che della disciplina in materia di protezione dei dati personali, anche delle altre disposizioni dell'ordinamento applicabili",
+     "found": false,
+     "partial": "oltre che della disciplina in materia di protezione"
+    },
+    {
+     "kind": "quote",
+     "text": "sul controllo a distanza dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "presentano rischi specifici per i diritti e le libertà fondamentali degli interessati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "adottare le misure di sicurezza a protezione dei dati registrati tramite impianti di videosorveglianza",
+     "found": false,
+     "partial": "le misure di sicurezza a protezione dei dati"
+    },
+    {
+     "kind": "quote",
+     "text": "per avere installato un impianto audiovisivo di controllo a distanza dei lavoratori delle casse del suo supermercato senza accordo con le rappresentanze sindaca",
+     "found": false,
+     "partial": "installato un impianto audiovisivo di controllo a distanza"
+    },
+    {
+     "kind": "quote",
+     "text": "insufficiente sarebbe a integrare il reato la installazione dell'impianto, essendo necessaria anche la verifica della sua idoneità a cagionare concrete consegue",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 12,
+   "title": "Posta elettronica, internet e dispositivi aziendali",
+   "words": 597,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 13",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "può infatti formare oggetto di analisi, profilazione e integrale ricostruzione mediante elaborazione di log file della navigazione web ottenuti, ad esempio, da ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "attraverso la tenuta di log file di traffico e-mail",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "necessari per la sicurezza sul lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "nel rispetto dello Statuto dei lavoratori (art. 4, comma 2), di sistemi che consentono indirettamente un controllo a distanza (c.d. controllo preterintenzionale",
+     "found": false,
+     "partial": "di sistemi che consentono indirettamente un controllo a"
+    },
+    {
+     "kind": "quote",
+     "text": "in presenza di attività di controllo discontinue",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "secondo cui i sistemi informativi e i programmi informatici devono essere configurati riducendo al minimo l'utilizzazione di dati personali e di dati identifica",
+     "found": false,
+     "partial": "secondo cui i sistemi informativi e i programmi"
+    },
+    {
+     "kind": "quote",
+     "text": "configurazione di sistemi o utilizzo di filtri che prevengano determinate operazioni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "trattamento di dati in forma anonima o tale da precludere l'immediata identificazione di utenti mediante loro opportune aggregazioni (ad es., con riguardo ai fi",
+     "found": false,
+     "partial": "trattamento di dati in forma anonima o tale"
+    },
+    {
+     "kind": "quote",
+     "text": "eventuale conservazione nel tempo dei dati strettamente limitata al perseguimento di finalità organizzative, produttive e di sicurezza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "periodo di conservazione dei dati personali oppure, se non è possibile, i criteri utilizzati per determinare tale periodo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sulla base del criterio del tempo di conservazione dei log di posta elettronica, che non può superare i 21 giorni",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "potrebbero comportare un controllo indiretto a distanza dei lavoratori e quindi essere inquadrati ai sensi del 1° co) dell'art. 4 dello Statuto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "potenzialmente idonei a raccogliere anche informazioni attinenti alla sfera personale o alle opinioni dell'interessato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "di specificare le modalità di utilizzo della posta elettronica e della rete Internet",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "se, in che misura e con quali modalità vengano effettuati controlli",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ferma la necessità di rispettare le procedure di informazione e di consultazione di lavoratori e sindacati in relazione all'introduzione o alla modifica di sist",
+     "found": false,
+     "partial": "ferma la necessita di rispettare le procedure di"
+    },
+    {
+     "kind": "quote",
+     "text": "attenta valutazione dell'impatto sui diritti dei lavoratori",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è accordato l'utilizzo della posta elettronica e dell'accesso a Internet",
+     "found": false,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 13,
+   "title": "Geolocalizzazione, biometria e nuove tecnologie",
+   "words": 550,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 9",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 9",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 35",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "costituivano il controllo a distanza dei lavoratori e rientravano nell'ambito di applicabilità dell'art. 4 l. n. 300/1970",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "un controllo a distanza dell'ordinaria prestazione lavorativa, non la tutela di beni estranei al rapporto di lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è stato predisposto ex ante ed in via generale ben prima che si potessero avere sospetti su una eventuale violazione da parte del lavoratore",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "per ragioni di sicurezza in quanto richiesto dalla Questura di Rovigo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "il rispetto della disposizione di cui al comma 3 dell'art. 4 cit.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la società non aveva dato prova di aver rispettato gli adempimenti indicati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "proprio in ragione all'eccezionale deroga che la norma prevede in tema di utilizzabilità dei dati acquisiti con tali strumenti per ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": ", è necessario che la condizione indicata dalla norma sia attuata per ciascuno strumento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "adeguata informazione delle modalità d'uso degli strumenti e di effettuazione",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'uso generalizzato e incontrollato di tale tipologia di dati può comportare […] il concreto rischio del verificarsi di un pregiudizio rilevante per l'interessa",
+     "found": false,
+     "partial": "generalizzato e incontrollato di tale tipologia di dati"
+    },
+    {
+     "kind": "quote",
+     "text": "forma di trattamento automatizzato di dati personali consistente nell'utilizzo di tali dati personali per valutare determinati aspetti personali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "software e tecnologica, insita negli strumenti di sorveglianza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "estende la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": false,
+     "partial": "la contrattazione con le parti sociali con specifico"
+    }
+   ]
+  },
+  {
+   "section_index": 14,
+   "title": "Il lavoro agile e il controllo da remoto",
+   "words": 502,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 27",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 28",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 28",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 28",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 28",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "margini dell'esercizio del potere di controllo del datore di lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i dispositivi assegnati al lavoratore per esigenze organizzative e direttamente utilizzati da quest'ultimo non solo per lo svolgimento della prestazione lavorat",
+     "found": false,
+     "partial": "i dispositivi assegnati al lavoratore per esigenze organizzative"
+    },
+    {
+     "kind": "quote",
+     "text": "non risultano funzionali a tutto questo e hanno invece esclusive finalità di controllo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "riferimento agli aspetti di violazione della disciplina dei dati personali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la sfera personale e la vita privata di lavoratori e di terzi",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "può essere tracciata a volte solo con difficoltà",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "made by differentiation, adaptations, extensions, dilutions",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the reference to the individual, to her/his life project, and ultimately to her/his dignity",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "esclude la validità del consenso in presenza di un evidente squilibrio (di potere) tra titolare e interessato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "i trattamenti effettuati nell'ambito del rapporto di lavoro, mediante sistemi tecnologici, dai quali derivi la possibilità di effettuare un controllo a distanza",
+     "found": false,
+     "partial": "i trattamenti effettuati nell'ambito del rapporto di lavoro,"
+    },
+    {
+     "kind": "quote",
+     "text": "il consenso è in nuce viziato e non ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una valutazione relativa all'eccedenza del trattamento, in grado di giustificare i limiti alle libertà del lavoratore e ai diritti fondamentali",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 15,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 652,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 18168/2023",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "legge n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "possa soccorrere in questo contesto la distinzione tra i ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " in senso lato e quelli in senso stretto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "anche sotto l'impero della nuova versione dell'art. 4 St. lav. debba continuare a riconoscersi ai ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'effettività del divieto di controllo a distanza dell'attività dei lavoratori richiede che anche per i cosiddetti controlli difensivi trovino applicazione le g",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non possono essere utilizzati per provare",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": " meccanismi di controllo generalizzati e controlli che sono stati predisposti prima ancora dell'emergere di qualsiasi sospetto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "attraverso meccanismi illeciti di controllo a distanza sull'attività lavorativa e quindi in violazione dell'art. 4 l. n. 300",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": ", concetto elaborato dalla giurisprudenza precedentemente alla modifica dell'art. 4",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in nessun caso può essere giustificato un sostanziale annullamento di ogni forma di garanzia della dignità e riservatezza del lavoratore",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'esistenza di un ragionevole sospetto circa la commissione di illeciti connotati da gravità e la prefigurazione dell'entità dei danni economici",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "presenza di un sospetto di attività illecita",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "possa avere mano libera nel porre in essere controlli sul lavoratore interessato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non ha poi verificato la compatibilità del comportamento datoriale, e quindi della utilizzabilità dei dati informatici raccolti a fini disciplinari",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "se esso avesse ad oggetto esclusivamente dati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non volti ad accertare l'inadempimento delle ordinarie obbligazioni contrattuali (cfr. Cass., sez. lav., 5.10.2016, n. 19922)",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "anche dopo la modifica dell'art. 4 st. lav., ad opera dell'art. 23 del D.Lgs. n. 151 del 2015",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l'onere di allegare, prima, e di provare, poi, le specifiche circostanze che l'hanno indotto ad attivare il controllo tecnologico ex post",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sia perché solo il predetto sospetto consente l'azione datoriale fuori del perimetro di applicazione diretta dell'art. 4 st. lav.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "che l'installazione dell'apparecchio telepass sull'autovettura aziendale  rientrasse tra i cd. controlli difensivi",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non aver assolto l'obbligo di adeguata informazione del lavoratore",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 16,
+   "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+   "words": 758,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 27",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 41",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 34",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 35",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 35",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 34",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 21",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 56",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "on a breach of his right to respect for his private life and correspondence as enshrined in Article 8 of the Convention",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the Court set out a certain number of requirements that must be met by any monitoring of the correspondence and communications of employees if it is not to brea",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the employees concerned must have access to a remedy before an independent judicial body with jurisdiction to determine, at least in substance, whether the rele",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "must be cautious in taking on the role of a first-instance tribunal of fact",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "given the lack of prior information about the introduction of video-surveillance and the rights provided for in the data-protection legislation",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "had lasted for only ten days, from 15 to 25 June",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "only at those working in the checkout area",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "a legitimate aim, namely to shed light on an offence of which the company had been the victim",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "by adequate and sufficient safeguards against abuse",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "had continued throughout the working day and had involved filming not only the employees under suspicion but the whole staff",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "without prejudging the particular circumstances of each case",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in the light of the right to respect for private life, as guaranteed by Article 8 of the Convention",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "has to be duly justified and subject to a number of clear and specific safeguards",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in particolare nella sentenza di Grande Camera del 17 ottobre 2019, nel caso Lòpez Ribalda",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "imprescindibili tutele della dignità e della riservatezza del lavoratore",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "se il datore di lavoro avrebbe potuto utilizzare misure meno intrusive",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "confirm, extend, and transpose the Bărbulescu principles",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 17,
+   "title": "I provvedimenti e le Linee guida del Garante",
+   "words": 571,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 154, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 154, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 154, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 11, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 143, comma 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "dall´esame di diversi reclami, segnalazioni e quesiti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "artt. 24 e 154, comma 1, lett. b) e c) del Codice",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "prescrive ai datori di lavoro privati e pubblici, ai sensi dell´art. 154, comma 1, lett. c), del Codice",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "di specificare le modalità di utilizzo della posta elettronica e della rete Internet",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "vieta ai datori di lavoro privati e pubblici, ai sensi dell´art. 154, comma 1, lett. d), del Codice, di effettuare trattamenti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "al controllo a distanza di lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la lettura e la registrazione sistematica dei messaggi di posta elettronica ovvero dei relativi dati esteriori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la riproduzione e l´eventuale memorizzazione sistematica delle pagine web visualizzate dal lavoratore",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la lettura e la registrazione dei caratteri inseriti tramite la tastiera",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "l´analisi occulta di computer portatili affidati in uso",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sostituisce quello del 29 aprile 2004",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non forma oggetto di legislazione specifica",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "disposizioni generali in tema di protezione dei dati personali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "Visto il Codice in materia di protezione dei dati personali (d.lg. 30 giugno 2003, n. 196)",
+     "found": false,
+     "partial": "visto il codice in materia di protezione dei"
+    },
+    {
+     "kind": "quote",
+     "text": "rispetto di quanto previsto dall´art. 4 della Legge n. 300 del 1970",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "con l´autorizzazione dell´ispettorato del lavoro",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una condizione senza l´osservanza della quale non è possibile l´installazione",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "ai sensi dell´art. 154, comma 1, lett. c), del Codice",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "art. 11, comma 2, del Codice",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "provvedimenti di blocco o di divieto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "art. 143, comma 1, lett. c)",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "all´applicazione delle pertinenti sanzioni amministrative o penali (artt. 161 e ss. del Codice)",
+     "found": false,
+     "partial": "all applicazione delle pertinenti sanzioni amministrative o penali"
+    },
+    {
+     "kind": "quote",
+     "text": "the public bodies entrusted with regulating, monitoring and enforcing data protection",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "the sanctioning and non-sanctioning measures that can be taken by the supervisory authority",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 18,
+   "title": "Conclusioni",
+   "words": 518,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 24, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "D.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "L. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "Regolamento (UE) 2024/1689",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 15",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 25",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "come l'art. 23 del D.lgs. n. 151/2015 (già art. 4 del la legge n. 300 del 1970)",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "diversi e autonomi livelli di garanzia, costituiti in primis dal Codice della Privacy nonché dall'art. 4 della L. 300/1970 a cui l'art. 88 rinvia, in combinato ",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "al rispetto di quanto disposto dal decreto legislativo 30 giugno 2003, n. 196",
+     "found": false,
+     "partial": "rispetto di quanto disposto dal decreto legislativo 30"
+    },
+    {
+     "kind": "quote",
+     "text": "non il consenso degli interessati, ma un accordo con le rappresentanze sindacali",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "estende la contrattazione con le parti sociali con specifico riferimento al trattamento ulteriore dei dati personali",
+     "found": false,
+     "partial": "la contrattazione con le parti sociali con specifico"
+    },
+    {
+     "kind": "quote",
+     "text": "norma garantista, che rafforza l'art. 23, 3° co), del D.lgs 151/2015 (già art. 4 dello Statuto), basato sul mero diritto all'informazione dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "a key venue for experimenting with shared governance models",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "con approccio lungimirante e rivolto al futuro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "an overly generic articulation of information duties, limited formalisation of impact assessments, inadequate regulation of human oversight",
+     "found": false,
+     "partial": null
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "numbers": 393,
+  "numbers_missing": 0,
+  "quotes": 267,
+  "quotes_missing": 53
+ },
+ "corpus_chars": 862303
+}
