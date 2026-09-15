@@ -191,3 +191,30 @@ def test_quoted_share_counts_words_between_guillemets():
 
     assert quoted_share("Uno due «tre quattro» cinque.") == 2 / 5
     assert quoted_share("Senza virgolette.") == 0.0
+
+
+def test_section_issues_strip_bare_keys_and_flag_decision_years():
+    import re
+    from types import SimpleNamespace
+
+    from app.services.citation_render import section_issues
+
+    marker = re.compile(r"\[(STD:[^\[\]\n]+|[\w:./-]+)\]")
+    judgment = SimpleNamespace(
+        title="Corte di Cassazione, sezione lavoro, ordinanza 3 giugno 2024, n. 15391",
+        authors=["Corte di Cassazione"],
+        canonical_metadata={"verification_provider": "manager"},
+    )
+    text = (
+        "La Corte (Ke9df5a146528) conferma; cfr. anche K8737a9239957. "
+        "L'ordinanza n. 15391/2022 e la n. 15391/2024 «una citazione lunga abbastanza» (Rossi, 2020)."
+    )
+    section = {"raw_content": text, "section_index": 4}
+    cleaned, notes = section_issues(section, text, marker, {}, {"CASS": judgment}, 0.15)
+    assert "Ke9df5a146528" not in cleaned and "K8737a9239957" not in cleaned
+    assert cleaned.startswith("La Corte conferma; cfr. anche.")
+    assert dict(notes["warnings"]) == {
+        "citation_unresolved": "K8737a9239957; Ke9df5a146528",
+        "decision_year_mismatch": "n. 15391/2022 (fonte: 2024)",
+    }
+    assert notes["unpaged"] == ["§4: 1"] and notes["quoted"][0].startswith("§4: ")

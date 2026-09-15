@@ -359,16 +359,20 @@ def section_evidence(
         key=lambda t: (not is_legal_source(pack.by_key(t[2]).source), t[0], t[1], t[2])
     )
     budget = commentary if commentary is not None else {"cap": 10**6, "used": {}}
+    # Commentary is rationed only where primary legal evidence competes with
+    # it; in economics or computer science the articles are the evidence.
+    academic_cap = (
+        MAX_ACADEMIC_DOCUMENTS
+        if any(is_legal_source(pack.by_key(t[2]).source) for t in scored)
+        else MAX_SECTION_DOCUMENTS
+    )
     chosen_docs, academic = [], 0
     for row in scored:
         key = row[2]
         if len(chosen_docs) >= MAX_SECTION_DOCUMENTS:
             break
         if not is_legal_source(pack.by_key(key).source):
-            if (
-                academic >= MAX_ACADEMIC_DOCUMENTS
-                or budget["used"].get(key, 0) >= budget["cap"]
-            ):
+            if academic >= academic_cap or budget["used"].get(key, 0) >= budget["cap"]:
                 continue
             academic += 1
             budget["used"][key] = budget["used"].get(key, 0) + 1

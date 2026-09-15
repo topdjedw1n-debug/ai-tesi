@@ -5,12 +5,10 @@ from app.services.ai_pipeline.rag_retriever import SourceDoc
 from app.services.citation_render import (
     library_sources,
     page_counts,
-    pages_out_of_range,
-    quoted_share,
-    quotes_without_page,
     render_citations,
     suspect_entries,
 )
+from app.services.citation_render import section_issues as issues_of
 from app.services.source_evidence import evidence_text
 
 from .sections import MARKER
@@ -71,16 +69,11 @@ async def resolve_references(ctx, sections, pack):
                     section_index=section["section_index"],
                     detail=key,
                 )
-        if count := quotes_without_page(text):
-            unpaged.append(f"§{section['section_index']}: {count}")
-        if (share := quoted_share(text)) > QUOTE_SHARE_LIMIT:
-            quoted.append(f"§{section['section_index']}: {round(100 * share)} %")
-        if bad := pages_out_of_range(section["raw_content"], MARKER, pages):
-            await ctx.warn(
-                "page_out_of_range",
-                section_index=section["section_index"],
-                detail="; ".join(bad),
-            )
+        text, notes = issues_of(section, text, MARKER, pages, known, QUOTE_SHARE_LIMIT)
+        unpaged += notes["unpaged"]
+        quoted += notes["quoted"]
+        for code, detail in notes["warnings"]:
+            await ctx.warn(code, section_index=section["section_index"], detail=detail)
         section["content"], section["word_count"] = text, len(text.split())
         section["bibliography"] = [
             r["formatted"]

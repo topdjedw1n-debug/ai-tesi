@@ -211,3 +211,63 @@ def quoted_share(text: str) -> float:
     words = max(1, len(text.split()))
     quoted = sum(len(m.split()) for m in re.findall(r"«([^»]{1,800})»", text))
     return quoted / words
+
+
+BARE_KEY = re.compile(r"(?<![\w\[])K[0-9a-f]{12}(?![\w\]])")
+DECISION = re.compile(r"\bn\.\s*(\d{3,6})\b")
+YEAR = re.compile(r"\b(?:19|20)\d{2}\b")
+SLASHED = re.compile(r"\b(\d{3,6})/((?:19|20)\d{2})\b")
+
+
+def decision_years(known: dict[str, Any]) -> dict[str, str]:
+    """Decision number -> year, from the titles of the legal sources."""
+    years: dict[str, str] = {}
+    for source in known.values():
+        title = str(getattr(source, "title", "") or "")
+        if not is_legal_source(source):
+            continue
+        number, year = DECISION.search(title), YEAR.search(title)
+        if number and year:
+            years[number.group(1)] = year.group(0)
+    return years
+
+
+def section_issues(
+    section: dict[str, Any],
+    text: str,
+    marker: Any,
+    pages: dict[str, int],
+    known: dict[str, Any],
+    quote_limit: float,
+) -> tuple[str, dict[str, Any]]:
+    """Text with bare pack keys removed, plus the advisory findings of S5:
+    per-work lists (quotes without page, quoted share) and per-section
+    warnings as (code, detail) pairs."""
+    raw, index = section["raw_content"], section["section_index"]
+    bare = sorted(set(BARE_KEY.findall(text)))
+    for key in bare:
+        text = re.sub(r"\s*\(?" + re.escape(key) + r"\)?", "", text)
+    years = decision_years(known)
+    mismatched = sorted(
+        {
+            f"n. {n}/{y} (fonte: {years[n]})"
+            for n, y in SLASHED.findall(text)
+            if n in years and years[n] != y
+        }
+    )
+    unpaged = quotes_without_page(text)
+    share = quoted_share(text)
+    warnings = [
+        (code, "; ".join(found))
+        for code, found in (
+            ("page_out_of_range", pages_out_of_range(raw, marker, pages)),
+            ("citation_unresolved", bare),
+            ("decision_year_mismatch", mismatched),
+        )
+        if found
+    ]
+    return text, {
+        "unpaged": [f"§{index}: {unpaged}"] if unpaged else [],
+        "quoted": [f"§{index}: {round(100 * share)} %"] if share > quote_limit else [],
+        "warnings": warnings,
+    }

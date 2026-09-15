@@ -333,14 +333,13 @@ def test_section_evidence_keeps_at_most_four_documents_by_relevance():
     }
     items, report = section_evidence(pack, section, [])
     windowed = [r for r in report if r["windows"]]
-    # Six academic documents: only MAX_ACADEMIC_DOCUMENTS carry windows.
-    from app.services.section_material import MAX_ACADEMIC_DOCUMENTS
-
-    assert len(windowed) == MAX_ACADEMIC_DOCUMENTS == 2 and MAX_SECTION_DOCUMENTS == 4
+    # Six academic documents and no legal evidence: the section cap applies,
+    # not the commentary ration (that one only bites next to statutes).
+    assert len(windowed) == MAX_SECTION_DOCUMENTS == 4
     # The planned documents below the cap keep their excerpts, marked capped.
     rest = [r for r in report if not r["windows"]]
-    assert len(rest) == 4 and all(r["capped"] and not r["gap"] for r in rest)
-    assert [i["text"] for i in items[2:]] == [
+    assert len(rest) == 2 and all(r["capped"] and not r["gap"] for r in rest)
+    assert [i["text"] for i in items[4:]] == [
         evidence_text(pack.by_key(r["key"]).source) for r in rest
     ]
 
@@ -426,3 +425,22 @@ def test_legal_documents_contribute_at_most_three_windows(monkeypatch):
     act = next(r for r in report if r["key"] == "KGARANTE")
     assert act["windows"] == MAX_LEGAL_WINDOWS == 3
     assert next(r for r in report if r["key"] == "KDOC")["windows"] >= 1
+
+
+def test_academic_documents_are_not_rationed_where_no_legal_evidence_competes():
+    text = "Recommender systems collaborative filtering evaluation dataset. " * 6
+    passages = []
+    specs = []
+    for n in range(4):
+        passages += document_windows(f"KP{n}", f"u{n}", [text + "experiment " * n])
+        specs.append((f"KP{n}", f"Paper {n}", "Abstract.", f"u{n}"))
+    pack = pack_with(*specs, passages=passages)
+    section = {
+        "title": "Collaborative filtering evaluation",
+        "purpose": "recommender systems dataset evaluation",
+        "main_points": [],
+        "scope_ids": [],
+        "evidence_keys": [f"KP{n}" for n in range(4)],
+    }
+    items, report = section_evidence(pack, section, [])
+    assert sum(1 for r in report if r["windows"]) == 4

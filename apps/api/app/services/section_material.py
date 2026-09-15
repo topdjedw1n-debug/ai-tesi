@@ -40,9 +40,11 @@ def is_frame(section: dict[str, Any]) -> bool:
 
 
 def writing_order(outline: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    """Body sections in plan order, then the framing sections in plan order."""
+    """Body sections in plan order, then the framing sections last-to-first:
+    the conclusions before the introduction, so the introduction is written
+    from the conclusions' own anchors."""
     body = [s for s in outline if not is_frame(s)]
-    return body + [s for s in outline if is_frame(s)]
+    return body + [s for s in reversed(outline) if is_frame(s)]
 
 
 def summaries(written: list[dict[str, Any]], chars: int) -> list[dict[str, str]]:

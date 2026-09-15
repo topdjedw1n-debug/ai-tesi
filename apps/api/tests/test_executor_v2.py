@@ -206,6 +206,7 @@ def test_spec_guardrails():
         "quote_without_page",
         "page_out_of_range",
         "quote_share_high",
+        "decision_year_mismatch",
     }
     from app.services.background_jobs import BackgroundJobService
 
@@ -1290,8 +1291,8 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
         ctx.state["sections_total"] = 3
         ctx.provider.side_effect = [
             response("Corpo del capitolo con [" + keys[0] + "]. Fine."),
-            response("Introduzione scritta per ultima. Fine."),
             response("Conclusioni dalle evidenze. Fine."),
+            response("Introduzione scritta per ultima. Fine."),
         ]
         result = await write_sections(ctx, outline, pack)
     finally:
@@ -1300,20 +1301,20 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
         c.kwargs["messages"][0]["content"] for c in ctx.provider.await_args_list[-3:]
     ]
     bodies = [json.loads(p[p.index('{"forbidden_placeholders"') :]) for p in prompts]
-    # Writing order: the body first, then the framing sections in plan order.
-    assert [b["section"]["section_index"] for b in bodies] == [2, 1, 3]
+    # Writing order: the body first, then the conclusions, then the introduction.
+    assert [b["section"]["section_index"] for b in bodies] == [2, 3, 1]
     assert FRAME_RULE.strip() not in prompts[0] and "findings" not in bodies[0]
     assert FRAME_RULE.strip() in prompts[1] and FRAME_RULE.strip() in prompts[2]
-    # The introduction poses the question, the conclusions answer it.
-    assert "Pose the research question" in prompts[1]
-    assert "Answer the research question" in prompts[2]
+    # The conclusions answer the question; the introduction, written last,
+    # poses it from the conclusions' own anchors.
+    assert "Answer the research question" in prompts[1]
+    assert "pose the research question" in prompts[2]
     assert bodies[1]["previous_summaries"] == []
     assert [c["title"] for c in bodies[1]["findings"]] == ["Il sonno in reparto"]
     assert bodies[1]["findings"][0]["facts"][0].startswith("Corpo del capitolo")
-    # The conclusions see the finished introduction as well.
     assert [c["title"] for c in bodies[2]["findings"]] == [
-        "Introduzione",
         "Il sonno in reparto",
+        "Conclusioni e prospettive",
     ]
     # The result keeps the plan order whatever the writing order.
     assert [s["section_index"] for s in result] == [1, 2, 3]

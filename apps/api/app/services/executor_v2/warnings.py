@@ -48,6 +48,10 @@ WARNING_CODES = {
     "review_negative": ("warning", "Академічний огляд виявив недоліки готової роботи."),
     "review_note": ("info", "Академічний огляд залишив зауваження до готової роботи."),
     "page_out_of_range": ("warning", "Сторінка поза межами документа."),
+    "decision_year_mismatch": (
+        "warning",
+        "Рік рішення в тексті не збігається з джерелом.",
+    ),
     "quote_share_high": ("warning", "Забагато цитат у лапках (понад 15 %)."),
     "quote_without_page": (
         "info",

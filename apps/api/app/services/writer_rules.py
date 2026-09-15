@@ -9,8 +9,9 @@ only from page-labelled excerpts, and the framing sections are written from
 a table of anchored findings rather than from whole chapters.
 """
 
-S3_PLAN_RULES = """Every section must be tellable from a primary source of the pack (a statute or judgment, an act, a dataset, a case study, a document the manager uploaded): put that key first in evidence_keys. Do not create separate sections that only synthesise, coordinate or discuss other sections (no "coordination between regimes", "role of", "discussion of results" chapters) unless the supervisor index requires them; fold that material into the section about the source it rests on.
-For each section also give "question" (what the section answers), "evidence_plan" (what each key contributes, one line) and "conclusion" (the answer the evidence allows).
+S3_PLAN_RULES = """Every section must be tellable from primary evidence in the pack, and that key comes first in evidence_keys. Primary evidence by discipline: in law a statute, a judgment, an authority's act or guideline; in economics and management an original empirical study, a dataset with its methodology, a documented case, or the work that introduces a theoretical model; in computer science a paper with an original algorithm, experiment or proof, a specification or system documentation, or a dataset with its evaluation protocol. A document counts by its role, not by how it reached the pack.
+Do not create sections that only generalise without evidence (a "coordination between regimes", "role of" or "discussion" chapter written from commentary) unless the supervisor index requires them, and no section whose job is to walk the reader through one act or guideline: retell an act's two or three consequences inside the section on the case or norm they concern. Synthesis of several sources is welcome when every claim in it rests on their evidence. A section's first key is a concrete thing (a table, a case, a dataset, a benchmark, an article, a decision), not a topic or a literature review; fold commentary into the section about the evidence it comments on.
+For each section also give "question" (what the section answers), "evidence_plan" (for each key: which claim it supports, where, under which conditions; what is compared; which conclusion that allows) and "conclusion" (the answer the evidence allows).
 """
 
 S4_INSTRUCTION = """
@@ -30,7 +31,7 @@ FRAME_RULE = """This section frames the whole work; it is written LAST from find
 
 INTRO_RULE = (
     FRAME_RULE
-    + """Pose the research question and show why it is open, using at least four facts from findings with their [KEY] and locator; keep the whole section to about two thirds of target_words_range. Do not answer the question, do not describe the structure of the work, do not announce what each chapter does, do not discuss the sources as a corpus, and do not write paragraphs of general framing without an anchored fact in them.
+    + """The conclusions are already written: open with the problem stated through one fact from findings (an article, a number, a case), pose the research question and show why it is open with at least four facts from findings, citing only keys that appear in findings; keep the section shorter than the conclusions and at most two thirds of target_words_range. Do not answer the question, do not describe the structure of the work, do not announce what each chapter does, do not discuss the sources as a corpus, and write no paragraph of general framing without an anchored fact in it.
 """
 )
 
