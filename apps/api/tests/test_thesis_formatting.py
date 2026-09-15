@@ -90,3 +90,67 @@ def test_table_of_contents_field_updates_on_open():
     assert docx.settings.element.xml.count("w:updateFields") == 1
     assert [p.text for p in docx.paragraphs][1] == "Indice"
     assert "w:br" in xml  # the contents page ends with a page break
+
+
+def test_chapter_headings_come_from_the_supervisor_tree_when_the_plan_skips_them():
+    from app.services.docx_export import assemble_document, with_chapter_headings
+
+    nodes = [
+        {"scope_id": "scope-1", "title": "Introduzione", "children": []},
+        {
+            "scope_id": "scope-2",
+            "title": "Capitolo I. Evoluzione dell'art. 4",
+            "children": [
+                {
+                    "scope_id": "scope-3",
+                    "title": "Formulazione originaria",
+                    "children": [],
+                },
+                {"scope_id": "scope-4", "title": "Riforma", "children": []},
+            ],
+        },
+        {"scope_id": "scope-5", "title": "Conclusioni", "children": []},
+    ]
+    flat = [nodes[0], nodes[1], *nodes[1]["children"], nodes[2]]
+    sections = [
+        {
+            "title": "Introduzione",
+            "level": 1,
+            "scope_ids": ["scope-1"],
+            "content": "Intro.",
+        },
+        {
+            "title": "Formulazione originaria",
+            "level": 2,
+            "scope_ids": ["scope-3"],
+            "content": "A.",
+        },
+        {"title": "Riforma", "level": 2, "scope_ids": ["scope-4"], "content": "B."},
+        {
+            "title": "Conclusioni",
+            "level": 1,
+            "scope_ids": ["scope-5"],
+            "content": "Fine.",
+        },
+    ]
+    out = with_chapter_headings(sections, flat)
+    assert [s["title"] for s in out] == [
+        "Introduzione",
+        "Capitolo I. Evoluzione dell'art. 4",
+        "Formulazione originaria",
+        "Riforma",
+        "Conclusioni",
+    ]
+    text = assemble_document(out, [], "it")
+    assert "# Capitolo I. Evoluzione dell'art. 4" in text
+    assert "## 1.1 Formulazione originaria" in text and "## 1.2 Riforma" in text
+    # A plan that already carries the chapter as a level-1 section is left alone.
+    direct = [
+        {
+            "title": "Capitolo I. Evoluzione dell'art. 4",
+            "level": 1,
+            "scope_ids": ["scope-2"],
+            "content": "C.",
+        }
+    ]
+    assert with_chapter_headings(direct, flat) == direct

@@ -71,6 +71,36 @@ def normalize_typography(text: str) -> str:
     return re.sub(r"[ \t]{2,}", " ", text)
 
 
+def with_chapter_headings(
+    sections: list[dict[str, Any]], nodes: list[dict[str, Any]]
+) -> list[dict[str, Any]]:
+    """Insert a chapter heading (level 1, no body) before the first section of
+    every root scope that no section represents itself: the plan maps
+    sub-sections to the chapter's children and the reviewer still wants the
+    chapter line and the 1.1 numbering under it."""
+    child_ids = {c.get("scope_id") for n in nodes for c in n.get("children", [])}
+    roots = [n for n in nodes if n.get("scope_id") not in child_ids]
+
+    def descendants(node):
+        return {node.get("scope_id")} | {
+            d for c in node.get("children", []) for d in descendants(c)
+        }
+
+    out: list[dict[str, Any]] = []
+    placed: set[str] = set()
+    for section in sections:
+        ids = set(section.get("scope_ids") or [])
+        for root in roots:
+            rid = root.get("scope_id")
+            if rid in placed or not ids & descendants(root):
+                continue
+            placed.add(rid)
+            if rid not in ids or int(section.get("level") or 1) != 1:
+                out.append({"title": root["title"], "level": 1, "content": ""})
+        out.append(section)
+    return out
+
+
 def assemble_document(
     sections: list[dict[str, Any]], bibliography: list[dict[str, Any]], language: str
 ) -> str:

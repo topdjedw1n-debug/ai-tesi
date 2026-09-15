@@ -6,6 +6,7 @@ from app.services.citation_render import (
     library_sources,
     page_counts,
     pages_out_of_range,
+    quoted_share,
     quotes_without_page,
     render_citations,
     suspect_entries,
@@ -15,12 +16,14 @@ from app.services.source_evidence import evidence_text
 from .sections import MARKER
 from .sources import verify
 
+QUOTE_SHARE_LIMIT = 0.15
+
 
 async def resolve_references(ctx, sections, pack):
     known = {s.citation_key: s.source for s in pack.sources if evidence_text(s.source)}
     known = {**library_sources(ctx.inputs["library"]), **known}
     pages = page_counts(pack)
-    bibliography, unpaged = {}, []
+    bibliography, unpaged, quoted = {}, [], []
     style = CitationStyle(ctx.inputs["brief"]["citation_style"])
     for section in sections:
         text = section["content"]
@@ -70,6 +73,8 @@ async def resolve_references(ctx, sections, pack):
                 )
         if count := quotes_without_page(text):
             unpaged.append(f"§{section['section_index']}: {count}")
+        if (share := quoted_share(text)) > QUOTE_SHARE_LIMIT:
+            quoted.append(f"§{section['section_index']}: {round(100 * share)} %")
         if bad := pages_out_of_range(section["raw_content"], MARKER, pages):
             await ctx.warn(
                 "page_out_of_range",
@@ -88,5 +93,7 @@ async def resolve_references(ctx, sections, pack):
         await ctx.warn("bibliography_suspect", detail="; ".join(suspects))
     if unpaged:
         await ctx.warn("quote_without_page", detail="; ".join(unpaged))
+    if quoted:
+        await ctx.warn("quote_share_high", detail="; ".join(quoted))
     await ctx.emit("executor_bibliography", {"entries": list(bibliography.values())})
     return list(bibliography.values())

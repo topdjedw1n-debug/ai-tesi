@@ -10,7 +10,7 @@ from app.core import database
 from app.models.document import DocumentProvenance
 from app.services.cost_estimator import UsageTracker
 from app.services.document_service import DocumentService
-from app.services.docx_export import assemble_document
+from app.services.docx_export import assemble_document, with_chapter_headings
 from app.services.generation_operations import journal_usage
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.generation_worker import (
@@ -42,7 +42,11 @@ async def assemble(ctx, sections, bibliography, pack):
                 section_index=section["section_index"],
                 detail="; ".join(sorted({m.casefold() for m in matches})),
             )
-    content = assemble_document(sections, bibliography, ctx.inputs["brief"]["language"])
+    content = assemble_document(
+        with_chapter_headings(sections, getattr(ctx, "scopes", [])),
+        bibliography,
+        ctx.inputs["brief"]["language"],
+    )
     try:
         async with database.AsyncSessionLocal() as db:
             await update_generation_document(

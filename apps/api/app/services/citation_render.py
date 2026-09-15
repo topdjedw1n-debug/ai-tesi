@@ -204,3 +204,10 @@ def page_counts(pack: Any) -> dict[str, int]:
             counts.get(passage.citation_key, 0), passage.page_number
         )
     return counts
+
+
+def quoted_share(text: str) -> float:
+    """Share of the words inside «…» quotation marks."""
+    words = max(1, len(text.split()))
+    quoted = sum(len(m.split()) for m in re.findall(r"«([^»]{1,800})»", text))
+    return quoted / words

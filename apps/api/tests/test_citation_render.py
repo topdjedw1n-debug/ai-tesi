@@ -184,3 +184,10 @@ def test_statutes_are_cited_by_article_and_judgments_keep_their_page():
     assert "n. 15391, p. 3)" in out
     quoted = "«una citazione lunga abbastanza» (Legge 20 maggio 1970, n. 300, art. 4, comma 1)."
     assert quotes_without_page(quoted) == 0
+
+
+def test_quoted_share_counts_words_between_guillemets():
+    from app.services.citation_render import quoted_share
+
+    assert quoted_share("Uno due «tre quattro» cinque.") == 2 / 5
+    assert quoted_share("Senza virgolette.") == 0.0
