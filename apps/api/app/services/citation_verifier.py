@@ -63,7 +63,11 @@ YEAR_TOLERANCE = 1
 MAX_ABSTRACT_LENGTH = 2000  # cap stored in cache + canonical_metadata
 RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 DEFAULT_RETRY_DELAYS = [1.0, 2.0, 4.0]
-USER_AGENT = "Thesica-CitationVerifier/1.0"
+# The mailto puts Crossref and OpenAlex calls into their polite pools; the
+# anonymous pool throttled a single job with HTTP 429 on 15.09.2026.
+USER_AGENT = (
+    "Thesica-CitationVerifier/1.0 (https://thesica.ai; mailto:research@thesica.ai)"
+)
 
 PROVIDER_CROSSREF = "crossref"
 PROVIDER_OPENALEX = "openalex"
