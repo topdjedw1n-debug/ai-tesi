@@ -274,6 +274,18 @@ class _MinIntervalLimiter:
 
 
 _SHARED_LIMITERS: dict[tuple[int, str, float], _MinIntervalLimiter] = {}
+_SHARED_SLOTS: dict[tuple[int, str], asyncio.Semaphore] = {}
+CATALOGUE_CONCURRENCY = 3  # Crossref's polite pool: x-concurrency-limit 3 (16.09.2026)
+
+
+def shared_slot(provider: str) -> asyncio.Semaphore:
+    """One in-flight budget per provider for the whole process: the rate
+    limiter spaces call starts, this bounds how many requests run at once."""
+    key = (id(asyncio.get_running_loop()), provider)
+    slot = _SHARED_SLOTS.get(key)
+    if slot is None:
+        slot = _SHARED_SLOTS[key] = asyncio.Semaphore(CATALOGUE_CONCURRENCY)
+    return slot
 
 
 def shared_limiter(provider: str, rps: float) -> _MinIntervalLimiter:
@@ -286,6 +298,15 @@ def shared_limiter(provider: str, rps: float) -> _MinIntervalLimiter:
     if limiter is None:
         limiter = _SHARED_LIMITERS[key] = _MinIntervalLimiter(rps)
     return limiter
+
+
+def _retry_after(response: httpx.Response) -> float | None:
+    """Seconds a catalogue asks us to wait, capped so one header cannot stall a job."""
+    value = response.headers.get("Retry-After")
+    try:
+        return min(float(value), 30.0) if value else None
+    except ValueError:
+        return None
 
 
 @dataclass
@@ -692,14 +713,18 @@ class CitationVerifier:
         if headers:
             merged_headers.update(headers)
         while True:
-            await self._limiter(provider).acquire()
             error: str
             retryable: bool
+            retry_after = None
             try:
-                async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
-                    response = await client.get(
-                        url, params=params, headers=merged_headers
-                    )
+                async with shared_slot(provider):
+                    await self._limiter(provider).acquire()
+                    async with httpx.AsyncClient(
+                        timeout=self.timeout_seconds
+                    ) as client:
+                        response = await client.get(
+                            url, params=params, headers=merged_headers
+                        )
                 if response.status_code == 404:
                     return "not_found", None
                 response.raise_for_status()
@@ -707,6 +732,7 @@ class CitationVerifier:
             except httpx.HTTPStatusError as e:
                 status_code = e.response.status_code
                 retryable = status_code in RETRYABLE_STATUS
+                retry_after = _retry_after(e.response)
                 error = f"HTTP {status_code}"
             except httpx.HTTPError as e:  # timeouts, network, protocol errors
                 retryable = True
@@ -717,6 +743,7 @@ class CitationVerifier:
 
             if retryable and attempt < self.max_retries:
                 delay = self.retry_delays[min(attempt, len(self.retry_delays) - 1)]
+                delay = max(delay, retry_after or 0.0)
                 logger.warning(
                     f"Citation API {provider} attempt {attempt + 1} failed "
                     f"({error}), retrying in {delay}s"

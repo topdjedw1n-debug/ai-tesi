@@ -191,6 +191,7 @@ def test_spec_guardrails():
         "source_no_readable_text",
         "source_full_text_unavailable",
         "section_without_documents",
+        "catalogue_unavailable",
         "standard_reference_used",
         "outline_scope_unmapped",
         "output_truncated_retried",
@@ -625,7 +626,11 @@ async def test_search_transport_failure_warns_and_continues(db_session, monkeypa
     finally:
         recording_context.reset(token)
     assert not pack.sources and outline
-    assert ctx.warnings[0]["code"] == "source_coverage_gap"
+    codes = [w["code"] for w in ctx.warnings]
+    # Every catalogue failed on every query: the manager learns that the
+    # catalogues were unavailable, not only that the coverage is thin.
+    assert codes[:3] == ["catalogue_unavailable"] * 3
+    assert "source_coverage_gap" in codes
 
 
 def test_missing_year_and_institutional_author_apa():

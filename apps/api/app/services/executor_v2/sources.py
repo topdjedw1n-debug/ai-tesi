@@ -12,11 +12,14 @@ from app.services.full_text_sources import attach_full_text, open_access_link
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
+from app.services.search_queries import on_topic, plan
 from app.services.source_evidence import evidence_text, freeze_evidence
 from app.services.uploaded_sources import SourcePassage
 
 from .budgets import POLICY
 from .scopes import flatten
+
+PROVIDERS = ("semantic_scholar", "crossref", "openalex")
 
 
 @recorded_dependency("executor_search")
@@ -45,33 +48,32 @@ async def build_sources(ctx, scopes):
     semaphore = asyncio.Semaphore(POLICY["search_concurrency"])
     topic = ctx.inputs["brief"]["topic"]
 
-    async def fetch(node, provider, query):
+    async def fetch(scope_id, provider, query):
         async with semaphore:
             try:
-                return node["scope_id"], await search(provider, query)
+                return scope_id, provider, await search(provider, query)
             except (RecordingPersistenceError, ReplayIncomplete):
                 raise
             except Exception:
-                return node["scope_id"], []
+                return scope_id, provider, None
 
-    requests = []
-    for node in nodes:
-        terms = [
-            " ".join(node["terms_local"]),
-            " ".join(node["terms_en"]),
-            node["title"],
-        ]
-        for query in list(dict.fromkeys(terms))[: POLICY["queries_per_scope"]]:
-            for provider in ("semantic_scholar", "crossref", "openalex"):
-                requests.append(fetch(node, provider, query))
-    found = await asyncio.gather(*requests)
+    queries, parents, anchors = plan(topic, scopes)
+    found = await asyncio.gather(
+        *[fetch(s, p, q) for s, q in queries for p in PROVIDERS]
+    )
+    for provider in PROVIDERS:
+        tries = [r for r in found if r[1] == provider]
+        if tries and sum(r[2] is None for r in tries) >= 0.8 * len(tries):
+            await ctx.warn("catalogue_unavailable", detail=provider)
     candidates = {}
-    for scope_id, rows in found:
-        for row in rows:
+    for scope_id, _, rows in found:
+        for row in rows or []:
+            if not on_topic(row, anchors):
+                continue
             identity = (row.get("doi") or row["title"]).strip().lower()
             if identity not in candidates:
                 candidates[identity] = {"source": row, "scopes": set()}
-            candidates[identity]["scopes"].add(scope_id)
+            candidates[identity]["scopes"].update({scope_id, parents.get(scope_id)})
             first = candidates[identity]["source"]
             if not first.get("abstract") and row.get("abstract"):
                 first["abstract"] = row["abstract"]
@@ -103,7 +105,7 @@ async def build_sources(ctx, scopes):
             **metadata,
             "origin": "pack",
             "verification_provider": metadata["provider"],
-            "scope_ids": sorted(item["scopes"]),
+            "scope_ids": sorted(filter(None, item["scopes"])),
         }
         if open_access_link(item["source"]):
             source.canonical_metadata["open_access_url"] = open_access_link(

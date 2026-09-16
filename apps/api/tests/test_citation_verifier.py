@@ -656,3 +656,24 @@ async def test_default_limiters_are_shared_across_verifiers_in_one_process():
     for _ in range(3):
         await limiter.acquire()
     assert time.monotonic() - started >= 0.04
+
+
+@pytest.mark.asyncio
+async def test_catalogue_slots_are_shared_per_provider_and_bounded():
+    from app.services.citation_verifier import CATALOGUE_CONCURRENCY, shared_slot
+
+    slot = shared_slot("test-catalogue-slot")
+    assert slot is shared_slot("test-catalogue-slot")
+    assert slot is not shared_slot("other-catalogue")
+    assert slot._value == CATALOGUE_CONCURRENCY == 3
+
+
+def test_retry_after_header_is_honoured_and_capped():
+    import httpx
+
+    from app.services.citation_verifier import _retry_after
+
+    assert _retry_after(httpx.Response(429, headers={"Retry-After": "7"})) == 7.0
+    assert _retry_after(httpx.Response(429, headers={"Retry-After": "600"})) == 30.0
+    assert _retry_after(httpx.Response(429, headers={"Retry-After": "soon"})) is None
+    assert _retry_after(httpx.Response(429)) is None

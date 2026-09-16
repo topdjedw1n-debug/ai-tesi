@@ -1,0 +1,482 @@
+{
+ "topic": "Strategie di digital marketing per le piccole e medie imprese italiane: il ruolo dei social media nella fidelizzazione del cliente",
+ "nodes": [
+  {
+   "title": "Introduzione",
+   "required": true,
+   "terms_local": [
+    "introduzione",
+    "obiettivi della ricerca",
+    "domande di ricerca"
+   ],
+   "terms_en": [
+    "introduction",
+    "research objectives",
+    "research questions"
+   ],
+   "children": [],
+   "scope_id": "scope-1"
+  },
+  {
+   "title": "Capitolo 1 - Quadro teorico del marketing digitale",
+   "required": true,
+   "terms_local": [
+    "marketing digitale",
+    "quadro teorico"
+   ],
+   "terms_en": [
+    "digital marketing",
+    "theoretical framework"
+   ],
+   "children": [
+    {
+     "title": "Definizione ed evoluzione del marketing digitale",
+     "required": true,
+     "terms_local": [
+      "definizione di marketing digitale",
+      "evoluzione del marketing digitale"
+     ],
+     "terms_en": [
+      "definition of digital marketing",
+      "evolution of digital marketing"
+     ],
+     "children": [],
+     "scope_id": "scope-3"
+    },
+    {
+     "title": "Dal marketing tradizionale al marketing digitale",
+     "required": true,
+     "terms_local": [
+      "marketing tradizionale",
+      "transizione digitale"
+     ],
+     "terms_en": [
+      "traditional marketing",
+      "digital transition"
+     ],
+     "children": [],
+     "scope_id": "scope-4"
+    },
+    {
+     "title": "Strumenti e canali del marketing digitale",
+     "required": true,
+     "terms_local": [
+      "strumenti digitali",
+      "canali digitali",
+      "SEO",
+      "content marketing",
+      "email marketing"
+     ],
+     "terms_en": [
+      "digital tools",
+      "digital channels",
+      "SEO",
+      "content marketing",
+      "email marketing"
+     ],
+     "children": [],
+     "scope_id": "scope-5"
+    },
+    {
+     "title": "Il marketing digitale nelle PMI italiane",
+     "required": true,
+     "terms_local": [
+      "piccole e medie imprese",
+      "PMI italiane",
+      "digitalizzazione delle PMI"
+     ],
+     "terms_en": [
+      "small and medium enterprises",
+      "Italian SMEs",
+      "SME digitalization"
+     ],
+     "children": [],
+     "scope_id": "scope-6"
+    }
+   ],
+   "scope_id": "scope-2"
+  },
+  {
+   "title": "Capitolo 2 - Social media e customer loyalty nelle PMI",
+   "required": true,
+   "terms_local": [
+    "social media",
+    "fidelizzazione del cliente",
+    "PMI"
+   ],
+   "terms_en": [
+    "social media",
+    "customer loyalty",
+    "SMEs"
+   ],
+   "children": [
+    {
+     "title": "I social media come strumento di marketing",
+     "required": true,
+     "terms_local": [
+      "social media marketing",
+      "piattaforme social"
+     ],
+     "terms_en": [
+      "social media marketing",
+      "social platforms"
+     ],
+     "children": [],
+     "scope_id": "scope-8"
+    },
+    {
+     "title": "Il concetto di customer loyalty",
+     "required": true,
+     "terms_local": [
+      "fidelizzazione del cliente",
+      "customer loyalty",
+      "relazione con il cliente"
+     ],
+     "terms_en": [
+      "customer loyalty",
+      "customer retention",
+      "customer relationship"
+     ],
+     "children": [],
+     "scope_id": "scope-9"
+    },
+    {
+     "title": "Social media engagement e fidelizzazione",
+     "required": true,
+     "terms_local": [
+      "engagement",
+      "coinvolgimento del cliente",
+      "fidelizzazione tramite social"
+     ],
+     "terms_en": [
+      "engagement",
+      "customer engagement",
+      "social media loyalty"
+     ],
+     "children": [],
+     "scope_id": "scope-10"
+    },
+    {
+     "title": "Strategie social media per la fidelizzazione nelle PMI",
+     "required": true,
+     "terms_local": [
+      "strategie social",
+      "fidelizzazione nelle PMI"
+     ],
+     "terms_en": [
+      "social media strategies",
+      "loyalty strategies in SMEs"
+     ],
+     "children": [],
+     "scope_id": "scope-11"
+    }
+   ],
+   "scope_id": "scope-7"
+  },
+  {
+   "title": "Capitolo 3 - Analisi di casi ed evidenze empiriche",
+   "required": true,
+   "terms_local": [
+    "analisi dei casi",
+    "evidenze empiriche",
+    "casi studio"
+   ],
+   "terms_en": [
+    "case analysis",
+    "empirical evidence",
+    "case studies"
+   ],
+   "children": [
+    {
+     "title": "Metodologia dell'analisi",
+     "required": true,
+     "terms_local": [
+      "metodologia",
+      "selezione dei casi"
+     ],
+     "terms_en": [
+      "methodology",
+      "case selection"
+     ],
+     "children": [],
+     "scope_id": "scope-13"
+    },
+    {
+     "title": "Casi di studio di PMI italiane",
+     "required": true,
+     "terms_local": [
+      "casi studio PMI italiane",
+      "best practice"
+     ],
+     "terms_en": [
+      "Italian SME case studies",
+      "best practices"
+     ],
+     "children": [],
+     "scope_id": "scope-14"
+    },
+    {
+     "title": "Evidenze empiriche dalla letteratura",
+     "required": true,
+     "terms_local": [
+      "evidenze empiriche",
+      "letteratura peer-reviewed"
+     ],
+     "terms_en": [
+      "empirical evidence",
+      "peer-reviewed literature"
+     ],
+     "children": [],
+     "scope_id": "scope-15"
+    },
+    {
+     "title": "Discussione dei risultati",
+     "required": true,
+     "terms_local": [
+      "discussione dei risultati",
+      "implicazioni manageriali"
+     ],
+     "terms_en": [
+      "discussion of results",
+      "managerial implications"
+     ],
+     "children": [],
+     "scope_id": "scope-16"
+    }
+   ],
+   "scope_id": "scope-12"
+  },
+  {
+   "title": "Conclusioni",
+   "required": true,
+   "terms_local": [
+    "conclusioni",
+    "limiti della ricerca",
+    "prospettive future"
+   ],
+   "terms_en": [
+    "conclusions",
+    "research limitations",
+    "future perspectives"
+   ],
+   "children": [],
+   "scope_id": "scope-17"
+  },
+  {
+   "title": "Bibliografia",
+   "required": true,
+   "terms_local": [
+    "bibliografia",
+    "riferimenti APA"
+   ],
+   "terms_en": [
+    "references",
+    "APA references"
+   ],
+   "children": [],
+   "scope_id": "scope-18"
+  }
+ ],
+ "pack_titles": [
+  {
+   "key": "K87b51e6730c9",
+   "title": "Valutazione della ricerca: solo effetti perversi?",
+   "abstract": "The essay introduces the contributions to the issue and traces the main lines of the debate on the evaluation of research in the universities to which they refer: the expected and achieved advantages, the perverse effects attributed to the evaluation on the quality of scientific production and its p"
+  },
+  {
+   "key": "K6783d4ac5366",
+   "title": "Orientarsi nel mestiere impossibile Le risposte della ricerca empirica alle domande di un clinico",
+   "abstract": "L'articolo si rivolge ai clinici in formazione e ai professionisti esperti proponendo il metodo della ricerca empirica in psicoterapia come bussola per orientarsi di fronte ai sani dubbi che accompagnano il mestiere dello psicoterapeuta. L'autore accompagna il lettore a scoprire i vantaggi e i limit"
+  },
+  {
+   "key": "Ke0f3b0dc0ca7",
+   "title": "Lessico: insegnarlo e impararlo. Introduzione (con un quadro teorico e un focus sul lessico accademico)",
+   "abstract": "Il contributo propone una sintesi ragionata dei principali modelli teorici relativi all’apprendimento e all’insegnamento del lessico, con l’obiettivo di fornire una cornice interpretativa per i contributi raccolti nella monografia Lessico: insegnarlo e impararlo. Muovendo da una concezione del lessi"
+  },
+  {
+   "key": "Kd66a9074c471",
+   "title": "Globalizzazione, flessibilizzazione del lavoro e condizione giovanile: un quadro teorico",
+   "abstract": "Questo capitolo introduttivo fornisce un quadro teorico di riferimento per l'analisi del mercato del lavoro giovanile e le transizioni familiari nelle moderne societŕ globalizzate. Offre una definizione del concetto - spesso ambiguo - di globalizzazione, propone un innovativo indice empirico di misu"
+  },
+  {
+   "key": "K67181e352494",
+   "title": "Design, Heritage e cultura digitale",
+   "abstract": "With the digital transformation, the exponential increase in the number of tools and types of support with which human expressions can be created and transmitted brings with it new cultural paradigms that feed creative productions and vice versa, giving rise to new questions regarding how Heritage “"
+  },
+  {
+   "key": "K9c34778afbaf",
+   "title": "Le tre rivoluzioni del management digitale",
+   "abstract": "Micelli 1"
+  },
+  {
+   "key": "Kc226009bfc5a",
+   "title": "Digital authentic learning: introdurre alla tone analysis per favorire un pensiero critico digitale",
+   "abstract": "In un panorama scolastico nel quale le tecnologie digitali riescono raramente a trovare il giusto spazio e l’attenzione per essere trattate in modo approfondito, strutturato ed effcace, è diffcile pensare di poter trasmettere agli studenti vere e proprie competenze. In assenza di una disciplina che "
+  },
+  {
+   "key": "K85c8a1b37878",
+   "title": "Trasformazione digitale e capacità organizzativa. Le aziende italiane e la sfida del cambiamento",
+   "abstract": "Non è possibile concepire la progettazione organizzativa avulsa da un ripensamento del business model che sfrutti tutte le opportunità offerte dalle nuove tecnologie. Se l’approccio è quello di usare la tecnologia per creare efficienza entro un business model dato, non si andrà molto lontano. Se"
+  },
+  {
+   "key": "K27dd469c7efc",
+   "title": "PMI Marketing: modello di business per una startup di digital marketing operante nel settore turistico-ricettivo.",
+   "abstract": "This thesis analyzes the dynamics of digital transformation that are reshaping the Italian tourism sector, with particular focus on small and medium-sized enterprises (SMEs) operating in the hospitality industry. Starting from an examination of the macroeconomic context and the main evolutionary tre"
+  },
+  {
+   "key": "K444754b3acee",
+   "title": "Social media analytics: mejora de la experiencia y fidelización del cliente en el sector de la gama blanca",
+   "abstract": "Este artículo es un resumen de un Trabajo Final de Máster orientado al análisis de la gestión de la relación con los clientes a partir de la información obtenida mediante el monitoreo de las críticas y los comentarios vertidos por los usuarios en redes sociales sobre un determinado producto, en este"
+  },
+  {
+   "key": "Kd7bb6122eb18",
+   "title": "Saggi di anglistica e americanistica : temi e prospettive di ricerca",
+   "abstract": "L'acquisizione di strumenti critici e metodologici che portino ad un affinamento delle capacità critiche è tra le finalità primarie di un Dottorato di Ricerca. Per questo il Dottorato in Anglistica e Americanistica dell'Università di Firenze ha individuato come punto cardine della formazione la "
+  },
+  {
+   "key": "K2755be8fc289",
+   "title": "Setting the future of digital and social media marketing research: Perspectives and research propositions",
+   "abstract": "The use of the internet and social media have changed consumer behavior and the ways in which companies conduct their business. Social and digital marketing offers significant opportunities to organizations through lower costs, improved brand awareness and increased sales. However, significant chall"
+  },
+  {
+   "key": "K83cd368a0883",
+   "title": "Il ruolo del sito web nell’esperienza turistica: Il caso delle agenzie viaggi in Italia",
+   "abstract": "Obiettivo del paper: Obiettivo del paper è analizzare l'impiego della comunicazione online delle agenzie viaggi italiane e di capire, di conseguenza, se gli intermediari turistici per eccellenza utilizzano siti web raramente aggiornati, solo per essere presenti nell'universo digitale o se, al contra"
+  },
+  {
+   "key": "K3f22c5393715",
+   "title": "Posicionamiento de empresas hoteleras y su relación con la percepción del cliente (Cañete – Perú) - 2022 empresas hoteleras: posicionamiento en base a la percepción del cliente",
+   "abstract": "Las empresas de Glamping en la provincia de Cañete, Perú, han enfrentado desafíos significativos en respuesta a la pandemia de COVID-19, adaptándose a la alta demanda de alojamiento para personal médico. Aunque han experimentado pérdidas y cancelaciones de servicios turísticos, el resurgimiento grad"
+  },
+  {
+   "key": "K6d0a09caf229",
+   "title": "Osservatorio sulle trasformazioni dell’ecosistema automotive italiano 2024",
+   "abstract": "Il 2025 sarà un anno cruciale per l’industria automobilistica europea, con l’entrata in vigore di limiti più severi alle emissioni. I produttori dovranno accelerare l’elettrificazione, ma molti europei e statunitensi risultano in ritardo rispetto ai concorrenti asiatici, specialmente nell’offerta "
+  },
+  {
+   "key": "K1ca9d0f38939",
+   "title": "Innovative digital marketing strategies for SMEs: Driving competitive advantage and sustainable growth",
+   "abstract": "In the rapidly evolving digital landscape, small and medium-sized enterprises (SMEs) must adopt innovative digital marketing strategies to drive competitive advantage and sustainable growth. This review explores the critical components and benefits of leveraging digital marketing for SMEs, emphasizi"
+  },
+  {
+   "key": "K7bc0cf92feeb",
+   "title": "Le misure di politica economica per le PMI nelle ZFU italiane: opportunitŕ e problematiche",
+   "abstract": "Da qualche anno le Zone franche urbane sono oggetto del dibattito di politica economica. Il governo italiano, infatti, dopo aver siglato un contratto con le 22 Amministrazioni locali interessate all'introduzione di un regime di esenzioni nelle zone piů disagiate del loro territorio, alla fine dell'a"
+  },
+  {
+   "key": "K0ee0954e9b5f",
+   "title": "Management della scienza e trasferimento di conoscenza",
+   "abstract": "Tabella 8. La politica di divisione delle royalty in"
+  },
+  {
+   "key": "K211785927dd2",
+   "title": "Repertori dei movimenti ecclesiali",
+   "abstract": "Il presente contributo muove da considerazioni generali sul valore educativo della musica e sulle caratteristiche della musica sacra per offrire alcune riflessioni sul rapporto tra musica liturgica e mistagogia, sulle ragioni della necessità di tale rapporto, sulle sue esigenze, su ciò che implica e"
+  },
+  {
+   "key": "K132647453e4a",
+   "title": "Qualitative Case Study Methodology: Study Design and Implementation for Novice Researchers",
+   "abstract": "Qualitative case study methodology provides tools for researchers to study complex phenomena within their contexts. When the approach is applied correctly, it becomes a valuable method for health science research to develop theory, evaluate programs, and develop interventions. The purpose of this pa"
+  },
+  {
+   "key": "K4db1f296aa1d",
+   "title": "Acquisizioni della genetica e prospettive della selezione animale",
+   "abstract": "Pierlorenzo Secchiari et al. - Relazione introduttiva G. Pagnacco et al. - Latte: selezione tradizionale e assistita dei marcatori P. Ajmone-Marsan et al. - Geni singoli nella selezione degli animali da latte V. Russo et al. - Selezione tradizionale e assistita da marcatori nei suini G. Bittante - S"
+  },
+  {
+   "key": "K0a5d9f45c7e3",
+   "title": "Nascita ed evoluzione del distretto orafo di Arezzo, 1947-2001",
+   "abstract": "Il distretto industriale toscano dell'oro si localizza quasi unicamente nella pro vincia di Arezzo.I dati di aprile 2003 indicano che gli addetti sono 10.500 con una forte prevalenza nell'area aretina e con discrete presenze anche nelle aree della provincia: Casentino 752, Val di Chiana 727, Valdarn"
+  },
+  {
+   "key": "Kac4249a45125",
+   "title": "Tortura e razzismo\n Teoria sociale, analisi storica, evidenze empiriche",
+   "abstract": "Torture and racism share a fundamental tendency: both impose on humans the status of sub-humans; both are linked to each other by an embrace that, at the same time, reveals and conceals. The article analyzes this link by focusing on dehumanizing torture, as in this typology it is simpler to be obser"
+  },
+  {
+   "key": "Kfcc764527105",
+   "title": "Contratto di rete e creazione di valore: riflessioni ed evidenze empiriche sulle determinanti della performance",
+   "abstract": "Obiettivo del paper: Lo scopo di questo paper è quello comprendere se la cooperazione tra imprese basata sullo strumento giuridico del \"contratto di rete\" è in grado di creare valore e migliorare la performance aziendale.Metodologia: Il paper dopo una review della letteratura sulle forme aggregative"
+  },
+  {
+   "key": "K8f88f884983b",
+   "title": "A Systematic Review of the Literature on Digital Transformation: Insights and Implications for Strategy and Organizational Change",
+   "abstract": "Abstract In this article we provide a systematic review of the extensive yet diverse and fragmented literature on digital transformation (DT), with the goal of clarifying boundary conditions to investigate the phenomenon from the perspective of organizational change. On the basis of 279 articles, we"
+  },
+  {
+   "key": "Kd7cfa1fc85d9",
+   "title": "IL RUOLO DEI MUSEI AZIENDALI NEL MARKETING DEL MADE IN ITALY: TIPOLOGIE E POSIZIONAMENTO STRATEGICO",
+   "abstract": "un costrutto poliedrico"
+  },
+  {
+   "key": "K4c9bf82d4123",
+   "title": "Nuovi orizzonti della ricerca scientifica in educazione. Raccordare ricerca e decisione didattica: il Manifesto S.Ap.I.E.",
+   "abstract": "Here some theses introduced in the S.Ap.I.E. (Società per l’Apprendimento e l’Istruzione informati da Evidenza) Manifesto are developed. Firstly, we summarize the relevant advances in educational research characterizing the new millennium, related to Evidence-Based Education and its convergence wit"
+  },
+  {
+   "key": "Ke3686c208293",
+   "title": "«No, non il caval sauro, per noi»\n Antifrasi e riferimenti dannunziani nell’opera di Carlo Emilio Gadda",
+   "abstract": "D’Annunzio, according to a Gadda’s remarkable declaration, constituted one of the pillars of his own formation. This paper focused on the controversial relationship between Gadda and d’Annunzio: after an initial infatuation, the more grounded Gadda takes on openly critical and parodic positions (in "
+  },
+  {
+   "key": "Kb9deef8ae2ce",
+   "title": "Specialization for support teachers. Assessing the educational innovation in a perspective of quality",
+   "abstract": "The Ministry of Education in Italy has launched several initiatives to foster inclusive school system; the Specialization Course for Support Teacher (D.M. 30.09.2011) attests the institutional willingness to make this educational area an organic and unavoidable component of future teachers professio"
+  },
+  {
+   "key": "K44102dc95d32",
+   "title": "Introduzione",
+   "abstract": ""
+  },
+  {
+   "key": "K8a8ecdf73061",
+   "title": "INTRODUZIONE E INQUADRAMENTO DELLA RICERCA",
+   "abstract": ""
+  },
+  {
+   "key": "Kce617db31cc6",
+   "title": "1. Presupposti e obiettivi della ricerca",
+   "abstract": ""
+  },
+  {
+   "key": "Kc5c8b37f19c9",
+   "title": "Obiettivi e metodi della ricerca",
+   "abstract": ""
+  },
+  {
+   "key": "K48f1dda63dac",
+   "title": "Introduzione\n Un’introduzione teorica e un percorso di ricerca",
+   "abstract": "Racism has always accompanied the history of Europe, marked by nationalism, authoritarianism and state racism; however, in contemporary times we are witnessing its renewed centrality and a sort of democratic legitimacy of explicitly xenophobic political subjectivities. Persistent anti-Semitism, grow"
+  },
+  {
+   "key": "Kd8861107e5fa",
+   "title": "Sviluppo, obiettivi, e struttura della ricerca",
+   "abstract": ""
+  },
+  {
+   "key": "K5cf262f25eb0",
+   "title": "Copper complexes of synthetic peptides mimicking neurotrophin-3 enhance neurite outgrowth and CREB phosphorylation",
+   "abstract": "Abstract In this work we report on the synthesis and physiochemical/biological characterization of a peptide encompassing the first thirteen residues of neurotrophin-3 (NT-3). The protein capability to promote neurite outgrowth and axonal branching by a downstream mechanism that involves the increas"
+  },
+  {
+   "key": "K1d71b88773a1",
+   "title": "0. Introduzione al volume e stato della ricerca",
+   "abstract": ""
+  },
+  {
+   "key": "K4aa12dbaf4ca",
+   "title": "Il metodo di studio come «prima misura compensativa» per l’inclusione degli allievi con DSA: progetto per una ricerca esplorativa sulle scelte inclusive della scuola primaria e secondaria di primo grado",
+   "abstract": "The study describes framework, method and first results of an exploratory research conducted to examine how the italian school of full inclusion realizes education for all student, with specific attention to special educational needs. In detail, the research aims to describe the procedures used in p"
+  },
+  {
+   "key": "K82dcddb197b8",
+   "title": "Riflessività e ricerca sociale: la produzione dialogica della realtà",
+   "abstract": "During the interview, we aim to problematize issues pertinent to social research with/about childhood and youths, highlighting the reflexive processes that constitute contemporary social actions. Thus, we invite Enzo Colombo for a conversation about the different theoretical-methodological perspecti"
+  },
+  {
+   "key": "K7630ea1f7b20",
+   "title": "Le TIC nella scuola: dieci raccomandazioni per i policy maker",
+   "abstract": "Basandosi sulle evidenze relative al rapporto tra tecnologia e apprendimento e sul recente rapporto OCSE riguardante il Piano Nazionale Scuola Digitale, l’autore riflette sui criteri che devono orientare le politiche innovative, ispirati a sostenibilità, ottimizzazione dell’impatto educativo, sottol"
+  }
+ ]
+}

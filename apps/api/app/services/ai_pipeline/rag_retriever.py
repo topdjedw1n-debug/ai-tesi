@@ -23,7 +23,7 @@ from app.services.ai_pipeline.source_identity import (
     normalize_title,
     sources_equivalent,
 )
-from app.services.citation_verifier import shared_limiter
+from app.services.citation_verifier import shared_limiter, shared_slot
 from app.services.full_text_sources import open_access_metadata
 from app.services.replay_dependencies import recorded_dependency
 
@@ -200,12 +200,15 @@ class RAGRetriever:
                 headers["x-api-key"] = self.api_key
 
             async with httpx.AsyncClient(timeout=30.0) as client:
-                await shared_limiter(
-                    "semantic_scholar", settings.SEMANTIC_SCHOLAR_RATE_LIMIT_RPS
-                ).acquire()
-                response = await client.get(
-                    f"{self.base_url}/paper/search", params=params, headers=headers
-                )
+                async with shared_slot("semantic_scholar"):
+                    await shared_limiter(
+                        "semantic_scholar", settings.SEMANTIC_SCHOLAR_RATE_LIMIT_RPS
+                    ).acquire()
+                    response = await client.get(
+                        f"{self.base_url}/paper/search",
+                        params=params,
+                        headers=headers,
+                    )
                 response.raise_for_status()
                 data = response.json()
 
@@ -615,8 +618,9 @@ class RAGRetriever:
         async with httpx.AsyncClient(timeout=30.0) as client:
             for attempt in range(3):
                 try:
-                    await shared_limiter(provider, rps).acquire()
-                    response = await client.get(url, params=params, headers=headers)
+                    async with shared_slot(provider):
+                        await shared_limiter(provider, rps).acquire()
+                        response = await client.get(url, params=params, headers=headers)
                     response.raise_for_status()
                     payload = response.json()
                     if not isinstance(payload, dict):

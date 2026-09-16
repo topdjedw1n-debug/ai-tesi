@@ -1,0 +1,401 @@
+{
+ "topic": "La tutela dei dati personali nel rapporto di lavoro: il controllo a distanza dei lavoratori tra Statuto dei lavoratori e GDPR",
+ "nodes": [
+  {
+   "title": "Introduzione",
+   "required": true,
+   "terms_local": [
+    "tutela dei dati personali",
+    "rapporto di lavoro",
+    "controllo a distanza"
+   ],
+   "terms_en": [
+    "personal data protection",
+    "employment relationship",
+    "remote monitoring"
+   ],
+   "children": [],
+   "scope_id": "scope-1"
+  },
+  {
+   "title": "Capitolo I – L'evoluzione dell'art. 4 dello Statuto dei lavoratori",
+   "required": true,
+   "terms_local": [
+    "art. 4 Statuto dei lavoratori",
+    "controllo a distanza dei lavoratori"
+   ],
+   "terms_en": [
+    "Article 4 Workers' Statute",
+    "remote monitoring of workers"
+   ],
+   "children": [
+    {
+     "title": "La versione originaria dell'art. 4 (L. 300/1970)",
+     "required": true,
+     "terms_local": [
+      "Legge 300/1970",
+      "divieto di controllo a distanza"
+     ],
+     "terms_en": [
+      "Law 300/1970",
+      "prohibition of remote monitoring"
+     ],
+     "children": [],
+     "scope_id": "scope-3"
+    },
+    {
+     "title": "Il divieto di controllo e le esigenze organizzative",
+     "required": true,
+     "terms_local": [
+      "esigenze organizzative e produttive",
+      "accordo sindacale"
+     ],
+     "terms_en": [
+      "organizational and production needs",
+      "union agreement"
+     ],
+     "children": [],
+     "scope_id": "scope-4"
+    },
+    {
+     "title": "La riforma del Jobs Act (D.lgs. 151/2015)",
+     "required": true,
+     "terms_local": [
+      "Jobs Act",
+      "D.lgs. 151/2015",
+      "strumenti di lavoro"
+     ],
+     "terms_en": [
+      "Jobs Act",
+      "Legislative Decree 151/2015",
+      "work tools"
+     ],
+     "children": [],
+     "scope_id": "scope-5"
+    },
+    {
+     "title": "Il nuovo testo dell'art. 4 e le condizioni di legittimità",
+     "required": true,
+     "terms_local": [
+      "controlli difensivi",
+      "informativa ai lavoratori"
+     ],
+     "terms_en": [
+      "defensive controls",
+      "information to workers"
+     ],
+     "children": [],
+     "scope_id": "scope-6"
+    }
+   ],
+   "scope_id": "scope-2"
+  },
+  {
+   "title": "Capitolo II – Il GDPR e i principi applicabili al rapporto di lavoro",
+   "required": true,
+   "terms_local": [
+    "GDPR",
+    "Regolamento UE 2016/679",
+    "trattamento dei dati"
+   ],
+   "terms_en": [
+    "GDPR",
+    "EU Regulation 2016/679",
+    "data processing"
+   ],
+   "children": [
+    {
+     "title": "Il quadro normativo europeo sulla protezione dei dati",
+     "required": true,
+     "terms_local": [
+      "normativa UE",
+      "Regolamento 2016/679"
+     ],
+     "terms_en": [
+      "EU legislation",
+      "Regulation 2016/679"
+     ],
+     "children": [],
+     "scope_id": "scope-8"
+    },
+    {
+     "title": "I principi del trattamento dei dati personali",
+     "required": true,
+     "terms_local": [
+      "liceità",
+      "minimizzazione",
+      "finalità",
+      "proporzionalità"
+     ],
+     "terms_en": [
+      "lawfulness",
+      "data minimization",
+      "purpose limitation",
+      "proportionality"
+     ],
+     "children": [],
+     "scope_id": "scope-9"
+    },
+    {
+     "title": "Le basi giuridiche del trattamento nel rapporto di lavoro",
+     "required": true,
+     "terms_local": [
+      "base giuridica",
+      "consenso del lavoratore",
+      "obbligo legale"
+     ],
+     "terms_en": [
+      "legal basis",
+      "worker's consent",
+      "legal obligation"
+     ],
+     "children": [],
+     "scope_id": "scope-10"
+    },
+    {
+     "title": "Ruoli e responsabilità: titolare, responsabile e DPO",
+     "required": true,
+     "terms_local": [
+      "titolare del trattamento",
+      "responsabile del trattamento",
+      "DPO"
+     ],
+     "terms_en": [
+      "data controller",
+      "data processor",
+      "DPO"
+     ],
+     "children": [],
+     "scope_id": "scope-11"
+    },
+    {
+     "title": "Il coordinamento tra GDPR e Codice privacy (D.lgs. 196/2003)",
+     "required": true,
+     "terms_local": [
+      "Codice privacy",
+      "D.lgs. 196/2003",
+      "D.lgs. 101/2018"
+     ],
+     "terms_en": [
+      "Privacy Code",
+      "Legislative Decree 196/2003",
+      "Legislative Decree 101/2018"
+     ],
+     "children": [],
+     "scope_id": "scope-12"
+    }
+   ],
+   "scope_id": "scope-7"
+  },
+  {
+   "title": "Capitolo III – Il controllo a distanza e gli strumenti tecnologici",
+   "required": true,
+   "terms_local": [
+    "controllo a distanza",
+    "strumenti tecnologici"
+   ],
+   "terms_en": [
+    "remote monitoring",
+    "technological tools"
+   ],
+   "children": [
+    {
+     "title": "Gli strumenti di lavoro e gli strumenti di controllo",
+     "required": true,
+     "terms_local": [
+      "strumenti di lavoro",
+      "strumenti di controllo"
+     ],
+     "terms_en": [
+      "work tools",
+      "monitoring tools"
+     ],
+     "children": [],
+     "scope_id": "scope-14"
+    },
+    {
+     "title": "La videosorveglianza sui luoghi di lavoro",
+     "required": true,
+     "terms_local": [
+      "videosorveglianza",
+      "luoghi di lavoro"
+     ],
+     "terms_en": [
+      "video surveillance",
+      "workplace"
+     ],
+     "children": [],
+     "scope_id": "scope-15"
+    },
+    {
+     "title": "Il monitoraggio di internet e della posta elettronica",
+     "required": true,
+     "terms_local": [
+      "controllo email",
+      "navigazione internet",
+      "posta elettronica"
+     ],
+     "terms_en": [
+      "email monitoring",
+      "internet browsing",
+      "electronic mail"
+     ],
+     "children": [],
+     "scope_id": "scope-16"
+    },
+    {
+     "title": "Geolocalizzazione e dispositivi mobili",
+     "required": true,
+     "terms_local": [
+      "geolocalizzazione",
+      "dispositivi mobili",
+      "GPS"
+     ],
+     "terms_en": [
+      "geolocation",
+      "mobile devices",
+      "GPS"
+     ],
+     "children": [],
+     "scope_id": "scope-17"
+    },
+    {
+     "title": "Il lavoro agile e i nuovi rischi di controllo",
+     "required": true,
+     "terms_local": [
+      "lavoro agile",
+      "smart working",
+      "controllo da remoto"
+     ],
+     "terms_en": [
+      "agile work",
+      "smart working",
+      "remote control"
+     ],
+     "children": [],
+     "scope_id": "scope-18"
+    },
+    {
+     "title": "La valutazione d'impatto (DPIA)",
+     "required": true,
+     "terms_local": [
+      "valutazione d'impatto",
+      "DPIA"
+     ],
+     "terms_en": [
+      "impact assessment",
+      "DPIA"
+     ],
+     "children": [],
+     "scope_id": "scope-19"
+    }
+   ],
+   "scope_id": "scope-13"
+  },
+  {
+   "title": "Capitolo IV – Giurisprudenza e prassi del Garante",
+   "required": true,
+   "terms_local": [
+    "giurisprudenza",
+    "Garante per la protezione dei dati personali"
+   ],
+   "terms_en": [
+    "case law",
+    "Data Protection Authority"
+   ],
+   "children": [
+    {
+     "title": "La giurisprudenza della Corte di Cassazione",
+     "required": true,
+     "terms_local": [
+      "Corte di Cassazione",
+      "controlli difensivi"
+     ],
+     "terms_en": [
+      "Court of Cassation",
+      "defensive controls"
+     ],
+     "children": [],
+     "scope_id": "scope-21"
+    },
+    {
+     "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+     "required": true,
+     "terms_local": [
+      "CEDU",
+      "Corte EDU",
+      "caso Bărbulescu"
+     ],
+     "terms_en": [
+      "ECHR",
+      "European Court of Human Rights",
+      "Bărbulescu case"
+     ],
+     "children": [],
+     "scope_id": "scope-22"
+    },
+    {
+     "title": "I provvedimenti del Garante per la protezione dei dati personali",
+     "required": true,
+     "terms_local": [
+      "provvedimenti del Garante",
+      "sanzioni"
+     ],
+     "terms_en": [
+      "Authority's decisions",
+      "sanctions"
+     ],
+     "children": [],
+     "scope_id": "scope-23"
+    },
+    {
+     "title": "Le linee guida e la prassi applicativa",
+     "required": true,
+     "terms_local": [
+      "linee guida",
+      "prassi applicativa"
+     ],
+     "terms_en": [
+      "guidelines",
+      "application practice"
+     ],
+     "children": [],
+     "scope_id": "scope-24"
+    }
+   ],
+   "scope_id": "scope-20"
+  },
+  {
+   "title": "Conclusioni",
+   "required": true,
+   "terms_local": [
+    "bilanciamento",
+    "diritti del lavoratore",
+    "potere di controllo"
+   ],
+   "terms_en": [
+    "balancing",
+    "workers' rights",
+    "control power"
+   ],
+   "children": [],
+   "scope_id": "scope-25"
+  },
+  {
+   "title": "Bibliografia",
+   "required": true,
+   "terms_local": [
+    "dottrina giuridica",
+    "normativa UE",
+    "riviste giuridiche"
+   ],
+   "terms_en": [
+    "legal doctrine",
+    "EU legislation",
+    "legal journals"
+   ],
+   "children": [],
+   "scope_id": "scope-26"
+  }
+ ]
+}

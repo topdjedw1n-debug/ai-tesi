@@ -228,9 +228,9 @@ class Settings(BaseSettings):
     CITATION_API_TIMEOUT_SECONDS: float = 10.0
 
     # Per-provider rate limits (requests per second) - conservative vs public limits
-    CROSSREF_RATE_LIMIT_RPS: float = 5.0  # polite pool allows ~50; stay well under
+    CROSSREF_RATE_LIMIT_RPS: float = 2.0  # polite pool answered x-rate-limit-limit 3/s, x-concurrency-limit 3 (16.09.2026)
     OPENALEX_RATE_LIMIT_RPS: float = 5.0  # public cap ~10 rps
-    SEMANTIC_SCHOLAR_RATE_LIMIT_RPS: float = 1.0  # authenticated key -> guaranteed ~1 rps (unkeyed pool is throttled to HTTP 429)
+    SEMANTIC_SCHOLAR_RATE_LIMIT_RPS: float = 0.5  # keyed limit is 1 rps over all endpoints; a third of the calls at 1 rps still got HTTP 429 (15.09.2026)
     ARXIV_RATE_LIMIT_RPS: float = 0.33  # arXiv asks for 1 request per 3 seconds
 
     # Verification worker tuning

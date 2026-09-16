@@ -1,0 +1,290 @@
+{
+ "topic": "Sistemi di raccomandazione basati su machine learning per il commercio elettronico: approcci collaborativi e content-based a confronto",
+ "nodes": [
+  {
+   "title": "Introduzione",
+   "required": true,
+   "terms_local": [
+    "sistemi di raccomandazione",
+    "commercio elettronico",
+    "machine learning"
+   ],
+   "terms_en": [
+    "recommender systems",
+    "e-commerce",
+    "machine learning"
+   ],
+   "children": [],
+   "scope_id": "scope-1"
+  },
+  {
+   "title": "Fondamenti dei sistemi di raccomandazione",
+   "required": true,
+   "terms_local": [
+    "sistemi di raccomandazione",
+    "machine learning"
+   ],
+   "terms_en": [
+    "recommender systems",
+    "machine learning"
+   ],
+   "children": [
+    {
+     "title": "Definizione e ruolo dei sistemi di raccomandazione",
+     "required": true,
+     "terms_local": [
+      "sistema di raccomandazione",
+      "personalizzazione"
+     ],
+     "terms_en": [
+      "recommender system",
+      "personalization"
+     ],
+     "children": [],
+     "scope_id": "scope-3"
+    },
+    {
+     "title": "Tipologie di approcci raccomandativi",
+     "required": true,
+     "terms_local": [
+      "filtraggio collaborativo",
+      "content-based",
+      "approcci ibridi"
+     ],
+     "terms_en": [
+      "collaborative filtering",
+      "content-based",
+      "hybrid approaches"
+     ],
+     "children": [],
+     "scope_id": "scope-4"
+    },
+    {
+     "title": "Concetti di machine learning applicati alle raccomandazioni",
+     "required": true,
+     "terms_local": [
+      "apprendimento automatico",
+      "dati di interazione utente-item"
+     ],
+     "terms_en": [
+      "machine learning",
+      "user-item interaction data"
+     ],
+     "children": [],
+     "scope_id": "scope-5"
+    },
+    {
+     "title": "Applicazioni nel commercio elettronico",
+     "required": true,
+     "terms_local": [
+      "e-commerce",
+      "personalizzazione degli acquisti"
+     ],
+     "terms_en": [
+      "e-commerce",
+      "purchase personalization"
+     ],
+     "children": [],
+     "scope_id": "scope-6"
+    }
+   ],
+   "scope_id": "scope-2"
+  },
+  {
+   "title": "Filtraggio collaborativo e approcci content-based",
+   "required": true,
+   "terms_local": [
+    "filtraggio collaborativo",
+    "content-based"
+   ],
+   "terms_en": [
+    "collaborative filtering",
+    "content-based filtering"
+   ],
+   "children": [
+    {
+     "title": "Filtraggio collaborativo basato sulla memoria",
+     "required": true,
+     "terms_local": [
+      "filtraggio collaborativo user-based",
+      "filtraggio collaborativo item-based",
+      "similarità"
+     ],
+     "terms_en": [
+      "user-based collaborative filtering",
+      "item-based collaborative filtering",
+      "similarity"
+     ],
+     "children": [],
+     "scope_id": "scope-8"
+    },
+    {
+     "title": "Filtraggio collaborativo basato sul modello",
+     "required": true,
+     "terms_local": [
+      "fattorizzazione di matrici",
+      "modelli latenti"
+     ],
+     "terms_en": [
+      "matrix factorization",
+      "latent factor models"
+     ],
+     "children": [],
+     "scope_id": "scope-9"
+    },
+    {
+     "title": "Approcci content-based",
+     "required": true,
+     "terms_local": [
+      "profilazione degli item",
+      "estrazione delle caratteristiche"
+     ],
+     "terms_en": [
+      "item profiling",
+      "feature extraction"
+     ],
+     "children": [],
+     "scope_id": "scope-10"
+    },
+    {
+     "title": "Confronto tra approcci collaborativi e content-based",
+     "required": true,
+     "terms_local": [
+      "cold start",
+      "sparsità dei dati",
+      "scalabilità"
+     ],
+     "terms_en": [
+      "cold start",
+      "data sparsity",
+      "scalability"
+     ],
+     "children": [],
+     "scope_id": "scope-11"
+    },
+    {
+     "title": "Approcci ibridi",
+     "required": false,
+     "terms_local": [
+      "sistemi ibridi"
+     ],
+     "terms_en": [
+      "hybrid systems"
+     ],
+     "children": [],
+     "scope_id": "scope-12"
+    }
+   ],
+   "scope_id": "scope-7"
+  },
+  {
+   "title": "Valutazione sperimentale e casi applicativi nell'e-commerce",
+   "required": true,
+   "terms_local": [
+    "valutazione sperimentale",
+    "casi applicativi",
+    "e-commerce"
+   ],
+   "terms_en": [
+    "experimental evaluation",
+    "case studies",
+    "e-commerce"
+   ],
+   "children": [
+    {
+     "title": "Metriche di valutazione",
+     "required": true,
+     "terms_local": [
+      "precisione",
+      "recall",
+      "RMSE",
+      "MAE"
+     ],
+     "terms_en": [
+      "precision",
+      "recall",
+      "RMSE",
+      "MAE"
+     ],
+     "children": [],
+     "scope_id": "scope-14"
+    },
+    {
+     "title": "Dataset e protocolli sperimentali",
+     "required": true,
+     "terms_local": [
+      "dataset",
+      "suddivisione train-test",
+      "validazione"
+     ],
+     "terms_en": [
+      "dataset",
+      "train-test split",
+      "validation"
+     ],
+     "children": [],
+     "scope_id": "scope-15"
+    },
+    {
+     "title": "Confronto sperimentale degli approcci",
+     "required": true,
+     "terms_local": [
+      "confronto delle prestazioni",
+      "filtraggio collaborativo",
+      "content-based"
+     ],
+     "terms_en": [
+      "performance comparison",
+      "collaborative filtering",
+      "content-based"
+     ],
+     "children": [],
+     "scope_id": "scope-16"
+    },
+    {
+     "title": "Casi applicativi nel commercio elettronico",
+     "required": true,
+     "terms_local": [
+      "piattaforme e-commerce",
+      "raccomandazione di prodotti"
+     ],
+     "terms_en": [
+      "e-commerce platforms",
+      "product recommendation"
+     ],
+     "children": [],
+     "scope_id": "scope-17"
+    }
+   ],
+   "scope_id": "scope-13"
+  },
+  {
+   "title": "Conclusioni",
+   "required": true,
+   "terms_local": [
+    "conclusioni",
+    "prospettive future"
+   ],
+   "terms_en": [
+    "conclusions",
+    "future perspectives"
+   ],
+   "children": [],
+   "scope_id": "scope-18"
+  },
+  {
+   "title": "Bibliografia",
+   "required": true,
+   "terms_local": [
+    "bibliografia",
+    "citazioni APA"
+   ],
+   "terms_en": [
+    "references",
+    "APA citations"
+   ],
+   "children": [],
+   "scope_id": "scope-19"
+  }
+ ]
+}

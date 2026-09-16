@@ -26,7 +26,6 @@ POLICY = {
     },
     "model": "claude-opus-4-8",
     "max_sources": 40,
-    "queries_per_scope": 3,
     "minimum_evidence_sources": 2,
     "json_min_tokens": 8000,
     "structure_tokens_per_node": 400,
@@ -50,7 +49,7 @@ POLICY = {
     "long_ratio": 1.4,
     "summary_chars": 1200,
     "chars_per_token": 4,
-    "search_concurrency": 6,
+    "search_concurrency": 3,
     "review_tokens": 8000,
 }
 _PENDING = set()
