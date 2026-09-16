@@ -142,6 +142,7 @@ class RAGRetriever:
         year_max: int | None = None,
         min_citation_count: int | None = None,
         limit: int | None = None,
+        raise_on_error: bool = False,
     ) -> list[SourceDoc]:
         """
         Retrieve relevant academic papers from Semantic Scholar
@@ -153,6 +154,10 @@ class RAGRetriever:
             year_max: Maximum publication year filter
             min_citation_count: Minimum citation count filter
             limit: Maximum number of results (overrides max_results)
+            raise_on_error: Re-raise a catalogue failure (HTTP 429, timeout,
+                transport error) instead of returning an empty list, so the
+                caller can tell an outage from an empty result (16.09.2026:
+                half of the S2 queries got 429 and nobody saw it)
 
         Returns:
             List of SourceDoc instances
@@ -265,9 +270,13 @@ class RAGRetriever:
 
         except httpx.HTTPError as e:
             logger.error(f"HTTP error retrieving sources: {e}")
+            if raise_on_error:
+                raise
             return []
         except Exception as e:
             logger.error(f"Error retrieving sources: {e}")
+            if raise_on_error:
+                raise
             return []
 
     async def _save_to_cache(self, query: str, source_docs: list[SourceDoc]) -> None:
@@ -502,19 +511,23 @@ class RAGRetriever:
             logger.warning(f"Error retrieving from Tavily: {e}")
             return []
 
-    async def search_semantic_scholar(self, query: str) -> list[SourceDoc]:
+    async def search_semantic_scholar(
+        self, query: str, *, raise_on_error: bool = False
+    ) -> list[SourceDoc]:
         """
         Search using Semantic Scholar API (wraps existing retrieve method)
 
         Args:
             query: Search query
+            raise_on_error: Re-raise a catalogue failure instead of returning
+                an empty list (see retrieve)
 
         Returns:
             List of SourceDoc instances
         """
         # Explicit search always executes; callers decide whether to search.
         # Use existing retrieve method
-        return await self.retrieve(query, limit=10)
+        return await self.retrieve(query, limit=10, raise_on_error=raise_on_error)
 
     @recorded_dependency("serper_sources", codec="sources")
     async def search_serper(self, query: str) -> list[SourceDoc]:

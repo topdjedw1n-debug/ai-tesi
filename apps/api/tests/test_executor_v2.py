@@ -1334,3 +1334,93 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     ]
     assert flagged[0]["severity"] == "warning"
     assert ctx.state["sections_done"] == 3
+
+
+@pytest.mark.asyncio
+async def test_catalogue_failure_is_visible_and_empty_answers_are_not(
+    db_session, monkeypatch
+):
+    """16.09.2026: Semantic Scholar answered 429 to half of the S2 queries and
+    the retriever turned every failure into an empty list, so the manager never
+    saw `catalogue_unavailable`. The executor asks every catalogue to raise:
+    the failure is recorded with its status, the warning names the catalogue,
+    an empty 200 is a result, and the other catalogues carry on."""
+    from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
+    from app.services.executor_v2 import sources
+    from app.services.replay_dependencies import recorded_dependency
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    ctx.provider = AsyncMock(
+        side_effect=[response(json.dumps({"nodes": NODES})), response(json.dumps(PLAN))]
+    )
+    asked = {"semantic_scholar": [], "crossref": [], "openalex": []}
+
+    async def semantic_scholar(self, query, *, raise_on_error=False):
+        asked["semantic_scholar"].append(raise_on_error)
+        answer = httpx.Response(
+            429,
+            request=httpx.Request(
+                "GET", "https://api.semanticscholar.org/graph/v1/paper/search"
+            ),
+        )
+        raise httpx.HTTPStatusError(
+            "429 Too Many Requests", request=answer.request, response=answer
+        )
+
+    async def crossref(self, query, *args, **kwargs):
+        asked["crossref"].append(kwargs.get("raise_on_error"))
+        return []
+
+    async def openalex(self, query, *args, **kwargs):
+        asked["openalex"].append(kwargs.get("raise_on_error"))
+        return [
+            SourceDoc(
+                title="Sleep evidence 1",
+                authors=["Rossi, Maria"],
+                year=2024,
+                doi="10.1234/sleep1",
+                abstract="Sleep nursing findings.",
+                provider="openalex",
+            )
+        ]
+
+    monkeypatch.setattr(RAGRetriever, "search_semantic_scholar", semantic_scholar)
+    monkeypatch.setattr(RAGRetriever, "search_crossref", crossref)
+    monkeypatch.setattr(RAGRetriever, "search_openalex", openalex)
+
+    async def verify_impl(candidate):
+        return {**candidate, "status": "verified", "provider": "crossref"}
+
+    monkeypatch.setattr(
+        sources, "verify", recorded_dependency("executor_verify")(verify_impl)
+    )
+    token = recording_context.set(ctx.recording)
+    try:
+        pack, outline = await prepare(ctx)
+    finally:
+        recording_context.reset(token)
+    assert asked["semantic_scholar"] and all(
+        all(flags) for flags in asked.values()
+    ), asked
+    unavailable = [w for w in ctx.warnings if w["code"] == "catalogue_unavailable"]
+    assert [w["detail"] for w in unavailable] == ["semantic_scholar"]
+    assert [s.source.title for s in pack.sources] == ["Sleep evidence 1"] and outline
+    searches = [
+        e.payload
+        for e in (
+            await db_session.execute(
+                select(DocumentProvenance).where(
+                    DocumentProvenance.event_type == "generation_dependency"
+                )
+            )
+        ).scalars()
+        if e.payload.get("kind") == "executor_search"
+    ]
+    failed = [e for e in searches if e["outcome"] == "failed"]
+    assert len(failed) == len(asked["semantic_scholar"])
+    assert {e["status_code"] for e in failed} == {429}
+    assert {e["error"] for e in failed} == {"HTTPStatusError"}
+    assert sum(e["outcome"] == "received" for e in searches) == len(
+        asked["crossref"]
+    ) + len(asked["openalex"])

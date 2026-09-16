@@ -718,16 +718,13 @@ async def test_retrieve_sources_combines_all_apis(retriever: RAGRetriever):
     tavily_docs = [SourceDoc(title="Tavily Paper", authors=[], year=2021)]
     serper_docs = [SourceDoc(title="Serper Paper", authors=[], year=2020)]
 
-    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
-        retriever, "search_openalex", return_value=[]
-    ), patch.object(
-        retriever, "search_semantic_scholar", return_value=semantic_docs
-    ), patch.object(
-        retriever, "search_perplexity", return_value=perplexity_docs
-    ), patch.object(
-        retriever, "search_tavily", return_value=tavily_docs
-    ), patch.object(
-        retriever, "search_serper", return_value=serper_docs
+    with (
+        patch.object(retriever, "search_crossref", return_value=[]),
+        patch.object(retriever, "search_openalex", return_value=[]),
+        patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs),
+        patch.object(retriever, "search_perplexity", return_value=perplexity_docs),
+        patch.object(retriever, "search_tavily", return_value=tavily_docs),
+        patch.object(retriever, "search_serper", return_value=serper_docs),
     ):
         # Act
         results = await retriever.retrieve_sources("AI research", limit=10)
@@ -753,16 +750,13 @@ async def test_retrieve_sources_deduplicates_results(retriever: RAGRetriever):
     semantic_docs = [duplicate_paper]
     perplexity_docs = [duplicate_paper]  # Duplicate
 
-    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
-        retriever, "search_openalex", return_value=[]
-    ), patch.object(
-        retriever, "search_semantic_scholar", return_value=semantic_docs
-    ), patch.object(
-        retriever, "search_perplexity", return_value=perplexity_docs
-    ), patch.object(
-        retriever, "search_tavily", return_value=[]
-    ), patch.object(
-        retriever, "search_serper", return_value=[]
+    with (
+        patch.object(retriever, "search_crossref", return_value=[]),
+        patch.object(retriever, "search_openalex", return_value=[]),
+        patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs),
+        patch.object(retriever, "search_perplexity", return_value=perplexity_docs),
+        patch.object(retriever, "search_tavily", return_value=[]),
+        patch.object(retriever, "search_serper", return_value=[]),
     ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
@@ -783,16 +777,13 @@ async def test_retrieve_sources_respects_limit(retriever: RAGRetriever):
         for i in range(50)
     ]
 
-    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
-        retriever, "search_openalex", return_value=[]
-    ), patch.object(
-        retriever, "search_semantic_scholar", return_value=many_docs[:25]
-    ), patch.object(
-        retriever, "search_perplexity", return_value=many_docs[25:]
-    ), patch.object(
-        retriever, "search_tavily", return_value=[]
-    ), patch.object(
-        retriever, "search_serper", return_value=[]
+    with (
+        patch.object(retriever, "search_crossref", return_value=[]),
+        patch.object(retriever, "search_openalex", return_value=[]),
+        patch.object(retriever, "search_semantic_scholar", return_value=many_docs[:25]),
+        patch.object(retriever, "search_perplexity", return_value=many_docs[25:]),
+        patch.object(retriever, "search_tavily", return_value=[]),
+        patch.object(retriever, "search_serper", return_value=[]),
     ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
@@ -808,16 +799,15 @@ async def test_retrieve_sources_handles_partial_api_failures(retriever: RAGRetri
     # Arrange
     semantic_docs = [SourceDoc(title="Semantic Paper", authors=[], year=2023)]
 
-    with patch.object(retriever, "search_crossref", return_value=[]), patch.object(
-        retriever, "search_openalex", return_value=[]
-    ), patch.object(
-        retriever, "search_semantic_scholar", return_value=semantic_docs
-    ), patch.object(
-        retriever, "search_perplexity", side_effect=Exception("API error")
-    ), patch.object(
-        retriever, "search_tavily", return_value=[]
-    ), patch.object(
-        retriever, "search_serper", return_value=[]
+    with (
+        patch.object(retriever, "search_crossref", return_value=[]),
+        patch.object(retriever, "search_openalex", return_value=[]),
+        patch.object(retriever, "search_semantic_scholar", return_value=semantic_docs),
+        patch.object(
+            retriever, "search_perplexity", side_effect=Exception("API error")
+        ),
+        patch.object(retriever, "search_tavily", return_value=[]),
+        patch.object(retriever, "search_serper", return_value=[]),
     ):
         # Act
         results = await retriever.retrieve_sources("test", limit=10)
@@ -857,3 +847,39 @@ def test_source_doc_to_source_document_conversion():
     assert source_document.journal == "AI Conference"
     assert source_document.doi == "10.1234/test.2023"
     assert source_document.url == "https://example.com/paper"
+
+
+@pytest.mark.asyncio
+async def test_semantic_scholar_failures_are_raised_when_requested(
+    retriever: RAGRetriever,
+):
+    """S2 asks the catalogue to raise: HTTP 429 and timeouts become exceptions
+    the executor records as catalogue failures (16.09.2026: half of the queries
+    got 429 and every failure became an empty list); an empty 200 is a result;
+    the default contract of retrieve() is unchanged."""
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
+            "429 Too Many Requests",
+            request=MagicMock(),
+            response=MagicMock(status_code=429),
+        )
+        mock_get.return_value = mock_response
+        with pytest.raises(httpx.HTTPStatusError) as raised:
+            await retriever.search_semantic_scholar("rate limited", raise_on_error=True)
+        assert raised.value.response.status_code == 429
+        assert await retriever.search_semantic_scholar("rate limited") == []
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_get.side_effect = httpx.TimeoutException("Request timeout")
+        with pytest.raises(httpx.TimeoutException):
+            await retriever.retrieve("slow", raise_on_error=True)
+        assert await retriever.retrieve("slow") == []
+    with patch("httpx.AsyncClient.get") as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = {"data": []}
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
+        assert (
+            await retriever.search_semantic_scholar("nothing", raise_on_error=True)
+            == []
+        )

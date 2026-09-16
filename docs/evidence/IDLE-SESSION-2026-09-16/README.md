@@ -25,3 +25,11 @@
 **Межа правила** (записано, не змінюється в цій сесії): «I dati raccolti restano da verificare» ловиться (іменник dati + фраза) — це попередження менеджеру, не зупинка.
 
 **Помічено, поза планом** (внесено в «Поза сесією» плану): локатор «art. 5, comma 1, lett. a)» обрізається на «comma 1», «lett. a)» лишається за дужкою; суфікс статті в `ARTICLE_LOCATOR` не покриває «bis/ter».
+
+## Пункт 2 — видимий 429 Semantic Scholar
+
+**Що змінено.** `rag_retriever.retrieve` і `search_semantic_scholar` отримали `raise_on_error` (як уже мали `search_crossref`/`search_openalex`): за запитом відмова каталогу (HTTP 429, timeout, transport) піднімається винятком, а не стає `[]`; типовий контракт (`[]` на помилку) для решти викликів не змінений. Виконавець (`executor_v2/sources.search`) просить усі три каталоги піднімати відмову: записана залежність `executor_search` фіксує `outcome: failed` зі статусом (429), `catalogue_unavailable` спрацьовує при ≥ 80 % відмов каталогу, порожня відповідь 200 — результат, не відмова; інші каталоги продовжують. Повторів понад наявні, зміни лімітів і другого ключа немає.
+
+**Докази.** `tests/test_rag_retriever.py::test_semantic_scholar_failures_are_raised_when_requested` (429 → виняток зі статусом; timeout → виняток; 200/порожньо → `[]`; без прапорця — `[]` як раніше), `tests/test_executor_v2.py::test_catalogue_failure_is_visible_and_empty_answers_are_not` (S2 із реальним `search`: Semantic Scholar 429 на кожен запит → одне попередження `catalogue_unavailable: semantic_scholar`, записи `executor_search` зі `status_code 429`; Crossref 200/порожньо — без попередження; OpenAlex дає пакет — S2 і план завершуються). Записаний корпус (`test_executor_v2_recorded_corpus`, `test_platform_first_corpus`) — без змін. Повний прогін API: **1 462 passed, 23 skipped**; black/ruff чисті. Пакет `executor_v2` — 1 491 рядок.
+
+**Що це дає менеджеру.** Досі при 429 від Semantic Scholar (16.09: половина запитів зонда) пакет мовчки будувався лише з Crossref/OpenAlex; тепер у попередженнях роботи з'являється «Каталог джерел не відповідав: semantic_scholar» (пункт 3 показує його текстом на сторінці роботи).

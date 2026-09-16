@@ -24,8 +24,9 @@ PROVIDERS = ("semantic_scholar", "crossref", "openalex")
 
 @recorded_dependency("executor_search")
 async def search(provider, query):
+    # A catalogue failure is raised and recorded; an empty answer is a result.
     retriever = RAGRetriever()
-    rows = await getattr(retriever, f"search_{provider}")(query)
+    rows = await getattr(retriever, f"search_{provider}")(query, raise_on_error=True)
     return [asdict(row) for row in rows]
 
 
