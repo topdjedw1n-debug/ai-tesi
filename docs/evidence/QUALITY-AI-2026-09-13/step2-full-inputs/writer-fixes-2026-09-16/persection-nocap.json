@@ -1,0 +1,153 @@
+{
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 546,
+   "ai_pct": 12.3,
+   "sim_pct": 3.3
+  },
+  {
+   "index": 2,
+   "title": "La formulazione originaria dell'art. 4 e il divieto di controllo a distanza",
+   "words": 733,
+   "ai_pct": 0.0,
+   "sim_pct": 5.2
+  },
+  {
+   "index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. 151/2015)",
+   "words": 660,
+   "ai_pct": 0.0,
+   "sim_pct": 11.7
+  },
+  {
+   "index": 4,
+   "title": "Accordo sindacale e autorizzazione amministrativa",
+   "words": 659,
+   "ai_pct": 27.3,
+   "sim_pct": 1.2
+  },
+  {
+   "index": 5,
+   "title": "L'utilizzabilità delle informazioni raccolte a fini disciplinari",
+   "words": 794,
+   "ai_pct": 0.0,
+   "sim_pct": 7.2
+  },
+  {
+   "index": 6,
+   "title": "Ambito di applicazione del GDPR al trattamento dei dati dei lavoratori",
+   "words": 590,
+   "ai_pct": 64.4,
+   "sim_pct": 12.5
+  },
+  {
+   "index": 7,
+   "title": "I principi di liceità, minimizzazione e proporzionalità",
+   "words": 515,
+   "ai_pct": 32.8,
+   "sim_pct": 4.1
+  },
+  {
+   "index": 8,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "words": 609,
+   "ai_pct": 65.0,
+   "sim_pct": 3.8
+  },
+  {
+   "index": 9,
+   "title": "Informativa, accountability e valutazione d'impatto (DPIA)",
+   "words": 610,
+   "ai_pct": 31.8,
+   "sim_pct": 9.8
+  },
+  {
+   "index": 10,
+   "title": "Il coordinamento tra GDPR e Codice della privacy (d.lgs. 196/2003)",
+   "words": 507,
+   "ai_pct": 14.2,
+   "sim_pct": 14.2
+  },
+  {
+   "index": 11,
+   "title": "Gli strumenti di lavoro e la deroga dell'art. 4, comma 2",
+   "words": 623,
+   "ai_pct": 11.2,
+   "sim_pct": 6.6
+  },
+  {
+   "index": 12,
+   "title": "Videosorveglianza e sistemi di geolocalizzazione",
+   "words": 680,
+   "ai_pct": 0.0,
+   "sim_pct": 1.3
+  },
+  {
+   "index": 13,
+   "title": "Controllo della posta elettronica e navigazione internet",
+   "words": 650,
+   "ai_pct": 42.9,
+   "sim_pct": 5.1
+  },
+  {
+   "index": 14,
+   "title": "Il lavoro agile e le nuove forme di controllo digitale",
+   "words": 718,
+   "ai_pct": 41.6,
+   "sim_pct": 7.2
+  },
+  {
+   "index": 15,
+   "title": "La giurisprudenza della Corte di Cassazione sui controlli",
+   "words": 703,
+   "ai_pct": 21.5,
+   "sim_pct": 4.4
+  },
+  {
+   "index": 16,
+   "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+   "words": 724,
+   "ai_pct": 4.7,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 17,
+   "title": "I provvedimenti del Garante in materia di controllo dei lavoratori",
+   "words": 596,
+   "ai_pct": 16.3,
+   "sim_pct": 2.7
+  },
+  {
+   "index": 18,
+   "title": "Linee guida e prassi applicative",
+   "words": 619,
+   "ai_pct": 22.8,
+   "sim_pct": 6.1
+  },
+  {
+   "index": 19,
+   "title": "Conclusioni",
+   "words": 446,
+   "ai_pct": 16.6,
+   "sim_pct": 3.8
+  }
+ ],
+ "body_ai": 22.4,
+ "body_sim": 5.9,
+ "intro": {
+  "index": 1,
+  "title": "Introduzione",
+  "words": 546,
+  "ai_pct": 12.3,
+  "sim_pct": 3.3
+ },
+ "conclusions": {
+  "index": 19,
+  "title": "Conclusioni",
+  "words": 446,
+  "ai_pct": 16.6,
+  "sim_pct": 3.8
+ }
+}

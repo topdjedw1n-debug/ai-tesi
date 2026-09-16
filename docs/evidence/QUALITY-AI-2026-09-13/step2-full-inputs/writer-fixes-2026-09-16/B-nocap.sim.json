@@ -1,0 +1,120 @@
+{
+ "total_words": 12725,
+ "flagged": 1714,
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 546,
+   "sim_pct": 10.6
+  },
+  {
+   "index": 2,
+   "title": "La formulazione originaria dell'art. 4 e il divieto di controllo a distanza",
+   "words": 733,
+   "sim_pct": 13.0
+  },
+  {
+   "index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. 151/2015)",
+   "words": 660,
+   "sim_pct": 32.0
+  },
+  {
+   "index": 4,
+   "title": "Accordo sindacale e autorizzazione amministrativa",
+   "words": 659,
+   "sim_pct": 23.2
+  },
+  {
+   "index": 5,
+   "title": "L'utilizzabilità delle informazioni raccolte a fini disciplinari",
+   "words": 794,
+   "sim_pct": 7.7
+  },
+  {
+   "index": 6,
+   "title": "Ambito di applicazione del GDPR al trattamento dei dati dei lavoratori",
+   "words": 590,
+   "sim_pct": 14.9
+  },
+  {
+   "index": 7,
+   "title": "I principi di liceità, minimizzazione e proporzionalità",
+   "words": 515,
+   "sim_pct": 9.3
+  },
+  {
+   "index": 8,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "words": 609,
+   "sim_pct": 10.5
+  },
+  {
+   "index": 9,
+   "title": "Informativa, accountability e valutazione d'impatto (DPIA)",
+   "words": 610,
+   "sim_pct": 19.0
+  },
+  {
+   "index": 10,
+   "title": "Il coordinamento tra GDPR e Codice della privacy (d.lgs. 196/2003)",
+   "words": 507,
+   "sim_pct": 2.4
+  },
+  {
+   "index": 11,
+   "title": "Gli strumenti di lavoro e la deroga dell'art. 4, comma 2",
+   "words": 623,
+   "sim_pct": 10.0
+  },
+  {
+   "index": 12,
+   "title": "Videosorveglianza e sistemi di geolocalizzazione",
+   "words": 680,
+   "sim_pct": 9.9
+  },
+  {
+   "index": 13,
+   "title": "Controllo della posta elettronica e navigazione internet",
+   "words": 650,
+   "sim_pct": 25.7
+  },
+  {
+   "index": 14,
+   "title": "Il lavoro agile e le nuove forme di controllo digitale",
+   "words": 718,
+   "sim_pct": 13.8
+  },
+  {
+   "index": 15,
+   "title": "La giurisprudenza della Corte di Cassazione sui controlli",
+   "words": 703,
+   "sim_pct": 21.6
+  },
+  {
+   "index": 16,
+   "title": "La giurisprudenza della Corte EDU e della Corte di Giustizia UE",
+   "words": 724,
+   "sim_pct": 1.8
+  },
+  {
+   "index": 17,
+   "title": "I provvedimenti del Garante in materia di controllo dei lavoratori",
+   "words": 596,
+   "sim_pct": 3.7
+  },
+  {
+   "index": 18,
+   "title": "Linee guida e prassi applicative",
+   "words": 619,
+   "sim_pct": 27.5
+  },
+  {
+   "index": 19,
+   "title": "Conclusioni",
+   "words": 446,
+   "sim_pct": 8.1
+  }
+ ]
+}
