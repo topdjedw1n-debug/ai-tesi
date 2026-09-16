@@ -1,0 +1,113 @@
+{
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione: domanda di ricerca, obiettivi e metodologia",
+   "words": 585,
+   "ai": 50.4,
+   "sim": 0.0
+  },
+  {
+   "index": 2,
+   "title": "Il ruolo delle PMI e la struttura finanziaria del sistema italiano",
+   "words": 584,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 3,
+   "title": "La dipendenza dal canale bancario e la leva finanziaria",
+   "words": 487,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 4,
+   "title": "Razionamento del credito, asimmetrie informative e credit crunch",
+   "words": 575,
+   "ai": 11.0,
+   "sim": 0.0
+  },
+  {
+   "index": 5,
+   "title": "Definizione ed evoluzione del fintech",
+   "words": 444,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 6,
+   "title": "Peer-to-peer lending e marketplace lending",
+   "words": 445,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 7,
+   "title": "Big data, scoring alternativo e valutazione del rischio",
+   "words": 495,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 8,
+   "title": "Le forme di crowdfunding per le PMI",
+   "words": 433,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 9,
+   "title": "I minibond e la finanza obbligazionaria per le PMI",
+   "words": 391,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 10,
+   "title": "Complementarità dei canali alternativi con il credito bancario",
+   "words": 509,
+   "ai": 14.5,
+   "sim": 0.0
+  },
+  {
+   "index": 11,
+   "title": "Dati e rapporti istituzionali sull'accesso al credito",
+   "words": 466,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 12,
+   "title": "Costi, tassi e condizioni di accesso a confronto",
+   "words": 457,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 13,
+   "title": "Effetti sull'inclusione finanziaria e sul funding gap delle PMI",
+   "words": 414,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 14,
+   "title": "Discussione: implicazioni per il finanziamento delle PMI",
+   "words": 515,
+   "ai": 27.8,
+   "sim": 0.0
+  },
+  {
+   "index": 15,
+   "title": "Conclusioni e prospettive future",
+   "words": 428,
+   "ai": 0.0,
+   "sim": 0.0
+  }
+ ],
+ "body_ai": 4.5,
+ "body_sim": 0.0,
+ "nodoc_ai": 7.9,
+ "withdoc_ai": 1.8
+}
