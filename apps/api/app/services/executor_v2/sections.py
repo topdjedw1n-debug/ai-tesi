@@ -69,29 +69,34 @@ async def write_sections(ctx, outline, pack):
         )
         before = ctx.usage.total_tokens
         budget = output_budget("S4", words, document.language)
-        text, truncated = await model_call(
-            ctx, prompt, budget=budget, purpose="S4", section_index=index
-        )
-        if truncated:
-            continuation, truncated = await model_call(
+
+        async def call(suffix="", scale=1, prompt=prompt, budget=budget, index=index):
+            return await model_call(
                 ctx,
-                prompt
-                + "\nCONTINUE from the exact ending below, without repeating it:\n"
-                + text,
-                budget=budget * POLICY["truncation_multiplier"],
+                prompt + suffix,
+                budget=budget * scale,
                 purpose="S4",
                 section_index=index,
+            )
+
+        text, truncated = await call()
+        if truncated:
+            continuation, truncated = await call(
+                "\nCONTINUE from the exact ending below, without repeating it:\n"
+                + text,
+                POLICY["truncation_multiplier"],
             )
             text += "\n" + continuation
             if truncated:
                 text = material.complete_prefix(text)
                 if len(text.split()) < POLICY["min_kept_words"]:
-                    raise unusable(
-                        "Модель двічі обірвала текст розділу.",
-                    )
+                    raise unusable("Модель двічі обірвала текст розділу.")
                 await ctx.warn("output_truncated_kept", section_index=index)
             else:
                 await ctx.warn("output_truncated_retried", section_index=index)
+        if frame and material.frame_violations(text):
+            text, truncated = await call(material.FRAME_RETRY)
+            await ctx.warn("frame_rewritten", section_index=index)
         proposed = []
         block = STANDARD_BLOCK.search(text)
         if block:

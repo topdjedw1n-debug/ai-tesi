@@ -192,6 +192,8 @@ def test_spec_guardrails():
         "source_full_text_unavailable",
         "section_without_documents",
         "catalogue_unavailable",
+        "plan_material_gap",
+        "frame_rewritten",
         "standard_reference_used",
         "outline_scope_unmapped",
         "output_truncated_retried",

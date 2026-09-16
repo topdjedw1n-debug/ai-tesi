@@ -27,6 +27,17 @@ FRAME_TITLES = re.compile(
     re.I,
 )
 FRAME_RULE = rules.FRAME_RULE
+# The detector marks the chapter walk in conclusions ("il primo capitolo...",
+# 13-14 % in both files of 15-16.09) although the rule forbids it.
+CHAPTER_WALK = re.compile(
+    r"\b(?:il|nel|al|del)\s+(?:primo|secondo|terzo|quarto|quinto|sesto|ultimo)"
+    r"\s+capitolo\b|\bsi\s+articola\b|\bnei\s+capitoli\s+(?:precedenti|successivi)\b"
+    r"|\bthe\s+(?:first|second|third|fourth|fifth|last)\s+chapter\b",
+    re.I,
+)
+FRAME_RETRY = """
+REWRITE the whole section from scratch: the previous draft walked through the chapters ("il primo capitolo...", "si articola"), which is forbidden. Organise the findings by the logic of the answer to the research question; never name, number or sequence the chapters.
+"""
 MAX_ACADEMIC_DOCUMENTS = 2
 # A statute, judgment or authority act contributes at most this many windows:
 # more made the writer retell the act sentence by sentence (B rules2, 15.09:
@@ -49,6 +60,11 @@ def writing_order(outline: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 def summaries(written: list[dict[str, Any]], chars: int) -> list[dict[str, str]]:
     return [{"title": s["title"], "summary": s["content"][-chars:]} for s in written]
+
+
+def frame_violations(text: str) -> list[str]:
+    """Chapter-walk phrases a framing section must not contain."""
+    return [m.group(0) for m in CHAPTER_WALK.finditer(text)]
 
 
 def frame_rule(section: dict[str, Any]) -> str:

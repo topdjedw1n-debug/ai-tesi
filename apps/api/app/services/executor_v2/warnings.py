@@ -15,20 +15,13 @@ WARNING_CODES = {
         "info",
         "Джерело підтверджено, але його текст недоступний для написання.",
     ),
-    "source_full_text_unavailable": (
-        "info",
-        "Повний текст частини джерел не отримано автоматично; використано анотації. За потреби завантажте PDF.",
-    ),
+    "source_full_text_unavailable": ("info", "Частину повних текстів не отримано."),
     "section_without_documents": ("warning", "Розділ без повнотекстових документів."),
     "catalogue_unavailable": ("warning", "Каталог джерел не відповідав."),
-    "standard_reference_used": (
-        "info",
-        "Використано перевірене джерело зі стандартної бібліотеки.",
-    ),
-    "outline_scope_unmapped": (
-        "warning",
-        "План не охоплює частину підтвердженого завдання.",
-    ),
+    "standard_reference_used": ("info", "Джерело зі стандартної бібліотеки."),
+    "plan_material_gap": ("warning", "У пакеті бракує матеріалу для розділу."),
+    "frame_rewritten": ("info", "Рамковий розділ переписано без переказу глав."),
+    "outline_scope_unmapped": ("warning", "План не охоплює частину завдання."),
     "output_truncated_retried": (
         "info",
         "Обрізану відповідь моделі відновлено додатковим зверненням.",
