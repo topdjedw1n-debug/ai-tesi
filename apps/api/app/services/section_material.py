@@ -40,9 +40,11 @@ REWRITE the whole section from scratch: the previous draft walked through the ch
 """
 MAX_ACADEMIC_DOCUMENTS = 2
 # A statute, judgment or authority act contributes at most this many windows:
-# more made the writer retell the act sentence by sentence (B rules2, 15.09:
-# similarity 17 % from close paraphrase of Garante guidelines and statutes).
-MAX_LEGAL_WINDOWS = 3
+# 16.09.2026: the cap of three windows per legal document (15.09) halved the
+# material per section (12 windows against 23 in rules2-B) and the body rose
+# from 8 to 16-18 % AI while similarity stayed at 15-17 %; the character
+# budgets alone bound a document again.
+MAX_LEGAL_WINDOWS = 999
 ANCHORED = re.compile(r"\[[\w:./-]+\]\s*,?\s*(?:pp?\.|art\.)\s*\d|\d")
 
 

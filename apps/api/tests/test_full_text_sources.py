@@ -396,7 +396,7 @@ def test_primary_sources_lead_and_commentary_is_rationed_across_the_work():
     assert all(r["capped"] for r in second if r["key"] != "KLAW")
 
 
-def test_legal_documents_contribute_at_most_three_windows(monkeypatch):
+def test_legal_documents_are_bounded_by_the_character_budgets_only(monkeypatch):
     from app.services.section_material import MAX_LEGAL_WINDOWS
 
     text = "Controllo a distanza dei lavoratori: impianti audiovisivi e strumenti. "
@@ -423,7 +423,7 @@ def test_legal_documents_contribute_at_most_three_windows(monkeypatch):
     monkeypatch.setattr(full_text_sources, "RELATIVE_FLOOR", 0.0)
     items, report = section_evidence(pack, section, [])
     act = next(r for r in report if r["key"] == "KGARANTE")
-    assert act["windows"] == MAX_LEGAL_WINDOWS == 3
+    assert 3 < act["windows"] < MAX_LEGAL_WINDOWS
     assert next(r for r in report if r["key"] == "KDOC")["windows"] >= 1
 
 
