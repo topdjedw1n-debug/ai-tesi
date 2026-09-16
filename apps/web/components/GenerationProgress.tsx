@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { apiClient, API_ENDPOINTS } from '@/lib/api';
+import { GenerationWarning, WarningList } from '@/components/GenerationWarnings';
 
 export interface GenerationStop {
   code: string;
@@ -24,6 +25,7 @@ export interface GenerationJob {
   cost_cents_so_far?: number;
   tokens_so_far?: number;
   warnings_count?: number;
+  warnings?: GenerationWarning[];
   heartbeat_at?: string | null;
   started_at?: string | null;
   observed_at?: string | null;
@@ -98,8 +100,9 @@ export function GenerationProgress({ documentId, onComplete, onError, onCancelle
         </div><p className="mt-1 text-sm">{job.progress}%</p>
       </div>}
       {job?.executor_version === 2 && <p className="mt-3 text-sm text-gray-600">
-        {(job.tokens_so_far || 0).toLocaleString('uk-UA')} токенів · ${((job.cost_cents_so_far || 0) / 100).toFixed(2)} · {job.warnings_count || 0} попереджень
+        {(job.tokens_so_far || 0).toLocaleString('uk-UA')} токенів · ${((job.cost_cents_so_far || 0) / 100).toFixed(2)}
       </p>}
+      {job?.executor_version === 2 && <div className="mt-3"><WarningList warnings={job.warnings} /></div>}
       {job?.stop && <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 p-3">
         <p>{job.stop.message_uk}</p>
         {job.stop.next_action !== 'retry_now' && !ownerMessage && <button onClick={() => { setOwnerMessage(true); onOwnerAction?.(); }} className="mt-2 underline">{job.stop.next_action_label}</button>}

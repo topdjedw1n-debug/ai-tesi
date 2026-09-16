@@ -476,6 +476,7 @@ class JobStatusResponse(BaseModel):
     cost_cents_so_far: int = 0
     tokens_so_far: int = 0
     warnings_count: int = 0
+    warnings: list[dict[str, Any]] = Field(default_factory=list)
     stop: dict[str, Any] | None = None
     result: dict[str, Any] | None = None
     document_id: int | None = None

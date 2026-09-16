@@ -102,6 +102,8 @@ async def get_document_job_status(
         "unknown_provider_attempts": unknown,
     }
 
+    from app.services.generation_warnings import generation_warnings
+
     return JobStatusResponse(
         job_id=int(job.id),
         document_id=document_id,
@@ -111,6 +113,12 @@ async def get_document_job_status(
         attempt_count=int(job.attempt_count or 0),
         max_attempts=int(job.max_attempts or 0),
         recovery=recovery,
+        # The manager reads each warning in words, not a count (16.09.2026).
+        warnings=(
+            await generation_warnings(db, document_id, int(job.id))
+            if is_v2(job)
+            else []
+        ),
         started_at=cast(datetime | None, job.started_at),
         available_at=cast(datetime | None, job.available_at),
         heartbeat_at=cast(datetime | None, job.heartbeat_at),

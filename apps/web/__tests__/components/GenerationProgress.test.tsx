@@ -11,7 +11,8 @@ it('restores API labels, sections, cost and warnings by GET without a socket', a
   render(<GenerationProgress documentId={11} active={false} />)
   expect(await screen.findByText('Написання розділів')).toBeInTheDocument()
   expect(screen.getByText('Розділів збережено: 2 із 6')).toBeInTheDocument()
-  expect(screen.getByText(/\$0.14 · 3 попереджень/)).toBeInTheDocument()
+  expect(screen.getByText(/2\s500 токенів · \$0.14/)).toBeInTheDocument()
+  expect(screen.queryByText(/попереджень/)).not.toBeInTheDocument()
   expect(screen.getByRole('progressbar')).toHaveAttribute('aria-valuenow', '55')
   expect(useWebSocket).not.toHaveBeenCalled()
 })
@@ -61,4 +62,21 @@ it('ages the last heartbeat while the status API is unavailable', async () => {
   expect(screen.getByText('Виконавець не відповідає.')).toBeInTheDocument()
   expect(screen.getByRole('button', { name: 'Звернутися до власника' })).toBeInTheDocument()
   jest.useRealTimers()
+})
+
+it('lists every warning in words with its detail instead of a count', async () => {
+  const warnings = [
+    { id: 1, code: 'catalogue_unavailable', severity: 'warning', stage: 'sources', section_index: null, section_label: 'Загальні зауваження', message_uk: 'Каталог джерел не відповідав.', detail: 'semantic_scholar' },
+    { id: 2, code: 'plan_material_gap', severity: 'warning', stage: 'outline', section_index: 3, section_label: 'Розділ 3', message_uk: 'У пакеті бракує матеріалу для розділу.', detail: 'Casi aziendali: у пакеті немає кейсів' },
+  ]
+  ;(apiClient.get as jest.Mock).mockResolvedValue({ ...base, warnings_count: 2, warnings })
+  render(<GenerationProgress documentId={11} active={false} />)
+  expect(await screen.findByRole('heading', { name: '2 попереджень' })).toBeInTheDocument()
+  expect(screen.getByText('Каталог джерел не відповідав.')).toBeInTheDocument()
+  expect(screen.getByText('semantic_scholar')).toBeInTheDocument()
+  expect(screen.getByText(/Каталог не відповів: джерела дібрано з інших каталогів/)).toBeInTheDocument()
+  expect(screen.getByRole('heading', { name: 'Розділ 3' })).toBeInTheDocument()
+  expect(screen.getByText('Casi aziendali: у пакеті немає кейсів')).toBeInTheDocument()
+  expect(screen.getByText('Розділ буде написано з того, що є в пакеті.')).toBeInTheDocument()
+  expect(screen.queryByText(/завантаж\w* PDF/i)).not.toBeInTheDocument()
 })

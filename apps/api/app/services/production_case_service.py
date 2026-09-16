@@ -1128,6 +1128,7 @@ class ProductionCaseService:
             await self.db.get(AIGenerationJob, latest_job_id) if latest_job_id else None
         )
         from app.services.executor_v2.warnings import STATUS_LABELS, is_v2
+        from app.services.generation_warnings import section_label
 
         v2 = latest_job is not None and is_v2(latest_job)
         generation_warnings = []
@@ -1136,16 +1137,9 @@ class ProductionCaseService:
             if payload.get("job_id") != latest_job_id:
                 continue
             if v2:
+                # Same rows as the work page (app.services.generation_warnings).
                 generation_warnings.append(
-                    {
-                        "id": event.id,
-                        **payload,
-                        "section_label": (
-                            f"Розділ {payload['section_index']}"
-                            if payload.get("section_index")
-                            else "Загальні зауваження"
-                        ),
-                    }
+                    {"id": event.id, **payload, "section_label": section_label(payload)}
                 )
                 continue
             details = list(payload.get("details") or payload.get("issues") or [])

@@ -25,6 +25,7 @@ jest.mock('@/lib/api', () => ({
       PROVENANCE: (id: number) => `/api/v1/documents/${id}/provenance`,
     },
     GENERATE: { FULL: '/api/v1/generate/full-document' },
+    JOBS: { FOR_DOCUMENT: (id: number) => `/api/v1/jobs/document/${id}/status` },
   },
 }))
 
@@ -166,6 +167,28 @@ describe('DocumentDetailPage — contract review (Stage 0)', () => {
     expect(retry.compareDocumentPosition(savedText) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy()
     expect(screen.getAllByTestId('mock-confirm-and-start')).toHaveLength(1)
     expect(apiClient.post).not.toHaveBeenCalled()
+  })
+
+  it('shows the warnings of a finished work in words with their details', async () => {
+    const warnings = [
+      { id: 1, code: 'catalogue_unavailable', severity: 'warning', stage: 'sources', section_label: 'Загальні зауваження', message_uk: 'Каталог джерел не відповідав.', detail: 'semantic_scholar' },
+      { id: 2, code: 'plan_material_gap', severity: 'warning', stage: 'outline', section_index: 3, section_label: 'Розділ 3', message_uk: 'У пакеті бракує матеріалу для розділу.', detail: 'Casi aziendali: у пакеті немає кейсів' },
+    ]
+    ;(apiClient.get as jest.Mock).mockImplementation((url: string) =>
+      url.endsWith('/status')
+        ? Promise.resolve({ job_id: 26, status: 'completed', executor_version: 2, progress: 100, warnings_count: 2, warnings })
+        : Promise.resolve({ ...completedDocument, executor_version: 2, warnings_count: 2 })
+    )
+    render(<DocumentDetailPage />)
+    expect(await screen.findByRole('heading', { name: '2 попереджень' })).toBeInTheDocument()
+    expect(screen.getByText('Каталог джерел не відповідав.')).toBeInTheDocument()
+    expect(screen.getByText('semantic_scholar')).toBeInTheDocument()
+    expect(screen.getByText(/спробуйте пізніше або зверніться до власника/)).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Розділ 3' })).toBeInTheDocument()
+    expect(screen.getByText('Casi aziendali: у пакеті немає кейсів')).toBeInTheDocument()
+    expect(screen.getByText('Розділ буде написано з того, що є в пакеті.')).toBeInTheDocument()
+    expect(screen.queryByText(/завантаж\w* PDF/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/2 попереджень/)).toBeInTheDocument()
   })
 
   it.each(['draft', 'generating', 'failed'])('omits the brief count before any saved section (%s)', async (status) => {

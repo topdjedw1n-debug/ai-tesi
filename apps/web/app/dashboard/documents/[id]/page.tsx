@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { useAuth } from '@/components/providers/AuthProvider'
 import { DashboardLayout } from '@/components/layout/DashboardLayout'
 import { GenerationProgress } from '@/components/GenerationProgress'
+import { GenerationWarnings } from '@/components/GenerationWarnings'
 import { DocumentQualityEvidence } from '@/components/dashboard/DocumentQualityEvidence'
 import { DocumentSources } from '@/components/dashboard/DocumentSources'
 import { DocumentFeedback } from '@/components/dashboard/DocumentFeedback'
@@ -279,6 +280,11 @@ export default function DocumentDetailPage() {
               onChanged={() => setDraftRevision((current) => current + 1)}
             />
           </TaskContractPanel>
+        )}
+
+        {/* Warnings of the finished run, in words: the progress panel shows them while writing. */}
+        {document.status === 'completed' && document.executor_version === 2 && (
+          <GenerationWarnings documentId={documentId} />
         )}
 
         {/* Sources certificate: cited sources with verification statuses */}
