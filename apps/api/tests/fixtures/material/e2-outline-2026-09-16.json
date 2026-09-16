@@ -1,0 +1,301 @@
+{
+ "job_id": 27,
+ "sections": [
+  {
+   "title": "Introduzione: domanda di ricerca, obiettivi e metodologia",
+   "section_index": 1,
+   "scope_ids": [
+    "scope-1"
+   ],
+   "purpose": "Inquadrare il problema dell'accesso al credito delle PMI italiane nell'era fintech e fissare domanda, obiettivi e metodo.",
+   "question": "Perché studiare l'accesso al credito delle PMI italiane nell'era del fintech e con quale disegno di ricerca?",
+   "main_points": [
+    "Rilevanza delle PMI come motore economico e loro dipendenza dal finanziamento esterno",
+    "Domanda di ricerca: se e come lending alternativo, crowdfunding e minibond attenuino i vincoli del credito bancario",
+    "Obiettivi e struttura dei quattro capitoli",
+    "Metodologia: rassegna di studi empirici, working paper e rapporti istituzionali (Banca d'Italia, BCE, Commissione europea, OCSE), citazioni APA"
+   ],
+   "evidence_keys": [
+    "Kad032ce9d20e",
+    "K6d3ea6b1581f"
+   ]
+  },
+  {
+   "title": "Il ruolo delle PMI e la struttura finanziaria del sistema italiano",
+   "section_index": 2,
+   "scope_ids": [
+    "scope-3"
+   ],
+   "purpose": "Descrivere peso e struttura finanziaria delle PMI italiane e la loro base nel tessuto produttivo.",
+   "question": "Che ruolo hanno le PMI nell'economia italiana e come si caratterizza la loro struttura finanziaria?",
+   "main_points": [
+    "Le PMI come backbone del sistema produttivo italiano e lombardo",
+    "Struttura del capitale delle imprese minori e opacità informativa",
+    "Rilevanza quantitativa del comparto (2/3 delle imprese italiane)"
+   ],
+   "evidence_keys": [
+    "Kb24caef6ed53",
+    "K6d3ea6b1581f",
+    "K0067221be533"
+   ]
+  },
+  {
+   "title": "La dipendenza dal canale bancario e la leva finanziaria",
+   "section_index": 3,
+   "scope_ids": [
+    "scope-4"
+   ],
+   "purpose": "Mostrare il carattere bank-based del sistema e la dipendenza delle PMI dal credito bancario.",
+   "question": "Quanto e perché le PMI italiane dipendono dal canale bancario?",
+   "main_points": [
+    "Sistema bank-based e prevalenza del relationship lending nelle banche locali",
+    "Elevata leva finanziaria e indebitamento delle imprese minori",
+    "Modelli di intermediazione bancaria e loro revisione dopo la crisi"
+   ],
+   "evidence_keys": [
+    "Kb24caef6ed53",
+    "Kc1e495cf3766",
+    "Kfc1090c4020b",
+    "K6d3ea6b1581f"
+   ]
+  },
+  {
+   "title": "Razionamento del credito, asimmetrie informative e credit crunch",
+   "section_index": 4,
+   "scope_ids": [
+    "scope-5"
+   ],
+   "purpose": "Analizzare i vincoli di accesso al credito e i meccanismi di razionamento che colpiscono le PMI.",
+   "question": "Quali meccanismi generano razionamento del credito verso le PMI e come si è manifestato il credit crunch?",
+   "main_points": [
+    "Asimmetrie informative e contrazione dei prestiti per micro e piccole imprese",
+    "Ruolo della fragilità finanziaria nel divario di crescita del credito",
+    "Fattori di offerta e minore propensione delle banche a finanziare le piccole imprese",
+    "Modelli predittivi del default e razionamento eccessivo"
+   ],
+   "evidence_keys": [
+    "Kb24caef6ed53",
+    "K230f607607a5",
+    "Kad032ce9d20e"
+   ]
+  },
+  {
+   "title": "Definizione ed evoluzione del fintech",
+   "section_index": 5,
+   "scope_ids": [
+    "scope-8"
+   ],
+   "purpose": "Definire il fintech e ricostruirne l'evoluzione e le linee di ricerca.",
+   "question": "Che cos'è il fintech e come si è evoluto come fenomeno tecnologico-finanziario?",
+   "main_points": [
+    "Definizione di fintech come applicazione di nuove tecnologie ai servizi finanziari",
+    "Evoluzione storica: da PayPal e smartphone alle piattaforme e alla blockchain",
+    "Aree tematiche e linee di ricerca emergenti",
+    "Impatto sulla catena del valore del credito e sugli intermediari tradizionali"
+   ],
+   "evidence_keys": [
+    "K40cf127618bf",
+    "Kbf1e4bf87eab",
+    "K146528e73903"
+   ]
+  },
+  {
+   "title": "Peer-to-peer lending e marketplace lending",
+   "section_index": 6,
+   "scope_ids": [
+    "scope-9"
+   ],
+   "purpose": "Esaminare i modelli di lending alternativo e i loro effetti sulle PMI.",
+   "question": "Come funzionano il P2P e il marketplace lending e con quali effetti sullo sviluppo delle PMI?",
+   "main_points": [
+    "Meccanismo delle piattaforme che disintermediano il credito connettendo prestatori e prenditori",
+    "Evidenza empirica dell'effetto del P2P e del marketplace sullo sviluppo delle MSME",
+    "Accesso più facile e rapido ai capitali per le PMI",
+    "Confronto con l'erogazione bancaria tradizionale"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab",
+    "K0114858a7604",
+    "K3e9631859dd3"
+   ]
+  },
+  {
+   "title": "Big data, scoring alternativo e valutazione del rischio",
+   "section_index": 7,
+   "scope_ids": [
+    "scope-10"
+   ],
+   "purpose": "Analizzare le tecnologie di valutazione del merito creditizio basate su dati alternativi.",
+   "question": "Come big data, IA e dati alternativi trasformano il credit scoring e la valutazione del rischio?",
+   "main_points": [
+    "Credit scoring basato su alternative data, big data e machine learning",
+    "Tecnologie emergenti (IA, blockchain) applicate alla condivisione delle informazioni creditizie",
+    "Miglioramento della valutazione del rischio e riduzione delle barriere informative",
+    "Rischi di security e integrità dei dati"
+   ],
+   "evidence_keys": [
+    "K40cf127618bf",
+    "K3e9631859dd3",
+    "Kf75d003609b7"
+   ]
+  },
+  {
+   "title": "Le forme di crowdfunding per le PMI",
+   "section_index": 8,
+   "scope_ids": [
+    "scope-13"
+   ],
+   "purpose": "Descrivere le principali forme di crowdfunding e il loro uso per il finanziamento delle PMI.",
+   "question": "Quali sono le forme di crowdfunding e come consentono alle PMI di raccogliere capitali?",
+   "main_points": [
+    "Equity, lending e reward crowdfunding: definizioni e differenze",
+    "Piattaforme digitali per finanziare progetti con contributi ridotti",
+    "Ampliamento della platea delle PMI abilitate a raccogliere capitale online",
+    "Ruolo dei portali e requisiti di accesso degli investitori"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab",
+    "K3e9631859dd3"
+   ]
+  },
+  {
+   "title": "I minibond e la finanza obbligazionaria per le PMI",
+   "section_index": 9,
+   "scope_ids": [
+    "scope-14"
+   ],
+   "purpose": "Analizzare i minibond come strumento di finanza obbligazionaria alternativa per le PMI.",
+   "question": "Come i minibond consentono alle PMI di accedere al mercato obbligazionario e cartolarizzare il debito?",
+   "main_points": [
+    "Definizione dei minibond come strumenti di debito per PMI su piattaforme dedicate",
+    "Piattaforme come Epic per il collocamento presso investitori qualificati",
+    "Emissioni obbligazionarie e diversificazione delle fonti di debito",
+    "Regime degli intermediari vigilati e disciplina MiFID/Consob"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab"
+   ]
+  },
+  {
+   "title": "Complementarità dei canali alternativi con il credito bancario",
+   "section_index": 10,
+   "scope_ids": [
+    "scope-16"
+   ],
+   "purpose": "Valutare se e come i canali alternativi si integrino con il credito bancario nella struttura finanziaria delle PMI.",
+   "question": "I canali alternativi sostituiscono o complementano il credito bancario per le PMI?",
+   "main_points": [
+    "Diversificazione delle fonti di finanziamento come risposta alla dipendenza bancaria",
+    "Ripensamento dei modelli operativi delle banche di fronte alle fintech",
+    "Complementarità tra piattaforme, minibond e credito bancario tradizionale",
+    "Recupero di specificità del business bancario tradizionale"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab",
+    "Kfc1090c4020b",
+    "K6d3ea6b1581f"
+   ]
+  },
+  {
+   "title": "Dati e rapporti istituzionali sull'accesso al credito",
+   "section_index": 11,
+   "scope_ids": [
+    "scope-18"
+   ],
+   "purpose": "Presentare l'evidenza empirica e i dati istituzionali sull'accesso al credito delle PMI.",
+   "question": "Cosa dicono i dati econometrici e istituzionali sull'accesso al credito delle PMI italiane?",
+   "main_points": [
+    "Evidenza econometrica Banca d'Italia sulla contrazione differenziata dei prestiti",
+    "Prociclicità del credito bancario e qualità dei prestiti nelle crisi",
+    "Determinanti dei crediti deteriorati verso le imprese",
+    "Contributo dei modelli di default con variabili territoriali"
+   ],
+   "evidence_keys": [
+    "Kb24caef6ed53",
+    "K230f607607a5",
+    "K203b8d3e0f4f"
+   ]
+  },
+  {
+   "title": "Costi, tassi e condizioni di accesso a confronto",
+   "section_index": 12,
+   "scope_ids": [
+    "scope-19"
+   ],
+   "purpose": "Confrontare costi, tassi e condizioni tra credito bancario e canali alternativi.",
+   "question": "Come si confrontano costi, tassi e condizioni di finanziamento tra banche e canali fintech?",
+   "main_points": [
+    "Condizioni e garanzie richieste dal credito bancario nelle diverse fasi di crisi",
+    "Effetti della fragilità finanziaria sul costo e sulla disponibilità del credito",
+    "Condizioni di accesso ai canali alternativi e velocità di erogazione",
+    "Requisiti di accesso e discrezionalità delle piattaforme"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab",
+    "Kad032ce9d20e",
+    "K230f607607a5"
+   ]
+  },
+  {
+   "title": "Effetti sull'inclusione finanziaria e sul funding gap delle PMI",
+   "section_index": 13,
+   "scope_ids": [
+    "scope-20"
+   ],
+   "purpose": "Valutare gli effetti dei canali alternativi sull'inclusione finanziaria e sul gap di finanziamento.",
+   "question": "I canali fintech riducono il funding gap e migliorano l'inclusione finanziaria delle PMI?",
+   "main_points": [
+    "Democratizzazione dell'accesso al credito per soggetti sotto-serviti",
+    "Effetto misurato del lending alternativo sullo sviluppo delle MSME",
+    "Riduzione del gap di finanziamento delle microimprese",
+    "Politiche locali di sostegno alle PMI e al finanziamento"
+   ],
+   "evidence_keys": [
+    "Kde50ddd3d60c",
+    "K3e9631859dd3",
+    "K0114858a7604",
+    "K0067221be533"
+   ]
+  },
+  {
+   "title": "Discussione: implicazioni per il finanziamento delle PMI",
+   "section_index": 14,
+   "scope_ids": [
+    "scope-22"
+   ],
+   "purpose": "Integrare le evidenze dei capitoli precedenti e discuterne le implicazioni.",
+   "question": "Quali implicazioni emergono dal confronto tra credito bancario e canali alternativi per le PMI italiane?",
+   "main_points": [
+    "Sintesi: dipendenza bancaria, razionamento e apertura dei canali alternativi",
+    "Complementarità tra fintech, crowdfunding, minibond e banche",
+    "Rischi di fragilità e di stabilità dei canali alternativi",
+    "Implicazioni per intermediari, imprese e policy"
+   ],
+   "evidence_keys": [
+    "Kbf1e4bf87eab",
+    "K7a3ee4de7c28",
+    "K230f607607a5"
+   ]
+  },
+  {
+   "title": "Conclusioni e prospettive future",
+   "section_index": 15,
+   "scope_ids": [
+    "scope-23"
+   ],
+   "purpose": "Rispondere alla domanda di ricerca e delineare prospettive future.",
+   "question": "Il fintech attenua i vincoli di accesso al credito delle PMI italiane e con quali prospettive?",
+   "main_points": [
+    "Risposta alla domanda di ricerca: complementarità più che sostituzione",
+    "Contributo empirico dei canali alternativi all'accesso al credito",
+    "Limiti dell'analisi e disponibilità dei dati",
+    "Prospettive future per PMI, banche e policy"
+   ],
+   "evidence_keys": [
+    "Kad032ce9d20e",
+    "Kbf1e4bf87eab",
+    "K6d3ea6b1581f"
+   ]
+  }
+ ]
+}

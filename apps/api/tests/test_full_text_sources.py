@@ -117,7 +117,7 @@ def test_document_windows_keep_document_order_and_merge_without_duplicates():
     assert two.count("[page 1] ") == 2
 
 
-def pack_with(*rows, passages=None, uploaded=()):
+def pack_with(*rows, passages=None, uploaded=(), topic="controllo a distanza"):
     sources = []
     for key, title, abstract, url in rows:
         source = SourceDoc(
@@ -132,7 +132,7 @@ def pack_with(*rows, passages=None, uploaded=()):
         )
         freeze_evidence(source, passages or [], key, query=title)
         sources.append(PackedSource(source, key, 1.0))
-    return SourcePack(1, "controllo a distanza", sources=sources, passages=passages)
+    return SourcePack(1, topic, sources=sources, passages=passages)
 
 
 def test_section_evidence_planned_windows_then_relevant_documents():
@@ -192,9 +192,19 @@ def test_section_evidence_planned_windows_then_relevant_documents():
     assert len(queries) == 2 and queries[1] == "remote monitoring"
     assert "controllo a distanza" in queries[0] and "remote" not in queries[0]
     items, report = section_evidence(pack, section, nodes)
-    # Documents with relevant windows come first, most relevant first; the
-    # off-topic upload fails the gate on the section's own wording.
-    assert [i["key"] for i in items] == ["KLAW", "KOAOFF", "KPLAN", "KABS"]
+    # Documents about the section come first (KPLAN carries the node's own
+    # term), then the documents with relevant windows; the off-topic upload
+    # fails the gate on the section's own wording; the planned abstract that
+    # is neither about the section nor windowed is reported as unsuitable and
+    # hands the writer nothing (material fix, 16.09.2026).
+    assert [i["key"] for i in items] == ["KLAW", "KOAOFF", "KPLAN"]
+    assert [r["key"] for r in report] == ["KLAW", "KOAOFF", "KPLAN", "KABS"]
+    assert [r["reason"] for r in report] == [
+        "support",
+        "support",
+        "support",
+        "unsuitable",
+    ]
     law = report[0]
     assert law["planned"] is False and law["score"] >= MIN_RELEVANCE
     assert (
@@ -206,31 +216,35 @@ def test_section_evidence_planned_windows_then_relevant_documents():
     # excerpt (never less than before) and is reported as a gap.
     assert items[2]["text"] == evidence_text(pack.by_key("KPLAN").source)
     assert report[2]["windows"] == 0 and report[2]["gap"] is True
-    # Abstract-only evidence keeps the frozen excerpt exactly as before.
-    assert items[3]["text"] == evidence_text(pack.by_key("KABS").source)
     assert report[3] == {
         "key": "KABS",
         "planned": True,
         "windows": 0,
         "pages": [],
-        "chars": len(items[3]["text"]),
+        "chars": 0,
         "score": 0.0,
         "gap": False,
         "capped": False,
+        "reason": "unsuitable",
     }
     assert sum(r["chars"] for r in report) <= SECTION_EVIDENCE_CHARS + 2400
-    # Without any full text the shape is the historical one: planned keys, excerpts.
+    # Without any full text the shape is the historical one for abstracts
+    # about the section: planned keys, excerpts; a planned abstract on another
+    # subject is dropped.
     plain = pack_with(
-        ("KA", "A", "Abstract A.", None), ("KB", "B", "Abstract B.", None)
+        ("KA", "A", "Abstract A sul controllo a distanza.", None),
+        ("KB", "B", "Abstract B sul controllo a distanza.", None),
+        ("KC", "C", "Abstract C sui ponti ad arco.", None),
     )
     items, report = section_evidence(
-        plain, {**section, "evidence_keys": ["KB", "KA"]}, nodes
+        plain, {**section, "evidence_keys": ["KB", "KA", "KC"]}, nodes
     )
     assert items == [
-        {"key": "KB", "text": "Abstract B."},
-        {"key": "KA", "text": "Abstract A."},
+        {"key": "KB", "text": "Abstract B sul controllo a distanza."},
+        {"key": "KA", "text": "Abstract A sul controllo a distanza."},
     ]
     assert not any(r["windows"] for r in report)
+    assert next(r for r in report if r["key"] == "KC")["reason"] == "unsuitable"
 
 
 def test_section_evidence_shares_the_budget_round_robin(monkeypatch):
@@ -434,7 +448,11 @@ def test_academic_documents_are_not_rationed_where_no_legal_evidence_competes():
     for n in range(4):
         passages += document_windows(f"KP{n}", f"u{n}", [text + "experiment " * n])
         specs.append((f"KP{n}", f"Paper {n}", "Abstract.", f"u{n}"))
-    pack = pack_with(*specs, passages=passages)
+    # The pack's topic is what these documents are about: the document-level
+    # topic gate (material fix, 16.09.2026) keeps their pages.
+    pack = pack_with(
+        *specs, passages=passages, topic="recommender systems collaborative filtering"
+    )
     section = {
         "title": "Collaborative filtering evaluation",
         "purpose": "recommender systems dataset evaluation",

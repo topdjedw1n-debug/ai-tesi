@@ -23,9 +23,9 @@ _NUMBERING = (
 FRAME_TITLES = re.compile(
     _NUMBERING + r"(?:introduzione|introduction|premessa|conclusioni|conclusion[s]?|"
     r"considerazioni\s+(?:finali|conclusive)|вступ|висновки)"
-    r"(?:\s*$|\s+(?:generale|generali|finale|finali)\b|\s+(?:e|ed|and)\s+)",
+    r"(?:\s*$|\s*:|\s+(?:generale|generali|finale|finali)\b|\s+(?:e|ed|and)\s+)",
     re.I,
-)
+)  # "Introduzione: domanda di ricerca…" (E2, 16.09) is a frame title too.
 FRAME_RULE = rules.FRAME_RULE
 # The detector marks the chapter walk in conclusions ("il primo capitolo...",
 # 13-14 % in both files of 15-16.09) although the rule forbids it.

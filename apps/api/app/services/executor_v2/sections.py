@@ -8,7 +8,7 @@ from app.services import section_material as material
 from app.services import writer_rules as rules
 from app.services.academic_context import academic_directive
 from app.services.ai_pipeline.citation_keys import split_group_markers
-from app.services.full_text_sources import section_evidence
+from app.services.full_text_sources import section_evidence, selection_summary
 
 from .budgets import POLICY, model_call, output_budget
 from .warnings import unusable
@@ -43,7 +43,7 @@ async def write_sections(ctx, outline, pack):
             await ctx.warn(
                 "section_without_documents",
                 section_index=index,
-                detail=section["title"],
+                detail=f'{section["title"]}: {selection_summary(selection)}',
             )
         prompt = (
             academic_directive(document)

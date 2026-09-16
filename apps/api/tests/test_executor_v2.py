@@ -1289,7 +1289,12 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     try:
         pack, outline = await prepare(ctx)
         keys = [s.citation_key for s in pack.sources]
-        template = {**outline[0], "evidence_keys": keys, "target_words": 300}
+        template = {
+            **outline[0],
+            "evidence_keys": keys,
+            "target_words": 300,
+            "question": "Sleep nursing findings in the ward",
+        }
         outline = [
             {**template, "section_index": 1, "title": "Introduzione"},
             {**template, "section_index": 2, "title": "Il sonno in reparto"},
@@ -1330,7 +1335,7 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     # the manager; framing sections are not (they write from the chapters).
     flagged = [w for w in ctx.warnings if w["code"] == "section_without_documents"]
     assert [(w["section_index"], w["detail"]) for w in flagged] == [
-        (2, "Il sonno in reparto")
+        (2, "Il sonno in reparto: про питання, але без повного тексту: 2")
     ]
     assert flagged[0]["severity"] == "warning"
     assert ctx.state["sections_done"] == 3

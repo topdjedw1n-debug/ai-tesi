@@ -17,8 +17,14 @@ import httpx
 
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.legal_sources import is_legal_source
+from app.services.material_fit import (
+    MIN_DOCUMENT_TOPIC_SHARE,
+    about_section,
+    document_topic_share,
+)
 from app.services.model_recording import ReplayIncomplete
 from app.services.replay_dependencies import recorded_dependency
+from app.services.search_queries import anchors, english_core
 from app.services.section_material import (
     MAX_ACADEMIC_DOCUMENTS,
     MAX_LEGAL_WINDOWS,
@@ -241,6 +247,7 @@ def section_queries(section: dict[str, Any], nodes: list[dict[str, Any]]) -> lis
     local = [
         section.get("title"),
         section.get("purpose"),
+        section.get("question"),
         *section.get("main_points", []),
     ]
     english: list[Any] = []
@@ -299,6 +306,26 @@ def render_windows(chosen: list[tuple[int, SourcePassage]]) -> str:
     return "\n".join(f"[page {page}] {text}" for _, page, text in blocks)
 
 
+def topic_pattern(pack: Any, nodes: list[dict[str, Any]]) -> re.Pattern[str] | None:
+    """The topic anchors of the work (the S2 on-topic pattern)."""
+    return anchors(str(getattr(pack, "topic", "") or ""), english_core(nodes, 8))
+
+
+def full_text_usable(
+    pack: Any, key: str, nodes: list[dict[str, Any]], pattern: Any = None
+) -> bool:
+    """A document's pages serve the work only when enough of them are about
+    the topic; a same-field text on another question (an HIV-integrase
+    thesis in a run on antibiotic resistance) keeps its abstract at most."""
+    windows = [
+        p.text for p in getattr(pack, "passages", None) or [] if p.citation_key == key
+    ]
+    if not windows:
+        return False
+    pattern = pattern if pattern is not None else topic_pattern(pack, nodes)
+    return document_topic_share(windows, pattern) >= MIN_DOCUMENT_TOPIC_SHARE
+
+
 def section_evidence(
     pack: Any,
     section: dict[str, Any],
@@ -325,38 +352,89 @@ def section_evidence(
     windows: dict[str, list[SourcePassage]] = {}
     for passage in getattr(pack, "passages", None) or []:
         windows.setdefault(passage.citation_key, []).append(passage)
+    pattern = topic_pattern(pack, nodes)
+    had_windows = set(windows)
+    off_topic = {
+        key for key in windows if not full_text_usable(pack, key, nodes, pattern)
+    }
+    for key in off_topic:
+        windows.pop(key)
     queries = section_queries(section, nodes)
     specific = (section_queries(section, []) or [""])[0]
     specific_terms = set(content_terms(specific))
+
+    gates = [(specific, specific_terms)] + [
+        (q, set(content_terms(q))) for q in queries[1:]
+    ]  # the section's own wording, then the English terms of its nodes
+
+    def window_gate(rows: list[SourcePassage]) -> bool:
+        """The document's best window covers the section's own wording, in
+        the plan's language or in the English terms of the section's nodes
+        (off-topic full texts were already removed by the topic share)."""
+        if not rows:
+            return False
+        for query, terms in gates:
+            gate, _, window = max(
+                (score_passage(query, w.text), -i, w) for i, w in enumerate(rows)
+            )
+            matched = len(terms & set(content_terms(window.text)))
+            if gate >= MIN_RELEVANCE and matched >= MIN_MATCHED_TERMS:
+                return True
+        return False
+
+    # One exam for every document, planned or not: about the section (its
+    # nodes' own terms or the section's wording in title/abstract) or a best
+    # window that covers the section's wording; anything else is unsuitable
+    # and hands the writer neither pages nor its excerpt.
     planned: list[str] = []
     excerpts: dict[str, str] = {}
+    reasons: dict[str, str] = {}
     scored: list[tuple[float, int, str, bool, list, float]] = []
     for position, key in enumerate(section["evidence_keys"]):
         packed = pack.by_key(key)
         excerpt = evidence_text(packed.source) if packed else None
         if not excerpt:
             continue
+        rows = windows.get(packed.citation_key, [])
+        fit = about_section(section, nodes, packed.source)
+        if not fit and not window_gate(rows):
+            reasons[packed.citation_key] = (
+                "off_topic_text" if packed.citation_key in off_topic else "unsuitable"
+            )
+            continue
         planned.append(packed.citation_key)
         excerpts[packed.citation_key] = excerpt
-        ranked, best = _ranked(windows.get(packed.citation_key, []), queries)
+        reasons[packed.citation_key] = "support" if fit else "windows"
+        ranked, best = _ranked(rows, queries)
         if ranked:
             scored.append((-(best + PLANNED_BONUS), position, key, True, ranked, best))
     for key, rows in windows.items():
         packed = pack.by_key(key)
-        if key in planned or packed is None or not evidence_text(packed.source):
+        if key in planned or key in reasons or packed is None:
             continue
-        gate, _, window = max(
-            (score_passage(specific, w.text), -i, w) for i, w in enumerate(rows)
-        )
-        matched = len(specific_terms & set(content_terms(window.text)))
+        if not evidence_text(packed.source):
+            continue
+        fit = about_section(section, nodes, packed.source)
+        if not fit and not window_gate(rows):
+            continue
         ranked, best = _ranked(rows, queries)
-        if ranked and gate >= MIN_RELEVANCE and matched >= MIN_MATCHED_TERMS:
+        if ranked:
+            reasons[key] = "support" if fit else "windows"
             scored.append((-best, len(planned), key, False, ranked, best))
     # Primary sources (statutes, judgments, acts) first; academic commentary
     # after them, at most MAX_ACADEMIC_DOCUMENTS per section and, across the
     # work, no commentary document in more than a third of the sections.
+    # Primary sources first, then documents about the section before documents
+    # that only have matching windows (the E2 book on cyber-risk regulation
+    # led six sections while the crowdfunding records were abstracts).
     scored.sort(
-        key=lambda t: (not is_legal_source(pack.by_key(t[2]).source), t[0], t[1], t[2])
+        key=lambda t: (
+            not is_legal_source(pack.by_key(t[2]).source),
+            reasons.get(t[2]) != "support",
+            t[0],
+            t[1],
+            t[2],
+        )
     )
     budget = commentary if commentary is not None else {"cap": 10**6, "used": {}}
     # Commentary is rationed only where primary legal evidence competes with
@@ -409,7 +487,8 @@ def section_evidence(
     report: list[dict[str, Any]] = []
 
     def add(key: str, is_planned: bool, text: str, chosen: list, best: float) -> None:
-        items.append({"key": key, "text": text})
+        if text:
+            items.append({"key": key, "text": text})
         report.append(
             {
                 "key": key,
@@ -419,21 +498,52 @@ def section_evidence(
                 "chars": len(text),
                 "score": round(best, 4),
                 "gap": is_planned
-                and bool(windows.get(key))
+                and key in had_windows
                 and not chosen
                 and key not in capped,
                 "capped": key in capped,
+                "reason": reasons.get(key, "unsuitable"),
             }
         )
 
-    for _, _, key, is_planned, _, best in chosen_docs:
-        chosen = sorted(taken[key], key=lambda t: t[0])
+    # Documents about the section come first, with their pages or their
+    # excerpt; documents that only matched through windows follow with their
+    # pages; a suitable planned document without pages keeps its excerpt (as
+    # before); an unsuitable planned document is reported and hands nothing.
+    ordered = [row for row in chosen_docs if reasons[row[2]] == "support"]
+    ordered += [
+        (0.0, position, key, True, [], _ranked(windows.get(key, []), queries)[1])
+        for position, key in enumerate(planned)
+        if reasons[key] == "support" and key not in {row[2] for row in chosen_docs}
+    ]
+    ordered += [row for row in chosen_docs if reasons[row[2]] != "support"]
+    ordered += [
+        (0.0, position, key, True, [], _ranked(windows.get(key, []), queries)[1])
+        for position, key in enumerate(planned)
+        if reasons[key] == "windows" and key not in {row[2] for row in chosen_docs}
+    ]
+    for _, _, key, is_planned, _, best in ordered:
+        chosen = sorted(taken.get(key, []), key=lambda t: t[0])
         if chosen:
             add(key, is_planned, render_windows(chosen), chosen, best)
         elif is_planned:
             add(key, True, excerpts[key], [], best)
-    for key in planned:
-        if key not in {r["key"] for r in report}:
-            _, best = _ranked(windows.get(key, []), queries)
-            add(key, True, excerpts[key], [], best)
+    for key, reason in reasons.items():
+        if reason in ("unsuitable", "off_topic_text"):
+            add(key, True, "", [], 0.0)
     return items, report
+
+
+def selection_summary(selection: list[dict[str, Any]]) -> str:
+    """Why a section has no pages, for the manager's warning."""
+    counts: dict[str, int] = {}
+    for row in selection:
+        counts[row.get("reason", "")] = counts.get(row.get("reason", ""), 0) + 1
+    labels = {
+        "unsuitable": "не про питання розділу",
+        "off_topic_text": "повний текст не про тему",
+        "support": "про питання, але без повного тексту",
+        "windows": "лише збіг вікон",
+        "capped": "понад ліміт документів",
+    }
+    return "; ".join(f"{labels[k]}: {v}" for k, v in counts.items() if k in labels)

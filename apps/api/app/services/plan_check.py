@@ -16,6 +16,7 @@ import re
 from typing import Any
 
 from app.services.legal_sources import is_legal_source
+from app.services.material_fit import about_section
 from app.services.section_material import is_frame
 from app.services.source_evidence import evidence_text
 
@@ -27,26 +28,51 @@ CASE_SOURCE = re.compile(
 )
 
 
-def is_primary(packed: Any) -> bool:
-    """A document the section can be told from: full text or a legal act."""
+def is_primary(packed: Any, pack: Any = None, nodes: list | None = None) -> bool:
+    """A document the section can be told from: full text on the topic or a
+    legal act (a readable text on another subject is not primary)."""
+    if is_legal_source(packed.source):
+        return True
     meta = packed.source.canonical_metadata or {}
-    return meta.get("evidence_level") == "pdf" or is_legal_source(packed.source)
+    if meta.get("evidence_level") != "pdf":
+        return False
+    if pack is None or not getattr(pack, "passages", None):
+        return True
+    from app.services.full_text_sources import full_text_usable
+
+    return full_text_usable(pack, packed.citation_key, nodes or [])
 
 
 def _scopes(packed: Any) -> set[str]:
     return set((packed.source.canonical_metadata or {}).get("scope_ids") or [])
 
 
-def review(sections: list[dict[str, Any]], pack: Any) -> list[tuple[str, str]]:
-    """Reorder every section's keys in place; return (code, detail) warnings."""
+def review(
+    sections: list[dict[str, Any]], pack: Any, nodes: list[dict[str, Any]] | None = None
+) -> list[tuple[str, str]]:
+    """Reorder every section's keys in place; return (code, detail) warnings.
+
+    A document leads a section only when it is primary and about the section
+    (its nodes' own terms or the section's wording in title/abstract); a
+    readable PDF on another subject is not promoted for having a file."""
+    nodes = nodes or []
     warnings: list[tuple[str, str]] = []
-    primaries = [p for p in pack.sources if is_primary(p)]
+    primaries = [p for p in pack.sources if is_primary(p, pack, nodes)]
     for section in sections:
         if is_frame(section):
             continue
         keys = list(section.get("evidence_keys") or [])
         packed = {k: pack.by_key(k) for k in keys}
-        lead = [k for k in keys if packed[k] is not None and is_primary(packed[k])]
+        lead = [
+            k
+            for k in keys
+            if packed[k] is not None
+            and is_primary(packed[k], pack, nodes)
+            and (
+                is_legal_source(packed[k].source)
+                or about_section(section, nodes, packed[k].source)
+            )
+        ]
         # In law the act or decision leads even when doctrine has full text.
         lead.sort(key=lambda k: not is_legal_source(packed[k].source))
         if not lead:

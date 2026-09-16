@@ -11,8 +11,9 @@ from app.services.citation_verifier import CitationVerifier, SourceInput
 from app.services.full_text_sources import attach_full_text, open_access_link
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
+from app.services.pack_seats import scope_metadata, seat
 from app.services.replay_dependencies import recorded_dependency
-from app.services.search_queries import on_topic, plan
+from app.services.search_queries import is_structural, on_topic, plan
 from app.services.source_evidence import evidence_text, freeze_evidence
 from app.services.uploaded_sources import SourcePassage
 
@@ -106,7 +107,10 @@ async def build_sources(ctx, scopes):
             **metadata,
             "origin": "pack",
             "verification_provider": metadata["provider"],
-            "scope_ids": sorted(filter(None, item["scopes"])),
+            # The query that found the record is history; a node is covered
+            # only by a record that carries the node's own terms.
+            "query_scope_ids": sorted(filter(None, item["scopes"])),
+            **scope_metadata(source, nodes, parents),
         }
         if open_access_link(item["source"]):
             source.canonical_metadata["open_access_url"] = open_access_link(
@@ -141,12 +145,14 @@ async def build_sources(ctx, scopes):
         }
         freeze_evidence(source, passages, key, query=topic)
         # Only relevant local matches contribute to a node's coverage.
-        searchable = (source.title + " " + (evidence_text(source) or "")).casefold()
-        source.canonical_metadata["scope_ids"] = [
-            n["scope_id"]
-            for n in nodes
-            if any(t.casefold() in searchable for t in n["terms_local"] + n["terms_en"])
-        ]
+        source.canonical_metadata.update(
+            scope_metadata(
+                source,
+                nodes,
+                parents,
+                source.title + " " + (evidence_text(source) or ""),
+            )
+        )
         source.canonical_metadata["evidence_level"] = (
             row["origin"] if evidence_text(source) else "none"
         )
@@ -159,27 +165,13 @@ async def build_sources(ctx, scopes):
         if r in uploads
         or not any(sources_equivalent(u.source, r.source) for u in uploads)
     ]
-    # Allocate coverage before filling the remaining slots; DOI aliases count once.
-    selected, identities = [], set()
-
-    def add(row):
-        identity = (row.source.doi or row.source.title).casefold()
-        if identity not in identities and len(selected) < POLICY["max_sources"]:
-            selected.append(row)
-            identities.add(identity)
-
-    for node in nodes:
-        matches = [
-            r
-            for r in checked_rows
-            if node["scope_id"] in r.source.canonical_metadata["scope_ids"]
-            and evidence_text(r.source)
-        ]
-        for row in matches[: POLICY["minimum_evidence_sources"]]:
-            add(row)
-    for row in checked_rows:
-        add(row)
-
+    # Reserved seats per node go to records with the node's own terms first.
+    selected, coverage = seat(
+        checked_rows,
+        nodes,
+        minimum=POLICY["minimum_evidence_sources"],
+        max_sources=POLICY["max_sources"],
+    )
     summary, unavailable = await attach_full_text(selected, passages, semaphore, topic)
     if summary:
         await ctx.emit("executor_full_text", {"sources": summary})
@@ -189,12 +181,12 @@ async def build_sources(ctx, scopes):
         ctx.job.document_id, topic, sources=selected, bilingual=True, passages=passages
     )
     for node in nodes:
-        count = sum(
-            node["scope_id"] in r.source.canonical_metadata["scope_ids"]
-            and bool(evidence_text(r.source))
-            for r in selected
-        )
-        if node["required"] and count < POLICY["minimum_evidence_sources"]:
+        count = coverage.get(node["scope_id"], 0)
+        if (
+            node["required"]
+            and not is_structural(node)
+            and count < POLICY["minimum_evidence_sources"]
+        ):
             await ctx.warn("source_coverage_gap", detail=f'{node["title"]}: {count}')
     for row in selected:
         if not evidence_text(row.source):
@@ -204,6 +196,10 @@ async def build_sources(ctx, scopes):
     await ctx.save_pack(pack)
     await ctx.emit(
         "executor_source_pack",
-        {"sha256": pack.sha256(), "sources": [asdict(s) for s in selected]},
+        {
+            "sha256": pack.sha256(),
+            "sources": [asdict(s) for s in selected],
+            "coverage": coverage,
+        },
     )
     return pack

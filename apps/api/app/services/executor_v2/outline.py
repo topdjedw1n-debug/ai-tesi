@@ -80,7 +80,7 @@ No separate chapter-introduction or chapter-summary sections unless the supervis
         section["level"] = min(
             (levels[s] for s in section["scope_ids"] if s in levels), default=1
         )
-    for code, detail in plan_check.review(sections, pack):
+    for code, detail in plan_check.review(sections, pack, getattr(ctx, "scopes", [])):
         await ctx.warn(code, detail=detail)
     for node in nodes:
         if node["required"] and node["scope_id"] not in covered:

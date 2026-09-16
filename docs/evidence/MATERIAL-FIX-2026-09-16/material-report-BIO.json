@@ -1,0 +1,1665 @@
+{
+ "job_id": 28,
+ "candidates": 263,
+ "verified": 195,
+ "pack_before": [
+  "Si può tornare indietro dalla resistenza batterica acquisita agli antibiotici (AMR)?",
+  "Ora e sempre resistenza? Razionalità e appropriatezza nell’uso degli antibiotici",
+  "L’emergenza della resistenza batterica agli antibiotici e il suo impatto sul laboratorio di microbiologia clinica*",
+  "Bersagli molecolari e potenziali farmaci in grado di rallentare il processo di ipertrofia miocardica",
+  "Test molecolari rapidi nelle infezioni respiratorie: perché la diagnostica avanzata non sempre riduce l’utilizzo di antibiotici?",
+  "Costruzione di chimere molecolari dell'enzima Integrasi di HIV con attività idrolizzante delle LTR virali.",
+  "DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPICHE DI CEPPI DI STAPHYLOCOCCUS IN RELAZIONE A METICILLINO- E VANCOMICINO-RESISTENZA",
+  "Un estere misto degli acidi ialuronico, butirrico e retinoico è in grado di agire come rimodellante inverso della matrice cellulare sui fibroblasti cardiaci",
+  "Identificazione e caratterizzazione di un nuovo sistema tossina-antitossina isolato dal L. rhamnosus",
+  "The Membrane Steps of Bacterial Cell Wall Synthesis as Antibiotic Targets",
+  "Antibiotics That Inhibit Bacterial Cell Wall Synthesis",
+  "Molecular mechanisms of biofilm resistance against antibiotics",
+  "Other Antibiotics Interfering with Bacterial Protein Synthesis",
+  "Antibiotic Targets in Gonococcal Cell Wall Metabolism",
+  "Fitness Costs of Antibiotic Resistance",
+  "Antibiotics That Block DNA Replication and Repair: the Quinolones",
+  "Nonenzymatic Resistance to β-Lactam Antibiotics and Resistance to Other Cell Wall Synthesis Inhibitors",
+  "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and alternative therapeutic strategies",
+  "Antibiotics and Bacterial Resistance in the 21st Century",
+  "Antibiotic resistance in microbes: History, mechanisms, therapeutic strategies and future prospects",
+  "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on Drug Development: A Narrative Review",
+  "Biofilm-Related Infections: Bridging the Gap between Clinical Management and Fundamental Aspects of Recalcitrance toward Antibiotics",
+  "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens",
+  "Horizontal Gene Transfer of Antibiotic Resistance Genes in Biofilms",
+  "The multifaceted roles of antibiotics and antibiotic resistance in nature",
+  "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics",
+  "The fitness costs of antibiotic resistance mutations",
+  "Presunta allergia agli antibiotici beta-lattamici: è tempo di riflessioni e azioni?",
+  "Allergia agli antibiotici beta-lattamici: i miti da sfatare e le azioni pratiche da adottare",
+  "Natura e Frequenza dei Meccanismi di Resistenza agli Aminoglicosidi",
+  "FARINGO-TONSILLITI DA STREPTOCOCCUS PYOGENES: STUDIO DELLA RESISTENZA AI MACROLIDI",
+  "Resistenza Agli Antibiotici: Ecco il Report Dell'Organizzazione Mondiale Della Sanità",
+  "RESISTENZA AD ALTO LIVELLO AI FLUOROCHINOLONI IN UN ISOLATO CILINICO DI STREPTOCOCCUS PNEUMONIAE",
+  "RESISTENZA AI FLUOROCHINOLONI IN STREPTOCOCCHI DI GRUPPO G ISOLATI DA PAZIENTI DIABETICI",
+  "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione",
+  "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA.",
+  "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department",
+  "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso",
+  "Incidence of Acinetobacter baumannii and other pathogens isolated from Intensive Care Unit of the Hospital San Carlo, Genoa - Voltri",
+  "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+ ],
+ "pack_after": [
+  "Antibiotics and Bacterial Resistance in the 21st Century",
+  "Antibiotic resistance in microbes: History, mechanisms, therapeutic strategies and future prospects",
+  "Identificazione e caratterizzazione di un nuovo sistema tossina-antitossina isolato dal L. rhamnosus",
+  "The Membrane Steps of Bacterial Cell Wall Synthesis as Antibiotic Targets",
+  "Acinetobacter baumannii Antibiotic Resistance Mechanisms",
+  "Extracellular DNA Chelates Cations and Induces Antibiotic Resistance in Pseudomonas aeruginosa Biofilms",
+  "Bersagli molecolari e potenziali farmaci in grado di rallentare il processo di ipertrofia miocardica",
+  "Molecular mechanisms of biofilm resistance against antibiotics",
+  "Studio della resistenza ai carbapenemi e alle cefalosporine di terza generazione nella bovina da latte",
+  "Epidemiology and Sensitivity to Antibiotics of Enterobacteriaceae Producing Extended-Spectrum Beta-Lactamases (ESBL) in the Region of Nouakchott (Mauritania)",
+  "The role of biofilms as environmental reservoirs of antibiotic resistance",
+  "Horizontal Gene Transfer of Antibiotic Resistance Genes in Biofilms",
+  "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens",
+  "Molecular mechanisms of biofilm-based antibiotic resistance and tolerance in pathogenic bacteria",
+  "Biofilms as Promoters of Bacterial Antibiotic Resistance and Tolerance",
+  "Klebsiella pneumoniae: a major worldwide source and shuttle for antibiotic resistance",
+  "Antimicrobial Resistance: A Growing Serious Threat for Global Public Health",
+  "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on Drug Development: A Narrative Review",
+  "Phage Therapy, The Best Choice To Overcome Antibiotic Resistance, But Can Never Replace Antibiotics",
+  "Morphological characterization and whole genome analysis of lytic phages against drug resistant human pathogens: an alternative approach to antibiotic therapy",
+  "IMPLEMENTATION AND OPTIMIZATION OF ANTIMICROBIAL STEWARDSHIP PROGRAMS: STRATEGIES FOR RESPONSIBLE ANTIMICROBIAL USE AND RESISTANCE PREVENTION",
+  "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department",
+  "Antimicrobial resistance: Impacts, challenges, and future prospects",
+  "Costruzione di chimere molecolari dell'enzima Integrasi di HIV con attività idrolizzante delle LTR virali.",
+  "DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPICHE DI CEPPI DI STAPHYLOCOCCUS IN RELAZIONE A METICILLINO- E VANCOMICINO-RESISTENZA",
+  "Un estere misto degli acidi ialuronico, butirrico e retinoico è in grado di agire come rimodellante inverso della matrice cellulare sui fibroblasti cardiaci",
+  "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and alternative therapeutic strategies",
+  "Biofilm-Related Infections: Bridging the Gap between Clinical Management and Fundamental Aspects of Recalcitrance toward Antibiotics",
+  "The multifaceted roles of antibiotics and antibiotic resistance in nature",
+  "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics",
+  "The fitness costs of antibiotic resistance mutations",
+  "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione",
+  "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA.",
+  "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso",
+  "Incidence of Acinetobacter baumannii and other pathogens isolated from Intensive Care Unit of the Hospital San Carlo, Genoa - Voltri",
+  "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro",
+  "Antibiotic resistance threats in the United States, 2019",
+  "Human health risk assessment of antibiotic resistance associated with antibiotic residues in the environment: A review",
+  "Microbial Biofilm: A Review on Formation, Infection, Antibiotic Resistance, Control Measures, and Innovative Treatment",
+  "Urban wastewater treatment plants as hotspots for antibiotic resistant bacteria and genes spread into the environment: A review"
+ ],
+ "coverage_after": {
+  "Basi biologiche dell'azione degli antibiotici e meccanismi molecolari di resistenza": 37,
+  "Basi biologiche dell'azione degli antibiotici": 6,
+  "Classi di antibiotici": 5,
+  "Meccanismi molecolari di resistenza": 4,
+  "Beta-lattamasi e resistenza enzimatica": 6,
+  "Diffusione della resistenza: trasferimento genico orizzontale, biofilm e pressione selettiva": 30,
+  "Trasferimento genico orizzontale": 10,
+  "Biofilm": 13,
+  "Pressione selettiva": 16,
+  "Strategie di contrasto: nuovi antibiotici, terapia fagica, antimicrobial stewardship e approccio One Health": 34,
+  "Nuovi antibiotici": 15,
+  "Terapia fagica": 26,
+  "Antimicrobial stewardship": 8,
+  "Approccio One Health": 7
+ },
+ "not_fetched": [
+  "Acinetobacter baumannii Antibiotic Resistance Mechanisms",
+  "Extracellular DNA Chelates Cations and Induces Antibiotic Resistance in Pseudomonas aeruginosa Biofilms",
+  "The role of biofilms as environmental reservoirs of antibiotic resistance",
+  "Biofilms as Promoters of Bacterial Antibiotic Resistance and Tolerance",
+  "Klebsiella pneumoniae: a major worldwide source and shuttle for antibiotic resistance",
+  "Antimicrobial Resistance: A Growing Serious Threat for Global Public Health",
+  "Antimicrobial resistance: Impacts, challenges, and future prospects",
+  "Antibiotic resistance threats in the United States, 2019",
+  "Human health risk assessment of antibiotic resistance associated with antibiotic residues in the environment: A review",
+  "Microbial Biofilm: A Review on Formation, Infection, Antibiotic Resistance, Control Measures, and Innovative Treatment",
+  "Urban wastewater treatment plants as hotspots for antibiotic resistant bacteria and genes spread into the environment: A review"
+ ],
+ "plan_warnings": [
+  [
+   "plan_material_gap",
+   "Meccanismi molecolari di resistenza batterica: без першоджерела"
+  ]
+ ],
+ "order_before": [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  1
+ ],
+ "order_after": [
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  1
+ ],
+ "sections": [
+  {
+   "section_index": 1,
+   "title": "Introduzione",
+   "selection": [
+    {
+     "key": "K05237f02b3b0",
+     "planned": false,
+     "windows": 14,
+     "pages": [
+      1,
+      2,
+      7,
+      9,
+      10,
+      15,
+      16,
+      17,
+      19,
+      20
+     ],
+     "chars": 12021,
+     "score": 0.9591,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "Kf9e6d13bb2a1",
+     "planned": false,
+     "windows": 3,
+     "pages": [
+      1,
+      3
+     ],
+     "chars": 2124,
+     "score": 0.7579,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Incidence of Acinetobacter baumannii and other pathogens isolated from Intensive Care Unit of the Hospital San Carlo, Genoa - Voltri"
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": false,
+     "windows": 2,
+     "pages": [
+      1
+     ],
+     "chars": 1651,
+     "score": 0.6805,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      6
+     ],
+     "chars": 3306,
+     "score": 0.4968,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "Kd3941bc89831",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso"
+    },
+    {
+     "key": "K14c8a16a8ca7",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1323,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic resistance in microbes: History, mechanisms, therapeutic strategies and future prospects"
+    }
+   ]
+  },
+  {
+   "section_index": 2,
+   "title": "Basi biologiche dell'azione degli antibiotici",
+   "selection": [
+    {
+     "key": "Ka6f651df71cb",
+     "planned": true,
+     "windows": 6,
+     "pages": [
+      3,
+      4,
+      10,
+      12
+     ],
+     "chars": 5418,
+     "score": 0.6806,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "The multifaceted roles of antibiotics and antibiotic resistance in nature"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 3,
+     "pages": [
+      1,
+      2,
+      6
+     ],
+     "chars": 2106,
+     "score": 0.192,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K54edb8a531fb",
+     "planned": false,
+     "windows": 8,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 6072,
+     "score": 0.1717,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K995e26c587cd",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1042,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "The Membrane Steps of Bacterial Cell Wall Synthesis as Antibiotic Targets"
+    },
+    {
+     "key": "K50344758674d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Identificazione e caratterizzazione di un nuovo sistema tossina-antitossina isolato dal L. rhamnosus"
+    },
+    {
+     "key": "K333b70de0deb",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1563,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Bersagli molecolari e potenziali farmaci in grado di rallentare il processo di ipertrofia miocardica"
+    },
+    {
+     "key": "K22fd642e55d0",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1999,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Molecular mechanisms of biofilm resistance against antibiotics"
+    },
+    {
+     "key": "Kc4d4f2defc82",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2400,
+     "score": 0.0,
+     "gap": true,
+     "capped": false,
+     "reason": "support",
+     "title": "Un estere misto degli acidi ialuronico, butirrico e retinoico è in grado di agire come rimodellante inverso della matrice cellulare sui fibroblasti cardiaci"
+    },
+    {
+     "key": "Ka7370f084eb0",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": true,
+     "capped": false,
+     "reason": "off_topic_text",
+     "title": "Costruzione di chimere molecolari dell'enzima Integrasi di HIV con attività idrolizzante delle LTR virali."
+    }
+   ]
+  },
+  {
+   "section_index": 3,
+   "title": "Classi di antibiotici e loro spettro d'azione",
+   "selection": [
+    {
+     "key": "K54edb8a531fb",
+     "planned": true,
+     "windows": 5,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 3494,
+     "score": 0.5077,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 7,
+     "pages": [
+      1,
+      2,
+      3,
+      4,
+      5
+     ],
+     "chars": 5904,
+     "score": 0.3111,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K7e370b1046b5",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1821,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Acinetobacter baumannii Antibiotic Resistance Mechanisms"
+    },
+    {
+     "key": "Kf4de27c8cb57",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1636,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Extracellular DNA Chelates Cations and Induces Antibiotic Resistance in Pseudomonas aeruginosa Biofilms"
+    },
+    {
+     "key": "K81d08802a3fa",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Epidemiology and Sensitivity to Antibiotics of Enterobacteriaceae Producing Extended-Spectrum Beta-Lactamases (ESBL) in the Region of Nouakchott (Mauritania)"
+    },
+    {
+     "key": "Kb834d7bc4325",
+     "planned": false,
+     "windows": 6,
+     "pages": [
+      17,
+      18,
+      19,
+      31
+     ],
+     "chars": 5127,
+     "score": 0.4308,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": false,
+     "windows": 5,
+     "pages": [
+      4,
+      6
+     ],
+     "chars": 4076,
+     "score": 0.4297,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "Kaa29a2013f96",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Antibiotics and Bacterial Resistance in the 21st Century"
+    }
+   ]
+  },
+  {
+   "section_index": 4,
+   "title": "Meccanismi molecolari di resistenza batterica",
+   "selection": [
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 3458,
+     "score": 0.2917,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K54edb8a531fb",
+     "planned": false,
+     "windows": 5,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 3662,
+     "score": 0.2674,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K7e370b1046b5",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1821,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Acinetobacter baumannii Antibiotic Resistance Mechanisms"
+    },
+    {
+     "key": "K333b70de0deb",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1563,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Bersagli molecolari e potenziali farmaci in grado di rallentare il processo di ipertrofia miocardica"
+    },
+    {
+     "key": "K22fd642e55d0",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1999,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Molecular mechanisms of biofilm resistance against antibiotics"
+    },
+    {
+     "key": "K05237f02b3b0",
+     "planned": true,
+     "windows": 7,
+     "pages": [
+      3,
+      5,
+      7,
+      9
+     ],
+     "chars": 5966,
+     "score": 0.694,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "Kb834d7bc4325",
+     "planned": false,
+     "windows": 7,
+     "pages": [
+      7,
+      16,
+      17,
+      25,
+      31,
+      46
+     ],
+     "chars": 6320,
+     "score": 0.3002,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "Kcd0d7aceff6c",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and alternative therapeutic strategies"
+    },
+    {
+     "key": "Kc4ad23d70a1f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "The fitness costs of antibiotic resistance mutations"
+    }
+   ]
+  },
+  {
+   "section_index": 5,
+   "title": "Beta-lattamasi e resistenza enzimatica",
+   "selection": [
+    {
+     "key": "K54edb8a531fb",
+     "planned": true,
+     "windows": 9,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 7066,
+     "score": 0.2741,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 7,
+     "pages": [
+      1,
+      2,
+      5
+     ],
+     "chars": 5419,
+     "score": 0.2633,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "Kd3941bc89831",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso"
+    },
+    {
+     "key": "K4013dd3d2e8f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Studio della resistenza ai carbapenemi e alle cefalosporine di terza generazione nella bovina da latte"
+    },
+    {
+     "key": "K81d08802a3fa",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Epidemiology and Sensitivity to Antibiotics of Enterobacteriaceae Producing Extended-Spectrum Beta-Lactamases (ESBL) in the Region of Nouakchott (Mauritania)"
+    },
+    {
+     "key": "K7e370b1046b5",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1821,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Acinetobacter baumannii Antibiotic Resistance Mechanisms"
+    },
+    {
+     "key": "Kb834d7bc4325",
+     "planned": true,
+     "windows": 8,
+     "pages": [
+      18,
+      23,
+      27,
+      32,
+      41,
+      43
+     ],
+     "chars": 6348,
+     "score": 0.4677,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "Kf9e6d13bb2a1",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": true,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Incidence of Acinetobacter baumannii and other pathogens isolated from Intensive Care Unit of the Hospital San Carlo, Genoa - Voltri"
+    }
+   ]
+  },
+  {
+   "section_index": 6,
+   "title": "Trasferimento genico orizzontale",
+   "selection": [
+    {
+     "key": "K05237f02b3b0",
+     "planned": true,
+     "windows": 10,
+     "pages": [
+      10,
+      12,
+      13,
+      14
+     ],
+     "chars": 8760,
+     "score": 0.8986,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 6,
+     "pages": [
+      1,
+      2,
+      5
+     ],
+     "chars": 4517,
+     "score": 0.1961,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K2e03472d6473",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1177,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Horizontal Gene Transfer of Antibiotic Resistance Genes in Biofilms"
+    },
+    {
+     "key": "Kd3941bc89831",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso"
+    },
+    {
+     "key": "Kf35a8a47a0e1",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1403,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Klebsiella pneumoniae: a major worldwide source and shuttle for antibiotic resistance"
+    },
+    {
+     "key": "K50344758674d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Identificazione e caratterizzazione di un nuovo sistema tossina-antitossina isolato dal L. rhamnosus"
+    },
+    {
+     "key": "K7e370b1046b5",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1821,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Acinetobacter baumannii Antibiotic Resistance Mechanisms"
+    }
+   ]
+  },
+  {
+   "section_index": 7,
+   "title": "Biofilm e tolleranza agli antibiotici",
+   "selection": [
+    {
+     "key": "Ka6f651df71cb",
+     "planned": true,
+     "windows": 4,
+     "pages": [
+      3,
+      8,
+      11
+     ],
+     "chars": 3481,
+     "score": 0.8732,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "The multifaceted roles of antibiotics and antibiotic resistance in nature"
+    },
+    {
+     "key": "K547dbefb0c92",
+     "planned": false,
+     "windows": 10,
+     "pages": [
+      2,
+      9,
+      10,
+      11,
+      18,
+      22
+     ],
+     "chars": 8370,
+     "score": 0.6804,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 10,
+     "pages": [
+      1,
+      2,
+      5,
+      6
+     ],
+     "chars": 7006,
+     "score": 0.25,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K22fd642e55d0",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1999,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Molecular mechanisms of biofilm resistance against antibiotics"
+    },
+    {
+     "key": "K22bf3f5baa94",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 788,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Biofilm-Related Infections: Bridging the Gap between Clinical Management and Fundamental Aspects of Recalcitrance toward Antibiotics"
+    },
+    {
+     "key": "K2e03472d6473",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1177,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Horizontal Gene Transfer of Antibiotic Resistance Genes in Biofilms"
+    },
+    {
+     "key": "K7c45eceb5f30",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1104,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Molecular mechanisms of biofilm-based antibiotic resistance and tolerance in pathogenic bacteria"
+    },
+    {
+     "key": "K64622298b277",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1454,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Biofilms as Promoters of Bacterial Antibiotic Resistance and Tolerance"
+    },
+    {
+     "key": "Kf4de27c8cb57",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1636,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Extracellular DNA Chelates Cations and Induces Antibiotic Resistance in Pseudomonas aeruginosa Biofilms"
+    }
+   ]
+  },
+  {
+   "section_index": 8,
+   "title": "Pressione selettiva e uso improprio degli antibiotici",
+   "selection": [
+    {
+     "key": "K05237f02b3b0",
+     "planned": true,
+     "windows": 6,
+     "pages": [
+      7,
+      14
+     ],
+     "chars": 4975,
+     "score": 0.947,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "Ka6f651df71cb",
+     "planned": true,
+     "windows": 6,
+     "pages": [
+      1,
+      6,
+      8,
+      9
+     ],
+     "chars": 5275,
+     "score": 0.5195,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "The multifaceted roles of antibiotics and antibiotic resistance in nature"
+    },
+    {
+     "key": "K547dbefb0c92",
+     "planned": false,
+     "windows": 6,
+     "pages": [
+      10,
+      12,
+      15
+     ],
+     "chars": 5257,
+     "score": 0.4592,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": true,
+     "windows": 5,
+     "pages": [
+      1,
+      2,
+      5,
+      6
+     ],
+     "chars": 3746,
+     "score": 0.3993,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "Kf35a8a47a0e1",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1403,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Klebsiella pneumoniae: a major worldwide source and shuttle for antibiotic resistance"
+    },
+    {
+     "key": "Kcfc655a2a483",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1876,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antimicrobial Resistance: A Growing Serious Threat for Global Public Health"
+    }
+   ]
+  },
+  {
+   "section_index": 9,
+   "title": "Nuovi antibiotici e inibitori delle beta-lattamasi",
+   "selection": [
+    {
+     "key": "K547dbefb0c92",
+     "planned": true,
+     "windows": 8,
+     "pages": [
+      1,
+      2,
+      12,
+      14,
+      15,
+      16,
+      18,
+      19
+     ],
+     "chars": 7249,
+     "score": 0.6381,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics"
+    },
+    {
+     "key": "K05237f02b3b0",
+     "planned": true,
+     "windows": 8,
+     "pages": [
+      2,
+      7,
+      15,
+      16,
+      17,
+      20
+     ],
+     "chars": 7240,
+     "score": 0.4768,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      1,
+      4
+     ],
+     "chars": 3297,
+     "score": 0.4665,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 2,
+     "pages": [
+      6
+     ],
+     "chars": 1656,
+     "score": 0.4647,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K995e26c587cd",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1042,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "The Membrane Steps of Bacterial Cell Wall Synthesis as Antibiotic Targets"
+    },
+    {
+     "key": "K09cdf4cb69c9",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on Drug Development: A Narrative Review"
+    },
+    {
+     "key": "Kcd0d7aceff6c",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1352,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and alternative therapeutic strategies"
+    },
+    {
+     "key": "Kaa29a2013f96",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1020,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotics and Bacterial Resistance in the 21st Century"
+    },
+    {
+     "key": "Kcfc655a2a483",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1876,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antimicrobial Resistance: A Growing Serious Threat for Global Public Health"
+    }
+   ]
+  },
+  {
+   "section_index": 10,
+   "title": "Terapia fagica",
+   "selection": [
+    {
+     "key": "K547dbefb0c92",
+     "planned": true,
+     "windows": 6,
+     "pages": [
+      13,
+      16,
+      17
+     ],
+     "chars": 4975,
+     "score": 1.172,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics"
+    },
+    {
+     "key": "K05237f02b3b0",
+     "planned": false,
+     "windows": 7,
+     "pages": [
+      12,
+      14,
+      18,
+      20
+     ],
+     "chars": 6042,
+     "score": 0.6353,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "Kb834d7bc4325",
+     "planned": false,
+     "windows": 6,
+     "pages": [
+      9,
+      37,
+      45,
+      46,
+      51,
+      52
+     ],
+     "chars": 5444,
+     "score": 0.3378,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "K54edb8a531fb",
+     "planned": false,
+     "windows": 3,
+     "pages": [
+      1,
+      2
+     ],
+     "chars": 2715,
+     "score": 0.301,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K09cdf4cb69c9",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on Drug Development: A Narrative Review"
+    },
+    {
+     "key": "K6e06074b689d",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1128,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Phage Therapy, The Best Choice To Overcome Antibiotic Resistance, But Can Never Replace Antibiotics"
+    },
+    {
+     "key": "K52c99d48a4be",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1999,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Morphological characterization and whole genome analysis of lytic phages against drug resistant human pathogens: an alternative approach to antibiotic therapy"
+    },
+    {
+     "key": "Kaa29a2013f96",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1020,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotics and Bacterial Resistance in the 21st Century"
+    },
+    {
+     "key": "Kcd0d7aceff6c",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and alternative therapeutic strategies"
+    }
+   ]
+  },
+  {
+   "section_index": 11,
+   "title": "Antimicrobial stewardship",
+   "selection": [
+    {
+     "key": "Kb834d7bc4325",
+     "planned": true,
+     "windows": 10,
+     "pages": [
+      1,
+      5,
+      8,
+      12,
+      21,
+      27
+     ],
+     "chars": 6868,
+     "score": 0.8474,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": true,
+     "windows": 2,
+     "pages": [
+      1
+     ],
+     "chars": 1651,
+     "score": 0.7586,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "K547dbefb0c92",
+     "planned": false,
+     "windows": 8,
+     "pages": [
+      10,
+      11,
+      14,
+      15,
+      18,
+      27
+     ],
+     "chars": 6692,
+     "score": 0.4177,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resistance, interaction with host, technology advances and emerging therapeutics"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 5,
+     "pages": [
+      2,
+      5,
+      6
+     ],
+     "chars": 4363,
+     "score": 0.3763,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "Kc11ee2714325",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1338,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "IMPLEMENTATION AND OPTIMIZATION OF ANTIMICROBIAL STEWARDSHIP PROGRAMS: STRATEGIES FOR RESPONSIBLE ANTIMICROBIAL USE AND RESISTANCE PREVENTION"
+    },
+    {
+     "key": "K25f78bd789df",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1715,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antimicrobial resistance: Impacts, challenges, and future prospects"
+    },
+    {
+     "key": "K7e370b1046b5",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1821,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Acinetobacter baumannii Antibiotic Resistance Mechanisms"
+    }
+   ]
+  },
+  {
+   "section_index": 12,
+   "title": "Approccio One Health",
+   "selection": [
+    {
+     "key": "K05237f02b3b0",
+     "planned": true,
+     "windows": 7,
+     "pages": [
+      1,
+      7,
+      10,
+      11,
+      14,
+      15
+     ],
+     "chars": 6337,
+     "score": 0.5682,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resistance Determinants of Antibiotic Producers, Environmental Bacteria, and Clinical Pathogens"
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": true,
+     "windows": 7,
+     "pages": [
+      1,
+      6,
+      7
+     ],
+     "chars": 4919,
+     "score": 0.1987,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "Kf9e6d13bb2a1",
+     "planned": false,
+     "windows": 6,
+     "pages": [
+      1,
+      2,
+      3
+     ],
+     "chars": 4676,
+     "score": 0.193,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Incidence of Acinetobacter baumannii and other pathogens isolated from Intensive Care Unit of the Hospital San Carlo, Genoa - Voltri"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      1,
+      2,
+      6
+     ],
+     "chars": 2866,
+     "score": 0.1774,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "K25f78bd789df",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 1715,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Antimicrobial resistance: Impacts, challenges, and future prospects"
+    },
+    {
+     "key": "K4013dd3d2e8f",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 2000,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Studio della resistenza ai carbapenemi e alle cefalosporine di terza generazione nella bovina da latte"
+    },
+    {
+     "key": "Ka6f651df71cb",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": true,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "The multifaceted roles of antibiotics and antibiotic resistance in nature"
+    },
+    {
+     "key": "K856135a96358",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPICHE DI CEPPI DI STAPHYLOCOCCUS IN RELAZIONE A METICILLINO- E VANCOMICINO-RESISTENZA"
+    }
+   ]
+  },
+  {
+   "section_index": 13,
+   "title": "Conclusioni",
+   "selection": [
+    {
+     "key": "K54edb8a531fb",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      1
+     ],
+     "chars": 2598,
+     "score": 0.2622,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI CONFRONTI DI PSEUDOMONAS AERUGINOSA."
+    },
+    {
+     "key": "K705282721fcb",
+     "planned": false,
+     "windows": 8,
+     "pages": [
+      1,
+      2,
+      4,
+      6,
+      7
+     ],
+     "chars": 6933,
+     "score": 0.2217,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "Surveillance of hospital-acquired infections and monitoring of empiric antibiotic therapy in an internal medicine department"
+    },
+    {
+     "key": "K4e91a80c48cd",
+     "planned": false,
+     "windows": 4,
+     "pages": [
+      1,
+      2,
+      5
+     ],
+     "chars": 2856,
+     "score": 0.2107,
+     "gap": false,
+     "capped": false,
+     "reason": "support",
+     "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla discussione"
+    },
+    {
+     "key": "Kb834d7bc4325",
+     "planned": false,
+     "windows": 8,
+     "pages": [
+      7,
+      8,
+      11,
+      34,
+      35
+     ],
+     "chars": 5900,
+     "score": 0.4316,
+     "gap": false,
+     "capped": false,
+     "reason": "windows",
+     "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro"
+    },
+    {
+     "key": "K14c8a16a8ca7",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Antibiotic resistance in microbes: History, mechanisms, therapeutic strategies and future prospects"
+    },
+    {
+     "key": "K09cdf4cb69c9",
+     "planned": true,
+     "windows": 0,
+     "pages": [],
+     "chars": 0,
+     "score": 0.0,
+     "gap": false,
+     "capped": false,
+     "reason": "unsuitable",
+     "title": "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on Drug Development: A Narrative Review"
+    }
+   ]
+  }
+ ],
+ "markdown": "# Material report — La resistenza agli antibiotici: meccanismi molecolari della resistenza batterica e strateg (job 28)\n\nRecorded candidates on topic: 263; verified: 195 (dropped or unverified: 68).\nBEFORE pack: 40 sources; AFTER pack: 40 sources; in common: 23.\nFull texts recorded in this run: 20 links with pages: 10; seated AFTER with pages: 10; seated AFTER whose PDF was never fetched in this run: 11.\n\n## Coverage per node (records with readable text carrying the node's own terms)\n\n| Node | BEFORE (query-credited) | AFTER (own terms) |\n|---|---:|---:|\n| Basi biologiche dell'azione degli antibiotici e meccanismi m | 28 | 37 |\n| Basi biologiche dell'azione degli antibiotici | 20 | 6 |\n| Classi di antibiotici | 16 | 5 |\n| Meccanismi molecolari di resistenza | 9 | 4 |\n| Beta-lattamasi e resistenza enzimatica | 7 | 6 |\n| Diffusione della resistenza: trasferimento genico orizzontal | 11 | 30 |\n| Trasferimento genico orizzontale | 7 | 10 |\n| Biofilm | 4 | 13 |\n| Pressione selettiva | 6 | 16 |\n| Strategie di contrasto: nuovi antibiotici, terapia fagica, a | 11 | 34 |\n| Nuovi antibiotici | 9 | 15 |\n| Terapia fagica | 3 | 26 |\n| Antimicrobial stewardship | 6 | 8 |\n| Approccio One Health | 5 | 7 |\n\n## Records with a node's own terms: seated?\n\n| Node | verified records with own terms | seated BEFORE | seated AFTER |\n|---|---:|---:|---:|\n| Basi biologiche dell'azione degli antibiotici | 11 | 11 | 6 |\n| Classi di antibiotici | 41 | 7 | 5 |\n| Meccanismi molecolari di resistenza | 11 | 3 | 4 |\n| Beta-lattamasi e resistenza enzimatica | 37 | 4 | 6 |\n| Trasferimento genico orizzontale | 31 | 7 | 10 |\n| Biofilm | 41 | 8 | 13 |\n| Pressione selettiva | 39 | 11 | 16 |\n| Nuovi antibiotici | 47 | 12 | 15 |\n| Terapia fagica | 87 | 21 | 27 |\n| Antimicrobial stewardship | 26 | 4 | 8 |\n| Approccio One Health | 25 | 2 | 7 |\n\n## Sections: documents handing the writer material\n\n| § | Section | BEFORE (recorded) | AFTER (current code) |\n|---|---|---|---|\n| 1 | Introduzione | Ora e sempre resistenza? Raz, Enterobacteriaceae produttri, Antibiotic resistance in mic | Antibiotic Resistance Mechan★[support], Incidence of Acinetobacter b★[support], Surveillance of hospital-acq★[support], L’interpretazione dei saggi ★[support], Enterobacteriaceae produttri[support], Antibiotic resistance in mic[support] |\n| 2 | Basi biologiche dell'azione degli antibi | Costruzione di chimere molec★, The Membrane Steps of Bacter, Antibiotic Targets in Gonoco, Identificazione e caratteriz | The multifaceted roles of an★[support], L’interpretazione dei saggi ★[support], INTERAZIONE SINERGICA DEI GL★[support], The Membrane Steps of Bacter[support], Identificazione e caratteriz[support], Bersagli molecolari e potenz[support], Molecular mechanisms of biof[support], Un estere misto degli acidi [support] |\n| 3 | Classi di antibiotici e loro spettro d'a | INTERAZIONE SINERGICA DEI GL★, &lt;em&gt;Antimicrobial stew★, Surveillance of hospital-acq★, Incidence of Acinetobacter b★, Antibiotics and Bacterial Re, Presunta allergia agli antib | INTERAZIONE SINERGICA DEI GL★[support], L’interpretazione dei saggi ★[support], Acinetobacter baumannii Anti[support], Extracellular DNA Chelates C[support], Epidemiology and Sensitivity[support], &lt;em&gt;Antimicrobial stew★[windows], Surveillance of hospital-acq★[windows] — dropped: Antibiotics and Bacteria |\n| 4 | Meccanismi molecolari di resistenza batt | Antibiotic Resistance Mechan★, Costruzione di chimere molec★, &lt;em&gt;Antimicrobial stew★, L’interpretazione dei saggi ★, Antibiotic resistance in Pse, The fitness costs of antibio | L’interpretazione dei saggi ★[support], INTERAZIONE SINERGICA DEI GL★[support], Acinetobacter baumannii Anti[support], Bersagli molecolari e potenz[support], Molecular mechanisms of biof[support], Antibiotic Resistance Mechan★[windows], &lt;em&gt;Antimicrobial stew★[windows] — dropped: Antibiotic resistance in, The fitness costs of ant |\n| 5 | Beta-lattamasi e resistenza enzimatica | &lt;em&gt;Antimicrobial stew★, Incidence of Acinetobacter b★, Enterobacteriaceae produttri | INTERAZIONE SINERGICA DEI GL★[support], L’interpretazione dei saggi ★[support], Enterobacteriaceae produttri[support], Studio della resistenza ai c[support], Epidemiology and Sensitivity[support], Acinetobacter baumannii Anti[support], &lt;em&gt;Antimicrobial stew★[windows] — dropped: Incidence of Acinetobact |\n| 6 | Trasferimento genico orizzontale | Antibiotic Resistance Mechan★, Horizontal Gene Transfer of , Enterobacteriaceae produttri | Antibiotic Resistance Mechan★[support], L’interpretazione dei saggi ★[support], Horizontal Gene Transfer of [support], Enterobacteriaceae produttri[support], Klebsiella pneumoniae: a maj[support], Identificazione e caratteriz[support], Acinetobacter baumannii Anti[support] |\n| 7 | Biofilm e tolleranza agli antibiotici | Molecular mechanisms of biof, Biofilm-Related Infections: , Horizontal Gene Transfer of  | The multifaceted roles of an★[support], Pseudomonas aeruginosa: path★[support], L’interpretazione dei saggi ★[support], Molecular mechanisms of biof[support], Biofilm-Related Infections: [support], Horizontal Gene Transfer of [support], Molecular mechanisms of biof[support], Biofilms as Promoters of Bac[support], Extracellular DNA Chelates C[support] |\n| 8 | Pressione selettiva e uso improprio degl | The multifaceted roles of an★, L’interpretazione dei saggi ★, &lt;em&gt;Antimicrobial stew★, Si può tornare indietro dall | Antibiotic Resistance Mechan★[support], The multifaceted roles of an★[support], Pseudomonas aeruginosa: path★[support], L’interpretazione dei saggi ★[support], Klebsiella pneumoniae: a maj[support], Antimicrobial Resistance: A [support] |\n| 9 | Nuovi antibiotici e inibitori delle beta | Antibiotic Resistance Mechan★, &lt;em&gt;Antimicrobial stew★, The Membrane Steps of Bacter, Origin of Antibiotics and An, Antibiotic resistance in Pse | Pseudomonas aeruginosa: path★[support], Antibiotic Resistance Mechan★[support], Surveillance of hospital-acq★[support], L’interpretazione dei saggi ★[support], The Membrane Steps of Bacter[support], Origin of Antibiotics and An[support], Antibiotic resistance in Pse[support], Antibiotics and Bacterial Re[support], Antimicrobial Resistance: A [support] |\n| 10 | Terapia fagica | Pseudomonas aeruginosa: path★, Origin of Antibiotics and An, Antibiotic resistance in Pse | Pseudomonas aeruginosa: path★[support], Antibiotic Resistance Mechan★[support], &lt;em&gt;Antimicrobial stew★[support], INTERAZIONE SINERGICA DEI GL★[support], Origin of Antibiotics and An[support], Phage Therapy, The Best Choi[support], Morphological characterizati[support], Antibiotics and Bacterial Re[support] — dropped: Antibiotic resistance in |\n| 11 | Antimicrobial stewardship | Surveillance of hospital-acq★, Incidence of Acinetobacter b★, &lt;em&gt;Antimicrobial stew, Allergia agli antibiotici be | &lt;em&gt;Antimicrobial stew★[support], Surveillance of hospital-acq★[support], Pseudomonas aeruginosa: path★[support], L’interpretazione dei saggi ★[support], IMPLEMENTATION AND OPTIMIZAT[support], Antimicrobial resistance: Im[support], Acinetobacter baumannii Anti[support] |\n| 12 | Approccio One Health | Antibiotic Resistance Mechan★, The multifaceted roles of an★, DETERMINAZIONE DELLE CARATTE | Antibiotic Resistance Mechan★[support], Surveillance of hospital-acq★[support], Incidence of Acinetobacter b★[support], L’interpretazione dei saggi ★[support], Antimicrobial resistance: Im[support], Studio della resistenza ai c[support] — dropped: The multifaceted roles o, DETERMINAZIONE DELLE CAR |\n| 13 | Conclusioni | Antibiotic resistance in mic, Si può tornare indietro dall, Origin of Antibiotics and An | INTERAZIONE SINERGICA DEI GL★[support], Surveillance of hospital-acq★[support], L’interpretazione dei saggi ★[support], &lt;em&gt;Antimicrobial stew★[windows] — dropped: Antibiotic resistance in, Origin of Antibiotics an |\n\nPlan check warnings AFTER: [('plan_material_gap', 'Meccanismi molecolari di resistenza batterica: без першоджерела')]\nWriting order BEFORE (recorded): [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]\nWriting order AFTER: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]\n\n★ = pages (windows); no star = excerpt only."
+}
