@@ -1424,3 +1424,98 @@ async def test_catalogue_failure_is_visible_and_empty_answers_are_not(
     assert sum(e["outcome"] == "received" for e in searches) == len(
         asked["crossref"]
     ) + len(asked["openalex"])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("cancel_at", ["S2", "S3"])
+async def test_cancellation_during_a_stage_does_not_start_the_next_one(
+    db_session, monkeypatch, cancel_at
+):
+    """Idle session 16.09.2026, point 5a: the manager cancels while S2 (search)
+    or S3 (plan) is in flight. The call already sent finishes and is paid for;
+    the next stage never starts, because every fenced write after the cancel
+    loses the lease. The run ends without a technical stop and the job stays
+    cancelled, so no section is written and no DOCX is produced."""
+    from app.core import database
+    from app.services.executor_v2 import sources
+    from app.services.executor_v2.run import run
+    from app.services.generation_worker import cancel_active_generation_job
+    from app.services.storage_service import StorageService
+
+    claimed, _, _, _ = await seed(db_session)
+    mock_sources(monkeypatch)
+
+    async def cancel():
+        async with database.AsyncSessionLocal() as db:
+            cancelled = await cancel_active_generation_job(
+                db, document_id=claimed.document_id, cancelled_by="user:1"
+            )
+        assert cancelled == claimed.id
+
+    if cancel_at == "S2":
+        recorded_search = sources.search
+
+        async def search_then_cancel(provider, query):
+            rows = await recorded_search(provider, query)
+            await cancel()
+            return rows
+
+        monkeypatch.setattr(sources, "search", search_then_cancel)
+    replies = [response(json.dumps({"nodes": NODES})), response(json.dumps(PLAN))]
+    calls = []
+
+    async def provider(self, **request):
+        calls.append(request["messages"][0]["content"][:30])
+        reply = replies.pop(0)
+        if cancel_at == "S3" and len(calls) == 2:
+            await cancel()  # the plan call was already sent: it completes and costs
+        return reply
+
+    monkeypatch.setattr(Context, "provider", provider)
+    uploads = []
+
+    async def upload(self, name, data, content_type):
+        uploads.append(name)
+        return "s3://local-test/" + name
+
+    monkeypatch.setattr(StorageService, "upload_file", upload)
+
+    result = await asyncio.wait_for(run(claimed), timeout=5)
+
+    assert result is None and uploads == []
+    assert len(calls) == {"S2": 1, "S3": 2}[cancel_at]
+    db_session.expire_all()
+    row = await db_session.get(AIGenerationJob, claimed.id)
+    assert row.status == "cancelled" and row.lease_token is None
+    assert row.error_message is None
+    assert row.request_payload["execution"].get("stop") is None
+    assert (await db_session.get(Document, claimed.document_id)).status == "cancelled"
+    sections = (
+        (
+            await db_session.execute(
+                select(DocumentSection).where(
+                    DocumentSection.document_id == claimed.document_id
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    assert sections == []
+    events = (
+        (
+            await db_session.execute(
+                select(DocumentProvenance)
+                .where(DocumentProvenance.document_id == claimed.document_id)
+                .order_by(DocumentProvenance.id)
+            )
+        )
+        .scalars()
+        .all()
+    )
+    started = [
+        e.payload["step"] for e in events if e.event_type == "executor_step_started"
+    ]
+    assert started == {"S2": ["S1", "S2"], "S3": ["S1", "S2", "S3"]}[cancel_at]
+    assert "executor_section" not in {e.event_type for e in events}
+    assert "generation_cancelled" in {e.event_type for e in events}
