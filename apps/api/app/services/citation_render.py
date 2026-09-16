@@ -29,14 +29,53 @@ ARTICLE_LOCATOR = re.compile(
     re.I,
 )
 SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+")
+# "(UE) 2016/679" belongs to the official name; "(Statuto dei lavoratori)" and
+# "(GDPR)" are asides that start the manager's notes.
+ASIDE = re.compile(r" \((?!(?:UE|CE|CEE|EU|EC|Euratom)\)\s*\d)", re.I)
+ORDINAL = r"(?:[\s-]*(?:bis|ter|quater|quinquies|sexies|septies|octies|novies|decies))?"
+ARTICLE = re.compile(r"artt?\.\s*(\d+" + ORDINAL + ")", re.I)
+OWN_ARTICLE = re.compile(r",?\s*artt?\.\s*\d+" + ORDINAL + r"\s*$", re.I)
+AMENDED = re.compile(
+    r"\(Modific\w*\s+all['’]\s*art(?:icolo|\.)\s*(\d+"
+    + ORDINAL
+    + r")\s+(?:del|della|dello|al|alla|allo)\s+([^()]+?)\s*\)",
+    re.I,
+)
 
 
 def legal_label(title: str) -> str:
     """The specific act or decision as the manager named it, without asides."""
-    label = str(title or "").split(" (", 1)[0]
+    label = ASIDE.split(" ".join(str(title or "").split()), 1)[0]
     label = re.sub(r",\s*testo vigente\s*$", "", label, flags=re.I)
-    label = " ".join(label.split()).rstrip(" .,;")
-    return label[:120]
+    return label.rstrip(" .,;")[:120]
+
+
+def article_number(text: str) -> str | None:
+    match = ARTICLE.search(text)
+    return re.sub(r"[\s-]+", "-", match.group(1)).lower() if match else None
+
+
+def legal_citation(label: str, title: str, locator: str) -> str:
+    """An article locator on an act the manager named by one of its articles.
+
+    The same article ("art. 23, comma 1" on "…, n. 151, art. 23") is one
+    reference, not two. The article of the act it amends, declared in the
+    title as "(Modifiche all'articolo 4 della legge …, n. 300)", is cited as
+    that act's article as amended. Any other pairing stays as written: the
+    amending act's article and the amended act's article are different
+    references and are never merged mechanically."""
+    own = OWN_ARTICLE.search(label)
+    number = article_number(locator)
+    if own and number == article_number(own.group(0)):
+        return f"({label}{locator[ARTICLE.search(locator).end():]})"
+    amended = AMENDED.search(title)
+    if own and amended and number == article_number("art. " + amended.group(1)):
+        act = amended.group(2).strip().rstrip(" .,;")
+        return (
+            f"({act[:1].upper()}{act[1:]}, {locator}, come modificato "
+            f"dall'{own.group(0).strip(', ')}, {label[: own.start()]})"
+        )
+    return f"({label}, {locator})"
 
 
 def sentence_at(text: str, marker: str) -> str:
@@ -97,8 +136,12 @@ def render_citations(
 
         statute = legal and bool(STATUTE_TITLES.match(source.title or ""))
 
-        def replace(match, citation=citation, statute=statute):
+        def replace(match, citation=citation, statute=statute, source=source):
             if match.group(3):
+                if is_legal_source(source):
+                    return legal_citation(
+                        citation[1:-1], source.title, match.group(3).strip()
+                    )
                 return f"{citation[:-1]}, {match.group(3).strip()})"
             if match.group(1) and not statute:
                 return with_locator(citation, match.group(1), match.group(2))

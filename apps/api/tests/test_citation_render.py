@@ -218,3 +218,93 @@ def test_section_issues_strip_bare_keys_and_flag_decision_years():
         "decision_year_mismatch": "n. 15391/2022 (fonte: 2024)",
     }
     assert notes["unpaged"] == ["§4: 1"] and notes["quoted"][0].startswith("§4: ")
+
+
+def test_official_name_parenthesis_survives_and_asides_are_dropped():
+    assert (
+        legal_label(
+            "Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio (GDPR), "
+            "articoli 4, 5, 6, 9, 13, 22, 25, 35 e 88"
+        )
+        == "Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio"
+    )
+    assert legal_label("Direttiva 95/46/CE (abrogata)") == "Direttiva 95/46/CE"
+    assert (
+        legal_label(
+            "Legge 20 maggio 1970, n. 300 (Statuto dei lavoratori), art. 4 "
+            "(Impianti audiovisivi), testo vigente"
+        )
+        == "Legge 20 maggio 1970, n. 300"
+    )
+    assert (
+        legal_label(
+            "Decreto legislativo 14 settembre 2015, n. 151, art. 23 "
+            "(Modifiche all'articolo 4 della legge 20 maggio 1970, n. 300)"
+        )
+        == "Decreto legislativo 14 settembre 2015, n. 151, art. 23"
+    )
+
+
+def test_article_locators_on_acts_named_by_an_article():
+    """Law run of 16.09.2026: "(Regolamento, art. 88, comma 1)", "(…, n. 151,
+    art. 23, art. 23, comma 1)" and "(…, art. 23, art. 4, comma 1)" — the
+    amending act's article and the amended act's article are different
+    references, so neither "art." is dropped; the pairing is made explicit."""
+    from app.services.citation_render import legal_citation
+
+    meta = {"verification_provider": "manager"}
+    gdpr = source(
+        "Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio (GDPR), "
+        "articoli 4, 5, 6, 9, 13, 22, 25, 35 e 88",
+        ["Parlamento europeo e Consiglio dell'Unione europea"],
+        2016,
+    )
+    decree = source(
+        "Decreto legislativo 14 settembre 2015, n. 151, art. 23 "
+        "(Modifiche all'articolo 4 della legge 20 maggio 1970, n. 300)",
+        ["Repubblica Italiana"],
+        2015,
+    )
+    statute = source(
+        "Legge 20 maggio 1970, n. 300 (Statuto dei lavoratori), art. 4 "
+        "(Impianti audiovisivi e altri strumenti di controllo), testo vigente",
+        ["Repubblica Italiana"],
+        2015,
+    )
+    for item in (gdpr, decree, statute):
+        item.canonical_metadata = meta
+    known = {"GDPR2016": gdpr, "DLGS151ART23": decree, "ART4": statute}
+    text = (
+        "Salvezza [GDPR2016] art. 88, comma 1 e in generale [GDPR2016]. "
+        "La rubrica [DLGS151ART23] art. 23, comma 1; il nuovo testo "
+        "[DLGS151ART23] art. 4, comma 1; la novella [DLGS151ART23] p. 1 e "
+        "il testo vigente [ART4] art. 4, comma 1."
+    )
+    out, entries, missing = render_citations(text, known, CitationStyle.APA, MARKER)
+    assert missing == []
+    assert (
+        "(Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio, "
+        "art. 88, comma 1)" in out
+    )
+    assert "(Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio)." in out
+    assert "(Decreto legislativo 14 settembre 2015, n. 151, art. 23, comma 1);" in out
+    assert (
+        "(Legge 20 maggio 1970, n. 300, art. 4, comma 1, come modificato "
+        "dall'art. 23, Decreto legislativo 14 settembre 2015, n. 151);" in out
+    )
+    assert "(Decreto legislativo 14 settembre 2015, n. 151, art. 23) e" in out
+    assert "(Legge 20 maggio 1970, n. 300, art. 4, comma 1)." in out
+    assert "art. 23, art." not in out and "(Regolamento," not in out
+    assert " p. 1" not in out and "[" not in out
+    # Bibliography keeps the manager's full titles.
+    assert entries["GDPR2016"]["formatted"].startswith(
+        "Regolamento (UE) 2016/679 del Parlamento europeo e del Consiglio (GDPR)"
+    )
+    assert entries["DLGS151ART23"]["formatted"].endswith("n. 300).")
+    # An article the title does not explain stays as written, never merged.
+    label = "Decreto legislativo 14 settembre 2015, n. 151, art. 23"
+    assert legal_citation(label, label, "art. 171") == f"({label}, art. 171)"
+    assert legal_citation(label, label, "art. 23") == f"({label})"
+    assert legal_citation("Legge 20 maggio 1970, n. 300", "x", "art. 4-bis") == (
+        "(Legge 20 maggio 1970, n. 300, art. 4-bis)"
+    )

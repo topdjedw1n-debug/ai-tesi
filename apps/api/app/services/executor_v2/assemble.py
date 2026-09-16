@@ -1,7 +1,6 @@
 """S6: persist complete DOCX before the advisory whole-document review."""
 
 import math
-import re
 from datetime import datetime
 
 from sqlalchemy import select
@@ -17,30 +16,24 @@ from app.services.generation_worker import (
     persist_generation_artifact,
     update_generation_document,
 )
+from app.services.placeholder_notes import find_placeholders
 
 from .budgets import POLICY, json_call
 from .warnings import ExecutionStop, unusable
 
 
 async def assemble(ctx, sections, bibliography, pack):
-    placeholders = re.compile(
-        r"(?<!\w)(?:"
-        + "|".join(
-            re.escape(p).replace(r"\ ", r"\s+") for p in POLICY["placeholder_phrases"]
-        )
-        + r")(?!\w)",
-        re.I,
-    )
     for section in sections:
         # Raw text also retains placeholders removed as unknown citation markers.
-        matches = placeholders.findall(
-            section["content"] + "\n" + section["raw_content"]
+        matches = find_placeholders(
+            section["content"] + "\n" + section["raw_content"],
+            POLICY["placeholder_phrases"],
         )
         if matches:
             await ctx.warn(
                 "placeholder_text",
                 section_index=section["section_index"],
-                detail="; ".join(sorted({m.casefold() for m in matches})),
+                detail="; ".join(matches),
             )
     content = assemble_document(
         with_chapter_headings(sections, getattr(ctx, "scopes", [])),
