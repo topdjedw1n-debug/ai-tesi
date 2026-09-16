@@ -1,0 +1,97 @@
+{
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 539,
+   "ai_pct": 0.0,
+   "sim_pct": 0.7
+  },
+  {
+   "index": 2,
+   "title": "Evoluzione dal marketing tradizionale al marketing digitale",
+   "words": 591,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 3,
+   "title": "Strumenti e canali del digital marketing",
+   "words": 610,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 4,
+   "title": "Il digital marketing nelle piccole e medie imprese",
+   "words": 769,
+   "ai_pct": 9.5,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 5,
+   "title": "Il ruolo dei social media nella comunicazione d'impresa",
+   "words": 640,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 6,
+   "title": "Concetti e determinanti della fidelizzazione del cliente",
+   "words": 651,
+   "ai_pct": 14.7,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 7,
+   "title": "Social media marketing e relazione con il cliente nelle PMI",
+   "words": 622,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 8,
+   "title": "Metodologia dell'analisi",
+   "words": 462,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 9,
+   "title": "Casi di studio di PMI italiane",
+   "words": 668,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 10,
+   "title": "Discussione dei risultati",
+   "words": 546,
+   "ai_pct": 0.0,
+   "sim_pct": 1.1
+  },
+  {
+   "index": 11,
+   "title": "Conclusioni",
+   "words": 443,
+   "ai_pct": 13.5,
+   "sim_pct": 0.9
+  }
+ ],
+ "body_ai": 3.0,
+ "body_sim": 0.1,
+ "intro": {
+  "index": 1,
+  "title": "Introduzione",
+  "words": 539,
+  "ai_pct": 0.0,
+  "sim_pct": 0.7
+ },
+ "conclusions": {
+  "index": 11,
+  "title": "Conclusioni",
+  "words": 443,
+  "ai_pct": 13.5,
+  "sim_pct": 0.9
+ }
+}
