@@ -1,0 +1,97 @@
+{
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 479,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 2,
+   "title": "Basi biologiche dell'azione degli antibiotici",
+   "words": 657,
+   "ai": 9.3,
+   "sim": 0.0
+  },
+  {
+   "index": 3,
+   "title": "Classi di antibiotici e loro spettro d'azione",
+   "words": 518,
+   "ai": 0.0,
+   "sim": 3.5
+  },
+  {
+   "index": 4,
+   "title": "Meccanismi molecolari di resistenza batterica",
+   "words": 663,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 5,
+   "title": "Beta-lattamasi e resistenza enzimatica",
+   "words": 533,
+   "ai": 0.0,
+   "sim": 0.9
+  },
+  {
+   "index": 6,
+   "title": "Trasferimento genico orizzontale",
+   "words": 573,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 7,
+   "title": "Biofilm e tolleranza agli antibiotici",
+   "words": 531,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 8,
+   "title": "Pressione selettiva e uso improprio degli antibiotici",
+   "words": 539,
+   "ai": 0.0,
+   "sim": 2.8
+  },
+  {
+   "index": 9,
+   "title": "Nuovi antibiotici e inibitori delle beta-lattamasi",
+   "words": 502,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 10,
+   "title": "Terapia fagica",
+   "words": 455,
+   "ai": 0.0,
+   "sim": 1.5
+  },
+  {
+   "index": 11,
+   "title": "Antimicrobial stewardship",
+   "words": 603,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 12,
+   "title": "Approccio One Health",
+   "words": 544,
+   "ai": 0.0,
+   "sim": 0.0
+  },
+  {
+   "index": 13,
+   "title": "Conclusioni",
+   "words": 489,
+   "ai": 0.0,
+   "sim": 1.2
+  }
+ ],
+ "body_ai": 1.0,
+ "body_sim": 0.7
+}
