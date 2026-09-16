@@ -47,6 +47,8 @@ def review(sections: list[dict[str, Any]], pack: Any) -> list[tuple[str, str]]:
         keys = list(section.get("evidence_keys") or [])
         packed = {k: pack.by_key(k) for k in keys}
         lead = [k for k in keys if packed[k] is not None and is_primary(packed[k])]
+        # In law the act or decision leads even when doctrine has full text.
+        lead.sort(key=lambda k: not is_legal_source(packed[k].source))
         if not lead:
             wanted = set(section.get("scope_ids") or [])
             match = next((p for p in primaries if wanted & _scopes(p)), None)

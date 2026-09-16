@@ -110,3 +110,24 @@ def test_frame_violations_catch_the_chapter_walk_only():
         "l'adozione dipende dal contesto tecnologico (Omrani et al., 2024, p. 10)."
     )
     assert frame_violations(clean) == []
+
+
+def test_in_law_the_act_leads_before_doctrine_with_full_text():
+    doctrine = packed("Kdoc", "Sistemi di IA in ambiente di lavoro", "pdf", ["scope-4"])
+    act = packed(
+        "GDPR2016",
+        "Regolamento (UE) 2016/679 (GDPR), articoli 5 e 6",
+        "pdf",
+        ["scope-4"],
+        authors=("Parlamento europeo e Consiglio dell'Unione europea",),
+    )
+    pack = pack_of(doctrine, act)
+    sections = [
+        {
+            "title": "I principi generali del trattamento",
+            "scope_ids": ["scope-4"],
+            "evidence_keys": ["Kdoc", "GDPR2016"],
+        }
+    ]
+    assert review(sections, pack) == []
+    assert sections[0]["evidence_keys"] == ["GDPR2016", "Kdoc"]

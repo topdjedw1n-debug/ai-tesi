@@ -1,0 +1,2291 @@
+{
+ "sections": [
+  {
+   "section_index": 1,
+   "title": "Introduzione",
+   "words": 542,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "altri strumenti dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in presenza di un fondato sospetto circa la commissione di un illecito",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "imprescindibili tutele della dignità e della riservatezza del lavoratore",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 2,
+   "title": "La formulazione originaria dell'art. 4 e il divieto di controllo a distanza",
+   "words": 676,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 2104, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 2106",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 2086",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    }
+   ]
+  },
+  {
+   "section_index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. 151/2015)",
+   "words": 718,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 171",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 38",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "Impianti audiovisivi e altri strumenti di controllo",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "derivi anche la possibilità di controllo a distanza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "gli strumenti utilizzati dal lavoratore per rendere la prestazione lavorativa",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "a tutti i fini connessi al rapporto di lavoro",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "elaborat dalla giurisprudenza precedentemente alla modifica dell'art. 4",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "essential guarantee to protect the dignity of the workers",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 4,
+   "title": "Strumenti di lavoro e controlli difensivi",
+   "words": 751,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 196/2003",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 6",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "gli strumenti utilizzati dal lavoratore per rendere la prestazione lavorativa",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sempre che il controllo riguardi dati acquisiti successivamente all'insorgere del sospetto",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 5,
+   "title": "I principi generali del trattamento dei dati",
+   "words": 672,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 25",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 14",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "trattati in modo lecito, corretto e trasparente nei confronti dell'interessato",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "raccolti per finalità determinate, esplicite e legittime",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 6,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "words": 696,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 24, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 24",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 6",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 9",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 11",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "diversi e autonomi livelli di garanzia",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "presuppongono non il consenso degli interessati, ma un accordo con le rappresentanze sindacali",
+     "found": false,
+     "partial": "non il consenso degli interessati, ma un accordo"
+    },
+    {
+     "kind": "quote",
+     "text": "per perseguire un legittimo interesse del datore di lavoro anche senza il consenso degli interessati",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "completamente attratti nell'area di operatività dell'art. 4 St. lav.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "solo se conforme alle discipline di settore applicabili",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 7,
+   "title": "Il coordinamento tra GDPR e Codice della privacy",
+   "words": 687,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 101/2018",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 101/2018",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114, comma 1",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 101/2018",
+     "found": false
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 101/2018",
+     "found": false
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "resta fermo quanto disposto dall'articolo 4 della legge 20 maggio 1970, n. 300",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "Garanzie in materia di controllo a distanza",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "va coordinata con regole di settore riguardanti il rapporto di lavoro e il connesso utilizzo di tecnologie",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "è fatta salva o richiamata espressamente",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "diversi e autonomi livelli di garanzia",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "a cui l'art. 88 rinvia, in combinato disposto con gli artt. 5 e 6 GDPR",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "secondo cui il trattamento è lecito solo se conforme alle discipline di settore applicabili",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 8,
+   "title": "Videosorveglianza e geolocalizzazione",
+   "words": 681,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 16622/2012",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 4375/2010",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 171",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 13",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 161",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "dai quali può derivare anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": false,
+     "partial": "dai quali puo derivare anche la possibilita di"
+    },
+    {
+     "kind": "quote",
+     "text": "non possono essere utilizzati per provare l'inadempimento contrattuale dei lavoratori medesimi",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 9,
+   "title": "Controllo della posta elettronica e navigazione Internet",
+   "words": 701,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 11, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 5, comma 1",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 7",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 17",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    }
+   ]
+  },
+  {
+   "section_index": 10,
+   "title": "Il lavoro agile e il controllo da remoto",
+   "words": 619,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "altri strumenti dai quali derivi anche la possibilità di controllo a distanza dell'attività dei lavoratori",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "una volta forniti al datore di lavoro da chi gestisce il sistema",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "misure appropriate e specifiche a salvaguardia della dignità umana",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sistemi di monitoraggio sul posto di lavoro",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 11,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 658,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4, comma 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 2",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 4",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "finalizzati alla tutela di beni estranei al rapporto di lavoro o ad evitare comportamenti illeciti",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in presenza di un fondato sospetto circa la commissione di un illecito",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "imprescindibili tutele della dignità e della riservatezza del lavoratore",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "mancata ogni valutazione circa il corretto bilanciamento",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "sempre che il controllo riguardi dati acquisiti successivamente all'insorgere del sospetto",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "non può riferirsi all'esame ed all'analisi di informazioni acquisite in violazione delle prescrizioni di cui all'art. 4 St.lav.",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "la verifica della utilizzabilità a fini disciplinari dei dati raccolti dal datore di lavoro andrà condotta alla stregua della L. n. 300 del 1970, art. 4",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "senza ogni ragionevole limite il concetto di controlli ",
+     "found": true,
+     "partial": null
+    }
+   ]
+  },
+  {
+   "section_index": 12,
+   "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+   "words": 679,
+   "checks": [
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 20",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 27",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 38",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 8",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 3",
+     "found": true
+    }
+   ]
+  },
+  {
+   "section_index": 13,
+   "title": "I provvedimenti e le linee guida del Garante",
+   "words": 678,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 101/2018",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 11, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 143, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 29",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 101/2018",
+     "found": false
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 5",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 12",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 13",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 1",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 19",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 16",
+     "found": true
+    }
+   ]
+  },
+  {
+   "section_index": 14,
+   "title": "Conclusioni",
+   "words": 548,
+   "checks": [
+    {
+     "kind": "decision",
+     "text": "n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "decision",
+     "text": "n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "articolo 4",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 114, comma 1",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 23, comma 3",
+     "found": true
+    },
+    {
+     "kind": "article",
+     "text": "art. 88, comma 2",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "l. n. 300/1970",
+     "found": true
+    },
+    {
+     "kind": "act",
+     "text": "d.lgs. n. 151/2015",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 18",
+     "found": true
+    },
+    {
+     "kind": "page",
+     "text": "p. 10",
+     "found": true
+    },
+    {
+     "kind": "quote",
+     "text": "resta fermo quanto disposto dall'articolo 4 della legge 20 maggio 1970, n. 300",
+     "found": false,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "in presenza di un fondato sospetto circa la commissione di un illecito",
+     "found": true,
+     "partial": null
+    },
+    {
+     "kind": "quote",
+     "text": "imprescindibili tutele della dignità e della riservatezza del lavoratore",
+     "found": true,
+     "partial": null
+    }
+   ]
+  }
+ ],
+ "totals": {
+  "numbers": 386,
+  "numbers_missing": 3,
+  "quotes": 42,
+  "quotes_missing": 5
+ },
+ "corpus_chars": 1665426
+}
