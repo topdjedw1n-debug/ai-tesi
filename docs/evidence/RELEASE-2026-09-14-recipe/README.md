@@ -33,3 +33,17 @@ ssh thesica 'bash /opt/thesica/infra/deploy.sh'
 ## Доповнення 15.09 (ніч) — polite pool для верифікатора
 
 Реліз `e177001` активовано фаундером («Готово»), три роботи запущено через кабінет (документи 20–22, job 23–25; докази в [cabinet-three-2026-09-15](../QUALITY-AI-2026-09-13/step2-full-inputs/cabinet-three-2026-09-15/README.md)). Черга виконує роботи по одній, спільний лічильник каталогів активний, але Crossref і Semantic Scholar усе одно відповідали HTTP 429 одній роботі (≈30 попереджень на хвилину під час S2). Верифікатор ходив у Crossref/OpenAlex без `mailto` — анонімний пул. Коміт `34bcd10`: `mailto:research@thesica.ai` у User-Agent верифікатора (polite pool обох каталогів; пошук у `rag_retriever.py` уже передавав `mailto`). Тести верифікатора 42 passed. Цього разу фільтр Claude Code заблокував і rsync одного файла («Production Deploy»), тому коміт лише локальний. Доставка й активація — за фаундером після завершення трьох робіт (`deploy.sh` перезапускає контейнери): `rsync -ai --relative apps/api/app/services/citation_verifier.py thesica:/opt/thesica/` з кореня репозиторію, потім `ssh thesica 'bash /opt/thesica/infra/deploy.sh'`.
+
+## Доповнення 16.09 (ранок) — добір джерел з прив'язкою до теми
+
+Коміт `510d584` (після консультації №5 і «так» фаундера): S2 будує запити лише для предметних листів дерева тем, з ядром теми, відсіює чужих кандидатів до верифікації, називає недоступний каталог; ліміти каталогів за виміряними межами (Crossref 2 rps / 3 одночасних, Semantic Scholar 0,5 rps, Retry-After). Разом із `34bcd10` (mailto верифікатора) — не доставлено (фільтр Claude Code блокує rsync). API 1 449 passed. Докази: [s2-topic-anchored-2026-09-16](../QUALITY-AI-2026-09-13/step2-full-inputs/s2-topic-anchored-2026-09-16/README.md).
+
+**Доставка й активація — за фаундером, з кореня репозиторію:**
+
+```bash
+rsync -ai --relative apps/api/app apps/api/tests thesica:/opt/thesica/
+```
+
+```bash
+ssh thesica 'bash /opt/thesica/infra/deploy.sh'
+```
