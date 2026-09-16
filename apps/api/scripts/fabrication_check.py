@@ -42,6 +42,80 @@ def fold(text):
     return re.sub(r"\s+", " ", text).casefold()
 
 
+def section_texts(events):
+    """Final text per section: the last executor_section event wins (S5)."""
+    sections = {}
+    for et, p in events:
+        if et == "executor_section":
+            sections[p["section_index"]] = p
+    return sections
+
+
+def corpus_texts(events):
+    """Every text the writer could have seen, and what the recording holds:
+    uploaded passages (replay inputs), pack titles/abstracts/frozen excerpts,
+    fetched full-text pages (dependency records). A dump without dependency
+    and replay rows yields abstracts only, which the caller must report."""
+    corpus, held = [], {"passages": 0, "pack": 0, "full_text_pages": 0}
+    for et, p in events:
+        if et == "generation_replay_inputs":
+            for passage in p["executor_inputs"].get("passages") or []:
+                corpus.append(passage["text"])
+                held["passages"] += 1
+    packs = [p for et, p in events if et == "executor_source_pack"]
+    for s in packs[-1]["sources"] if packs else []:
+        src = s["source"]
+        corpus.append(str(src.get("title") or ""))
+        corpus.append(str(src.get("abstract") or ""))
+        ev = (src.get("canonical_metadata") or {}).get("academic_evidence") or {}
+        corpus.append(str(ev.get("text") or ""))
+        held["pack"] += 1
+    for et, p in events:
+        if et == "generation_dependency" and p.get("kind") == "executor_full_text":
+            for page in (p.get("response") or {}).get("pages") or []:
+                corpus.append(page)
+                held["full_text_pages"] += 1
+    return fold("\n".join(corpus)), held
+
+
+def check_text(text, haystack):
+    """Citation-like numbers and quotations of one section against the inputs."""
+    rows = []
+    for kind, pattern in NUMBER_PATTERNS.items():
+        for m in pattern.finditer(text):
+            token = m.group(0)
+            probe = fold(token)
+            # numbers are checked by their digits in context: "n. 25732" and "25732/2021"
+            digits = [g for g in m.groups() if g]
+            found = all(fold(d) in haystack for d in digits) and (
+                probe in haystack or any(fold(d) in haystack for d in digits)
+            )
+            rows.append({"kind": kind, "text": token, "found": bool(found)})
+    for m in QUOTE.finditer(text):
+        quote = fold(m.group(1))
+        words = quote.split()
+        if len(words) < 6:
+            continue
+        found = quote in haystack
+        partial = None
+        if not found:
+            # the longest run of 8 consecutive words found in the inputs
+            for start in range(0, max(1, len(words) - 8)):
+                chunk = " ".join(words[start : start + 8])
+                if chunk in haystack:
+                    partial = chunk
+                    break
+        rows.append(
+            {
+                "kind": "quote",
+                "text": m.group(1)[:160],
+                "found": found,
+                "partial": partial,
+            }
+        )
+    return rows
+
+
 def main():
     out_dir, target = Path(sys.argv[1]), Path(sys.argv[2])
     db = sqlite3.connect(f"file:{out_dir / 'replay.db'}?mode=ro", uri=True)
@@ -51,28 +125,8 @@ def main():
             "select event_type, payload from document_provenance order by id"
         ).fetchall()
     ]
-    sections = {}
-    for et, p in events:
-        if et == "executor_section":
-            sections[p["section_index"]] = p  # the last event per section wins (S5)
-    inputs = [p for et, p in events if et == "generation_replay_inputs"][-1][
-        "executor_inputs"
-    ]
-    corpus = []
-    for passage in inputs["passages"]:
-        corpus.append(passage["text"])
-    pack = [p for et, p in events if et == "executor_source_pack"][-1]["sources"]
-    for s in pack:
-        src = s["source"]
-        corpus.append(str(src.get("title") or ""))
-        corpus.append(str(src.get("abstract") or ""))
-        ev = (src.get("canonical_metadata") or {}).get("academic_evidence") or {}
-        corpus.append(str(ev.get("text") or ""))
-    for et, p in events:
-        if et == "generation_dependency" and p.get("kind") == "executor_full_text":
-            for page in (p.get("response") or {}).get("pages") or []:
-                corpus.append(page)
-    haystack = fold("\n".join(corpus))
+    sections = section_texts(events)
+    haystack, _ = corpus_texts(events)
     report = {
         "sections": [],
         "totals": {
@@ -83,44 +137,11 @@ def main():
         },
     }
     for index in sorted(sections):
-        text = sections[index]["content"]
-        rows = []
-        for kind, pattern in NUMBER_PATTERNS.items():
-            for m in pattern.finditer(text):
-                token = m.group(0)
-                probe = fold(token)
-                # numbers are checked by their digits in context: "n. 25732" and "25732/2021"
-                digits = [g for g in m.groups() if g]
-                found = all(fold(d) in haystack for d in digits) and (
-                    probe in haystack or any(fold(d) in haystack for d in digits)
-                )
-                rows.append({"kind": kind, "text": token, "found": bool(found)})
-                report["totals"]["numbers"] += 1
-                report["totals"]["numbers_missing"] += 0 if found else 1
-        for m in QUOTE.finditer(text):
-            quote = fold(m.group(1))
-            words = quote.split()
-            if len(words) < 6:
-                continue
-            found = quote in haystack
-            partial = None
-            if not found:
-                # the longest run of 8 consecutive words found in the inputs
-                for start in range(0, max(1, len(words) - 8)):
-                    chunk = " ".join(words[start : start + 8])
-                    if chunk in haystack:
-                        partial = chunk
-                        break
-            rows.append(
-                {
-                    "kind": "quote",
-                    "text": m.group(1)[:160],
-                    "found": found,
-                    "partial": partial,
-                }
-            )
-            report["totals"]["quotes"] += 1
-            report["totals"]["quotes_missing"] += 0 if found else 1
+        rows = check_text(sections[index]["content"], haystack)
+        for row in rows:
+            kind = "quotes" if row["kind"] == "quote" else "numbers"
+            report["totals"][kind] += 1
+            report["totals"][f"{kind}_missing"] += 0 if row["found"] else 1
         report["sections"].append(
             {
                 "section_index": index,
