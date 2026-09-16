@@ -47,3 +47,15 @@ rsync -ai --relative apps/api/app apps/api/tests thesica:/opt/thesica/
 ```bash
 ssh thesica 'bash /opt/thesica/infra/deploy.sh'
 ```
+
+## Доповнення 16.09 (день) — перевірка плану, висновки без переказу глав, норми в один абзац
+
+Коміт `f4bf99f` (після синтезу етапу і «Так, дозволяю, роби»): `plan_check.review` після S3 (першоджерело першим ключем, `plan_material_gap`), повторна спроба рамкового розділу з переказом глав (`frame_rewritten`), правила писаря для норм і понять. API 1 454 passed; пакет executor_v2 — 1 497 рядків. Докази: [writer-fixes-2026-09-16](../QUALITY-AI-2026-09-13/step2-full-inputs/writer-fixes-2026-09-16/README.md). Не доставлено — ті самі дві команди фаундера:
+
+```bash
+rsync -ai --relative apps/api/app apps/api/tests thesica:/opt/thesica/
+```
+
+```bash
+ssh thesica 'bash /opt/thesica/infra/deploy.sh'
+```
