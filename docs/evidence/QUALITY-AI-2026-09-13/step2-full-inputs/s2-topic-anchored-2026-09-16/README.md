@@ -38,3 +38,23 @@
 ## Активовано і зондовано (16.09 ≈ 12:40 за Києвом)
 
 Фаундер доставив і активував (`rsync` + `deploy.sh`, «Вроді готово»); чексуми семи змінених модулів у контейнері API збігаються з локальними, контейнери перезапущені. Живий зонд усередині контейнера штатним ретривером (перші 10 запитів дерева економіки в кожен каталог, послідовно, 58 с): Crossref 10/10 (100 рядків), OpenAlex 10/10 (97 рядків — кредитне вікно оновилось), Semantic Scholar 10/10 без винятків, але 5 із 10 запитів отримали 429 всередині ретривера (він ловить помилку й повертає порожній список; 37 рядків з 5 вдалих) — тобто при 0,5 rps Semantic Scholar усе одно віддає кожен другий запит, а `catalogue_unavailable` для нього не спрацює, бо помилка гаситься в ретривері (відомий борг: ретривер S2 має повертати відмову, як `_scholarly_json`). Для економіки цього достатньо: OpenAlex + Crossref дають ~10 кандидатів на запит. Наступне — одна економіка через кабінет після окремого «так» (≈ $2), з перевіркою пакета після S2 і скасуванням, якщо предметні розділи не отримають повних текстів по темі.
+
+## Економіка через кабінет з новим добором (16.09 08:02–08:14 UTC, «Так, дозволяю») — гейт пройдено, на скан
+
+Документ 23 / job 26, той самий бриф без PDF: **$1,50**, 11 розділів, 6 556 слів, лапки 0,3 %. S2 6 хв (учора 15). Пакет 40 (22 Crossref, 18 OpenAlex; Semantic Scholar — 0, як у зонді), **усі по темі**; повних текстів 9 із 17 спроб (5 × 403, 2 × транспорт, 1 × не PDF): «Esportazioni e e-commerce delle imprese italiane» (126 стор.), «Social media marketing strategy: definition, conceptualization, taxonomy…» (20), «Creative crowdsourcing… comunicazione di marketing» (24), «Digital and Social Media Marketing — Construction SMEs» (18), «Drivers of Digital Transformation in SMEs» (14), «SMEs… VUCA… digital» (24), «Social media marketing and advertising» (34), «Effect of social networking sites… SMEs' innovation» (16), «PMI Marketing…» (113). 18 записів без тексту (Crossref-розділи книг: «Email marketing», «Social Media Marketing»…) → `source_no_readable_text` 18; `catalogue_unavailable` не спрацював (S2 гасить 429 у ретривері — борг).
+
+| § | Розділ | Документи з вікнами | Вікон |
+|---|---|---|---|
+| 2 | Evoluzione dal marketing tradizionale al digitale | PMI Marketing | 18 |
+| 3 | Strumenti e canali | PMI Marketing, Esportazioni/e-commerce, Crowdsourcing marketing | 26 |
+| 4 | Digital marketing nelle PMI | Construction SMEs, Drivers of DT in SMEs, Esportazioni, PMI Marketing | 24 |
+| 5 | Social media nella comunicazione d'impresa | SMM strategy, SMM & advertising, Construction SMEs, Esportazioni | 24 |
+| 6 | Fidelizzazione del cliente | PMI Marketing, Social networking sites & SMEs | 22 |
+| 7 | SMM e relazione con il cliente nelle PMI | SMM strategy, Social networking sites & SMEs | 22 |
+| 8 | Metodologia | Crowdsourcing marketing | 2 |
+| 9 | Casi di PMI italiane | Crowdsourcing, SMM & advertising, Construction SMEs, SMM strategy | 23 |
+| 10 | Discussione | Drivers of DT, Construction SMEs, Esportazioni | 23 |
+| 11 | Conclusioni | Drivers of DT | 6 |
+| 1 | Introduzione | Crowdsourcing marketing | 19 |
+
+Порядок письма §2–§10 → §11 → §1. Гейт «предметні розділи мають повний текст по темі» — пройдено (учора: 7 із 12 без). На скан: `Downloads/Thesica-на-скан-7-2026-09-16/A-economia-cabinet-2026-09-16.docx` (sha `404d339b…`, README з правилами). Змістові зауваги до скану: вступ починається з туристичних ПМІ Тоскани (найбільший текст пакета); висновки переказують «primo/secondo/terzo capitolo» (3 фрази-дорожні карти всупереч CONCLUSIONS_RULE); дві цитати англійською в італійському тексті (Verhoef 2021); рецензент S6: одруківка «il modello di offre», англіцизм «settla»; під «customer loyalty» немає окремого повнотекстового джерела (§6 спирається на PMI Marketing і статтю про соцмережі та інновації).
