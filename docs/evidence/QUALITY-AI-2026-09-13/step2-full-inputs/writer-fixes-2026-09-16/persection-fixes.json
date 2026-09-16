@@ -1,0 +1,118 @@
+{
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 580,
+   "ai_pct": 0.0,
+   "sim_pct": 6.9
+  },
+  {
+   "index": 2,
+   "title": "La formulazione originaria dell'art. 4 e il divieto di controllo a distanza",
+   "words": 764,
+   "ai_pct": 42.7,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. 151/2015)",
+   "words": 830,
+   "ai_pct": 26.3,
+   "sim_pct": 5.9
+  },
+  {
+   "index": 4,
+   "title": "Strumenti di lavoro e controlli difensivi",
+   "words": 898,
+   "ai_pct": 8.0,
+   "sim_pct": 2.3
+  },
+  {
+   "index": 5,
+   "title": "I principi generali del trattamento dei dati",
+   "words": 737,
+   "ai_pct": 9.0,
+   "sim_pct": 3.4
+  },
+  {
+   "index": 6,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "words": 770,
+   "ai_pct": 0.0,
+   "sim_pct": 7.8
+  },
+  {
+   "index": 7,
+   "title": "Il coordinamento tra GDPR e Codice della privacy",
+   "words": 739,
+   "ai_pct": 31.1,
+   "sim_pct": 10.6
+  },
+  {
+   "index": 8,
+   "title": "Videosorveglianza e geolocalizzazione",
+   "words": 850,
+   "ai_pct": 8.0,
+   "sim_pct": 2.9
+  },
+  {
+   "index": 9,
+   "title": "Controllo della posta elettronica e navigazione Internet",
+   "words": 791,
+   "ai_pct": 0.0,
+   "sim_pct": 0.6
+  },
+  {
+   "index": 10,
+   "title": "Il lavoro agile e il controllo da remoto",
+   "words": 670,
+   "ai_pct": 30.3,
+   "sim_pct": 6.3
+  },
+  {
+   "index": 11,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 818,
+   "ai_pct": 22.2,
+   "sim_pct": 13.7
+  },
+  {
+   "index": 12,
+   "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+   "words": 884,
+   "ai_pct": 15.4,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 13,
+   "title": "I provvedimenti e le linee guida del Garante",
+   "words": 807,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "index": 14,
+   "title": "Conclusioni",
+   "words": 602,
+   "ai_pct": 0.0,
+   "sim_pct": 5.6
+  }
+ ],
+ "body_ai": 15.7,
+ "body_sim": 4.4,
+ "intro": {
+  "index": 1,
+  "title": "Introduzione",
+  "words": 580,
+  "ai_pct": 0.0,
+  "sim_pct": 6.9
+ },
+ "conclusions": {
+  "index": 14,
+  "title": "Conclusioni",
+  "words": 602,
+  "ai_pct": 0.0,
+  "sim_pct": 5.6
+ }
+}

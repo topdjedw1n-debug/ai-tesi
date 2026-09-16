@@ -1,0 +1,90 @@
+{
+ "total_words": 11351,
+ "flagged": 1638,
+ "rows": [
+  {
+   "index": 1,
+   "title": "Introduzione",
+   "words": 580,
+   "sim_pct": 17.2
+  },
+  {
+   "index": 2,
+   "title": "La formulazione originaria dell'art. 4 e il divieto di controllo a distanza",
+   "words": 764,
+   "sim_pct": 11.4
+  },
+  {
+   "index": 3,
+   "title": "La riforma del Jobs Act (d.lgs. 151/2015)",
+   "words": 830,
+   "sim_pct": 8.4
+  },
+  {
+   "index": 4,
+   "title": "Strumenti di lavoro e controlli difensivi",
+   "words": 898,
+   "sim_pct": 17.3
+  },
+  {
+   "index": 5,
+   "title": "I principi generali del trattamento dei dati",
+   "words": 737,
+   "sim_pct": 14.5
+  },
+  {
+   "index": 6,
+   "title": "Le basi giuridiche del trattamento nel contesto lavorativo",
+   "words": 770,
+   "sim_pct": 15.2
+  },
+  {
+   "index": 7,
+   "title": "Il coordinamento tra GDPR e Codice della privacy",
+   "words": 739,
+   "sim_pct": 14.3
+  },
+  {
+   "index": 8,
+   "title": "Videosorveglianza e geolocalizzazione",
+   "words": 850,
+   "sim_pct": 20.5
+  },
+  {
+   "index": 9,
+   "title": "Controllo della posta elettronica e navigazione Internet",
+   "words": 791,
+   "sim_pct": 33.8
+  },
+  {
+   "index": 10,
+   "title": "Il lavoro agile e il controllo da remoto",
+   "words": 670,
+   "sim_pct": 9.1
+  },
+  {
+   "index": 11,
+   "title": "La giurisprudenza della Corte di Cassazione",
+   "words": 818,
+   "sim_pct": 11.5
+  },
+  {
+   "index": 12,
+   "title": "La giurisprudenza della Corte europea dei diritti dell'uomo",
+   "words": 884,
+   "sim_pct": 5.1
+  },
+  {
+   "index": 13,
+   "title": "I provvedimenti e le linee guida del Garante",
+   "words": 807,
+   "sim_pct": 18.8
+  },
+  {
+   "index": 14,
+   "title": "Conclusioni",
+   "words": 602,
+   "sim_pct": 8.3
+  }
+ ]
+}
