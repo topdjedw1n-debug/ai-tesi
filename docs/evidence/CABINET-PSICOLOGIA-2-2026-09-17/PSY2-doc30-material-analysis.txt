@@ -1,0 +1,70 @@
+FULL TEXTS WITH PAGES: 15 of 36 links | tries: 41 | second-copy successes: 1
+  198 p  Ke3f2ba4df538  Transitioning to Good Health and Well-Being  | tries 1 | src openalex
+  138 p  Ke93540c7a76d  Psychological Ownership: proposta di un modello circomplesso  | tries 1 | src openalex
+   43 p  Kdb3df6f45432  Social media use, loneliness and psychological distress in emerging adults  | tries 1 | src openalex
+   35 p  K83f7adec8b5f  Salute mentale e Brain-Mind Capital: dimensioni socioeconomiche e prospett  | tries 1 | src openalex
+   22 p  Kc8adf94d1d24  Self-comparison with influencers but not general Instagram use moderate up  | tries 1 | src crossref
+   21 p  Kde77f1c76016  LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN APPROCCIO A MOLTEPLICI LIVEL  | tries 1 | src crossref
+   15 p  K4e2b1ad62e57  The Sexual Exploitation of children through images: non-contact Violence  | tries 1 | src crossref
+   14 p  Keae682ae5091  Who are the European youths willing to engage in radicalisation? A multidi  | tries 1 | src openalex
+   13 p  K0ead32dde8f2  OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS ONLINE ALLA RICERCA SUL B  | tries 1 | src crossref
+   13 p  K45c2c0b24672  Problematic Social Media Use: Results from a Large-Scale Nationally Repres  | tries 1 | src openalex
+   10 p  K83d19ac98c24  Dalla alfabetizzazione mediatica all’alfabetizzazione transmediale  | tries 1 | src crossref
+   10 p  K09ad5474b0c1  The Impact of Social Media on the Mental Health of Adolescents and Young A  | tries 2 | src openalex
+    8 p  K6409f1f1b4c7  The concurrent and longitudinal relationships between adolescents' use of   | tries 1 | src openalex
+    8 p  Kcdf7c128745f  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCENTS:   | tries 1 | src crossref
+    3 p  Kea1aa5c159d5  Genitori In Corso: kit digitale a sostegno della genitorialità  | tries 1 | src openalex
+
+JUDGMENT (band, lowest share first):
+  0.66 reject    pop=False []                           The Sexual Exploitation of children through images | The document studies sexual exploitation and non-contact violence against children through images (a
+  0.66 reject    pop=False []                           Psychological Ownership: proposta di un modello ci | The document studies psychological ownership in organizational contexts and emotion regulation in he
+  0.72 allow     pop=False ['scope-2', 'scope-5']       Salute mentale e Brain-Mind Capital: dimensioni so | The document defines psychological well-being according to WHO and discusses measurement dimensions
+  0.74 reject    pop=False []                           LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN APPR | The document studies cyberbullying prevention in schools, which is a different phenomenon from socia
+  0.76 reject    pop=False []                           Who are the European youths willing to engage in r | The document studies radicalisation and violent extremism among European youths, not social media us
+  0.80 allow     pop=False ['scope-2', 'scope-3']       OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS O | The document studies social media use in adolescence and young people's overall well-being through E
+  0.88 allow     pop=False ['scope-6', 'scope-7', 'scop Self-comparison with influencers but not general I | The document studies social comparison theory, body image dissatisfaction, and self-esteem effects f
+  0.88 allow     pop=False ['scope-17']                 Dalla alfabetizzazione mediatica all’alfabetizzazi | The document studies transmedia literacy and digital skills development in adolescents through infor
+
+PER-SECTION MATERIAL (docs with pages: reason, windows):
+ § 1 Introduzione                         | Social media use, loneliness a[windows,w=6] ; The Impact of Social Media on [windows,w=6] ; Self-comparison with influence[windows,w=5] ; The concurrent and longitudina[windows,w=5]
+ § 2 Diffusione dei social media in adole | Social media use, loneliness a[support,w=6] ; Self-comparison with influence[support,w=6] ; OLTRE IL CYBERBULLISMO. IL CON[support,w=6] ; Salute mentale e Brain-Mind Ca[support,w=6]
+ § 3 Modelli teorici dell'uso dei social  | OLTRE IL CYBERBULLISMO. IL CON[support,w=4] ; Salute mentale e Brain-Mind Ca[support,w=17]
+ § 4 Misure del benessere psicologico     | Salute mentale e Brain-Mind Ca[support,w=14] ; Genitori In Corso: kit digital[windows,w=8]
+ § 5 Teoria del confronto sociale         | Self-comparison with influence[support,w=6] ; The concurrent and longitudina[support,w=6] ; The Impact of Social Media on [support,w=5] ; Social media use, loneliness a[support,w=6]
+ § 6 Immagine corporea e social media     | Self-comparison with influence[support,w=18]
+ § 7 Autostima e social media             | The concurrent and longitudina[support,w=6] ; Problematic Social Media Use: [support,w=6] ; The Impact of Social Media on [support,w=5] ; Social media use, loneliness a[windows,w=5]
+ § 8 Fear of missing out (FoMO)           | THE IMPACT OF NIGHTTIME SOCIAL[support,w=4] ; Social media use, loneliness a[support,w=10] ; Salute mentale e Brain-Mind Ca[windows,w=12]
+ § 9 Uso problematico dei social media    | Problematic Social Media Use: [support,w=6] ; The Impact of Social Media on [support,w=6] ; Salute mentale e Brain-Mind Ca[support,w=5] ; THE IMPACT OF NIGHTTIME SOCIAL[windows,w=6]
+ §10 Qualità del sonno negli adolescenti  | THE IMPACT OF NIGHTTIME SOCIAL[support,w=18]
+ §11 Regolazione emotiva in adolescenza   | THE IMPACT OF NIGHTTIME SOCIAL[support,w=4] ; Salute mentale e Brain-Mind Ca[support,w=8] ; Genitori In Corso: kit digital[windows,w=3] ; Dalla alfabetizzazione mediati[windows,w=8]
+ §12 Fattori protettivi                   | The Impact of Social Media on [support,w=6] ; OLTRE IL CYBERBULLISMO. IL CON[support,w=6] ; Dalla alfabetizzazione mediati[support,w=6] ; Genitori In Corso: kit digital[support,w=5]
+ §13 Interventi di prevenzione a scuola   | Problematic Social Media Use: [support,w=5] ; Dalla alfabetizzazione mediati[support,w=9] ; THE IMPACT OF NIGHTTIME SOCIAL[support,w=9]
+ §14 Interventi di prevenzione in famigli | Genitori In Corso: kit digital[support,w=9] ; OLTRE IL CYBERBULLISMO. IL CON[windows,w=6] ; Dalla alfabetizzazione mediati[windows,w=8]
+ §15 Discussione                          |
+ §16 Conclusioni                          | Dalla alfabetizzazione mediati[windows,w=2]
+
+rejected documents handing pages to sections (must be none): none
+
+FULL TEXTS BY SECTIONS FED:
+   6   35 p  Salute mentale e Brain-Mind Capital: dimensioni socioeconomiche e prospett
+   5   43 p  Social media use, loneliness and psychological distress in emerging adults
+   5   10 p  The Impact of Social Media on the Mental Health of Adolescents and Young A
+   5    8 p  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCENTS:
+   5   10 p  Dalla alfabetizzazione mediatica all’alfabetizzazione transmediale
+   4   22 p  Self-comparison with influencers but not general Instagram use moderate up
+   4   13 p  OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS ONLINE ALLA RICERCA SUL B
+   4    3 p  Genitori In Corso: kit digitale a sostegno della genitorialità
+   3    8 p  The concurrent and longitudinal relationships between adolescents' use of
+   3   13 p  Problematic Social Media Use: Results from a Large-Scale Nationally Repres
+
+CITATIONS BY SOURCE (approx, 203):
+   24 (11.8%)    8 p  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCENTS:
+   20 ( 9.9%)   13 p  Problematic Social Media Use: Results from a Large-Scale Nationally Repres
+   13 ( 6.4%)   10 p  Dalla alfabetizzazione mediatica all’alfabetizzazione transmediale
+   11 ( 5.4%)    0 p  Adolescent Social Media Use Motives: A Five-Factor Scale Integrating Self-
+   11 ( 5.4%)   22 p  Self-comparison with influencers but not general Instagram use moderate up
+   11 ( 5.4%)    8 p  The concurrent and longitudinal relationships between adolescents' use of
+   10 ( 4.9%)    0 p  Il benessere soggettivo in bambini tra gli 8 e gli 11 anni. L'impatto dell
+   10 ( 4.9%)    3 p  Genitori In Corso: kit digitale a sostegno della genitorialità
+
+odd punctuation '); (' : 2 | ') (p.' : 5 | ', p.' after ')' : 0 | 'p. N' outside parens: 0

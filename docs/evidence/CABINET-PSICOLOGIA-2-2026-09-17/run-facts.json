@@ -1,0 +1,33 @@
+{
+ "document_id": 30,
+ "job_id": 33,
+ "server_commit": "99d6aee (commits 2-3 + hotfixes: copies, frame comma, section exam, judgment, ceiling, off-loop pdf)",
+ "started_utc": "2026-09-17T18:16:58Z",
+ "completed_utc": "2026-09-17T18:40:12Z",
+ "cost_usd": 2.25,
+ "tokens": 330759,
+ "model_calls": 54,
+ "sections": 16,
+ "words_body": 7489,
+ "docx_sha256": "0de0ec20fbe4ae1abcf32c3caa05a917eed7932af26ac8f7f3d9cffb8ecb7ef2",
+ "docx_bytes": 57135,
+ "docx_pages": 23,
+ "pack": 40,
+ "full_texts_with_pages": 15,
+ "full_text_links": 36,
+ "full_text_tries": 41,
+ "http_403": 16,
+ "not_pdf": 4,
+ "judged": 8,
+ "rejected": 4,
+ "sections_without_full_text": [
+  15
+ ],
+ "frame_order": "body -> conclusions -> introduction",
+ "failed_attempts_before": {
+  "job30": "unregistered warning code, $0.07",
+  "job31": "call ceiling before the outline, $0.07",
+  "job32": "lease lost while reading PDFs on the event loop, $0.04"
+ },
+ "scan_folder": "~/Downloads/Thesica-на-скан-11-2026-09-17"
+}
