@@ -1,0 +1,47 @@
+documents: 41 (ON 22, ON-copy 8, OFF 11) | model claude-sonnet-5 | cap $0.6
+  A2  ON      -> reject    pop=False []                             $0.0078  Esportazioni e e-commerce delle imprese italia
+  A2  ON      -> unparsed  pop=None  []                             $0.0116  Social media marketing strategy: definition, c
+  A2  ON      -> reject    pop=False []                             $0.0102  Creative crowdsourcing e dinamiche relazionali
+  A2  ON      -> allow     pop=False ['scope-5', 'scope-6', 'scope- $0.0101  Digital and Social Media Marketing - Growing M
+  A2  ON      -> unparsed  pop=None  []                             $0.0131  Drivers of Digital Transformation in SMEs
+  A2  ON      -> reject    pop=False []                             $0.0081  How can SMEs successfully navigate VUCA enviro
+  A2  ON      -> unparsed  pop=None  []                             $0.0124  Social media marketing and advertising
+  A2  ON      -> reject    pop=False []                             $0.0131  The effect of social networking sites and abso
+  A2  ON      -> unparsed  pop=None  []                             $0.0129  PMI Marketing: modello di business per una sta
+  E2  OFF     -> reject    pop=False []                             $0.0118  La regolazione del rischio cibernetico nel mer
+  E2  ON      -> reject    pop=False []                             $0.0146  Relazione impresa-territorio e modelli preditt
+  E2  OFF     -> reject    pop=False []                             $0.0123  Migrazioni, Politiche e Territorio in Veneto
+  E2  OFF     -> reject    pop=False []                             $0.0120  Understanding Financial Crises: A Developing C
+  E2  ON      -> reject    pop=False []                             $0.0112  FinTech: a literature review of emerging finan
+  E2  OFF     -> reject    pop=False []                             $0.0125  Islamic Finance and Conventional Financial Sys
+  BIO OFF     -> reject    pop=False []                             $0.0132  Costruzione di chimere molecolari dell'enzima
+  BIO OFF     -> reject    pop=False []                             $0.0130  Un estere misto degli acidi ialuronico, butirr
+  BIO ON      -> allow     pop=True  ['scope-5', 'scope-7', 'scope- $0.0130  Antibiotic Resistance Mechanisms in Bacteria:
+  BIO ON      -> unparsed  pop=None  []                             $0.0150  The multifaceted roles of antibiotics and anti
+  BIO ON      -> unparsed  pop=None  []                             $0.0157  Pseudomonas aeruginosa: pathogenesis, virulenc
+  BIO ON      -> unparsed  pop=None  []                             $0.0148  L’interpretazione dei saggi di sensibilità agl
+  BIO ON      -> unparsed  pop=None  []                             $0.0152  INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEF
+  BIO ON      -> unparsed  pop=None  []                             $0.0157  Surveillance of hospital-acquired infections a
+  BIO ON      -> unparsed  pop=None  []                             $0.0144  Incidence of Acinetobacter baumannii and other
+  BIO ON      -> unparsed  pop=None  []                             $0.0150  &lt;em&gt;Antimicrobial stewardship&lt;/em&gt;
+  PSY ON-copy -> allow     pop=True  ['scope-12', 'scope-11', 'scop $0.0122  Problematic social media use among adolescents
+  PSY ON      -> unparsed  pop=None  []                             $0.0146  Problematic Social Media Use: Results from a L
+  PSY ON-copy -> unparsed  pop=None  []                             $0.0148  OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KI
+  PSY ON-copy -> reject    pop=False []                             $0.0117  LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN
+  PSY ON-copy -> allow     pop=False ['scope-8']                    $0.0122  Self-comparison with influencers but not gener
+  PSY ON-copy -> allow     pop=True  ['scope-9']                    $0.0112  The concurrent and longitudinal relationships
+  PSY ON-copy -> allow     pop=True  ['scope-13', 'scope-10']       $0.0125  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SL
+  PSY OFF     -> reject    pop=False []                             $0.0129  Preventing school disaffection, failure and dr
+  PSY OFF     -> reject    pop=False []                             $0.0112  A rapid review of the impact of COVID-19 on th
+  PSY ON-copy -> reject    pop=False []                             $0.0125  EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SC
+  PSY OFF     -> reject    pop=False []                             $0.0110  The influence of parental practices on child p
+  PSY ON      -> reject    pop=False []                             $0.0117  Advances in Social Media Research: Past, Prese
+  PSY OFF     -> reject    pop=False []                             $0.0132  New trends in drug addiction: the synthetic dr
+  PSY OFF     -> reject    pop=False []                             $0.0126  Educare (al)la sessualità: dalla prevenzione a
+  PSY ON-copy -> reject    pop=False []                             $0.0107  Rapid Systematic Review: The Impact of Social
+  PSY ON      -> unparsed  pop=None  []                             $0.0152  The Impact of Social Media on the Mental Healt
+
+spent $0.519
+  ON     : {'reject': 7, 'unparsed': 13, 'allow': 2}
+  ON-copy: {'allow': 4, 'unparsed': 1, 'reject': 3}
+  OFF    : {'reject': 11}

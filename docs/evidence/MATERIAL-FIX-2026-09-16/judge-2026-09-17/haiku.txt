@@ -1,0 +1,47 @@
+documents: 41 (ON 22, ON-copy 8, OFF 11) | model claude-haiku-4-5-20251001 | cap $0.4
+  A2  ON      -> reject    ['scope-2', 'scope-4']                 $0.0017  Esportazioni e e-commerce delle imprese italiane
+  A2  ON      -> allow     ['scope-2', 'scope-4', 'scope-6', 'sco $0.0022  Social media marketing strategy: definition, con
+  A2  ON      -> reject    ['scope-2', 'scope-7']                 $0.0024  Creative crowdsourcing e dinamiche relazionali n
+  A2  ON      -> reject    ['scope-2', 'scope-3', 'scope-4', 'sco $0.0023  Digital and Social Media Marketing - Growing Mar
+  A2  ON      -> reject    ['scope-2', 'scope-4']                 $0.0025  Drivers of Digital Transformation in SMEs
+  A2  ON      -> reject    ['scope-2', 'scope-3', 'scope-4']      $0.0022  How can SMEs successfully navigate VUCA environm
+  A2  ON      -> allow     ['scope-2', 'scope-4', 'scope-7', 'sco $0.0024  Social media marketing and advertising
+  A2  ON      -> reject    ['scope-2', 'scope-4', 'scope-8']      $0.0025  The effect of social networking sites and absorp
+  A2  ON      -> reject    ['scope-2', 'scope-3', 'scope-4']      $0.0024  PMI Marketing: modello di business per una start
+  E2  OFF     -> reject    ['scope-8', 'scope-10']                $0.0028  La regolazione del rischio cibernetico nel merca
+  E2  ON      -> reject    []                                     $0.0029  Relazione impresa-territorio e modelli predittiv
+  E2  OFF     -> reject    []                                     $0.0029  Migrazioni, Politiche e Territorio in Veneto
+  E2  OFF     -> reject    ['scope-5', 'scope-6']                 $0.0027  Understanding Financial Crises: A Developing Cou
+  E2  ON      -> reject    ['scope-8', 'scope-10']                $0.0027  FinTech: a literature review of emerging financi
+  E2  OFF     -> reject    []                                     $0.0027  Islamic Finance and Conventional Financial Syste
+  BIO OFF     -> reject    []                                     $0.0031  Costruzione di chimere molecolari dell'enzima In
+  BIO OFF     -> reject    []                                     $0.0033  Un estere misto degli acidi ialuronico, butirric
+  BIO ON      -> allow     ['scope-2', 'scope-5', 'scope-6', 'sco $0.0032  Antibiotic Resistance Mechanisms in Bacteria: Re
+  BIO ON      -> allow     ['scope-2', 'scope-5', 'scope-7', 'sco $0.0032  The multifaceted roles of antibiotics and antibi
+  BIO ON      -> allow     ['scope-2', 'scope-5', 'scope-6', 'sco $0.0032  Pseudomonas aeruginosa: pathogenesis, virulence
+  BIO ON      -> reject    []                                     $0.0029  L’interpretazione dei saggi di sensibilità agli
+  BIO ON      -> reject    []                                     $0.0030  INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTA
+  BIO ON      -> allow     ['scope-14']                           $0.0031  Surveillance of hospital-acquired infections and
+  BIO ON      -> reject    []                                     $0.0030  Incidence of Acinetobacter baumannii and other p
+  BIO ON      -> allow     ['scope-14', 'scope-9']                $0.0031  &lt;em&gt;Antimicrobial stewardship&lt;/em&gt;:
+  PSY ON-copy -> allow     ['scope-2', 'scope-3', 'scope-10', 'sc $0.0032  Problematic social media use among adolescents:
+  PSY ON      -> allow     ['scope-2', 'scope-3', 'scope-12', 'sc $0.0029  Problematic Social Media Use: Results from a Lar
+  PSY ON-copy -> allow     ['scope-2', 'scope-3', 'scope-5']      $0.0029  OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS
+  PSY ON-copy -> reject    ['scope-17']                           $0.0030  LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN AP
+  PSY ON-copy -> reject    []                                     $0.0030  Self-comparison with influencers but not general
+  PSY ON-copy -> allow     ['scope-2', 'scope-6', 'scope-9']      $0.0028  The concurrent and longitudinal relationships be
+  PSY ON-copy -> allow     ['scope-10', 'scope-13']               $0.0028  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEE
+  PSY OFF     -> reject    []                                     $0.0031  Preventing school disaffection, failure and drop
+  PSY OFF     -> reject    []                                     $0.0025  A rapid review of the impact of COVID-19 on the
+  PSY ON-copy -> allow     ['scope-17', 'scope-18']               $0.0029  EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SCUO
+  PSY OFF     -> reject    []                                     $0.0026  The influence of parental practices on child pro
+  PSY ON      -> reject    []                                     $0.0027  Advances in Social Media Research: Past, Present
+  PSY OFF     -> reject    []                                     $0.0032  New trends in drug addiction: the synthetic drug
+  PSY OFF     -> reject    []                                     $0.0030  Educare (al)la sessualità: dalla prevenzione all
+  PSY ON-copy -> reject    []                                     $0.0027  Rapid Systematic Review: The Impact of Social Is
+  PSY ON      -> allow     ['scope-2', 'scope-3', 'scope-5', 'sco $0.0032  The Impact of Social Media on the Mental Health
+
+spent $0.115
+  ON     : {'reject': 13, 'allow': 9}
+  ON-copy: {'allow': 5, 'reject': 3}
+  OFF    : {'reject': 11}
