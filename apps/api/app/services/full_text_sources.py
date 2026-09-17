@@ -146,6 +146,12 @@ def open_access_link(row: Any) -> str | None:
     return url if isinstance(url, str) and url else None
 
 
+def links_metadata(row: Any) -> dict[str, Any]:
+    """The open-access fields to store for a row: its first link and the list."""
+    urls = open_access_links(row)
+    return {"open_access_url": urls[0], "open_access_urls": urls} if urls else {}
+
+
 def open_access_links(row: Any) -> list[str]:
     """Every stored open-access link of a row, the single link included."""
     metadata = (
@@ -443,6 +449,12 @@ def full_text_usable(
     """A document's pages serve the work only when enough of them are about
     the topic; a same-field text on another question (an HIV-integrase
     thesis in a run on antibiotic resistance) keeps its abstract at most."""
+    packed = pack.by_key(key) if hasattr(pack, "by_key") else None
+    judgment = ((packed.source.canonical_metadata or {}) if packed else {}).get(
+        "topic_judgment"
+    ) or {}
+    if judgment.get("verdict") == "reject":
+        return False  # judged to be about another question (topic_judgment.py)
     windows = [
         p.text for p in getattr(pack, "passages", None) or [] if p.citation_key == key
     ]

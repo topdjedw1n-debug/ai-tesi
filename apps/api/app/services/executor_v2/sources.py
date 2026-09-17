@@ -10,8 +10,9 @@ from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.citation_verifier import CitationVerifier, SourceInput
 from app.services.full_text_sources import (
     attach_full_text,
+    links_metadata,
     open_access_link,
-    open_access_links,
+    topic_pattern,
 )
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
@@ -19,9 +20,10 @@ from app.services.pack_seats import scope_metadata, seat
 from app.services.replay_dependencies import recorded_dependency
 from app.services.search_queries import is_structural, on_topic, plan
 from app.services.source_evidence import evidence_text, freeze_evidence
+from app.services.topic_judgment import judge_and_report
 from app.services.uploaded_sources import SourcePassage
 
-from .budgets import POLICY
+from .budgets import POLICY, model_call
 from .scopes import flatten
 
 PROVIDERS = ("semantic_scholar", "crossref", "openalex")
@@ -84,10 +86,7 @@ async def build_sources(ctx, scopes):
             if not first.get("abstract") and row.get("abstract"):
                 first["abstract"] = row["abstract"]
             if not open_access_link(first) and open_access_link(row):
-                first["canonical_metadata"] = {
-                    "open_access_url": open_access_link(row),
-                    "open_access_urls": open_access_links(row),
-                }
+                first["canonical_metadata"] = links_metadata(row)
 
     async def checked(item):
         async with semaphore:
@@ -119,13 +118,7 @@ async def build_sources(ctx, scopes):
             "query_scope_ids": sorted(filter(None, item["scopes"])),
             **scope_metadata(source, nodes, parents),
         }
-        if open_access_link(item["source"]):
-            source.canonical_metadata["open_access_url"] = open_access_link(
-                item["source"]
-            )
-            source.canonical_metadata["open_access_urls"] = open_access_links(
-                item["source"]
-            )
+        source.canonical_metadata.update(links_metadata(item["source"]))
         key = (
             "K"
             + digest({"doi": source.doi, "title": source.title, "year": source.year})[
@@ -189,6 +182,10 @@ async def build_sources(ctx, scopes):
         await ctx.warn("source_full_text_unavailable", detail=", ".join(unavailable))
     pack = SourcePack(
         ctx.job.document_id, topic, sources=selected, bilingual=True, passages=passages
+    )
+    # A fetched text in the gate's uncertain band is judged once by a small model.
+    await judge_and_report(
+        ctx, pack, nodes, topic_pattern(pack, nodes), call=model_call
     )
     for node in nodes:
         count = coverage.get(node["scope_id"], 0)

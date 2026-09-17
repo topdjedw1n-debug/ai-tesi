@@ -75,9 +75,10 @@ def _observe_late(task):
         task.exception()  # The recorder retains the late response; never write a section.
 
 
-async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
+async def model_call(ctx, prompt, *, budget, purpose, section_index=None, model=None):
+    model = model or ctx.model
     request = {
-        "model": ctx.model,
+        "model": model,
         "max_tokens": budget,
         "messages": [{"role": "user", "content": prompt}],
     }
@@ -89,7 +90,7 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None):
                 recorded_provider_call(
                     ctx.provider,
                     provider="anthropic",
-                    model=ctx.model,
+                    model=model,
                     request=request,
                     usage_tracker=ctx.usage,
                     purpose=purpose,
