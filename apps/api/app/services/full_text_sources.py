@@ -246,7 +246,10 @@ async def full_text(url: str) -> dict[str, Any]:
         result["reason"] = "not_pdf"
     else:
         try:
-            pages = extract_pdf_pages(body)
+            # pypdf is CPU-bound and synchronous; a heavy PDF must not block the
+            # event loop (job 32, 17.09: the heartbeat starved and the lease
+            # expired while S2 was reading the fetched copies).
+            pages = await asyncio.to_thread(extract_pdf_pages, body)
         except ValueError as error:
             result["reason"] = f"unreadable_pdf: {error}"[:200]
             return result
