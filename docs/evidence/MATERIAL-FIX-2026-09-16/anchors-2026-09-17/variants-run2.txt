@@ -1,0 +1,61 @@
+
+######## A2
+  Bt anchors: \b(?:digita|market|piccol|medie\b|impres|social|media\b|fideli|client)
+  H anchors: ['digital marketing', 'marketing piccole', 'medie imprese', 'social media', 'media fidelizzazione', 'fidelizzazione cliente', 'customer loyalty', 'social media marketing']
+  lab     B    B2    Bt   Bt2     H    HB  win  title
+  ON   0.79  0.43  0.79  0.42  0.07  0.43   385  Esportazioni e e-commerce delle imprese italiane
+  ON   0.99  0.97  0.99  0.92  0.86  0.97   145  Social media marketing strategy: definition, conceptualizati
+  ON   0.77  0.40  0.77  0.38  0.03  0.40   112  Creative crowdsourcing e dinamiche relazionali nella comunic
+  ON   0.93  0.76  0.89  0.70  0.59  0.75    83  Digital and Social Media Marketing - Growing Market Share fo
+  ON   0.90  0.57  0.90  0.24  0.06  0.57   107  Drivers of Digital Transformation in SMEs
+  ON   0.81  0.58  0.70  0.14  0.03  0.57   119  How can SMEs successfully navigate VUCA environment: The rol
+  ON   0.97  0.94  0.96  0.90  0.83  0.93    98  Social media marketing and advertising
+  ON   0.75  0.48  0.67  0.34  0.22  0.47    83  The effect of social networking sites and absorptive capacit
+  ON   0.86  0.63  0.85  0.61  0.19  0.63   316  PMI Marketing: modello di business per una startup di digita
+
+######## E2
+  Bt anchors: \b(?:l'acce|credit|piccol|medie\b|impres|nell'e|fintec|lendin|altern|crowdf|banche|tradiz)
+  H anchors: ["l'accesso credito", 'credito piccole', 'medie imprese', "imprese nell'era", "nell'era fintech", 'lending alternativo', 'crowdfunding', 'banche tradizionali', 'small medium enterprises', 'alternative lending']
+  lab     B    B2    Bt   Bt2     H    HB  win  title
+  OFF  0.48  0.23  0.39  0.17  0.03  0.21  1015  La regolazione del rischio cibernetico nel mercato bancario
+  ON   0.79  0.29  0.71  0.21  0.01  0.26   119  Relazione impresa-territorio e modelli predittivi del defaul
+  OFF  0.30  0.08  0.30  0.08  0.01  0.08   224  Migrazioni, Politiche e Territorio in Veneto
+  OFF  0.85  0.50  0.30  0.06  0.00  0.27   188  Understanding Financial Crises: A Developing Country Perspec
+  ON   0.97  0.42  0.26  0.04  0.02  0.27   166  FinTech: a literature review of emerging financial technolog
+  OFF  0.72  0.30  0.61  0.16  0.01  0.27   364  Islamic Finance and Conventional Financial Systems - Market
+
+######## BIO
+  Bt anchors: \b(?:resist|antibi|meccan|moleco|batter|contra)
+  H anchors: ['resistenza antibiotici', 'meccanismi molecolari', 'molecolari resistenza', 'resistenza batterica', 'contrastarla', 'bacterial resistance']
+  lab     B    B2    Bt   Bt2     H    HB  win  title
+  OFF  0.36  0.08  0.33  0.06  0.02  0.06   233  Costruzione di chimere molecolari dell'enzima Integrasi di H
+  OFF  0.36  0.10  0.34  0.09  0.16  0.19   159  Un estere misto degli acidi ialuronico, butirrico e retinoic
+  ON   0.95  0.73  0.94  0.70  0.06  0.74   191  Antibiotic Resistance Mechanisms in Bacteria: Relationships
+  ON   0.98  0.81  0.98  0.73  0.08  0.82   129  The multifaceted roles of antibiotics and antibiotic resista
+  ON   0.61  0.43  0.48  0.22  0.04  0.42   264  Pseudomonas aeruginosa: pathogenesis, virulence factors, ant
+  ON   0.96  0.72  0.92  0.64  0.16  0.76    25  L’interpretazione dei saggi di sensibilità agli antibiotici:
+  ON   0.89  0.56  0.89  0.56  0.11  0.56    18  INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZI
+  ON   0.80  0.46  0.80  0.39  0.15  0.49    41  Surveillance of hospital-acquired infections and monitoring
+  ON   0.77  0.47  0.77  0.43  0.13  0.47    30  Incidence of Acinetobacter baumannii and other pathogens iso
+  ON   0.71  0.36  0.69  0.31  0.05  0.37   382  &lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativ
+
+######## PSY
+  Bt anchors: \b(?:l'uso\b|social|media\b|beness|psicol|adoles|social|fear\b|missin|out\b|regola|emotiv)
+  H anchors: ["l'uso social", 'social media', 'benessere psicologico', 'psicologico adolescenti', 'sociale', 'fear missing', 'regolazione emotiva', 'social media use', 'psychological well being', 'social media prevalence', 'psychological well being measures', 'fear missing out', 'problematic social media use', 'social media addiction', 'emotion regulation']
+  lab     B    B2    Bt   Bt2     H    HB  win  title
+  ON   0.92  0.87  0.89  0.75  0.83  0.87    71  Problematic Social Media Use: Results from a Large-Scale Nat
+  OFF  0.62  0.21  0.41  0.14  0.31  0.33    58  Preventing school disaffection, failure and dropout. The ESF
+  OFF  0.67  0.28  0.42  0.09  0.32  0.38   115  A rapid review of the impact of COVID-19 on the mental healt
+  OFF  0.52  0.16  0.39  0.09  0.21  0.22   105  The influence of parental practices on child promotive and p
+  ON   0.91  0.77  0.90  0.75  0.89  0.89   204  Advances in Social Media Research: Past, Present and Future
+  OFF  0.72  0.35  0.56  0.15  0.31  0.41    54  New trends in drug addiction: the synthetic drugs. Epidemiol
+  OFF  0.59  0.26  0.55  0.20  0.29  0.38   691  Educare (al)la sessualità: dalla prevenzione alla promozione
+  ON   0.95  0.94  0.94  0.89  0.92  0.94    66  The Impact of Social Media on the Mental Health of Adolescen
+
+=== separation over all four recordings (min share of ON docs vs max share of OFF docs):
+  B   ON min 0.61 (lowest three [0.61, 0.71, 0.75]) | OFF max 0.85 (highest three [0.85, 0.72, 0.72]) | ON<0.5: 0/22  OFF>=0.5: 7/11
+  B2  ON min 0.29 (lowest three [0.29, 0.36, 0.4]) | OFF max 0.50 (highest three [0.5, 0.35, 0.3]) | ON<0.5: 9/22  OFF>=0.5: 1/11
+  Bt  ON min 0.26 (lowest three [0.26, 0.48, 0.67]) | OFF max 0.61 (highest three [0.61, 0.56, 0.55]) | ON<0.5: 2/22  OFF>=0.5: 3/11
+  Bt2 ON min 0.04 (lowest three [0.04, 0.14, 0.21]) | OFF max 0.20 (highest three [0.2, 0.17, 0.16]) | ON<0.5: 11/22  OFF>=0.5: 0/11
+  H   ON min 0.01 (lowest three [0.01, 0.02, 0.03]) | OFF max 0.32 (highest three [0.32, 0.31, 0.31]) | ON<0.5: 16/22  OFF>=0.5: 0/11
+  HB  ON min 0.26 (lowest three [0.26, 0.27, 0.37]) | OFF max 0.41 (highest three [0.41, 0.38, 0.38]) | ON<0.5: 9/22  OFF>=0.5: 0/11

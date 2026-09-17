@@ -1,0 +1,1450 @@
+[
+ {
+  "key": "K5550c10c4795",
+  "title": "Si può tornare indietro dalla resistenza batterica acquisita agli anti",
+  "doi": "10.35948/geo/geoinfo/32016_3457",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.35948/geo/geoinfo/32016_3457",
+    "kind": "journal",
+    "host": "Geo-Info",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.35948/geo/geoinfo/32016_3457",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://georgofili.it/articolo-georgofili-info/si-pu-tornare-indietro-dalla-resistenza-batterica-acquisita-agli-antibiotici-amr/32016",
+    "kind": "journal",
+    "host": "Geo-Info"
+   }
+  ]
+ },
+ {
+  "key": "K9e1ed8618d27",
+  "title": "Ora e sempre resistenza? Razionalità e appropriatezza nell’uso degli a",
+  "doi": "10.1701/1884.20556",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kb562a8317dd6",
+  "title": "L’emergenza della resistenza batterica agli antibiotici e il suo impat",
+  "doi": "10.4081/mm.2003.3049",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/4431aa0b62ff4a6f973fcde8c1a1f882",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3049/2545",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2003.3049",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/4431aa0b62ff4a6f973fcde8c1a1f882",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/4431aa0b62ff4a6f973fcde8c1a1f882",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3049/2545",
+    "status": 200,
+    "reason": null,
+    "pages": 4,
+    "total_pages": 4,
+    "final": "https://www.pagepressjournals.org/index.php/mm/article/download/3049/2545",
+    "bytes": 160130,
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "K333b70de0deb",
+  "title": "Bersagli molecolari e potenziali farmaci in grado di rallentare il pro",
+  "doi": "10.1714/2190.23660",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K1bd17ea8c1a2",
+  "title": "Test molecolari rapidi nelle infezioni respiratorie: perché la diagnos",
+  "doi": "10.1701/4764.47844",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.recentiprogressi.it/r.php?&v=4764&a=47844&l=364917&f=allegati/04764_2026_09/fulltext/RPM_0926.12_POEMs3 - Bracchitta.pdf",
+    "kind": "journal",
+    "host": "Recenti Progressi in Medicina",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.1701/4764.47844",
+    "kind": "journal",
+    "host": "Recenti Progressi in Medicina",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.recentiprogressi.it/r.php?&v=4764&a=47844&l=364917&f=allegati/04764_2026_09/fulltext/RPM_0926.12_POEMs3 - Bracchitta.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 2,
+    "total_pages": 2,
+    "final": "https://www.recentiprogressi.it/r.php?&v=4764&a=47844&l=364917&f=allegati%2F04764_2026_09%2Ffulltext%2FRPM_0926.12_POEMs3%20-%20Bracchitta.pdf",
+    "bytes": 66367,
+    "kind": "journal",
+    "host": "Recenti Progressi in Medicina"
+   }
+  ]
+ },
+ {
+  "key": "Ka7370f084eb0",
+  "title": "Costruzione di chimere molecolari dell'enzima Integrasi di HIV con att",
+  "doi": "10.6092/unibo/amsdottorato/6444",
+  "run_url": "http://amsdottorato.unibo.it/6444/1/Muthusamy_Regina_tesi.pdf",
+  "run_pages": 105,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/6444",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/6444",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://amsdottorato.unibo.it/id/eprint/6444/",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna"
+   }
+  ]
+ },
+ {
+  "key": "K856135a96358",
+  "title": "DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPICHE DI CEPP",
+  "doi": "10.13130/ferretti-manuela-maria_phd2012-02-03",
+  "run_url": "http://hdl.handle.net/2434/169559",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.13130/ferretti-manuela-maria_phd2012-02-03",
+    "kind": "repository",
+    "host": "Università degli Studi di Milano",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.13130/ferretti-manuela-maria_phd2012-02-03",
+    "status": 403,
+    "reason": "http_403",
+    "final": "http://air.unimi.it/handle/2434/169559",
+    "kind": "repository",
+    "host": "Università degli Studi di Milano"
+   }
+  ]
+ },
+ {
+  "key": "Kc4d4f2defc82",
+  "title": "Un estere misto degli acidi ialuronico, butirrico e retinoico è in gra",
+  "doi": "10.6092/unibo/amsdottorato/5744",
+  "run_url": "http://amsdottorato.unibo.it/5744/1/tesi_Claudia_Cavallini.pdf",
+  "run_pages": 63,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/5744",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/5744",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://amsdottorato.unibo.it/id/eprint/5744/",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna"
+   }
+  ]
+ },
+ {
+  "key": "K50344758674d",
+  "title": "Identificazione e caratterizzazione di un nuovo sistema tossina-antito",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/1889/4058",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K995e26c587cd",
+  "title": "The Membrane Steps of Bacterial Cell Wall Synthesis as Antibiotic Targ",
+  "doi": "10.3390/antibiotics5030028",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5039524",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/0768861b4d5442799ee21f4a628e7c36",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://dspace.library.uu.nl/handle/1874/345047",
+    "kind": "repository",
+    "host": "Utrecht University Repository (Utrecht University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.mdpi.com/2079-6382/5/3/28/pdf?version=1472200562",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.3390/antibiotics5030028",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5039524/pdf/antibiotics-05-00028.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5039524/pdf/antibiotics-05-00028.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/5039524",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/0768861b4d5442799ee21f4a628e7c36",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/0768861b4d5442799ee21f4a628e7c36",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://dspace.library.uu.nl/handle/1874/345047",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=UTF-8",
+    "final": "https://dspace.library.uu.nl/handle/1874/345047",
+    "kind": "repository",
+    "host": "Utrecht University Repository (Utrecht University)"
+   }
+  ]
+ },
+ {
+  "key": "Kf4b72579fef7",
+  "title": "Antibiotics That Inhibit Bacterial Cell Wall Synthesis",
+  "doi": "10.1128/9781555817602.ch5",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K22fd642e55d0",
+  "title": "Molecular mechanisms of biofilm resistance against antibiotics",
+  "doi": "10.62310/liab.v3i1.107",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/2f448732042f4d7e816fd0187f5fa5b8",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://liabjournal.com/index.php/liab/article/download/107/36",
+    "kind": "journal",
+    "host": "Letters In Animal Biology",
+    "is_pdf_field": true
+   },
+   {
+    "url": "http://dx.doi.org/10.62310/liab.v3i1.107",
+    "kind": "journal",
+    "host": "Letters In Animal Biology",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/2f448732042f4d7e816fd0187f5fa5b8",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/2f448732042f4d7e816fd0187f5fa5b8",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://liabjournal.com/index.php/liab/article/download/107/36",
+    "status": 200,
+    "reason": null,
+    "pages": 11,
+    "total_pages": 11,
+    "final": "https://liabjournal.com/index.php/liab/article/download/107/36",
+    "bytes": 406811,
+    "kind": "journal",
+    "host": "Letters In Animal Biology"
+   }
+  ]
+ },
+ {
+  "key": "Keefeb8b4bb36",
+  "title": "Other Antibiotics Interfering with Bacterial Protein Synthesis",
+  "doi": "10.1002/9781118075609.ch7",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kf6a01077afc8",
+  "title": "Antibiotic Targets in Gonococcal Cell Wall Metabolism",
+  "doi": "10.3390/antibiotics7030064",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/6164560",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.mdpi.com/2079-6382/7/3/64/pdf?version=1532157005",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.3390/antibiotics7030064",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6164560/pdf/antibiotics-07-00064.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6164560/pdf/antibiotics-07-00064.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/6164560",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)"
+   },
+   {
+    "url": "https://www.mdpi.com/2079-6382/7/3/64/pdf?version=1532157005",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/2079-6382/7/3/64/pdf?version=1532157005",
+    "kind": "journal",
+    "host": "Antibiotics"
+   },
+   {
+    "url": "https://doi.org/10.3390/antibiotics7030064",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/2079-6382/7/3/64",
+    "kind": "journal",
+    "host": "Antibiotics"
+   }
+  ]
+ },
+ {
+  "key": "K3b601b6d0e4d",
+  "title": "Fitness Costs of Antibiotic Resistance",
+  "doi": "10.1002/9783527659685.ch5",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1002/9783527659685.ch5",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1002/9783527659685.ch5",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://onlinelibrary.wiley.com/doi/10.1002/9783527659685.ch5",
+    "kind": "journal",
+    "host": "Antibiotics"
+   }
+  ]
+ },
+ {
+  "key": "Kee67f2a652ed",
+  "title": "Antibiotics That Block DNA Replication and Repair: the Quinolones",
+  "doi": "10.1128/9781555817886.ch5",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1128/9781555817886.ch5",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1128/9781555817886.ch5",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://onlinelibrary.wiley.com/doi/10.1128/9781555817886.ch5",
+    "kind": "journal",
+    "host": "Antibiotics"
+   }
+  ]
+ },
+ {
+  "key": "Kd32f7c7ffdf1",
+  "title": "Nonenzymatic Resistance to β-Lactam Antibiotics and Resistance to Othe",
+  "doi": "10.1016/b978-0-12-138120-2.50008-3",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kcd0d7aceff6c",
+  "title": "Antibiotic resistance in Pseudomonas aeruginosa: mechanisms and altern",
+  "doi": "10.1016/j.biotechadv.2018.11.013",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S0734975018301976/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1016/j.biotechadv.2018.11.013",
+    "kind": "journal",
+    "host": "Biotechnology Advances",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1016/j.biotechadv.2018.11.013",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=UTF-8",
+    "final": "https://linkinghub.elsevier.com/retrieve/pii/S0734975018301976",
+    "kind": "journal",
+    "host": "Biotechnology Advances"
+   }
+  ]
+ },
+ {
+  "key": "Kaa29a2013f96",
+  "title": "Antibiotics and Bacterial Resistance in the 21st Century",
+  "doi": "10.4137/pmc.s14459",
+  "run_url": "https://journals.sagepub.com/doi/pdf/10.4137/PMC.S14459",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/4159373",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.4137/pmc.s14459",
+    "kind": "journal",
+    "host": "Perspectives in Medicinal Chemistry",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4159373/pdf/pmc-6-2014-025.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4159373/pdf/pmc-6-2014-025.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/4159373",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.4137/pmc.s14459",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://journals.sagepub.com/doi/10.4137/PMC.S14459",
+    "kind": "journal",
+    "host": "Perspectives in Medicinal Chemistry"
+   }
+  ]
+ },
+ {
+  "key": "K14c8a16a8ca7",
+  "title": "Antibiotic resistance in microbes: History, mechanisms, therapeutic st",
+  "doi": "10.1016/j.jiph.2021.10.020",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S1876034121003403/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "http://publicatio.bibl.u-szeged.hu/22772/1/1-s2.0-S1876034121003403.pdf",
+    "kind": "repository",
+    "host": "SZTE Publicatio Repozitórium (University of Szeged)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doaj.org/article/f3842dc86f8e4b50a62bf8a81cbebd65",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.jiph.2021.10.020",
+    "kind": "journal",
+    "host": "Journal of Infection and Public Health",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "http://publicatio.bibl.u-szeged.hu/22772/1/1-s2.0-S1876034121003403.pdf",
+    "status": null,
+    "reason": "error:ConnectTimeout",
+    "kind": "repository",
+    "host": "SZTE Publicatio Repozitórium (University of Szeged)"
+   },
+   {
+    "url": "https://doaj.org/article/f3842dc86f8e4b50a62bf8a81cbebd65",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/f3842dc86f8e4b50a62bf8a81cbebd65",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.1016/j.jiph.2021.10.020",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=UTF-8",
+    "final": "https://linkinghub.elsevier.com/retrieve/pii/S1876034121003403",
+    "kind": "journal",
+    "host": "Journal of Infection and Public Health"
+   }
+  ]
+ },
+ {
+  "key": "K09cdf4cb69c9",
+  "title": "Origin of Antibiotics and Antibiotic Resistance, and Their Impacts on ",
+  "doi": "10.3390/ph16111615",
+  "run_url": "https://www.mdpi.com/1424-8247/16/11/1615/pdf?version=1700060051",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10675245/pdf/pharmaceuticals-16-01615.pdf",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/10675245",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/f5ee3ec29dea4fdca1986c6d77ce99c5",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3390/ph16111615",
+    "kind": "journal",
+    "host": "Pharmaceuticals",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10675245/pdf/pharmaceuticals-16-01615.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10675245/pdf/pharmaceuticals-16-01615.pdf",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10675245/pdf/pharmaceuticals-16-01615.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10675245/pdf/pharmaceuticals-16-01615.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/10675245",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/f5ee3ec29dea4fdca1986c6d77ce99c5",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/f5ee3ec29dea4fdca1986c6d77ce99c5",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   }
+  ]
+ },
+ {
+  "key": "K22bf3f5baa94",
+  "title": "Biofilm-Related Infections: Bridging the Gap between Clinical Manageme",
+  "doi": "10.1128/mmbr.00013-14",
+  "run_url": "https://mmbr.asm.org/content/mmbr/78/3/510.full.pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/4187679",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1128/mmbr.00013-14",
+    "kind": "journal",
+    "host": "Microbiology and Molecular Biology Reviews",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4187679/pdf/zmr510.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4187679/pdf/zmr510.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/4187679",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.1128/mmbr.00013-14",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://journals.asm.org/doi/10.1128/MMBR.00013-14",
+    "kind": "journal",
+    "host": "Microbiology and Molecular Biology Reviews"
+   }
+  ]
+ },
+ {
+  "key": "K05237f02b3b0",
+  "title": "Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Re",
+  "doi": "10.3389/fmicb.2018.02928",
+  "run_url": "https://www.frontiersin.org/articles/10.3389/fmicb.2018.02928/pdf",
+  "run_pages": 21,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/6283892",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/f7cb3aab09ba4f8a8c81090df12c72be",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3389/fmicb.2018.02928",
+    "kind": "journal",
+    "host": "Frontiers in Microbiology",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/6283892",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6283892/",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)"
+   },
+   {
+    "url": "https://doaj.org/article/f7cb3aab09ba4f8a8c81090df12c72be",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/f7cb3aab09ba4f8a8c81090df12c72be",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2018.02928/pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 21,
+    "total_pages": 21,
+    "final": "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2018.02928/pdf",
+    "bytes": 2986004,
+    "via_landing": "https://doi.org/10.3389/fmicb.2018.02928",
+    "kind": "journal",
+    "host": "Frontiers in Microbiology"
+   }
+  ]
+ },
+ {
+  "key": "K2e03472d6473",
+  "title": "Horizontal Gene Transfer of Antibiotic Resistance Genes in Biofilms",
+  "doi": "10.3390/antibiotics12020328",
+  "run_url": "https://www.mdpi.com/2079-6382/12/2/328/pdf?version=1676016886",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952180/pdf/antibiotics-12-00328.pdf",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/9952180",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/347777216a854f6caeeb4609cb5dc231",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3390/antibiotics12020328",
+    "kind": "journal",
+    "host": "Antibiotics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952180/pdf/antibiotics-12-00328.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952180/pdf/antibiotics-12-00328.pdf",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952180/pdf/antibiotics-12-00328.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9952180/pdf/antibiotics-12-00328.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/9952180",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/347777216a854f6caeeb4609cb5dc231",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/347777216a854f6caeeb4609cb5dc231",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   }
+  ]
+ },
+ {
+  "key": "Ka6f651df71cb",
+  "title": "The multifaceted roles of antibiotics and antibiotic resistance in nat",
+  "doi": "10.3389/fmicb.2013.00047",
+  "run_url": "https://www.frontiersin.org/articles/10.3389/fmicb.2013.00047/pdf",
+  "run_pages": 13,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/3594987",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/271dc14350fe4988bbc23b0b6375c14f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3389/fmicb.2013.00047",
+    "kind": "journal",
+    "host": "Frontiers in Microbiology",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3594987/pdf/fmicb-04-00047.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC3594987/pdf/fmicb-04-00047.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/3594987",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)"
+   },
+   {
+    "url": "https://doaj.org/article/271dc14350fe4988bbc23b0b6375c14f",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/271dc14350fe4988bbc23b0b6375c14f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2013.00047/pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 13,
+    "total_pages": 13,
+    "final": "https://www.frontiersin.org/journals/microbiology/articles/10.3389/fmicb.2013.00047/pdf",
+    "bytes": 403398,
+    "via_landing": "https://doi.org/10.3389/fmicb.2013.00047",
+    "kind": "journal",
+    "host": "Frontiers in Microbiology"
+   }
+  ]
+ },
+ {
+  "key": "K547dbefb0c92",
+  "title": "Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic re",
+  "doi": "10.1038/s41392-022-01056-1",
+  "run_url": "https://www.nature.com/articles/s41392-022-01056-1.pdf",
+  "run_pages": 27,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/9233671",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/4182bfefaa424d4ea830077145317bea",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://hdl.handle.net/2031/99a53573-c61f-42c1-ab46-286ab1331a38",
+    "kind": "repository",
+    "host": "CityU Scholars",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1038/s41392-022-01056-1",
+    "kind": "journal",
+    "host": "Signal Transduction and Targeted Therapy",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/9233671",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/9233671/",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/4182bfefaa424d4ea830077145317bea",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/4182bfefaa424d4ea830077145317bea",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://scholars.cityu.edu.hk/files/111039591/109598390.pdf",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://scholars.cityu.edu.hk/files/111039591/109598390.pdf",
+    "via_landing": "https://hdl.handle.net/2031/99a53573-c61f-42c1-ab46-286ab1331a38",
+    "kind": "repository",
+    "host": "CityU Scholars"
+   }
+  ]
+ },
+ {
+  "key": "Kc4ad23d70a1f",
+  "title": "The fitness costs of antibiotic resistance mutations",
+  "doi": "10.1111/eva.12196",
+  "run_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1111/eva.12196",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/4380921",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://ir.library.carleton.ca/pub/8308",
+    "kind": "repository",
+    "host": "Carleton University's Institutional Repository (MacOdrum Library, Carleton University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1111/eva.12196",
+    "kind": "journal",
+    "host": "Evolutionary Applications",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4380921/pdf/eva0008-0273.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4380921/pdf/eva0008-0273.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/4380921",
+    "kind": "repository",
+    "host": "Europe PMC (PubMed Central)"
+   },
+   {
+    "url": "https://ir.library.carleton.ca/pub/8308",
+    "status": null,
+    "reason": "error:ConnectTimeout",
+    "kind": "repository",
+    "host": "Carleton University's Institutional Repository (MacOdrum Library, Carleton University)"
+   },
+   {
+    "url": "https://doi.org/10.1111/eva.12196",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://onlinelibrary.wiley.com/doi/10.1111/eva.12196",
+    "kind": "journal",
+    "host": "Evolutionary Applications"
+   }
+  ]
+ },
+ {
+  "key": "Kf01c217035d4",
+  "title": "Presunta allergia agli antibiotici beta-lattamici: è tempo di riflessi",
+  "doi": "10.1701/4274.42526",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.recentiprogressi.it/r.php?&v=4274&a=42526&l=355824&f=allegati/04274_2024_06/fulltext/RPM_0624.06_Rassegna - Marchetti.pdf",
+    "kind": "repository",
+    "host": "Archivio istituzionale della ricerca (Alma Mater Studiorum Università di Bologna)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://hdl.handle.net/11585/1014422",
+    "kind": "repository",
+    "host": "Archivio istituzionale della ricerca (Alma Mater Studiorum Università di Bologna)",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.recentiprogressi.it/r.php?&v=4274&a=42526&l=355824&f=allegati/04274_2024_06/fulltext/RPM_0624.06_Rassegna - Marchetti.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 5,
+    "total_pages": 5,
+    "final": "https://www.recentiprogressi.it/r.php?&v=4274&a=42526&l=355824&f=allegati%2F04274_2024_06%2Ffulltext%2FRPM_0624.06_Rassegna%20-%20Marchetti.pdf",
+    "bytes": 93169,
+    "kind": "repository",
+    "host": "Archivio istituzionale della ricerca (Alma Mater Studiorum Università di Bologna)"
+   }
+  ]
+ },
+ {
+  "key": "K733a85e0311d",
+  "title": "Allergia agli antibiotici beta-lattamici: i miti da sfatare e le azion",
+  "doi": "10.53126/meb43155",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kb25125b29586",
+  "title": "Natura e Frequenza dei Meccanismi di Resistenza agli Aminoglicosidi",
+  "doi": "10.2165/00044011-199600121-00004",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K274c8815a758",
+  "title": "FARINGO-TONSILLITI DA STREPTOCOCCUS PYOGENES: STUDIO DELLA RESISTENZA ",
+  "doi": "10.4081/mm.2003.4258",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/628ea4227c3842d9854e2f1789ffbd3d",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/4258/3756",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2003.4258",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/628ea4227c3842d9854e2f1789ffbd3d",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/628ea4227c3842d9854e2f1789ffbd3d",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/4258/3756",
+    "status": 200,
+    "reason": null,
+    "pages": 1,
+    "total_pages": 1,
+    "final": "https://www.pagepressjournals.org/index.php/mm/article/download/4258/3756",
+    "bytes": 157564,
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "K8691030b98d1",
+  "title": "Resistenza Agli Antibiotici: Ecco il Report Dell'Organizzazione Mondia",
+  "doi": "10.1177/039156031408100301",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kee7f62aa050c",
+  "title": "RESISTENZA AD ALTO LIVELLO AI FLUOROCHINOLONI IN UN ISOLATO CILINICO D",
+  "doi": "10.4081/mm.2005.3502",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/5ccca5c855c940ea9e6ede02ddd4981f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3502/3021",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2005.3502",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/5ccca5c855c940ea9e6ede02ddd4981f",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/5ccca5c855c940ea9e6ede02ddd4981f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3502/3021",
+    "status": 200,
+    "reason": null,
+    "pages": 1,
+    "total_pages": 1,
+    "final": "https://www.pagepressjournals.org/index.php/mm/article/download/3502/3021",
+    "bytes": 155700,
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "Kf6b66a5f058c",
+  "title": "RESISTENZA AI FLUOROCHINOLONI IN STREPTOCOCCHI DI GRUPPO G ISOLATI DA ",
+  "doi": "10.4081/mm.2006.3124",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/9348a2dcc8bd49b5afffa591113658a7",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3124/2620",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2006.3124",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/9348a2dcc8bd49b5afffa591113658a7",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/9348a2dcc8bd49b5afffa591113658a7",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/index.php/mm/article/download/3124/2620",
+    "status": 200,
+    "reason": null,
+    "pages": 1,
+    "total_pages": 1,
+    "final": "https://www.pagepressjournals.org/index.php/mm/article/download/3124/2620",
+    "bytes": 156111,
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "K4e91a80c48cd",
+  "title": "L’interpretazione dei saggi di sensibilità agli antibiotici: un invito",
+  "doi": "10.4081/mm.2005.2970",
+  "run_url": "https://www.pagepressjournals.org/index.php/mm/article/download/2970/2465",
+  "run_pages": 6,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/28ac97ed3f7c437bba9b8d7aef8676d8",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2005.2970",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/28ac97ed3f7c437bba9b8d7aef8676d8",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/28ac97ed3f7c437bba9b8d7aef8676d8",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/mm/article/download/2970/2465",
+    "status": 200,
+    "reason": null,
+    "pages": 6,
+    "total_pages": 6,
+    "final": "https://www.pagepressjournals.org/mm/article/download/2970/2465",
+    "bytes": 244438,
+    "via_landing": "https://doi.org/10.4081/mm.2005.2970",
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "K54edb8a531fb",
+  "title": "INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA ",
+  "doi": "10.4081/mm.2004.3822",
+  "run_url": "https://www.pagepressjournals.org/index.php/mm/article/download/3822/3345",
+  "run_pages": 2,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/5c517e5f485642fdb8501ec648bbdaba",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2004.3822",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/5c517e5f485642fdb8501ec648bbdaba",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/5c517e5f485642fdb8501ec648bbdaba",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/mm/article/download/3822/3345",
+    "status": 200,
+    "reason": null,
+    "pages": 2,
+    "total_pages": 2,
+    "final": "https://www.pagepressjournals.org/mm/article/download/3822/3345",
+    "bytes": 195398,
+    "via_landing": "https://doi.org/10.4081/mm.2004.3822",
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "K705282721fcb",
+  "title": "Surveillance of hospital-acquired infections and monitoring of empiric",
+  "doi": "10.33393/ao.2021.2285",
+  "run_url": "https://journals.aboutscience.eu/index.php/aboutopen/article/download/2285/2514",
+  "run_pages": 7,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/11221bf9ff614ab7b19f5c66e25a4af4",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.33393/ao.2021.2285",
+    "kind": "journal",
+    "host": "AboutOpen",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/11221bf9ff614ab7b19f5c66e25a4af4",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/11221bf9ff614ab7b19f5c66e25a4af4",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://journals.aboutscience.eu/index.php/aboutopen/article/download/2285/2514",
+    "status": 200,
+    "reason": null,
+    "pages": 7,
+    "total_pages": 7,
+    "final": "https://journals.aboutscience.eu/index.php/aboutopen/article/download/2285/2514",
+    "bytes": 874717,
+    "via_landing": "https://doi.org/10.33393/ao.2021.2285",
+    "kind": "journal",
+    "host": "AboutOpen"
+   }
+  ]
+ },
+ {
+  "key": "Kd3941bc89831",
+  "title": "Enterobacteriaceae produttrici di ß-lattamasi a spettro esteso",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/1889/3873",
+  "run_pages": 0,
+  "run_reason": "http_500",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "Kf9e6d13bb2a1",
+  "title": "Incidence of Acinetobacter baumannii and other pathogens isolated from",
+  "doi": "10.4081/mm.2010.2400",
+  "run_url": "https://www.pagepressjournals.org/index.php/mm/article/download/mm.2010.2400/1900",
+  "run_pages": 4,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/770e172056a948acaf50f825e7104863",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.4081/mm.2010.2400",
+    "kind": "journal",
+    "host": "Microbiologia medica",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/770e172056a948acaf50f825e7104863",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/770e172056a948acaf50f825e7104863",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.pagepressjournals.org/mm/article/download/mm.2010.2400/1900",
+    "status": 200,
+    "reason": null,
+    "pages": 4,
+    "total_pages": 4,
+    "final": "https://www.pagepressjournals.org/mm/article/download/mm.2010.2400/1900",
+    "bytes": 94099,
+    "via_landing": "https://doi.org/10.4081/mm.2010.2400",
+    "kind": "journal",
+    "host": "Microbiologia medica"
+   }
+  ]
+ },
+ {
+  "key": "Kb834d7bc4325",
+  "title": "&lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il f",
+  "doi": "10.4081/itjm.q.2023.2",
+  "run_url": "https://www.italjmed.org/ijm/article/download/1615/1506",
+  "run_pages": 66,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/febb3630ff7b4d60a6621ff79b7d5d9f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "http://dx.doi.org/10.4081/itjm.q.2023.2",
+    "kind": "journal",
+    "host": "Italian Journal of Medicine",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/febb3630ff7b4d60a6621ff79b7d5d9f",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/febb3630ff7b4d60a6621ff79b7d5d9f",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://www.italjmed.org/ijm/article/download/1615/1506",
+    "status": 200,
+    "reason": null,
+    "pages": 61,
+    "total_pages": 66,
+    "final": "https://www.italjmed.org/ijm/article/download/1615/1506",
+    "bytes": 1650512,
+    "via_landing": "http://dx.doi.org/10.4081/itjm.q.2023.2",
+    "kind": "journal",
+    "host": "Italian Journal of Medicine"
+   }
+  ]
+ }
+]

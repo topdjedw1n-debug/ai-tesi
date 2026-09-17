@@ -1,0 +1,124 @@
+
+######## A2 economia-1 (digital marketing PMI): Strategie di digital marketing per le piccole e medie imprese italiane: il ruolo
+topic anchors: ['digital marketing', 'marketing piccole', 'medie imprese', 'social media', 'media fidelizzazione', 'fidelizzazione cliente']
+P anchors: 24; C anchors: 8: ['digital marketing', 'marketing piccole', 'medie imprese', 'social media', 'media fidelizzazione', 'fidelizzazione cliente', 'marketing digitale', 'customer loyalty']
+
+B share P share C share  windows  title
+   0.79    0.16    0.07      385  Esportazioni e e-commerce delle imprese italiane
+   0.99    0.89    0.86      145  Social media marketing strategy: definition, conceptualization, taxonomy, v
+   0.77    0.19    0.03      112  Creative crowdsourcing e dinamiche relazionali nella comunicazione di marke
+   0.93    0.66    0.59       83  Digital and Social Media Marketing - Growing Market Share for Construction
+   0.90    0.53    0.06      107  Drivers of Digital Transformation in SMEs
+   0.81    0.63    0.03      119  How can SMEs successfully navigate VUCA environment: The role of agility in
+   0.97    0.88    0.83       98  Social media marketing and advertising
+   0.75    0.48    0.22       83  The effect of social networking sites and absorptive capacity on SMES’ inno
+   0.86    0.33    0.26      316  PMI Marketing: modello di business per una startup di digital marketing ope
+
+pack rows on topic: B 40/40  P 24  C 15
+  dropped by P (16): ['Il finanziamento delle piccole e medie imprese e la crisi fi', 'Il processo di selezione dei mercati esteri per le piccole e', 'Esportazioni e e-commerce delle imprese italiane', 'Venice Original\n E-commerce\xa0dell’artigianato artistico e tra', "Responsabilità sociale d'impresa 2.0 e sostenibilità digital", 'SMEs and Marketing: A Systematic Literature Review', 'Digital transformation: A multidisciplinary reflection and r', 'Trasformazione digitale e capacità organizzativa. Le aziende', "Il ruolo delle piccole e medie città nell'economia 3.0. Evid", 'Contratto di rete e codatorialità: il lavoro come fattore di', 'Creative crowdsourcing e dinamiche relazionali nella comunic', 'Digital information tools to support the sustainable develop']
+  dropped by C (25): ['Il finanziamento delle piccole e medie imprese e la crisi fi', 'Il processo di selezione dei mercati esteri per le piccole e', 'Esportazioni e e-commerce delle imprese italiane', 'Venice Original\n E-commerce\xa0dell’artigianato artistico e tra', "Responsabilità sociale d'impresa 2.0 e sostenibilità digital", 'Social media marketing strategy: definition, conceptualizati', 'SMEs and Marketing: A Systematic Literature Review', 'Digital transformation: A multidisciplinary reflection and r', 'Trasformazione digitale e capacità organizzativa. Le aziende', "Il ruolo delle piccole e medie città nell'economia 3.0. Evid", 'Contratto di rete e codatorialità: il lavoro come fattore di', 'Creative crowdsourcing e dinamiche relazionali nella comunic']
+
+section exam on full texts that got pages (own/shared -> shared without topic words):
+ § 1 Introduzione                   Creative crowdsourcing[0/3->0-]
+ § 2 Evoluzione dal marketing tradi PMI Marketing: modello[3/4->2*]
+ § 3 Strumenti e canali del digital PMI Marketing: modello[0/2->0-] ; Esportazioni e e-comme[0/0->0-] ; Creative crowdsourcing[0/6->4*]
+ § 4 Il digital marketing nelle pic Digital and Social Med[2/3->0*] ; Drivers of Digital Tra[1/2->0*] ; Esportazioni e e-comme[0/4->3*] ; PMI Marketing: modello[3/4->1*]
+ § 5 Il ruolo dei social media nell Social media marketing[1/11->8*] ; Social media marketing[1/4->0*] ; Digital and Social Med[1/3->0*] ; Esportazioni e e-comme[0/2->2-]
+ § 6 Concetti e determinanti della  PMI Marketing: modello[0/0->0-] ; The effect of social n[0/1->1-]
+ § 7 Social media marketing e relaz Social media marketing[1/4->1*] ; The effect of social n[2/4->0*]
+ § 8 Metodologia dell'analisi       Creative crowdsourcing[0/4->4*]
+ § 9 Casi di studio di PMI italiane Creative crowdsourcing[0/8->5*] ; Social media marketing[0/3->0-] ; Digital and Social Med[1/5->0*] ; Social media marketing[0/3->0-]
+ §10 Discussione dei risultati      Drivers of Digital Tra[0/1->0-] ; Digital and Social Med[0/4->0-] ; Esportazioni e e-comme[0/0->0-]
+ §11 Conclusioni                    Drivers of Digital Tra[0/0->0-]
+
+######## E2 economia-2 (fintech/credito PMI): L'accesso al credito delle piccole e medie imprese italiane nell'era del fintech
+topic anchors: ["l'accesso credito", 'credito piccole', 'medie imprese', "imprese nell'era", "nell'era fintech", 'lending alternativo', 'crowdfunding', 'banche tradizionali']
+P anchors: 88; C anchors: 21: ["l'accesso credito", 'credito piccole', 'medie imprese', "imprese nell'era", "nell'era fintech", 'lending alternativo', 'crowdfunding', 'banche tradizionali', 'piccole medie imprese', 'accesso credito', 'credito bancario', 'small medium enterprises', 'access credit', 'bank credit']
+
+B share P share C share  windows  title
+   0.48    0.82    0.06     1015  La regolazione del rischio cibernetico nel mercato bancario
+   0.79    0.19    0.01      119  Relazione impresa-territorio e modelli predittivi del default d’impresa. Pr
+   0.30    0.19    0.01      224  Migrazioni, Politiche e Territorio in Veneto
+   0.85    0.68    0.02      188  Understanding Financial Crises: A Developing Country Perspective
+   0.97    0.81    0.02      166  FinTech: a literature review of emerging financial technologies and applica
+   0.72    0.63    0.02      364  Islamic Finance and Conventional Financial Systems - Market Trends, Supervi
+
+pack rows on topic: B 38/40  P 27  C 7
+  dropped by P (13): ["Il ruolo delle piccole e medie città nell'economia 3.0. Evid", 'Contratto di rete e codatorialità: il lavoro come fattore di', 'Relazione impresa-territorio e modelli predittivi del defaul', 'Migrazioni, Politiche e Territorio in Veneto', 'Analyzing and Interpreting Financial Statement for Corporate', 'Bank Lending Procyclicality and Credit Quality During Financ', 'A review of Blockchain Technology applications for financial', 'African financial systems: A review', 'Blockchain technology for enterprise credit information shar', 'Serial Entrepreneurs and Small Business Bankruptcies', 'Banche di credito cooperativo come leva di stabilità finanzi', 'Evoluzione strutturale e reddituale del sistema bancario loc']
+  dropped by C (33): ['Fragilità Finanziaria Delle Imprese E Allocazione Del Credit', 'THE EFFECT OF DIGITAL PAYMENT, PEER-TO-PEER (P2P) LENDING, A', 'มาตรการทางกฎหมายในการกำกับดูแลธุรกิจ FinTech : กรณีศึกษา Pee', 'La regolazione del rischio cibernetico nel mercato bancario', 'A Survey of Fintech Research and Policy Discussion', 'Lending in the Shadows: Shadow Bank Financial Fragility and ', 'Rischio di credito 2.0', "Il ruolo delle piccole e medie città nell'economia 3.0. Evid", 'Contratto di rete e codatorialità: il lavoro come fattore di', 'Relazione impresa-territorio e modelli predittivi del defaul', 'Migrazioni, Politiche e Territorio in Veneto', 'Bank Lending Rates and Financial Structure in Italy']
+
+section exam on full texts that got pages (own/shared -> shared without topic words):
+ § 1 Introduzione: domanda di ricer La regolazione del ris[0/3->2-]
+ § 2 Il ruolo delle PMI e la strutt Relazione impresa-terr[0/1->0-] ; La regolazione del ris[0/0->0-]
+ § 3 La dipendenza dal canale banca Islamic Finance and Co[1/1->0*] ; La regolazione del ris[0/2->1-] ; Relazione impresa-terr[0/3->1-]
+ § 4 Razionamento del credito, asim Relazione impresa-terr[1/9->6*] ; La regolazione del ris[0/2->1-]
+ § 5 Definizione ed evoluzione del  La regolazione del ris[0/2->0-] ; FinTech: a literature [1/4->1*]
+ § 7 Big data, scoring alternativo  FinTech: a literature [2/5->3*]
+ §11 Dati e rapporti istituzionali  Relazione impresa-terr[0/8->6*]
+ §13 Effetti sull'inclusione finanz Migrazioni, Politiche [0/2->1-]
+ §15 Conclusioni e prospettive futu Islamic Finance and Co[0/1->1-] ; Migrazioni, Politiche [0/0->0-]
+
+######## BIO antibiotici: La resistenza agli antibiotici: meccanismi molecolari della resistenza batterica
+topic anchors: ['resistenza antibiotici', 'meccanismi molecolari', 'molecolari resistenza', 'resistenza batterica', 'contrastarla']
+P anchors: 90; C anchors: 19: ['resistenza antibiotici', 'meccanismi molecolari', 'molecolari resistenza', 'resistenza batterica', 'contrastarla', "meccanismi d'azione", 'mechanisms action', 'bacterial resistance', 'diffusione resistenza', 'trasferimento genico orizzontale', 'pressione selettiva', 'resistance spread', 'horizontal gene transfer', 'selective pressure']
+
+B share P share C share  windows  title
+   0.36    0.53    0.02      233  Costruzione di chimere molecolari dell'enzima Integrasi di HIV con attività
+   0.36    0.37    0.17      159  Un estere misto degli acidi ialuronico, butirrico e retinoico è in grado di
+   0.95    0.96    0.17      191  Antibiotic Resistance Mechanisms in Bacteria: Relationships Between Resista
+   0.98    0.99    0.14      129  The multifaceted roles of antibiotics and antibiotic resistance in nature
+   0.61    0.90    0.11      264  Pseudomonas aeruginosa: pathogenesis, virulence factors, antibiotic resista
+   0.96    0.96    0.16       25  L’interpretazione dei saggi di sensibilità agli antibiotici: un invito alla
+   0.89    0.78    0.11       18  INTERAZIONE SINERGICA DEI GLICOPEPTIDI CON CEFTAZIDIME E AZITROMICINA NEI C
+   0.80    0.88    0.15       41  Surveillance of hospital-acquired infections and monitoring of empiric anti
+   0.77    0.80    0.17       30  Incidence of Acinetobacter baumannii and other pathogens isolated from Inte
+   0.71    0.70    0.05      382  &lt;em&gt;Antimicrobial stewardship&lt;/em&gt;: un imperativo per il futuro
+
+pack rows on topic: B 40/40  P 39  C 6
+  dropped by P (1): ['DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPIC']
+  dropped by C (34): ['Si può tornare indietro dalla resistenza batterica acquisita', 'Bersagli molecolari e potenziali farmaci in grado di rallent', 'Test molecolari rapidi nelle infezioni respiratorie: perché ', "Costruzione di chimere molecolari dell'enzima Integrasi di H", 'DETERMINAZIONE DELLE CARATTERISTICHE FENOTIPICHE E GENOTIPIC', 'Un estere misto degli acidi ialuronico, butirrico e retinoic', 'Identificazione e caratterizzazione di un nuovo sistema toss', 'The Membrane Steps of Bacterial Cell Wall Synthesis as Antib', 'Antibiotics That Inhibit Bacterial Cell Wall Synthesis', 'Molecular mechanisms of biofilm resistance against antibioti', 'Other Antibiotics Interfering with Bacterial Protein Synthes', 'Antibiotic Targets in Gonococcal Cell Wall Metabolism']
+
+section exam on full texts that got pages (own/shared -> shared without topic words):
+ § 2 Basi biologiche dell'azione de Costruzione di chimere[0/2->1-]
+ § 3 Classi di antibiotici e loro s INTERAZIONE SINERGICA [2/12->10*] ; &lt;em&gt;Antimicrobia[0/1->1-] ; Surveillance of hospit[0/0->0-] ; Incidence of Acinetoba[0/0->0-]
+ § 4 Meccanismi molecolari di resis Antibiotic Resistance [0/0->0-] ; Costruzione di chimere[0/2->1-] ; &lt;em&gt;Antimicrobia[0/0->0-] ; L’interpretazione dei [0/7->3*]
+ § 5 Beta-lattamasi e resistenza en &lt;em&gt;Antimicrobia[0/0->0-] ; Incidence of Acinetoba[0/0->0-]
+ § 6 Trasferimento genico orizzonta Antibiotic Resistance [3/2->0*]
+ § 8 Pressione selettiva e uso impr The multifaceted roles[1/3->0*] ; L’interpretazione dei [1/7->5*] ; &lt;em&gt;Antimicrobia[0/1->1-]
+ § 9 Nuovi antibiotici e inibitori  Antibiotic Resistance [1/2->0*] ; &lt;em&gt;Antimicrobia[0/0->0-]
+ §10 Terapia fagica                 Pseudomonas aeruginosa[2/3->1*]
+ §11 Antimicrobial stewardship      Surveillance of hospit[2/4->2*] ; Incidence of Acinetoba[0/2->1-]
+ §12 Approccio One Health           Antibiotic Resistance [0/3->1-] ; The multifaceted roles[0/1->0-]
+
+######## PSY social media adolescenti: L'uso dei social media e il benessere psicologico degli adolescenti: confronto s
+topic anchors: ["l'uso social", 'social media', 'benessere psicologico', 'psicologico adolescenti', 'sociale', 'fear missing', 'regolazione emotiva']
+P anchors: 87; C anchors: 24: ["l'uso social", 'social media', 'benessere psicologico', 'psicologico adolescenti', 'sociale', 'fear missing', 'regolazione emotiva', 'uso social media', 'social media use', 'psychological well being', 'immagine corporea', 'body image', 'self esteem', 'fear missing out']
+
+B share P share C share  windows  title
+   0.92    0.90    0.86       71  Problematic Social Media Use: Results from a Large-Scale Nationally Represe
+   0.62    0.45    0.38       58  Preventing school disaffection, failure and dropout. The ESF projects “Last
+   0.67    0.41    0.39      115  A rapid review of the impact of COVID-19 on the mental health of healthcare
+   0.52    0.27    0.21      105  The influence of parental practices on child promotive and preventive food
+   0.91    0.89    0.89      204  Advances in Social Media Research: Past, Present and Future
+   0.72    0.39    0.31       54  New trends in drug addiction: the synthetic drugs. Epidemiological, clinica
+   0.59    0.49    0.29      691  Educare (al)la sessualità: dalla prevenzione alla promozione della salute s
+   0.95    0.92    0.92       66  The Impact of Social Media on the Mental Health of Adolescents and Young Ad
+
+pack rows on topic: B 40/40  P 36  C 22
+  dropped by P (4): ['EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SCUOLA-FAMIGLIA.', 'New trends in drug addiction: the synthetic drugs. Epidemiol', 'Documento di consenso e raccomandazioni per la prevenzione c', '2021 ESC Guidelines on cardiovascular disease prevention in ']
+  dropped by C (18): ['OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS ONLINE ALLA', 'Il benessere soggettivo in bambini tra gli 8 e gli 11 anni. ', 'La specificitŕ del placebo e il suo effetto sul benessere so', 'Upward and Downward: Social Comparison Processing of Thin Id', 'Chronotype and trait self-control distinctively predicted su', 'Prevention of Substance Abuse', 'Promozione della salute e del benessere degli adolescenti ne', 'EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SCUOLA-FAMIGLIA.', 'The influence of parental practices on child promotive and p', 'New trends in drug addiction: the synthetic drugs. Epidemiol', 'Documento di consenso e raccomandazioni per la prevenzione c', 'Educare (al)la sessualità: dalla prevenzione alla promozione']
+
+section exam on full texts that got pages (own/shared -> shared without topic words):
+ § 1 Introduzione: domanda di ricer Educare (al)la sessual[0/3->1-] ; Preventing school disa[0/4->3*] ; A rapid review of the [0/2->0-] ; The influence of paren[0/1->0-]
+ § 2 Diffusione dei social media in Problematic Social Med[2/4->0*] ; Advances in Social Med[0/3->1-] ; The Impact of Social M[1/4->0*] ; Educare (al)la sessual[1/3->2*]
+ § 3 Modelli teorici sull'uso dei s Advances in Social Med[0/3->1-] ; The influence of paren[1/2->0*] ; Educare (al)la sessual[0/3->2-]
+ § 5 Teoria del confronto sociale e Advances in Social Med[1/2->0*] ; The Impact of Social M[1/2->0*] ; Problematic Social Med[1/2->0*] ; The influence of paren[1/1->0*]
+ § 6 Immagine corporea e social med The Impact of Social M[0/3->0-]
+ § 7 Autostima e uso dei social med Advances in Social Med[0/3->1-] ; Problematic Social Med[1/2->0*] ; The Impact of Social M[1/2->0*]
+ § 8 Fear of missing out (FoMO)     A rapid review of the [0/3->0-] ; The Impact of Social M[0/3->1-]
+ § 9 Uso problematico dei social me Problematic Social Med[2/5->1*] ; Advances in Social Med[0/3->0-] ; The Impact of Social M[1/3->0*] ; New trends in drug add[0/3->2-]
+ §10 Qualità del sonno negli adoles Problematic Social Med[0/3->0-] ; Advances in Social Med[0/3->0-]
+ §12 Fattori protettivi: supporto s A rapid review of the [4/5->0*] ; Preventing school disa[2/5->2*]
+ §13 Interventi di prevenzione a sc Problematic Social Med[2/5->0*] ; Educare (al)la sessual[1/5->4*] ; Preventing school disa[1/4->2*]
+ §14 Interventi di prevenzione in f The influence of paren[2/4->2*]
+ §15 Discussione: integrazione dei  Educare (al)la sessual[0/4->2-]

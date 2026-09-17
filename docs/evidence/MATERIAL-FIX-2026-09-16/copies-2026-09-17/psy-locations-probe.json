@@ -1,0 +1,1420 @@
+[
+ {
+  "key": "K0b45f652bc70",
+  "title": "Adolescent Social Media Use Motives: A Five-Factor Scale Integrating S",
+  "doi": "10.2139/ssrn.7176859",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.7176859",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.7176859",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=7176859",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "Kfd5fd60f1d12",
+  "title": "Social Media Use and adolescents' mental health and well-being: An umb",
+  "doi": "10.1016/j.chbr.2024.100404",
+  "run_url": "https://doi.org/10.1016/j.chbr.2024.100404",
+  "run_pages": 0,
+  "run_reason": "not_pdf",
+  "candidates": [
+   {
+    "url": "https://iris.uniroma1.it/bitstream/11573/1728795/1/Sala_Social-Media-Use_2024.pdf",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://hdl.handle.net/11573/1728795",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://iris.uniroma1.it/bitstream/11573/1728795/1/Sala_Social-Media-Use_2024.pdf",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://iris.uniroma1.it/bitstream/11573/1728795/1/Sala_Social-Media-Use_2024.pdf",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)"
+   },
+   {
+    "url": "https://hdl.handle.net/11573/1728795",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://iris.uniroma1.it/handle/11573/1728795",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)"
+   }
+  ]
+ },
+ {
+  "key": "Kf007a988809c",
+  "title": "Problematic social media use among adolescents: Prevalence, and gender",
+  "doi": "10.21203/rs.3.rs-7987493/v1",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.researchsquare.com/article/rs-7987493/latest.pdf",
+    "kind": "repository",
+    "host": "Research Square",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.21203/rs.3.rs-7987493/v1",
+    "kind": "repository",
+    "host": "Research Square",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.researchsquare.com/article/rs-7987493/latest.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 16,
+    "total_pages": 16,
+    "final": "https://assets-eu.researchsquare.com/files/rs-7987493/v1/d42f6e32-ad6b-4285-82f6-3d16163b926f.pdf?c=1775469420",
+    "bytes": 695165,
+    "kind": "repository",
+    "host": "Research Square"
+   }
+  ]
+ },
+ {
+  "key": "K45c2c0b24672",
+  "title": "Problematic Social Media Use: Results from a Large-Scale Nationally Re",
+  "doi": "10.1371/journal.pone.0169839",
+  "run_url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0169839&type=printable",
+  "run_pages": 13,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5222338",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1371/journal.pone.0169839",
+    "kind": "journal",
+    "host": "PLoS ONE",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5222338/pdf/pone.0169839.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5222338/pdf/pone.0169839.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/5222338",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://journals.plos.org/plosone/article/file?id=10.1371%2Fjournal.pone.0169839&type=printable",
+    "status": 200,
+    "reason": null,
+    "pages": 13,
+    "total_pages": 13,
+    "final": "https://journals.plos.org/plosone/article/file?id=10.1371%2Fjournal.pone.0169839&type=printable",
+    "bytes": 942473,
+    "via_landing": "https://doi.org/10.1371/journal.pone.0169839",
+    "kind": "journal",
+    "host": "PLoS ONE"
+   }
+  ]
+ },
+ {
+  "key": "K0ead32dde8f2",
+  "title": "OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS ONLINE ALLA RICERCA S",
+  "doi": "10.36253/me-8842",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.36253/me-8842",
+    "kind": "journal",
+    "host": "Media Education",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://oaj.fupress.net/index.php/med/article/download/8842/8417",
+    "status": 200,
+    "reason": null,
+    "pages": 13,
+    "total_pages": 13,
+    "final": "https://oaj.fupress.net/index.php/med/article/download/8842/8417",
+    "bytes": 521672,
+    "via_landing": "https://doi.org/10.36253/me-8842",
+    "kind": "journal",
+    "host": "Media Education"
+   }
+  ]
+ },
+ {
+  "key": "Kde77f1c76016",
+  "title": "LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN APPROCCIO A MOLTEPLICI L",
+  "doi": "10.36253/me-8841",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://oaj.fupress.net/index.php/med/article/download/8841/8416",
+    "kind": "journal",
+    "host": "Media Education",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.36253/me-8841",
+    "kind": "journal",
+    "host": "Media Education",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://oaj.fupress.net/index.php/med/article/download/8841/8416",
+    "status": 200,
+    "reason": null,
+    "pages": 21,
+    "total_pages": 21,
+    "final": "https://oaj.fupress.net/index.php/med/article/download/8841/8416",
+    "bytes": 712617,
+    "kind": "journal",
+    "host": "Media Education"
+   }
+  ]
+ },
+ {
+  "key": "Kcc18e0aa57c0",
+  "title": "Il benessere soggettivo in bambini tra gli 8 e gli 11 anni. L'impatto ",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/10281/18922",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K2e3aaf29a084",
+  "title": "La specificitŕ del placebo e il suo effetto sul benessere soggettivo m",
+  "doi": "10.3280/rip2008-003004",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Ke9725104f634",
+  "title": "Insoddisfazione corporea in adolescenza: influenze di fattori bio-psic",
+  "doi": "10.3280/pds2009-002004",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K4d3c39e0ffe2",
+  "title": "Influenze socioculturali, immagine corporea e chirurgia estetica",
+  "doi": "10.36253/979-12-215-0673-0",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "openalex_404"
+ },
+ {
+  "key": "K9499ed81b08e",
+  "title": "Upward and Downward: Social Comparison Processing of Thin Idealized Me",
+  "doi": "10.1111/j.1471-6402.2010.01581.x",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kc8adf94d1d24",
+  "title": "Self-comparison with influencers but not general Instagram use moderat",
+  "doi": "10.5817/cp2025-2-2",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.5817/CP2025-2-2",
+    "kind": "repository",
+    "host": "RUJA (Universidad de Jaén)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/d1ac71e6b0ee459bb36b87e3e7644201",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://cyberpsychology.eu/article/download/37693/34087",
+    "kind": "journal",
+    "host": "Cyberpsychology Journal of Psychosocial Research on Cyberspace",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.5817/cp2025-2-2",
+    "kind": "journal",
+    "host": "Cyberpsychology Journal of Psychosocial Research on Cyberspace",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://cyberpsychology.eu/article/download/37693/34087",
+    "status": 200,
+    "reason": null,
+    "pages": 22,
+    "total_pages": 22,
+    "final": "https://cyberpsychology.eu/article/download/37693/34087",
+    "bytes": 4471590,
+    "via_landing": "https://doi.org/10.5817/CP2025-2-2",
+    "kind": "repository",
+    "host": "RUJA (Universidad de Jaén)"
+   }
+  ]
+ },
+ {
+  "key": "K278c310c8941",
+  "title": "Social Media, Thin-Ideal, Body Dissatisfaction and Disordered Eating A",
+  "doi": "10.3390/ijerph16214177",
+  "run_url": "https://doi.org/10.3390/ijerph16214177",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.mdpi.com/1660-4601/16/21/4177/pdf?version=1573030752",
+    "kind": "repository",
+    "host": "RISalud Institutional Health Repository of Andalucía",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6861923/pdf",
+    "kind": "repository",
+    "host": "RISalud Institutional Health Repository of Andalucía",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/6861923",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "http://hdl.handle.net/10396/19054",
+    "kind": "repository",
+    "host": "LA Referencia (Red Federada de Repositorios Institucionales de Publicaciones Científicas)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/04c0f8a460fd461e963fb04e5edb8d50",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.research.ed.ac.uk/en/publications/49647c0e-fc31-40fc-ac5b-b111425e1f0c",
+    "kind": "repository",
+    "host": "Edinburgh Research Explorer (University of Edinburgh)",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.mdpi.com/1660-4601/16/21/4177/pdf?version=1573030752",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/1660-4601/16/21/4177/pdf?version=1573030752",
+    "kind": "repository",
+    "host": "RISalud Institutional Health Repository of Andalucía"
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6861923/pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6861923/pdf/ijerph-16-04177.pdf",
+    "kind": "repository",
+    "host": "RISalud Institutional Health Repository of Andalucía"
+   },
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6861923/pdf/ijerph-16-04177.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC6861923/pdf/ijerph-16-04177.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/6861923",
+    "kind": "repository",
+    "host": "PubMed Central"
+   }
+  ]
+ },
+ {
+  "key": "K6409f1f1b4c7",
+  "title": "The concurrent and longitudinal relationships between adolescents' use",
+  "doi": "10.1016/j.chb.2017.07.008",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S074756321730420X/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://pure.uva.nl/ws/files/16231469/concurrent_and_longitudinal_relationships.pdf",
+    "kind": "repository",
+    "host": "UvA-DARE (University of Amsterdam)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://handle.uba.uva.nl/personal/pure/en/publications/the-concurrent-and-longitudinal-relationships-between-adolescents-use-of-social-network-sites-and-their-social-selfesteem(7156ccef-b0da-45db-a6eb-accc86ba4f8a).html",
+    "kind": "repository",
+    "host": "UvA-DARE (University of Amsterdam)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5608942",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://dspace.library.uu.nl/handle/1874/356969",
+    "kind": "repository",
+    "host": "Utrecht University Repository (Utrecht University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://dare.uva.nl/personal/pure/en/publications/the-concurrent-and-longitudinal-relationships-between-adolescents-use-of-social-network-sites-and-their-social-selfesteem(7156ccef-b0da-45db-a6eb-accc86ba4f8a).html",
+    "kind": "repository",
+    "host": "Data Archiving and Networked Services (DANS)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.chb.2017.07.008",
+    "kind": "journal",
+    "host": "Computers in Human Behavior",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pure.uva.nl/ws/files/16231469/concurrent_and_longitudinal_relationships.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 8,
+    "total_pages": 8,
+    "final": "https://pure.uva.nl/ws/files/16231469/concurrent_and_longitudinal_relationships.pdf",
+    "bytes": 419988,
+    "kind": "repository",
+    "host": "UvA-DARE (University of Amsterdam)"
+   }
+  ]
+ },
+ {
+  "key": "Kc101f55913ed",
+  "title": "Fear of Missing Out (FOMO), Emotional Distress, and Problematic Social",
+  "doi": "10.2139/ssrn.5151753",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.5151753",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.5151753",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=5151753",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "K0f586deb6027",
+  "title": "Social Networking Sites and Addiction: Ten Lessons Learned",
+  "doi": "10.3390/ijerph14030311",
+  "run_url": "https://www.mdpi.com/1660-4601/14/3/311/pdf?version=1489755175",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5369147",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/4506d11466c04caeafe7a044d3dcd138",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3390/ijerph14030311",
+    "kind": "journal",
+    "host": "International Journal of Environmental Research and Public Health",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5369147/pdf/ijerph-14-00311.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5369147/pdf/ijerph-14-00311.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/5369147",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/4506d11466c04caeafe7a044d3dcd138",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/4506d11466c04caeafe7a044d3dcd138",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.3390/ijerph14030311",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/1660-4601/14/3/311",
+    "kind": "journal",
+    "host": "International Journal of Environmental Research and Public Health"
+   }
+  ]
+ },
+ {
+  "key": "Kbc8354af2b7f",
+  "title": "A Study on How Social Media FOMO (Fear of Missing Out) Impacts the Gen",
+  "doi": "10.2139/ssrn.4964157",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "http://dx.doi.org/10.2139/ssrn.4964157",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "http://dx.doi.org/10.2139/ssrn.4964157",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=4964157",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "K6fef3a24d49c",
+  "title": "Perceived Challenges and Online Harms from Social Media Use on a Sever",
+  "doi": "10.3390/ijerph18063227",
+  "run_url": "https://www.mdpi.com/1660-4601/18/6/3227/pdf?version=1616229804",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/8003875",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3390/ijerph18063227",
+    "kind": "journal",
+    "host": "International Journal of Environmental Research and Public Health",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8003875/pdf/ijerph-18-03227.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC8003875/pdf/ijerph-18-03227.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/8003875",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.3390/ijerph18063227",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/1660-4601/18/6/3227",
+    "kind": "journal",
+    "host": "International Journal of Environmental Research and Public Health"
+   }
+  ]
+ },
+ {
+  "key": "Kcdf7c128745f",
+  "title": "THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCEN",
+  "doi": "10.31435/ijitss.2(50).2026.5508",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://rspublisher.org/index.php/ijitss/article/view/5508",
+    "kind": "repository",
+    "host": "RS Global journals (RS Global Sp. z O.O.)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://rspublisher.org/index.php/ijitss/article/download/5508/4483",
+    "kind": "journal",
+    "host": "International Journal of Innovative Technologies in Social Science",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.31435/ijitss.2(50).2026.5508",
+    "kind": "journal",
+    "host": "International Journal of Innovative Technologies in Social Science",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://rspublisher.org/index.php/ijitss/article/download/5508/4483",
+    "status": 200,
+    "reason": null,
+    "pages": 8,
+    "total_pages": 8,
+    "final": "https://rspublisher.org/index.php/ijitss/article/download/5508/4483",
+    "bytes": 296219,
+    "via_landing": "https://rspublisher.org/index.php/ijitss/article/view/5508",
+    "kind": "repository",
+    "host": "RS Global journals (RS Global Sp. z O.O.)"
+   }
+  ]
+ },
+ {
+  "key": "K3b08dc0abc65",
+  "title": "Chronotype and trait self-control distinctively predicted subjective s",
+  "doi": "10.31234/osf.io/vxbkn",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://osf.io/vxbkn",
+    "kind": "repository",
+    "host": "PsyArXiv (OSF Preprints)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://psyarxiv.com/vxbkn/download",
+    "kind": "?",
+    "host": "",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.31234/osf.io/vxbkn",
+    "kind": "?",
+    "host": "",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://osf.io/vxbkn",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html",
+    "final": "https://osf.io/vxbkn",
+    "kind": "repository",
+    "host": "PsyArXiv (OSF Preprints)"
+   },
+   {
+    "url": "https://psyarxiv.com/vxbkn/download",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html",
+    "final": "https://osf.io/preprints/psyarxiv/vxbkn/download",
+    "kind": "?",
+    "host": ""
+   },
+   {
+    "url": "https://doi.org/10.31234/osf.io/vxbkn",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html",
+    "final": "https://osf.io/vxbkn_v1",
+    "kind": "?",
+    "host": ""
+   }
+  ]
+ },
+ {
+  "key": "K8a842e79de73",
+  "title": "Preventing school disaffection, failure and dropout. The ESF projects ",
+  "doi": "10.36253/form-11318",
+  "run_url": "https://oaj.fupress.net/index.php/formare/article/download/11318/10154",
+  "run_pages": 13,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/a9b6a50de03946ed8cd9773f9095f1cb",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.36253/form-11318",
+    "kind": "journal",
+    "host": "Form re - Open Journal per la formazione in rete",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://bia.unibz.it/esploro/outputs/journalArticle/Prevenire-la-disaffezione-scolastica-linsuccesso-e/991006127682601241",
+    "kind": "journal",
+    "host": "Open Research (University of Surrey)",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/a9b6a50de03946ed8cd9773f9095f1cb",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/a9b6a50de03946ed8cd9773f9095f1cb",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://oaj.fupress.net/index.php/formare/article/download/11318/10154",
+    "status": 200,
+    "reason": null,
+    "pages": 13,
+    "total_pages": 13,
+    "final": "https://oaj.fupress.net/index.php/formare/article/download/11318/10154",
+    "bytes": 459551,
+    "via_landing": "https://doi.org/10.36253/form-11318",
+    "kind": "journal",
+    "host": "Form re - Open Journal per la formazione in rete"
+   }
+  ]
+ },
+ {
+  "key": "Kafab6265c245",
+  "title": "Emotion Regulation Difficulties and Coping Strategies in Substance Use",
+  "doi": "10.20944/preprints202604.1091.v1",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.preprints.org/frontend/manuscript/3e95008863197b381b84b5260ef785a1/download_pub",
+    "kind": "repository",
+    "host": "Preprints.org",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.20944/preprints202604.1091.v1",
+    "kind": "repository",
+    "host": "Preprints.org",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.preprints.org/frontend/manuscript/3e95008863197b381b84b5260ef785a1/download_pub",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.preprints.org/frontend/manuscript/3e95008863197b381b84b5260ef785a1/download_pub",
+    "kind": "repository",
+    "host": "Preprints.org"
+   },
+   {
+    "url": "https://doi.org/10.20944/preprints202604.1091.v1",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.preprints.org/manuscript/202604.1091/v1",
+    "kind": "repository",
+    "host": "Preprints.org"
+   }
+  ]
+ },
+ {
+  "key": "Kfbc7ef5c52a3",
+  "title": "A rapid review of the impact of COVID-19 on the mental health of healt",
+  "doi": "10.1186/s12889-020-10070-3",
+  "run_url": "https://bmcpublichealth.biomedcentral.com/counter/pdf/10.1186/s12889-020-10070-3",
+  "run_pages": 18,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7794640",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/67ed39f88331463bb860f3f9fa5dd310",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1186/s12889-020-10070-3",
+    "kind": "journal",
+    "host": "BMC Public Health",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7794640/pdf/12889_2020_Article_10070.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC7794640/pdf/12889_2020_Article_10070.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/7794640",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/67ed39f88331463bb860f3f9fa5dd310",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/67ed39f88331463bb860f3f9fa5dd310",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://link.springer.com/content/pdf/10.1186/s12889-020-10070-3.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 18,
+    "total_pages": 18,
+    "final": "https://link.springer.com/content/pdf/10.1186/s12889-020-10070-3.pdf",
+    "bytes": 783963,
+    "via_landing": "https://doi.org/10.1186/s12889-020-10070-3",
+    "kind": "journal",
+    "host": "BMC Public Health"
+   }
+  ]
+ },
+ {
+  "key": "K7187eb49887f",
+  "title": "Investigating the Potential Mediating Role of Social Support in the Re",
+  "doi": "10.4103/shb.shb_377_24",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/d025ab20d107461f9f63755eebc5fda6",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.4103/shb.shb_377_24",
+    "kind": "journal",
+    "host": "Asian Journal of Social Health and Behavior",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/d025ab20d107461f9f63755eebc5fda6",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/d025ab20d107461f9f63755eebc5fda6",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.4103/shb.shb_377_24",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://www.ovid.com/jnls/shbh/fulltext/10.4103/shb.shb_377_24~investigating-the-potential-mediating-role-of-social-support",
+    "kind": "journal",
+    "host": "Asian Journal of Social Health and Behavior"
+   }
+  ]
+ },
+ {
+  "key": "K3a54f73ca6f8",
+  "title": "Prevention of Substance Abuse",
+  "doi": "10.1093/oso/9780195072686.003.0014",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K40c29f1b2644",
+  "title": "Promozione della salute e del benessere degli adolescenti nel contesto",
+  "doi": "10.3280/pds2008-003006",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K902fdd4fdae3",
+  "title": "EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SCUOLA-FAMIGLIA. ESEMPI DI",
+  "doi": "10.36253/me-8835",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.36253/me-8835",
+    "kind": "journal",
+    "host": "Media Education",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://oaj.fupress.net/index.php/med/article/download/8835/8409",
+    "status": 200,
+    "reason": null,
+    "pages": 10,
+    "total_pages": 10,
+    "final": "https://oaj.fupress.net/index.php/med/article/download/8835/8409",
+    "bytes": 418512,
+    "via_landing": "https://doi.org/10.36253/me-8835",
+    "kind": "journal",
+    "host": "Media Education"
+   }
+  ]
+ },
+ {
+  "key": "K14009d94e73e",
+  "title": "The influence of parental practices on child promotive and preventive ",
+  "doi": "10.1186/s12966-017-0501-3",
+  "run_url": "https://ijbnpa.biomedcentral.com/track/pdf/10.1186/s12966-017-0501-3",
+  "run_pages": 14,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5387370",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/34786f7f482746148af9d0a163694f47",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "http://hdl.handle.net/10220/47172",
+    "kind": "repository",
+    "host": "DR-NTU (Nanyang Technological University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1186/s12966-017-0501-3",
+    "kind": "journal",
+    "host": "International Journal of Behavioral Nutrition and Physical Activity",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5387370/pdf/12966_2017_Article_501.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5387370/pdf/12966_2017_Article_501.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/5387370",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doaj.org/article/34786f7f482746148af9d0a163694f47",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/34786f7f482746148af9d0a163694f47",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "http://hdl.handle.net/10220/47172",
+    "status": 405,
+    "reason": "http_405",
+    "final": "https://dr.ntu.edu.sg/handle/10220/47172",
+    "kind": "repository",
+    "host": "DR-NTU (Nanyang Technological University)"
+   }
+  ]
+ },
+ {
+  "key": "K87b807620a75",
+  "title": "Advances in Social Media Research: Past, Present and Future",
+  "doi": "10.1007/s10796-017-9810-y",
+  "run_url": "https://link.springer.com/content/pdf/10.1007/s10796-017-9810-y.pdf",
+  "run_pages": 28,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://dergipark.org.tr/tr/pub/yenimedya/issue/73764/1224363",
+    "kind": "repository",
+    "host": "DergiPark (Istanbul University)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://publications.aston.ac.uk/id/eprint/39399/1/Kapoor2018_Article_AdvancesInSocialMediaResearchP.pdf",
+    "kind": "repository",
+    "host": "Aston Publications Explorer (Aston University)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://publications.aston.ac.uk/view/author/6503aadc2a050a2b7ec2512b5dc0df73.html>,",
+    "kind": "repository",
+    "host": "Aston Publications Explorer (Aston University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "http://hdl.handle.net/10454/17652",
+    "kind": "repository",
+    "host": "Bradford Scholars (University of Bradford)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1007/s10796-017-9810-y",
+    "kind": "journal",
+    "host": "Information Systems Frontiers",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://dergipark.org.tr/tr/download/article-file/2852914",
+    "status": 200,
+    "reason": null,
+    "pages": 44,
+    "total_pages": 44,
+    "final": "https://dergipark.org.tr/tr/download/article-file/2852914",
+    "bytes": 1303256,
+    "via_landing": "https://dergipark.org.tr/tr/pub/yenimedya/issue/73764/1224363",
+    "kind": "repository",
+    "host": "DergiPark (Istanbul University)"
+   }
+  ]
+ },
+ {
+  "key": "Ka1b8a5e1d3f6",
+  "title": "New trends in drug addiction: the synthetic drugs. Epidemiological, cl",
+  "doi": "10.1017/s1121189x00005121",
+  "run_url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/28C1481F7C391029CE4F32C4A60AA80E/S1121189X00005121a.pdf/div-class-title-new-trends-in-drug-addiction-the-synthetic-drugs-epidemiological-clinical-and-preventive-issues-div.pdf",
+  "run_pages": 8,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1017/s1121189x00005121",
+    "kind": "journal",
+    "host": "Epidemiologia e Psichiatria Sociale",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/28C1481F7C391029CE4F32C4A60AA80E/S1121189X00005121a.pdf/div-class-title-new-trends-in-drug-addiction-the-synthetic-drugs-epidemiological-clinical-and-preventive-issues-div.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 8,
+    "total_pages": 8,
+    "final": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/28C1481F7C391029CE4F32C4A60AA80E/S1121189X00005121a.pdf/div-class-title-new-trends-in-drug-addiction-the-synthetic-drugs-epidemiological-clinical-and-preventive-issues-div.pdf",
+    "bytes": 740758,
+    "via_landing": "https://doi.org/10.1017/s1121189x00005121",
+    "kind": "journal",
+    "host": "Epidemiologia e Psichiatria Sociale"
+   }
+  ]
+ },
+ {
+  "key": "K2b16dcc440f5",
+  "title": "Documento di consenso e raccomandazioni per la prevenzione cardiovasco",
+  "doi": "10.1714/2874.28988",
+  "run_url": "https://flore.unifi.it/bitstream/2158/1150538/2/15%20GIC%20Documento%20di%20consenso%20e%20raccomandazioni%20per%20la%20prevenzione%20cardiovascolare%20in%20Italia%202018.pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K9a0d364043e4",
+  "title": "Educare (al)la sessualità: dalla prevenzione alla promozione della sal",
+  "doi": "10.6092/unibo/amsdottorato/7313",
+  "run_url": "http://amsdottorato.unibo.it/7313/1/Landi_Nicoletta_tesi.pdf",
+  "run_pages": 214,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/7313",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsdottorato/7313",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://amsdottorato.unibo.it/id/eprint/7313/",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna"
+   }
+  ]
+ },
+ {
+  "key": "Ke27222d06839",
+  "title": "Trastorno o dificultad en la identificación temprana de las dificultad",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/10662/6550",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "Kee198868c6a7",
+  "title": "2021 ESC Guidelines on cardiovascular disease prevention in clinical p",
+  "doi": "10.1093/eurheartj/ehab484",
+  "run_url": "https://academic.oup.com/eurheartj/article-pdf/42/34/3227/45752329/ehab484.pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K54f605267d0b",
+  "title": "Rapid Systematic Review: The Impact of Social Isolation and Loneliness",
+  "doi": "10.1016/j.jaac.2020.05.009",
+  "run_url": "http://www.jaacap.org/article/S0890856720303373/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://centaur.reading.ac.uk/90965/1/JAACAP%20revision%203%20%2028.5.2020%20complete.pdf",
+    "kind": "repository",
+    "host": "CentAUR (University of Reading)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://research-information.bris.ac.uk/ws/files/239095275/JAACAP_revision_3_28.5.2020_complete.pdf",
+    "kind": "repository",
+    "host": "Explore Bristol Research",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://researchportal.bath.ac.uk/en/publications/f753d621-709a-4f69-b10c-fe23343c202b",
+    "kind": "repository",
+    "host": "Pure (University of Bath)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://centaur.reading.ac.uk/view/creators/90004641.html>,",
+    "kind": "repository",
+    "host": "CentAUR (University of Reading)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://research-information.bris.ac.uk/en/publications/0e2db370-0298-401e-8110-8609c480bf40",
+    "kind": "repository",
+    "host": "Explore Bristol Research",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/7267797",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://research-information.bris.ac.uk/files/239095275/JAACAP_revision_3_28.5.2020_complete.pdf",
+    "kind": "repository",
+    "host": "Bristol Research (University of Bristol)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.jaac.2020.05.009",
+    "kind": "journal",
+    "host": "Journal of the American Academy of Child & Adolescent Psychiatry",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://centaur.reading.ac.uk/90965/1/JAACAP%20revision%203%20%2028.5.2020%20complete.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 38,
+    "total_pages": 40,
+    "final": "https://centaur.reading.ac.uk/90965/1/JAACAP%20revision%203%20%2028.5.2020%20complete.pdf",
+    "bytes": 534968,
+    "kind": "repository",
+    "host": "CentAUR (University of Reading)"
+   }
+  ]
+ },
+ {
+  "key": "Kaa1a78344784",
+  "title": "National Trends in the Prevalence and Treatment of Depression in Adole",
+  "doi": "10.1542/peds.2016-1878",
+  "run_url": "https://pediatrics.aappublications.org/content/pediatrics/138/6/e20161878.full.pdf",
+  "run_pages": 0,
+  "run_reason": "not_pdf",
+  "candidates": [
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/5127071",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1542/peds.2016-1878",
+    "kind": "journal",
+    "host": "PEDIATRICS",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5127071/pdf/PEDS_20161878.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC5127071/pdf/PEDS_20161878.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/5127071",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.1542/peds.2016-1878",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://publications.aap.org/pediatrics/article/138/6/e20161878/52639/National-Trends-in-the-Prevalence-and-Treatment-of",
+    "kind": "journal",
+    "host": "PEDIATRICS"
+   }
+  ]
+ },
+ {
+  "key": "K6759737d96ff",
+  "title": "Overweight in Children and Adolescents",
+  "doi": "10.1161/01.cir.0000161369.71722.10",
+  "run_url": "https://www.ahajournals.org/doi/pdf/10.1161/01.CIR.0000161369.71722.10",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1161/01.cir.0000161369.71722.10",
+    "kind": "journal",
+    "host": "Circulation",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1161/01.cir.0000161369.71722.10",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ahajournals.org/doi/10.1161/01.CIR.0000161369.71722.10",
+    "kind": "journal",
+    "host": "Circulation"
+   }
+  ]
+ },
+ {
+  "key": "Kb4e3607db74e",
+  "title": "Interactional theory of childhood problematic media use",
+  "doi": "10.1002/hbe2.217",
+  "run_url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/hbe2.217",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://hdl.handle.net/2027.42/163470",
+    "kind": "repository",
+    "host": "Deep Blue (University of Michigan)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/9645666",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1002/hbe2.217",
+    "kind": "journal",
+    "host": "Human Behavior and Emerging Technologies",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://hdl.handle.net/2027.42/163470",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://deepblue.lib.umich.edu/items/d7af4172-b1ff-4ca9-9632-ab0cc27a47fa",
+    "kind": "repository",
+    "host": "Deep Blue (University of Michigan)"
+   },
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9645666/pdf/nihms-1842944.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC9645666/pdf/nihms-1842944.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/9645666",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.1002/hbe2.217",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://onlinelibrary.wiley.com/doi/10.1002/hbe2.217",
+    "kind": "journal",
+    "host": "Human Behavior and Emerging Technologies"
+   }
+  ]
+ },
+ {
+  "key": "K09ad5474b0c1",
+  "title": "The Impact of Social Media on the Mental Health of Adolescents and You",
+  "doi": "10.7759/cureus.42990",
+  "run_url": "https://assets.cureus.com/uploads/review_article/pdf/176889/20230805-14200-lfw48c.pdf",
+  "run_pages": 10,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10476631/pdf/cureus-0015-00000042990.pdf",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://www.ncbi.nlm.nih.gov/pmc/articles/10476631",
+    "kind": "repository",
+    "host": "PubMed Central",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.7759/cureus.42990",
+    "kind": "journal",
+    "host": "Cureus",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10476631/pdf/cureus-0015-00000042990.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10476631/pdf/cureus-0015-00000042990.pdf",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10476631/pdf/cureus-0015-00000042990.pdf",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://pmc.ncbi.nlm.nih.gov/articles/PMC10476631/pdf/cureus-0015-00000042990.pdf",
+    "via_landing": "https://www.ncbi.nlm.nih.gov/pmc/articles/10476631",
+    "kind": "repository",
+    "host": "PubMed Central"
+   },
+   {
+    "url": "https://doi.org/10.7759/cureus.42990",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.cureus.com/articles/176889-the-impact-of-social-media-on-the-mental-health-of-adolescents-and-young-adults-a-systematic-review",
+    "kind": "journal",
+    "host": "Cureus"
+   }
+  ]
+ },
+ {
+  "key": "K58e4e51beb3d",
+  "title": "The Associations Between Online Media Use and Users’ Perceived Social ",
+  "doi": "10.1093/jcmc/zmy007",
+  "run_url": "https://academic.oup.com/jcmc/article-pdf/23/4/181/25113919/zmy007.pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1093/jcmc/zmy007",
+    "kind": "journal",
+    "host": "Journal of Computer-Mediated Communication",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1093/jcmc/zmy007",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://academic.oup.com/jcmc/article/23/4/181/4967829",
+    "kind": "journal",
+    "host": "Journal of Computer-Mediated Communication"
+   }
+  ]
+ }
+]

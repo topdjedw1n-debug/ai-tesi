@@ -1,0 +1,990 @@
+[
+ {
+  "key": "Kad032ce9d20e",
+  "title": "Il finanziamento delle piccole e medie imprese e la crisi finanziaria:",
+  "doi": "10.3280/arg2010-028001",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.3280/arg2010-028001",
+    "kind": "journal",
+    "host": "ARGOMENTI",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.3280/arg2010-028001",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=utf-8",
+    "final": "https://www.medra.org/servlet/MREngine?lang=ita&hdl=10.3280%2FARG2010-028001",
+    "kind": "journal",
+    "host": "ARGOMENTI"
+   }
+  ]
+ },
+ {
+  "key": "K230f607607a5",
+  "title": "Fragilità Finanziaria Delle Imprese E Allocazione Del Credito (Firms’ ",
+  "doi": "10.2139/ssrn.2955013",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.2955013",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.2955013",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=2955013",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "K60f5272c2a3e",
+  "title": "Il processo di selezione dei mercati esteri per le piccole e medie imp",
+  "doi": "10.3280/mc2010-004003",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K0114858a7604",
+  "title": "THE EFFECT OF DIGITAL PAYMENT, PEER-TO-PEER (P2P) LENDING, AND MARKETP",
+  "doi": "10.37479/jeej.v5i2.18861",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://ejurnal.ung.ac.id/index.php/jej/article/download/18861/6910",
+    "kind": "journal",
+    "host": "Jambura Economic Education Journal",
+    "is_pdf_field": true
+   },
+   {
+    "url": "http://dx.doi.org/10.37479/jeej.v5i2.18861",
+    "kind": "journal",
+    "host": "Jambura Economic Education Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://ejurnal.ung.ac.id/index.php/jej/article/download/18861/6910",
+    "status": 200,
+    "reason": null,
+    "pages": 14,
+    "total_pages": 14,
+    "final": "https://ejurnal.ung.ac.id/index.php/jej/article/download/18861/6910",
+    "bytes": 468685,
+    "kind": "journal",
+    "host": "Jambura Economic Education Journal"
+   }
+  ]
+ },
+ {
+  "key": "K9f159d20f9df",
+  "title": "มาตรการทางกฎหมายในการกำกับดูแลธุรกิจ FinTech : กรณีศึกษา Peer-to-Peer ",
+  "doi": "10.58837/chula.is.2017.51",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "http://cuir.car.chula.ac.th/bitstream/123456789/61091/1/598%2062625%2034.pdf",
+    "kind": "?",
+    "host": "",
+    "is_pdf_field": true
+   },
+   {
+    "url": "http://dx.doi.org/10.58837/chula.is.2017.51",
+    "kind": "?",
+    "host": "",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "http://cuir.car.chula.ac.th/bitstream/123456789/61091/1/598%2062625%2034.pdf",
+    "status": null,
+    "reason": "error:ConnectTimeout",
+    "kind": "?",
+    "host": ""
+   },
+   {
+    "url": "http://dx.doi.org/10.58837/chula.is.2017.51",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://digiverse.chula.ac.th/Info/item/dc:11067",
+    "kind": "?",
+    "host": ""
+   }
+  ]
+ },
+ {
+  "key": "Kbf1e4bf87eab",
+  "title": "La regolazione del rischio cibernetico nel mercato bancario",
+  "doi": null,
+  "run_url": "https://etd.adm.unipi.it/theses/available/etd-01122026-155048/unrestricted/Tesi_definitiva.pdf",
+  "run_pages": 348,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K3e9631859dd3",
+  "title": "A Survey of Fintech Research and Policy Discussion",
+  "doi": "10.1561/114.00000007",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K7a3ee4de7c28",
+  "title": "Lending in the Shadows: Shadow Bank Financial Fragility and Mortgage C",
+  "doi": "10.2139/ssrn.4238065",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.4238065",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.4238065",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=4238065",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "K45ac7d617df0",
+  "title": "Rischio di credito 2.0",
+  "doi": "10.47473/2016ppa00030",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kedfcf6d9f1e7",
+  "title": "Il ruolo delle piccole e medie città nell'economia 3.0. Evidenze dal c",
+  "doi": "10.3280/scre2016-002004",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Ka5eef1158615",
+  "title": "L'opportunità di soddisfare le esigenze formative delle piccole e medi",
+  "doi": "10.3280/for2014-099004",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K228fb59b9f26",
+  "title": "I nipoti di Crozier. Piccole e medie imprese &amp; Pubblica Amministra",
+  "doi": "10.3280/for2014-099017",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kc2301b65e323",
+  "title": "L’approccio al marketing e alla comunicazione nelle piccole e medie im",
+  "doi": "10.7433/s94.2014.16",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://ojs.sijm.it/index.php/sinergie/article/download/189/185/",
+    "kind": "journal",
+    "host": "Sinergie Italian Journal of Management",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://doi.org/10.7433/s94.2014.16",
+    "kind": "journal",
+    "host": "Sinergie Italian Journal of Management",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://ojs.sijm.it/index.php/sinergie/article/download/189/185/",
+    "status": 200,
+    "reason": null,
+    "pages": 22,
+    "total_pages": 22,
+    "final": "https://ojs.sijm.it/index.php/sinergie/article/download/189/185/",
+    "bytes": 788364,
+    "kind": "journal",
+    "host": "Sinergie Italian Journal of Management"
+   }
+  ]
+ },
+ {
+  "key": "K5f6dec79ed95",
+  "title": "Contratto di rete e codatorialità: il lavoro come fattore di aggregazi",
+  "doi": "10.53223/sinappsi_2022-03-3",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://hdl.handle.net/11573/1673343",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://oa.inapp.gov.it/bitstreams/94dbba0c-ddbf-4b4c-ac44-8cf1b64fd0ed/download",
+    "kind": "journal",
+    "host": "Sinappsi",
+    "is_pdf_field": true
+   },
+   {
+    "url": "http://dx.doi.org/10.53223/sinappsi_2022-03-3",
+    "kind": "journal",
+    "host": "Sinappsi",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://hdl.handle.net/11573/1673343",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://iris.uniroma1.it/handle/11573/1673343",
+    "kind": "repository",
+    "host": "IRIS Research product catalog (Sapienza University of Rome)"
+   },
+   {
+    "url": "https://oa.inapp.gov.it/bitstreams/94dbba0c-ddbf-4b4c-ac44-8cf1b64fd0ed/download",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://oa.inapp.gov.it/bitstreams/94dbba0c-ddbf-4b4c-ac44-8cf1b64fd0ed/download",
+    "kind": "journal",
+    "host": "Sinappsi"
+   },
+   {
+    "url": "http://dx.doi.org/10.53223/sinappsi_2022-03-3",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://oa.inapp.org/xmlui/handle/20.500.12916/3814",
+    "kind": "journal",
+    "host": "Sinappsi"
+   }
+  ]
+ },
+ {
+  "key": "Ke55dc00debfc",
+  "title": "Creatività organizzativa ed individuale nelle piccole e medie imprese:",
+  "doi": "10.3280/maco2024-001011",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kb24caef6ed53",
+  "title": "Relazione impresa-territorio e modelli predittivi del default d’impres",
+  "doi": "10.7433/s90.2013.05",
+  "run_url": "https://ojs.sijm.it/index.php/sinergie/article/download/64/226/",
+  "run_pages": 26,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://boa.unimib.it/bitstream/10281/53489/2/admin%252C%2b13CIAMPI-GORDINI%2b90-13.pdf",
+    "kind": "repository",
+    "host": "BOA (University of Milano-Bicocca)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "http://hdl.handle.net/10281/53489",
+    "kind": "repository",
+    "host": "BOA (University of Milano-Bicocca)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.7433/s90.2013.05",
+    "kind": "journal",
+    "host": "Sinergie Italian Journal of Management",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://boa.unimib.it/bitstream/10281/53489/2/admin%252C%2b13CIAMPI-GORDINI%2b90-13.pdf",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://boa.unimib.it/bitstream/10281/53489/2/admin%252C%2b13CIAMPI-GORDINI%2b90-13.pdf",
+    "kind": "repository",
+    "host": "BOA (University of Milano-Bicocca)"
+   },
+   {
+    "url": "http://hdl.handle.net/10281/53489",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://boa.unimib.it/handle/10281/53489",
+    "kind": "repository",
+    "host": "BOA (University of Milano-Bicocca)"
+   },
+   {
+    "url": "https://doi.org/10.7433/s90.2013.05",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://ojs.sijm.it/index.php/sinergie/article/view/64/226",
+    "kind": "journal",
+    "host": "Sinergie Italian Journal of Management"
+   }
+  ]
+ },
+ {
+  "key": "Kde50ddd3d60c",
+  "title": "Migrazioni, Politiche e Territorio in Veneto",
+  "doi": null,
+  "run_url": "http://www.unescochair-iuav.it/wp-content/uploads/2015/01/UR-VE_rapp1_def.pdf",
+  "run_pages": 49,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K2f8e704ab948",
+  "title": "Bank Lending Rates and Financial Structure in Italy",
+  "doi": "10.5089/9781451845631.001.a001",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K6b96b7975165",
+  "title": "Bank lending strategy, credit scoring and financial crises",
+  "doi": "10.26481/umagsb.2013053",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://cris.maastrichtuniversity.nl/en/publications/43902dc9-3127-457d-bef3-35647126f07c",
+    "kind": "repository",
+    "host": "Research Publications (Maastricht University)",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://cris.maastrichtuniversity.nl/files/831890/guid-b45fd967-d4b1-4cab-8798-968d0430123f-ASSET1.0.pdf",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://cris.maastrichtuniversity.nl/files/831890/guid-b45fd967-d4b1-4cab-8798-968d0430123f-ASSET1.0.pdf",
+    "via_landing": "https://cris.maastrichtuniversity.nl/en/publications/43902dc9-3127-457d-bef3-35647126f07c",
+    "kind": "repository",
+    "host": "Research Publications (Maastricht University)"
+   }
+  ]
+ },
+ {
+  "key": "K043ea8e26982",
+  "title": "Analyzing and Interpreting Financial Statement for Corporate Lending",
+  "doi": "10.1016/b978-0-12-803438-5.00024-6",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K0012231f810a",
+  "title": "2.6. Credit conditions according to the Bank Lending Survey",
+  "doi": "10.1787/638723007546",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "openalex_404"
+ },
+ {
+  "key": "K5763de547a57",
+  "title": "Bank Credit Portfolio Structure, Quality, and Returns in Emerging Econ",
+  "doi": "10.1016/b978-0-12-803438-5.00038-6",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K10966770e2f5",
+  "title": "Summary of WP/95/38: “Bank Lending Rates and Financial Structure in It",
+  "doi": "10.5089/9781451850260.001.a037",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "openalex_404"
+ },
+ {
+  "key": "K203b8d3e0f4f",
+  "title": "Bank Lending Procyclicality and Credit Quality During Financial Crises",
+  "doi": "10.2139/ssrn.2291857",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.2291857",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.2291857",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=2291857",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "Kdb3bcf047e2c",
+  "title": "Bank lending opportunities and credit standards",
+  "doi": "10.1016/j.jfs.2007.11.001",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kb1f86bb73570",
+  "title": "Working Paper Summaries 94/39: Financial Structure, Bank Lending Rates",
+  "doi": "10.5089/9781451850956.001.a038",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": [],
+  "note": "openalex_404"
+ },
+ {
+  "key": "K9ab2e7aeda02",
+  "title": "Understanding Financial Crises: A Developing Country Perspective",
+  "doi": "10.3386/w5600",
+  "run_url": "https://doi.org/10.3386/w5600",
+  "run_pages": 65,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "Kf2a9a0bc6025",
+  "title": "A review of Blockchain Technology applications for financial services",
+  "doi": "10.1016/j.tbench.2022.100073",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S2772485922000606/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/622df171d7d74798ae9d28f08de73906",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.tbench.2022.100073",
+    "kind": "journal",
+    "host": "BenchCouncil Transactions on Benchmarks Standards and Evaluations",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/622df171d7d74798ae9d28f08de73906",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/622df171d7d74798ae9d28f08de73906",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.1016/j.tbench.2022.100073",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=UTF-8",
+    "final": "https://linkinghub.elsevier.com/retrieve/pii/S2772485922000606",
+    "kind": "journal",
+    "host": "BenchCouncil Transactions on Benchmarks Standards and Evaluations"
+   }
+  ]
+ },
+ {
+  "key": "K87eb2f673cb6",
+  "title": "African financial systems: A review",
+  "doi": "10.1016/j.rdf.2011.03.003",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S1879933711000042/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://ir.library.carleton.ca/pub/22012",
+    "kind": "repository",
+    "host": "Carleton University's Institutional Repository (MacOdrum Library, Carleton University)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.rdf.2011.03.003",
+    "kind": "journal",
+    "host": "Review of Development Finance",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://ir.library.carleton.ca/pub/22012",
+    "status": null,
+    "reason": "error:ConnectTimeout",
+    "kind": "repository",
+    "host": "Carleton University's Institutional Repository (MacOdrum Library, Carleton University)"
+   },
+   {
+    "url": "https://doi.org/10.1016/j.rdf.2011.03.003",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=UTF-8",
+    "final": "https://linkinghub.elsevier.com/retrieve/pii/S1879933711000042",
+    "kind": "journal",
+    "host": "Review of Development Finance"
+   }
+  ]
+ },
+ {
+  "key": "Kf75d003609b7",
+  "title": "Blockchain technology for enterprise credit information sharing in sup",
+  "doi": "10.1016/j.jik.2022.100256",
+  "run_url": "https://www.sciencedirect.com/science/article/pii/S2444569X22000919/pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/10a7208c6c4b46cfaa0ae1e8ccaf98b0",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1016/j.jik.2022.100256",
+    "kind": "journal",
+    "host": "Journal of Innovation & Knowledge",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/10a7208c6c4b46cfaa0ae1e8ccaf98b0",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/10a7208c6c4b46cfaa0ae1e8ccaf98b0",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.1016/j.jik.2022.100256",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html;charset=UTF-8",
+    "final": "https://linkinghub.elsevier.com/retrieve/pii/S2444569X22000919",
+    "kind": "journal",
+    "host": "Journal of Innovation & Knowledge"
+   }
+  ]
+ },
+ {
+  "key": "K2d0fa7de05bb",
+  "title": "Serial Entrepreneurs and Small Business Bankruptcies",
+  "doi": "10.2139/ssrn.660301",
+  "run_url": "https://doi.org/10.2139/ssrn.660301",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://chicagounbound.uchicago.edu/journal_articles/1044",
+    "kind": "repository",
+    "host": "bepress Legal Repository",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://scholarship.law.columbia.edu/cgi/viewcontent.cgi?article=1001&context=faculty_scholarship",
+    "kind": "repository",
+    "host": "bepress Legal Repository",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://scholarship.law.columbia.edu/faculty_scholarship/556",
+    "kind": "repository",
+    "host": "bepress Legal Repository",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://scholarship.law.columbia.edu/faculty_scholarship/1",
+    "kind": "repository",
+    "host": "bepress Legal Repository",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://chicagounbound.uchicago.edu/journal_articles/1044",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=UTF-8",
+    "final": "https://chicagounbound.uchicago.edu/journal_articles/1044/",
+    "kind": "repository",
+    "host": "bepress Legal Repository"
+   },
+   {
+    "url": "https://scholarship.law.columbia.edu/cgi/viewcontent.cgi?article=1001&context=faculty_scholarship",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://scholarship.law.columbia.edu/cgi/viewcontent.cgi?article=1001&context=faculty_scholarship",
+    "kind": "repository",
+    "host": "bepress Legal Repository"
+   },
+   {
+    "url": "https://scholarship.law.columbia.edu/faculty_scholarship/556",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=UTF-8",
+    "final": "https://scholarship.law.columbia.edu/faculty_scholarship/556/",
+    "kind": "repository",
+    "host": "bepress Legal Repository"
+   }
+  ]
+ },
+ {
+  "key": "K146528e73903",
+  "title": "Financial Technology: Review of Trends, Approaches and Management",
+  "doi": "10.3390/math8060951",
+  "run_url": "https://www.mdpi.com/2227-7390/8/6/951/pdf?version=1593498313",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "http://hdl.handle.net/10835/8301",
+    "kind": "repository",
+    "host": "LA Referencia (Red Federada de Repositorios Institucionales de Publicaciones Científicas)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doaj.org/article/1a20ef03eec14f99af4db1e8953e8565",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.3390/math8060951",
+    "kind": "journal",
+    "host": "Mathematics",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "http://hdl.handle.net/10835/8301",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://repositorio.ual.es/handle/10835/8301",
+    "kind": "repository",
+    "host": "LA Referencia (Red Federada de Repositorios Institucionales de Publicaciones Científicas)"
+   },
+   {
+    "url": "https://doaj.org/article/1a20ef03eec14f99af4db1e8953e8565",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/1a20ef03eec14f99af4db1e8953e8565",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://doi.org/10.3390/math8060951",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.mdpi.com/2227-7390/8/6/951",
+    "kind": "journal",
+    "host": "Mathematics"
+   }
+  ]
+ },
+ {
+  "key": "K6c6056fc303e",
+  "title": "The Rise of Socially Responsible Investment Funds: The Paradoxical Rol",
+  "doi": "10.1177/0001839218773324",
+  "run_url": "https://journals.sagepub.com/doi/pdf/10.1177/0001839218773324",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://dadun.unav.edu/bitstreams/0ccf3e69-77c6-4277-aecd-039cec5d9d91/download",
+    "kind": "repository",
+    "host": "Deposito Adademico Digital Universidad De Navarra (University of Navarra)",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://scholars.cityu.edu.hk/files/36540369/127.pdf",
+    "kind": "repository",
+    "host": "CityU Scholars",
+    "is_pdf_field": true
+   },
+   {
+    "url": "https://hdl.handle.net/10171/62878",
+    "kind": "repository",
+    "host": "Deposito Adademico Digital Universidad De Navarra (University of Navarra)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://hdl.handle.net/2031/88f5bc62-bf91-48e4-9f7b-deed17176335",
+    "kind": "repository",
+    "host": "CityU Scholars",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1177/0001839218773324",
+    "kind": "journal",
+    "host": "Administrative Science Quarterly",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://dadun.unav.edu/bitstreams/0ccf3e69-77c6-4277-aecd-039cec5d9d91/download",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://dadun.unav.edu/bitstreams/0ccf3e69-77c6-4277-aecd-039cec5d9d91/download",
+    "kind": "repository",
+    "host": "Deposito Adademico Digital Universidad De Navarra (University of Navarra)"
+   },
+   {
+    "url": "https://scholars.cityu.edu.hk/files/36540369/127.pdf",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://scholars.cityu.edu.hk/files/36540369/127.pdf",
+    "kind": "repository",
+    "host": "CityU Scholars"
+   },
+   {
+    "url": "https://hdl.handle.net/10171/62878",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "https://dadun.unav.edu/handle/10171/62878",
+    "kind": "repository",
+    "host": "Deposito Adademico Digital Universidad De Navarra (University of Navarra)"
+   }
+  ]
+ },
+ {
+  "key": "K40cf127618bf",
+  "title": "FinTech: a literature review of emerging financial technologies and ap",
+  "doi": "10.1186/s40854-024-00668-6",
+  "run_url": "https://jfin-swufe.springeropen.com/counter/pdf/10.1186/s40854-024-00668-6",
+  "run_pages": 34,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doaj.org/article/3d38bdd9ea6446f68fb67ddca934e763",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)",
+    "is_pdf_field": false
+   },
+   {
+    "url": "https://doi.org/10.1186/s40854-024-00668-6",
+    "kind": "journal",
+    "host": "Financial Innovation",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doaj.org/article/3d38bdd9ea6446f68fb67ddca934e763",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://doaj.org/article/3d38bdd9ea6446f68fb67ddca934e763",
+    "kind": "repository",
+    "host": "DOAJ (DOAJ: Directory of Open Access Journals)"
+   },
+   {
+    "url": "https://link.springer.com/content/pdf/10.1186/s40854-024-00668-6.pdf",
+    "status": 200,
+    "reason": null,
+    "pages": 34,
+    "total_pages": 34,
+    "final": "https://link.springer.com/content/pdf/10.1186/s40854-024-00668-6.pdf",
+    "bytes": 2289453,
+    "via_landing": "https://doi.org/10.1186/s40854-024-00668-6",
+    "kind": "journal",
+    "host": "Financial Innovation"
+   }
+  ]
+ },
+ {
+  "key": "K1cd7e785cefc",
+  "title": "Banche di credito cooperativo come leva di stabilità finanziaria. Un'a",
+  "doi": "10.3280/ed2014-002003",
+  "run_url": null,
+  "run_pages": null,
+  "run_reason": null,
+  "candidates": [],
+  "tries": []
+ },
+ {
+  "key": "K6d3ea6b1581f",
+  "title": "LE SCELTE DI FINANZIAMENTO DELLE IMPRESE MINORI: TEORIE E ANALISI DEL ",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/2158/777397",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K1e80d07f4c23",
+  "title": "Islamic Finance and Conventional Financial Systems - Market Trends, Su",
+  "doi": "10.2139/ssrn.1721518",
+  "run_url": "https://www.bancaditalia.it/pubblicazioni/qef/2010-0073/QEF_73.pdf",
+  "run_pages": 77,
+  "run_reason": null,
+  "candidates": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.1721518",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.2139/ssrn.1721518",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.ssrn.com/abstract=1721518",
+    "kind": "repository",
+    "host": "SSRN Electronic Journal"
+   }
+  ]
+ },
+ {
+  "key": "Kc1e495cf3766",
+  "title": "Evoluzione strutturale e reddituale del sistema bancario locale: dieci",
+  "doi": "10.6092/unibo/amsacta/2599",
+  "run_url": "http://hdl.handle.net/11585/131983",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsacta/2599",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.6092/unibo/amsacta/2599",
+    "status": 200,
+    "reason": "not_pdf",
+    "content_type": "text/html; charset=utf-8",
+    "final": "http://amsacta.unibo.it/id/eprint/2599/",
+    "kind": "repository",
+    "host": "Università degli Studi di Bologna"
+   }
+  ]
+ },
+ {
+  "key": "Kfc1090c4020b",
+  "title": "Modelli di intermediazione delle banche europee e la valutazione del m",
+  "doi": null,
+  "run_url": "http://hdl.handle.net/10281/6470",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [],
+  "tries": [],
+  "note": "no doi"
+ },
+ {
+  "key": "K0067221be533",
+  "title": "Boosting Local Entrepreneurship and Enterprise Creation in Lombardy Re",
+  "doi": "10.1787/5k8x6l0rxrs2-en",
+  "run_url": "https://www.oecd-ilibrary.org/boosting-local-entrepreneurship-and-enterprise-creation-in-lombardy-region_5k8x6l0rxrs2.pdf?itemId=%2Fcontent%2Fpaper%2F5k8x6l0rxrs2-en&mimeType=pdf",
+  "run_pages": 0,
+  "run_reason": "http_403",
+  "candidates": [
+   {
+    "url": "https://doi.org/10.1787/5k8x6l0rxrs2-en",
+    "kind": "journal",
+    "host": "OECD local economic and employment development (LEED) working papers",
+    "is_pdf_field": false
+   }
+  ],
+  "tries": [
+   {
+    "url": "https://doi.org/10.1787/5k8x6l0rxrs2-en",
+    "status": 403,
+    "reason": "http_403",
+    "final": "https://www.oecd.org/en/publications/boosting-local-entrepreneurship-and-enterprise-creation-in-lombardy-region_5k8x6l0rxrs2-en.html",
+    "kind": "journal",
+    "host": "OECD local economic and employment development (LEED) working papers"
+   }
+  ]
+ }
+]

@@ -1,0 +1,43 @@
+records: 40 | with candidates: 30 | tries: 51 | GAINED readable pages: 8
+
+key            run       cands  outcome
+K0b45f652bc70  no url        1  repository:http_403
+Kfd5fd60f1d12  not_pdf       2  repository:http_403; repository:http_403
+Kf007a988809c  no url        2  GAIN 16/16 p via repository Research Square https://www.researchsquare.com/article/rs-7987493/latest.pdf
+K45c2c0b24672  pages         2  GAIN 13/13 p via journal PLoS ONE https://journals.plos.org/plosone/article/file?id=10.1371%2F
+K0ead32dde8f2  no url        1  GAIN 13/13 p via journal Media Education https://oaj.fupress.net/index.php/med/article/download/8842/
+Kde77f1c76016  no url        2  GAIN 21/21 p via journal Media Education https://oaj.fupress.net/index.php/med/article/download/8841/
+Kcc18e0aa57c0  http_403      0  no doi
+K2e3aaf29a084  no url        0  no alternative
+Ke9725104f634  no url        0  no alternative
+K4d3c39e0ffe2  no url        0  openalex_404
+K9499ed81b08e  no url        0  no alternative
+Kc8adf94d1d24  no url        4  GAIN 22/22 p via repository RUJA (Universidad de Jaén) https://cyberpsychology.eu/article/download/37693/34087
+K278c310c8941  http_403      6  repository:http_403; repository:not_pdf; repository:not_pdf
+K6409f1f1b4c7  http_403      6  GAIN 8/8 p via repository UvA-DARE (University of Amst https://pure.uva.nl/ws/files/16231469/concurrent_and_longitu
+Kc101f55913ed  no url        1  repository:http_403
+K0f586deb6027  http_403      3  repository:not_pdf; repository:http_403; journal:http_403
+Kbc8354af2b7f  no url        1  repository:http_403
+K6fef3a24d49c  http_403      2  repository:not_pdf; journal:http_403
+Kcdf7c128745f  no url        3  GAIN 8/8 p via repository RS Global journals (RS Globa https://rspublisher.org/index.php/ijitss/article/download/55
+K3b08dc0abc65  no url        3  repository:not_pdf; ?:not_pdf; ?:not_pdf
+K8a842e79de73  pages         3  GAIN 13/13 p via journal Form re - Open Journal per l https://oaj.fupress.net/index.php/formare/article/download/1
+Kafab6265c245  no url        2  repository:http_403; repository:http_403
+Kfbc7ef5c52a3  pages         3  GAIN 18/18 p via journal BMC Public Health https://link.springer.com/content/pdf/10.1186/s12889-020-100
+K7187eb49887f  no url        2  repository:http_403; journal:not_pdf
+K3a54f73ca6f8  no url        0  no alternative
+K40c29f1b2644  no url        0  no alternative
+K902fdd4fdae3  no url        1  GAIN 10/10 p via journal Media Education https://oaj.fupress.net/index.php/med/article/download/8835/
+K14009d94e73e  pages         4  run had pages
+K87b807620a75  pages         5  GAIN 44/44 p via repository DergiPark (Istanbul Universi https://dergipark.org.tr/tr/download/article-file/2852914
+Ka1b8a5e1d3f6  pages         1  GAIN 8/8 p via journal Epidemiologia e Psichiatria  https://www.cambridge.org/core/services/aop-cambridge-core/c
+K2b16dcc440f5  http_403      0  no alternative
+K9a0d364043e4  pages         1  run had pages
+Ke27222d06839  http_403      0  no doi
+Kee198868c6a7  http_403      0  no alternative
+K54f605267d0b  http_403      8  GAIN 38/40 p via repository CentAUR (University of Readi https://centaur.reading.ac.uk/90965/1/JAACAP%20revision%203%
+Kaa1a78344784  not_pdf       2  repository:not_pdf; journal:http_403
+K6759737d96ff  http_403      1  journal:http_403
+Kb4e3607db74e  http_403      3  repository:http_403; repository:not_pdf; journal:http_403
+K09ad5474b0c1  pages         3  run had pages
+K58e4e51beb3d  http_403      1  journal:http_403

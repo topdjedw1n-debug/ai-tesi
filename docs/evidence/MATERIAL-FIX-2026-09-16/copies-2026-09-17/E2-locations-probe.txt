@@ -1,0 +1,43 @@
+records: 40 | with candidates: 20 | tries: 35 | GAINED readable pages: 2
+
+key            run       cands  outcome
+Kad032ce9d20e  no url        1  journal:not_pdf
+K230f607607a5  no url        1  repository:http_403
+K60f5272c2a3e  no url        0  no alternative
+K0114858a7604  no url        2  GAIN 14/14 p via journal Jambura Economic Education J https://ejurnal.ung.ac.id/index.php/jej/article/download/188
+K9f159d20f9df  no url        2  ?:error:ConnectTimeout; ?:not_pdf
+Kbf1e4bf87eab  pages         0  run had pages
+K3e9631859dd3  no url        0  no alternative
+K7a3ee4de7c28  no url        1  repository:http_403
+K45ac7d617df0  no url        0  no alternative
+Kedfcf6d9f1e7  no url        0  no alternative
+Ka5eef1158615  no url        0  no alternative
+K228fb59b9f26  no url        0  no alternative
+Kc2301b65e323  no url        2  GAIN 22/22 p via journal Sinergie Italian Journal of  https://ojs.sijm.it/index.php/sinergie/article/download/189/
+K5f6dec79ed95  no url        3  repository:http_403; journal:http_403; journal:http_403
+Ke55dc00debfc  no url        0  no alternative
+Kb24caef6ed53  pages         3  run had pages
+Kde50ddd3d60c  pages         0  run had pages
+K2f8e704ab948  no url        0  no alternative
+K6b96b7975165  no url        1  repository:http_403
+K043ea8e26982  no url        0  no alternative
+K0012231f810a  no url        0  openalex_404
+K5763de547a57  no url        0  no alternative
+K10966770e2f5  no url        0  openalex_404
+K203b8d3e0f4f  no url        1  repository:http_403
+Kdb3bcf047e2c  no url        0  no alternative
+Kb1f86bb73570  no url        0  openalex_404
+K9ab2e7aeda02  pages         0  run had pages
+Kf2a9a0bc6025  http_403      2  repository:http_403; journal:not_pdf
+K87eb2f673cb6  http_403      2  repository:error:ConnectTimeout; journal:not_pdf
+Kf75d003609b7  http_403      2  repository:http_403; journal:not_pdf
+K2d0fa7de05bb  http_403      4  repository:not_pdf; repository:http_403; repository:not_pdf
+K146528e73903  http_403      3  repository:not_pdf; repository:http_403; journal:http_403
+K6c6056fc303e  http_403      5  repository:not_pdf; repository:http_403; repository:not_pdf
+K40cf127618bf  pages         2  GAIN 34/34 p via journal Financial Innovation https://link.springer.com/content/pdf/10.1186/s40854-024-006
+K1cd7e785cefc  no url        0  no alternative
+K6d3ea6b1581f  http_403      0  no doi
+K1e80d07f4c23  pages         1  run had pages
+Kc1e495cf3766  http_403      1  repository:not_pdf
+Kfc1090c4020b  http_403      0  no doi
+K0067221be533  http_403      1  journal:http_403

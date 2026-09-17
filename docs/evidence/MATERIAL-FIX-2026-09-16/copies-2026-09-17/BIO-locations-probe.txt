@@ -1,0 +1,43 @@
+records: 40 | with candidates: 30 | tries: 60 | GAINED readable pages: 7
+
+key            run       cands  outcome
+K5550c10c4795  no url        1  journal:not_pdf
+K9e1ed8618d27  no url        0  no alternative
+Kb562a8317dd6  no url        3  GAIN 4/4 p via journal Microbiologia medica https://www.pagepressjournals.org/index.php/mm/article/downl
+K333b70de0deb  no url        0  no alternative
+K1bd17ea8c1a2  no url        2  GAIN 2/2 p via journal Recenti Progressi in Medicin https://www.recentiprogressi.it/r.php?&v=4764&a=47844&l=3649
+Ka7370f084eb0  pages         1  run had pages
+K856135a96358  http_403      1  repository:http_403
+Kc4d4f2defc82  pages         1  run had pages
+K50344758674d  http_403      0  no doi
+K995e26c587cd  no url        5  repository:not_pdf; repository:http_403; repository:not_pdf
+Kf4b72579fef7  no url        0  no alternative
+K22fd642e55d0  no url        3  GAIN 11/11 p via journal Letters In Animal Biology https://liabjournal.com/index.php/liab/article/download/107/
+Keefeb8b4bb36  no url        0  no alternative
+Kf6a01077afc8  no url        3  repository:not_pdf; journal:http_403; journal:http_403
+K3b601b6d0e4d  no url        1  journal:http_403
+Kee67f2a652ed  no url        1  journal:http_403
+Kd32f7c7ffdf1  no url        0  no alternative
+Kcd0d7aceff6c  http_403      1  journal:not_pdf
+Kaa29a2013f96  http_403      2  repository:not_pdf; journal:http_403
+K14c8a16a8ca7  http_403      3  repository:error:ConnectTimeout; repository:http_403; journal:not_pdf
+K09cdf4cb69c9  http_403      4  repository:not_pdf; repository:not_pdf; repository:http_403
+K22bf3f5baa94  http_403      2  repository:not_pdf; journal:http_403
+K05237f02b3b0  pages         3  GAIN 21/21 p via journal Frontiers in Microbiology https://www.frontiersin.org/journals/microbiology/articles/1
+K2e03472d6473  http_403      4  repository:not_pdf; repository:not_pdf; repository:http_403
+Ka6f651df71cb  pages         3  GAIN 13/13 p via journal Frontiers in Microbiology https://www.frontiersin.org/journals/microbiology/articles/1
+K547dbefb0c92  pages         4  run had pages
+Kc4ad23d70a1f  http_403      3  repository:not_pdf; repository:error:ConnectTimeout; journal:http_403
+Kf01c217035d4  no url        2  GAIN 5/5 p via repository Archivio istituzionale della https://www.recentiprogressi.it/r.php?&v=4274&a=42526&l=3558
+K733a85e0311d  no url        0  no alternative
+Kb25125b29586  no url        0  no alternative
+K274c8815a758  no url        3  GAIN 1/1 p via journal Microbiologia medica https://www.pagepressjournals.org/index.php/mm/article/downl
+K8691030b98d1  no url        0  no alternative
+Kee7f62aa050c  no url        3  GAIN 1/1 p via journal Microbiologia medica https://www.pagepressjournals.org/index.php/mm/article/downl
+Kf6b66a5f058c  no url        3  GAIN 1/1 p via journal Microbiologia medica https://www.pagepressjournals.org/index.php/mm/article/downl
+K4e91a80c48cd  pages         2  GAIN 6/6 p via journal Microbiologia medica https://www.pagepressjournals.org/mm/article/download/2970/2
+K54edb8a531fb  pages         2  GAIN 2/2 p via journal Microbiologia medica https://www.pagepressjournals.org/mm/article/download/3822/3
+K705282721fcb  pages         2  GAIN 7/7 p via journal AboutOpen https://journals.aboutscience.eu/index.php/aboutopen/article
+Kd3941bc89831  http_500      0  no doi
+Kf9e6d13bb2a1  pages         2  GAIN 4/4 p via journal Microbiologia medica https://www.pagepressjournals.org/mm/article/download/mm.201
+Kb834d7bc4325  pages         2  GAIN 61/66 p via journal Italian Journal of Medicine https://www.italjmed.org/ijm/article/download/1615/1506
