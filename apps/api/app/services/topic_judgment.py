@@ -24,7 +24,9 @@ from app.services.source_evidence import freeze_evidence
 
 JUDGE_MODEL = "claude-haiku-4-5-20251001"
 JUDGE_BAND = (0.5, 0.9)
-MAX_JUDGMENTS = 8
+# Calibrated with eight; the copies of 17.09 tripled the fetched texts of a
+# run (23 of 36), so the cap follows: cheap calls, outside the call ceiling.
+MAX_JUDGMENTS = 12
 JUDGE_MAX_TOKENS = 400
 EXCERPT_CHARS = 1300
 PURPOSE = "S2_judge"
@@ -181,7 +183,8 @@ async def judge_documents(
 ) -> list[dict[str, Any]]:
     """Judge the fetched documents in the band; returns the per-document
     record (share, verdict, reason) for the recording. ``call`` is the bounded
-    model call ``(ctx, prompt, budget, purpose, model) -> (text, truncated)``."""
+    model call ``(ctx, prompt, budget, purpose, model, counted) -> (text,
+    truncated)``; the judgment's calls are not counted against the ceiling."""
     topic = str(getattr(pack, "topic", "") or "")
     requirements = str(
         (ctx.inputs.get("brief") or {}).get("additional_requirements") or ""
@@ -206,7 +209,12 @@ async def judge_documents(
         }
         try:
             text, _ = await call(
-                ctx, prompt, budget=JUDGE_MAX_TOKENS, purpose=PURPOSE, model=JUDGE_MODEL
+                ctx,
+                prompt,
+                budget=JUDGE_MAX_TOKENS,
+                purpose=PURPOSE,
+                model=JUDGE_MODEL,
+                counted=False,
             )
             verdict = parse_verdict(text)
         except Exception as error:  # the provider's failure never blocks S2

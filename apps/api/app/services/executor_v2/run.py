@@ -160,12 +160,12 @@ class Context:
         if defect:
             await self.emit("executor_launch_defect", {"message": defect})
 
-    async def check_budget(self, output_tokens, prompt):
+    async def check_budget(self, output_tokens, prompt, *, counted=True):
         ceiling = (
             POLICY["calls_per_section"] * max(1, self.state["sections_total"])
             + POLICY["extra_calls"]
         )
-        if self.calls >= ceiling:
+        if counted and self.calls >= ceiling:
             raise unusable(
                 "Досягнуто межі кількості звернень до моделі.",
                 budget=True,
@@ -181,7 +181,7 @@ class Context:
                 "Наступне звернення перевищить бюджет цієї роботи.",
                 budget=True,
             )
-        self.calls += 1
+        self.calls += int(counted)
 
     async def account(self):
         async with database.AsyncSessionLocal() as db:

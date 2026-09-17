@@ -135,7 +135,8 @@ async def test_judge_rejects_only_on_a_clear_reject_and_keeps_the_abstract():
         "KBAD": "I cannot tell.",
     }
 
-    async def fake_call(ctx, prompt, *, budget, purpose, model):
+    async def fake_call(ctx, prompt, *, budget, purpose, model, counted):
+        assert counted is False
         key = next(k for k in answers if f"title-{k}" in prompt)
         calls.append((key, purpose, model, budget))
         if key == "KERR":
@@ -184,7 +185,7 @@ async def test_judge_rejects_only_on_a_clear_reject_and_keeps_the_abstract():
 
 @pytest.mark.asyncio
 async def test_a_provider_failure_never_blocks_the_stage():
-    async def failing(ctx, prompt, *, budget, purpose, model):
+    async def failing(ctx, prompt, *, budget, purpose, model, counted):
         raise RuntimeError("provider down")
 
     p, w = packed("KERR", "title-KERR", pages_with_share(0.6))
@@ -198,7 +199,7 @@ async def test_a_provider_failure_never_blocks_the_stage():
 
 
 def test_judge_band_and_cap_are_the_calibrated_values():
-    assert JUDGE_BAND == (0.5, 0.9) and MAX_JUDGMENTS == 8
+    assert JUDGE_BAND == (0.5, 0.9) and MAX_JUDGMENTS == 12
     assert asyncio.iscoroutinefunction(judge_documents)
 
 

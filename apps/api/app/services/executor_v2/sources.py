@@ -183,7 +183,6 @@ async def build_sources(ctx, scopes):
     pack = SourcePack(
         ctx.job.document_id, topic, sources=selected, bilingual=True, passages=passages
     )
-    # A fetched text in the gate's uncertain band is judged once by a small model.
     await judge_and_report(
         ctx, pack, nodes, topic_pattern(pack, nodes), call=model_call
     )

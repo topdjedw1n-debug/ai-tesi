@@ -75,7 +75,9 @@ def _observe_late(task):
         task.exception()  # The recorder retains the late response; never write a section.
 
 
-async def model_call(ctx, prompt, *, budget, purpose, section_index=None, model=None):
+async def model_call(
+    ctx, prompt, *, budget, purpose, section_index=None, model=None, counted=True
+):
     model = model or ctx.model
     request = {
         "model": model,
@@ -85,7 +87,7 @@ async def model_call(ctx, prompt, *, budget, purpose, section_index=None, model=
     token = operation_section.set(section_index)
     try:
         for attempt in range(POLICY["provider_attempts"]):
-            await ctx.check_budget(budget, prompt)
+            await ctx.check_budget(budget, prompt, counted=counted)
             task = asyncio.create_task(
                 recorded_provider_call(
                     ctx.provider,

@@ -979,6 +979,22 @@ async def test_missing_writer_receipt_blocks_completion_after_docx(
 
 
 @pytest.mark.asyncio
+async def test_uncounted_calls_check_the_cost_but_not_the_call_ceiling(db_session):
+    """Job 31 (17.09): eight judgment calls in S2 exhausted the pre-outline
+    ceiling (3 x 1 + 6) and the plan call stopped the run."""
+    from app.services.executor_v2.warnings import ExecutionStop
+
+    claimed, _, _, _ = await seed(db_session)
+    ctx = Context(claimed)
+    ceiling = POLICY["calls_per_section"] + POLICY["extra_calls"]
+    ctx.calls = ceiling
+    await ctx.check_budget(100, "judge prompt", counted=False)
+    assert ctx.calls == ceiling
+    with pytest.raises(ExecutionStop):
+        await ctx.check_budget(100, "plan prompt")
+
+
+@pytest.mark.asyncio
 async def test_open_access_full_text_reaches_the_writer_as_page_windows(
     db_session, monkeypatch
 ):
