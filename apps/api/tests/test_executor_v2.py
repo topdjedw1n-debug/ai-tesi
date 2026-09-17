@@ -202,6 +202,7 @@ def test_spec_guardrails():
         "source_coverage_gap",
         "source_no_readable_text",
         "source_full_text_unavailable",
+        "source_full_text_off_topic",
         "section_without_documents",
         "catalogue_unavailable",
         "plan_material_gap",

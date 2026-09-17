@@ -48,6 +48,7 @@ LABELS = {
     "source_coverage_gap": "Poche fonti con testo disponibile per una parte del tema",
     "source_no_readable_text": "Fonte verificata ma senza testo leggibile per la scrittura",
     "source_full_text_unavailable": "Testo integrale non ottenuto per alcune fonti",
+    "source_full_text_off_topic": "Testo integrale giudicato non pertinente al tema: usata solo la sintesi",
     "section_without_documents": "Sezione scritta senza documenti a testo integrale",
     "catalogue_unavailable": "Catalogo delle fonti non disponibile durante la ricerca",
     "standard_reference_used": "Fonte della biblioteca standard",

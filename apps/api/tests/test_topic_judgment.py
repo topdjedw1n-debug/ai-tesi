@@ -200,3 +200,18 @@ async def test_a_provider_failure_never_blocks_the_stage():
 def test_judge_band_and_cap_are_the_calibrated_values():
     assert JUDGE_BAND == (0.5, 0.9) and MAX_JUDGMENTS == 8
     assert asyncio.iscoroutinefunction(judge_documents)
+
+
+def test_every_warning_code_the_services_emit_is_registered():
+    """Job 30 (17.09) failed on an unregistered code: the real context looks
+    the code up in the closed vocabulary before it can warn."""
+    import re
+    from pathlib import Path
+
+    from app.services.executor_v2.warnings import WARNING_CODES
+
+    root = Path(__file__).resolve().parents[1] / "app" / "services"
+    used = set()
+    for path in root.rglob("*.py"):
+        used.update(re.findall(r'\.warn\(\s*"([a-z_]+)"', path.read_text()))
+    assert used and used <= set(WARNING_CODES), sorted(used - set(WARNING_CODES))

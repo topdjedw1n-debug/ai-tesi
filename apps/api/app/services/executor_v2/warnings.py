@@ -16,6 +16,10 @@ WARNING_CODES = {
         "Джерело підтверджено, але його текст недоступний для написання.",
     ),
     "source_full_text_unavailable": ("info", "Частину повних текстів не отримано."),
+    "source_full_text_off_topic": (
+        "info",
+        "Повний текст визнано не про тему роботи: використано лише анотацію.",
+    ),
     "section_without_documents": ("warning", "Розділ без повнотекстових документів."),
     "catalogue_unavailable": ("warning", "Каталог джерел не відповідав."),
     "standard_reference_used": ("info", "Джерело зі стандартної бібліотеки."),
