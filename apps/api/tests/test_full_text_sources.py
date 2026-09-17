@@ -16,7 +16,10 @@ from app.services.full_text_sources import (
     document_windows,
     full_text,
     open_access_link,
+    open_access_links,
+    open_access_metadata,
     open_access_url,
+    open_access_urls,
     render_windows,
     section_evidence,
     section_queries,
@@ -296,7 +299,11 @@ async def test_attach_full_text_extends_passages_and_reports_failures(monkeypatc
             return {"url": url, "final_url": url, "pages": [], "reason": "http_403"}
         raise httpx.ConnectError("boom")
 
+    async def no_copies(doi):
+        return {"doi": doi, "status": 404, "urls": []}
+
     monkeypatch.setattr(full_text_sources, "full_text", fake_full_text)
+    monkeypatch.setattr(full_text_sources, "open_access_locations", no_copies)
     pack = pack_with(
         ("KOK", "Controllo a distanza", "Sintesi.", "https://r.test/ok.pdf"),
         ("KWALL", "Dietro il muro", "Sintesi.", "https://r.test/wall"),
@@ -317,6 +324,143 @@ async def test_attach_full_text_extends_passages_and_reports_failures(monkeypatc
     excerpt = evidence_text(pack.by_key("KOK").source)
     assert excerpt.startswith("Sintesi.\n[page ") and len(excerpt) <= 2400
     assert "full_text" not in pack.by_key("KWALL").source.canonical_metadata
+
+
+def test_open_access_urls_prefer_repository_pdf_copies_then_the_publisher():
+    work = {
+        "best_oa_location": {"pdf_url": "https://pub.org/a.pdf"},
+        "open_access": {"oa_url": "https://pub.org/landing"},
+        "locations": [
+            {
+                "is_oa": True,
+                "pdf_url": "https://pub.org/a.pdf",
+                "landing_page_url": "https://pub.org/landing",
+                "source": {"type": "journal"},
+            },
+            {
+                "is_oa": True,
+                "pdf_url": "https://repo.edu/a.pdf",
+                "landing_page_url": "https://repo.edu/a",
+                "source": {"type": "repository"},
+            },
+            {"is_oa": False, "pdf_url": "https://closed.org/a.pdf"},
+        ],
+    }
+    assert open_access_urls(work, "openalex") == [
+        "https://repo.edu/a.pdf",
+        "https://pub.org/a.pdf",
+        "https://pub.org/landing",
+    ]
+    assert open_access_url(work, "openalex") == "https://repo.edu/a.pdf"
+    assert open_access_metadata(work, "openalex") == {
+        "open_access_url": "https://repo.edu/a.pdf",
+        "open_access_urls": [
+            "https://repo.edu/a.pdf",
+            "https://pub.org/a.pdf",
+            "https://pub.org/landing",
+        ],
+    }
+    # Landing pages only when no copy names a PDF link.
+    landing_only = {
+        "locations": [
+            {"is_oa": True, "landing_page_url": "https://repo.edu/a", "source": {}}
+        ]
+    }
+    assert open_access_urls(landing_only, "openalex") == ["https://repo.edu/a"]
+    assert open_access_urls(
+        {"openAccessPdf": {"url": "http://s2/p.pdf"}}, "semantic_scholar"
+    ) == ["http://s2/p.pdf"]
+    assert open_access_urls({"link": [{"URL": "https://pub/x.pdf"}]}, "crossref") == []
+    row = {"canonical_metadata": {"open_access_url": "https://x.org/a.pdf"}}
+    assert open_access_links(row) == ["https://x.org/a.pdf"]
+    listed = {
+        "canonical_metadata": {
+            "open_access_url": "https://x.org/a.pdf",
+            "open_access_urls": ["https://x.org/a.pdf", "https://y.org/b.pdf"],
+        }
+    }
+    assert open_access_links(listed) == ["https://x.org/a.pdf", "https://y.org/b.pdf"]
+    assert open_access_links({"canonical_metadata": None}) == []
+
+
+@pytest.mark.asyncio
+async def test_attach_full_text_tries_the_copies_and_asks_openalex_once(monkeypatch):
+    pages = ["Controllo a distanza dei lavoratori e privacy. " * 12] * 2
+    lookups = []
+
+    async def fake_full_text(url):
+        if url.endswith("ok.pdf"):
+            return {"url": url, "final_url": url, "pages": pages, "reason": None}
+        return {"url": url, "final_url": url, "pages": [], "reason": "http_403"}
+
+    async def fake_locations(doi):
+        lookups.append(doi)
+        if doi == "10.1/KCROSS":
+            return {"doi": doi, "status": 200, "urls": ["https://repo.test/c-ok.pdf"]}
+        return {"doi": doi, "status": 200, "urls": []}
+
+    monkeypatch.setattr(full_text_sources, "full_text", fake_full_text)
+    monkeypatch.setattr(full_text_sources, "open_access_locations", fake_locations)
+    pack = pack_with(
+        ("KCOPY", "Controllo a distanza", "Sintesi.", "https://pub.test/wall"),
+        ("KMANY", "Muri ovunque", "Sintesi.", "https://pub.test/wall"),
+        ("KCROSS", "Record Crossref", "Sintesi.", None),
+        ("KNONE", "Senza copie", "Sintesi.", None),
+    )
+    pack.by_key("KCOPY").source.canonical_metadata["open_access_urls"] = [
+        "https://pub.test/wall",
+        "https://repo.test/ok.pdf",
+    ]
+    pack.by_key("KMANY").source.canonical_metadata["open_access_urls"] = [
+        "https://pub.test/wall",
+        "https://pub.test/wall2",
+        "https://pub.test/wall3",
+        "https://repo.test/late-ok.pdf",
+    ]
+    passages = []
+    summary, unavailable = await attach_full_text(
+        pack.sources, passages, asyncio.Semaphore(2), "controllo a distanza"
+    )
+    by_key = {s["key"]: s for s in summary}
+    # The second copy of KCOPY has the pages; both tries are on record.
+    assert by_key["KCOPY"]["pages"] == 2 and by_key["KCOPY"]["reason"] is None
+    assert [t["reason"] for t in by_key["KCOPY"]["tries"]] == ["http_403", None]
+    assert by_key["KCOPY"]["url"] == "https://repo.test/ok.pdf"
+    # At most three copies per record: the fourth is never tried.
+    assert by_key["KMANY"]["pages"] == 0 and len(by_key["KMANY"]["tries"]) == 3
+    assert "KMANY" in unavailable
+    # A record without a link asks OpenAlex once and keeps the copies it names.
+    assert lookups == ["10.1/KCROSS", "10.1/KNONE"]
+    assert by_key["KCROSS"]["pages"] == 2
+    cross = pack.by_key("KCROSS").source.canonical_metadata
+    assert cross["open_access_urls"] == ["https://repo.test/c-ok.pdf"]
+    assert cross["evidence_level"] == "pdf"
+    # No copy anywhere: the record stays on its abstract, outside the summary.
+    assert "KNONE" not in by_key and "KNONE" not in unavailable
+    assert {p.citation_key for p in passages} == {"KCOPY", "KCROSS"}
+
+
+@pytest.mark.asyncio
+async def test_attach_full_text_keeps_the_run_budget_of_tries(monkeypatch):
+    calls = []
+
+    async def fake_full_text(url):
+        calls.append(url)
+        return {"url": url, "final_url": url, "pages": [], "reason": "http_403"}
+
+    monkeypatch.setattr(full_text_sources, "full_text", fake_full_text)
+    monkeypatch.setattr(full_text_sources, "MAX_FULL_TEXT_TRIES", 2)
+    pack = pack_with(
+        ("KA", "Primo", "Sintesi.", "https://pub.test/wall-a"),
+        ("KB", "Secondo", "Sintesi.", "https://pub.test/wall-b"),
+        ("KC", "Terzo", "Sintesi.", "https://pub.test/wall-c"),
+    )
+    summary, unavailable = await attach_full_text(
+        pack.sources, [], asyncio.Semaphore(1), "controllo"
+    )
+    assert len(calls) == 2 and sorted(unavailable) == ["KA", "KB", "KC"]
+    reasons = sorted(s["reason"] for s in summary)
+    assert reasons == ["budget", "http_403", "http_403"]
 
 
 def test_split_passages_windows_are_the_fragment_unit():

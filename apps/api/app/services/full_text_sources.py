@@ -58,6 +58,14 @@ PLANNED_BONUS = 0.05
 # Overlapping windows share at most this many leading words.
 MAX_OVERLAP_WORDS = 40
 FETCH_TIMEOUT_SECONDS = 30.0
+# Copies of the same work (17.09.2026, psychology): the fetch took one link,
+# the provider's best open-access location, and Crossref records had none.
+# The OpenAlex ``locations`` list names the repository copies too; every
+# selected record tries at most this many links, the run at most this many.
+MAX_LINKS_PER_SOURCE = 3
+MAX_FULL_TEXT_TRIES = 60
+OPENALEX_LOCATIONS_SELECT = "id,doi,open_access,best_oa_location,locations"
+POLITE_MAILTO = "research@thesica.ai"
 USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/128.0 Safari/537.36 Thesica/1.0"
@@ -72,23 +80,59 @@ _PDF_META_RE = re.compile(
 )
 
 
-def open_access_url(work: dict[str, Any], provider: str) -> str | None:
-    """The provider's own open-access PDF link, or None (Crossref has none)."""
+def _http(url: Any) -> str | None:
+    return (
+        url
+        if isinstance(url, str) and url.startswith(("http://", "https://"))
+        else None
+    )
+
+
+def open_access_urls(work: dict[str, Any], provider: str) -> list[str]:
+    """Every open-access link of the work the provider names, best first:
+    PDF links of repository copies, then PDF links of the other copies, then
+    the provider's best location; landing pages only when no PDF link exists
+    (an HTML page is followed once through ``citation_pdf_url``). Crossref
+    names none."""
+    urls: list[str] = []
+
+    def add(url: Any) -> None:
+        link = _http(url)
+        if link and link not in urls:
+            urls.append(link)
+
     if provider == "openalex":
+        locations = [
+            loc for loc in work.get("locations") or [] if isinstance(loc, dict)
+        ]
+        open_locations = [loc for loc in locations if loc.get("is_oa")]
+        repositories = [
+            loc
+            for loc in open_locations
+            if (loc.get("source") or {}).get("type") == "repository"
+        ]
+        for loc in repositories + open_locations:
+            add(loc.get("pdf_url"))
         best = work.get("best_oa_location") or {}
-        url = best.get("pdf_url") or (work.get("open_access") or {}).get("oa_url")
+        add(best.get("pdf_url"))
+        add((work.get("open_access") or {}).get("oa_url"))
+        if not urls:
+            for loc in repositories + open_locations:
+                add(loc.get("landing_page_url"))
     elif provider == "semantic_scholar":
-        url = (work.get("openAccessPdf") or {}).get("url")
-    else:
-        url = None
-    if isinstance(url, str) and url.startswith(("http://", "https://")):
-        return url
-    return None
+        add((work.get("openAccessPdf") or {}).get("url"))
+    return urls
+
+
+def open_access_url(work: dict[str, Any], provider: str) -> str | None:
+    """The provider's first open-access link, or None (Crossref has none)."""
+    urls = open_access_urls(work, provider)
+    return urls[0] if urls else None
 
 
 def open_access_metadata(work: dict[str, Any], provider: str) -> dict[str, Any] | None:
-    url = open_access_url(work, provider)
-    return {"open_access_url": url} if url else None
+    urls = open_access_urls(work, provider)
+    return {"open_access_url": urls[0], "open_access_urls": urls} if urls else None
 
 
 def open_access_link(row: Any) -> str | None:
@@ -100,6 +144,44 @@ def open_access_link(row: Any) -> str | None:
     )
     url = (metadata or {}).get("open_access_url")
     return url if isinstance(url, str) and url else None
+
+
+def open_access_links(row: Any) -> list[str]:
+    """Every stored open-access link of a row, the single link included."""
+    metadata = (
+        row.get("canonical_metadata")
+        if isinstance(row, dict)
+        else getattr(row, "canonical_metadata", None)
+    ) or {}
+    urls = [u for u in metadata.get("open_access_urls") or [] if _http(u)]
+    single = open_access_link(row)
+    if single and single not in urls:
+        urls.insert(0, single)
+    return urls
+
+
+@recorded_dependency("executor_locations")
+async def open_access_locations(doi: str) -> dict[str, Any]:
+    """The open-access copies OpenAlex lists for a DOI (Crossref and Semantic
+    Scholar records name at most one link; OpenAlex names them all)."""
+    from app.core.config import settings
+
+    base = str(getattr(settings, "OPENALEX_API_URL", "https://api.openalex.org"))
+    key = getattr(settings, "OPENALEX_API_KEY", None)
+    headers = {"Authorization": f"Bearer {key}"} if key else {}
+    async with httpx.AsyncClient(
+        timeout=FETCH_TIMEOUT_SECONDS, follow_redirects=True, headers=headers
+    ) as client:
+        response = await client.get(
+            f"{base.rstrip('/')}/works/https://doi.org/{doi}",
+            params={"select": OPENALEX_LOCATIONS_SELECT, "mailto": POLITE_MAILTO},
+        )
+    urls = (
+        open_access_urls(response.json(), "openalex")
+        if response.status_code == 200
+        else []
+    )
+    return {"doi": doi, "status": response.status_code, "urls": urls}
 
 
 async def _download(client: httpx.AsyncClient, url: str) -> tuple[Any, bytes, bool]:
@@ -193,22 +275,65 @@ async def attach_full_text(
     pages closest to the topic; the writer's windows come from the passages.
     """
 
-    async def fetched(row):
-        link = open_access_link(row.source)
+    budget = {"tries": 0}
+
+    async def links_of(row):
+        """The record's links; a record without one asks OpenAlex once."""
+        links = open_access_links(row.source)
+        if links or not getattr(row.source, "doi", None):
+            return links
         async with semaphore:
             try:
-                result = await full_text(link)
+                found = await open_access_locations(row.source.doi)
             except (RecordingPersistenceError, ReplayIncomplete):
                 raise
             except Exception:
-                result = {"pages": [], "reason": "transport_error"}
-        return row, result, document_windows(row.citation_key, link, result["pages"])
+                return []
+        links = [u for u in found.get("urls") or [] if _http(u)]
+        if links:
+            row.source.canonical_metadata.update(
+                open_access_url=links[0], open_access_urls=links
+            )
+        return links
+
+    async def fetched(row):
+        tries: list[dict[str, Any]] = []
+        result: dict[str, Any] = {"pages": [], "reason": "no_link"}
+        link = None
+        for link in (await links_of(row))[:MAX_LINKS_PER_SOURCE]:
+            async with semaphore:
+                if budget["tries"] >= MAX_FULL_TEXT_TRIES:
+                    result = {"url": link, "pages": [], "reason": "budget"}
+                    tries.append({"url": link, "pages": 0, "reason": "budget"})
+                    break
+                budget["tries"] += 1
+                try:
+                    result = await full_text(link)
+                except (RecordingPersistenceError, ReplayIncomplete):
+                    raise
+                except Exception:
+                    result = {"url": link, "pages": [], "reason": "transport_error"}
+            tries.append(
+                {
+                    "url": link,
+                    "pages": len(result["pages"]),
+                    "reason": result.get("reason"),
+                }
+            )
+            if result["pages"]:
+                break
+        windows = (
+            document_windows(row.citation_key, link, result["pages"]) if link else []
+        )
+        return row, result, windows, tries
 
     unavailable: list[str] = []
     summary: list[dict[str, Any]] = []
-    for row, result, windows in await asyncio.gather(
-        *(fetched(r) for r in selected if open_access_link(r.source))
+    for row, result, windows, tries in await asyncio.gather(
+        *(fetched(r) for r in selected)
     ):
+        if not tries:
+            continue  # no link at all: the record stays on its abstract
         if windows:
             passages.extend(windows)
             freeze_evidence(row.source, passages, row.citation_key, query=topic)
@@ -216,7 +341,7 @@ async def attach_full_text(
                 evidence_level="pdf",
                 full_text={
                     "origin": "open_access",
-                    "url": result.get("final_url") or open_access_link(row.source),
+                    "url": result.get("final_url") or tries[-1]["url"],
                     "pages": len(result["pages"]),
                     "windows": len(windows),
                     "chars": sum(len(w.text) for w in windows),
@@ -227,10 +352,11 @@ async def attach_full_text(
         summary.append(
             {
                 "key": row.citation_key,
-                "url": open_access_link(row.source),
+                "url": tries[-1]["url"],
                 "pages": len(result["pages"]),
                 "windows": len(windows),
                 "reason": result.get("reason"),
+                "tries": tries,
             }
         )
     return summary, unavailable
@@ -353,6 +479,7 @@ def section_evidence(
     for passage in getattr(pack, "passages", None) or []:
         windows.setdefault(passage.citation_key, []).append(passage)
     pattern = topic_pattern(pack, nodes)
+    topic = str(getattr(pack, "topic", "") or "")
     had_windows = set(windows)
     off_topic = {
         key for key in windows if not full_text_usable(pack, key, nodes, pattern)
@@ -396,7 +523,7 @@ def section_evidence(
         if not excerpt:
             continue
         rows = windows.get(packed.citation_key, [])
-        fit = about_section(section, nodes, packed.source)
+        fit = about_section(section, nodes, packed.source, topic)
         if not fit and not window_gate(rows):
             reasons[packed.citation_key] = (
                 "off_topic_text" if packed.citation_key in off_topic else "unsuitable"
@@ -414,7 +541,7 @@ def section_evidence(
             continue
         if not evidence_text(packed.source):
             continue
-        fit = about_section(section, nodes, packed.source)
+        fit = about_section(section, nodes, packed.source, topic)
         if not fit and not window_gate(rows):
             continue
         ranked, best = _ranked(rows, queries)

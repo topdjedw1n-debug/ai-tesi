@@ -74,6 +74,18 @@ def response(text, truncated=False):
 
 
 @pytest.fixture(autouse=True)
+def _no_openalex_lookups(monkeypatch):
+    """S2 asks OpenAlex for the copies of a record without a link (17.09);
+    the tests here never reach the network for that."""
+    from app.services import full_text_sources
+
+    async def none(doi):
+        return {"doi": doi, "status": 404, "urls": []}
+
+    monkeypatch.setattr(full_text_sources, "open_access_locations", none)
+
+
+@pytest.fixture(autouse=True)
 def no_external_network(monkeypatch):
     async def denied(*args, **kwargs):
         raise AssertionError("Offline tests must never use HTTP")

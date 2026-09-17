@@ -253,6 +253,13 @@ def test_frame_titles_with_a_colon_are_frames_and_written_last():
     )
     assert is_frame({"title": "Conclusioni: sintesi e prospettive"})
     assert is_frame({"title": "Conclusioni e prospettive future"})
+    # Psychology 17.09: a comma after the frame word left the conclusions
+    # without the frame rule and the findings (48 % AI).
+    assert is_frame({"title": "Conclusioni, limiti e prospettive future"})
+    assert is_frame({"title": "Introduzione, obiettivi e metodologia"})
+    assert is_frame({"title": "Conclusioni – limiti e prospettive"})
+    assert not is_frame({"title": "Conclusioni sul mercato del credito"})
+    assert not is_frame({"title": "Conclusione del contratto di lavoro"})
     assert not is_frame({"title": "Introduzione al marketing digitale"})
     assert not is_frame(
         {"title": "Discussione: implicazioni per il finanziamento delle PMI"}

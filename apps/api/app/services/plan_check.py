@@ -70,7 +70,12 @@ def review(
             and is_primary(packed[k], pack, nodes)
             and (
                 is_legal_source(packed[k].source)
-                or about_section(section, nodes, packed[k].source)
+                or about_section(
+                    section,
+                    nodes,
+                    packed[k].source,
+                    str(getattr(pack, "topic", "") or ""),
+                )
             )
         ]
         # In law the act or decision leads even when doctrine has full text.

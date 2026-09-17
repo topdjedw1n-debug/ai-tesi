@@ -8,7 +8,11 @@ from app.services.ai_pipeline.rag_retriever import RAGRetriever, SourceDoc
 from app.services.ai_pipeline.source_identity import sources_equivalent
 from app.services.ai_pipeline.source_pack import PackedSource, SourcePack
 from app.services.citation_verifier import CitationVerifier, SourceInput
-from app.services.full_text_sources import attach_full_text, open_access_link
+from app.services.full_text_sources import (
+    attach_full_text,
+    open_access_link,
+    open_access_links,
+)
 from app.services.generation_policy import RecordingPersistenceError
 from app.services.model_recording import ReplayIncomplete
 from app.services.pack_seats import scope_metadata, seat
@@ -80,7 +84,10 @@ async def build_sources(ctx, scopes):
             if not first.get("abstract") and row.get("abstract"):
                 first["abstract"] = row["abstract"]
             if not open_access_link(first) and open_access_link(row):
-                first["canonical_metadata"] = {"open_access_url": open_access_link(row)}
+                first["canonical_metadata"] = {
+                    "open_access_url": open_access_link(row),
+                    "open_access_urls": open_access_links(row),
+                }
 
     async def checked(item):
         async with semaphore:
@@ -114,6 +121,9 @@ async def build_sources(ctx, scopes):
         }
         if open_access_link(item["source"]):
             source.canonical_metadata["open_access_url"] = open_access_link(
+                item["source"]
+            )
+            source.canonical_metadata["open_access_urls"] = open_access_links(
                 item["source"]
             )
         key = (

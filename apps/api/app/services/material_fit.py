@@ -95,10 +95,13 @@ def document_text(source: Any) -> str:
 
 
 def section_fit(
-    section: dict[str, Any], nodes: list[dict[str, Any]], text: str
+    section: dict[str, Any], nodes: list[dict[str, Any]], text: str, topic: str = ""
 ) -> tuple[int, int]:
     """(own terms of the section's nodes found, shared content words of the
-    section's wording found) for a document's title and abstract."""
+    section's wording found) for a document's title and abstract. Words of
+    the topic itself do not count as shared: every record of the pack carries
+    them (psychology, 17.09: a review on healthcare workers reached the FoMO
+    section on "social", "media", "psychological" alone)."""
     by_id = {n.get("scope_id"): n for n in nodes}
     own = sum(
         covers(by_id[s], text) for s in section.get("scope_ids") or [] if s in by_id
@@ -123,8 +126,10 @@ def section_fit(
         ]
         if part
     )
-    shared = len(set(content_tokens(wording)) & set(content_tokens(normalize(text))))
-    return own, shared
+    shared = (
+        set(content_tokens(wording)) & set(content_tokens(normalize(text)))
+    ) - set(content_tokens(normalize(topic)))
+    return own, len(shared)
 
 
 # A full text may hand a section its pages only when at least this share of
@@ -144,10 +149,13 @@ def document_topic_share(texts: list[str], pattern: re.Pattern[str] | None) -> f
 
 
 def about_section(
-    section: dict[str, Any], nodes: list[dict[str, Any]], source: Any
+    section: dict[str, Any],
+    nodes: list[dict[str, Any]],
+    source: Any,
+    topic: str = "",
 ) -> bool:
     """The document is about the section: its title or abstract carries an
     own term of the section's nodes, or at least MIN_SHARED_TERMS distinct
-    content words of the section's bilingual wording."""
-    own, shared = section_fit(section, nodes, document_text(source))
+    content words of the section's bilingual wording beyond the topic's."""
+    own, shared = section_fit(section, nodes, document_text(source), topic)
     return own >= 1 or shared >= MIN_SHARED_TERMS
