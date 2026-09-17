@@ -8,4 +8,8 @@
 - **E2:** §6 P2P втратив модель дефолту (не про P2P) і зберіг три профільні; §12/§13/§14 інші набори, жоден предметний розділ не лишився без документів.
 - **A2, BIO:** зміни лише в порядку/складі допоміжних документів; жоден предметний розділ не втратив усі сторінки.
 
+## Доставка на сервер (17.09 ≈ 15:52 Київ)
+
+Коміт `b82f2ad` (п'ять файлів `apps/api/app`: `full_text_sources.py`, `material_fit.py`, `plan_check.py`, `section_material.py`, `executor_v2/sources.py`; веб без змін). Дві команди фаундера з першої спроби («2 команди виконав»). Звірка: sha256 5/5 у контейнері `ai-thesis-api` = локальним; образ `ai-thesis-api:latest` перезібрано 12:52 UTC; `api`/`web` healthy; у контейнері `is_frame("Conclusioni, limiti e prospettive future")` = True, `is_frame("Conclusioni sul mercato del credito")` = False, `about_section` приймає тему, `open_access_urls` ставить репозиторну копію першою, стелі 3/60. Не перевірено наживо: сам пошук копій і їхнє завантаження з сервера — це покаже перший прогін на цій версії.
+
 Файли: [material-report-A2.md](material-report-A2.md), [material-report-E2.md](material-report-E2.md), [material-report-BIO.md](material-report-BIO.md), [material-report-PSY.md](material-report-PSY.md).
