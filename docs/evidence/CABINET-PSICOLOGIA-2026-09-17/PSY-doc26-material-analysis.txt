@@ -1,0 +1,60 @@
+FULL TEXTS WITH PAGES (8):
+  214 p  K9a0d364043e4  Educare (al)la sessualità: dalla prevenzione alla promozione della salut  | on_topic 1.0
+   28 p  K87b807620a75  Advances in Social Media Research: Past, Present and Future  | on_topic 1.0
+   18 p  Kfbc7ef5c52a3  A rapid review of the impact of COVID-19 on the mental health of healthc  | on_topic 1.0
+   14 p  K14009d94e73e  The influence of parental practices on child promotive and preventive fo  | on_topic 1.0
+   13 p  K45c2c0b24672  Problematic Social Media Use: Results from a Large-Scale Nationally Repr  | on_topic 1.0
+   13 p  K8a842e79de73  Preventing school disaffection, failure and dropout. The ESF projects “L  | on_topic 1.0
+   10 p  K09ad5474b0c1  The Impact of Social Media on the Mental Health of Adolescents and Young  | on_topic 1.0
+    8 p  Ka1b8a5e1d3f6  New trends in drug addiction: the synthetic drugs. Epidemiological, clin  | on_topic 1.0
+
+PER-SECTION MATERIAL (reason: support=about the section with pages; windows=pages by wording only; unsuitable/off_topic=no pages):
+ § 1 Introduzione: domanda di ricerca e cornice | Educare (al)la sessualità: dalla p [support, w=7, ch=5558] ; Preventing school disaffection, fa [support, w=6, ch=5284] ; Social Media Use and adolescents'  [support, w=0, ch=1626, planned] ; The Impact of Social Media on the  [support, w=0, ch=2400, planned, capped] ; A rapid review of the impact of CO [windows, w=6, ch=5441] ; The influence of parental practice [windows, w=4, ch=3473]
+ § 2 Diffusione dei social media in adolescenza | Problematic Social Media Use: Resu [support, w=7, ch=5645, planned] ; Advances in Social Media Research: [support, w=6, ch=4513] ; The Impact of Social Media on the  [support, w=6, ch=4734] ; Educare (al)la sessualità: dalla p [support, w=5, ch=4519] ; Problematic social media use among [support, w=0, ch=1420, planned] ; OLTRE IL CYBERBULLISMO. IL CONTRIB [support, w=0, ch=1310, planned]
+ § 3 Modelli teorici sull'uso dei social media  | Advances in Social Media Research: [support, w=10, ch=8525] ; The influence of parental practice [support, w=5, ch=4269, planned] ; Educare (al)la sessualità: dalla p [support, w=9, ch=6603] ; Adolescent Social Media Use Motive [support, w=0, ch=2000, planned] ; Interactional theory of childhood  [unsuitable, w=0, ch=0, planned]
+ § 4 Misure del benessere psicologico           | Il benessere soggettivo in bambini [support, w=0, ch=2400, planned] ; Adolescent Social Media Use Motive [support, w=0, ch=2000, planned]
+ § 5 Teoria del confronto sociale e immagini id | Advances in Social Media Research: [support, w=7, ch=5675] ; The Impact of Social Media on the  [support, w=6, ch=5264] ; Problematic Social Media Use: Resu [support, w=6, ch=5155, planned] ; The influence of parental practice [support, w=4, ch=3611] ; Upward and Downward: Social Compar [support, w=0, ch=1608, planned] ; Self-comparison with influencers b [support, w=0, ch=1493, planned]
+ § 6 Immagine corporea e social media           | The Impact of Social Media on the  [support, w=7, ch=6016] ; Insoddisfazione corporea in adoles [support, w=0, ch=1367, planned] ; Influenze socioculturali, immagine [support, w=0, ch=747, planned] ; Social Media, Thin-Ideal, Body Dis [support, w=0, ch=1439, planned]
+ § 7 Autostima e uso dei social media           | Advances in Social Media Research: [support, w=8, ch=6641] ; Problematic Social Media Use: Resu [support, w=7, ch=6024, planned] ; The Impact of Social Media on the  [support, w=7, ch=6026] ; The concurrent and longitudinal re [support, w=0, ch=1123, planned] ; Social Media, Thin-Ideal, Body Dis [support, w=0, ch=1439, planned]
+ § 8 Fear of missing out (FoMO)                 | A rapid review of the impact of CO [support, w=12, ch=10187] ; The Impact of Social Media on the  [support, w=11, ch=8886] ; Fear of Missing Out (FOMO), Emotio [support, w=0, ch=1609, planned] ; A Study on How Social Media FOMO ( [support, w=0, ch=1034, planned]
+ § 9 Uso problematico dei social media          | Problematic Social Media Use: Resu [support, w=7, ch=6182, planned] ; Advances in Social Media Research: [support, w=7, ch=6334] ; The Impact of Social Media on the  [support, w=6, ch=4666] ; New trends in drug addiction: the  [support, w=6, ch=2691] ; Problematic social media use among [support, w=0, ch=1420, planned] ; Social Networking Sites and Addict [support, w=0, ch=1293, planned]
+ §10 Qualità del sonno negli adolescenti        | Problematic Social Media Use: Resu [support, w=2, ch=1664] ; Advances in Social Media Research: [support, w=17, ch=15082] ; THE IMPACT OF NIGHTTIME SOCIAL MED [support, w=0, ch=1944, planned] ; Chronotype and trait self-control  [support, w=0, ch=249, planned]
+ §11 Regolazione emotiva in adolescenza         | Emotion Regulation Difficulties an [support, w=0, ch=1368, planned] ; Il benessere soggettivo in bambini [support, w=0, ch=2400, planned]
+ §12 Fattori protettivi: supporto sociale e res | A rapid review of the impact of CO [support, w=16, ch=13333, planned] ; Preventing school disaffection, fa [support, w=3, ch=2567] ; Investigating the Potential Mediat [support, w=0, ch=1861, planned]
+ §13 Interventi di prevenzione a scuola         | Problematic Social Media Use: Resu [support, w=5, ch=4362, planned] ; Educare (al)la sessualità: dalla p [support, w=9, ch=6422] ; Preventing school disaffection, fa [support, w=9, ch=7647] ; LA PREVENZIONE DEL CYBERBULLISMO A [support, w=0, ch=1740, planned] ; Promozione della salute e del bene [support, w=0, ch=1683, planned]
+ §14 Interventi di prevenzione in famiglia      | The influence of parental practice [support, w=17, ch=14605, planned] ; EDUCAZIONE AI MEDIA DIGITALE COME  [support, w=0, ch=1646, planned]
+ §15 Discussione: integrazione dei meccanismi e | Educare (al)la sessualità: dalla p [support, w=13, ch=10789] ; Advances in Social Media Research: [support, w=0, ch=2400, planned, capped] ; Adolescent Social Media Use Motive [support, w=0, ch=2000, planned] ; LA PREVENZIONE DEL CYBERBULLISMO A [support, w=0, ch=1740, planned] ; Social Media Use and adolescents'  [unsuitable, w=0, ch=0, planned]
+ §16 Conclusioni, limiti e prospettive future   | Social Media Use and adolescents'  [unsuitable, w=0, ch=0, planned] ; THE IMPACT OF NIGHTTIME SOCIAL MED [unsuitable, w=0, ch=0, planned]
+
+FULL TEXTS BY NUMBER OF SECTIONS THEY FEED WITH PAGES:
+   6 sections   13 p  Problematic Social Media Use: Results from a Large-Scale Nationally Repr
+   6 sections   28 p  Advances in Social Media Research: Past, Present and Future
+   6 sections   10 p  The Impact of Social Media on the Mental Health of Adolescents and Young
+   5 sections  214 p  Educare (al)la sessualità: dalla prevenzione alla promozione della salut
+   4 sections   14 p  The influence of parental practices on child promotive and preventive fo
+   3 sections   13 p  Preventing school disaffection, failure and dropout. The ESF projects “L
+   3 sections   18 p  A rapid review of the impact of COVID-19 on the mental health of healthc
+   1 sections    8 p  New trends in drug addiction: the synthetic drugs. Epidemiological, clin
+
+FULL TEXTS THAT FED NO SECTION: none
+
+CITATIONS BY SOURCE (approx, 186 matched):
+   24 (12.9%)   13 p  Problematic Social Media Use: Results from a Large-Scale Nationally Repr
+   15 ( 8.1%)    0 p  Adolescent Social Media Use Motives: A Five-Factor Scale Integrating Sel
+   12 ( 6.5%)    0 p  Il benessere soggettivo in bambini tra gli 8 e gli 11 anni. L'impatto de
+   12 ( 6.5%)    0 p  THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCENTS
+   10 ( 5.4%)    0 p  Fear of Missing Out (FOMO), Emotional Distress, and Problematic Social M
+    9 ( 4.8%)    0 p  LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN APPROCCIO A MOLTEPLICI LIV
+    8 ( 4.3%)    0 p  Problematic social media use among adolescents: Prevalence, and gender a
+    8 ( 4.3%)    0 p  Emotion Regulation Difficulties and Coping Strategies in Substance Use D
+    7 ( 3.8%)    0 p  Self-comparison with influencers but not general Instagram use moderate
+    7 ( 3.8%)   14 p  The influence of parental practices on child promotive and preventive fo
+
+PACK ROWS WITH on_topic_score < 1 or foreign field (manual list):
+  1.0    0 p  fed 0 sections  Emotion Regulation Difficulties and Coping Strategies in Substance Use D
+  1.0    0 p  fed 0 sections  Prevention of Substance Abuse
+  1.0    8 p  fed 1 sections  New trends in drug addiction: the synthetic drugs. Epidemiological, clin
+  1.0  214 p  fed 5 sections  Educare (al)la sessualità: dalla prevenzione alla promozione della salut
+  1.0    0 p  fed 0 sections  Trastorno o dificultad en la identificación temprana de las dificultades
+  1.0    0 p  fed 0 sections  2021 ESC Guidelines on cardiovascular disease prevention in clinical pra
+  1.0    0 p  fed 0 sections  Overweight in Children and Adolescents

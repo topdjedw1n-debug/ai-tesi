@@ -1,0 +1,27 @@
+{
+ "document_id": 26,
+ "job_id": 29,
+ "server_commit": "90a678f",
+ "started_utc": "2026-09-17T09:40:20.715602+00:00",
+ "completed_utc": "2026-09-17T10:00:50Z",
+ "cost_usd": 2.06,
+ "tokens": 286105,
+ "sections": 16,
+ "words_body": 7199,
+ "docx_sha256": "c69ba0ecd5d85bed24c9825543782719b71b5337e5c6e29c31646542559de598",
+ "docx_bytes": 56537,
+ "docx_pages": 22,
+ "pack": 40,
+ "full_texts_fetched": 8,
+ "full_text_attempts": 22,
+ "http_403": 12,
+ "not_pdf": 2,
+ "sections_without_full_text": [
+  4,
+  11,
+  16
+ ],
+ "frame_order": "body -> conclusions -> introduction (§1 written last)",
+ "export_route": "409 (no released artifact; by design)",
+ "scan_folder": "~/Downloads/Thesica-на-скан-10-2026-09-17"
+}

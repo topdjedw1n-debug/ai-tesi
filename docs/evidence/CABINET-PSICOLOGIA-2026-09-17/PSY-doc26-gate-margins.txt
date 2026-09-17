@@ -1,0 +1,69 @@
+TOPIC: L'uso dei social media e il benessere psicologico degli adolescenti: confronto sociale, fear of missing out e regolazione emotiva
+TOPIC ANCHORS (S2 on-topic pattern): \b(?:l'uso\b|social|media\b|beness|psicol|adoles|social|fear\b|missin|out\b|regola|emotiv|use\b|preven|psycho|well\-b|body\b|image\b)
+NODES:
+  scope-1   req=True Introduzione con domanda di ricerca | terms: ['domanda di ricerca', 'social media', 'benessere psicologico', 'adolescenti', 'research question', 'psychological well-being', 'adolescents']
+  scope-2   req=True L'uso dei social media in adolescenza: diffusione, modelli t | terms: ['uso dei social media', 'adolescenza', 'benessere psicologico', 'social media use', 'adolescence', 'psychological well-being']
+  scope-3   req=True Diffusione dei social media in adolescenza | terms: ['diffusione dei social media', 'dati epidemiologici', 'adolescenti', 'social media prevalence', 'epidemiological data', 'adolescents']
+  scope-4   req=True Modelli teorici sull'uso dei social media | terms: ['modelli teorici', 'usi e gratificazioni', 'displacement hypothesis', 'theoretical models', 'uses and gratifications']
+  scope-5   req=True Misure del benessere psicologico | terms: ['misure del benessere psicologico', 'strumenti di valutazione', 'benessere soggettivo', 'psychological well-being measures', 'assessment tools', 'subjective well-being']
+  scope-6   req=True Confronto sociale, immagine corporea e autostima | terms: ['confronto sociale', 'immagine corporea', 'autostima', 'social comparison', 'body image', 'self-esteem']
+  scope-7   req=True Teoria del confronto sociale | terms: ['confronto sociale', "confronto verso l'alto", 'confronto verso il basso', 'social comparison theory', 'upward comparison', 'downward comparison']
+  scope-8   req=True Immagine corporea e social media | terms: ['immagine corporea', 'insoddisfazione corporea', 'ideali estetici', 'body image', 'body dissatisfaction', 'appearance ideals']
+  scope-9   req=True Autostima e uso dei social media | terms: ['autostima', 'validazione sociale', 'feedback online', 'self-esteem', 'social validation', 'online feedback']
+  scope-10  req=True Fear of missing out, uso problematico dei social media e qua | terms: ['fear of missing out', 'uso problematico dei social media', 'qualità del sonno', 'problematic social media use', 'sleep quality']
+  scope-11  req=True Fear of missing out (FoMO) | terms: ['fear of missing out', 'fomo', 'ansia sociale', 'social anxiety']
+  scope-12  req=True Uso problematico dei social media | terms: ['uso problematico dei social media', 'dipendenza da social media', 'uso compulsivo', 'problematic social media use', 'social media addiction', 'compulsive use']
+  scope-13  req=True Qualità del sonno negli adolescenti | terms: ['qualità del sonno', 'igiene del sonno', 'uso notturno dei dispositivi', 'sleep quality', 'sleep hygiene', 'nighttime device use']
+  scope-14  req=True Regolazione emotiva, fattori protettivi e interventi di prev | terms: ['regolazione emotiva', 'fattori protettivi', 'interventi di prevenzione', 'emotion regulation', 'protective factors', 'prevention interventions']
+  scope-15  req=True Regolazione emotiva in adolescenza | terms: ['regolazione emotiva', 'strategie di coping', 'rivalutazione cognitiva', 'emotion regulation', 'coping strategies', 'cognitive reappraisal']
+  scope-16  req=True Fattori protettivi | terms: ['fattori protettivi', 'supporto sociale', 'resilienza', 'protective factors', 'social support', 'resilience']
+  scope-17  req=True Interventi di prevenzione a scuola | terms: ['prevenzione a scuola', 'media literacy', 'programmi scolastici', 'school-based prevention', 'school programs']
+  scope-18  req=True Interventi di prevenzione in famiglia | terms: ['prevenzione in famiglia', 'mediazione genitoriale', 'educazione digitale', 'family-based prevention', 'parental mediation', 'digital education']
+  scope-19  req=True Discussione | terms: ['discussione', 'integrazione dei risultati', 'implicazioni', 'discussion', 'integration of findings', 'implications']
+  scope-20  req=True Conclusioni | terms: ['conclusioni', 'limiti', 'prospettive future', 'conclusions', 'limitations', 'future directions']
+  scope-21  req=True Bibliografia | terms: ['bibliografia', 'riferimenti apa', 'references', 'apa references']
+
+DOCUMENT GATE (share of windows with a topic anchor, threshold 0.5):
+  0.95    66 windows  The Impact of Social Media on the Mental Health of Adolescents and You
+  0.92    71 windows  Problematic Social Media Use: Results from a Large-Scale Nationally Re
+  0.91   204 windows  Advances in Social Media Research: Past, Present and Future
+  0.72    54 windows  New trends in drug addiction: the synthetic drugs. Epidemiological, cl
+  0.67   115 windows  A rapid review of the impact of COVID-19 on the mental health of healt
+  0.62    58 windows  Preventing school disaffection, failure and dropout. The ESF projects
+  0.59   691 windows  Educare (al)la sessualità: dalla prevenzione alla promozione della sal
+  0.52   105 windows  The influence of parental practices on child promotive and preventive
+
+SECTION EXAM per document (own>=1 or shared>=3); cells = own/shared, * = passes
+     Problemati Preventing A rapid re The influe Advances i New trends Educare (a The Impact
+§ 1 Introduzione: domanda di ric       0/3*       0/4*       0/2        0/1        0/2        0/1        0/3*       0/3*
+§ 2 Diffusione dei social media        2/4*       0/2        0/2        0/1        0/3*       0/3*       1/3*       1/4*
+§ 3 Modelli teorici sull'uso dei       0/2        0/1        0/1        1/2*       0/3*       0/0        0/3*       0/2
+§ 4 Misure del benessere psicolo       0/2        0/1        0/2        0/1        0/2        0/0        0/2        0/2
+§ 5 Teoria del confronto sociale       1/2*       1/1*       1/1*       1/1*       1/2*       0/1        1/2*       1/2*
+§ 6 Immagine corporea e social m       0/2        0/1        0/1        0/1        0/2        0/0        0/1        0/3*
+§ 7 Autostima e uso dei social m       1/2*       0/1        0/1        0/1        0/3*       0/1        0/1        1/2*
+§ 8 Fear of missing out (FoMO)         0/2        0/1        0/3*       0/1        0/2        0/0        0/2        0/3*
+§ 9 Uso problematico dei social        2/5*       0/2        0/1        0/1        0/3*       0/3*       0/1        1/3*
+§10 Qualità del sonno negli adol       0/3*       0/1        0/1        0/1        0/3*       0/1        0/2        0/4*
+§11 Regolazione emotiva in adole       0/0        0/0        0/0        0/0        0/0        0/0        0/2        0/1
+§12 Fattori protettivi: supporto       0/2        2/5*       4/5*       0/1        0/2        0/0        0/2        2/3*
+§13 Interventi di prevenzione a        2/5*       1/4*       0/1        0/1        1/2*       0/0        1/5*       0/3*
+§14 Interventi di prevenzione in       0/2        0/1        0/0        2/4*       0/1        0/1        0/2        0/2
+§15 Discussione: integrazione de       0/0        0/2        0/1        0/0        2/2*       0/0        0/4*       0/0
+§16 Conclusioni, limiti e prospe       0/0        0/0        0/1        0/1        0/0        0/0        0/0        0/0
+
+WHY the abstract-only foreign rows are on topic (anchors matched in title+abstract):
+  La specificitŕ del placebo e il suo effetto sul benessere so -> ['beness', 'psycho', 'social', 'well-b']
+  Social Networking Sites and Addiction: Ten Lessons Learned   -> ['fear', 'media', 'missin', 'out', 'social', 'use']
+  Preventing school disaffection, failure and dropout. The ESF -> ['preven', 'social']
+  Emotion Regulation Difficulties and Coping Strategies in Sub -> ['social', 'use']
+  A rapid review of the impact of COVID-19 on the mental healt -> ['fear', 'out', 'psycho', 'social', 'well-b']
+  Prevention of Substance Abuse                                -> ['adoles', 'media', 'preven', 'social', 'use']
+  The influence of parental practices on child promotive and p -> ['preven', 'psycho', 'social']
+  New trends in drug addiction: the synthetic drugs. Epidemiol -> ["l'uso", 'preven']
+  Documento di consenso e raccomandazioni per la prevenzione c -> ['preven', 'use']
+  Educare (al)la sessualità: dalla prevenzione alla promozione -> ['adoles', 'beness', 'preven', 'social']
+  Trastorno o dificultad en la identificación temprana de las  -> ['psicol', 'social']
+  2021 ESC Guidelines on cardiovascular disease prevention in  -> ['preven', 'use']
+  National Trends in the Prevalence and Treatment of Depressio -> ['adoles', 'use']
+  Overweight in Children and Adolescents                       -> ['adoles', 'preven']

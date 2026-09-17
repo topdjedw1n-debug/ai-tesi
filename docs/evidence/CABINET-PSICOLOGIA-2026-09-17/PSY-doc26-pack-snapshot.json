@@ -1,0 +1,615 @@
+{
+ "job": {
+  "id": 29,
+  "status": "running",
+  "progress": 25,
+  "total_tokens": 2835,
+  "cost_cents": 5,
+  "started_at": "2026-09-17T09:40:21.871009+00:00",
+  "heartbeat_at": "2026-09-17T09:53:06.409724+00:00",
+  "error_message": null
+ },
+ "steps": [
+  {
+   "t": "09:40:22",
+   "e": "executor_step_started",
+   "step": "S1"
+  },
+  {
+   "t": "09:40:40",
+   "e": "executor_step_completed",
+   "step": "S1"
+  },
+  {
+   "t": "09:40:40",
+   "e": "executor_step_started",
+   "step": "S2"
+  },
+  {
+   "t": "09:52:53",
+   "e": "executor_step_completed",
+   "step": "S2"
+  },
+  {
+   "t": "09:52:53",
+   "e": "executor_step_started",
+   "step": "S3"
+  }
+ ],
+ "warnings": [
+  {
+   "t": "09:52:53",
+   "code": "source_full_text_unavailable",
+   "section": null,
+   "detail": "Kfd5fd60f1d12, Kcc18e0aa57c0, K278c310c8941, K6409f1f1b4c7, K0f586deb6027, K6fef3a24d49c, K2b16dcc440f5, Ke27222d06839, Kee198868c6a7, K54f605267d0b, Kaa1a78344784, K6759737d96ff, Kb4e3607db74e, K58e4"
+  },
+  {
+   "t": "09:52:53",
+   "code": "source_no_readable_text",
+   "section": null,
+   "detail": "K54f605267d0b"
+  }
+ ],
+ "pack": {
+  "n": 40,
+  "coverage": {
+   "scope-2": 31,
+   "scope-3": 18,
+   "scope-4": 5,
+   "scope-5": 4,
+   "scope-6": 29,
+   "scope-7": 29,
+   "scope-8": 5,
+   "scope-9": 10,
+   "scope-10": 13,
+   "scope-11": 8,
+   "scope-12": 7,
+   "scope-13": 2,
+   "scope-14": 20,
+   "scope-15": 4,
+   "scope-16": 8,
+   "scope-17": 11,
+   "scope-18": 5,
+   "scope-19": 5
+  },
+  "titles": [
+   "Adolescent Social Media Use Motives: A Five-Factor Scale Integrating Self-Determination an",
+   "Social Media Use and adolescents' mental health and well-being: An umbrella review",
+   "Problematic social media use among adolescents: Prevalence, and gender and grade level dif",
+   "Problematic Social Media Use: Results from a Large-Scale Nationally Representative Adolesc",
+   "OLTRE IL CYBERBULLISMO. IL CONTRIBUTO DI EU KIDS ONLINE ALLA RICERCA SUL BENESSERE SOCIALE",
+   "LA PREVENZIONE DEL CYBERBULLISMO A SCUOLA. UN APPROCCIO A MOLTEPLICI LIVELLI",
+   "Il benessere soggettivo in bambini tra gli 8 e gli 11 anni. L'impatto dell'intelligenza, d",
+   "La specificitŕ del placebo e il suo effetto sul benessere soggettivo ma non sull'auto-valu",
+   "Insoddisfazione corporea in adolescenza: influenze di fattori bio-psico-sociali",
+   "Influenze socioculturali, immagine corporea e chirurgia estetica",
+   "Upward and Downward: Social Comparison Processing of Thin Idealized Media Images",
+   "Self-comparison with influencers but not general Instagram use moderate upward and downwar",
+   "Social Media, Thin-Ideal, Body Dissatisfaction and Disordered Eating Attitudes: An Explora",
+   "The concurrent and longitudinal relationships between adolescents' use of social network s",
+   "Fear of Missing Out (FOMO), Emotional Distress, and Problematic Social Media Use (PSMU) am",
+   "Social Networking Sites and Addiction: Ten Lessons Learned",
+   "A Study on How Social Media FOMO (Fear of Missing Out) Impacts the Gen Z Audience",
+   "Perceived Challenges and Online Harms from Social Media Use on a Severity Continuum: A Qua",
+   "THE IMPACT OF NIGHTTIME SOCIAL MEDIA USE ON SLEEP QUALITY IN ADOLESCENTS: A NARRATIVE REVI",
+   "Chronotype and trait self-control distinctively predicted subjective sleep quality via sle",
+   "Preventing school disaffection, failure and dropout. The ESF projects “Last Round” and “En",
+   "Emotion Regulation Difficulties and Coping Strategies in Substance Use Disorders: Effects ",
+   "A rapid review of the impact of COVID-19 on the mental health of healthcare workers: impli",
+   "Investigating the Potential Mediating Role of Social Support in the Relationship between P",
+   "Prevention of Substance Abuse",
+   "Promozione della salute e del benessere degli adolescenti nel contesto scolastico",
+   "EDUCAZIONE AI MEDIA DIGITALE COME UN TANDEM SCUOLA-FAMIGLIA. ESEMPI DI ESPERIENZE DAL PROG",
+   "The influence of parental practices on child promotive and preventive food consumption beh",
+   "Advances in Social Media Research: Past, Present and Future",
+   "New trends in drug addiction: the synthetic drugs. Epidemiological, clinical and preventiv",
+   "Documento di consenso e raccomandazioni per la prevenzione cardiovascolare in Italia 2018",
+   "Educare (al)la sessualità: dalla prevenzione alla promozione della salute sessuale per ado",
+   "Trastorno o dificultad en la identificación temprana de las dificultades de aprendizaje",
+   "2021 ESC Guidelines on cardiovascular disease prevention in clinical practice",
+   "Rapid Systematic Review: The Impact of Social Isolation and Loneliness on the Mental Healt",
+   "National Trends in the Prevalence and Treatment of Depression in Adolescents and Young Adu",
+   "Overweight in Children and Adolescents",
+   "Interactional theory of childhood problematic media use",
+   "The Impact of Social Media on the Mental Health of Adolescents and Young Adults: A Systema",
+   "The Associations Between Online Media Use and Users’ Perceived Social Resources: A Meta-An"
+  ],
+  "levels": [
+   "abstract",
+   "abstract",
+   "abstract",
+   "pdf",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "pdf",
+   "abstract",
+   "pdf",
+   "abstract",
+   "abstract",
+   "abstract",
+   "abstract",
+   "pdf",
+   "pdf",
+   "pdf",
+   "abstract",
+   "pdf",
+   "abstract",
+   "abstract",
+   "none",
+   "abstract",
+   "abstract",
+   "abstract",
+   "pdf",
+   "abstract"
+  ],
+  "scope_ids": [
+   [
+    "scope-14",
+    "scope-16",
+    "scope-19",
+    "scope-2",
+    "scope-3",
+    "scope-4",
+    "scope-5",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-12",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-10",
+    "scope-12",
+    "scope-14",
+    "scope-17",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-2",
+    "scope-4",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-19",
+    "scope-2",
+    "scope-3",
+    "scope-4"
+   ],
+   [
+    "scope-14",
+    "scope-15",
+    "scope-16",
+    "scope-2",
+    "scope-3",
+    "scope-5"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-2",
+    "scope-5",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-8",
+    "scope-9"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-2",
+    "scope-6",
+    "scope-7",
+    "scope-8",
+    "scope-9"
+   ],
+   [
+    "scope-14",
+    "scope-16",
+    "scope-2",
+    "scope-4",
+    "scope-6",
+    "scope-7",
+    "scope-8"
+   ],
+   [
+    "scope-2",
+    "scope-6",
+    "scope-7",
+    "scope-8"
+   ],
+   [
+    "scope-10",
+    "scope-12",
+    "scope-2",
+    "scope-6",
+    "scope-7",
+    "scope-8",
+    "scope-9"
+   ],
+   [
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-12",
+    "scope-14",
+    "scope-17",
+    "scope-2",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-12",
+    "scope-2",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-2",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-12",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-11",
+    "scope-13",
+    "scope-14",
+    "scope-15",
+    "scope-17",
+    "scope-18",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-10",
+    "scope-13"
+   ],
+   [
+    "scope-14",
+    "scope-16",
+    "scope-17",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-15",
+    "scope-16",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-16",
+    "scope-2",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-15",
+    "scope-16",
+    "scope-18",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-18",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-19",
+    "scope-2",
+    "scope-3",
+    "scope-5",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-18"
+   ],
+   [
+    "scope-14",
+    "scope-18",
+    "scope-2",
+    "scope-4",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-19",
+    "scope-2",
+    "scope-6",
+    "scope-7"
+   ],
+   [],
+   [
+    "scope-19"
+   ],
+   [
+    "scope-14",
+    "scope-17",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-6",
+    "scope-7"
+   ],
+   [],
+   [
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7"
+   ],
+   [
+    "scope-2",
+    "scope-3"
+   ],
+   [
+    "scope-2",
+    "scope-3"
+   ],
+   [
+    "scope-14",
+    "scope-2",
+    "scope-3"
+   ],
+   [
+    "scope-10",
+    "scope-12",
+    "scope-14",
+    "scope-16",
+    "scope-2",
+    "scope-3",
+    "scope-6",
+    "scope-7",
+    "scope-9"
+   ],
+   [
+    "scope-2",
+    "scope-6",
+    "scope-7"
+   ]
+  ]
+ },
+ "full_text": [
+  {
+   "key": "Kfd5fd60f1d12",
+   "pages": "0",
+   "status": null,
+   "reason": "not_pdf",
+   "url": "https://doi.org/10.1016/j.chbr.2024.100404"
+  },
+  {
+   "key": "K45c2c0b24672",
+   "pages": "13",
+   "status": null,
+   "reason": null,
+   "url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0169839&t"
+  },
+  {
+   "key": "Kcc18e0aa57c0",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "http://hdl.handle.net/10281/18922"
+  },
+  {
+   "key": "K278c310c8941",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://doi.org/10.3390/ijerph16214177"
+  },
+  {
+   "key": "K6409f1f1b4c7",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://www.sciencedirect.com/science/article/pii/S074756321730420X/pdf"
+  },
+  {
+   "key": "K0f586deb6027",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://www.mdpi.com/1660-4601/14/3/311/pdf?version=1489755175"
+  },
+  {
+   "key": "K6fef3a24d49c",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://www.mdpi.com/1660-4601/18/6/3227/pdf?version=1616229804"
+  },
+  {
+   "key": "K8a842e79de73",
+   "pages": "13",
+   "status": null,
+   "reason": null,
+   "url": "https://oaj.fupress.net/index.php/formare/article/download/11318/10154"
+  },
+  {
+   "key": "Kfbc7ef5c52a3",
+   "pages": "18",
+   "status": null,
+   "reason": null,
+   "url": "https://bmcpublichealth.biomedcentral.com/counter/pdf/10.1186/s12889-020-10070-3"
+  },
+  {
+   "key": "K14009d94e73e",
+   "pages": "14",
+   "status": null,
+   "reason": null,
+   "url": "https://ijbnpa.biomedcentral.com/track/pdf/10.1186/s12966-017-0501-3"
+  },
+  {
+   "key": "K87b807620a75",
+   "pages": "28",
+   "status": null,
+   "reason": null,
+   "url": "https://link.springer.com/content/pdf/10.1007/s10796-017-9810-y.pdf"
+  },
+  {
+   "key": "Ka1b8a5e1d3f6",
+   "pages": "8",
+   "status": null,
+   "reason": null,
+   "url": "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/28C1481F"
+  },
+  {
+   "key": "K2b16dcc440f5",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://flore.unifi.it/bitstream/2158/1150538/2/15%20GIC%20Documento%20di%20cons"
+  },
+  {
+   "key": "K9a0d364043e4",
+   "pages": "214",
+   "status": null,
+   "reason": null,
+   "url": "http://amsdottorato.unibo.it/7313/1/Landi_Nicoletta_tesi.pdf"
+  },
+  {
+   "key": "Ke27222d06839",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "http://hdl.handle.net/10662/6550"
+  },
+  {
+   "key": "Kee198868c6a7",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://academic.oup.com/eurheartj/article-pdf/42/34/3227/45752329/ehab484.pdf"
+  },
+  {
+   "key": "K54f605267d0b",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "http://www.jaacap.org/article/S0890856720303373/pdf"
+  },
+  {
+   "key": "Kaa1a78344784",
+   "pages": "0",
+   "status": null,
+   "reason": "not_pdf",
+   "url": "https://pediatrics.aappublications.org/content/pediatrics/138/6/e20161878.full.p"
+  },
+  {
+   "key": "K6759737d96ff",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://www.ahajournals.org/doi/pdf/10.1161/01.CIR.0000161369.71722.10"
+  },
+  {
+   "key": "Kb4e3607db74e",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://onlinelibrary.wiley.com/doi/pdfdirect/10.1002/hbe2.217"
+  },
+  {
+   "key": "K09ad5474b0c1",
+   "pages": "10",
+   "status": null,
+   "reason": null,
+   "url": "https://assets.cureus.com/uploads/review_article/pdf/176889/20230805-14200-lfw48"
+  },
+  {
+   "key": "K58e4e51beb3d",
+   "pages": "0",
+   "status": null,
+   "reason": "http_403",
+   "url": "https://academic.oup.com/jcmc/article-pdf/23/4/181/25113919/zmy007.pdf"
+  }
+ ],
+ "sections": null
+}
