@@ -1,0 +1,205 @@
+{
+ "rows": [
+  {
+   "title": "Indice",
+   "words": 0,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": null,
+   "sim_pct": null
+  },
+  {
+   "title": "Introduzione",
+   "words": 648,
+   "ai": 155,
+   "sim": 8,
+   "ai_pct": 23.9,
+   "sim_pct": 1.2
+  },
+  {
+   "title": "1. L'uso dei social media in adolescenza: diffusione, modelli teorici e misure del benessere psicologico",
+   "words": 0,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": null,
+   "sim_pct": null
+  },
+  {
+   "title": "1.1 Diffusione dei social media in adolescenza",
+   "words": 463,
+   "ai": 69,
+   "sim": 6,
+   "ai_pct": 14.9,
+   "sim_pct": 1.3
+  },
+  {
+   "title": "1.2 Modelli teorici dell'uso dei social media",
+   "words": 482,
+   "ai": 164,
+   "sim": 0,
+   "ai_pct": 34.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "1.3 Misure del benessere psicologico",
+   "words": 453,
+   "ai": 199,
+   "sim": 0,
+   "ai_pct": 43.9,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "2. Confronto sociale, immagine corporea e autostima",
+   "words": 0,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": null,
+   "sim_pct": null
+  },
+  {
+   "title": "2.1 Teoria del confronto sociale",
+   "words": 441,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "2.2 Immagine corporea e social media",
+   "words": 409,
+   "ai": 128,
+   "sim": 0,
+   "ai_pct": 31.3,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "2.3 Autostima e social media",
+   "words": 480,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "3. Fear of missing out, uso problematico dei social media e qualità del sonno",
+   "words": 0,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": null,
+   "sim_pct": null
+  },
+  {
+   "title": "3.1 Fear of missing out (FoMO)",
+   "words": 442,
+   "ai": 61,
+   "sim": 0,
+   "ai_pct": 13.8,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "3.2 Uso problematico dei social media",
+   "words": 460,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "3.3 Qualità del sonno negli adolescenti",
+   "words": 503,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "4. Regolazione emotiva, fattori protettivi e interventi di prevenzione a scuola e in famiglia",
+   "words": 0,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": null,
+   "sim_pct": null
+  },
+  {
+   "title": "4.1 Regolazione emotiva in adolescenza",
+   "words": 404,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "4.2 Fattori protettivi",
+   "words": 432,
+   "ai": 69,
+   "sim": 0,
+   "ai_pct": 16.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "4.3 Interventi di prevenzione a scuola",
+   "words": 492,
+   "ai": 64,
+   "sim": 20,
+   "ai_pct": 13.0,
+   "sim_pct": 4.1
+  },
+  {
+   "title": "4.4 Interventi di prevenzione in famiglia",
+   "words": 515,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "5. Discussione",
+   "words": 521,
+   "ai": 150,
+   "sim": 0,
+   "ai_pct": 28.8,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "Conclusioni",
+   "words": 343,
+   "ai": 145,
+   "sim": 0,
+   "ai_pct": 42.3,
+   "sim_pct": 0.0
+  },
+  {
+   "title": "Bibliografia",
+   "words": 725,
+   "ai": 0,
+   "sim": 0,
+   "ai_pct": 0.0,
+   "sim_pct": 0.0
+  }
+ ],
+ "body_subsections": [
+  12.6,
+  0.4,
+  5976
+ ],
+ "discussion": [
+  28.8,
+  0.0,
+  521
+ ],
+ "intro": [
+  23.9,
+  1.2,
+  648
+ ],
+ "conclusions": [
+  42.3,
+  0.0,
+  343
+ ],
+ "all": [
+  14.7,
+  0.4,
+  8213
+ ]
+}
