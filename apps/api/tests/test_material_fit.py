@@ -374,3 +374,31 @@ def test_a_full_text_on_another_subject_hands_no_pages_and_is_not_primary():
     only_hiv = {**section, "evidence_keys": ["KHIV"]}
     review([only_hiv], SourcePack(1, topic, sources=[hiv], passages=passages), nodes)
     assert only_hiv["evidence_keys"] == ["KHIV"]  # kept as written, never promoted
+
+
+def test_findings_keep_a_row_for_every_finished_section_within_the_budget():
+    from app.services.section_material import findings
+
+    fact = "Il 92% dei teenager si connette ogni giorno (Scolari, 2019, p. 4). "
+    written = [
+        {
+            "section_index": i,
+            "title": f"Sezione {i}",
+            "question": "Q?",
+            "conclusion": "C.",
+            "content": (fact * 3) + "Frase senza ancora. ",
+        }
+        for i in range(2, 17)
+    ]
+    full = findings(written)
+    assert [r["title"] for r in full] == [f"Sezione {i}" for i in range(2, 17)]
+    assert all(len(r["facts"]) == 3 for r in full)
+    # A small budget still leaves every section its first fact; the extra
+    # facts stop where the budget ends, the last section (the conclusions
+    # the introduction is written from) included.
+    tight = findings(written, cap=3200)
+    assert len(tight) == 15 and tight[-1]["title"] == "Sezione 16"
+    assert all(len(r["facts"]) >= 1 for r in tight)
+    assert sum(len(r["facts"]) for r in tight) < 45
+    assert len(__import__("json").dumps(tight, ensure_ascii=False)) <= 3200 + 100
+    assert findings([]) == []

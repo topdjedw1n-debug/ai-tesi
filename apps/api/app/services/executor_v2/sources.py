@@ -113,8 +113,7 @@ async def build_sources(ctx, scopes):
             **metadata,
             "origin": "pack",
             "verification_provider": metadata["provider"],
-            # The query that found the record is history; a node is covered
-            # only by a record that carries the node's own terms.
+            # The query that found the record is history, not coverage.
             "query_scope_ids": sorted(filter(None, item["scopes"])),
             **scope_metadata(source, nodes, parents),
         }

@@ -32,9 +32,11 @@ async def write_sections(ctx, outline, pack):
         words = section["target_words"]
         low, high = POLICY["short_ratio"] * words, POLICY["long_ratio"] * words
         frame = material.is_frame(section)
-        evidence, selection = section_evidence(
-            pack, section, getattr(ctx, "scopes", []), commentary=commentary
-        )
+        evidence, selection = [], []
+        if not frame:  # a frame writes from the findings only: no windows
+            evidence, selection = section_evidence(
+                pack, section, getattr(ctx, "scopes", []), commentary=commentary
+            )
         await ctx.emit(
             "executor_section_evidence", {"section_index": index, "evidence": selection}
         )
@@ -54,7 +56,7 @@ async def write_sections(ctx, outline, pack):
                 {
                     "forbidden_placeholders": POLICY["placeholder_phrases"],
                     "requirements": ctx.inputs["requirements"],
-                    "section": section,
+                    "section": material.frame_view(section) if frame else section,
                     "target_words_range": [words, int(high - 1)],
                     "evidence": evidence,
                     "previous_summaries": (

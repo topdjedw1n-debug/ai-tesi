@@ -1351,6 +1351,13 @@ async def test_framing_sections_are_written_last_from_the_finished_chapters(
     assert "Answer the research question" in prompts[1]
     assert "pose the research question" in prompts[2]
     assert bodies[1]["previous_summaries"] == []
+    # A framing section receives no document windows or excerpts and no
+    # planned keys: it cites the findings only (doc30, 17.09: the intro cited
+    # three document windows and no finding). The body keeps its material.
+    assert bodies[1]["evidence"] == [] and bodies[2]["evidence"] == []
+    assert "evidence_keys" not in bodies[2]["section"]
+    assert "evidence_plan" not in bodies[1]["section"]
+    assert bodies[0]["section"]["evidence_keys"] == keys and bodies[0]["evidence"]
     assert [c["title"] for c in bodies[1]["findings"]] == ["Il sonno in reparto"]
     assert bodies[1]["findings"][0]["facts"][0].startswith("Corpo del capitolo")
     assert [c["title"] for c in bodies[2]["findings"]] == [

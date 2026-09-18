@@ -80,28 +80,45 @@ def frame_rule(section: dict[str, Any]) -> str:
     return rules.INTRO_RULE if intro else rules.CONCLUSIONS_RULE
 
 
+def frame_view(section: dict[str, Any]) -> dict[str, Any]:
+    """The plan of a framing section without its document keys and evidence
+    plan: the frame cites the findings of the finished work, nothing else."""
+    return {k: v for k, v in section.items() if k not in PLAN_ONLY_KEYS}
+
+
+PLAN_ONLY_KEYS = ("evidence_keys", "evidence_plan")
+
+
 def findings(
     written: list[dict[str, Any]], per_section: int = 3, cap: int = 12_000
 ) -> list[dict[str, Any]]:
     """Anchored facts of the finished sections, in plan order: the material
-    of the framing sections instead of whole chapters."""
-    rows = []
-    used = 0
+    of the framing sections instead of whole chapters. Every finished section
+    keeps a row with its first fact whatever the budget (psychology doc30,
+    17.09: the cap cut the table after 11 of 15 sections, the conclusions
+    among the missing, and the introduction cited document windows instead);
+    the second and third facts fill the remaining budget round-robin."""
+    rows, extra = [], []
     for s in sorted(written, key=lambda s: s.get("section_index", 0)):
         sentences = re.split(
             r"(?<=[.!?])\s+(?=[A-ZÀ-Ý«(\[])", str(s.get("content") or "")
         )
-        facts = [t.strip() for t in sentences if ANCHORED.search(t)][:per_section]
-        row = {
-            "title": s["title"],
-            "question": s.get("question"),
-            "facts": [f[:400] for f in facts],
-            "conclusion": s.get("conclusion"),
-        }
-        used += len(json.dumps(row, ensure_ascii=False))
-        if used > cap:
-            break
-        rows.append(row)
+        facts = [t.strip()[:400] for t in sentences if ANCHORED.search(t)]
+        rows.append(
+            {
+                "title": s["title"],
+                "question": s.get("question"),
+                "facts": facts[:1],
+                "conclusion": s.get("conclusion"),
+            }
+        )
+        extra.append(facts[1:per_section])
+    used = len(json.dumps(rows, ensure_ascii=False))
+    for position in range(per_section - 1):
+        for row, more in zip(rows, extra, strict=True):
+            if position < len(more) and used + len(more[position]) + 4 <= cap:
+                row["facts"].append(more[position])
+                used += len(more[position]) + 4
     return rows
 
 
