@@ -23,7 +23,28 @@ from app.services.legal_sources import (  # noqa: F401 (re-exported)
     is_legal_source,
 )
 
-PAGE_LOCATOR = re.compile(r"\s*,?\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)")
+PAGE_LOCATOR = re.compile(r"\s*,?\s*(pp?)\.\s*(\d+(?:\s*[-–,]\s*\d+)*)")
+# Locator forms the writer also produces (psychology, 17.09): the locator in
+# its own parentheses "[KEY] (p. 4)" and a list "[KEY] p. 3; p. 9".
+_BRACKET = r"(\[[A-Za-z0-9_-]+\])"
+PARENTHESISED_LOCATOR = re.compile(
+    _BRACKET + r"\s*\(\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)\s*\)"
+)
+LOCATOR_LIST = re.compile(_BRACKET + r"\s*,?\s*p\.\s*(\d+(?:\s*;\s*p\.\s*\d+)+)")
+
+
+def normalize_locators(text: str) -> str:
+    """Fold "[KEY] (p. 4)" into "[KEY] p. 4" and "[KEY] p. 3; p. 9" into
+    "[KEY] pp. 3, 9" so that one pattern renders every page locator."""
+    text = PARENTHESISED_LOCATOR.sub(r"\1 \2. \3", text)
+
+    def fold(match):
+        pages = ", ".join(re.findall(r"\d+", match.group(2)))
+        return f"{match.group(1)} pp. {pages}"
+
+    return LOCATOR_LIST.sub(fold, text)
+
+
 ARTICLE_LOCATOR = re.compile(
     r"\s*,?\s*(art(?:t)?\.\s*\d+(?:[\s-]*[a-z](?:ies|er|ter|quater)?)?(?:,\s*comm[ai]\s*\d+(?:\s*e\s*\d+)?)?)",
     re.I,
@@ -103,6 +124,7 @@ def render_citations(
     pack does not know (marker removed, sentence kept for the warning)."""
     entries: dict[str, dict[str, Any]] = {}
     missing: list[tuple[str, str]] = []
+    text = normalize_locators(text)
     for key in dict.fromkeys(marker.findall(text)):
         source = known.get(key)
         bracket = f"[{key}]"
@@ -205,7 +227,7 @@ def pages_out_of_range(raw: str, marker: Any, page_counts: dict[str, int]) -> li
     )
     if not page_counts:
         return found
-    for match in pattern.finditer(raw):
+    for match in pattern.finditer(normalize_locators(raw)):
         key, pages = match.group(1), match.group(3)
         last = max(int(n) for n in re.findall(r"\d+", pages))
         if last > page_counts[key]:
@@ -290,6 +312,11 @@ def section_issues(
     bare = sorted(set(BARE_KEY.findall(text)))
     for key in bare:
         text = re.sub(r"\s*\(?" + re.escape(key) + r"\)?", "", text)
+    if bare:  # what a removed key leaves behind: "(, )", ",,", " ,"
+        text = re.sub(r"\(\s*,?\s*\)", "", text)
+        text = re.sub(r",\s*,", ",", text)
+        text = re.sub(r"\s+,", ",", text)
+        text = re.sub(r"[ \t]{2,}", " ", text)
     years = decision_years(known)
     mismatched = sorted(
         {

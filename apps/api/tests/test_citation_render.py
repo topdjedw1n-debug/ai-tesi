@@ -308,3 +308,43 @@ def test_article_locators_on_acts_named_by_an_article():
     assert legal_citation("Legge 20 maggio 1970, n. 300", "x", "art. 4-bis") == (
         "(Legge 20 maggio 1970, n. 300, art. 4-bis)"
     )
+
+
+def test_locator_in_parentheses_and_locator_lists_are_folded():
+    from app.services.citation_render import normalize_locators, pages_out_of_range
+
+    assert normalize_locators("dati [Kabc] (p. 4), poi [Kabc] (pp. 3-5).") == (
+        "dati [Kabc] p. 4, poi [Kabc] pp. 3-5."
+    )
+    assert normalize_locators("causale [Kabc] p. 3; p. 9. Gli") == (
+        "causale [Kabc] pp. 3, 9. Gli"
+    )
+    known = {
+        "Kabc": source("Il potere", ["Bellavista, Alessandro"], 2018, doi="10.1/x")
+    }
+    rendered, _, missing = render_citations(
+        "Riportati in [Kabc] (p. 4), il 92 %; direzione [Kabc] p. 3; p. 9. Fine.",
+        known,
+        CitationStyle.APA,
+        MARKER,
+    )
+    assert "(Bellavista, 2018, p. 4)," in rendered
+    assert "(Bellavista, 2018, pp. 3, 9). Fine." in rendered
+    assert ") (p." not in rendered and "); p." not in rendered and missing == []
+    assert pages_out_of_range("Testo [Kabc] (p. 40) qui.", None, {"Kabc": 6}) == [
+        "Kabc p. 40 > 6"
+    ]
+
+
+def test_bare_keys_inside_parentheses_leave_no_double_punctuation():
+    from app.services.citation_render import section_issues
+
+    section = {"raw_content": "x", "section_index": 3}
+    text = (
+        "fonti primarie corrispondenti (Kdb3df6f45432, Kb4e3607db74e), i cui abstract."
+    )
+    cleaned, findings = section_issues(section, text, MARKER, {}, {}, 0.5)
+    assert cleaned == "fonti primarie corrispondenti, i cui abstract."
+    assert ("citation_unresolved", "Kb4e3607db74e; Kdb3df6f45432") in findings[
+        "warnings"
+    ]
