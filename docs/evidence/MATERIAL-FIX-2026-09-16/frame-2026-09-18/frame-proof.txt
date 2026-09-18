@@ -1,0 +1,30 @@
+
+######## A2: sections 11, frames [(1, 'Introduzione'), (11, 'Conclusioni')], writing order [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1]
+  §11 Conclusioni                  BEFORE: frame; findings rows 9; evidence docs 3, windows 5; cited 3: from findings 3, from evidence only 0
+      AFTER : findings rows 9/9 (all finished sections), size 8783 chars, facts 27; evidence: none by construction; last row = Discussione dei risultati
+  §1 Introduzione                 BEFORE: frame; findings rows 10; evidence docs 4, windows 18; cited 5: from findings 4, from evidence only 1
+      AFTER : findings rows 10/10 (all finished sections), size 9858 chars, facts 30; evidence: none by construction; last row = Conclusioni
+
+######## E2: sections 15, frames [(1, 'Introduzione: domand'), (15, 'Conclusioni e prospe')], writing order [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 1]
+  §15 Conclusioni e prospettive fu BEFORE: frame; findings rows 13; evidence docs 5, windows 18; cited 3: from findings 3, from evidence only 0
+      AFTER : findings rows 13/13 (all finished sections), size 11732 chars, facts 39; evidence: none by construction; last row = Discussione: implicazioni pe
+  §1 Introduzione: domanda di ric BEFORE: NOT frame; findings rows 0; evidence docs 3, windows 21; cited 3: from findings 0, from evidence only 3
+      AFTER : findings rows 14/14 (all finished sections), size 11945 chars, facts 39; evidence: none by construction; last row = Conclusioni e prospettive fu
+
+######## BIO: sections 13, frames [(1, 'Introduzione'), (13, 'Conclusioni')], writing order [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 1]
+  §13 Conclusioni                  BEFORE: frame; findings rows 11; evidence docs 3, windows 0; cited 10: from findings 8, from evidence only 2
+      AFTER : findings rows 11/11 (all finished sections), size 11611 chars, facts 33; evidence: none by construction; last row = Approccio One Health
+  §1 Introduzione                 BEFORE: frame; findings rows 11; evidence docs 3, windows 0; cited 8: from findings 6, from evidence only 2
+      AFTER : findings rows 12/12 (all finished sections), size 11922 chars, facts 33; evidence: none by construction; last row = Conclusioni
+
+######## PSY doc26: sections 16, frames [(1, 'Introduzione: domand'), (16, 'Conclusioni, limiti ')], writing order [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1]
+  §16 Conclusioni, limiti e prospe BEFORE: NOT frame; findings rows 0; evidence docs 0, windows 0; cited 5: from findings 0, from evidence only 0
+      AFTER : findings rows 14/14 (all finished sections), size 11973 chars, facts 31; evidence: none by construction; last row = Discussione: integrazione de
+  §1 Introduzione: domanda di ric BEFORE: frame; findings rows 12; evidence docs 6, windows 21; cited 3: from findings 1, from evidence only 2
+      AFTER : findings rows 15/15 (all finished sections), size 11961 chars, facts 29; evidence: none by construction; last row = Conclusioni, limiti e prospe
+
+######## PSY doc30: sections 16, frames [(1, 'Introduzione'), (16, 'Conclusioni')], writing order [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1]
+  §16 Conclusioni                  BEFORE: frame; findings rows 11; evidence docs 1, windows 1; cited 5: from findings 5, from evidence only 0
+      AFTER : findings rows 14/14 (all finished sections), size 11980 chars, facts 29; evidence: none by construction; last row = Discussione
+  §1 Introduzione                 BEFORE: frame; findings rows 11; evidence docs 5, windows 19; cited 3: from findings 0, from evidence only 3
+      AFTER : findings rows 15/15 (all finished sections), size 11960 chars, facts 28; evidence: none by construction; last row = Conclusioni
