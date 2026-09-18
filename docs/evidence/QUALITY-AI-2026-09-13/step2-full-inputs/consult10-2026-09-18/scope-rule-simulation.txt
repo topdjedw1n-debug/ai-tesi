@@ -1,0 +1,6 @@
+$0 simulation on doc30's recorded verdicts of Grok's rule "allow -> pages only to sections whose node is in scope_ids":
+- Salute mentale e Brain-Mind Capital (scope-2, scope-5): fed §1.1, §1.2, §1.3, §3.1, §3.2, §4.1 -> would keep only §1.3 (Misure, the 44 % section) and lose §1.2 (34 %), §3.1 (14 %), §3.2 (0 %), §4.1 (0 %)
+- OLTRE IL CYBERBULLISMO (scope-2, scope-3): fed §1.1, §1.2, §4.2, §4.4 -> would keep §1.1, lose §1.2, §4.2, §4.4 (0 %)
+- Self-comparison with influencers (scope-6..9): fed intro, §1.1, §2.1, §2.2 -> would keep §2.1 (0 %), §2.2 (31 %); lose intro (24 %) and §1.1
+- Dalla alfabetizzazione mediatica (scope-17): fed §4.1, §4.2, §4.3, §4.4, conclusions -> would keep §4.3 (13 %) only
+Reading: the rule removes adjacent pages from five body sections, two of which were already 0 % with them, and does not touch the 44 % section because the judge named its node. The regression of §1.3 is inside the verdict itself (allow "for WHO definitions"), not in how it is applied.
