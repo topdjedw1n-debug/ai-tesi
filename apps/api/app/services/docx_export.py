@@ -12,6 +12,7 @@ from docx.shared import Cm, Pt, RGBColor
 from markdown_it import MarkdownIt
 
 from app.services.ai_pipeline.citation_formatter import bibliography_heading
+from app.services.citation_notes import NOTE_MARK
 
 _PARSER = MarkdownIt("commonmark", {"html": False})
 DEFAULT_DOCX_PROFILE = {
@@ -48,6 +49,7 @@ LEGAL_HEADINGS = {
     "en": "Legislation and case law",
     "uk": "Нормативні акти та судова практика",
 }
+WEB_HEADINGS = {"it": "Sitografia", "en": "Web sources", "uk": "Інтернет-джерела"}
 _FRAME_TITLES = re.compile(
     r"^\s*(?:introduzione|introduction|premessa|conclusioni|conclusion[s]?|"
     r"вступ|висновки|abstract|sommario|ringraziamenti)\b",
@@ -143,6 +145,7 @@ def assemble_document(
     for kind, heading in (
         ("academic", bibliography_heading(language)),
         ("legal", LEGAL_HEADINGS.get(prefix, LEGAL_HEADINGS["en"])),
+        ("web", WEB_HEADINGS.get(prefix, WEB_HEADINGS["en"])),
     ):
         rows = sorted(
             (r for r in bibliography if r.get("kind", "academic") == kind),
@@ -254,9 +257,13 @@ def append_markdown(docx: Any, text: str) -> None:
                 elif child.type in {"text", "code_inline", "html_inline", "image"}:
                     if link_href:
                         link_label += child.content
-                    run = paragraph.add_run(child.content)
-                    run.bold = True if bold else None
-                    run.italic = True if italic else None
+                    for i, piece in enumerate(NOTE_MARK.split(child.content)):
+                        if i % 2:
+                            _footnote_reference(paragraph, int(piece))
+                            continue
+                        run = paragraph.add_run(piece)
+                        run.bold = True if bold else None
+                        run.italic = True if italic else None
                 elif child.type == "softbreak":
                     paragraph.add_run(" ")
                 elif child.type == "hardbreak":
@@ -270,6 +277,94 @@ def append_markdown(docx: Any, text: str) -> None:
                     link_href = ""
         elif token.type in {"fence", "code_block"}:
             docx.add_paragraph(token.content.rstrip())
+
+
+def _footnote_reference(paragraph: Any, number: int) -> None:
+    run = paragraph.add_run()
+    align = OxmlElement("w:vertAlign")
+    align.set(qn("w:val"), "superscript")
+    run._r.get_or_add_rPr().append(align)
+    reference = OxmlElement("w:footnoteReference")
+    reference.set(qn("w:id"), str(number))
+    run._r.append(reference)
+
+
+def add_footnotes(docx: Any, notes: list[str], size_pt: float = 10) -> None:
+    """Word footnotes for the NOTE_MARK references in the body: note n is
+    notes[n - 1]; *…* spans are italic (titles). Single-spaced, justified."""
+    from xml.sax.saxutils import escape
+
+    from docx.opc.constants import CONTENT_TYPE, RELATIONSHIP_TYPE
+    from docx.opc.packuri import PackURI
+    from docx.opc.part import Part
+
+    font = (
+        '<w:rFonts w:ascii="Times New Roman" w:hAnsi="Times New Roman" '
+        'w:cs="Times New Roman"/>{italic}'
+        f'<w:sz w:val="{round(size_pt * 2)}"/><w:szCs w:val="{round(size_pt * 2)}"/>'
+    )
+    paragraph = (
+        '<w:p><w:pPr><w:spacing w:before="0" w:after="0" w:line="240" '
+        'w:lineRule="auto"/>'
+        '<w:jc w:val="both"/></w:pPr>{runs}</w:p>'
+    )
+
+    def runs(text: str) -> str:
+        out = []
+        for i, piece in enumerate(re.split(r"\*([^*]+)\*", text)):
+            if piece:
+                out.append(
+                    "<w:r><w:rPr>"
+                    + font.format(italic="<w:i/>" if i % 2 else "")
+                    + '</w:rPr><w:t xml:space="preserve">'
+                    + escape(piece)
+                    + "</w:t></w:r>"
+                )
+        return "".join(out)
+
+    body = [
+        '<w:footnote w:type="separator" w:id="-1">'
+        + paragraph.format(runs="<w:r><w:separator/></w:r>")
+        + "</w:footnote>",
+        '<w:footnote w:type="continuationSeparator" w:id="0">'
+        + paragraph.format(runs="<w:r><w:continuationSeparator/></w:r>")
+        + "</w:footnote>",
+    ]
+    for number, note in enumerate(notes, 1):
+        reference = (
+            "<w:r><w:rPr>"
+            + font.format(italic="")
+            + '<w:vertAlign w:val="superscript"/></w:rPr><w:footnoteRef/></w:r>'
+        )
+        body.append(
+            f'<w:footnote w:id="{number}">'
+            + paragraph.format(runs=reference + runs(" " + note))
+            + "</w:footnote>"
+        )
+    xml = (
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n'
+        '<w:footnotes xmlns:w="http://schemas.openxmlformats.org/'
+        'wordprocessingml/2006/main">' + "".join(body) + "</w:footnotes>"
+    )
+    part = Part(
+        PackURI("/word/footnotes.xml"),
+        CONTENT_TYPE.WML_FOOTNOTES,
+        xml.encode("utf-8"),
+        docx.part.package,
+    )
+    docx.part.relate_to(part, RELATIONSHIP_TYPE.FOOTNOTES)
+    settings = docx.settings.element
+    if settings.find(qn("w:footnotePr")) is None:
+        properties = OxmlElement("w:footnotePr")
+        for number in ("-1", "0"):
+            separator = OxmlElement("w:footnote")
+            separator.set(qn("w:id"), number)
+            properties.append(separator)
+        anchor = settings.find(qn("w:compat"))
+        if anchor is not None:
+            anchor.addprevious(properties)
+        else:
+            settings.append(properties)
 
 
 def canonical_docx_bytes(data: bytes) -> bytes:

@@ -2,12 +2,18 @@
 formatting, without any model call.
 
 Usage: python scripts/rerender_recording.py RECORDING.json.gz OUT.docx --job-id N
+       [--notes] [--web-sources WEB.json]
 
 Takes the recorded plan, pack and section texts with their raw citation
 markers, renders citations with the production S5 renderer, assembles the
 document with the production assembly (levels, numbering, typography,
 bibliography lists) and writes the DOCX exactly as the export route would.
 The advisory S6 review is not repeated. Prints what changed in numbers.
+
+--notes renders the Italian traditional style instead of the brief's style:
+every citation becomes a Word footnote (citation_notes). WEB.json maps a
+citation key to {"site", "url", "accessed"} for web pages uploaded as PDFs:
+they are cited by URL without pages and listed under the web-sources heading.
 """
 
 import argparse
@@ -35,6 +41,8 @@ def main() -> int:
     parser.add_argument("recording", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--job-id", type=int, required=True)
+    parser.add_argument("--notes", action="store_true")
+    parser.add_argument("--web-sources", type=Path)
     args = parser.parse_args()
     os.environ.update(ENV)
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -42,12 +50,16 @@ def main() -> int:
 
     from app.services.ai_pipeline.citation_formatter import CitationStyle
     from app.services.ai_pipeline.rag_retriever import SourceDoc
+    from app.services.citation_notes import render_notes
     from app.services.citation_render import render_citations
     from app.services.docx_export import (
+        add_footnotes,
         add_table_of_contents,
         append_markdown,
         apply_academic_profile,
         assemble_document,
+        normalize_typography,
+        with_chapter_headings,
     )
     from app.services.executor_v2.sections import MARKER
 
@@ -95,25 +107,39 @@ def main() -> int:
             sections[e["payload"]["section_index"]] = e["payload"]
     style = CitationStyle(brief["citation_style"])
     entries, rendered, missing_total = {}, [], 0
-    for index in sorted(sections):
+    raws = [
+        sections[i].get("raw_content") or sections[i]["content"]
+        for i in sorted(sections)
+    ]
+    notes = []
+    if args.notes:
+        web = json.loads(args.web_sources.read_text()) if args.web_sources else {}
+        raws, notes, entries, missing = render_notes(raws, known, web)
+        missing_total = len(missing)
+    for index, raw_text in zip(sorted(sections), raws, strict=True):
         section = sections[index]
-        text, found, missing = render_citations(
-            section.get("raw_content") or section["content"], known, style, MARKER
-        )
-        missing_total += len(missing)
-        entries.update({k: v for k, v in found.items() if k not in entries})
+        text = raw_text
+        if not args.notes:
+            text, found, missing = render_citations(raw_text, known, style, MARKER)
+            missing_total += len(missing)
+            entries.update({k: v for k, v in found.items() if k not in entries})
         plan = outline.get(index, {})
         rendered.append(
             {
                 "title": section["title"],
                 "content": text,
+                "scope_ids": plan.get("scope_ids", []),
                 "level": min(
                     (levels[s] for s in plan.get("scope_ids", []) if s in levels),
                     default=1,
                 ),
             }
         )
-    content = assemble_document(rendered, list(entries.values()), brief["language"])
+    content = assemble_document(
+        with_chapter_headings(rendered, nodes),
+        list(entries.values()),
+        brief["language"],
+    )
     docx = DocxDocument()
     docx.core_properties.title = str(brief.get("title") or "")
     docx.core_properties.author = ""
@@ -125,6 +151,8 @@ def main() -> int:
     docx.add_heading(brief["title"], 0)
     add_table_of_contents(docx, brief["language"])
     append_markdown(docx, content)
+    if notes:
+        add_footnotes(docx, [normalize_typography(n) for n in notes])
     stream = io.BytesIO()
     docx.save(stream)
     args.output.write_bytes(stream.getvalue())
@@ -142,7 +170,9 @@ def main() -> int:
                         1 for e in entries.values() if e["kind"] == "academic"
                     ),
                     "legal": sum(1 for e in entries.values() if e["kind"] == "legal"),
+                    "web": sum(1 for e in entries.values() if e["kind"] == "web"),
                 },
+                "footnotes": len(notes),
                 "markers_without_source": missing_total,
                 "quotes_with_citation": len(quotes),
                 "quotes_without_page": sum(
