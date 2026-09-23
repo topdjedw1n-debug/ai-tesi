@@ -151,6 +151,18 @@ def test_repository_is_not_a_journal_and_subtitle_keeps_its_stop():
         "2014, https://dash.harvard.edu/handle/1/12274297."
     )
     assert notes[1].startswith("Silvia Rivadossi, *L’estetica del vuoto. Vuoti, pieni")
+    kolker = source(
+        "The Altering Eye", ["Robert Kolker"], 2009, venue="Open Book Publishers"
+    )
+    _, notes, _, _ = render_notes(["A [KK] p. 65."], {"KK": kolker})
+    assert notes == [
+        "Robert Kolker, *The Altering Eye*, Open Book Publishers, 2009, p. 65."
+    ]
+    record = source(
+        "Tesi", ["Giulia Baso"], 2014, url="https://openalex.org/W2286797220"
+    )
+    _, _, entries, _ = render_notes(["A [KR]."], {"KR": record})
+    assert entries["KR"]["formatted"] == "Giulia Baso, *Tesi*, 2014."
 
 
 def test_surname_handles_particles_and_inverted_names():

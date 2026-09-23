@@ -68,7 +68,14 @@ def normalize_typography(text: str) -> str:
     around the apostrophe in a DOI).
     """
     text = re.sub(r"(?<=\w)'\s?(?=\w)", "’", text)
-    text = re.sub(r'"([^"\n]{1,400})"', r"«\1»", text)
+
+    def quote(match):
+        # A quotation inside «…» takes “…” («"seeing" was a "necessity"», 24.09).
+        before = text[text.rfind("\n", 0, match.start()) + 1 : match.start()]
+        inside = before.count("«") > before.count("»")
+        return f"“{match.group(1)}”" if inside else f"«{match.group(1)}»"
+
+    text = re.sub(r'"([^"\n]{1,400})"', quote, text)
     text = re.sub(r"\s*—\s*", " – ", text)
     return re.sub(r"[ \t]{2,}", " ", text)
 

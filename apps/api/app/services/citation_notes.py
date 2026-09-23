@@ -29,6 +29,11 @@ REPOSITORY = re.compile(
     r"Institutional|Archive|ScholarWorks|OpenstarTs|UvA-DARE|Academic Bibliography",
     re.I,
 )
+CATALOGUE = re.compile(r"openalex\.org|semanticscholar\.org|crossref\.org", re.I)
+# A book's venue is its publisher: "Open Book Publishers, 2009", not "in «…»".
+PUBLISHER = re.compile(
+    r"\b(?:publishers?|press|books|edizioni|editore|editrice|verlag|éditions)\b", re.I
+)
 PARTICLES = {"de", "di", "da", "del", "della", "dei", "van", "von", "der", "den", "du"}
 # The word before a marker that makes the marker a noun of the sentence.
 NOUN_BEFORE = re.compile(
@@ -146,7 +151,9 @@ def full_reference(source: Any, web: dict[str, str] | None = None) -> str:
         parts.append(f"{web['url']} (ultima consultazione: {web['accessed']})")
         return ", ".join(parts)
     venue = " ".join(unescape(str(getattr(source, "venue", None) or "")).split())
-    if venue and not REPOSITORY.search(venue):
+    if venue and PUBLISHER.search(venue):
+        parts.append(venue)
+    elif venue and not REPOSITORY.search(venue):
         parts.append(f"in «{venue}»")
     if getattr(source, "year", None):
         parts.append(str(source.year))
@@ -157,8 +164,12 @@ def bibliography_entry(source: Any, web: dict[str, str] | None = None) -> str:
     entry = full_reference(source, web)
     if not web and getattr(source, "doi", None):
         entry += f", doi: {source.doi}"
-    elif not web and getattr(source, "url", None):
-        entry += f", {source.url}"
+    elif not web:
+        # A catalogue record (openalex.org/W…) is no address for a reader.
+        meta = source.canonical_metadata or {}
+        link = meta.get("open_access_url") or getattr(source, "url", None)
+        if link and not CATALOGUE.search(link):
+            entry += f", {link}"
     return entry + "."
 
 

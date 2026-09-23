@@ -72,6 +72,10 @@ def test_assembly_numbers_chapters_by_level_and_splits_the_bibliography():
         and "## 1.3 Evoluzione" in out
     )
     assert normalize_typography("dall' articolo 4") == "dall’articolo 4"
+    # A quotation inside «…» takes “…”; the next paragraph starts afresh.
+    assert normalize_typography(
+        'per lui «"seeing" was a "necessity"».\nIl "vuoto".'
+    ) == ("per lui «“seeing” was a “necessity”».\nIl «vuoto».")
     # Old behaviour is untouched when no level and no bibliography kinds are given.
     assert (
         assemble_section("Capitolo 1. Tema", "# Capitolo 1. Tema\n\nTesto")

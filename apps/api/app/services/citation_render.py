@@ -25,12 +25,13 @@ from app.services.legal_sources import (  # noqa: F401 (re-exported)
 
 PAGE_LOCATOR = re.compile(r"\s*,?\s*(pp?)\.\s*(\d+(?:\s*[-–,]\s*\d+)*)")
 # Locator forms the writer also produces (psychology, 17.09): the locator in
-# its own parentheses "[KEY] (p. 4)" and a list "[KEY] p. 3; p. 9".
+# its own parentheses "[KEY] (p. 4)" and a list "[KEY] p. 3; p. 9" or, in the
+# Antonioni order (24.09), "[KEY] p. 3, p. 2".
 _BRACKET = r"(\[[A-Za-z0-9_-]+\])"
 PARENTHESISED_LOCATOR = re.compile(
     _BRACKET + r"\s*\(\s*(pp?)\.\s*(\d+(?:\s*[-–]\s*\d+)?)\s*\)"
 )
-LOCATOR_LIST = re.compile(_BRACKET + r"\s*,?\s*p\.\s*(\d+(?:\s*;\s*p\.\s*\d+)+)")
+LOCATOR_LIST = re.compile(_BRACKET + r"\s*,?\s*p\.\s*(\d+(?:\s*[;,]\s*p\.\s*\d+)+)")
 
 
 def normalize_locators(text: str) -> str:

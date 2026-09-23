@@ -319,6 +319,11 @@ def test_locator_in_parentheses_and_locator_lists_are_folded():
     assert normalize_locators("causale [Kabc] p. 3; p. 9. Gli") == (
         "causale [Kabc] pp. 3, 9. Gli"
     )
+    # Antonioni order, 24.09: the comma form left ", p. 2" after the citation.
+    assert normalize_locators("film d'autore [Kabc] p. 3, p. 2. Il") == (
+        "film d'autore [Kabc] pp. 3, 2. Il"
+    )
+    assert normalize_locators("[Kabc] p. 3, questa") == "[Kabc] p. 3, questa"
     known = {
         "Kabc": source("Il potere", ["Bellavista, Alessandro"], 2018, doi="10.1/x")
     }
