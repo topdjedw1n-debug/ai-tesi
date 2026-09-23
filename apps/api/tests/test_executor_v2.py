@@ -1104,7 +1104,7 @@ async def test_open_access_full_text_reaches_the_writer_as_page_windows(
             for w in ctx.warnings
             if w["code"] == "source_full_text_unavailable"
         ] == ["source_full_text_unavailable"]
-        assert ctx.warnings[-1]["detail"] == key2
+        assert ctx.warnings[-1]["detail"] == "Sleep evidence 2 — https://oa.test/wall"
         assert outline[0]["evidence_keys"] == [key1] == [planned_key]
         ctx.provider.side_effect = [
             response(f"Il sonno è documentato [{key1}] p. 1. Fine.")

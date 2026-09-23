@@ -70,6 +70,11 @@ USER_AGENT = (
     "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_6) AppleWebKit/537.36 "
     "(KHTML, like Gecko) Chrome/128.0 Safari/537.36 Thesica/1.0"
 )
+# 24.09.2026, order 24286128: HAL answered the browser-like agent with its bot
+# check ("Making sure you're not a bot!") but serves the same thesis PDF to a
+# client that says what it is; a link that yields no PDF is asked once more
+# under this declared agent.
+DECLARED_AGENT = f"Thesica/1.0 (+mailto:{POLITE_MAILTO})"
 ACCEPT = "application/pdf,text/html;q=0.9,*/*;q=0.8"
 _PDF_META_RE = re.compile(
     r"<meta[^>]+?(?:name|property)=[\"']citation_pdf_url[\"'][^>]*?"
@@ -218,23 +223,26 @@ async def full_text(url: str) -> dict[str, Any]:
         "pages": [],
         "reason": None,
     }
-    async with httpx.AsyncClient(
-        timeout=FETCH_TIMEOUT_SECONDS,
-        follow_redirects=True,
-        headers={"User-Agent": USER_AGENT, "Accept": ACCEPT},
-    ) as client:
-        response, body, too_large = await _download(client, url)
-        if (
-            not too_large
-            and response.status_code == 200
-            and b"%PDF" not in body[:1024]
-            and b"citation_pdf_url" in body
-        ):
-            match = _PDF_META_RE.search(body.decode("utf-8", "ignore"))
-            link = next((g for g in (match.groups() if match else ()) if g), None)
-            if link:
-                link = str(httpx.URL(str(response.url)).join(link))
-                response, body, too_large = await _download(client, link)
+    for agent in (USER_AGENT, DECLARED_AGENT):
+        async with httpx.AsyncClient(
+            timeout=FETCH_TIMEOUT_SECONDS,
+            follow_redirects=True,
+            headers={"User-Agent": agent, "Accept": ACCEPT},
+        ) as client:
+            response, body, too_large = await _download(client, url)
+            if (
+                not too_large
+                and response.status_code == 200
+                and b"%PDF" not in body[:1024]
+                and b"citation_pdf_url" in body
+            ):
+                match = _PDF_META_RE.search(body.decode("utf-8", "ignore"))
+                link = next((g for g in (match.groups() if match else ()) if g), None)
+                if link:
+                    link = str(httpx.URL(str(response.url)).join(link))
+                    response, body, too_large = await _download(client, link)
+        if too_large or (response.status_code == 200 and b"%PDF" in body[:1024]):
+            break
     result.update(
         final_url=str(response.url), content_type=response.headers.get("content-type")
     )
@@ -279,7 +287,9 @@ async def attach_full_text(
 ) -> tuple[list[dict[str, Any]], list[str]]:
     """Fetch the open-access full texts of selected pack sources into passages.
 
-    Returns the per-source summary and the keys that stay on their abstract.
+    Returns the per-source summary and, for every record that stays on its
+    abstract, "title — link" (order 24286128: the manager opens a link the
+    site refused to the fetcher in a browser and adds the PDF by hand).
     The frozen excerpt of a fetched source is rebuilt from abstract plus the
     pages closest to the topic; the writer's windows come from the passages.
     """
@@ -357,7 +367,7 @@ async def attach_full_text(
                 },
             )
         else:
-            unavailable.append(row.citation_key)
+            unavailable.append(f"{row.source.title} — {tries[-1]['url']}")
         summary.append(
             {
                 "key": row.citation_key,

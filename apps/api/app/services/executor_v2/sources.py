@@ -177,8 +177,8 @@ async def build_sources(ctx, scopes):
     summary, unavailable = await attach_full_text(selected, passages, semaphore, topic)
     if summary:
         await ctx.emit("executor_full_text", {"sources": summary})
-    if unavailable:
-        await ctx.warn("source_full_text_unavailable", detail=", ".join(unavailable))
+    for detail in unavailable:  # "title — link": the manager can fetch it by hand
+        await ctx.warn("source_full_text_unavailable", detail=detail)
     pack = SourcePack(
         ctx.job.document_id, topic, sources=selected, bilingual=True, passages=passages
     )

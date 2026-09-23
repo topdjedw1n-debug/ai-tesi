@@ -87,6 +87,10 @@ async def test_full_text_reads_pdf_follows_citation_meta_and_reports_refusals(
             )
         if path == "/wall":
             return httpx.Response(403, content=b"<html>Cloudflare</html>")
+        if path == "/anubis.pdf":  # HAL, 24.09.2026: a check for browsers only
+            if "Mozilla" in request.headers["user-agent"]:
+                return httpx.Response(200, content=b"<html>not a bot!</html>")
+            return httpx.Response(200, content=pdf)
         if path == "/scan.pdf":
             return httpx.Response(200, content=_make_pdf(["", ""]))
         return httpx.Response(200, content=b"<html>no pdf here</html>")
@@ -99,6 +103,8 @@ async def test_full_text_reads_pdf_follows_citation_meta_and_reports_refusals(
     assert hopped["final_url"] == "https://repo.test/files/paper.pdf"
     assert len(hopped["pages"]) == 2
     assert (await full_text("https://repo.test/wall"))["reason"] == "http_403"
+    declared = await full_text("https://repo.test/anubis.pdf")
+    assert declared["reason"] is None and len(declared["pages"]) == 2
     assert (await full_text("https://repo.test/other"))["reason"] == "not_pdf"
     assert (await full_text("https://repo.test/scan.pdf"))["reason"] == "no_text_layer"
     monkeypatch.setattr(full_text_sources, "MAX_SOURCE_FILE_BYTES", 16)
@@ -315,7 +321,10 @@ async def test_attach_full_text_extends_passages_and_reports_failures(monkeypatc
         pack.sources, passages, asyncio.Semaphore(2), "controllo a distanza"
     )
     assert [s["key"] for s in summary] == ["KOK", "KWALL", "KDOWN"]
-    assert unavailable == ["KWALL", "KDOWN"]
+    assert unavailable == [
+        "Dietro il muro — https://r.test/wall",
+        "Rete assente — https://r.test/down",
+    ]
     assert summary[2]["reason"] == "transport_error"
     assert {p.citation_key for p in passages} == {"KOK"} and len(passages) >= 2
     ok = pack.by_key("KOK").source.canonical_metadata
@@ -428,7 +437,7 @@ async def test_attach_full_text_tries_the_copies_and_asks_openalex_once(monkeypa
     assert by_key["KCOPY"]["url"] == "https://repo.test/ok.pdf"
     # At most three copies per record: the fourth is never tried.
     assert by_key["KMANY"]["pages"] == 0 and len(by_key["KMANY"]["tries"]) == 3
-    assert "KMANY" in unavailable
+    assert "Muri ovunque — https://pub.test/wall3" in unavailable
     # A record without a link asks OpenAlex once and keeps the copies it names.
     assert lookups == ["10.1/KCROSS", "10.1/KNONE"]
     assert by_key["KCROSS"]["pages"] == 2
@@ -436,7 +445,8 @@ async def test_attach_full_text_tries_the_copies_and_asks_openalex_once(monkeypa
     assert cross["open_access_urls"] == ["https://repo.test/c-ok.pdf"]
     assert cross["evidence_level"] == "pdf"
     # No copy anywhere: the record stays on its abstract, outside the summary.
-    assert "KNONE" not in by_key and "KNONE" not in unavailable
+    assert "KNONE" not in by_key
+    assert not any(u.startswith("Senza copie") for u in unavailable)
     assert {p.citation_key for p in passages} == {"KCOPY", "KCROSS"}
 
 
@@ -458,7 +468,11 @@ async def test_attach_full_text_keeps_the_run_budget_of_tries(monkeypatch):
     summary, unavailable = await attach_full_text(
         pack.sources, [], asyncio.Semaphore(1), "controllo"
     )
-    assert len(calls) == 2 and sorted(unavailable) == ["KA", "KB", "KC"]
+    assert len(calls) == 2 and [u.split(" — ")[0] for u in unavailable] == [
+        "Primo",
+        "Secondo",
+        "Terzo",
+    ]
     reasons = sorted(s["reason"] for s in summary)
     assert reasons == ["budget", "http_403", "http_403"]
 

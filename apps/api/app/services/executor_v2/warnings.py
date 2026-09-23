@@ -15,7 +15,7 @@ WARNING_CODES = {
         "info",
         "Джерело підтверджено, але його текст недоступний для написання.",
     ),
-    "source_full_text_unavailable": ("info", "Частину повних текстів не отримано."),
+    "source_full_text_unavailable": ("info", "Сайт не віддав знайдений повний текст."),
     "source_full_text_off_topic": ("info", "Повний текст не про тему: лише анотація."),
     "section_without_documents": ("warning", "Розділ без повнотекстових документів."),
     "catalogue_unavailable": ("warning", "Каталог джерел не відповідав."),

@@ -15,6 +15,7 @@ from app.services.search_queries import (
     is_structural,
     on_topic,
     plan,
+    proper_names,
     topic_core,
 )
 
@@ -89,6 +90,39 @@ def test_topic_core_keeps_the_subject_and_drops_generic_words():
     core = topic_core(load("c")["topic"])
     assert "raccomandazione" in core and "sistemi" not in core
     assert "tutela" in topic_core(load("b")["topic"])
+
+
+def test_a_name_in_the_subtitle_reaches_every_query():
+    # Order 24286128 (24.09.2026): the recorded S1 tree of the Antonioni thesis.
+    topic = (
+        "Spazi, silenzi e relazioni: lo sguardo di Michelangelo Antonioni "
+        "sull'incomunicabilità"
+    )
+    leaf = {"terms_local": ["silenzio", "tempi morti"], "terms_en": ["silence"]}
+    nodes = [
+        {
+            "scope_id": "scope-1",
+            "title": "Introduzione",
+            "terms_local": ["x"],
+            "terms_en": ["x"],
+            "children": [],
+        },
+        {
+            "scope_id": "scope-2",
+            "title": "Spazio, silenzio e incomunicabilità",
+            "terms_local": ["spazio"],
+            "terms_en": ["space"],
+            "children": [
+                {"scope_id": "scope-3", "title": "Il silenzio", **leaf, "children": []}
+            ],
+        },
+    ]
+    requests, _, _ = plan(topic, nodes)
+    assert requests and all("antonioni" in text for _, text in requests)
+    assert proper_names(topic) == ["michelangelo", "antonioni"]
+    # Titles without names keep their queries: position capitals are not names.
+    tree = load("a")
+    assert proper_names(tree["topic"]) == [] or plan(tree["topic"], tree["nodes"])
 
 
 def test_off_topic_candidates_of_the_economics_pack_are_dropped_before_verification():

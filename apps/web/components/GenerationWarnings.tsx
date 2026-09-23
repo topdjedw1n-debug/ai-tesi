@@ -20,6 +20,8 @@ const GUIDANCE: Record<string, string> = {
   catalogue_unavailable:
     'Каталог не відповів: джерела дібрано з інших каталогів. Якщо їх замало, спробуйте пізніше або зверніться до власника.',
   plan_material_gap: 'Розділ буде написано з того, що є в пакеті.',
+  source_full_text_unavailable:
+    'Відкрийте посилання в браузері й збережіть PDF: його можна додати до нової роботи з тим самим брифом як джерело.',
 }
 
 function groupBySection(warnings: GenerationWarning[]): Array<[string, GenerationWarning[]]> {

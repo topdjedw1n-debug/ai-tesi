@@ -86,6 +86,25 @@ def topic_core(topic, limit=4):
     return list(dict.fromkeys(t for t in content_tokens(main) if len(t) >= 4))[:limit]
 
 
+def proper_names(topic):
+    """Capitalised words inside the title or its subtitle, lower-cased.
+
+    24.09.2026, order 24286128: "Spazi, silenzi e relazioni: lo sguardo di
+    Michelangelo Antonioni sull'incomunicabilità" - the subject named after
+    the colon never reached a query (0 of 48 carried "Antonioni") and the
+    catalogues answered on "spazi silenzi relazioni" (city pedagogy,
+    Kierkegaard). The first word of the title and of the subtitle is
+    capitalised by position, not by name, and does not count.
+    """
+    names = []
+    for part in topic.split(":"):
+        for word in WORD.findall(part)[1:]:
+            token = word.casefold()
+            if word[0].isupper() and token in content_tokens(word):
+                names.append(token)
+    return list(dict.fromkeys(names))
+
+
 def english_core(nodes, limit=4):
     counter = Counter()
     for node in walk(nodes):
@@ -113,7 +132,9 @@ def plan(topic, nodes):
     Chapters with sub-nodes are not searched themselves: their sub-nodes carry
     the specific questions, and the hits are attributed to the chapter too.
     """
-    core_local, core_en = topic_core(topic), english_core(nodes)
+    names = proper_names(topic)
+    core_local = list(dict.fromkeys(names + topic_core(topic)))[:4]
+    core_en = list(dict.fromkeys(names + english_core(nodes)))[:4]
     requests, parents = [], {}
 
     def visit(items, parent):
