@@ -7,7 +7,14 @@ import zipfile
 from docx import Document as DocxDocument
 
 from app.services.ai_pipeline.rag_retriever import SourceDoc
-from app.services.citation_notes import NOTE_MARK, render_notes, surname
+from app.services.citation_notes import (
+    NOTE_MARK,
+    crossref_detail,
+    openalex_detail,
+    printed_pages,
+    render_notes,
+    surname,
+)
 from app.services.docx_export import add_footnotes, append_markdown
 
 
@@ -186,3 +193,106 @@ def test_footnotes_are_real_word_footnotes():
     assert "<w:footnotePr>" in archive.read("word/settings.xml").decode()
     reopened = DocxDocument(io.BytesIO(stream.getvalue()))
     assert reopened.paragraphs[0].text == "Il deserto rosso."
+
+
+def test_vademecum_forms_from_the_recorded_catalogue_records():
+    # Antonioni order, 24.09: the reviewer found the references incomplete.
+    article = crossref_detail(
+        {
+            "type": "journal-article",
+            "container-title": ["CONCEPT"],
+            "volume": "24",
+            "issue": "1",
+            "page": "269-279",
+            "issued": {"date-parts": [[2022, 6, 5]]},
+        }
+    )
+    chapter = {
+        **crossref_detail(
+            {
+                "type": "book-chapter",
+                "container-title": ["Camera Obscura, Camera Lucida"],
+                "page": "183-214",
+                "publisher": "Amsterdam University Press",
+                "issued": {"date-parts": [[2003]]},
+            }
+        ),
+        "editors": ["Richard Allen", "Malcolm Turvey"],
+        "place": "Amsterdam",
+    }
+    thesis = openalex_detail(
+        {
+            "type": "dissertation",
+            "publication_year": 2014,
+            "authorships": [
+                {"institutions": [{"display_name": "University of Exeter"}]}
+            ],
+            "primary_location": {"source": {"type": "repository"}},
+        }
+    )
+    book = {
+        **crossref_detail({"type": "monograph", "publisher": "Open Book Publishers"}),
+        "place": "Cambridge",
+        "year": 2009,
+    }
+    known = {
+        "KA": source("Average Shot Length", ["Tudor Popescu"], 2022),
+        "KC": source("From the Air", ["Noa Steimatsky"], 2003),
+        "KT": source("Practices of Mediation", ["Giulia Baso"], 2014),
+        "KB": source("The Altering Eye", ["Robert Phillip Kolker"], 2009),
+    }
+    details = {"KA": article, "KC": chapter, "KT": thesis, "KB": book}
+    _, notes, entries, _ = render_notes(
+        ["A [KA] p. 3. B [KC]. C [KT] p. 5. D [KB] p. 65."], known, None, details
+    )
+    assert notes == [
+        "Tudor Popescu, *Average Shot Length*, in «CONCEPT», vol. 24, n. 1 (2022), p. 3.",
+        "Noa Steimatsky, *From the Air*, in Richard Allen e Malcolm Turvey (a cura di), "
+        "*Camera Obscura, Camera Lucida*, Amsterdam University Press, Amsterdam 2003, "
+        "pp. 183–214.",
+        "Giulia Baso, *Practices of Mediation*, tesi di dottorato, University of Exeter, "
+        "2014, p. 5.",
+        "Robert Phillip Kolker, *The Altering Eye*, Open Book Publishers, Cambridge 2009, "
+        "p. 65.",
+    ]
+    assert entries["KA"]["formatted"].endswith("n. 1 (2022), pp. 269–279.")
+
+
+def test_a_named_quoted_author_gets_cit_in_and_the_subject_does_not():
+    known = {"KK": source("The Altering Eye", ["Robert Phillip Kolker"], 2009)}
+    texts, notes, _, _ = render_notes(
+        [
+            "Monaco colloca il moderno «after neorealism» [KK] p. 65. "
+            "Antonioni osserva il paesaggio [KK] p. 70. Kolker nota il colore [KK] p. 71."
+        ],
+        known,
+        subject=("antonioni",),
+    )
+    assert notes[0].startswith(
+        "Monaco, cit. in Robert Phillip Kolker, *The Altering Eye*"
+    )
+    assert notes[1:] == ["Kolker, op. cit., p. 70.", "Ibid., p. 71."]
+    _, notes, _, _ = render_notes(
+        ["Vi è chi, come Fernaldo Di Giammatteo, la ritenne antitetica [KK] p. 5."],
+        known,
+    )
+    assert notes[0].startswith("Fernaldo Di Giammatteo, cit. in Robert Phillip Kolker")
+
+
+def test_pdf_pages_become_the_printed_page_numbers():
+    pages = [
+        f"CONCEPT 1(24)/2022 RESEARCH {268 + i} testo della pagina"
+        for i in range(1, 12)
+    ]
+    assert printed_pages(pages)[3] == 271
+    known = {"KA": source("Average Shot Length", ["Tudor Popescu"], 2022)}
+    details = {"KA": {"page_map": printed_pages(pages)}}
+    _, notes, _, _ = render_notes(
+        ["A [KA] p. 3. B [KA] pp. 3-4."], known, None, details
+    )
+    assert notes == [
+        "Tudor Popescu, *Average Shot Length*, 2022, p. 271.",
+        "Ibid., pp. 271–272.",
+    ]
+    # A thesis with a cover page and no agreement on the numbering is left alone.
+    assert printed_pages(["copertina", "senza numeri", "ancora testo"]) == {}

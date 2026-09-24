@@ -14,6 +14,9 @@ The advisory S6 review is not repeated. Prints what changed in numbers.
 every citation becomes a Word footnote (citation_notes). WEB.json maps a
 citation key to {"site", "url", "accessed"} for web pages uploaded as PDFs:
 they are cited by URL without pages and listed under the web-sources heading.
+The reference fields (volume, issue, pages, publisher, type) come from the
+Crossref and OpenAlex records the run itself recorded; DETAILS.json adds
+verified fields per key that the catalogues lack (place, editors, institution).
 """
 
 import argparse
@@ -36,6 +39,60 @@ ENV = {
 }
 
 
+def recorded_details(events, known):
+    """Reference fields per key from the Crossref and OpenAlex responses the
+    run recorded (verification and search), Crossref first."""
+    import base64
+
+    from app.services.citation_notes import (
+        crossref_detail,
+        openalex_detail,
+        printed_pages,
+    )
+
+    crossref, openalex, texts = {}, {}, {}
+    for e in events:
+        payload = e.get("payload") or {}
+        if e.get("event_type") != "generation_dependency":
+            continue
+        url = str((payload.get("request") or {}).get("url") or "")
+        response = payload.get("response") or {}
+        if payload.get("kind") == "citation_http" and "api.crossref.org/works/" in url:
+            body = (response.get("response") or {}).get("body")
+            try:
+                message = json.loads(base64.b64decode(body)).get("message") or {}
+            except (TypeError, ValueError):
+                continue
+            if message.get("DOI"):
+                crossref[message["DOI"].lower()] = message
+        if payload.get("kind") == "executor_full_text" and response.get("pages"):
+            texts[(payload.get("request") or {}).get("url")] = response["pages"]
+        if payload.get("kind") == "scholarly_http" and "openalex" in url:
+            for work in response.get("results") or []:
+                openalex[work["id"]] = work
+                if work.get("doi"):
+                    openalex[work["doi"].lower().split("doi.org/")[-1]] = work
+    fetched = {
+        row["key"]: row["url"]
+        for e in events
+        if e.get("event_type") == "executor_full_text"
+        for row in (e.get("payload") or {}).get("sources") or []
+    }
+    details = {}
+    for key, source in known.items():
+        doi = str(source.doi or "").lower()
+        work = openalex.get(doi) or openalex.get(str(source.paper_id or ""))
+        detail = {
+            **(openalex_detail(work) if work else {}),
+            **(crossref_detail(crossref[doi]) if doi in crossref else {}),
+        }
+        if fetched.get(key) in texts:
+            detail["page_map"] = printed_pages(texts[fetched[key]])
+        if detail:
+            details[key] = detail
+    return details
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("recording", type=Path)
@@ -43,6 +100,7 @@ def main() -> int:
     parser.add_argument("--job-id", type=int, required=True)
     parser.add_argument("--notes", action="store_true")
     parser.add_argument("--web-sources", type=Path)
+    parser.add_argument("--details", type=Path)
     args = parser.parse_args()
     os.environ.update(ENV)
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -62,6 +120,7 @@ def main() -> int:
         with_chapter_headings,
     )
     from app.services.executor_v2.sections import MARKER
+    from app.services.search_queries import proper_names
 
     raw = args.recording.read_bytes()
     data = json.loads(gzip.decompress(raw) if args.recording.suffix == ".gz" else raw)
@@ -114,7 +173,14 @@ def main() -> int:
     notes = []
     if args.notes:
         web = json.loads(args.web_sources.read_text()) if args.web_sources else {}
-        raws, notes, entries, missing = render_notes(raws, known, web)
+        details = recorded_details(events, known)
+        for key, extra in (
+            json.loads(args.details.read_text()) if args.details else {}
+        ).items():
+            details[key] = {**details.get(key, {}), **extra}
+        raws, notes, entries, missing = render_notes(
+            raws, known, web, details, tuple(proper_names(brief["topic"]))
+        )
         missing_total = len(missing)
     for index, raw_text in zip(sorted(sections), raws, strict=True):
         section = sections[index]
